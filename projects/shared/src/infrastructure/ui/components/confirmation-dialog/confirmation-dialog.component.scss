@@ -1,0 +1,116 @@
+@use '../../styles/variables.scss' as vars;
+@use 'sass:map';
+
+.confirmation-dialog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: vars.$spacing-lg;
+  text-align: center;
+  padding: vars.$spacing-md 0;
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    &--warning {
+      background: linear-gradient(
+        135deg,
+        rgba(251, 191, 36, 0.2) 0%,
+        rgba(251, 191, 36, 0.1) 100%
+      );
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      color: map.get(vars.$colors, 'warning');
+    }
+
+    &--danger {
+      background: linear-gradient(
+        135deg,
+        rgba(239, 68, 68, 0.2) 0%,
+        rgba(239, 68, 68, 0.1) 100%
+      );
+      border: 2px solid rgba(239, 68, 68, 0.3);
+      color: map.get(vars.$colors, 'error');
+    }
+
+    &--info {
+      background: linear-gradient(
+        135deg,
+        rgba(59, 130, 246, 0.2) 0%,
+        rgba(59, 130, 246, 0.1) 100%
+      );
+      border: 2px solid rgba(59, 130, 246, 0.3);
+      color: #3B82F6;
+    }
+
+    &--success {
+      background: linear-gradient(
+        135deg,
+        rgba(16, 185, 129, 0.2) 0%,
+        rgba(16, 185, 129, 0.1) 100%
+      );
+      border: 2px solid rgba(16, 185, 129, 0.3);
+      color: map.get(vars.$colors, 'success');
+    }
+
+    svg {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: vars.$font-size-lg;
+    font-weight: vars.$font-weight-bold;
+    color: #ffffff;
+    line-height: 1.3;
+  }
+
+  &__message {
+    margin: 0;
+    font-size: vars.$font-size-base;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    max-width: 400px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: vars.$spacing-md;
+    width: 100%;
+    margin-top: vars.$spacing-sm;
+  }
+}
+
+// Responsive
+@media (max-width: 767px) {
+  .confirmation-dialog {
+    &__icon {
+      width: 64px;
+      height: 64px;
+
+      svg {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    &__title {
+      font-size: vars.$font-size-base;
+    }
+
+    &__message {
+      font-size: vars.$font-size-sm;
+    }
+
+    &__actions {
+      flex-direction: column-reverse;
+    }
+  }
+}

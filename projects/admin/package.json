@@ -1,0 +1,13 @@
+{
+  "name": "admin",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^21.2.14",
+    "@angular/core": "^21.2.14",
+    "@gems-lms-web/shared": "^0.0.1"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}

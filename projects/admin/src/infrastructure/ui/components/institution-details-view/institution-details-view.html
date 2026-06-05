@@ -1,0 +1,153 @@
+<article class="iview">
+
+  <!-- ── HEADER CARD ───────────────────────────────────────────────────── -->
+  <header class="iview__header" [style.--color-primary]="institution().branding.colorPrimary">
+    <div class="iview__header-bg"></div>
+    <div class="iview__header-body">
+      <div class="iview__avatar" [style.background-color]="institution().branding.colorPrimary">
+        @if (institution().branding.logoUrl) {
+          <img [src]="institution().branding.logoUrl" [alt]="institution().name" class="iview__avatar-img" />
+        } @else {
+          <span class="iview__avatar-text">{{ institutionInitials() }}</span>
+        }
+      </div>
+      <div class="iview__header-info">
+        <h2 class="iview__name">{{ institution().name }}</h2>
+        <div class="iview__header-meta">
+          <span class="iview__badge iview__badge--status" [attr.data-status]="institution().status">
+            {{ statusLabel() }}
+          </span>
+          <span class="iview__badge iview__badge--type">{{ institution().type }}</span>
+        </div>
+        @if (institution().metadata?.description) {
+          <p class="iview__description">{{ institution().metadata!.description }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="iview__stats">
+      <div class="iview__stat">
+        <span class="iview__stat-value">{{ institution().usersCount | number }}</span>
+        <span class="iview__stat-label">Usuarios</span>
+      </div>
+      <div class="iview__stat-divider"></div>
+      <div class="iview__stat">
+        <span class="iview__stat-value">{{ institution().metadata?.subscriptionType ?? '—' }}</span>
+        <span class="iview__stat-label">Plan</span>
+      </div>
+      <div class="iview__stat-divider"></div>
+      <div class="iview__stat">
+        <span class="iview__stat-value">{{ institution().creationDate | date:'dd/MM/yy' }}</span>
+        <span class="iview__stat-label">Alta</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── BRANDING ──────────────────────────────────────────────────────── -->
+  <section class="iview__section">
+    <h3 class="iview__section-title">Branding</h3>
+    <div class="iview__branding-row">
+      <div class="iview__color-chip">
+        <div class="iview__color-swatch" [style.background]="institution().branding.colorPrimary"></div>
+        <div class="iview__color-info">
+          <span class="iview__color-name">Color primario</span>
+          <span class="iview__color-hex">{{ institution().branding.colorPrimary }}</span>
+        </div>
+      </div>
+      @if (institution().branding.colorSecondary) {
+        <div class="iview__color-chip">
+          <div class="iview__color-swatch" [style.background]="institution().branding.colorSecondary"></div>
+          <div class="iview__color-info">
+            <span class="iview__color-name">Color secundario</span>
+            <span class="iview__color-hex">{{ institution().branding.colorSecondary }}</span>
+          </div>
+        </div>
+      }
+      @if (institution().branding.logoUrl) {
+        <div class="iview__color-chip">
+          <div class="iview__logo-preview">
+            <img [src]="institution().branding.logoUrl" alt="Logo" class="iview__logo-img" />
+          </div>
+          <div class="iview__color-info">
+            <span class="iview__color-name">Logo</span>
+            <a [href]="institution().branding.logoUrl" target="_blank" rel="noopener" class="iview__link">Ver URL</a>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ── CONTACTO ──────────────────────────────────────────────────────── -->
+  @if (institution().metadata?.contactEmail || institution().metadata?.phoneNumber || institution().metadata?.website || institution().metadata?.address) {
+    <section class="iview__section">
+      <h3 class="iview__section-title">Contacto</h3>
+      <div class="iview__info-grid">
+        @if (institution().metadata?.contactEmail) {
+          <div class="iview__info-item">
+            <svg class="iview__info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <div>
+              <span class="iview__info-label">Email</span>
+              <a [href]="'mailto:' + institution().metadata!.contactEmail" class="iview__link">{{ institution().metadata!.contactEmail }}</a>
+            </div>
+          </div>
+        }
+        @if (institution().metadata?.phoneNumber) {
+          <div class="iview__info-item">
+            <svg class="iview__info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <div>
+              <span class="iview__info-label">Teléfono</span>
+              <a [href]="'tel:' + institution().metadata!.phoneNumber" class="iview__link">{{ institution().metadata!.phoneNumber }}</a>
+            </div>
+          </div>
+        }
+        @if (institution().metadata?.website) {
+          <div class="iview__info-item">
+            <svg class="iview__info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <div>
+              <span class="iview__info-label">Sitio web</span>
+              <a [href]="institution().metadata!.website" target="_blank" rel="noopener" class="iview__link">{{ institution().metadata!.website }}</a>
+            </div>
+          </div>
+        }
+        @if (institution().metadata?.address) {
+          <div class="iview__info-item">
+            <svg class="iview__info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div>
+              <span class="iview__info-label">Dirección</span>
+              <span class="iview__info-value">{{ institution().metadata!.address }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- ── TÉCNICA ───────────────────────────────────────────────────────── -->
+  <section class="iview__section">
+    <h3 class="iview__section-title">Información técnica</h3>
+    <div class="iview__info-grid">
+      <div class="iview__info-item">
+        <svg class="iview__info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <div>
+          <span class="iview__info-label">Fecha de creación</span>
+          <time class="iview__info-value">{{ institution().creationDate | date:'dd/MM/yyyy HH:mm' }}</time>
+        </div>
+      </div>
+      <div class="iview__info-item">
+        <svg class="iview__info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <div>
+          <span class="iview__info-label">Límite de usuarios</span>
+          <span class="iview__info-value">{{ institution().metadata?.maxUsers ? (institution().metadata!.maxUsers | number) : 'Sin límite' }}</span>
+        </div>
+      </div>
+      <div class="iview__info-item iview__info-item--full">
+        <svg class="iview__info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/></svg>
+        <div>
+          <span class="iview__info-label">ID de institución</span>
+          <code class="iview__info-value iview__info-value--mono">{{ institution().id }}</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</article>

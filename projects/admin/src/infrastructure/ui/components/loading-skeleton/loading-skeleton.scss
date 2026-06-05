@@ -1,0 +1,135 @@
+@use '../../../../../../shared/src/infrastructure/ui/styles/variables' as vars;
+
+// Screen reader only utility class
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// Shimmer animation
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton-table {
+  display: flex;
+  flex-direction: column;
+  gap: vars.$spacing-sm;
+  padding: vars.$spacing-md;
+}
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 60px 2fr 1fr 1fr 1fr 1fr 120px;
+  gap: vars.$spacing-md;
+  align-items: center;
+  padding: vars.$spacing-md;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: vars.$border-radius-md;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 60px 2fr 1fr 1fr 120px;
+  }
+
+  @media (max-width: 767px) {
+    grid-template-columns: 60px 1fr 80px;
+    gap: vars.$spacing-sm;
+  }
+}
+
+.skeleton-cell {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+  border-radius: vars.$border-radius-sm;
+}
+
+.skeleton-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.skeleton-text {
+  height: 16px;
+
+  &.skeleton-text-sm {
+    width: 80px;
+  }
+
+  &.skeleton-text-lg {
+    width: 180px;
+    height: 20px;
+  }
+}
+
+.skeleton-badge {
+  width: 80px;
+  height: 24px;
+  border-radius: vars.$border-radius-xl;
+}
+
+.skeleton-actions {
+  display: flex;
+  gap: vars.$spacing-sm;
+  justify-content: flex-end;
+}
+
+.skeleton-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: vars.$border-radius-sm;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+// Card skeleton (for mobile)
+.skeleton-cards {
+  display: grid;
+  gap: vars.$spacing-md;
+  padding: vars.$spacing-md;
+}
+
+.skeleton-card {
+  padding: vars.$spacing-md;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: vars.$border-radius-lg;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.skeleton-card-header {
+  display: flex;
+  align-items: center;
+  gap: vars.$spacing-md;
+  margin-bottom: vars.$spacing-md;
+}
+
+.skeleton-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: vars.$spacing-sm;
+}

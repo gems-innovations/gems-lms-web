@@ -1,0 +1,219 @@
+<div class="clist">
+
+  <!-- ── Header ── -->
+  <header class="clist__header">
+    <div class="clist__header-text">
+      <h1 class="clist__title">Cursos</h1>
+      <p class="clist__subtitle">Gestiona y crea el contenido educativo de tu plataforma</p>
+    </div>
+    <button class="clist__btn-new" (click)="onCreateCourse.emit()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Nuevo Curso
+    </button>
+  </header>
+
+  <!-- ── Stats ── -->
+  <div class="clist__stats">
+    <div class="clist__stat">
+      <span class="clist__stat-value">{{ stats().total }}</span>
+      <span class="clist__stat-label">Total</span>
+    </div>
+    <div class="clist__stat clist__stat--published">
+      <span class="clist__stat-value">{{ stats().published }}</span>
+      <span class="clist__stat-label">Publicados</span>
+    </div>
+    <div class="clist__stat clist__stat--draft">
+      <span class="clist__stat-value">{{ stats().draft }}</span>
+      <span class="clist__stat-label">Borradores</span>
+    </div>
+    <div class="clist__stat clist__stat--enrolled">
+      <span class="clist__stat-value">{{ stats().totalEnrolled | number }}</span>
+      <span class="clist__stat-label">Estudiantes</span>
+    </div>
+  </div>
+
+  <!-- ── Toolbar ── -->
+  <div class="clist__toolbar">
+    <div class="clist__search">
+      <svg class="clist__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input
+        class="clist__search-input"
+        type="text"
+        placeholder="Buscar por título o etiqueta…"
+        [ngModel]="searchValue()"
+        (ngModelChange)="search($event)"
+      />
+    </div>
+    <nav class="clist__tabs">
+      <button class="clist__tab" [class.clist__tab--active]="activeTab() === null" (click)="setTab(null)">Todos</button>
+      <button class="clist__tab" [class.clist__tab--active]="activeTab() === ECourseStatus.PUBLISHED" (click)="setTab(ECourseStatus.PUBLISHED)">Publicados</button>
+      <button class="clist__tab" [class.clist__tab--active]="activeTab() === ECourseStatus.DRAFT" (click)="setTab(ECourseStatus.DRAFT)">Borradores</button>
+      <button class="clist__tab" [class.clist__tab--active]="activeTab() === ECourseStatus.ARCHIVED" (click)="setTab(ECourseStatus.ARCHIVED)">Archivados</button>
+    </nav>
+  </div>
+
+  <!-- ── Loading skeleton ── -->
+  @if (isLoading()) {
+    <div class="clist__grid">
+      @for (s of [1,2,3,4,5,6]; track s) {
+        <div class="clist__card clist__card--skeleton">
+          <div class="clist__card-thumb skeleton-pulse"></div>
+          <div class="clist__card-body">
+            <div class="skeleton-line skeleton-line--sm"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line skeleton-line--lg"></div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Empty state ── -->
+  @if (!isLoading() && filteredCourses().length === 0) {
+    <div class="clist__empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+      </svg>
+      <p class="clist__empty-title">No hay cursos</p>
+      <p class="clist__empty-desc">{{ searchValue() ? 'Ningún curso coincide con tu búsqueda.' : 'Crea tu primer curso para empezar.' }}</p>
+      @if (!searchValue()) {
+        <button class="clist__btn-new" (click)="onCreateCourse.emit()">Crear Curso</button>
+      }
+    </div>
+  }
+
+  <!-- ── Grid ── -->
+  @if (!isLoading() && filteredCourses().length > 0) {
+    <div class="clist__grid">
+      @for (course of filteredCourses(); track trackById($index, course)) {
+        <article class="clist__card">
+
+          <!-- Thumbnail -->
+          <div class="clist__card-thumb" [style.backgroundImage]="course.thumbnailUrl ? 'url(' + course.thumbnailUrl + ')' : ''">
+            <div class="clist__card-thumb-overlay"></div>
+            <span class="clist__badge clist__badge--difficulty clist__badge--{{ course.difficulty }}">
+              {{ difficultyLabels[course.difficulty] }}
+            </span>
+            <span class="clist__badge clist__badge--status clist__badge--{{ course.status }}">
+              {{ statusLabels[course.status] }}
+            </span>
+          </div>
+
+          <!-- Body -->
+          <div class="clist__card-body">
+            <h3 class="clist__card-title">{{ course.title }}</h3>
+            <p class="clist__card-desc">{{ course.description }}</p>
+
+            @if (course.tags.length > 0) {
+              <div class="clist__card-tags">
+                @for (tag of course.tags.slice(0, 3); track tag) {
+                  <span class="clist__tag">{{ tag }}</span>
+                }
+                @if (course.tags.length > 3) {
+                  <span class="clist__tag clist__tag--more">+{{ course.tags.length - 3 }}</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Stats -->
+          <div class="clist__card-stats">
+            <div class="clist__stat-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              {{ course.enrolledCount | number }}
+            </div>
+            <div class="clist__stat-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              {{ course.completionRate }}%
+            </div>
+            <div class="clist__stat-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+              {{ course.totalLessons }} lecciones
+            </div>
+            <div class="clist__stat-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {{ formatDuration(course.totalDuration) }}
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <footer class="clist__card-footer">
+            @if (course.status === ECourseStatus.DRAFT) {
+              <button class="clist__action clist__action--publish" (click)="onPublish.emit(course.id)" title="Publicar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+                </svg>
+                Publicar
+              </button>
+            }
+            @if (course.status === ECourseStatus.PUBLISHED) {
+              <button class="clist__action clist__action--archive" (click)="onArchive.emit(course.id)" title="Archivar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/>
+                  <line x1="10" y1="12" x2="14" y2="12"/>
+                </svg>
+                Archivar
+              </button>
+            }
+            <button class="clist__action clist__action--edit" (click)="onOpenEditor.emit(course)" title="Editar currículo">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              Editar
+            </button>
+            <button class="clist__action clist__action--delete" (click)="onDelete.emit(course.id)" title="Eliminar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+              </svg>
+            </button>
+          </footer>
+
+        </article>
+      }
+    </div>
+  }
+
+  <!-- ── Delete confirmation modal ── -->
+  @if (modal().isOpen && modal().mode === 'delete') {
+    <div class="clist__overlay" (click)="onModalClose.emit()">
+      <div class="clist__dialog" (click)="$event.stopPropagation()">
+        <div class="clist__dialog-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+        </div>
+        <h3 class="clist__dialog-title">Eliminar curso</h3>
+        <p class="clist__dialog-desc">
+          ¿Estás seguro de que deseas eliminar
+          <strong>{{ selectedCourse()?.title }}</strong>?
+          Esta acción no se puede deshacer.
+        </p>
+        <div class="clist__dialog-actions">
+          <button class="clist__dialog-cancel" (click)="onModalClose.emit()">Cancelar</button>
+          <button
+            class="clist__dialog-confirm"
+            [disabled]="isDeleting()"
+            (click)="onConfirmDelete.emit(modal().courseId!)"
+          >
+            {{ isDeleting() ? 'Eliminando…' : 'Eliminar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

@@ -1,0 +1,67 @@
+<div class="login-form__wrapper">
+  <form class="login-form" [formGroup]="form.formGroup" (ngSubmit)="submit()">
+
+    <header class="login-form__header">
+      <img src="/logo.png" alt="GEMS LMS" class="login-form__logo" />
+      <span class="login-form__badge">Learning Management</span>
+    </header>
+
+    <div class="login-form__intro">
+      <h1 class="login-form__title">Bienvenido de vuelta</h1>
+      <p class="login-form__subtitle">Accede a tu espacio de aprendizaje personalizado</p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="login-form__error-banner" role="alert">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <fieldset class="login-form__fields">
+      <app-input
+        formControlName="email"
+        [control]="getControl('email')"
+        label="Correo electrónico"
+        placeholder="tu@correo.com"
+        type="email"
+      />
+      <app-input
+        formControlName="password"
+        [control]="getControl('password')"
+        label="Contraseña"
+        placeholder="••••••••"
+        type="password"
+      />
+    </fieldset>
+
+    <a href="#" class="login-form__forgot">¿Olvidaste tu contraseña?</a>
+
+    <app-button
+      type="submit"
+      variant="primary"
+      size="md"
+      [fullWidth]="true"
+      [disabled]="!form.formGroup.valid || isLoading()"
+    >
+      @if (isLoading()) {
+        <span class="login-form__btn-loading">
+          <span class="login-form__spinner"></span>
+          Iniciando sesión…
+        </span>
+      } @else {
+        Iniciar sesión
+      }
+    </app-button>
+
+    <p class="login-form__signup">
+      ¿No tienes cuenta?&nbsp;
+      <a href="#" class="login-form__signup-link">Regístrate</a>
+    </p>
+
+  </form>
+</div>

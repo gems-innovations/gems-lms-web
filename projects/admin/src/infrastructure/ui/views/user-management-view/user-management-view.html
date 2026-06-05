@@ -1,0 +1,206 @@
+<div class="umgmt">
+
+  <!-- ── Header ── -->
+  <header class="umgmt__header">
+    <div class="umgmt__header-text">
+      <h1 class="umgmt__title">Gestión de Usuarios</h1>
+      <p class="umgmt__subtitle">Crea y administra los usuarios de tu institución</p>
+    </div>
+    <button class="umgmt__btn-new" (click)="showCreateForm.set(true)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Nuevo Usuario
+    </button>
+  </header>
+
+  <!-- ── Stats chips ── -->
+  <div class="umgmt__stats">
+    <span class="umgmt__stat-chip">
+      <strong>{{ users().length }}</strong> usuarios totales
+    </span>
+    <span class="umgmt__stat-chip umgmt__stat-chip--admin">
+      <strong>{{ countByRole(EUserRole.ADMIN) }}</strong> admins
+    </span>
+    <span class="umgmt__stat-chip umgmt__stat-chip--instructor">
+      <strong>{{ countByRole(EUserRole.INSTRUCTOR) }}</strong> instructores
+    </span>
+    <span class="umgmt__stat-chip umgmt__stat-chip--student">
+      <strong>{{ countByRole(EUserRole.STUDENT) }}</strong> estudiantes
+    </span>
+  </div>
+
+  <!-- ── Create form panel ── -->
+  @if (showCreateForm()) {
+    <div class="umgmt__form-panel">
+      <div class="umgmt__form-header">
+        <h3>Crear nuevo usuario</h3>
+        <button class="umgmt__form-close" (click)="showCreateForm.set(false)" aria-label="Cerrar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <form class="umgmt__form" [formGroup]="createForm" (ngSubmit)="submitCreate()">
+        <div class="umgmt__form-row">
+          <div class="umgmt__form-field">
+            <label class="umgmt__form-label">Nombre <span class="umgmt__req">*</span></label>
+            <input class="umgmt__input" formControlName="firstName" placeholder="Ana"
+                   [class.umgmt__input--error]="isInvalid('firstName')"/>
+          </div>
+          <div class="umgmt__form-field">
+            <label class="umgmt__form-label">Apellido <span class="umgmt__req">*</span></label>
+            <input class="umgmt__input" formControlName="lastName" placeholder="García"
+                   [class.umgmt__input--error]="isInvalid('lastName')"/>
+          </div>
+        </div>
+
+        <div class="umgmt__form-row">
+          <div class="umgmt__form-field">
+            <label class="umgmt__form-label">Correo electrónico <span class="umgmt__req">*</span></label>
+            <input class="umgmt__input" formControlName="email" type="email" placeholder="usuario@institución.edu"
+                   [class.umgmt__input--error]="isInvalid('email')"/>
+          </div>
+          <div class="umgmt__form-field">
+            <label class="umgmt__form-label">Nombre de usuario <span class="umgmt__req">*</span></label>
+            <input class="umgmt__input" formControlName="username" placeholder="ana.garcia"
+                   [class.umgmt__input--error]="isInvalid('username')"/>
+          </div>
+        </div>
+
+        <div class="umgmt__form-field">
+          <label class="umgmt__form-label">Rol <span class="umgmt__req">*</span></label>
+          <div class="umgmt__role-grid">
+            @for (r of allowedRoles; track r.value) {
+              <label class="umgmt__role-card" [class.umgmt__role-card--selected]="createForm.get('role')?.value === r.value">
+                <input type="radio" formControlName="role" [value]="r.value" class="umgmt__radio" />
+                <span class="umgmt__role-icon">{{ r.icon }}</span>
+                <span class="umgmt__role-label">{{ r.label }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="umgmt__form-actions">
+          <button type="button" class="umgmt__btn umgmt__btn--secondary" (click)="showCreateForm.set(false)">
+            Cancelar
+          </button>
+          <button type="submit" class="umgmt__btn umgmt__btn--primary" [disabled]="isCreating()">
+            {{ isCreating() ? 'Creando...' : 'Crear Usuario' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- ── Loading ── -->
+  @if (isLoading()) {
+    <div class="umgmt__loading">
+      <div class="umgmt__spinner"></div>
+      <span>Cargando usuarios…</span>
+    </div>
+  }
+
+  <!-- ── User list ── -->
+  @if (!isLoading() && users().length === 0) {
+    <div class="umgmt__empty">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <h3>No hay usuarios aún</h3>
+      <p>Crea el primer usuario para tu institución.</p>
+    </div>
+  }
+
+  @if (!isLoading() && users().length > 0) {
+    <div class="umgmt__list">
+      @for (user of users(); track user.id) {
+        <div class="umgmt__user-row" [class.umgmt__user-row--inactive]="!user.isActive">
+
+          <!-- Avatar -->
+          <div class="umgmt__avatar" [class.umgmt__avatar--inactive]="!user.isActive">
+            @if (user.avatarUrl) {
+              <img [src]="user.avatarUrl" [alt]="user.firstName" class="umgmt__avatar-img" />
+            } @else {
+              <span>{{ getInitials(user) }}</span>
+            }
+          </div>
+
+          <!-- Info -->
+          <div class="umgmt__user-info">
+            <span class="umgmt__user-name">{{ user.firstName }} {{ user.lastName }}</span>
+            <span class="umgmt__user-email">{{ user.email }}</span>
+            <span class="umgmt__user-username">@{{ user.username }}</span>
+          </div>
+
+          <!-- Role badge -->
+          <span class="umgmt__role-badge {{ roleColors[user.role] }}">
+            {{ getRoleLabel(user.role) }}
+          </span>
+
+          <!-- Status -->
+          <span class="umgmt__status" [class.umgmt__status--active]="user.isActive" [class.umgmt__status--inactive]="!user.isActive">
+            {{ user.isActive ? 'Activo' : 'Suspendido' }}
+          </span>
+
+          <!-- Actions -->
+          <div class="umgmt__user-actions">
+            <button
+              class="umgmt__action-btn"
+              [title]="user.isActive ? 'Suspender' : 'Activar'"
+              (click)="onToggleStatus.emit(user.id)"
+            >
+              @if (user.isActive) {
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                </svg>
+              } @else {
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              }
+            </button>
+            <button
+              class="umgmt__action-btn umgmt__action-btn--danger"
+              title="Eliminar usuario"
+              (click)="confirmDelete(user.id)"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+              </svg>
+            </button>
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Delete confirmation ── -->
+  @if (pendingDeleteId()) {
+    <div class="umgmt__overlay" (click)="cancelDelete()">
+      <div class="umgmt__dialog" (click)="$event.stopPropagation()">
+        <div class="umgmt__dialog-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <h3>¿Eliminar usuario?</h3>
+        <p>Esta acción no se puede deshacer.</p>
+        <div class="umgmt__dialog-actions">
+          <button class="umgmt__btn umgmt__btn--secondary" (click)="cancelDelete()">Cancelar</button>
+          <button class="umgmt__btn umgmt__btn--danger" [disabled]="isDeleting()" (click)="executeDelete()">
+            {{ isDeleting() ? 'Eliminando…' : 'Eliminar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

@@ -1,0 +1,17 @@
+<edu-course-list-view
+  [filteredCourses]="uc.filteredCourses()"
+  [stats]="uc.stats()"
+  [isLoading]="uc.isLoading()"
+  [isDeleting]="uc.isDeleting()"
+  [modal]="uc.modal()"
+  [selectedCourse]="uc.selectedCourse()"
+  (onSearch)="onSearch($event)"
+  (onTabChange)="setTab($event)"
+  (onOpenEditor)="openEditor($event)"
+  (onCreateCourse)="createCourse()"
+  (onDelete)="onDelete($event)"
+  (onPublish)="publishCourse($event)"
+  (onArchive)="archiveCourse($event)"
+  (onModalClose)="onModalClose()"
+  (onConfirmDelete)="onConfirmDelete($event)"
+/>

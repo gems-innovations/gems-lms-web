@@ -1,0 +1,222 @@
+<div class="lplist">
+
+  <!-- ── Header ── -->
+  <header class="lplist__header">
+    <div class="lplist__header-text">
+      <h1 class="lplist__title">Rutas de Aprendizaje</h1>
+      <p class="lplist__subtitle">Diseña itinerarios de cursos con objetivos de aprendizaje estructurados</p>
+    </div>
+    <button class="lplist__btn-new" (click)="createPath()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Nueva Ruta
+    </button>
+  </header>
+
+  <!-- ── Stats ── -->
+  <div class="lplist__stats">
+    <div class="lplist__stat">
+      <span class="lplist__stat-value">{{ uc.stats().total }}</span>
+      <span class="lplist__stat-label">Total</span>
+    </div>
+    <div class="lplist__stat lplist__stat--published">
+      <span class="lplist__stat-value">{{ uc.stats().published }}</span>
+      <span class="lplist__stat-label">Publicadas</span>
+    </div>
+    <div class="lplist__stat lplist__stat--draft">
+      <span class="lplist__stat-value">{{ uc.stats().draft }}</span>
+      <span class="lplist__stat-label">Borradores</span>
+    </div>
+    <div class="lplist__stat lplist__stat--enrolled">
+      <span class="lplist__stat-value">{{ uc.stats().totalEnrolled | number }}</span>
+      <span class="lplist__stat-label">Estudiantes</span>
+    </div>
+  </div>
+
+  <!-- ── Toolbar ── -->
+  <div class="lplist__toolbar">
+    <div class="lplist__search">
+      <svg class="lplist__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input
+        class="lplist__search-input"
+        type="text"
+        placeholder="Buscar por nombre o etiqueta…"
+        [ngModel]="searchValue()"
+        (ngModelChange)="onSearch($event)"
+      />
+    </div>
+    <nav class="lplist__tabs">
+      <button class="lplist__tab" [class.lplist__tab--active]="activeTab() === null" (click)="setTab(null)">Todas</button>
+      <button class="lplist__tab" [class.lplist__tab--active]="activeTab() === ELearningPathStatus.PUBLISHED" (click)="setTab(ELearningPathStatus.PUBLISHED)">Publicadas</button>
+      <button class="lplist__tab" [class.lplist__tab--active]="activeTab() === ELearningPathStatus.DRAFT" (click)="setTab(ELearningPathStatus.DRAFT)">Borradores</button>
+    </nav>
+  </div>
+
+  <!-- ── Loading ── -->
+  @if (uc.isLoading()) {
+    <div class="lplist__grid">
+      @for (s of [1,2,3]; track s) {
+        <div class="lplist__card lplist__card--skeleton">
+          <div class="lplist__card-thumb skeleton-pulse"></div>
+          <div class="lplist__card-body">
+            <div class="skeleton-line skeleton-line--sm"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line skeleton-line--lg"></div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Empty state ── -->
+  @if (!uc.isLoading() && uc.filteredPaths().length === 0) {
+    <div class="lplist__empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+        <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+      </svg>
+      <p class="lplist__empty-title">No hay rutas de aprendizaje</p>
+      <p class="lplist__empty-desc">{{ searchValue() ? 'Ninguna ruta coincide con tu búsqueda.' : 'Crea tu primera ruta de aprendizaje.' }}</p>
+      @if (!searchValue()) {
+        <button class="lplist__btn-new" (click)="createPath()">Crear Ruta</button>
+      }
+    </div>
+  }
+
+  <!-- ── Grid ── -->
+  @if (!uc.isLoading() && uc.filteredPaths().length > 0) {
+    <div class="lplist__grid">
+      @for (path of uc.filteredPaths(); track trackById($index, path)) {
+        <article class="lplist__card">
+
+          <!-- Thumbnail -->
+          <div class="lplist__card-thumb" [style.backgroundImage]="path.thumbnailUrl ? 'url(' + path.thumbnailUrl + ')' : ''">
+            <div class="lplist__card-thumb-overlay"></div>
+            <span class="lplist__badge lplist__badge--status lplist__badge--{{ path.status }}">
+              {{ statusLabels[path.status] }}
+            </span>
+            <!-- Path indicator strip -->
+            <div class="lplist__path-strip">
+              @for (step of path.steps.slice(0, 5); track step.id) {
+                <div class="lplist__path-step" [title]="step.courseTitle">
+                  @if (step.courseThumbnailUrl) {
+                    <img [src]="step.courseThumbnailUrl" [alt]="step.courseTitle" />
+                  } @else {
+                    <span>{{ step.order }}</span>
+                  }
+                </div>
+              }
+              @if (path.steps.length > 5) {
+                <div class="lplist__path-step lplist__path-step--more">+{{ path.steps.length - 5 }}</div>
+              }
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div class="lplist__card-body">
+            <h3 class="lplist__card-title">{{ path.title }}</h3>
+            <p class="lplist__card-desc">{{ path.description }}</p>
+            @if (path.tags.length > 0) {
+              <div class="lplist__card-tags">
+                @for (tag of path.tags.slice(0, 3); track tag) {
+                  <span class="lplist__tag">{{ tag }}</span>
+                }
+                @if (path.tags.length > 3) {
+                  <span class="lplist__tag lplist__tag--more">+{{ path.tags.length - 3 }}</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Stats -->
+          <div class="lplist__card-stats">
+            <div class="lplist__stat-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+              {{ path.steps.length }} cursos
+            </div>
+            <div class="lplist__stat-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {{ formatDuration(path.estimatedDuration) }}
+            </div>
+            <div class="lplist__stat-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              </svg>
+              {{ path.enrolledCount | number }}
+            </div>
+            <div class="lplist__stat-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              {{ path.completionRate }}%
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <footer class="lplist__card-footer">
+            @if (path.status === ELearningPathStatus.DRAFT) {
+              <button class="lplist__action lplist__action--publish" (click)="publishPath(path.id)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+                </svg>
+                Publicar
+              </button>
+            }
+            @if (path.status === ELearningPathStatus.PUBLISHED) {
+              <button class="lplist__action lplist__action--archive" (click)="archivePath(path.id)">Archivar</button>
+            }
+            <button class="lplist__action lplist__action--edit" (click)="openEditor(path)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              Editar
+            </button>
+            <button class="lplist__action lplist__action--delete" (click)="confirmDelete(path)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+              </svg>
+            </button>
+          </footer>
+
+        </article>
+      }
+    </div>
+  }
+
+  <!-- ── Delete dialog ── -->
+  @if (uc.modal().isOpen && uc.modal().mode === 'delete') {
+    <div class="lplist__overlay" (click)="onModalClose()">
+      <div class="lplist__dialog" (click)="$event.stopPropagation()">
+        <div class="lplist__dialog-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+        </div>
+        <h3 class="lplist__dialog-title">Eliminar ruta</h3>
+        <p class="lplist__dialog-desc">
+          ¿Estás seguro de que deseas eliminar
+          <strong>{{ uc.selectedLearningPath()?.title }}</strong>?
+          Esta acción no se puede deshacer.
+        </p>
+        <div class="lplist__dialog-actions">
+          <button class="lplist__dialog-cancel" (click)="onModalClose()">Cancelar</button>
+          <button
+            class="lplist__dialog-confirm"
+            [disabled]="uc.isDeleting()"
+            (click)="onDelete(uc.modal().lpId!)"
+          >
+            {{ uc.isDeleting() ? 'Eliminando…' : 'Eliminar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

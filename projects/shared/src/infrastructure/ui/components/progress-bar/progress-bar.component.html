@@ -1,0 +1,18 @@
+<div class="pbar" [class]="'pbar--' + size() + ' pbar--' + variant()">
+  <div
+    class="pbar__track"
+    role="progressbar"
+    [attr.aria-valuenow]="percentage()"
+    [attr.aria-valuemin]="0"
+    [attr.aria-valuemax]="100"
+  >
+    <div
+      class="pbar__fill"
+      [class.pbar__fill--animated]="animated()"
+      [style.width.%]="percentage()"
+    ></div>
+  </div>
+  @if (showLabel()) {
+    <span class="pbar__label">{{ percentage() }}%</span>
+  }
+</div>

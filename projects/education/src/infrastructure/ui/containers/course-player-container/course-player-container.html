@@ -1,0 +1,13 @@
+<edu-course-player-view
+  [course]="course()"
+  [enrollment]="enrollment()"
+  [courseId]="courseId()"
+  [initialLessonId]="initialLessonId"
+  [initialBlockId]="initialBlockId"
+  [isSubmitting]="isSubmitting()"
+  [lastQuizResult]="lastQuizResult()"
+  (onGoHome)="goHome()"
+  (onLessonSelected)="handleLessonSelected($event)"
+  (onQuizSubmit)="handleQuizSubmit($event)"
+  (onAssignmentSubmit)="handleAssignmentSubmit($event)"
+/>

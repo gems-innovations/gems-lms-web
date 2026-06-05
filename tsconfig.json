@@ -1,0 +1,84 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "paths": {
+      "admin": [
+        "./dist/admin"
+      ],
+      "auth": [
+        "./dist/auth"
+      ],
+      "education": [
+        "./dist/education"
+      ],
+      "shared": [
+        "./dist/shared"
+      ],
+      "@gems-lms-web/admin": [
+        "./dist/admin"
+      ],
+      "@gems-lms-web/auth": [
+        "./dist/auth"
+      ],
+      "@gems-lms-web/education": [
+        "./dist/education"
+      ],
+      "@gems-lms-web/shared": [
+        "./dist/shared"
+      ]
+    },
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "typeCheckHostBindings": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./projects/shared/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/shared/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/main/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/main/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/admin/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/admin/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/auth/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/auth/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/education/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/education/tsconfig.spec.json"
+    }
+  ]
+}

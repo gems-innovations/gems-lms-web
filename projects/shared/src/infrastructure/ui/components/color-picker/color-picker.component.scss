@@ -1,0 +1,77 @@
+.cpicker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &--disabled { opacity: .5; pointer-events: none; }
+
+  &__label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #444;
+    letter-spacing: .1px;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 4px 10px 4px 4px;
+    border: 1.5px solid #e0e2e8;
+    border-radius: 9px;
+    background: #fff;
+    transition: border-color .15s;
+
+    &:focus-within { border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
+  }
+
+  // Native picker hidden behind the swatch
+  &__swatch-wrap {
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  &__swatch {
+    display: block;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1.5px solid rgba(0,0,0,.12);
+    transition: transform .1s;
+
+    &:hover { transform: scale(1.08); }
+  }
+
+  &__native {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+  }
+
+  &__hex-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 13.5px;
+    font-family: 'Fira Mono', 'Courier New', monospace;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    outline: none;
+    min-width: 0;
+
+    &::placeholder { color: #bbb; }
+  }
+
+  &__hint {
+    font-size: 11.5px;
+    color: #888;
+  }
+}

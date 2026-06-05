@@ -1,0 +1,129 @@
+@use '../../styles/variables' as vars;
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast {
+  position: fixed;
+  top: vars.$spacing-lg;
+  right: vars.$spacing-lg;
+  z-index: 9999;
+  
+  display: flex;
+  align-items: center;
+  gap: vars.$spacing-md;
+  
+  min-width: 300px;
+  max-width: 500px;
+  padding: vars.$spacing-md vars.$spacing-lg;
+  
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border-radius: vars.$border-radius-lg;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  
+  box-shadow: vars.$shadow-lg;
+  
+  animation: slideIn 0.3s ease-out;
+  
+  @media (max-width: 767px) {
+    top: vars.$spacing-md;
+    right: vars.$spacing-md;
+    left: vars.$spacing-md;
+    min-width: unset;
+  }
+}
+
+.toast__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  width: 28px;
+  height: 28px;
+  
+  font-size: 18px;
+  font-weight: bold;
+  
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.toast__message {
+  flex: 1;
+  margin: 0;
+  
+  font-size: vars.$font-size-sm;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+}
+
+.toast__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  width: 24px;
+  height: 24px;
+  
+  background: transparent;
+  border: none;
+  border-radius: vars.$border-radius-sm;
+  
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+// Toast type variants
+.toast--success {
+  border-left: 4px solid #10b981;
+  
+  .toast__icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+  }
+}
+
+.toast--error {
+  border-left: 4px solid #ef4444;
+  
+  .toast__icon {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+  }
+}
+
+.toast--warning {
+  border-left: 4px solid #f59e0b;
+  
+  .toast__icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+  }
+}
+
+.toast--info {
+  border-left: 4px solid #3b82f6;
+  
+  .toast__icon {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+  }
+}

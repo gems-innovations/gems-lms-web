@@ -1,0 +1,26 @@
+@use "../../styles/variables.scss" as vars;
+@use "sass:map";
+
+.input {
+  &__input {
+    width: 100%;
+    padding: vars.$spacing-sm vars.$spacing-md;
+    border-radius: vars.$border-radius-2xl;
+    background-color: transparent;
+    border: 1px solid rgba(map.get(vars.$colors, gray), 0.5);
+    color: map.get(vars.$colors, gray);
+    font-size: vars.$font-size-base;
+    font-weight: vars.$font-weight-regular;
+    font-family: vars.$font-family-base;
+    outline: none;
+  }
+
+  &__label {
+    color: map.get(vars.$colors, border);
+  }
+
+  &__error {
+    color: map.get(vars.$colors, error);
+    font-size: vars.$font-size-sm;
+  }
+}

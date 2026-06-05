@@ -1,0 +1,193 @@
+<div class="institution-list">
+  <header class="institution-list__header">
+    <div class="institution-list__header-content">
+      <span class="institution-list__count">{{ institutions().length }} instituciones</span>
+    </div>
+    @if (!hideCreateButton()) {
+      <button 
+        type="button" 
+        class="institution-list__button institution-list__button--primary" 
+        (click)="handleCreateNew()"
+      >
+        <span class="institution-list__button-icon">+</span>
+        Nueva Institución
+      </button>
+    }
+  </header>
+
+  <div class="institution-list__search">
+    <lib-search-bar
+      [placeholder]="'Search institutions...'"
+      [debounceTime]="300"
+      [value]="searchTerm()"
+      (search)="handleSearch($event)"
+    />
+  </div>
+
+  @if (isLoading()) {
+    <app-loading-skeleton [rows]="5" [type]="'table'" />
+  }
+
+  @if (error() && !isLoading()) {
+    <div class="institution-list__error">
+      <div class="institution-list__error-icon">⚠️</div>
+      <h3 class="institution-list__error-title">Error loading data</h3>
+      <p class="institution-list__error-message">{{ error() }}</p>
+      <button 
+        type="button" 
+        class="institution-list__button institution-list__button--primary" 
+        (click)="loadInstitutions()"
+      >
+        Retry
+      </button>
+    </div>
+  }
+
+  @if (!isLoading() && !error() && institutions().length === 0) {
+    <div class="institution-list__empty">
+      <div class="institution-list__empty-icon">🏫</div>
+      <h3 class="institution-list__empty-title">No institutions found</h3>
+      <p class="institution-list__empty-message">Get started by creating your first institution</p>
+      <button 
+        type="button" 
+        class="institution-list__button institution-list__button--primary" 
+        (click)="handleCreateNew()"
+      >
+        Create first institution
+      </button>
+    </div>
+  }
+
+  @if (!isLoading() && !error() && institutions().length > 0) {
+    <div class="institution-list__table-container">
+      <table class="institution-list__table">
+        <thead class="institution-list__table-head">
+          <tr class="institution-list__table-row">
+            <th class="institution-list__column institution-list__column--institution">Institución</th>
+            <th class="institution-list__column institution-list__column--status">Estado</th>
+            <th class="institution-list__column institution-list__column--students institution-list__column--hide-tablet">Estudiantes</th>
+            <th class="institution-list__column institution-list__column--date institution-list__column--hide-mobile">Fecha de Registro</th>
+            <th class="institution-list__column institution-list__column--actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="institution-list__table-body">
+          @for (institution of institutions(); track institution.id) {
+            <tr class="institution-list__row">
+              <td class="institution-list__cell institution-list__cell--institution">
+                <div class="institution-list__institution-info">
+                  <div 
+                    class="institution-list__avatar"
+                    [style.background-color]="institution.branding.colorPrimary"
+                  >
+                    @if (institution.branding.logoUrl) {
+                      <img 
+                        [src]="institution.branding.logoUrl" 
+                        [alt]="institution.name"
+                        class="institution-list__avatar-image"
+                      />
+                    } @else {
+                      <span class="institution-list__avatar-initials">
+                        {{ institution.name.substring(0, 2).toUpperCase() }}
+                      </span>
+                    }
+                  </div>
+                  <div class="institution-list__details">
+                    <span class="institution-list__name">{{ institution.name }}</span>
+                    <span class="institution-list__id">ID: {{ institution.id.substring(0, 8) }}</span>
+                  </div>
+                </div>
+              </td>
+              
+              <td class="institution-list__cell institution-list__cell--status">
+                <span 
+                  class="institution-list__status-badge" 
+                  [attr.data-status]="institution.status"
+                >
+                  {{ institution.status.toUpperCase() }}
+                </span>
+              </td>
+              
+              <td class="institution-list__cell institution-list__cell--students institution-list__cell--hide-tablet">
+                {{ institution.usersCount | number }}
+              </td>
+              
+              <td class="institution-list__cell institution-list__cell--date institution-list__cell--hide-mobile">
+                {{ institution.creationDate | date:'dd/MM/yyyy' }}
+              </td>
+              
+              <td class="institution-list__cell institution-list__cell--actions">
+                <div class="institution-list__actions">
+                  <button 
+                    type="button" 
+                    class="institution-list__action-button" 
+                    (click)="handleView(institution)"
+                    title="View details"
+                    aria-label="View institution details"
+                  >
+                    <svg class="institution-list__action-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
+                      <circle cx="12" cy="12" r="3" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
+                    </svg>
+                  </button>
+                  <button 
+                    type="button" 
+                    class="institution-list__action-button" 
+                    (click)="handleEdit(institution)"
+                    title="Edit"
+                    aria-label="Edit institution"
+                  >
+                    <svg class="institution-list__action-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
+                    </svg>
+                  </button>
+                  <button 
+                    type="button" 
+                    class="institution-list__action-button institution-list__action-button--danger" 
+                    (click)="handleDelete(institution)"
+                    title="Delete"
+                    aria-label="Delete institution"
+                  >
+                    <svg class="institution-list__action-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <polyline points="3,6 5,6 21,6" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
+                      <line x1="10" y1="11" x2="10" y2="17" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
+                      <line x1="14" y1="11" x2="14" y2="17" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (pagination().total > pagination().limit) {
+      <footer class="institution-list__pagination">
+        <button 
+          type="button"
+          class="institution-list__pagination-button institution-list__pagination-button--previous"
+          [disabled]="pagination().page === 1"
+          (click)="handlePageChange(pagination().page - 1)"
+          aria-label="Previous page"
+        >
+          ← Previous
+        </button>
+        <span class="institution-list__pagination-info">
+          Page {{ pagination().page }} of {{ Math.ceil(pagination().total / pagination().limit) }}
+        </span>
+        <button 
+          type="button"
+          class="institution-list__pagination-button institution-list__pagination-button--next"
+          [disabled]="pagination().page >= Math.ceil(pagination().total / pagination().limit)"
+          (click)="handlePageChange(pagination().page + 1)"
+          aria-label="Next page"
+        >
+          Next →
+        </button>
+      </footer>
+    }
+  }
+</div>
+

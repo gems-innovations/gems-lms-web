@@ -1,0 +1,24 @@
+<adm-institution-page-header (onCreateNew)="onCreateNew()" />
+
+<adm-dashboard-metrics
+  [metrics]="dashboardMetrics()"
+  [isLoading]="isLoading()"
+/>
+
+<adm-institution-list
+  [institutions]="institutions()"
+  [isLoading]="isLoading()"
+  [error]="error()"
+  [pagination]="pagination()"
+  [searchTerm]="searchTerm()"
+  [hideCreateButton]="true"
+  (onCreateNew)="onCreateNew()"
+  (onView)="onView($event)"
+  (onEdit)="onEdit($event)"
+  (onDelete)="onDelete($event)"
+  (onPageChange)="onPageChange($event)"
+  (onRetry)="ngOnInit()"
+  (onSearch)="onSearch($event)"
+/>
+
+<adm-institution-modal-container />

@@ -1,0 +1,184 @@
+<div class="idash">
+
+  <!-- ── Loading ── -->
+  @if (isLoading()) {
+    <div class="idash__loading">
+      <div class="idash__spinner"></div>
+      <span>Cargando institución…</span>
+    </div>
+  }
+
+  <!-- ── Institution card ── -->
+  @if (!isLoading() && institution()) {
+    <header class="idash__header">
+      <div class="idash__header-text">
+        <h1 class="idash__title">Mi Institución</h1>
+        <p class="idash__subtitle">Gestiona la información y personalización de tu institución</p>
+      </div>
+      <button class="idash__btn-edit" (click)="editInstitution()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        Editar Institución
+      </button>
+    </header>
+
+    <div class="idash__card">
+      <!-- Brand strip -->
+      <div class="idash__brand-strip"
+           [style.background]="institution()!.branding.colorPrimary">
+        @if (institution()!.branding.logoUrl) {
+          <img [src]="institution()!.branding.logoUrl"
+               [alt]="institution()!.name"
+               class="idash__logo" />
+        } @else {
+          <span class="idash__logo-initials">
+            {{ institution()!.name[0] }}
+          </span>
+        }
+      </div>
+
+      <!-- Main info -->
+      <div class="idash__card-body">
+        <div class="idash__card-title-row">
+          <h2 class="idash__inst-name">{{ institution()!.name }}</h2>
+          <span class="idash__status"
+                [class.idash__status--active]="institution()!.status === EInstitutionStatus.ACTIVE"
+                [class.idash__status--suspended]="institution()!.status === EInstitutionStatus.SUSPENDED"
+                [class.idash__status--pending]="institution()!.status === EInstitutionStatus.PENDING">
+            {{ getStatusLabel(institution()!.status) }}
+          </span>
+        </div>
+
+        @if (institution()!.metadata?.description) {
+          <p class="idash__description">{{ institution()!.metadata!.description }}</p>
+        }
+
+        <div class="idash__meta-grid">
+          @if (institution()!.metadata?.website) {
+            <div class="idash__meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+              <a [href]="institution()!.metadata!.website" target="_blank" rel="noopener">
+                {{ institution()!.metadata!.website }}
+              </a>
+            </div>
+          }
+          @if (institution()!.metadata?.contactEmail) {
+            <div class="idash__meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <span>{{ institution()!.metadata!.contactEmail }}</span>
+            </div>
+          }
+          @if (institution()!.metadata?.address) {
+            <div class="idash__meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <span>{{ institution()!.metadata!.address }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Stats row -->
+        <div class="idash__stats">
+          <div class="idash__stat">
+            <span class="idash__stat-value">{{ institution()!.usersCount | number }}</span>
+            <span class="idash__stat-label">Usuarios totales</span>
+          </div>
+          @if (institution()!.metadata?.maxUsers) {
+            <div class="idash__stat">
+              <span class="idash__stat-value">{{ institution()!.metadata!.maxUsers | number }}</span>
+              <span class="idash__stat-label">Límite de usuarios</span>
+            </div>
+          }
+          @if (institution()!.metadata?.subscriptionType) {
+            <div class="idash__stat">
+              <span class="idash__stat-value idash__stat-value--plan">
+                {{ institution()!.metadata!.subscriptionType | uppercase }}
+              </span>
+              <span class="idash__stat-label">Plan activo</span>
+            </div>
+          }
+        </div>
+
+        <!-- Quick actions -->
+        <div class="idash__quick-actions">
+          <a routerLink="/admin/users" class="idash__quick-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Gestionar Usuarios
+          </a>
+          <button class="idash__quick-btn" (click)="editInstitution()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            Personalizar Institución
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Branding preview -->
+    <div class="idash__branding-section">
+      <h3 class="idash__section-title">Marca & Personalización</h3>
+      <div class="idash__brand-preview">
+        <div class="idash__color-row">
+          <div class="idash__color-swatch"
+               [style.background]="institution()!.branding.colorPrimary"
+               [title]="institution()!.branding.colorPrimary">
+          </div>
+          <div class="idash__color-info">
+            <span class="idash__color-label">Color principal</span>
+            <code class="idash__color-hex">{{ institution()!.branding.colorPrimary }}</code>
+          </div>
+        </div>
+        @if (institution()!.branding.colorSecondary) {
+          <div class="idash__color-row">
+            <div class="idash__color-swatch"
+                 [style.background]="institution()!.branding.colorSecondary"
+                 [title]="institution()!.branding.colorSecondary!">
+            </div>
+            <div class="idash__color-info">
+              <span class="idash__color-label">Color secundario</span>
+              <code class="idash__color-hex">{{ institution()!.branding.colorSecondary }}</code>
+            </div>
+          </div>
+        }
+        <div class="idash__mode-badge"
+             [class.idash__mode-badge--dark]="institution()!.branding.darkMode">
+          {{ institution()!.branding.darkMode ? '🌙 Modo oscuro' : '☀️ Modo claro' }}
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ── No institution assigned ── -->
+  @if (!isLoading() && !institution()) {
+    <div class="idash__empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <path d="M3 9h18M9 21V9"/>
+      </svg>
+      <h3>Sin institución asignada</h3>
+      <p>Tu cuenta no tiene una institución vinculada. Contacta al super administrador.</p>
+    </div>
+  }
+
+  <!-- ── Edit modal ── -->
+  <adm-institution-modal-container />
+
+</div>

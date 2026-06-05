@@ -1,0 +1,9 @@
+<edu-student-home-view
+  [inProgress]="inProgress()"
+  [completed]="completed()"
+  [enrolledPathEntries]="enrolledPathEntries()"
+  [enrolledCount]="enrolledCourses().length"
+  [isLoading]="isLoading()"
+  (onContinueCourse)="continueCourse($event)"
+  (onOpenPath)="openPath($event)"
+/>

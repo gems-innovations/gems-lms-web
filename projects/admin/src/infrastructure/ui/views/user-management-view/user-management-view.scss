@@ -1,0 +1,471 @@
+// ============================================================================
+// User Management View — always dark (admin zone)
+// ============================================================================
+
+$primary:     var(--brand-primary, #6c63ff);
+$border:      rgba(255, 255, 255, 0.07);
+$surface:     rgba(255, 255, 255, 0.03);
+$surface2:    rgba(255, 255, 255, 0.055);
+$text:        rgba(255, 255, 255, 0.90);
+$muted:       rgba(161, 168, 195, 0.55);
+$danger:      #ef4444;
+$radius-sm:   0.5rem;
+$radius-md:   0.75rem;
+$radius-lg:   0.875rem;
+
+// Role accent colors
+$c-admin:      #8b5cf6;
+$c-instructor: #0ea5e9;
+$c-student:    #10b981;
+$c-super:      #f59e0b;
+
+.umgmt {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  // ── Header ──────────────────────────────────────────────────────────────
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.5rem;
+  }
+
+  &__header-text { flex: 1; }
+
+  &__title {
+    font-size: 1.625rem;
+    font-weight: 700;
+    color: $text;
+    margin: 0 0 0.25rem;
+    letter-spacing: -0.03em;
+  }
+
+  &__subtitle {
+    font-size: 0.875rem;
+    color: $muted;
+    margin: 0;
+  }
+
+  &__btn-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.55rem 1.1rem;
+    background: rgba(108, 99, 255, 0.12);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(108, 99, 255, 0.25);
+    border-radius: $radius-sm;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
+
+    &:hover {
+      background: rgba(108, 99, 255, 0.2);
+      border-color: rgba(108, 99, 255, 0.4);
+    }
+    &:active { transform: scale(0.97); }
+  }
+
+  // ── Stats chips ──────────────────────────────────────────────────────────
+  &__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  &__stat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.875rem;
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    color: $muted;
+
+    strong { color: $text; font-weight: 700; }
+
+    &--admin      { border-color: rgba($c-admin, .25);      background: rgba($c-admin, .07); }
+    &--instructor { border-color: rgba($c-instructor, .25); background: rgba($c-instructor, .07); }
+    &--student    { border-color: rgba($c-student, .25);    background: rgba($c-student, .07); }
+  }
+
+  // ── Create form panel ────────────────────────────────────────────────────
+  &__form-panel {
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: $radius-lg;
+    padding: 1.5rem;
+  }
+
+  &__form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: $text;
+      margin: 0;
+    }
+  }
+
+  &__form-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    background: transparent;
+    border-radius: $radius-sm;
+    color: $muted;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover { background: $surface2; color: $text; }
+  }
+
+  &__form { display: flex; flex-direction: column; gap: 1rem; }
+
+  &__form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @media (max-width: 560px) { grid-template-columns: 1fr; }
+  }
+
+  &__form-field { display: flex; flex-direction: column; gap: 0.375rem; }
+
+  &__form-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.75);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  &__req { color: $danger; margin-left: 0.15rem; }
+
+  &__input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+    font-size: 0.875rem;
+    color: $text;
+    background: rgba(255, 255, 255, 0.04);
+    transition: border-color 0.15s;
+    outline: none;
+
+    &:focus { border-color: rgba(108, 99, 255, 0.5); }
+
+    &--error { border-color: rgba($danger, .5); }
+
+    &::placeholder { color: $muted; }
+  }
+
+  // ── Role grid ────────────────────────────────────────────────────────────
+  &__role-grid {
+    display: flex;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+  }
+
+  &__radio { position: absolute; opacity: 0; pointer-events: none; }
+
+  &__role-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.625rem 1rem;
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    background: $surface;
+    transition: border-color 0.15s, background 0.15s;
+    min-width: 88px;
+
+    &--selected {
+      border-color: rgba(108, 99, 255, .5);
+      background: rgba(108, 99, 255, .1);
+    }
+
+    &:hover { border-color: rgba(255, 255, 255, .15); }
+  }
+
+  &__role-icon  { font-size: 1.25rem; line-height: 1; }
+  &__role-label { font-size: 0.75rem; font-weight: 600; color: $text; }
+
+  // ── Form actions ─────────────────────────────────────────────────────────
+  &__form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.625rem;
+    padding-top: 0.5rem;
+  }
+
+  &__btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: $radius-sm;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: opacity 0.15s, background 0.15s;
+
+    &--primary {
+      background: rgba(108, 99, 255, .12);
+      color: rgba(255, 255, 255, .9);
+      border-color: rgba(108, 99, 255, .3);
+      &:hover { background: rgba(108, 99, 255, .2); border-color: rgba(108, 99, 255, .45); }
+      &:disabled { opacity: 0.4; cursor: not-allowed; }
+    }
+
+    &--secondary {
+      background: transparent;
+      border-color: $border;
+      color: $muted;
+      &:hover { background: $surface2; color: $text; }
+    }
+
+    &--danger {
+      background: rgba($danger, .12);
+      color: #fca5a5;
+      border-color: rgba($danger, .25);
+      &:hover { background: rgba($danger, .2); border-color: rgba($danger, .4); }
+      &:disabled { opacity: 0.4; cursor: not-allowed; }
+    }
+  }
+
+  // ── Loading ──────────────────────────────────────────────────────────────
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.875rem;
+    padding: 3rem;
+    color: $muted;
+    font-size: 0.875rem;
+  }
+
+  &__spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid $border;
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  // ── Empty state ──────────────────────────────────────────────────────────
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 3rem;
+    text-align: center;
+
+    h3 { font-size: 1rem; font-weight: 700; color: $text; margin: 0.5rem 0 0; }
+    p  { font-size: 0.875rem; color: $muted; margin: 0; }
+  }
+
+  // ── User list ────────────────────────────────────────────────────────────
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  &__user-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    transition: background 0.15s, border-color 0.15s;
+
+    &:hover { background: $surface2; border-color: rgba(255, 255, 255, 0.11); }
+
+    &--inactive { opacity: 0.5; }
+
+    @media (max-width: 640px) {
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+    }
+  }
+
+  // ── Avatar ───────────────────────────────────────────────────────────────
+  &__avatar {
+    width: 2.375rem;
+    height: 2.375rem;
+    border-radius: 50%;
+    background: rgba(108, 99, 255, .25);
+    color: $text;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    overflow: hidden;
+
+    &--inactive { filter: grayscale(1); }
+  }
+
+  &__avatar-img { width: 100%; height: 100%; object-fit: cover; }
+
+  // ── User info ────────────────────────────────────────────────────────────
+  &__user-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__user-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__user-email {
+    font-size: 0.775rem;
+    color: $muted;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__user-username {
+    font-size: 0.7rem;
+    color: rgba(161, 168, 195, 0.35);
+  }
+
+  // ── Role badge ───────────────────────────────────────────────────────────
+  &__role-badge {
+    display: inline-block;
+    padding: 0.2rem 0.625rem;
+    border-radius: 2rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .role--super      { background: rgba($c-super, .12);      color: $c-super;      border: 1px solid rgba($c-super, .2); }
+  .role--admin      { background: rgba($c-admin, .12);      color: $c-admin;      border: 1px solid rgba($c-admin, .2); }
+  .role--instructor { background: rgba($c-instructor, .12); color: $c-instructor; border: 1px solid rgba($c-instructor, .2); }
+  .role--student    { background: rgba($c-student, .12);    color: $c-student;    border: 1px solid rgba($c-student, .2); }
+
+  // ── Status ───────────────────────────────────────────────────────────────
+  &__status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+
+    &--active   { color: $c-student; }
+    &--inactive { color: $danger; }
+  }
+
+  // ── Action buttons ───────────────────────────────────────────────────────
+  &__user-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  &__action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid $border;
+    background: transparent;
+    border-radius: $radius-sm;
+    color: $muted;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover { background: $surface2; color: $text; border-color: rgba(255,255,255,.15); }
+
+    &--danger:hover {
+      background: rgba($danger, .1);
+      border-color: rgba($danger, .3);
+      color: $danger;
+    }
+  }
+
+  // ── Delete dialog ────────────────────────────────────────────────────────
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .65);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 900;
+    animation: fadeIn 0.15s ease;
+  }
+
+  &__dialog {
+    background: #1c1b27;
+    border: 1px solid $border;
+    border-radius: $radius-lg;
+    padding: 2rem;
+    max-width: 360px;
+    width: calc(100% - 2rem);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, .5);
+    text-align: center;
+    animation: slideUp 0.2s ease;
+
+    h3 { font-size: 1.1rem; font-weight: 700; color: $text; margin: 0.5rem 0 0.25rem; }
+    p  { font-size: 0.875rem; color: $muted; margin: 0 0 1.5rem; }
+  }
+
+  &__dialog-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: rgba($danger, .1);
+    color: $danger;
+    margin-bottom: 0.5rem;
+  }
+
+  &__dialog-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.625rem;
+  }
+
+  @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+}

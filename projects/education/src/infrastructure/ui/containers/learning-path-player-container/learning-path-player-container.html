@@ -1,0 +1,10 @@
+<edu-learning-path-player-view
+  [learningPath]="learningPath()"
+  [stepEntries]="stepEntries()"
+  [overallProgress]="overallProgress()"
+  [completedCount]="completedCount()"
+  [isEnrolled]="isEnrolled()"
+  [isLoading]="isLoading()"
+  (onStartCourse)="startCourse($event)"
+  (onGoHome)="goHome()"
+/>

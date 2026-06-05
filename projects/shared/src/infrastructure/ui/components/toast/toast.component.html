@@ -1,0 +1,14 @@
+@if (isVisible()) {
+  <div class="toast toast--{{ type() }}" [@slideIn]>
+    <div class="toast__icon">{{ getIcon() }}</div>
+    <p class="toast__message">{{ message() }}</p>
+    <button 
+      type="button" 
+      class="toast__close" 
+      (click)="handleClose()"
+      aria-label="Close notification"
+    >
+      ✕
+    </button>
+  </div>
+}

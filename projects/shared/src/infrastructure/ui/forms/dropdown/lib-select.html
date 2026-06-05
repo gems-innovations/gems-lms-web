@@ -1,0 +1,50 @@
+<div class="lib-select" [class.lib-select--focused]="focused" [class.lib-select--error]="showError" [class.lib-select--disabled]="disabled">
+  @if (label) {
+    <label [for]="selectId" class="lib-select__label">
+      {{ label }}
+      @if (required) {
+        <span class="lib-select__required">*</span>
+      }
+    </label>
+  }
+
+  <div class="lib-select__wrapper">
+    @if (icon) {
+      <span class="lib-select__icon">{{ icon }}</span>
+    }
+
+    <select
+      [id]="selectId"
+      class="lib-select__field"
+      [class.lib-select__field--icon]="icon"
+      [formControl]="control"
+      [disabled]="disabled"
+      [required]="required"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+    >
+      @if (placeholder) {
+        <option value="" disabled selected>{{ placeholder }}</option>
+      }
+      
+      @for (option of options; track option.value) {
+        <option 
+          [value]="option.value" 
+          [disabled]="option.disabled"
+        >
+          {{ option.label }}
+        </option>
+      }
+    </select>
+
+    <span class="lib-select__arrow">▼</span>
+  </div>
+
+  @if (helpText && !showError) {
+    <span class="lib-select__help">{{ helpText }}</span>
+  }
+
+  @if (showError) {
+    <span class="lib-select__error">{{ errorMessage }}</span>
+  }
+</div>

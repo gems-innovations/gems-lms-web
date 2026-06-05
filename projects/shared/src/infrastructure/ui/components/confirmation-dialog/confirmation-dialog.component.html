@@ -1,0 +1,38 @@
+<div class="confirmation-dialog">
+  @if (showIcon) {
+    <div class="confirmation-dialog__icon" [ngClass]="iconClass">
+      <ng-content select="[slot=icon]"></ng-content>
+    </div>
+  }
+
+  @if (title) {
+    <h3 class="confirmation-dialog__title">{{ title }}</h3>
+  }
+
+  @if (message) {
+    <p class="confirmation-dialog__message" [innerHTML]="message"></p>
+  }
+
+  <ng-content></ng-content>
+
+  <div class="confirmation-dialog__actions">
+    <lib-button
+      variant="secondary"
+      [disabled]="isLoading"
+      [fullWidth]="true"
+      (clicked)="onCancel()"
+    >
+      {{ cancelText }}
+    </lib-button>
+
+    <lib-button
+      [variant]="confirmButtonVariant"
+      [loading]="isLoading"
+      [disabled]="isLoading"
+      [fullWidth]="true"
+      (clicked)="onConfirm()"
+    >
+      {{ confirmText }}
+    </lib-button>
+  </div>
+</div>

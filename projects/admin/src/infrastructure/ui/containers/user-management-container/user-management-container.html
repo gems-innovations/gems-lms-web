@@ -1,0 +1,10 @@
+<adm-user-management-view
+  [users]="users()"
+  [isLoading]="isLoading()"
+  [isCreating]="isCreating()"
+  [isDeleting]="isDeleting()"
+  [selectedUser]="selectedUser()"
+  (onCreateUser)="createUser($event)"
+  (onDeleteUser)="deleteUser($event)"
+  (onToggleStatus)="toggleStatus($event)"
+/>

@@ -1,0 +1,644 @@
+<div class="cplayer" [class.cplayer--sidebar-collapsed]="sidebarCollapsed()">
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       LOADING
+  ══════════════════════════════════════════════════════════════════════════ -->
+  @if (!course()) {
+    <div class="cplayer__loading">
+      <div class="cplayer__spinner"></div>
+      <p>Cargando curso…</p>
+    </div>
+  }
+
+  @if (course(); as c) {
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       PLAYER TOPBAR
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <header class="cplayer__topbar">
+    <div class="cplayer__topbar-left">
+      <button class="cplayer__back-btn" (click)="onGoHome.emit()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <button class="cplayer__sidebar-toggle" (click)="toggleSidebar()" title="Toggle curriculum">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="cplayer__course-title">{{ c.title }}</div>
+    </div>
+
+    <div class="cplayer__topbar-right">
+      <div class="cplayer__overall-progress">
+        <div class="cplayer__overall-bar">
+          <div class="cplayer__overall-fill" [style.width]="courseProgress() + '%'"></div>
+        </div>
+        <span class="cplayer__overall-pct">{{ courseProgress() }}% completado</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       BODY (sidebar + stage)
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="cplayer__body">
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         CURRICULUM SIDEBAR
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <aside class="cplayer__sidebar">
+      <div class="cplayer__sidebar-inner">
+        <div class="cplayer__sidebar-title">Currículo del Curso</div>
+
+        @for (mod of c.modules; track trackById($index, mod)) {
+          <div class="cplayer__module">
+            <div class="cplayer__module-header">
+              <span class="cplayer__module-name">{{ mod.title }}</span>
+              <span class="cplayer__module-count">{{ mod.lessons.length }} lecciones</span>
+            </div>
+
+            @for (lesson of mod.lessons; track trackById($index, lesson)) {
+              <button
+                class="cplayer__lesson-item"
+                [class.cplayer__lesson-item--active]="selectedLessonId() === lesson.id"
+                [class.cplayer__lesson-item--done]="isLessonComplete(lesson)"
+                (click)="selectLesson(lesson.id)"
+              >
+                <span class="cplayer__lesson-status">
+                  @if (isLessonComplete(lesson)) {
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                      <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                  } @else if (selectedLessonId() === lesson.id) {
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                      <circle cx="12" cy="12" r="6"/>
+                    </svg>
+                  } @else {
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="9"/>
+                    </svg>
+                  }
+                </span>
+                <span class="cplayer__lesson-name">{{ lesson.title }}</span>
+                <span class="cplayer__lesson-dur">{{ formatDuration(lesson.duration) }}</span>
+              </button>
+
+              <!-- Block sub-items (only shown for active lesson) -->
+              @if (selectedLessonId() === lesson.id && lesson.contentBlocks.length > 1) {
+                <div class="cplayer__blocks-list">
+                  @for (block of lesson.contentBlocks; track trackById($index, block); let i = $index) {
+                    <button
+                      class="cplayer__block-item"
+                      [class.cplayer__block-item--active]="selectedBlockIdx() === i"
+                      [class.cplayer__block-item--done]="isBlockComplete(block.id)"
+                      (click)="selectBlock(i)"
+                    >
+                      <span class="cplayer__block-type-dot cplayer__block-type-dot--{{ block.type }}"></span>
+                      <span class="cplayer__block-item-name">{{ block.title }}</span>
+                      @if (isBlockComplete(block.id)) {
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="cplayer__block-check">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      }
+                    </button>
+                  }
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+    </aside>
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         CONTENT STAGE
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <main class="cplayer__stage">
+
+      @if (!selectedLesson()) {
+        <div class="cplayer__no-content">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+          <p>Selecciona una lección para comenzar.</p>
+        </div>
+      }
+
+      @if (selectedLesson(); as lesson) {
+
+        <!-- Content header -->
+        <div class="cplayer__content-header">
+          <div class="cplayer__breadcrumb">
+            <span>{{ getModuleForLesson(lesson.id)?.title }}</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span>{{ lesson.title }}</span>
+          </div>
+
+          @if (lesson.contentBlocks.length > 1) {
+            <div class="cplayer__block-tabs">
+              @for (block of lesson.contentBlocks; track trackById($index, block); let i = $index) {
+                <button
+                  class="cplayer__block-tab"
+                  [class.cplayer__block-tab--active]="selectedBlockIdx() === i"
+                  (click)="selectBlock(i)"
+                >
+                  <span class="cplayer__type-indicator cplayer__type-indicator--{{ block.type }}"></span>
+                  {{ block.title }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- ─────── Active block ─────── -->
+        @if (selectedBlock(); as block) {
+
+          <div class="cplayer__block-stage">
+
+            <!-- Block title + meta -->
+            <div class="cplayer__block-header">
+              <div class="cplayer__block-type-badge cplayer__block-type-badge--{{ block.type }}">
+                @switch (block.type) {
+                  @case (EContentType.VIDEO) {
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+                    </svg> Video
+                  }
+                  @case (EContentType.DOCUMENT) {
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                    </svg> Documento
+                  }
+                  @case (EContentType.QUIZ) {
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                      <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg> Evaluación
+                  }
+                  @case (EContentType.ASSIGNMENT) {
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg> Tarea
+                  }
+                  @case (EContentType.SCORM) {
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg> SCORM
+                  }
+                  @default {
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                    </svg> Contenido
+                  }
+                }
+              </div>
+              <h1 class="cplayer__block-title">{{ block.title }}</h1>
+              @if (block.description) {
+                <p class="cplayer__block-desc">{{ block.description }}</p>
+              }
+            </div>
+
+            <!-- ════════════════ VIDEO ════════════════ -->
+            @if (block.type === EContentType.VIDEO) {
+              <div class="cplayer__video-wrap">
+                @if (videoEmbedUrl()) {
+                  <iframe
+                    class="cplayer__video-iframe"
+                    [src]="videoEmbedUrl()!"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                    title="{{ block.title }}"
+                  ></iframe>
+                } @else {
+                  <div class="cplayer__video-unavailable">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+                      <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+                    </svg>
+                    <p>URL de video no disponible</p>
+                  </div>
+                }
+              </div>
+
+              @if (block.videoTranscript) {
+                <details class="cplayer__transcript">
+                  <summary class="cplayer__transcript-toggle">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Transcripción
+                  </summary>
+                  <div class="cplayer__transcript-body">{{ block.videoTranscript }}</div>
+                </details>
+              }
+            }
+
+            <!-- ════════════════ DOCUMENT ════════════════ -->
+            @if (block.type === EContentType.DOCUMENT) {
+              <article class="cplayer__markdown" [innerHTML]="renderedMarkdown()"></article>
+            }
+
+            <!-- ════════════════ SCORM ════════════════ -->
+            @if (block.type === EContentType.SCORM) {
+              <div class="cplayer__scorm-wrap">
+                @if (block.url) {
+                  <iframe
+                    class="cplayer__scorm-iframe"
+                    [src]="block.url"
+                    frameborder="0"
+                    allowfullscreen
+                    title="{{ block.title }}"
+                  ></iframe>
+                } @else {
+                  <div class="cplayer__video-unavailable">
+                    <p>Paquete SCORM no disponible</p>
+                  </div>
+                }
+                <p class="cplayer__scorm-meta">
+                  Versión SCORM {{ block.scormVersion ?? '1.2' }} ·
+                  Umbral de aprobación: {{ block.completionThreshold ?? 80 }}%
+                </p>
+              </div>
+            }
+
+            <!-- ════════════════ LIVE SESSION ════════════════ -->
+            @if (block.type === EContentType.LIVE_SESSION) {
+              <div class="cplayer__live-card">
+                <div class="cplayer__live-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                  </svg>
+                </div>
+                <div class="cplayer__live-info">
+                  <h3>Sesión en Vivo</h3>
+                  <p>Esta es una clase o webinar sincrónico. Consulta el calendario de sesiones para el horario.</p>
+                  @if (block.url) {
+                    <a class="cplayer__live-link" [href]="block.url" target="_blank" rel="noopener">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                      </svg>
+                      Unirse a la sesión
+                    </a>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- ════════════════ QUIZ ════════════════ -->
+            @if (block.type === EContentType.QUIZ) {
+              <div class="cplayer__quiz">
+
+                <!-- Quiz meta -->
+                <div class="cplayer__quiz-meta">
+                  @if (block.timeLimit) {
+                    <span class="cplayer__quiz-chip">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                      </svg>
+                      {{ block.timeLimit }} min
+                    </span>
+                  }
+                  <span class="cplayer__quiz-chip">
+                    {{ quizQuestions().length }} preguntas
+                  </span>
+                  @if (block.passingScore) {
+                    <span class="cplayer__quiz-chip">
+                      Mínimo aprobatorio: {{ block.passingScore }}%
+                    </span>
+                  }
+                  @if (block.maxAttempts) {
+                    <span class="cplayer__quiz-chip">
+                      Máximo {{ block.maxAttempts }} intentos
+                    </span>
+                  }
+                </div>
+
+                <!-- Result screen -->
+                @if (quizSubmitted() && lastQuizResult()) {
+                  <div class="cplayer__quiz-result" [class.cplayer__quiz-result--pass]="lastQuizResult()!.passed" [class.cplayer__quiz-result--fail]="!lastQuizResult()!.passed">
+                    <div class="cplayer__quiz-score-ring">
+                      <span class="cplayer__quiz-score-n">{{ lastQuizResult()!.score }}</span>
+                      <span class="cplayer__quiz-score-pct">/ 100</span>
+                    </div>
+                    <div class="cplayer__quiz-verdict">
+                      @if (lastQuizResult()!.passed) {
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                          <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        <strong>¡Aprobado!</strong>
+                      } @else {
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                        <strong>No aprobado</strong>
+                      }
+                    </div>
+
+                    <!-- Per-question feedback -->
+                    @if (lastQuizResult()!.feedback?.length) {
+                      <div class="cplayer__quiz-feedback">
+                        @for (fb of lastQuizResult()!.feedback!; track fb.questionId) {
+                          <div class="cplayer__fb-item" [class.cplayer__fb-item--ok]="fb.correct" [class.cplayer__fb-item--ko]="!fb.correct">
+                            @if (fb.correct) {
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12"/>
+                              </svg>
+                            } @else {
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                              </svg>
+                            }
+                            <span>Pregunta {{ $index + 1 }}</span>
+                            @if (fb.explanation) {
+                              <span class="cplayer__fb-exp">— {{ fb.explanation }}</span>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    <div class="cplayer__quiz-result-actions">
+                      @if (!lastQuizResult()!.passed) {
+                        <button class="cplayer__btn cplayer__btn--secondary" (click)="retryQuiz()">
+                          Reintentar
+                        </button>
+                      }
+                      <button class="cplayer__btn cplayer__btn--primary" (click)="markBlockComplete()">
+                        Continuar
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                }
+
+                <!-- Questions form -->
+                @if (!quizSubmitted()) {
+                  <form class="cplayer__quiz-form" (ngSubmit)="submitQuiz()">
+                    @for (q of quizQuestions(); track trackById($index, q); let qn = $index) {
+                      <div class="cplayer__question">
+                        <div class="cplayer__question-num">{{ qn + 1 }}</div>
+                        <div class="cplayer__question-body">
+                          <p class="cplayer__question-text">{{ q.question }}</p>
+                          <div class="cplayer__question-pts">{{ q.points }} pts</div>
+
+                          <!-- Multiple choice -->
+                          @if (q.type === 'multiple-choice') {
+                            <div class="cplayer__options">
+                              @for (opt of asMCQ(q).options; track opt.id) {
+                                <label
+                                  class="cplayer__option"
+                                  [class.cplayer__option--selected]="isOptionChecked(q.id, opt.id)"
+                                >
+                                  @if (asMCQ(q).allowMultiple) {
+                                    <input
+                                      type="checkbox"
+                                      [checked]="isOptionChecked(q.id, opt.id)"
+                                      (change)="toggleMultiAnswer(q.id, opt.id)"
+                                    >
+                                  } @else {
+                                    <input
+                                      type="radio"
+                                      [name]="'q' + q.id"
+                                      [value]="opt.id"
+                                      [checked]="isOptionChecked(q.id, opt.id)"
+                                      (change)="setAnswer(q.id, opt.id)"
+                                    >
+                                  }
+                                  <span class="cplayer__option-text">{{ opt.text }}</span>
+                                </label>
+                              }
+                            </div>
+                          }
+
+                          <!-- True / False -->
+                          @if (q.type === 'true-false') {
+                            <div class="cplayer__tf-options">
+                              <button
+                                type="button"
+                                class="cplayer__tf-btn"
+                                [class.cplayer__tf-btn--selected]="getAnswer(q.id) === true"
+                                (click)="setAnswer(q.id, true)"
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                  <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                Verdadero
+                              </button>
+                              <button
+                                type="button"
+                                class="cplayer__tf-btn"
+                                [class.cplayer__tf-btn--selected]="getAnswer(q.id) === false"
+                                (click)="setAnswer(q.id, false)"
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                                Falso
+                              </button>
+                            </div>
+                          }
+
+                          <!-- Open answer -->
+                          @if (q.type === 'open') {
+                            <textarea
+                              class="cplayer__open-answer"
+                              placeholder="Escribe tu respuesta aquí…"
+                              [value]="getAnswer(q.id) || ''"
+                              (input)="setAnswer(q.id, $any($event.target).value)"
+                              rows="4"
+                            ></textarea>
+                            @if (asOpen(q).sampleAnswer) {
+                              <details class="cplayer__sample-answer">
+                                <summary>Ver respuesta de muestra</summary>
+                                <p>{{ asOpen(q).sampleAnswer }}</p>
+                              </details>
+                            }
+                          }
+
+                          @if (q.explanation) {
+                            <p class="cplayer__question-hint">💡 {{ q.explanation }}</p>
+                          }
+                        </div>
+                      </div>
+                    }
+
+                    <div class="cplayer__quiz-submit">
+                      <button
+                        type="submit"
+                        class="cplayer__btn cplayer__btn--primary cplayer__btn--lg"
+                        [disabled]="isSubmitting()"
+                      >
+                        @if (isSubmitting()) { Enviando… } @else { Enviar Evaluación }
+                      </button>
+                    </div>
+                  </form>
+                }
+              </div>
+            }
+
+            <!-- ════════════════ ASSIGNMENT ════════════════ -->
+            @if (block.type === EContentType.ASSIGNMENT) {
+              <div class="cplayer__assignment">
+
+                @if (block.assignmentInstructions) {
+                  <div class="cplayer__assignment-instructions">
+                    <h3>Instrucciones</h3>
+                    <p>{{ block.assignmentInstructions }}</p>
+                  </div>
+                }
+
+                <!-- Rubric -->
+                @if (block.rubric?.length) {
+                  <div class="cplayer__rubric">
+                    <h3>Rúbrica de Evaluación</h3>
+                    <div class="cplayer__rubric-table">
+                      <div class="cplayer__rubric-head">
+                        <span>Criterio</span>
+                        <span>Puntos</span>
+                      </div>
+                      @for (item of block.rubric!; track item.id) {
+                        <div class="cplayer__rubric-row">
+                          <span>{{ item.criterion }}</span>
+                          <span class="cplayer__rubric-pts">{{ item.maxPoints }}</span>
+                        </div>
+                      }
+                      <div class="cplayer__rubric-total">
+                        <span>Total</span>
+                        <span>{{ block.maxScore ?? 100 }} pts</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <!-- Allowed file types -->
+                @if (block.allowedFileTypes?.length) {
+                  <div class="cplayer__allowed-types">
+                    <span class="cplayer__allowed-label">Formatos aceptados:</span>
+                    @for (ft of block.allowedFileTypes!; track ft) {
+                      <span class="cplayer__ft-chip">.{{ ft }}</span>
+                    }
+                  </div>
+                }
+
+                <!-- Submission -->
+                @if (!assignmentSubmitted()) {
+                  <div class="cplayer__submission">
+                    <h3>Tu entrega</h3>
+                    <textarea
+                      class="cplayer__submission-text"
+                      placeholder="Escribe tu respuesta o pega el enlace a tu entrega…"
+                      [ngModel]="assignmentText()"
+                      (ngModelChange)="assignmentText.set($event)"
+                      rows="8"
+                    ></textarea>
+
+                    <div class="cplayer__submission-actions">
+                      <button
+                        class="cplayer__btn cplayer__btn--primary"
+                        [disabled]="!assignmentText().trim() || isSubmitting()"
+                        (click)="submitAssignment()"
+                      >
+                        @if (isSubmitting()) { Enviando… } @else {
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                          </svg>
+                          Enviar Tarea
+                        }
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="cplayer__submission-done">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                      <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <div>
+                      <strong>¡Tarea enviada!</strong>
+                      <p>Tu entrega está pendiente de revisión.</p>
+                    </div>
+                    <button class="cplayer__btn cplayer__btn--primary" (click)="markBlockComplete()">
+                      Continuar
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+
+          </div>
+
+          <!-- Block navigation footer -->
+          <div class="cplayer__nav-footer">
+            <button
+              class="cplayer__nav-btn"
+              [disabled]="!hasPrevBlock()"
+              (click)="prevBlock()"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+              Anterior
+            </button>
+
+            @if (!isBlockComplete(block.id) && block.type !== EContentType.QUIZ && block.type !== EContentType.ASSIGNMENT) {
+              <button class="cplayer__mark-done-btn" (click)="markBlockComplete()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Marcar como completado
+              </button>
+            }
+
+            @if (isBlockComplete(block.id) && block.type !== EContentType.QUIZ && block.type !== EContentType.ASSIGNMENT) {
+              <span class="cplayer__done-badge">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Completado
+              </span>
+            }
+
+            <button
+              class="cplayer__nav-btn cplayer__nav-btn--next"
+              [disabled]="!hasNextBlock() && !hasNextLesson()"
+              (click)="nextBlock()"
+            >
+              Siguiente
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+
+        }
+        <!-- /selectedBlock -->
+
+        @if (!selectedBlock()) {
+          <div class="cplayer__no-content">
+            <p>Esta lección no tiene bloques de contenido aún.</p>
+          </div>
+        }
+
+      }
+      <!-- /selectedLesson -->
+
+    </main>
+    <!-- /stage -->
+
+  </div>
+  <!-- /body -->
+
+  }
+  <!-- /course -->
+
+</div>

@@ -1,0 +1,176 @@
+@import '../../../styles/variables.scss';
+
+.lib-input {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  width: 100%;
+
+  &__label {
+    font-size: $font-size-sm;
+    font-weight: 500;
+    color: #E5E7EB;
+    transition: color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__required {
+    color: $_color-error;
+    font-weight: 600;
+  }
+
+  &__wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__icon {
+    position: absolute;
+    left: $spacing-md;
+    font-size: 1.25rem;
+    color: $_color-gris;
+    pointer-events: none;
+    transition: color 0.15s;
+  }
+
+  &__field {
+    width: 100%;
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-size-base;
+    color: #E5E7EB;
+    background: rgba($_color-oscuro, 0.3);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(white, 0.1);
+    border-radius: $border-radius-md;
+    outline: none;
+    transition: all 0.2s;
+
+    &--icon {
+      padding-left: calc($spacing-md * 3);
+    }
+
+    &--color {
+      height: 44px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    &::placeholder {
+      color: $_color-gris;
+    }
+
+    &:hover:not(:disabled) {
+      border-color: rgba(white, 0.2);
+      background: rgba($_color-oscuro, 0.4);
+    }
+
+    &:focus {
+      border-color: rgba($_color-primario, 0.5);
+      background: rgba($_color-oscuro, 0.5);
+      box-shadow: 0 0 0 3px rgba($_color-primario, 0.1),
+                  0 0 20px rgba($_color-primario, 0.2);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: rgba($_color-oscuro, 0.2);
+    }
+
+    &[type="number"] {
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+        opacity: 0.5;
+      }
+    }
+
+    &[type="color"] {
+      &::-webkit-color-swatch-wrapper {
+        padding: 0;
+      }
+      
+      &::-webkit-color-swatch {
+        border: none;
+        border-radius: 4px;
+      }
+    }
+  }
+
+  &__color-value {
+    margin-left: $spacing-sm;
+    font-size: $font-size-sm;
+    font-family: 'Courier New', monospace;
+    color: $_color-gris;
+    user-select: all;
+  }
+
+  &__help {
+    font-size: 0.75rem;
+    color: $_color-gris;
+    line-height: 1.4;
+  }
+
+  &__error {
+    font-size: 0.75rem;
+    color: $_color-error;
+    font-weight: 500;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    &::before {
+      content: '⚠';
+      font-size: $font-size-sm;
+    }
+  }
+
+  // States
+  &--focused {
+    .lib-input__label {
+      color: $_color-primario;
+    }
+
+    .lib-input__icon {
+      color: $_color-primario;
+    }
+  }
+
+  &--error {
+    .lib-input__label {
+      color: $_color-error;
+    }
+
+    .lib-input__field {
+      border-color: rgba($_color-error, 0.5);
+      
+      &:focus {
+        border-color: $_color-error;
+        box-shadow: 0 0 0 3px rgba($_color-error, 0.1),
+                    0 0 20px rgba($_color-error, 0.2);
+      }
+    }
+
+    .lib-input__icon {
+      color: $_color-error;
+    }
+  }
+
+  &--disabled {
+    .lib-input__label {
+      opacity: 0.5;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 767px) {
+  .lib-input {
+    &__field {
+      font-size: 16px;
+    }
+  }
+}

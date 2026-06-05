@@ -1,0 +1,39 @@
+@if (type() === 'table') {
+  <div class="skeleton-table" role="status" aria-label="Loading table data" aria-live="polite">
+    @for (row of rowsArray(); track $index) {
+      <article class="skeleton-row" aria-hidden="true">
+        <div class="skeleton-cell skeleton-avatar"></div>
+        <div class="skeleton-cell skeleton-text skeleton-text-lg"></div>
+        <div class="skeleton-cell skeleton-badge"></div>
+        <div class="skeleton-cell skeleton-badge"></div>
+        <div class="skeleton-cell skeleton-text skeleton-text-sm"></div>
+        <div class="skeleton-cell skeleton-text skeleton-text-sm"></div>
+        <div class="skeleton-cell skeleton-actions">
+          <div class="skeleton-icon"></div>
+          <div class="skeleton-icon"></div>
+          <div class="skeleton-icon"></div>
+        </div>
+      </article>
+    }
+    <span class="sr-only">Loading content, please wait...</span>
+  </div>
+}
+
+@if (type() === 'card') {
+  <div class="skeleton-cards" role="status" aria-label="Loading card data" aria-live="polite">
+    @for (row of rowsArray(); track $index) {
+      <article class="skeleton-card" aria-hidden="true">
+        <header class="skeleton-card-header">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-text skeleton-text-lg"></div>
+        </header>
+        <div class="skeleton-card-body">
+          <div class="skeleton-text skeleton-text-sm"></div>
+          <div class="skeleton-text skeleton-text-sm"></div>
+          <div class="skeleton-badge"></div>
+        </div>
+      </article>
+    }
+    <span class="sr-only">Loading content, please wait...</span>
+  </div>
+}

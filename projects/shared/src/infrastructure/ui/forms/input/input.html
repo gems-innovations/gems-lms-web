@@ -1,0 +1,27 @@
+<div class="input" [formGroup]="form.formGroup" [class.input--dark]="style() === 'dark'">
+  <label
+    class="input__label"
+    [for]="uniqueId"
+    [class.input__label--disabled]="form.formGroup.disabled"
+  >
+    @if (icon()) { <i class="input__icon {{icon()}}"></i> }
+    <div class="input__text">
+      <span>{{label()}}</span>
+      <input
+        class="input__input"
+        [id]="uniqueId"
+        [formControlName]="form.formControlNames.value" 
+        [type]="type()"
+        [placeholder]="placeholder()" 
+        (keypress)="handleKeypress($event.key)"
+        (focus)="handleFocus($event.target)"
+        (blur)="handleBlur()"
+      >
+    </div>
+  </label>
+  @if (errorMessage) {
+    <span class="input__error" aria-live="polite">
+      {{ errorMessage }}
+    </span>
+  }
+</div>

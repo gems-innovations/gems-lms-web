@@ -1,0 +1,83 @@
+<!-- CREATE -->
+<lib-modal-base
+  [isOpen]="modal().isOpen && modal().mode === 'create'"
+  [title]="modalTitle()"
+  [size]="'large'"
+  [showFooter]="false"
+  [closeOnOverlayClick]="!isCreating()"
+  (close)="close()"
+>
+  <adm-institution-form
+    [disabled]="isCreating()"
+    [submitButtonText]="isCreating() ? 'Creando...' : 'Crear Institución'"
+    (onSubmit)="onCreateSubmit($event)"
+    (onCancel)="close()"
+  />
+</lib-modal-base>
+
+<!-- EDIT -->
+<lib-modal-base
+  [isOpen]="modal().isOpen && modal().mode === 'edit'"
+  [title]="modalTitle()"
+  [size]="'large'"
+  [showFooter]="false"
+  [closeOnOverlayClick]="!isUpdating()"
+  (close)="close()"
+>
+  @if (formModel(); as model) {
+    <adm-institution-form
+      [model]="model"
+      [disabled]="isUpdating()"
+      [submitButtonText]="isUpdating() ? 'Guardando...' : 'Guardar Cambios'"
+      (onSubmit)="onEditSubmit($event)"
+      (onCancel)="close()"
+    />
+  }
+</lib-modal-base>
+
+<!-- VIEW -->
+<lib-modal-base
+  [isOpen]="modal().isOpen && modal().mode === 'view'"
+  [title]="modalTitle()"
+  [size]="'medium'"
+  [showFooter]="true"
+  [closeOnOverlayClick]="true"
+  (close)="close()"
+>
+  @if (institutionForModal(); as institution) {
+    <adm-institution-details-view [institution]="institution" />
+  }
+
+  <div footer class="modal-actions">
+    <lib-button variant="secondary" size="md" (clicked)="close()">Cerrar</lib-button>
+    <lib-button variant="primary" size="md" (clicked)="onEditFromView()">Editar Institución</lib-button>
+  </div>
+</lib-modal-base>
+
+<!-- DELETE -->
+<lib-modal-base
+  [isOpen]="modal().isOpen && modal().mode === 'delete'"
+  [title]="modalTitle()"
+  [subtitle]="'Esta acción no se puede deshacer'"
+  [size]="'small'"
+  [showFooter]="false"
+  [closeOnOverlayClick]="!isDeleting()"
+  (close)="close()"
+>
+  <lib-confirmation-dialog
+    type="danger"
+    [title]="'¿Estás seguro?'"
+    [message]="deleteMessage()"
+    [confirmText]="'Eliminar Institución'"
+    [cancelText]="'Cancelar'"
+    [isLoading]="isDeleting()"
+    (confirmed)="onConfirmDelete()"
+    (cancelled)="close()"
+  >
+    <svg slot="icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/>
+      <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+  </lib-confirmation-dialog>
+</lib-modal-base>

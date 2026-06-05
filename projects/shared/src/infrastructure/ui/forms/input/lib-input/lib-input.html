@@ -1,0 +1,57 @@
+<div class="lib-input" [class.lib-input--focused]="focused" [class.lib-input--error]="showError" [class.lib-input--disabled]="disabled">
+  @if (label) {
+    <label [for]="inputId" class="lib-input__label">
+      {{ label }}
+      @if (required) {
+        <span class="lib-input__required">*</span>
+      }
+    </label>
+  }
+
+  <div class="lib-input__wrapper">
+    @if (icon) {
+      <span class="lib-input__icon">{{ icon }}</span>
+    }
+
+    @if (type === 'color') {
+      <input
+        [id]="inputId"
+        type="color"
+        class="lib-input__field lib-input__field--color"
+        [formControl]="control"
+        [placeholder]="placeholder"
+        [disabled]="disabled"
+        [required]="required"
+        (focus)="onFocus()"
+        (blur)="onBlur()"
+      />
+      <span class="lib-input__color-value">{{ control.value }}</span>
+    } @else {
+      <input
+        [id]="inputId"
+        [type]="type"
+        class="lib-input__field"
+        [class.lib-input__field--icon]="icon"
+        [formControl]="control"
+        [placeholder]="placeholder"
+        [disabled]="disabled"
+        [required]="required"
+        [attr.maxlength]="maxLength || null"
+        [attr.minlength]="minLength || null"
+        [attr.min]="min || null"
+        [attr.max]="max || null"
+        [attr.step]="step || null"
+        (focus)="onFocus()"
+        (blur)="onBlur()"
+      />
+    }
+  </div>
+
+  @if (helpText && !showError) {
+    <span class="lib-input__help">{{ helpText }}</span>
+  }
+
+  @if (showError) {
+    <span class="lib-input__error">{{ errorMessage }}</span>
+  }
+</div>

@@ -1,0 +1,39 @@
+<div class="cpicker" [class.cpicker--disabled]="disabled()">
+  @if (label()) {
+    <span class="cpicker__label">{{ label() }}</span>
+  }
+
+  <div class="cpicker__row">
+    <!-- Native color input (hidden, opened via swatch click) -->
+    <label class="cpicker__swatch-wrap">
+      <span
+        class="cpicker__swatch"
+        [style.background]="value()"
+        title="Seleccionar color"
+      ></span>
+      <input
+        type="color"
+        class="cpicker__native"
+        [value]="value()"
+        [disabled]="disabled()"
+        (input)="onColorChange($any($event.target).value)"
+      />
+    </label>
+
+    <!-- Hex input -->
+    <input
+      type="text"
+      class="cpicker__hex-input"
+      [value]="hexInput()"
+      [disabled]="disabled()"
+      maxlength="7"
+      placeholder="#000000"
+      spellcheck="false"
+      (input)="onHexInput($any($event.target).value)"
+    />
+  </div>
+
+  @if (hint()) {
+    <span class="cpicker__hint">{{ hint() }}</span>
+  }
+</div>

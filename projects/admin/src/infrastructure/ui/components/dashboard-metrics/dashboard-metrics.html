@@ -1,0 +1,73 @@
+<section class="dashboard-metrics" aria-label="Dashboard metrics overview">
+  @if (isLoading()) {
+    <div class="metrics-grid" role="status" aria-label="Loading metrics">
+      @for (i of [1,2,3,4]; track i) {
+        <article class="metric-card skeleton" aria-hidden="true">
+          <div class="skeleton-icon"></div>
+          <div class="metric-content">
+            <div class="skeleton-text"></div>
+            <div class="skeleton-value"></div>
+          </div>
+        </article>
+      }
+    </div>
+  } @else if (metrics()) {
+    <div class="metrics-grid">
+
+      <article class="metric-card" aria-labelledby="metric-institutions">
+        <figure class="metric-icon" data-color="primary" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+            <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-3"/>
+            <path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/>
+          </svg>
+        </figure>
+        <div class="metric-content">
+          <h3 id="metric-institutions" class="metric-label">Total Instituciones</h3>
+          <p class="metric-value">{{ metrics()!.totalInstitutions }}</p>
+        </div>
+      </article>
+
+      <article class="metric-card" aria-labelledby="metric-students">
+        <figure class="metric-icon" data-color="success" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </figure>
+        <div class="metric-content">
+          <h3 id="metric-students" class="metric-label">Estudiantes Activos</h3>
+          <p class="metric-value">{{ metrics()!.totalActiveStudents | number }}</p>
+        </div>
+      </article>
+
+      <article class="metric-card" aria-labelledby="metric-completion">
+        <figure class="metric-icon" data-color="accent" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+            <line x1="12" y1="20" x2="12" y2="10"/>
+            <line x1="18" y1="20" x2="18" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="16"/>
+          </svg>
+        </figure>
+        <div class="metric-content">
+          <h3 id="metric-completion" class="metric-label">Tasa de Actividad</h3>
+          <p class="metric-value">{{ metrics()!.completionRate }}%</p>
+        </div>
+      </article>
+
+      <article class="metric-card" aria-labelledby="metric-usage">
+        <figure class="metric-icon" data-color="warning" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
+            <polyline points="17,6 23,6 23,12"/>
+          </svg>
+        </figure>
+        <div class="metric-content">
+          <h3 id="metric-usage" class="metric-label">Uso del Sistema</h3>
+          <p class="metric-value">{{ metrics()!.peakSystemUsage }}%</p>
+        </div>
+      </article>
+
+    </div>
+  }
+</section>
