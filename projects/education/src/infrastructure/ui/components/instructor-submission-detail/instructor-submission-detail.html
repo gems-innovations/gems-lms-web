@@ -1,0 +1,79 @@
+<div class="idetail">
+  <!-- Student header -->
+  <div class="idetail__header">
+    <div class="idetail__student">
+      <div class="idetail__avatar">{{ initials(submission().student) }}</div>
+      <div>
+        <div class="idetail__name">{{ submission().student.firstName }} {{ submission().student.lastName }}</div>
+        <div class="idetail__email">{{ submission().student.email }}</div>
+        <div class="idetail__date">
+          Entregado el {{ submission().submittedAt | date:'dd/MM/yyyy, HH:mm' }}
+        </div>
+      </div>
+    </div>
+    <div class="idetail__meta">
+      @if (submission().grade != null) {
+        <span class="idetail__grade-chip">{{ submission().grade }}/100</span>
+      }
+      <span class="idetail__badge idetail__badge--{{ submission().status }}">
+        {{ statusLabel(submission().status) }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="idetail__section">
+    <span class="idetail__section-label">Contenido de la entrega</span>
+    <div class="idetail__content">{{ submission().textContent }}</div>
+  </div>
+
+  @if (submission().feedback) {
+    <div class="idetail__prev-feedback">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      Retroalimentación anterior: {{ submission().feedback }}
+    </div>
+  }
+
+  <!-- Grading form -->
+  <div class="idetail__grade-card">
+    <h3 class="idetail__grade-title">
+      {{ submission().grade != null ? 'Editar calificación' : 'Calificar entrega' }}
+    </h3>
+
+    <div class="idetail__form">
+      <label class="idetail__label">
+        Nota (0–100)
+        <input
+          class="idetail__input"
+          type="number"
+          min="0"
+          max="100"
+          [ngModel]="gradeInput()"
+          (ngModelChange)="gradeInput.set($event)"
+        >
+      </label>
+
+      <label class="idetail__label">
+        Retroalimentación
+        <textarea
+          class="idetail__textarea"
+          rows="4"
+          placeholder="Escribe tu retroalimentación para el estudiante…"
+          [ngModel]="feedbackInput()"
+          (ngModelChange)="feedbackInput.set($event)"
+        ></textarea>
+      </label>
+
+      <div class="idetail__actions">
+        <button type="button" class="idetail__btn idetail__btn--ghost" (click)="back.emit()">
+          Cancelar
+        </button>
+        <button type="button" class="idetail__btn idetail__btn--primary" (click)="submit()">
+          Guardar calificación
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

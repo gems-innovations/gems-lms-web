@@ -1,0 +1,38 @@
+@if (assignments().length === 0) {
+  <div class="ialist__empty">Este curso no tiene evaluaciones ni tareas.</div>
+}
+
+@for (a of assignments(); track a.block.id) {
+  <button type="button" class="ialist__row" (click)="selectAssignment.emit(a.block.id)">
+    <div class="ialist__icon" [class.ialist__icon--quiz]="a.block.type === EContentType.QUIZ">
+      @if (a.block.type === EContentType.QUIZ) {
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      } @else {
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9"/>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+      }
+    </div>
+
+    <div class="ialist__info">
+      <span class="ialist__title">{{ a.block.title }}</span>
+      <span class="ialist__meta">{{ a.moduleTitle }} · {{ a.lessonTitle }}</span>
+    </div>
+
+    <div class="ialist__counts">
+      @if (a.pendingCount > 0) {
+        <span class="ialist__chip ialist__chip--pending">{{ a.pendingCount }} pendientes</span>
+      }
+      <span class="ialist__chip">{{ a.submittedCount }} entregas</span>
+    </div>
+
+    <svg class="ialist__arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
+  </button>
+}
