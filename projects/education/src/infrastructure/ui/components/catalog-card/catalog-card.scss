@@ -1,0 +1,201 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-borde-principal);
+  background: var(--color-superficie);
+  overflow: hidden;
+  transition: border-color var(--transition-base), transform var(--transition-base);
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--color-primario) 40%, transparent);
+    transform: translateY(-2px);
+  }
+}
+
+:host(.catcard--enrolled) {
+  border-color: color-mix(in srgb, var(--color-teal) 30%, transparent);
+}
+
+// ── Thumbnail ────────────────────────────────────────────────────────────────
+
+.catcard__thumb {
+  position: relative;
+  height: 140px;
+  background: var(--color-fondo-secundario);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-texto-secundario);
+}
+
+.catcard__kind-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  background: color-mix(in srgb, var(--color-teal) 20%, transparent);
+  color: var(--color-teal);
+  border: 1px solid color-mix(in srgb, var(--color-teal) 35%, transparent);
+}
+
+.catcard__level-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 8px;
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+
+  &--beginner {
+    background: color-mix(in srgb, var(--color-exito) 15%, transparent);
+    color: var(--color-exito);
+    border: 1px solid color-mix(in srgb, var(--color-exito) 30%, transparent);
+  }
+
+  &--intermediate {
+    background: color-mix(in srgb, var(--color-advertencia) 15%, transparent);
+    color: var(--color-advertencia);
+    border: 1px solid color-mix(in srgb, var(--color-advertencia) 30%, transparent);
+  }
+
+  &--advanced {
+    background: color-mix(in srgb, var(--color-error) 15%, transparent);
+    color: var(--color-error);
+    border: 1px solid color-mix(in srgb, var(--color-error) 30%, transparent);
+  }
+
+  &--expert {
+    background: color-mix(in srgb, var(--color-primario) 15%, transparent);
+    color: var(--color-primario-claro);
+    border: 1px solid color-mix(in srgb, var(--color-primario) 30%, transparent);
+  }
+}
+
+// ── Body ─────────────────────────────────────────────────────────────────────
+
+.catcard__body {
+  flex: 1;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.catcard__title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-texto-principal);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.catcard__desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-texto-secundario);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+.catcard__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  color: var(--color-texto-terciario);
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+}
+
+.catcard__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: auto;
+}
+
+.catcard__tag {
+  padding: 2px 8px;
+  border-radius: var(--border-radius-full);
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  background: var(--color-tarjeta);
+  color: var(--color-texto-secundario);
+  border: 1px solid var(--color-borde-sutil);
+}
+
+// ── Footer ───────────────────────────────────────────────────────────────────
+
+.catcard__footer {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-top: 1px solid var(--color-borde-sutil);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+}
+
+.catcard__enrolled-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-teal);
+  margin-right: auto;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.catcard__btn {
+  padding: 6px 14px;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  border: none;
+  transition: background var(--transition-fast), opacity var(--transition-fast);
+
+  &--primary {
+    background: var(--color-primario);
+    color: #fff;
+
+    &:hover { background: var(--color-primario-claro); }
+  }
+
+  &--secondary {
+    background: transparent;
+    color: var(--color-texto-secundario);
+    border: 1px solid var(--color-borde-principal);
+
+    &:hover {
+      background: var(--color-tarjeta);
+      color: var(--color-texto-principal);
+    }
+  }
+}

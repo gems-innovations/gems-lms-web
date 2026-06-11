@@ -1,0 +1,73 @@
+<div
+  class="catcard"
+  [class.catcard--enrolled]="enrolled()"
+  [class.catcard--path]="item().kind === 'path'"
+>
+  <!-- Thumbnail -->
+  <div class="catcard__thumb" [style.backgroundImage]="item().thumbnailUrl ? 'url(' + item().thumbnailUrl + ')' : null">
+    @if (!item().thumbnailUrl) {
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.3">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+    }
+    @if (item().kind === 'path') {
+      <span class="catcard__kind-badge">
+        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        Ruta
+      </span>
+    } @else if (item().difficulty) {
+      <span class="catcard__level-badge catcard__level-badge--{{ item().difficulty }}">
+        {{ difficultyLabel() }}
+      </span>
+    }
+  </div>
+
+  <!-- Body -->
+  <div class="catcard__body">
+    <h3 class="catcard__title">{{ item().title }}</h3>
+    <p class="catcard__desc">{{ item().description }}</p>
+
+    <div class="catcard__meta">
+      <span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        {{ duration() }}
+      </span>
+      <span>{{ item().meta }}</span>
+    </div>
+
+    @if (item().tags.length) {
+      <div class="catcard__tags">
+        @for (tag of item().tags.slice(0, 3); track tag) {
+          <span class="catcard__tag">{{ tag }}</span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Footer -->
+  <div class="catcard__footer">
+    @if (enrolled()) {
+      <span class="catcard__enrolled-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Inscrito
+      </span>
+      <button type="button" class="catcard__btn catcard__btn--secondary" (click)="openItem.emit(item())">
+        Continuar
+      </button>
+    } @else {
+      <button type="button" class="catcard__btn catcard__btn--secondary" (click)="previewItem.emit(item())">
+        Ver detalles
+      </button>
+      <button type="button" class="catcard__btn catcard__btn--primary" (click)="enrollItem.emit(item())">
+        Inscribirme
+      </button>
+    }
+  </div>
+</div>

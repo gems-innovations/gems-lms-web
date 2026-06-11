@@ -1,0 +1,115 @@
+<div class="cfilter">
+
+  <!-- Search -->
+  <div class="cfilter__search-wrap">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input
+      class="cfilter__search"
+      type="text"
+      placeholder="Buscar…"
+      [value]="search()"
+      (input)="searchChange.emit($any($event.target).value)"
+    >
+  </div>
+
+  <!-- Filter toggle -->
+  <div class="cfilter__dropdown-wrap">
+    <button
+      type="button"
+      class="cfilter__btn"
+      [class.cfilter__btn--active]="activeFilterCount() > 0"
+      (click)="toggleFilter()"
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+      </svg>
+      Filtros
+      @if (activeFilterCount() > 0) {
+        <span class="cfilter__badge">{{ activeFilterCount() }}</span>
+      }
+    </button>
+
+    @if (filterOpen()) {
+      <div class="cfilter__backdrop" (click)="closeFilter()"></div>
+
+      <div class="cfilter__panel">
+        <div class="cfilter__panel-head">
+          <span>Filtros</span>
+          <button
+            type="button"
+            class="cfilter__clear"
+            [disabled]="activeFilterCount() === 0"
+            (click)="clearFilters()"
+          >Limpiar</button>
+        </div>
+
+        <!-- Tipo -->
+        <div class="cfilter__group">
+          <p class="cfilter__group-label">Tipo de contenido</p>
+          <div class="cfilter__opts">
+            <button type="button" class="cfilter__opt" [class.cfilter__opt--active]="filterKind() === 'all'"
+                    (click)="setKind('all')">
+              <span class="cfilter__dot"></span> Todo
+            </button>
+            <button type="button" class="cfilter__opt" [class.cfilter__opt--active]="filterKind() === 'course'"
+                    (click)="setKind('course')">
+              <span class="cfilter__dot cfilter__dot--purple"></span> Cursos
+            </button>
+            <button type="button" class="cfilter__opt" [class.cfilter__opt--active]="filterKind() === 'path'"
+                    (click)="setKind('path')">
+              <span class="cfilter__dot cfilter__dot--teal"></span> Rutas
+            </button>
+          </div>
+        </div>
+
+        <!-- Nivel (solo si no está en modo path) -->
+        @if (filterKind() !== 'path') {
+          <div class="cfilter__group">
+            <p class="cfilter__group-label">Nivel de dificultad</p>
+            <div class="cfilter__opts">
+              <button type="button" class="cfilter__opt" [class.cfilter__opt--active]="filterLevel() === 'all'"
+                      (click)="filterLevelChange.emit('all')">
+                <span class="cfilter__dot"></span> Todos los niveles
+              </button>
+              <button type="button" class="cfilter__opt"
+                      [class.cfilter__opt--active]="filterLevel() === EDifficulty.BEGINNER"
+                      (click)="filterLevelChange.emit(EDifficulty.BEGINNER)">
+                <span class="cfilter__dot cfilter__dot--green"></span> Principiante
+              </button>
+              <button type="button" class="cfilter__opt"
+                      [class.cfilter__opt--active]="filterLevel() === EDifficulty.INTERMEDIATE"
+                      (click)="filterLevelChange.emit(EDifficulty.INTERMEDIATE)">
+                <span class="cfilter__dot cfilter__dot--amber"></span> Intermedio
+              </button>
+              <button type="button" class="cfilter__opt"
+                      [class.cfilter__opt--active]="filterLevel() === EDifficulty.ADVANCED"
+                      (click)="filterLevelChange.emit(EDifficulty.ADVANCED)">
+                <span class="cfilter__dot cfilter__dot--red"></span> Avanzado
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Active chips -->
+  @if (activeFilterCount() > 0) {
+    <div class="cfilter__chips">
+      @if (filterKind() !== 'all') {
+        <span class="cfilter__chip">
+          {{ filterKind() === 'course' ? 'Cursos' : 'Rutas' }}
+          <button type="button" (click)="filterKindChange.emit('all')">×</button>
+        </span>
+      }
+      @if (filterLevel() !== 'all') {
+        <span class="cfilter__chip">
+          {{ difficultyLabel($any(filterLevel())) }}
+          <button type="button" (click)="filterLevelChange.emit('all')">×</button>
+        </span>
+      }
+    </div>
+  }
+</div>

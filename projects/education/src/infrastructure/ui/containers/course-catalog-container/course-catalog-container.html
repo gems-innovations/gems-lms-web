@@ -1,0 +1,36 @@
+<lib-page>
+  <lib-page-header
+    title="Catálogo"
+    subtitle="Explora cursos y rutas de aprendizaje disponibles e inscríbete en los que te interesen."
+  />
+
+  <edu-catalog-filter-bar
+    [search]="search()"
+    [filterKind]="filterKind()"
+    [filterLevel]="filterLevel()"
+    (searchChange)="search.set($event)"
+    (filterKindChange)="filterKind.set($event)"
+    (filterLevelChange)="filterLevel.set($event)"
+  />
+
+  @if (isLoading()) {
+    <lib-loading-skeleton [rows]="6" />
+  } @else if (filtered().length === 0) {
+    <lib-empty-state
+      title="Sin resultados"
+      description="No se encontraron resultados con esos filtros."
+    />
+  } @else {
+    <lib-card-grid>
+      @for (item of filtered(); track item.id) {
+        <edu-catalog-card
+          [item]="item"
+          [enrolled]="isEnrolled(item)"
+          (enrollItem)="enroll($event)"
+          (openItem)="open($event)"
+          (previewItem)="preview($event)"
+        />
+      }
+    </lib-card-grid>
+  }
+</lib-page>
