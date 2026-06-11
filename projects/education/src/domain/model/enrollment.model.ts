@@ -114,3 +114,13 @@ export interface ISubmitAssignmentRequest {
   textContent?: string;
   fileUrls?: string[];
 }
+
+export interface IEnrolledCourseEntry {
+  enrollment: IEnrollment;
+  course: import('./course.model').ICourse;
+}
+
+export interface IEnrolledPathEntry {
+  enrollment: ILearningPathEnrollment;
+  path: import('./learning-path.model').ILearningPath;
+}

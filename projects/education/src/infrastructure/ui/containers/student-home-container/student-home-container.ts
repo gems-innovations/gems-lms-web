@@ -1,16 +1,31 @@
-import { Component, inject, OnInit, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { EmptyStateComponent, LoadingSkeletonComponent, PageComponent } from 'shared';
 import { EnrollmentUseCase } from '../../../../application/enrollment.usecase';
 import { CourseUseCase } from '../../../../application/course.usecase';
 import { LearningPathUseCase } from '../../../../application/learning-path.usecase';
-import { StudentHomeView } from '../../views/student-home-view/student-home-view';
-import type { IEnrolledCourseEntry, IEnrolledPathEntry } from '../../views/student-home-view/student-home-view';
+import {
+  IEnrolledCourseEntry,
+  IEnrolledPathEntry
+} from '../../../../domain/model/enrollment.model';
+import { StudentHero } from '../../components/student-hero/student-hero';
+import { SectionHeader } from '../../components/section-header/section-header';
+import { CourseProgressCard } from '../../components/course-progress-card/course-progress-card';
+import { PathProgressCard } from '../../components/path-progress-card/path-progress-card';
+import { CardGridComponent } from 'shared';
 
 @Component({
   selector: 'edu-student-home-container',
-  standalone: true,
-  imports: [StudentHomeView],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [
+    PageComponent,
+    LoadingSkeletonComponent,
+    EmptyStateComponent,
+    CardGridComponent,
+    StudentHero,
+    SectionHeader,
+    CourseProgressCard,
+    PathProgressCard
+  ],
   templateUrl: './student-home-container.html'
 })
 export class StudentHomeContainer implements OnInit {
@@ -19,7 +34,6 @@ export class StudentHomeContainer implements OnInit {
   private readonly courseUc = inject(CourseUseCase);
   private readonly pathUc = inject(LearningPathUseCase);
 
-  // ── Derived data ──────────────────────────────────────────────────────────────
   readonly enrolledCourses = computed(() => {
     const enrollments = this.enrollmentUc.enrollments();
     const courses = this.courseUc.courses();
@@ -31,9 +45,10 @@ export class StudentHomeContainer implements OnInit {
   readonly inProgress = computed(() =>
     this.enrolledCourses()
       .filter(x => x.enrollment.status === 'active')
-      .sort((a, b) =>
-        b.enrollment.progress.lastAccessedAt.getTime() -
-        a.enrollment.progress.lastAccessedAt.getTime()
+      .sort(
+        (a, b) =>
+          b.enrollment.progress.lastAccessedAt.getTime() -
+          a.enrollment.progress.lastAccessedAt.getTime()
       )
   );
 
@@ -51,7 +66,6 @@ export class StudentHomeContainer implements OnInit {
 
   readonly isLoading = computed(() => this.enrollmentUc.isLoading() || this.courseUc.isLoading());
 
-  // ── Lifecycle ─────────────────────────────────────────────────────────────────
   ngOnInit(): void {
     if (this.enrollmentUc.enrollments().length === 0) this.enrollmentUc.loadEnrollments();
     if (this.enrollmentUc.pathEnrollments().length === 0) this.enrollmentUc.loadPathEnrollments();
@@ -59,7 +73,6 @@ export class StudentHomeContainer implements OnInit {
     if (this.pathUc.learningPaths().length === 0) this.pathUc.load();
   }
 
-  // ── Navigation ────────────────────────────────────────────────────────────────
   continueCourse(entry: IEnrolledCourseEntry): void {
     const { courseId, currentLessonId, currentBlockId } = entry.enrollment.progress;
     const params: Record<string, string> = {};

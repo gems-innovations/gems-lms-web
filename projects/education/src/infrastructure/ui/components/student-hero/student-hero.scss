@@ -1,0 +1,104 @@
+@use 'variables' as v;
+
+.shero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--border-radius-2xl);
+  border: 1px solid var(--color-borde-principal);
+  background: var(--color-fondo-secundario);
+
+  &__bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at top left, var(--color-primario-trans-20) 0%, transparent 55%),
+      radial-gradient(ellipse at bottom right, color-mix(in srgb, var(--color-teal) 12%, transparent) 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+  &__inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-2xl);
+    padding: var(--spacing-3xl) var(--spacing-2xl);
+    flex-wrap: wrap;
+  }
+
+  &__eyebrow {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-primario-claro);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  &__title {
+    font-family: var(--font-titulo);
+    font-size: clamp(1.75rem, 4vw, 2.6rem);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    color: var(--color-texto-principal);
+    margin-bottom: var(--spacing-md);
+  }
+
+  &__accent {
+    background: var(--gradiente-primario);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  &__sub {
+    max-width: 46ch;
+    font-size: var(--font-size-sm);
+    color: var(--color-texto-secundario);
+    line-height: 1.6;
+  }
+
+  &__stats {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xl);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    background: var(--color-tarjeta);
+    border: 1px solid var(--color-borde-principal);
+    border-radius: var(--border-radius-xl);
+    backdrop-filter: blur(12px);
+  }
+
+  &__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  &__stat-n {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-texto-principal);
+  }
+
+  &__stat-l {
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-texto-terciario);
+  }
+
+  &__divider {
+    width: 1px;
+    height: 36px;
+    background: var(--color-borde-principal);
+  }
+
+  @media (max-width: v.$breakpoint-md) {
+    &__inner {
+      padding: var(--spacing-2xl) var(--spacing-xl);
+    }
+  }
+}

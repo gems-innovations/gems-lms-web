@@ -1,9 +1,51 @@
-<edu-student-home-view
-  [inProgress]="inProgress()"
-  [completed]="completed()"
-  [enrolledPathEntries]="enrolledPathEntries()"
-  [enrolledCount]="enrolledCourses().length"
-  [isLoading]="isLoading()"
-  (onContinueCourse)="continueCourse($event)"
-  (onOpenPath)="openPath($event)"
-/>
+<lib-page width="lg">
+  <edu-student-hero
+    [enrolledCount]="enrolledCourses().length"
+    [completedCount]="completed().length"
+    [activePathsCount]="enrolledPathEntries().length"
+  />
+
+  @if (isLoading()) {
+    <lib-loading-skeleton type="card" [rows]="3" />
+  } @else {
+    @if (inProgress().length > 0) {
+      <section>
+        <edu-section-header title="Continúa aprendiendo" accent="purple" [count]="inProgress().length" />
+        <lib-card-grid minWidth="280px">
+          @for (entry of inProgress(); track entry.enrollment.id) {
+            <edu-course-progress-card [entry]="entry" (open)="continueCourse($event)" />
+          }
+        </lib-card-grid>
+      </section>
+    }
+
+    @if (enrolledPathEntries().length > 0) {
+      <section>
+        <edu-section-header title="Rutas de aprendizaje" accent="teal" [count]="enrolledPathEntries().length" />
+        <lib-card-grid minWidth="420px">
+          @for (entry of enrolledPathEntries(); track entry.enrollment.id) {
+            <edu-path-progress-card [entry]="entry" (open)="openPath($event)" />
+          }
+        </lib-card-grid>
+      </section>
+    }
+
+    @if (completed().length > 0) {
+      <section>
+        <edu-section-header title="Completados" accent="green" [count]="completed().length" />
+        <lib-card-grid minWidth="280px">
+          @for (entry of completed(); track entry.enrollment.id) {
+            <edu-course-progress-card [entry]="entry" (open)="continueCourse($event)" />
+          }
+        </lib-card-grid>
+      </section>
+    }
+
+    @if (enrolledCourses().length === 0) {
+      <lib-empty-state
+        title="Sin cursos por ahora"
+        description="Explora el catálogo y matricúlate en un curso para iniciar tu recorrido de aprendizaje."
+      />
+    }
+  }
+</lib-page>
