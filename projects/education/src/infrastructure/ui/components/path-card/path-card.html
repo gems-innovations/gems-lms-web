@@ -1,0 +1,97 @@
+<article class="pcard">
+
+  <!-- Thumbnail -->
+  <div class="pcard__thumb" [style.backgroundImage]="path().thumbnailUrl ? 'url(' + path().thumbnailUrl + ')' : ''">
+    <div class="pcard__thumb-overlay"></div>
+    <span class="pcard__badge pcard__badge--{{ path().status }}">
+      {{ statusLabels[path().status] }}
+    </span>
+    <!-- Path indicator strip -->
+    <div class="pcard__strip">
+      @for (step of path().steps.slice(0, 5); track step.id) {
+        <div class="pcard__step" [title]="step.courseTitle">
+          @if (step.courseThumbnailUrl) {
+            <img [src]="step.courseThumbnailUrl" [alt]="step.courseTitle" />
+          } @else {
+            <span>{{ step.order }}</span>
+          }
+        </div>
+      }
+      @if (path().steps.length > 5) {
+        <div class="pcard__step pcard__step--more">+{{ path().steps.length - 5 }}</div>
+      }
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="pcard__body">
+    <h3 class="pcard__title">{{ path().title }}</h3>
+    <p class="pcard__desc">{{ path().description }}</p>
+    @if (path().tags.length > 0) {
+      <div class="pcard__tags">
+        @for (tag of path().tags.slice(0, 3); track tag) {
+          <span class="pcard__tag">{{ tag }}</span>
+        }
+        @if (path().tags.length > 3) {
+          <span class="pcard__tag pcard__tag--more">+{{ path().tags.length - 3 }}</span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Stats -->
+  <div class="pcard__stats">
+    <div class="pcard__stat-item">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+      {{ path().steps.length }} cursos
+    </div>
+    <div class="pcard__stat-item">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+      {{ formatDuration(path().estimatedDuration) }}
+    </div>
+    <div class="pcard__stat-item">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      </svg>
+      {{ path().enrolledCount | number }}
+    </div>
+    <div class="pcard__stat-item">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      {{ path().completionRate }}%
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <footer class="pcard__footer">
+    @if (path().status === ELearningPathStatus.DRAFT) {
+      <button type="button" class="pcard__action pcard__action--publish" (click)="publish.emit(path().id)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+        </svg>
+        Publicar
+      </button>
+    }
+    @if (path().status === ELearningPathStatus.PUBLISHED) {
+      <button type="button" class="pcard__action pcard__action--archive" (click)="archive.emit(path().id)">Archivar</button>
+    }
+    <button type="button" class="pcard__action pcard__action--edit" (click)="edit.emit(path())">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+      Editar
+    </button>
+    <button type="button" class="pcard__action pcard__action--delete" (click)="remove.emit(path())">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+      </svg>
+    </button>
+  </footer>
+
+</article>

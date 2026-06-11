@@ -1,45 +1,75 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {
+  CardGridComponent,
+  ConfirmationDialogComponent,
+  EmptyStateComponent,
+  LibButtonComponent,
+  LoadingSkeletonComponent,
+  PageComponent,
+  PageHeaderComponent,
+  SearchBarComponent,
+  StatCardComponent,
+  StatGridComponent,
+  TabsComponent,
+  TabItem,
+  ToolbarComponent
+} from 'shared';
 import { LearningPathUseCase } from '../../../../application/learning-path.usecase';
 import { ILearningPath, ELearningPathStatus } from '../../../../domain/model/learning-path.model';
+import { PathCard } from '../../components/path-card/path-card';
+
+const ALL_TAB = 'all';
 
 @Component({
   selector: 'edu-learning-path-list-container',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './learning-path-list-container.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './learning-path-list-container.scss'
+  imports: [
+    PageComponent,
+    PageHeaderComponent,
+    LibButtonComponent,
+    StatGridComponent,
+    StatCardComponent,
+    ToolbarComponent,
+    SearchBarComponent,
+    TabsComponent,
+    CardGridComponent,
+    LoadingSkeletonComponent,
+    EmptyStateComponent,
+    ConfirmationDialogComponent,
+    PathCard
+  ],
+  templateUrl: './learning-path-list-container.html'
 })
 export class LearningPathListContainer implements OnInit {
   private readonly router = inject(Router);
   readonly uc = inject(LearningPathUseCase);
 
-  readonly ELearningPathStatus = ELearningPathStatus;
+  readonly statusTabs: TabItem[] = [
+    { id: ALL_TAB, label: 'Todas' },
+    { id: ELearningPathStatus.PUBLISHED, label: 'Publicadas' },
+    { id: ELearningPathStatus.DRAFT, label: 'Borradores' }
+  ];
 
-  readonly activeTab = signal<ELearningPathStatus | null>(null);
-  readonly searchValue = signal('');
+  readonly activeTab = signal<string>(ALL_TAB);
+  readonly searchTerm = signal<string>('');
 
-  readonly statusLabels: Record<ELearningPathStatus, string> = {
-    [ELearningPathStatus.DRAFT]: 'Borrador',
-    [ELearningPathStatus.PUBLISHED]: 'Publicado',
-    [ELearningPathStatus.ARCHIVED]: 'Archivado'
-  };
+  readonly showDeleteDialog = computed(() => {
+    const modal = this.uc.modal();
+    return modal.isOpen && modal.mode === 'delete';
+  });
 
   ngOnInit(): void {
     this.uc.load();
   }
 
   onSearch(term: string): void {
-    this.searchValue.set(term);
+    this.searchTerm.set(term);
     this.uc.setSearch(term);
   }
 
-  setTab(status: ELearningPathStatus | null): void {
-    this.activeTab.set(status);
-    this.uc.setStatusFilter(status);
+  onTabChange(tabId: string): void {
+    this.activeTab.set(tabId);
+    this.uc.setStatusFilter(tabId === ALL_TAB ? null : (tabId as ELearningPathStatus));
   }
 
   createPath(): void {
@@ -50,35 +80,8 @@ export class LearningPathListContainer implements OnInit {
     this.router.navigate(['/education/learning-paths', path.id, 'edit']);
   }
 
-  confirmDelete(path: ILearningPath): void {
-    this.uc.openModal('delete', path.id);
-  }
-
-  onDelete(id: string): void {
-    this.uc.delete(id);
-  }
-
-  onModalClose(): void {
-    this.uc.closeModal();
-  }
-
-  publishPath(id: string): void {
-    this.uc.publishPath(id);
-  }
-
-  archivePath(id: string): void {
-    this.uc.archivePath(id);
-  }
-
-  formatDuration(minutes: number): string {
-    if (!minutes) return '0 min';
-    if (minutes < 60) return `${minutes}min`;
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return m > 0 ? `${h}h ${m}min` : `${h}h`;
-  }
-
-  trackById(_: number, item: ILearningPath): string {
-    return item.id;
+  confirmDelete(): void {
+    const id = this.uc.modal().lpId;
+    if (id) this.uc.delete(id);
   }
 }
