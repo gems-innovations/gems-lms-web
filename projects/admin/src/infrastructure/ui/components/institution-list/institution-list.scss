@@ -1,5 +1,5 @@
 @use "sass:map";
-@use "../../../../../../shared/src/infrastructure/ui/styles/variables.scss" as vars;
+@use 'variables' as vars;
 
 .institution-list {
   display: flex;

@@ -1,5 +1,5 @@
 @use 'sass:map';
-@use '../../../../../../shared/src/infrastructure/ui/styles/variables.scss' as vars;
+@use 'variables' as vars;
 
 // Tokens locales
 $border: rgba(255, 255, 255, 0.07);

@@ -1,5 +1,5 @@
 @use 'sass:map';
-@use '../../styles/variables' as *;
+@use 'variables' as *;
 
 // Las variables $_* son privadas al módulo con @use; se resuelven vía el mapa público $colors
 $_color-error: map.get($colors, error);

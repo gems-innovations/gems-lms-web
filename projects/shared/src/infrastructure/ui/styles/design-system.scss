@@ -1,68 +1,97 @@
 // ============================================================================
-// GEMS LMS - Sistema de Diseño Compartido
+// GEMS LMS – Sistema de Diseño (tokens globales)
 // ============================================================================
-// Variables CSS personalizadas y mixins para todo el proyecto
+// Este archivo se inyecta UNA sola vez en la aplicación vía
+// projects/main/src/styles.scss. Los componentes consumen los tokens con
+// var(--token) directamente, sin importar este archivo.
+// Tema oscuro por defecto; :root.light-mode redefine los tokens semánticos.
 // ============================================================================
 
 :root {
   // =========================================================================
-  // COLORES PRINCIPALES
+  // MARCA
   // =========================================================================
-  --color-primario: #6C63FF;
+  // --color-primario y --color-secundario los sobrescribe BrandingService en
+  // runtime (estilo inline en <html>) cuando una institución define su marca.
+  --color-primario: #7B6FF0;
+  --color-primario-claro: #9B8FF8;
+  --color-primario-profundo: #4F46E5;
+  --color-primario-trans-10: rgba(123, 111, 240, 0.1);
+  --color-primario-trans-20: rgba(123, 111, 240, 0.2);
   --color-secundario: #1E1B4B;
   --color-acento: #4DE1FF;
-  --color-exito: #10B981;
-  --color-advertencia: #F59E0B;
-  --color-error: #EF4444;
-  --color-info: #3B82F6;
-  
+  --color-teal: #3DD6C8;
+  --color-magenta: #C471ED;
+
   // =========================================================================
-  // COLORES DE FONDO
+  // ESTADOS
   // =========================================================================
-  --color-fondo-principal: #FFFFFF;
-  --color-fondo-secundario: #F9FAFB;
-  --color-fondo-terciario: #F3F4F6;
-  --color-fondo-overlay: rgba(0, 0, 0, 0.5);
-  
+  --color-exito: #34D399;
+  --color-exito-intenso: #10B981;
+  --color-advertencia: #FBBF24;
+  --color-error: #F87171;
+  --color-error-intenso: #EF4444;
+  --color-info: #38BDF8;
+
   // =========================================================================
-  // COLORES DE TEXTO
+  // FONDOS Y SUPERFICIES (tema oscuro por defecto)
   // =========================================================================
-  --color-texto-principal: #1F2937;
-  --color-texto-secundario: #6B7280;
-  --color-texto-terciario: #9CA3AF;
+  --color-fondo-principal: #080710;
+  --color-fondo-secundario: #111119;
+  --color-superficie: #12111A;
+  --color-superficie-alta: #1C1B27;
+  --color-tarjeta: rgba(255, 255, 255, 0.03);
+  --color-tarjeta-hover: rgba(255, 255, 255, 0.055);
+  --color-fondo-overlay: rgba(0, 0, 0, 0.6);
+
+  // =========================================================================
+  // TEXTO
+  // =========================================================================
+  --color-texto-principal: #EDEAF8;
+  --color-texto-secundario: #A1A8C3;
+  --color-texto-terciario: rgba(161, 168, 195, 0.55);
   --color-texto-invertido: #FFFFFF;
-  
+  --color-texto-contraste: #0F1021;
+
   // =========================================================================
-  // COLORES DE BORDE
+  // BORDES
   // =========================================================================
-  --color-borde-principal: #E5E7EB;
-  --color-borde-secundario: #D1D5DB;
+  --color-borde-principal: rgba(255, 255, 255, 0.07);
+  --color-borde-secundario: rgba(255, 255, 255, 0.14);
   --color-borde-activo: var(--color-primario);
-  
+
+  // =========================================================================
+  // MISCELÁNEA DE COLOR
+  // =========================================================================
+  --color-scrollbar: rgba(255, 255, 255, 0.1);
+  --color-scrollbar-hover: rgba(255, 255, 255, 0.18);
+  --color-focus-ring: rgba(123, 111, 240, 0.6);
+
   // =========================================================================
   // GRADIENTES
   // =========================================================================
   --gradiente-primario: linear-gradient(135deg, var(--color-primario) 0%, var(--color-acento) 100%);
-  --gradiente-secundario: linear-gradient(135deg, var(--color-secundario) 0%, rgba(30, 27, 75, 0.95) 100%);
-  --gradiente-overlay: linear-gradient(135deg, rgba(108, 99, 255, 0.15) 0%, rgba(77, 225, 255, 0.15) 100%);
-  
+  --gradiente-nebula: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-primario) 100%);
+  --gradiente-oscuro: linear-gradient(135deg, var(--color-secundario) 0%, var(--color-fondo-principal) 100%);
+  --gradiente-overlay: linear-gradient(135deg, rgba(123, 111, 240, 0.15) 0%, rgba(77, 225, 255, 0.15) 100%);
+
   // =========================================================================
   // SOMBRAS
   // =========================================================================
-  --sombra-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --sombra-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --sombra-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --sombra-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --sombra-sidebar: 4px 0 20px rgba(0, 0, 0, 0.1);
-  --sombra-activo: 0 4px 12px rgba(108, 99, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  
+  --sombra-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
+  --sombra-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --sombra-lg: 0 10px 24px rgba(0, 0, 0, 0.35);
+  --sombra-xl: 0 20px 40px rgba(0, 0, 0, 0.4);
+  --sombra-glow: 0 0 20px rgba(123, 111, 240, 0.4);
+  --sombra-sidebar: 4px 0 20px rgba(0, 0, 0, 0.25);
+  --sombra-activo: 0 4px 12px rgba(123, 111, 240, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
   // =========================================================================
   // TIPOGRAFÍA
   // =========================================================================
-  --font-titulo: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-texto: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  
-  // Tamaños de fuente
+  --font-titulo: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-texto: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
   --font-size-xs: 0.75rem;    // 12px
   --font-size-sm: 0.875rem;   // 14px
   --font-size-base: 1rem;     // 16px
@@ -70,13 +99,14 @@
   --font-size-xl: 1.25rem;    // 20px
   --font-size-2xl: 1.5rem;    // 24px
   --font-size-3xl: 1.875rem;  // 30px
-  
-  // Pesos de fuente
+  --font-size-4xl: 2.25rem;   // 36px
+
+  --font-weight-light: 300;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
-  
+
   // =========================================================================
   // ESPACIADO
   // =========================================================================
@@ -87,7 +117,7 @@
   --spacing-xl: 1.5rem;    // 24px
   --spacing-2xl: 2rem;     // 32px
   --spacing-3xl: 3rem;     // 48px
-  
+
   // =========================================================================
   // BORDES Y RADIOS
   // =========================================================================
@@ -95,8 +125,9 @@
   --border-radius-md: 0.5rem;     // 8px
   --border-radius-lg: 0.75rem;    // 12px
   --border-radius-xl: 1rem;       // 16px
+  --border-radius-2xl: 1.5rem;    // 24px
   --border-radius-full: 9999px;
-  
+
   // =========================================================================
   // TRANSICIONES
   // =========================================================================
@@ -104,7 +135,7 @@
   --transition-base: 0.3s;
   --transition-slow: 0.5s;
   --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   // =========================================================================
   // Z-INDEX
   // =========================================================================
@@ -117,51 +148,32 @@
   --z-tooltip: 1070;
 }
 
-// =========================================================================
-// MIXINS ÚTILES
-// =========================================================================
+// ============================================================================
+// TEMA CLARO (activado con la clase .light-mode en <html>)
+// ============================================================================
+:root.light-mode {
+  --color-fondo-principal: #F4F6FB;
+  --color-fondo-secundario: #FFFFFF;
+  --color-superficie: #FFFFFF;
+  --color-superficie-alta: #F0F2F8;
+  --color-tarjeta: #FFFFFF;
+  --color-tarjeta-hover: #F8FAFC;
+  --color-fondo-overlay: rgba(15, 16, 33, 0.4);
 
-@mixin flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  --color-texto-principal: #1A202C;
+  --color-texto-secundario: #475569;
+  --color-texto-terciario: #64748B;
+  --color-texto-contraste: #1A202C;
 
-@mixin absolute-full {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
+  --color-borde-principal: #E2E8F0;
+  --color-borde-secundario: #CBD5E1;
 
-@mixin text-truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  --color-scrollbar: rgba(0, 0, 0, 0.12);
+  --color-scrollbar-hover: rgba(0, 0, 0, 0.2);
 
-@mixin backdrop-blur {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-@mixin scrollbar-custom {
-  &::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 2px;
-    
-    &:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-  }
+  --sombra-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --sombra-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --sombra-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --sombra-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --sombra-sidebar: 4px 0 20px rgba(0, 0, 0, 0.08);
 }

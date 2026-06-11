@@ -20,12 +20,14 @@ export class BrandingService {
   apply(config: IBrandingConfig): void {
     this._config.set(config);
     const root = this.document.documentElement;
-    root.style.setProperty('--brand-primary', config.colorPrimary);
-    root.style.setProperty('--brand-secondary', config.colorSecondary ?? '#1E1B4B');
+    // Sobrescribe los tokens del design system: todo componente que consuma
+    // var(--color-primario) queda rebrandeado sin lógica adicional.
+    root.style.setProperty('--color-primario', config.colorPrimary);
+    root.style.setProperty('--color-secundario', config.colorSecondary ?? '#1E1B4B');
 
     // Derived tones (lighten/darken via opacity layers)
-    root.style.setProperty('--brand-primary-10', config.colorPrimary + '1a'); // 10% opacity
-    root.style.setProperty('--brand-primary-20', config.colorPrimary + '33'); // 20% opacity
+    root.style.setProperty('--color-primario-trans-10', config.colorPrimary + '1a'); // 10% opacity
+    root.style.setProperty('--color-primario-trans-20', config.colorPrimary + '33'); // 20% opacity
 
     // Dark is the global default. Only add 'light-mode' when the institution
     // explicitly prefers a light theme (darkMode === false).
@@ -39,10 +41,10 @@ export class BrandingService {
   reset(): void {
     this._config.set(null);
     const root = this.document.documentElement;
-    root.style.removeProperty('--brand-primary');
-    root.style.removeProperty('--brand-secondary');
-    root.style.removeProperty('--brand-primary-10');
-    root.style.removeProperty('--brand-primary-20');
+    root.style.removeProperty('--color-primario');
+    root.style.removeProperty('--color-secundario');
+    root.style.removeProperty('--color-primario-trans-10');
+    root.style.removeProperty('--color-primario-trans-20');
     root.classList.remove('light-mode');
   }
 }

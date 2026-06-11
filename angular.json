@@ -30,7 +30,10 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "tsConfig": "projects/shared/tsconfig.spec.json"
+            "tsConfig": "projects/shared/tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/shared/src/infrastructure/ui/styles"]
+            }
           }
         }
       }
@@ -53,6 +56,9 @@
             "browser": "projects/main/src/main.ts",
             "tsConfig": "projects/main/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/shared/src/infrastructure/ui/styles"]
+            },
             "assets": [
               {
                 "glob": "**/*",
@@ -118,6 +124,9 @@
           "options": {
             "tsConfig": "projects/main/tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/shared/src/infrastructure/ui/styles"]
+            },
             "assets": [
               {
                 "glob": "**/*",
@@ -158,7 +167,10 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "tsConfig": "projects/admin/tsconfig.spec.json"
+            "tsConfig": "projects/admin/tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/shared/src/infrastructure/ui/styles"]
+            }
           }
         }
       }
@@ -190,7 +202,10 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "tsConfig": "projects/auth/tsconfig.spec.json"
+            "tsConfig": "projects/auth/tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/shared/src/infrastructure/ui/styles"]
+            }
           }
         }
       }
@@ -222,7 +237,10 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "tsConfig": "projects/education/tsconfig.spec.json"
+            "tsConfig": "projects/education/tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/shared/src/infrastructure/ui/styles"]
+            }
           }
         }
       }

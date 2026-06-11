@@ -1,13 +1,13 @@
 // ── Tokens ───────────────────────────────────────────────────────────────────
-$purple:  var(--brand-primary, #7B6FF0);
-$teal:    #3DD6C8;
+$purple:  var(--color-primario);
+$teal:    var(--color-teal);
 $green:   #22C55E;
-$bg:      var(--s-bg,      #0b0b12);
-$surface: var(--s-surface, #111119);
-$card:    var(--s-card,    rgba(255,255,255,.035));
-$border:  var(--s-border,  rgba(255,255,255,.07));
-$text:    var(--s-text,    #EDEAF8);
-$muted:   var(--s-muted,   rgba(180,178,210,.45));
+$bg:      var(--color-fondo-principal);
+$surface: var(--color-fondo-secundario);
+$card:    var(--color-tarjeta);
+$border:  var(--color-borde-principal);
+$text:    var(--color-texto-principal);
+$muted:   var(--color-texto-terciario);
 
 // ── Root ─────────────────────────────────────────────────────────────────────
 .shome {
