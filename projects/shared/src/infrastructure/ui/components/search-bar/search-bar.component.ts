@@ -1,48 +1,43 @@
-import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
-
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { Component, OnDestroy, computed, input, linkedSignal, output } from '@angular/core';
 
 @Component({
   selector: 'lib-search-bar',
-  imports: [ReactiveFormsModule],
   templateUrl: './search-bar.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './search-bar.component.scss'
 })
-export class SearchBarComponent {
-  placeholder = input<string>('Search...');
-  debounceTime = input<number>(300);
-  value = input<string>('');
-  
-  search = output<string>();
-  clear = output<void>();
+export class SearchBarComponent implements OnDestroy {
+  readonly placeholder = input<string>('Buscar...');
+  readonly debounceTime = input<number>(300);
+  readonly value = input<string>('');
 
-  searchControl = new FormControl('');
+  readonly search = output<string>();
+  readonly clear = output<void>();
 
-  ngOnInit() {
-    // Set initial value
-    if (this.value()) {
-      this.searchControl.setValue(this.value(), { emitEvent: false });
-    }
+  protected readonly term = linkedSignal(() => this.value());
+  protected readonly hasValue = computed(() => this.term().length > 0);
 
-    // Listen to changes with debounce
-    this.searchControl.valueChanges
-      .pipe(
-        debounceTime(this.debounceTime()),
-        distinctUntilChanged()
-      )
-      .subscribe(value => {
-        this.search.emit(value || '');
-      });
+  private debounceTimer?: ReturnType<typeof setTimeout>;
+  private lastEmitted?: string;
+
+  protected onInput(value: string): void {
+    this.term.set(value);
+    clearTimeout(this.debounceTimer);
+    this.debounceTimer = setTimeout(() => {
+      if (value !== this.lastEmitted) {
+        this.lastEmitted = value;
+        this.search.emit(value);
+      }
+    }, this.debounceTime());
   }
 
-  onClear(): void {
-    this.searchControl.setValue('');
+  protected onClear(): void {
+    clearTimeout(this.debounceTimer);
+    this.term.set('');
+    this.lastEmitted = '';
     this.clear.emit();
   }
 
-  get hasValue(): boolean {
-    return !!this.searchControl.value;
+  ngOnDestroy(): void {
+    clearTimeout(this.debounceTimer);
   }
 }

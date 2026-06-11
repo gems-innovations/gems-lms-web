@@ -1,88 +1,60 @@
-import { Component, Input, forwardRef, ChangeDetectionStrategy } from '@angular/core';
-
-import { 
-  ControlValueAccessor, 
-  NG_VALUE_ACCESSOR, 
-  ReactiveFormsModule,
-  FormControl
-} from '@angular/forms';
+import { Component, computed, input, model, output, signal } from '@angular/core';
+import { FormValueControl, ValidationError } from '@angular/forms/signals';
 
 export interface SelectOption {
-  value: any;
+  value: string;
   label: string;
   disabled?: boolean;
 }
 
+const ERROR_FALLBACKS: Record<string, string> = {
+  required: 'Este campo es obligatorio.'
+};
+
 @Component({
   selector: 'lib-select',
-  standalone: true,
-  imports: [ReactiveFormsModule],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => LibSelectComponent),
-      multi: true
-    }
-  ],
   templateUrl: './lib-select.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './lib-select.scss'
 })
-export class LibSelectComponent implements ControlValueAccessor {
-  @Input() label = '';
-  @Input() placeholder = 'Select an option';
-  @Input() required = false;
-  @Input() disabled = false;
-  @Input() errorMessage = '';
-  @Input() helpText = '';
-  @Input() options: SelectOption[] = [];
-  @Input() icon?: string;
+export class LibSelectComponent implements FormValueControl<string> {
+  // Estado sincronizado por la directiva [formField] de Signal Forms
+  readonly value = model<string>('');
+  readonly touched = input<boolean>(false);
+  readonly touch = output<void>();
+  readonly errors = input<readonly ValidationError[]>([]);
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
 
-  public control = new FormControl('');
-  public focused = false;
-  public touched = false;
+  readonly label = input<string>('');
+  readonly placeholder = input<string>('Selecciona una opción');
+  readonly helpText = input<string>('');
+  readonly options = input<SelectOption[]>([]);
+  readonly icon = input<string | undefined>(undefined);
 
-  private onChange: (value: any) => void = () => {};
-  private onTouched: () => void = () => {};
+  protected readonly focused = signal(false);
 
-  // ControlValueAccessor implementation
-  writeValue(value: any): void {
-    this.control.setValue(value || '', { emitEvent: false });
+  protected readonly showError = computed(() => this.touched() && this.errors().length > 0);
+
+  protected readonly errorMessage = computed(() => {
+    const [first] = this.errors();
+    if (!first) return '';
+    return first.message ?? ERROR_FALLBACKS[first.kind] ?? 'El valor seleccionado no es válido.';
+  });
+
+  protected readonly selectId = computed(
+    () => `lib-select-${this.label().toLowerCase().replace(/\s+/g, '-')}`
+  );
+
+  protected onChange(value: string): void {
+    this.value.set(value);
   }
 
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
-    this.control.valueChanges.subscribe(fn);
+  protected onFocus(): void {
+    this.focused.set(true);
   }
 
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-    if (isDisabled) {
-      this.control.disable({ emitEvent: false });
-    } else {
-      this.control.enable({ emitEvent: false });
-    }
-  }
-
-  onFocus(): void {
-    this.focused = true;
-  }
-
-  onBlur(): void {
-    this.focused = false;
-    this.touched = true;
-    this.onTouched();
-  }
-
-  get showError(): boolean {
-    return this.touched && !!this.errorMessage;
-  }
-
-  get selectId(): string {
-    return `lib-select-${this.label.toLowerCase().replace(/\s+/g, '-')}`;
+  protected onBlur(): void {
+    this.focused.set(false);
+    this.touch.emit();
   }
 }

@@ -1,56 +1,45 @@
-import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { subformComponentProviders, createForm, FormType } from 'ngx-sub-form';
-import { InputComponent, ButtonComponent } from 'shared';
+import { Component, effect, input, output, signal } from '@angular/core';
+import { FormField, email, form, minLength, required } from '@angular/forms/signals';
+import { LibButtonComponent, LibInputComponent } from 'shared';
 import { ILoginCredentials } from '../../../../domain/model/login-credentials.model';
 
 @Component({
   selector: 'auth-login-form',
-  standalone: true,
-  imports: [ReactiveFormsModule, InputComponent, ButtonComponent],
-  providers: subformComponentProviders(LoginForm),
+  imports: [FormField, LibInputComponent, LibButtonComponent],
   templateUrl: './login-form.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './login-form.scss'
 })
 export class LoginForm {
-  private input$    = new Subject<ILoginCredentials | undefined>();
-  private disabled$ = new Subject<boolean>();
+  readonly disabled = input<boolean>(false);
+  readonly isLoading = input<boolean>(false);
+  readonly errorMessage = input<string | null>(null);
+  readonly credentials = input<ILoginCredentials | undefined>();
 
-  public onSubmit    = output<ILoginCredentials>();
-  public modelUpdate = output<ILoginCredentials>();
+  readonly onSubmit = output<ILoginCredentials>();
 
-  public disabled      = input<boolean>(false);
-  public isLoading     = input<boolean>(false);
-  public errorMessage  = input<string | null>(null);
-  public credentials   = input<ILoginCredentials | undefined>();
+  private readonly model = signal<ILoginCredentials>({ email: '', password: '' });
 
-  public form = createForm<ILoginCredentials>(this, {
-    formType: FormType.ROOT,
-    input$: this.input$,
-    output$: new Subject<ILoginCredentials>(),
-    disabled$: this.disabled$,
-    formControls: {
-      email:    new FormControl(null, [Validators.required, Validators.email]),
-      password: new FormControl(null, [Validators.required, Validators.minLength(8)])
-    }
+  readonly loginForm = form(this.model, p => {
+    required(p.email, { message: 'Este campo es obligatorio.' });
+    email(p.email, { message: 'Por favor, introduce un correo válido.' });
+    required(p.password, { message: 'Este campo es obligatorio.' });
+    minLength(p.password, 8, { message: 'Mínimo 8 caracteres.' });
   });
 
   constructor() {
-    this.input$.next(this.credentials());
-    this.disabled$.next(this.disabled());
+    effect(() => {
+      const value = this.credentials();
+      if (value) {
+        this.model.set({ ...value });
+      }
+    });
   }
 
   submit(): void {
-    if (this.form.formGroup.valid) {
-      const value = this.form.formGroup.value as ILoginCredentials;
-      this.onSubmit.emit(value);
-      this.modelUpdate.emit(value);
+    if (this.loginForm().valid()) {
+      this.onSubmit.emit(this.model());
+    } else {
+      this.loginForm().markAsTouched();
     }
-  }
-
-  getControl(name: string) {
-    return this.form.formGroup.get(name);
   }
 }

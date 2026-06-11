@@ -6,15 +6,16 @@
     type="text"
     class="search-input"
     [placeholder]="placeholder()"
-    [formControl]="searchControl"
-    aria-label="Search"
+    [value]="term()"
+    (input)="onInput($any($event.target).value)"
+    aria-label="Buscar"
   />
-  @if (hasValue) {
+  @if (hasValue()) {
     <button
       type="button"
       class="clear-button"
       (click)="onClear()"
-      aria-label="Clear search"
+      aria-label="Limpiar búsqueda"
     >
       ✕
     </button>

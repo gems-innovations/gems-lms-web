@@ -1,89 +1,68 @@
-import { Component, Input, Output, forwardRef, ChangeDetectionStrategy } from '@angular/core';
-
-import { 
-  ControlValueAccessor, 
-  NG_VALUE_ACCESSOR, 
-  ReactiveFormsModule,
-  FormControl
-} from '@angular/forms';
+import { Component, computed, input, model, output, signal } from '@angular/core';
+import { FormValueControl, ValidationError } from '@angular/forms/signals';
 
 export type InputType = 'text' | 'email' | 'url' | 'number' | 'tel' | 'password' | 'color';
 
+const ERROR_FALLBACKS: Record<string, string> = {
+  required: 'Este campo es obligatorio.',
+  email: 'Por favor, introduce un correo válido.',
+  pattern: 'El formato no es válido.',
+  minLength: 'El valor es demasiado corto.',
+  maxLength: 'El valor es demasiado largo.',
+  min: 'El valor es demasiado pequeño.',
+  max: 'El valor es demasiado grande.'
+};
+
 @Component({
   selector: 'lib-input',
-  standalone: true,
-  imports: [ReactiveFormsModule],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => LibInputComponent),
-      multi: true
-    }
-  ],
   templateUrl: './lib-input.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './lib-input.scss'
 })
-export class LibInputComponent implements ControlValueAccessor {
-  @Input() type: InputType = 'text';
-  @Input() label = '';
-  @Input() placeholder = '';
-  @Input() required = false;
-  @Input() disabled = false;
-  @Input() errorMessage = '';
-  @Input() helpText = '';
-  @Input() icon?: string;
-  @Input() maxLength?: number;
-  @Input() minLength?: number;
-  @Input() min?: number;
-  @Input() max?: number;
-  @Input() step?: number;
+export class LibInputComponent implements FormValueControl<string> {
+  // Estado sincronizado por la directiva [formField] de Signal Forms
+  readonly value = model<string>('');
+  readonly touched = input<boolean>(false);
+  readonly touch = output<void>();
+  readonly errors = input<readonly ValidationError[]>([]);
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
 
-  public control = new FormControl('');
-  public focused = false;
-  public touched = false;
+  readonly type = input<InputType>('text');
+  readonly label = input<string>('');
+  readonly placeholder = input<string>('');
+  readonly helpText = input<string>('');
+  readonly icon = input<string | undefined>(undefined);
+  readonly maxLength = input<number | undefined>(undefined);
+  readonly minLength = input<number | undefined>(undefined);
+  // min/max llevan el tipo del valor del control (string) según FormValueControl
+  readonly min = input<string | undefined>(undefined);
+  readonly max = input<string | undefined>(undefined);
+  readonly step = input<number | undefined>(undefined);
 
-  private onChange: (value: any) => void = () => {};
-  private onTouched: () => void = () => {};
+  protected readonly focused = signal(false);
 
-  // ControlValueAccessor implementation
-  writeValue(value: any): void {
-    this.control.setValue(value || '', { emitEvent: false });
+  protected readonly showError = computed(() => this.touched() && this.errors().length > 0);
+
+  protected readonly errorMessage = computed(() => {
+    const [first] = this.errors();
+    if (!first) return '';
+    return first.message ?? ERROR_FALLBACKS[first.kind] ?? 'El valor introducido no es válido.';
+  });
+
+  protected readonly inputId = computed(
+    () => `lib-input-${this.label().toLowerCase().replace(/\s+/g, '-')}`
+  );
+
+  protected onInput(value: string): void {
+    this.value.set(value);
   }
 
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
-    this.control.valueChanges.subscribe(fn);
+  protected onFocus(): void {
+    this.focused.set(true);
   }
 
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-    if (isDisabled) {
-      this.control.disable({ emitEvent: false });
-    } else {
-      this.control.enable({ emitEvent: false });
-    }
-  }
-
-  onFocus(): void {
-    this.focused = true;
-  }
-
-  onBlur(): void {
-    this.focused = false;
-    this.touched = true;
-    this.onTouched();
-  }
-
-  get showError(): boolean {
-    return this.touched && !!this.errorMessage;
-  }
-
-  get inputId(): string {
-    return `lib-input-${this.label.toLowerCase().replace(/\s+/g, '-')}`;
+  protected onBlur(): void {
+    this.focused.set(false);
+    this.touch.emit();
   }
 }

@@ -1,56 +1,33 @@
-import {
-  Component, input, forwardRef, signal, ChangeDetectionStrategy
-} from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { Component, input, linkedSignal, model, output } from '@angular/core';
+import { FormValueControl } from '@angular/forms/signals';
 
 @Component({
   selector: 'lib-color-picker',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
   templateUrl: './color-picker.component.html',
-  styleUrl: './color-picker.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ColorPickerComponent),
-      multi: true
-    }
-  ]
+  styleUrl: './color-picker.component.scss'
 })
-export class ColorPickerComponent implements ControlValueAccessor {
+export class ColorPickerComponent implements FormValueControl<string> {
   readonly label = input<string>('Color');
-  readonly hint  = input<string | undefined>(undefined);
+  readonly hint = input<string | undefined>(undefined);
 
-  protected readonly value    = signal('#6C63FF');
-  protected readonly hexInput = signal('#6C63FF');
-  protected readonly disabled = signal(false);
+  // Estado sincronizado por la directiva [formField] de Signal Forms
+  readonly value = model<string>('#6C63FF');
+  readonly disabled = input<boolean>(false);
+  readonly touch = output<void>();
 
-  private onChange: (v: string) => void = () => {};
-  private onTouched: () => void         = () => {};
+  // El campo hex refleja el valor del form pero admite escritura parcial
+  protected readonly hexInput = linkedSignal(() => this.value());
 
-  // ControlValueAccessor
-  writeValue(v: string): void {
-    if (v) { this.value.set(v); this.hexInput.set(v); }
-  }
-  registerOnChange(fn: (v: string) => void): void { this.onChange = fn; }
-  registerOnTouched(fn: () => void): void         { this.onTouched = fn; }
-  setDisabledState(d: boolean): void              { this.disabled.set(d); }
-
-  onColorChange(val: string): void {
+  protected onColorChange(val: string): void {
     this.value.set(val);
-    this.hexInput.set(val);
-    this.onChange(val);
-    this.onTouched();
+    this.touch.emit();
   }
 
-  onHexInput(val: string): void {
+  protected onHexInput(val: string): void {
     this.hexInput.set(val);
     if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
       this.value.set(val);
-      this.onChange(val);
     }
-    this.onTouched();
+    this.touch.emit();
   }
 }

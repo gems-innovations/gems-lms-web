@@ -1,45 +1,38 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 
-
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 @Component({
   selector: 'lib-button',
-  standalone: true,
-  imports: [],
   templateUrl: './lib-button.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './lib-button.scss'
 })
 export class LibButtonComponent {
-  @Input() variant: ButtonVariant = 'primary';
-  @Input() size: ButtonSize = 'md';
-  @Input() type: 'button' | 'submit' | 'reset' = 'button';
-  @Input() disabled = false;
-  @Input() loading = false;
-  @Input() fullWidth = false;
-  @Input() icon?: string;
-  @Input() iconPosition: 'left' | 'right' = 'left';
-  
-  @Output() clicked = new EventEmitter<Event>();
+  readonly variant = input<ButtonVariant>('primary');
+  readonly size = input<ButtonSize>('md');
+  readonly type = input<'button' | 'submit' | 'reset'>('button');
+  readonly disabled = input<boolean>(false);
+  readonly loading = input<boolean>(false);
+  readonly fullWidth = input<boolean>(false);
+  readonly icon = input<string | undefined>(undefined);
+  readonly iconPosition = input<'left' | 'right'>('left');
 
-  onClick(event: Event): void {
-    if (!this.disabled && !this.loading) {
+  readonly clicked = output<Event>();
+
+  protected readonly buttonClasses = computed(() => {
+    const classes = ['lib-button', `lib-button--${this.variant()}`, `lib-button--${this.size()}`];
+
+    if (this.fullWidth()) classes.push('lib-button--full-width');
+    if (this.disabled()) classes.push('lib-button--disabled');
+    if (this.loading()) classes.push('lib-button--loading');
+
+    return classes.join(' ');
+  });
+
+  protected onClick(event: Event): void {
+    if (!this.disabled() && !this.loading()) {
       this.clicked.emit(event);
     }
-  }
-
-  get buttonClasses(): string {
-    const classes = ['lib-button'];
-    
-    classes.push(`lib-button--${this.variant}`);
-    classes.push(`lib-button--${this.size}`);
-    
-    if (this.fullWidth) classes.push('lib-button--full-width');
-    if (this.disabled) classes.push('lib-button--disabled');
-    if (this.loading) classes.push('lib-button--loading');
-    
-    return classes.join(' ');
   }
 }

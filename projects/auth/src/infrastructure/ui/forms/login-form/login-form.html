@@ -1,5 +1,5 @@
 <div class="login-form__wrapper">
-  <form class="login-form" [formGroup]="form.formGroup" (ngSubmit)="submit()">
+  <form class="login-form" (submit)="$event.preventDefault(); submit()">
 
     <header class="login-form__header">
       <img src="/logo.png" alt="GEMS LMS" class="login-form__logo" />
@@ -22,17 +22,15 @@
       </div>
     }
 
-    <fieldset class="login-form__fields">
-      <app-input
-        formControlName="email"
-        [control]="getControl('email')"
+    <fieldset class="login-form__fields" [disabled]="disabled()">
+      <lib-input
+        [formField]="loginForm.email"
         label="Correo electrónico"
         placeholder="tu@correo.com"
         type="email"
       />
-      <app-input
-        formControlName="password"
-        [control]="getControl('password')"
+      <lib-input
+        [formField]="loginForm.password"
         label="Contraseña"
         placeholder="••••••••"
         type="password"
@@ -41,22 +39,20 @@
 
     <a href="#" class="login-form__forgot">¿Olvidaste tu contraseña?</a>
 
-    <app-button
+    <lib-button
       type="submit"
       variant="primary"
       size="md"
       [fullWidth]="true"
-      [disabled]="!form.formGroup.valid || isLoading()"
+      [loading]="isLoading()"
+      [disabled]="!loginForm().valid() || disabled()"
     >
       @if (isLoading()) {
-        <span class="login-form__btn-loading">
-          <span class="login-form__spinner"></span>
-          Iniciando sesión…
-        </span>
+        Iniciando sesión…
       } @else {
         Iniciar sesión
       }
-    </app-button>
+    </lib-button>
 
     <p class="login-form__signup">
       ¿No tienes cuenta?&nbsp;

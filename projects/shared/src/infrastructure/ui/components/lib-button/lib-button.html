@@ -1,24 +1,24 @@
 <button
-  [type]="type"
-  [class]="buttonClasses"
-  [disabled]="disabled || loading"
+  [type]="type()"
+  [class]="buttonClasses()"
+  [disabled]="disabled() || loading()"
   (click)="onClick($event)"
 >
-  @if (loading) {
+  @if (loading()) {
     <span class="lib-button__spinner"></span>
   }
-  
-  @if (icon && iconPosition === 'left' && !loading) {
+
+  @if (icon() && iconPosition() === 'left' && !loading()) {
     <span class="lib-button__icon lib-button__icon--left">
       <ng-content select="[slot=icon-left]"></ng-content>
     </span>
   }
-  
+
   <span class="lib-button__content">
     <ng-content></ng-content>
   </span>
-  
-  @if (icon && iconPosition === 'right' && !loading) {
+
+  @if (icon() && iconPosition() === 'right' && !loading()) {
     <span class="lib-button__icon lib-button__icon--right">
       <ng-content select="[slot=icon-right]"></ng-content>
     </span>

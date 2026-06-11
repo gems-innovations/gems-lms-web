@@ -33,7 +33,6 @@
     "@angular/router": "^22.0.1",
     "@angular/ssr": "^22.0.1",
     "express": "^5.1.0",
-    "ngx-sub-form": "^14.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "xlsx": "^0.18.5"

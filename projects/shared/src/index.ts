@@ -1,5 +1,3 @@
-export { InputComponent } from "./infrastructure/ui/forms/input/input";
-export { ButtonComponent } from "./infrastructure/ui/components/button/button";
 export { environment } from "./infrastructure/ui/environments/environment";
 export { ModalBaseComponent } from "./infrastructure/ui/components/modal-base/modal-base.component";
 export type { TModalSize } from "./infrastructure/ui/components/modal-base/modal-base.component";
@@ -22,6 +20,14 @@ export type { NavigationItem, UserProfile } from "./infrastructure/ui/components
 // ── UI primitives ────────────────────────────────────────────────────────────
 export { BadgeComponent } from "./infrastructure/ui/components/badge/badge.component";
 export type { BadgeVariant, BadgeSize } from "./infrastructure/ui/components/badge/badge.component";
+
+export { PageHeaderComponent } from "./infrastructure/ui/components/page-header/page-header.component";
+
+export { StatCardComponent } from "./infrastructure/ui/components/stat-card/stat-card.component";
+export type { StatAccent } from "./infrastructure/ui/components/stat-card/stat-card.component";
+
+export { TabsComponent } from "./infrastructure/ui/components/tabs/tabs.component";
+export type { TabItem } from "./infrastructure/ui/components/tabs/tabs.component";
 
 export { ProgressBarComponent } from "./infrastructure/ui/components/progress-bar/progress-bar.component";
 export type { ProgressVariant, ProgressSize } from "./infrastructure/ui/components/progress-bar/progress-bar.component";
