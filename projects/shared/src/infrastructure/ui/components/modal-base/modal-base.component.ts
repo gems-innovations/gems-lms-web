@@ -1,4 +1,4 @@
-import { Component, input, output, computed } from '@angular/core';
+import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export type TModalSize = 'small' | 'medium' | 'large' | 'full';
@@ -8,6 +8,7 @@ export type TModalSize = 'small' | 'medium' | 'large' | 'full';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './modal-base.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './modal-base.component.scss'
 })
 export class ModalBaseComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { ILearningPath, ELearningPathStatus } from '../../../../domain/model/lea
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './learning-path-list-container.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './learning-path-list-container.scss'
 })
 export class LearningPathListContainer implements OnInit {

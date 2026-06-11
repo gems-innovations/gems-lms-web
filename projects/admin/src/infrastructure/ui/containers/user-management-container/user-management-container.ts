@@ -1,10 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AuthSessionService, UserManagementUseCase, ICreateUserPayload } from 'auth';
 import { UserManagementView, ICreateUserForm } from '../../views/user-management-view/user-management-view';
 
 @Component({
   selector: 'adm-user-management-container',
   imports: [UserManagementView],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './user-management-container.html'
 })
 export class UserManagementContainer implements OnInit {

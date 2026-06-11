@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule, FormControl, Validators, FormGroup } from '@angular/forms';
 import { IUser, EUserRole, getRoleLabel } from 'auth';
 import * as XLSX from 'xlsx';
@@ -22,6 +22,7 @@ export interface IBulkImportResult {
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './user-management-view.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './user-management-view.scss'
 })
 export class UserManagementView {

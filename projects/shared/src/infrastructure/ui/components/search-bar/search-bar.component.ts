@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
@@ -7,6 +7,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
   selector: 'lib-search-bar',
   imports: [ReactiveFormsModule],
   templateUrl: './search-bar.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './search-bar.component.scss'
 })
 export class SearchBarComponent {

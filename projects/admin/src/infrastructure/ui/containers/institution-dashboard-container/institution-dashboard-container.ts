@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe, UpperCasePipe } from '@angular/common';
 import { AuthSessionService } from 'auth';
@@ -10,6 +10,7 @@ import { EInstitutionStatus } from '../../../../domain/model/institution';
   selector: 'adm-institution-dashboard-container',
   imports: [RouterLink, DecimalPipe, UpperCasePipe, InstitutionModalContainer],
   templateUrl: './institution-dashboard-container.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './institution-dashboard-container.scss'
 })
 export class InstitutionDashboardContainer implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -29,6 +29,7 @@ interface ISelectedItem {
   standalone: true,
   imports: [CommonModule, FormsModule, ContentBlockModalContainer],
   templateUrl: './course-editor-container.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './course-editor-container.scss'
 })
 export class CourseEditorContainer implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { InstitutionForm } from '../../forms/institution-form/institution-form';
 import { InstitutionUseCase } from '../../../../application/institution.usecase';
@@ -7,6 +7,7 @@ import { ICreateInstitutionRequest } from '../../../../domain/model/institution'
 @Component({
   selector: 'adm-institution-form-container',
   imports: [InstitutionForm],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './institution-form-container.html'
 })
 export class InstitutionFormContainer {

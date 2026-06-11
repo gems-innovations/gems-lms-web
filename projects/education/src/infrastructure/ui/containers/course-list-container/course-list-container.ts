@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CourseUseCase } from '../../../../application/course.usecase';
 import { ICourse, ECourseStatus } from '../../../../domain/model/course.model';
@@ -8,6 +8,7 @@ import { CourseListView } from '../../views/course-list-view/course-list-view';
   selector: 'edu-course-list-container',
   standalone: true,
   imports: [CourseListView],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './course-list-container.html'
 })
 export class CourseListContainer implements OnInit {

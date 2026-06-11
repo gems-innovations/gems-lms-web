@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
@@ -7,6 +7,7 @@ export type ToastType = 'success' | 'error' | 'warning' | 'info';
   selector: 'lib-toast',
   imports: [],
   templateUrl: './toast.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './toast.component.scss'
 })
 export class ToastComponent {

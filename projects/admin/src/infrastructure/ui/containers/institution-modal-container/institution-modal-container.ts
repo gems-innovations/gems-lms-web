@@ -1,4 +1,4 @@
-import { Component, inject, computed, ViewChild, effect } from '@angular/core';
+import { Component, inject, computed, ViewChild, effect, ChangeDetectionStrategy } from '@angular/core';
 import { ModalBaseComponent, LibButtonComponent, ConfirmationDialogComponent, BrandingService } from 'shared';
 import { InstitutionForm } from '../../forms/institution-form/institution-form';
 import { InstitutionDetailsViewComponent } from '../../components/institution-details-view/institution-details-view';
@@ -16,6 +16,7 @@ import { EInstitutionType, ESubscriptionType } from '../../../../domain/model/in
     InstitutionForm,
     InstitutionDetailsViewComponent
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './institution-modal-container.html'
 })
 export class InstitutionModalContainer {

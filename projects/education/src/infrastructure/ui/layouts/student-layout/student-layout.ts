@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AuthSessionService, EUserRole, LogoutUseCase } from 'auth';
@@ -9,6 +9,7 @@ import { BrandingService } from 'shared';
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './student-layout.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './student-layout.scss'
 })
 export class StudentLayout implements OnInit, OnDestroy {

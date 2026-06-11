@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ILearningPath } from '../../../../domain/model/learning-path.model';
 import { ILearningPathStep } from '../../../../domain/model/learning-path.model';
@@ -15,6 +15,7 @@ export interface IStepEntry {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './learning-path-player-view.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './learning-path-player-view.scss'
 })
 export class LearningPathPlayerView {

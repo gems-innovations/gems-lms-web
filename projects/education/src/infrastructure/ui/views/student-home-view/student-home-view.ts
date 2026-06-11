@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IEnrollment } from '../../../../domain/model/enrollment.model';
 import { ICourse } from '../../../../domain/model/course.model';
@@ -20,6 +20,7 @@ export interface IEnrolledPathEntry {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './student-home-view.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './student-home-view.scss'
 })
 export class StudentHomeView {

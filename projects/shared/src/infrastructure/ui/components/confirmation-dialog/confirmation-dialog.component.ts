@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LibButtonComponent } from '../lib-button/lib-button';
 
@@ -9,6 +9,7 @@ export type ConfirmationType = 'warning' | 'danger' | 'info' | 'success';
   standalone: true,
   imports: [CommonModule, LibButtonComponent],
   templateUrl: './confirmation-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './confirmation-dialog.component.scss'
 })
 export class ConfirmationDialogComponent {

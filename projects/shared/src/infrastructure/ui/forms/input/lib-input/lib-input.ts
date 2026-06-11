@@ -1,4 +1,4 @@
-import { Component, Input, Output, forwardRef } from '@angular/core';
+import { Component, Input, Output, forwardRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { 
   ControlValueAccessor, 
@@ -21,6 +21,7 @@ export type InputType = 'text' | 'email' | 'url' | 'number' | 'tel' | 'password'
     }
   ],
   templateUrl: './lib-input.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './lib-input.scss'
 })
 export class LibInputComponent implements ControlValueAccessor {

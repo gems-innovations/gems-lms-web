@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ICourse, ECourseStatus, EDifficulty } from '../../../../domain/model/course.model';
@@ -22,6 +22,7 @@ export interface ICourseModalState {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './course-list-view.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './course-list-view.scss'
 })
 export class CourseListView {

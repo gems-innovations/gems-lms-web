@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
@@ -9,6 +9,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
   standalone: true,
   imports: [],
   templateUrl: './lib-button.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './lib-button.scss'
 })
 export class LibButtonComponent {

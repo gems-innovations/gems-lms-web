@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, computed } from '@angular/core';
+import { Component, inject, OnInit, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { EnrollmentUseCase } from '../../../../application/enrollment.usecase';
 import { CourseUseCase } from '../../../../application/course.usecase';
@@ -10,6 +10,7 @@ import type { IEnrolledCourseEntry, IEnrolledPathEntry } from '../../views/stude
   selector: 'edu-student-home-container',
   standalone: true,
   imports: [StudentHomeView],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './student-home-container.html'
 })
 export class StudentHomeContainer implements OnInit {

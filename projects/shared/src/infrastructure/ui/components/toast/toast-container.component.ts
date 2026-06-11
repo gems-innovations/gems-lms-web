@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { ToastComponent } from '../toast/toast.component';
 import { ToastService } from '../toast/toast.service';
@@ -18,6 +18,7 @@ import { ToastService } from '../toast/toast.service';
       }
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .toast-container {
       position: fixed;

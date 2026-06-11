@@ -1,10 +1,11 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { SidebarComponent, NavigationItem, UserProfile } from 'shared';
 import { AuthSessionService, EUserRole, LogoutUseCase } from 'auth';
 
 @Component({
   selector: 'edu-sidebar-container',
   imports: [SidebarComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './education-sidebar-container.html'
 })
 export class EducationSidebarContainer {

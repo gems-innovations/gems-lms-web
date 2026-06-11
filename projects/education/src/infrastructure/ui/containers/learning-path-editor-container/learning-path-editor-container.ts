@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,6 +16,7 @@ import { ICourse } from '../../../../domain/model/course.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './learning-path-editor-container.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './learning-path-editor-container.scss'
 })
 export class LearningPathEditorContainer implements OnInit {

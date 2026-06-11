@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { LoginForm } from '../../forms/login-form/login-form';
 import { LoginUseCase } from '../../../../application/login.usecase';
 import { ILoginCredentials } from '../../../../domain/model/login-credentials.model';
@@ -6,6 +6,7 @@ import { ILoginCredentials } from '../../../../domain/model/login-credentials.mo
 @Component({
   selector: 'auth-login-form-container',
   imports: [LoginForm],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './login-form-container.html'
 })
 export class LoginFormContainer {

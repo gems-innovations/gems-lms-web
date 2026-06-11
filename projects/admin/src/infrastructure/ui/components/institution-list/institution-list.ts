@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoadingSkeletonComponent } from '../loading-skeleton/loading-skeleton';
 import { SearchBarComponent } from '@gems-lms-web/shared';
@@ -9,6 +9,7 @@ import { IInstitution } from '../../../../domain/model/institution';
   standalone: true,
   imports: [CommonModule, LoadingSkeletonComponent, SearchBarComponent],
   templateUrl: './institution-list.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './institution-list.scss'
 })
 export class InstitutionList {

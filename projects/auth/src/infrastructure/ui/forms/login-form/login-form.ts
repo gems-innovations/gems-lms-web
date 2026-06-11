@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { subformComponentProviders, createForm, FormType } from 'ngx-sub-form';
@@ -11,6 +11,7 @@ import { ILoginCredentials } from '../../../../domain/model/login-credentials.mo
   imports: [ReactiveFormsModule, InputComponent, ButtonComponent],
   providers: subformComponentProviders(LoginForm),
   templateUrl: './login-form.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './login-form.scss'
 })
 export class LoginForm {

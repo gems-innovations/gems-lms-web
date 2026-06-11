@@ -1,4 +1,4 @@
-import { Component, input, computed } from '@angular/core';
+import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IInstitution, EInstitutionStatus, EBrandingType } from '../../../../domain/model/institution';
 
@@ -7,6 +7,7 @@ import { IInstitution, EInstitutionStatus, EBrandingType } from '../../../../dom
   standalone: true,
   imports: [CommonModule],
   templateUrl: './institution-details-view.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './institution-details-view.scss'
 })
 export class InstitutionDetailsViewComponent {

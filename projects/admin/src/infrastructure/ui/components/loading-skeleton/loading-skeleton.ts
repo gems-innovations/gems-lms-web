@@ -1,10 +1,11 @@
-import { Component, input, computed } from '@angular/core';
+import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
 
 
 @Component({
   selector: 'app-loading-skeleton',
   imports: [],
   templateUrl: './loading-skeleton.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './loading-skeleton.scss'
 })
 export class LoadingSkeletonComponent {

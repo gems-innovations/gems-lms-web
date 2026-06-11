@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CourseUseCase } from '../../../../application/course.usecase';
 import { EnrollmentUseCase } from '../../../../application/enrollment.usecase';
@@ -9,6 +9,7 @@ import type { IQuizSubmitPayload, IAssignmentSubmitPayload } from '../../views/c
   selector: 'edu-course-player-container',
   standalone: true,
   imports: [CoursePlayerView],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './course-player-container.html'
 })
 export class CoursePlayerContainer implements OnInit {

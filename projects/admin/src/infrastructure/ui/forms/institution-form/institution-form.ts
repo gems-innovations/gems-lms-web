@@ -1,4 +1,4 @@
-import { Component, Output, Input } from '@angular/core';
+import { Component, Output, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { subformComponentProviders, createForm, FormType } from 'ngx-sub-form';
@@ -50,6 +50,7 @@ const DEFAULTS: InstitutionFormValue = {
   imports: [ReactiveFormsModule, ColorPickerComponent],
   providers: subformComponentProviders(InstitutionForm),
   templateUrl: './institution-form.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './institution-form.scss'
 })
 export class InstitutionForm {

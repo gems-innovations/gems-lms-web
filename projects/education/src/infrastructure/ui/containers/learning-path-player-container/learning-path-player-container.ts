@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LearningPathUseCase } from '../../../../application/learning-path.usecase';
 import { EnrollmentUseCase } from '../../../../application/enrollment.usecase';
@@ -10,6 +10,7 @@ import type { IStepEntry } from '../../views/learning-path-player-view/learning-
   selector: 'edu-learning-path-player-container',
   standalone: true,
   imports: [LearningPathPlayerView],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './learning-path-player-container.html'
 })
 export class LearningPathPlayerContainer implements OnInit {

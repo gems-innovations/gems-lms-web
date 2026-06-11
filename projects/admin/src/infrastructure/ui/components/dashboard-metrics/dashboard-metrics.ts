@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IDashboardMetrics } from '../../../../application/institution.usecase';
 
@@ -7,6 +7,7 @@ import { IDashboardMetrics } from '../../../../application/institution.usecase';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './dashboard-metrics.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './dashboard-metrics.scss'
 })
 export class DashboardMetricsComponent {

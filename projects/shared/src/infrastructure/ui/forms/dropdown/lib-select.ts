@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { 
   ControlValueAccessor, 
@@ -25,6 +25,7 @@ export interface SelectOption {
     }
   ],
   templateUrl: './lib-select.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './lib-select.scss'
 })
 export class LibSelectComponent implements ControlValueAccessor {

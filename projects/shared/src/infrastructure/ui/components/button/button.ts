@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 
 @Component({
@@ -6,6 +6,7 @@ import { Component, input, output } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './button.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './button.scss'
 })
 export class ButtonComponent {

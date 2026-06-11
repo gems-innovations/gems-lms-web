@@ -1,4 +1,4 @@
-import { Component, input, ElementRef, Renderer2, inject } from '@angular/core';
+import { Component, input, ElementRef, Renderer2, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormControl, AbstractControl } from '@angular/forms';
 import { subformComponentProviders, createForm, FormType } from 'ngx-sub-form';
 
@@ -8,6 +8,7 @@ import { subformComponentProviders, createForm, FormType } from 'ngx-sub-form';
   imports: [ReactiveFormsModule],
   providers: subformComponentProviders(InputComponent),
   templateUrl: './input.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './input.scss'
 })
 export class InputComponent {

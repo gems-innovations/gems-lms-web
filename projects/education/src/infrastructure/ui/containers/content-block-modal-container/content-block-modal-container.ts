@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal, computed } from '@angular/core';
+import { Component, inject, input, output, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -59,6 +59,7 @@ const newQuestion = (order: number): IQuestionDraft => ({
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './content-block-modal-container.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './content-block-modal-container.scss'
 })
 export class ContentBlockModalContainer {

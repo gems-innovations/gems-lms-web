@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { InstitutionList } from '../../components/institution-list/institution-list';
 import { DashboardMetricsComponent } from '../../components/dashboard-metrics/dashboard-metrics';
 import { InstitutionModalContainer } from '../institution-modal-container/institution-modal-container';
@@ -16,6 +16,7 @@ import { IInstitution } from '../../../../domain/model/institution';
     LoadingSkeletonComponent,
     InstitutionModalContainer
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './institution-list-container.html'
 })
 export class InstitutionListContainer implements OnInit {
