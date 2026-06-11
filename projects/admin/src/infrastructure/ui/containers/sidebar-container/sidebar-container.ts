@@ -26,8 +26,9 @@ export class SidebarContainer {
 
     if (role === EUserRole.ADMIN) {
       return [
-        { id: 'dashboard',  label: 'Mi Institución', icon: 'dashboard', route: '/admin/dashboard' },
-        { id: 'users',      label: 'Usuarios',        icon: 'users',     route: '/admin/users' }
+        { id: 'dashboard',   label: 'Mi Institución', icon: 'dashboard', route: '/admin/dashboard' },
+        { id: 'users',       label: 'Usuarios',        icon: 'users',     route: '/admin/users' },
+        { id: 'enrollments', label: 'Matrículas',      icon: 'courses',   route: '/admin/enrollments' }
       ];
     }
 

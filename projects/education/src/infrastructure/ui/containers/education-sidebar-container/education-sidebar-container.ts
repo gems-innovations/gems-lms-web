@@ -24,17 +24,21 @@ export class EducationSidebarContainer {
 
     if (role === EUserRole.STUDENT) {
       return [
-        { id: 'home',  label: 'Inicio',   icon: 'home',   route: '/learn/home' },
-        { id: 'paths', label: 'Mis Rutas', icon: 'learning-paths', route: '/learn/paths' }
+        { id: 'home',    label: 'Inicio',   icon: 'home',    route: '/learn/home' },
+        { id: 'catalog', label: 'Catálogo', icon: 'courses', route: '/learn/catalog' }
       ];
     }
 
     const items: NavigationItem[] = [
-      { id: 'courses',       label: 'Cursos',               icon: 'courses',        route: '/education/courses' },
-      { id: 'learning-paths', label: 'Rutas de Aprendizaje', icon: 'learning-paths', route: '/education/learning-paths' }
+      { id: 'courses',        label: 'Cursos',               icon: 'courses',        route: '/education/courses' },
+      { id: 'learning-paths', label: 'Rutas de Aprendizaje', icon: 'learning-paths', route: '/education/learning-paths' },
+      { id: 'instructor',     label: 'Panel Instructor',     icon: 'home',           route: '/education/instructor' }
     ];
 
-    // Instructors and above also get a preview link to the student zone
+    if (role === EUserRole.ADMIN || role === EUserRole.SUPER_ADMIN) {
+      items.push({ id: 'enrollments', label: 'Matrículas', icon: 'home', route: '/education/enrollments' });
+    }
+
     items.push({ id: 'preview', label: 'Vista Estudiante', icon: 'home', route: '/learn/home' });
 
     return items;

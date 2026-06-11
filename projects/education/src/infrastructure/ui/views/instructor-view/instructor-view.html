@@ -1,0 +1,466 @@
+<div class="instr">
+
+  <!-- ════════════ Hero banner (home style) ════════════ -->
+  <div class="instr__hero">
+    <div class="instr__hero-bg"></div>
+
+    <div class="instr__hero-inner">
+      <div class="instr__hero-text">
+        <p class="instr__hero-eyebrow">Panel Instructor</p>
+        <h1 class="instr__hero-title">
+          @if (selectedCourse(); as course) {
+            {{ course.title }}
+          } @else {
+            Gestiona tus <span class="instr__hero-accent">cursos</span>
+          }
+        </h1>
+        <p class="instr__hero-sub">
+          @if (selectedAssignment(); as a) {
+            {{ a.block.title }} · {{ a.moduleTitle }}
+          } @else if (selectedCourse()) {
+            Estudiantes, evaluaciones y calificaciones de este curso.
+          } @else {
+            Selecciona un curso para ver sus estudiantes, evaluaciones y entregas.
+          }
+        </p>
+      </div>
+
+      <!-- Notification bell -->
+      <div class="instr__bell-wrap">
+        <button class="instr__bell" (click)="toggleNotifications()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          @if (unreadCount() > 0) {
+            <span class="instr__bell-badge">{{ unreadCount() }}</span>
+          }
+        </button>
+
+        @if (notifOpen()) {
+          <div class="instr__notif-backdrop" (click)="closeNotifications()"></div>
+          <div class="instr__notif-panel">
+            <div class="instr__notif-header">
+              <span>Notificaciones</span>
+              @if (unreadCount() > 0) {
+                <button class="instr__notif-clear" (click)="onMarkAllRead.emit()">Marcar todas como leídas</button>
+              }
+            </div>
+            @if (notifications().length === 0) {
+              <div class="instr__notif-empty">No tienes notificaciones.</div>
+            }
+            @for (n of notifications(); track n.id) {
+              <button class="instr__notif-item" [class.instr__notif-item--unread]="!n.read"
+                      (click)="openNotification(n)">
+                <div class="instr__notif-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                </div>
+                <div class="instr__notif-body">
+                  <span class="instr__notif-title">{{ n.title }}</span>
+                  <span class="instr__notif-msg">{{ n.message }}</span>
+                  <span class="instr__notif-time">{{ timeAgo(n.createdAt) }}</span>
+                </div>
+                @if (!n.read) { <span class="instr__notif-dot"></span> }
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ Body ════════════ -->
+  <div class="instr__body">
+
+    @if (isLoading()) {
+      <div class="instr__loading">
+        <div class="instr__spinner"></div>
+        <span>Cargando…</span>
+      </div>
+    }
+
+    @if (!isLoading()) {
+
+      <!-- ── LEVEL 1: course grid ── -->
+      @if (!selectedCourse()) {
+        <div class="instr__course-grid">
+          @for (course of courses(); track course.id) {
+            <button class="instr__course-card" (click)="openCourse(course.id)">
+              <div class="instr__course-thumb"
+                   [style.backgroundImage]="course.thumbnailUrl ? 'url(' + course.thumbnailUrl + ')' : null">
+                @if (statsFor(course.id).pendingCount > 0) {
+                  <span class="instr__course-pending">
+                    {{ statsFor(course.id).pendingCount }} por calificar
+                  </span>
+                }
+              </div>
+              <div class="instr__course-body">
+                <h3 class="instr__course-title">{{ course.title }}</h3>
+                <div class="instr__course-stats">
+                  <span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    {{ statsFor(course.id).studentCount }} estudiantes
+                  </span>
+                  <span>{{ statsFor(course.id).avgProgress }}% avance</span>
+                </div>
+              </div>
+              <svg class="instr__course-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- ── LEVEL 2: course detail ── -->
+      @if (selectedCourse(); as course) {
+
+        @if (!selectedAssignment()) {
+          <button class="instr__back" (click)="backToCourses()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Volver a mis cursos
+          </button>
+
+          <!-- Analytics cards -->
+          <div class="instr__analytics">
+            <div class="instr__stat-card">
+              <div class="instr__stat-icon instr__stat-icon--purple">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+              <div class="instr__stat-info">
+                <span class="instr__stat-value">{{ courseStats().studentCount }}</span>
+                <span class="instr__stat-label">Estudiantes</span>
+              </div>
+            </div>
+
+            <div class="instr__stat-card">
+              <div class="instr__stat-icon instr__stat-icon--teal">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+              </div>
+              <div class="instr__stat-info">
+                <span class="instr__stat-value">{{ courseStats().avgProgress }}%</span>
+                <span class="instr__stat-label">Avance promedio</span>
+              </div>
+            </div>
+
+            <div class="instr__stat-card">
+              <div class="instr__stat-icon instr__stat-icon--green">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </div>
+              <div class="instr__stat-info">
+                <span class="instr__stat-value">{{ courseStats().avgGrade ?? '—' }}</span>
+                <span class="instr__stat-label">Nota promedio</span>
+              </div>
+            </div>
+
+            <div class="instr__stat-card">
+              <div class="instr__stat-icon instr__stat-icon--amber">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              <div class="instr__stat-info">
+                <span class="instr__stat-value">{{ courseStats().pendingCount }}</span>
+                <span class="instr__stat-label">Por calificar</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="instr__tabs">
+            <button class="instr__tab" [class.instr__tab--active]="activeTab() === 'students'"
+                    (click)="activeTab.set('students')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              </svg>
+              Estudiantes
+            </button>
+            <button class="instr__tab" [class.instr__tab--active]="activeTab() === 'assignments'"
+                    (click)="activeTab.set('assignments')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+              Evaluaciones
+              @if (courseStats().pendingCount > 0) {
+                <span class="instr__tab-badge">{{ courseStats().pendingCount }}</span>
+              }
+            </button>
+          </div>
+
+          <!-- Tab: students -->
+          @if (activeTab() === 'students') {
+            <div class="instr__section">
+              @if (courseEnrollments().length === 0) {
+                <div class="instr__empty">No hay estudiantes matriculados en este curso.</div>
+              } @else {
+                <div class="instr__table-wrap">
+                  <table class="instr__table">
+                    <thead>
+                      <tr>
+                        <th>Estudiante</th>
+                        <th>Progreso</th>
+                        <th>Estado</th>
+                        <th>Inscrito</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (enr of courseEnrollments(); track enr.id) {
+                        <tr>
+                          <td>
+                            <div class="instr__student-cell">
+                              <div class="instr__avatar">{{ initials(enr.student) }}</div>
+                              <div>
+                                <div class="instr__student-name">{{ enr.student.firstName }} {{ enr.student.lastName }}</div>
+                                <div class="instr__student-email">{{ enr.student.email }}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div class="instr__progress-cell">
+                              <div class="instr__progress-bar">
+                                <div class="instr__progress-fill" [style.width.%]="enr.progress.overallPercentage"></div>
+                              </div>
+                              <span>{{ enr.progress.overallPercentage }}%</span>
+                            </div>
+                          </td>
+                          <td>
+                            <span class="instr__badge instr__badge--{{ enr.status }}">{{ enr.status }}</span>
+                          </td>
+                          <td class="instr__td-date">{{ enr.enrolledAt | date:'dd/MM/yyyy' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Tab: assignments list -->
+          @if (activeTab() === 'assignments') {
+            <div class="instr__section">
+              @if (courseAssignments().length === 0) {
+                <div class="instr__empty">Este curso no tiene evaluaciones ni tareas.</div>
+              }
+              @for (a of courseAssignments(); track a.block.id) {
+                <button class="instr__assign-row" (click)="openAssignment(a.block.id)">
+                  <div class="instr__assign-icon" [class.instr__assign-icon--quiz]="a.block.type === 'quiz'">
+                    @if (a.block.type === 'quiz') {
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                      </svg>
+                    } @else {
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                      </svg>
+                    }
+                  </div>
+                  <div class="instr__assign-info">
+                    <span class="instr__assign-title">{{ a.block.title }}</span>
+                    <span class="instr__assign-meta">{{ a.moduleTitle }} · {{ a.lessonTitle }} · {{ blockTypeLabel(a.block.type) }}</span>
+                  </div>
+                  <div class="instr__assign-counts">
+                    @if (a.pendingCount > 0) {
+                      <span class="instr__assign-chip instr__assign-chip--pending">{{ a.pendingCount }} pendientes</span>
+                    }
+                    <span class="instr__assign-chip">{{ a.submittedCount }} entregas</span>
+                  </div>
+                  <svg class="instr__assign-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </button>
+              }
+            </div>
+          }
+        }
+
+        <!-- ── LEVEL 3: submissions table ── -->
+        @if (selectedAssignment(); as assignment) {
+
+          @if (!selectedSubmission()) {
+            <button class="instr__back" (click)="backToAssignments()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+              Volver a evaluaciones
+            </button>
+
+            <div class="instr__assign-summary">
+              <div class="instr__assign-summary-item">
+                <span class="instr__stat-value">{{ blockSubmissions().length }}</span>
+                <span class="instr__stat-label">Entregas</span>
+              </div>
+              <div class="instr__assign-summary-item">
+                <span class="instr__stat-value">{{ blockPending().length }}</span>
+                <span class="instr__stat-label">Por calificar</span>
+              </div>
+              <div class="instr__assign-summary-item">
+                <span class="instr__stat-value">{{ blockGraded().length }}</span>
+                <span class="instr__stat-label">Calificadas</span>
+              </div>
+            </div>
+
+            @if (blockSubmissions().length === 0) {
+              <div class="instr__empty">Aún no hay entregas para esta evaluación.</div>
+            } @else {
+              <div class="instr__table-wrap">
+                <table class="instr__table">
+                  <thead>
+                    <tr>
+                      <th>Estudiante</th>
+                      <th>Fecha entrega</th>
+                      <th>Estado</th>
+                      <th>Nota</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (sub of pagedSubmissions(); track sub.id) {
+                      <tr>
+                        <td>
+                          <div class="instr__student-cell">
+                            <div class="instr__avatar">{{ initials(sub.student) }}</div>
+                            <div>
+                              <div class="instr__student-name">{{ sub.student.firstName }} {{ sub.student.lastName }}</div>
+                              <div class="instr__student-email">{{ sub.student.email }}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="instr__td-date">{{ sub.submittedAt | date:'dd/MM/yyyy' }}</td>
+                        <td>
+                          <span class="instr__badge instr__badge--{{ sub.status }}">{{ statusLabel(sub.status) }}</span>
+                        </td>
+                        <td>
+                          @if (sub.grade != null) {
+                            <span class="instr__grade-chip">{{ sub.grade }}/100</span>
+                          } @else {
+                            <span style="color:var(--muted,rgba(180,178,210,.5))">—</span>
+                          }
+                        </td>
+                        <td>
+                          <button class="instr__btn--view" (click)="openSubmission(sub)">Ver entrega</button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              @if (totalPages() > 1) {
+                <div class="instr__pagination">
+                  <span>{{ submissionPage() * PAGE_SIZE + 1 }}–{{ minVal((submissionPage() + 1) * PAGE_SIZE, blockSubmissions().length) }} de {{ blockSubmissions().length }}</span>
+                  <div class="instr__page-btns">
+                    <button class="instr__page-btn" [disabled]="submissionPage() === 0"
+                            (click)="submissionPage.update(p => p - 1)">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    @for (p of [].constructor(totalPages()); track $index) {
+                      <button class="instr__page-btn" [class.instr__page-btn--active]="submissionPage() === $index"
+                              (click)="submissionPage.set($index)">{{ $index + 1 }}</button>
+                    }
+                    <button class="instr__page-btn" [disabled]="submissionPage() === totalPages() - 1"
+                            (click)="submissionPage.update(p => p + 1)">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                  </div>
+                </div>
+              }
+            }
+          }
+
+          <!-- ── LEVEL 4: submission detail + grading ── -->
+          @if (selectedSubmission(); as sub) {
+            <button class="instr__back" (click)="backToSubmissionList()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+              Volver a entregas
+            </button>
+
+            <div class="instr__sub-detail">
+              <!-- Student header -->
+              <div class="instr__sub-detail-header">
+                <div class="instr__sub-detail-student">
+                  <div class="instr__sub-detail-avatar">{{ initials(sub.student) }}</div>
+                  <div>
+                    <div class="instr__sub-detail-name">{{ sub.student.firstName }} {{ sub.student.lastName }}</div>
+                    <div class="instr__sub-detail-email">{{ sub.student.email }}</div>
+                    <div class="instr__sub-detail-date">Entregado el {{ sub.submittedAt | date:'dd/MM/yyyy, HH:mm' }}</div>
+                  </div>
+                </div>
+                <div class="instr__sub-detail-meta">
+                  @if (sub.grade != null) {
+                    <span class="instr__grade-chip">{{ sub.grade }}/100</span>
+                  }
+                  <span class="instr__badge instr__badge--{{ sub.status }}">{{ statusLabel(sub.status) }}</span>
+                </div>
+              </div>
+
+              <!-- Submission content -->
+              <div class="instr__sub-detail-section">
+                <span class="instr__sub-detail-label">Contenido de la entrega</span>
+                <div class="instr__sub-detail-content">{{ sub.textContent }}</div>
+              </div>
+
+              @if (sub.feedback) {
+                <div class="instr__feedback">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  Retroalimentación anterior: {{ sub.feedback }}
+                </div>
+              }
+
+              <!-- Grading card -->
+              <div class="instr__sub-detail-grade-card">
+                <h3 class="instr__sub-detail-grade-title">
+                  {{ sub.grade != null ? 'Editar calificación' : 'Calificar entrega' }}
+                </h3>
+                <div class="instr__grade-form">
+                  <div class="instr__grade-row">
+                    <label class="instr__grade-label">
+                      Nota (0–100)
+                      <input class="instr__grade-input" type="number" min="0" max="100"
+                             [ngModel]="gradeInput()" (ngModelChange)="gradeInput.set($event)">
+                    </label>
+                  </div>
+                  <label class="instr__grade-label">
+                    Retroalimentación
+                    <textarea class="instr__grade-textarea" rows="4"
+                              placeholder="Escribe tu retroalimentación para el estudiante…"
+                              [ngModel]="feedbackInput()" (ngModelChange)="feedbackInput.set($event)"></textarea>
+                  </label>
+                  <div class="instr__grade-actions">
+                    <button class="instr__btn instr__btn--ghost" (click)="backToSubmissionList()">Cancelar</button>
+                    <button class="instr__btn instr__btn--primary" (click)="gradingId.set(sub.id); submitGrade()">
+                      Guardar calificación
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+        }
+
+      }
+    }
+
+  </div>
+</div>

@@ -2,6 +2,14 @@ import { Routes } from '@angular/router';
 import { EducationLayout } from './infrastructure/ui/layouts/education-layout/education-layout';
 import { StudentLayout } from './infrastructure/ui/layouts/student-layout/student-layout';
 
+// ── Public API for cross-library use ────────────────────────────────────────
+export { EnrollmentService } from './infrastructure/services/enrollment.service';
+export type { IStudentProfile } from './infrastructure/services/enrollment.service';
+export { CourseService } from './infrastructure/services/course.service';
+export { LearningPathService } from './infrastructure/services/learning-path.service';
+export type { ICourse, EDifficulty, ECourseStatus } from './domain/model/course.model';
+export type { ILearningPath, ELearningPathStatus } from './domain/model/learning-path.model';
+
 // ── Admin / authoring routes ────────────────────────────────────────────────
 export const routes: Routes = [
   {
@@ -59,6 +67,24 @@ export const routes: Routes = [
           import('./infrastructure/ui/containers/learning-path-editor-container/learning-path-editor-container').then(
             m => m.LearningPathEditorContainer
           )
+      },
+
+      // Instructor panel (students + grading)
+      {
+        path: 'instructor',
+        loadComponent: () =>
+          import('./infrastructure/ui/containers/instructor-container/instructor-container').then(
+            m => m.InstructorContainer
+          )
+      },
+
+      // Enrollment manager (individual + bulk)
+      {
+        path: 'enrollments',
+        loadComponent: () =>
+          import('./infrastructure/ui/containers/enrollment-manager-container/enrollment-manager-container').then(
+            m => m.EnrollmentManagerContainer
+          )
       }
     ]
   }
@@ -101,6 +127,33 @@ export const studentRoutes: Routes = [
         loadComponent: () =>
           import('./infrastructure/ui/containers/learning-path-player-container/learning-path-player-container').then(
             m => m.LearningPathPlayerContainer
+          )
+      },
+
+      // Course catalog (self-enroll)
+      {
+        path: 'catalog',
+        loadComponent: () =>
+          import('./infrastructure/ui/containers/course-catalog-container/course-catalog-container').then(
+            m => m.CourseCatalogContainer
+          )
+      },
+
+      // Content preview (course or path, locked until enrolled)
+      {
+        path: 'preview/courses/:id',
+        data: { previewType: 'course' },
+        loadComponent: () =>
+          import('./infrastructure/ui/containers/content-preview-container/content-preview-container').then(
+            m => m.ContentPreviewContainer
+          )
+      },
+      {
+        path: 'preview/paths/:id',
+        data: { previewType: 'path' },
+        loadComponent: () =>
+          import('./infrastructure/ui/containers/content-preview-container/content-preview-container').then(
+            m => m.ContentPreviewContainer
           )
       }
     ]

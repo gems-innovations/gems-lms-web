@@ -1,0 +1,639 @@
+$purple:   #7B6FF0;
+$purple-l: #9B8FF8;
+$teal:     #3DD6C8;
+$green:    #34d399;
+$amber:    #fbbf24;
+$red:      #f87171;
+$bg:       #0b0b12;
+$surface:  #111119;
+$surface2: #18181f;
+$surface3: #1e1e28;
+$border:   rgba(255,255,255,.07);
+$text:     #EDEAF8;
+$muted:    rgba(180,178,210,.5);
+$dim:      rgba(180,178,210,.28);
+
+.instr {
+  min-height: 100%;
+
+  // ── Hero banner (home style) ──────────────────────────────────────────────
+  &__hero {
+    position: relative;
+    padding: 44px 0 38px;
+    border-bottom: 1px solid $border;
+    // Break out of edu-layout__content padding
+    margin: 0 -2.5rem 0 -2rem;
+  }
+
+  &__hero-bg {
+    position: absolute; inset: 0;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 65% 90% at 10% 50%, rgba($purple,.14) 0%, transparent 65%),
+      radial-gradient(ellipse 45% 60% at 90% 15%, rgba($teal,.07) 0%, transparent 60%),
+      $surface;
+
+    &::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 100% at 50% 50%, black 30%, transparent 100%);
+    }
+  }
+
+  &__hero-inner {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 36px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  &__hero-text { flex: 1; min-width: 0; }
+
+  &__hero-eyebrow {
+    font-size: 11.5px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: rgba($purple,.7); margin: 0 0 10px;
+  }
+
+  &__hero-title {
+    font-size: 28px; font-weight: 800; line-height: 1.15;
+    letter-spacing: -.5px; color: $text; margin: 0 0 10px;
+  }
+
+  &__hero-accent {
+    background: linear-gradient(90deg, $purple-l, $teal);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  &__hero-sub { font-size: 14px; color: $muted; margin: 0; line-height: 1.6; }
+
+  // ── Body ──────────────────────────────────────────────────────────────────
+  &__body {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px 36px 56px;
+  }
+
+  &__group-title {
+    font-size: 13px; font-weight: 800; color: $text;
+    text-transform: uppercase; letter-spacing: .05em;
+    margin: 24px 0 12px;
+  }
+
+  // ── Notification bell ─────────────────────────────────────────────────────
+  &__bell-wrap { position: relative; flex-shrink: 0; }
+
+  &__bell {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px; border-radius: 12px;
+    background: $surface2; border: 1px solid $border;
+    color: $muted; cursor: pointer;
+    transition: border-color .15s, color .15s;
+    &:hover { border-color: rgba($purple,.35); color: $text; }
+  }
+
+  &__bell-badge {
+    position: absolute; top: -5px; right: -5px;
+    min-width: 18px; height: 18px; padding: 0 5px;
+    border-radius: 9px;
+    background: $red; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid $bg;
+  }
+
+  &__notif-backdrop { position: fixed; inset: 0; z-index: 99; }
+
+  &__notif-panel {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    width: 340px; max-height: 420px; overflow-y: auto; z-index: 100;
+    background: #1a1a24; border: 1px solid rgba(255,255,255,.1);
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0,0,0,.55);
+    animation: notif-pop .15s ease;
+  }
+
+  @keyframes notif-pop {
+    from { opacity: 0; transform: translateY(-6px) scale(.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  &__notif-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    font-size: 13px; font-weight: 700; color: $text;
+    position: sticky; top: 0; background: #1a1a24;
+  }
+
+  &__notif-clear {
+    background: none; border: none; cursor: pointer;
+    font-size: 11.5px; color: $purple-l;
+    &:hover { text-decoration: underline; }
+  }
+
+  &__notif-empty {
+    padding: 28px 16px; text-align: center;
+    font-size: 13px; color: $muted;
+  }
+
+  &__notif-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    width: 100%; padding: 12px 16px; text-align: left;
+    background: none; border: none; cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    transition: background .12s;
+    &:hover { background: rgba(255,255,255,.04); }
+    &:last-child { border-bottom: none; }
+
+    &--unread { background: rgba($purple,.06); }
+  }
+
+  &__notif-icon {
+    width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+    background: rgba($purple,.12); color: $purple-l;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  &__notif-body { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  &__notif-title { font-size: 12.5px; font-weight: 700; color: $text; }
+  &__notif-msg   { font-size: 12px; color: $muted; line-height: 1.45; }
+  &__notif-time  { font-size: 11px; color: $dim; }
+
+  &__notif-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: $purple-l; flex-shrink: 0; margin-top: 4px;
+  }
+
+  // ── Loading ───────────────────────────────────────────────────────────────
+  &__loading {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 14px; padding: 64px; color: $muted; font-size: 13.5px;
+  }
+
+  &__spinner {
+    width: 30px; height: 30px;
+    border: 3px solid rgba(255,255,255,.06); border-top-color: $purple;
+    border-radius: 50%; animation: instr-spin .7s linear infinite;
+  }
+  @keyframes instr-spin { to { transform: rotate(360deg); } }
+
+  // ── Course grid (level 1) ─────────────────────────────────────────────────
+  &__course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 14px;
+  }
+
+  &__course-card {
+    display: flex; flex-direction: column; text-align: left;
+    background: $surface; border: 1px solid $border; border-radius: 14px;
+    overflow: hidden; cursor: pointer; padding: 0;
+    position: relative;
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+
+    &:hover {
+      border-color: rgba($purple,.35);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba($purple,.12);
+    }
+  }
+
+  &__course-thumb {
+    height: 120px;
+    background-size: cover; background-position: center;
+    background-color: $surface3;
+    position: relative;
+  }
+
+  &__course-pending {
+    position: absolute; top: 10px; right: 10px;
+    padding: 3px 10px; border-radius: 20px;
+    background: rgba($amber,.9); color: #1a1208;
+    font-size: 11px; font-weight: 700;
+  }
+
+  &__course-body { padding: 16px; flex: 1; }
+
+  &__course-title {
+    font-size: 14.5px; font-weight: 700; color: $text;
+    margin: 0 0 10px; line-height: 1.4;
+  }
+
+  &__course-stats {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    font-size: 12px; color: $muted;
+    span { display: inline-flex; align-items: center; gap: 5px; }
+  }
+
+  &__course-arrow {
+    position: absolute; bottom: 16px; right: 14px;
+    color: $dim;
+  }
+
+  // ── Back ──────────────────────────────────────────────────────────────────
+  &__back {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: none; border: none; color: $muted; cursor: pointer;
+    font-size: 13px; padding: 0; margin-bottom: 20px;
+    transition: color .15s;
+    &:hover { color: $text; }
+  }
+
+  // ── Analytics cards ───────────────────────────────────────────────────────
+  &__analytics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  &__stat-card {
+    display: flex; align-items: center; gap: 14px;
+    background: $surface; border: 1px solid $border; border-radius: 12px;
+    padding: 16px 18px;
+  }
+
+  &__stat-icon {
+    width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+
+    &--purple { background: rgba($purple,.12); color: $purple-l; }
+    &--teal   { background: rgba($teal,.1);    color: $teal; }
+    &--green  { background: rgba($green,.1);   color: $green; }
+    &--amber  { background: rgba($amber,.1);   color: $amber; }
+  }
+
+  &__stat-info  { display: flex; flex-direction: column; }
+  &__stat-value { font-size: 20px; font-weight: 800; color: $text; line-height: 1.2; }
+  &__stat-label { font-size: 11.5px; color: $muted; }
+
+  // ── Tabs ──────────────────────────────────────────────────────────────────
+  &__tabs {
+    display: flex; gap: 4px;
+    border-bottom: 1px solid $border;
+    margin-bottom: 20px;
+  }
+
+  &__tab {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 16px;
+    background: none; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: $muted;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color .15s, border-color .15s;
+
+    &:hover { color: $text; }
+
+    &--active { color: $purple-l; border-bottom-color: $purple; }
+  }
+
+  &__tab-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px; padding: 0 5px;
+    border-radius: 9px;
+    background: rgba($purple,.8); color: #fff;
+    font-size: 10.5px; font-weight: 700;
+  }
+
+  // ── Section / empty ───────────────────────────────────────────────────────
+  &__section { display: flex; flex-direction: column; gap: 12px; }
+
+  &__empty {
+    padding: 40px; text-align: center;
+    color: $muted; font-size: 13.5px;
+    background: $surface; border: 1px dashed $border; border-radius: 12px;
+  }
+
+  // ── Students table ────────────────────────────────────────────────────────
+  &__table-wrap {
+    background: $surface; border: 1px solid $border; border-radius: 12px;
+    overflow-x: auto;
+  }
+
+  &__table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+
+    thead th {
+      text-align: left; padding: 12px 16px;
+      font-size: 11px; font-weight: 700;
+      color: $muted; text-transform: uppercase; letter-spacing: .05em;
+      background: $surface2; border-bottom: 1px solid $border;
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 13px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      color: $text; vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(255,255,255,.02); }
+  }
+
+  &__student-cell { display: flex; align-items: center; gap: 12px; }
+
+  &__avatar {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    background: rgba($purple,.18); color: $purple-l;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+
+  &__student-name  { font-size: 13px; font-weight: 600; color: $text; }
+  &__student-email { font-size: 11.5px; color: $muted; }
+
+  &__progress-cell {
+    display: flex; align-items: center; gap: 10px;
+    span { font-size: 12px; color: $muted; min-width: 34px; }
+  }
+
+  &__progress-bar {
+    width: 90px; height: 6px; border-radius: 3px;
+    background: rgba(255,255,255,.07);
+    overflow: hidden;
+  }
+
+  &__progress-fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, $purple, $purple-l);
+  }
+
+  &__badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+
+    &--active    { background: rgba($purple,.12); color: $purple-l; border: 1px solid rgba($purple,.25); }
+    &--completed { background: rgba($green,.1);   color: $green;    border: 1px solid rgba($green,.25); }
+    &--paused    { background: rgba($amber,.1);   color: $amber;    border: 1px solid rgba($amber,.25); }
+    &--pending   { background: rgba($amber,.1);   color: $amber;    border: 1px solid rgba($amber,.25); }
+    &--graded    { background: rgba($green,.1);   color: $green;    border: 1px solid rgba($green,.25); }
+    &--returned  { background: rgba($red,.1);     color: $red;      border: 1px solid rgba($red,.25); }
+  }
+
+  &__td-date { font-size: 12px; color: $muted; white-space: nowrap; }
+
+  // ── Submission cards ──────────────────────────────────────────────────────
+  &__sub-card {
+    background: $surface; border: 1px solid $border; border-radius: 12px;
+    padding: 18px 20px;
+    display: flex; flex-direction: column; gap: 12px;
+
+    &--graded { border-color: rgba($green,.12); }
+  }
+
+  &__sub-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap;
+  }
+
+  &__sub-meta { display: flex; align-items: center; gap: 10px; }
+
+  &__sub-content {
+    font-size: 13px; color: $muted; line-height: 1.6; margin: 0;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.05);
+    border-radius: 8px; padding: 10px 14px;
+    word-break: break-word;
+  }
+
+  &__grade-chip {
+    padding: 3px 10px; border-radius: 8px;
+    background: rgba($green,.12); color: $green;
+    border: 1px solid rgba($green,.25);
+    font-size: 12.5px; font-weight: 800;
+  }
+
+  &__feedback {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 12.5px; color: rgba($text,.75); line-height: 1.55;
+    background: rgba($purple,.06);
+    border-left: 3px solid rgba($purple,.4);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    svg { flex-shrink: 0; margin-top: 2px; color: $purple-l; }
+  }
+
+  &__sub-actions { display: flex; justify-content: flex-end; }
+
+  // ── Grading form ──────────────────────────────────────────────────────────
+  &__grade-form {
+    display: flex; flex-direction: column; gap: 12px;
+    background: $surface2; border: 1px solid rgba($purple,.2);
+    border-radius: 10px; padding: 16px;
+  }
+
+  &__grade-row { display: flex; gap: 12px; }
+
+  &__grade-label {
+    display: flex; flex-direction: column; gap: 6px;
+    font-size: 11.5px; font-weight: 700; color: $muted;
+    text-transform: uppercase; letter-spacing: .04em;
+    flex: 1;
+  }
+
+  &__grade-input {
+    width: 120px;
+    padding: 8px 12px; border-radius: 8px;
+    background: rgba(255,255,255,.04); border: 1px solid $border;
+    color: $text; font-size: 14px; font-weight: 700; outline: none;
+    &:focus { border-color: rgba($purple,.45); }
+  }
+
+  &__grade-textarea {
+    padding: 10px 12px; border-radius: 8px; resize: vertical;
+    background: rgba(255,255,255,.04); border: 1px solid $border;
+    color: $text; font-size: 13px; line-height: 1.5; outline: none;
+    font-family: inherit;
+    &:focus { border-color: rgba($purple,.45); }
+    &::placeholder { color: $dim; }
+  }
+
+  &__grade-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+  // ── Buttons ───────────────────────────────────────────────────────────────
+  &__btn {
+    padding: 8px 18px; border-radius: 9px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    border: 1px solid transparent;
+    transition: opacity .15s, background .15s;
+
+    &--primary {
+      background: linear-gradient(135deg, $purple, $purple-l);
+      color: #fff; border: none;
+      &:hover { opacity: .88; }
+    }
+
+    &--ghost {
+      background: transparent; border-color: $border; color: $muted;
+      &:hover { background: rgba(255,255,255,.05); color: $text; }
+    }
+  }
+
+  // ── Assignment rows (evaluations list) ────────────────────────────────────
+  &__assign-row {
+    display: flex; align-items: center; gap: 14px;
+    width: 100%; text-align: left;
+    background: $surface; border: 1px solid $border; border-radius: 12px;
+    padding: 14px 18px; cursor: pointer;
+    transition: border-color .15s, background .15s;
+
+    &:hover { background: $surface2; border-color: rgba($purple,.3); }
+  }
+
+  &__assign-icon {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba($purple,.12); color: $purple-l;
+
+    &--quiz { background: rgba($teal,.1); color: $teal; }
+  }
+
+  &__assign-info { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+  &__assign-title {
+    font-size: 13.5px; font-weight: 700; color: $text;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  &__assign-meta {
+    font-size: 11.5px; color: $muted;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  &__assign-counts { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+  &__assign-chip {
+    padding: 3px 10px; border-radius: 20px;
+    background: rgba(255,255,255,.05); border: 1px solid $border;
+    font-size: 11px; color: $muted; white-space: nowrap;
+
+    &--pending {
+      background: rgba($amber,.1); border-color: rgba($amber,.25);
+      color: $amber; font-weight: 600;
+    }
+  }
+
+  &__assign-arrow { color: $dim; flex-shrink: 0; }
+
+  // ── Assignment detail summary ─────────────────────────────────────────────
+  &__assign-summary {
+    display: flex; gap: 12px; margin-bottom: 20px;
+  }
+
+  &__assign-summary-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    background: $surface; border: 1px solid $border; border-radius: 12px;
+    padding: 16px;
+  }
+
+  // ── Pagination ────────────────────────────────────────────────────────────
+  &__pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 12px; padding: 8px 4px;
+    font-size: 12.5px; color: $muted;
+  }
+
+  &__page-btns { display: flex; gap: 4px; }
+
+  &__page-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 30px; height: 30px; padding: 0 6px;
+    border-radius: 7px; border: 1px solid $border;
+    background: none; color: $muted; cursor: pointer; font-size: 12.5px;
+    transition: background .12s, color .12s, border-color .12s;
+
+    &:hover { background: rgba(255,255,255,.05); color: $text; }
+    &--active { background: rgba($purple,.15); border-color: rgba($purple,.35); color: $purple-l; font-weight: 700; }
+    &:disabled { opacity: .35; cursor: default; }
+  }
+
+  // ── Submission detail (level 4) ───────────────────────────────────────────
+  &__sub-detail {
+    display: flex; flex-direction: column; gap: 20px;
+  }
+
+  &__sub-detail-header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+
+  &__sub-detail-student {
+    display: flex; align-items: center; gap: 14px;
+  }
+
+  &__sub-detail-avatar {
+    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+    background: rgba($purple,.18); color: $purple-l;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700;
+  }
+
+  &__sub-detail-name  { font-size: 15px; font-weight: 700; color: $text; }
+  &__sub-detail-email { font-size: 12px; color: $muted; margin-top: 2px; }
+  &__sub-detail-date  { font-size: 12px; color: $muted; margin-top: 4px; }
+
+  &__sub-detail-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+  &__sub-detail-section {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  &__sub-detail-label {
+    font-size: 11px; font-weight: 700; color: $muted;
+    text-transform: uppercase; letter-spacing: .06em;
+  }
+
+  &__sub-detail-content {
+    background: $surface2; border: 1px solid $border; border-radius: 10px;
+    padding: 16px 18px; font-size: 13.5px; color: $text; line-height: 1.65;
+    white-space: pre-wrap; word-break: break-word;
+  }
+
+  &__sub-detail-grade-card {
+    background: $surface; border: 1px solid $border; border-radius: 12px;
+    padding: 20px 22px; display: flex; flex-direction: column; gap: 16px;
+  }
+
+  &__sub-detail-grade-title {
+    font-size: 14px; font-weight: 700; color: $text; margin: 0;
+    display: flex; align-items: center; gap: 8px;
+
+    &::before {
+      content: '';
+      display: inline-block; width: 3px; height: 16px;
+      background: linear-gradient($purple, $purple-l); border-radius: 2px;
+    }
+  }
+
+  &__grade-existing {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-radius: 9px;
+    background: rgba($green,.06); border: 1px solid rgba($green,.15);
+    font-size: 13px; color: rgba($text,.8);
+
+    strong { color: $green; font-size: 18px; }
+  }
+
+  // ── View submission button ─────────────────────────────────────────────────
+  &__btn--view {
+    padding: 6px 14px; font-size: 12px; font-weight: 600;
+    background: rgba($purple,.12); border: 1px solid rgba($purple,.25);
+    color: $purple-l; border-radius: 8px; cursor: pointer;
+    transition: background .12s, border-color .12s;
+    &:hover { background: rgba($purple,.2); border-color: rgba($purple,.4); }
+  }
+}

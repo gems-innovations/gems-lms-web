@@ -1,0 +1,220 @@
+<div class="catalog">
+
+  <!-- ── Header ── -->
+  <div class="catalog__header">
+    <div>
+      <h1 class="catalog__title">Catálogo</h1>
+      <p class="catalog__subtitle">Explora cursos y rutas de aprendizaje disponibles e inscríbete en los que te interesen.</p>
+    </div>
+  </div>
+
+  <!-- ── Search + filter row ── -->
+  <div class="catalog__filters">
+    <!-- Search -->
+    <div class="catalog__search-wrap">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input class="catalog__search" type="text" placeholder="Buscar…"
+             [value]="search()" (input)="search.set($any($event.target).value)">
+    </div>
+
+    <!-- Filter button -->
+    <div class="catalog__filter-wrap">
+      <button class="catalog__filter-btn"
+              [class.catalog__filter-btn--active]="activeFilterCount() > 0"
+              (click)="toggleFilter()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+        </svg>
+        Filtros
+        @if (activeFilterCount() > 0) {
+          <span class="catalog__filter-count">{{ activeFilterCount() }}</span>
+        }
+      </button>
+
+      <!-- Floating dropdown -->
+      @if (filterOpen()) {
+        <!-- backdrop -->
+        <div class="catalog__filter-backdrop" (click)="closeFilter()"></div>
+
+        <div class="catalog__filter-panel">
+          <div class="catalog__filter-panel-header">
+            <span>Filtros</span>
+            <button class="catalog__filter-clear"
+                    [disabled]="activeFilterCount() === 0"
+                    (click)="filterKind.set('all'); filterLevel.set('all')">
+              Limpiar
+            </button>
+          </div>
+
+          <!-- Type -->
+          <div class="catalog__filter-group">
+            <p class="catalog__filter-label">Tipo de contenido</p>
+            <div class="catalog__filter-options">
+              <button class="catalog__filter-opt" [class.catalog__filter-opt--active]="filterKind() === 'all'"
+                      (click)="filterKind.set('all')">
+                <span class="catalog__filter-opt-dot"></span> Todo
+              </button>
+              <button class="catalog__filter-opt" [class.catalog__filter-opt--active]="filterKind() === 'course'"
+                      (click)="filterKind.set('course')">
+                <span class="catalog__filter-opt-dot catalog__filter-opt-dot--purple"></span> Cursos
+              </button>
+              <button class="catalog__filter-opt" [class.catalog__filter-opt--active]="filterKind() === 'path'"
+                      (click)="filterKind.set('path')">
+                <span class="catalog__filter-opt-dot catalog__filter-opt-dot--teal"></span> Rutas
+              </button>
+            </div>
+          </div>
+
+          <!-- Difficulty (hidden when only paths selected) -->
+          @if (filterKind() !== 'path') {
+            <div class="catalog__filter-group">
+              <p class="catalog__filter-label">Nivel de dificultad</p>
+              <div class="catalog__filter-options">
+                <button class="catalog__filter-opt" [class.catalog__filter-opt--active]="filterLevel() === 'all'"
+                        (click)="filterLevel.set('all')">
+                  <span class="catalog__filter-opt-dot"></span> Todos los niveles
+                </button>
+                <button class="catalog__filter-opt" [class.catalog__filter-opt--active]="filterLevel() === EDifficulty.BEGINNER"
+                        (click)="filterLevel.set(EDifficulty.BEGINNER)">
+                  <span class="catalog__filter-opt-dot catalog__filter-opt-dot--green"></span> Principiante
+                </button>
+                <button class="catalog__filter-opt" [class.catalog__filter-opt--active]="filterLevel() === EDifficulty.INTERMEDIATE"
+                        (click)="filterLevel.set(EDifficulty.INTERMEDIATE)">
+                  <span class="catalog__filter-opt-dot catalog__filter-opt-dot--amber"></span> Intermedio
+                </button>
+                <button class="catalog__filter-opt" [class.catalog__filter-opt--active]="filterLevel() === EDifficulty.ADVANCED"
+                        (click)="filterLevel.set(EDifficulty.ADVANCED)">
+                  <span class="catalog__filter-opt-dot catalog__filter-opt-dot--red"></span> Avanzado
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Active filter chips -->
+    @if (activeFilterCount() > 0) {
+      <div class="catalog__active-chips">
+        @if (filterKind() !== 'all') {
+          <span class="catalog__chip">
+            {{ filterKind() === 'course' ? 'Cursos' : 'Rutas' }}
+            <button (click)="filterKind.set('all')">×</button>
+          </span>
+        }
+        @if (filterLevel() !== 'all') {
+          <span class="catalog__chip">
+            {{ difficultyLabel($any(filterLevel())) }}
+            <button (click)="filterLevel.set('all')">×</button>
+          </span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ── Loading ── -->
+  @if (isLoading()) {
+    <div class="catalog__loading">
+      <div class="catalog__spinner"></div>
+      <span>Cargando…</span>
+    </div>
+  }
+
+  <!-- ── Grid ── -->
+  @if (!isLoading()) {
+    @if (filtered().length === 0) {
+      <div class="catalog__empty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.3">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <p>No se encontraron resultados con esos filtros.</p>
+      </div>
+    }
+
+    <div class="catalog__grid">
+      @for (item of filtered(); track item.id) {
+        <div class="catalog__card"
+             [class.catalog__card--enrolled]="isEnrolled(item)"
+             [class.catalog__card--path]="item.kind === 'path'">
+
+          <!-- Thumbnail -->
+          <div class="catalog__thumb"
+               [style.backgroundImage]="item.thumbnailUrl ? 'url(' + item.thumbnailUrl + ')' : null">
+            @if (!item.thumbnailUrl) {
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.3">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+            }
+            <!-- Kind badge -->
+            @if (item.kind === 'path') {
+              <span class="catalog__kind-badge catalog__kind-badge--path">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+                Ruta
+              </span>
+            } @else if (item.difficulty) {
+              <span class="catalog__level-badge catalog__level-badge--{{ item.difficulty }}">
+                {{ difficultyLabel(item.difficulty) }}
+              </span>
+            }
+          </div>
+
+          <!-- Body -->
+          <div class="catalog__card-body">
+            <h3 class="catalog__card-title">{{ item.title }}</h3>
+            <p class="catalog__card-desc">{{ item.description }}</p>
+
+            <div class="catalog__card-meta">
+              <span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                {{ formatDuration(item.duration) }}
+              </span>
+              <span>{{ item.meta }}</span>
+            </div>
+
+            @if (item.tags?.length) {
+              <div class="catalog__tags">
+                @for (tag of (item.tags | slice:0:3); track tag) {
+                  <span class="catalog__tag">{{ tag }}</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Footer -->
+          <div class="catalog__card-footer">
+            @if (isEnrolled(item)) {
+              <span class="catalog__enrolled-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Inscrito
+              </span>
+              <button class="catalog__btn catalog__btn--secondary"
+                      (click)="onOpenCourse.emit(item.id)">
+                Continuar
+              </button>
+            } @else {
+              <button class="catalog__btn catalog__btn--secondary"
+                      (click)="onPreview.emit({ kind: item.kind, id: item.id })">
+                Ver detalles
+              </button>
+              <button class="catalog__btn catalog__btn--primary"
+                      (click)="enroll(item)">
+                Inscribirme
+              </button>
+            }
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+</div>

@@ -96,10 +96,10 @@
         </div>
 
         <div class="lpplayer__steps">
-          @for (entry of stepEntries(); track trackByStepId($index, entry); let last = $last) {
+          @for (entry of stepEntries(); track trackByStepId($index, entry); let last = $last; let first = $first) {
 
-            <!-- Connector line (not for last) -->
-            @if (!last) {
+            <!-- Connector line between steps (not before the first) -->
+            @if (!first) {
               <div class="lpplayer__connector" [class.lpplayer__connector--done]="entry.isCompleted"></div>
             }
 

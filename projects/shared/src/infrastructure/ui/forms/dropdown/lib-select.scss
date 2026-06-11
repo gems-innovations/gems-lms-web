@@ -1,4 +1,11 @@
-@import '../../styles/variables.scss';
+@use 'sass:map';
+@use '../../styles/variables' as *;
+
+// Las variables $_* son privadas al módulo con @use; se resuelven vía el mapa público $colors
+$_color-error: map.get($colors, error);
+$_color-gris: map.get($colors, gray);
+$_color-oscuro: map.get($colors, dark);
+$_color-primario: map.get($colors, primary);
 
 .lib-select {
   display: flex;

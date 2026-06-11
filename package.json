@@ -6,6 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "build:all": "ng build shared && ng build auth && ng build education && ng build admin",
     "test": "ng test",
     "serve:ssr:main": "node dist/main/server/server.mjs"
   },
@@ -34,7 +35,8 @@
     "express": "^5.1.0",
     "ngx-sub-form": "^14.0.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@angular/build": "^21.2.12",

@@ -38,4 +38,12 @@ export class UserManagementContainer implements OnInit {
   toggleStatus(userId: string): void {
     this.uc.toggleStatus(userId);
   }
+
+  bulkImport(forms: ICreateUserForm[]): void {
+    const institutionId = this.authSession.institutionId();
+    if (!institutionId) return;
+    for (const form of forms) {
+      this.uc.createUser({ ...form, institutionId });
+    }
+  }
 }

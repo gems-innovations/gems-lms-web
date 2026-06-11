@@ -66,6 +66,8 @@ export class CoursePlayerView {
   readonly selectedLessonId   = signal<string | null>(null);
   readonly selectedBlockIdx   = signal(0);
   readonly sidebarCollapsed   = signal(false);
+  readonly sidebarWidth       = signal(500);
+  readonly isResizingSidebar  = signal(false);
   readonly completedBlockIds  = signal<Set<string>>(new Set());
   readonly quizAnswers        = signal<Record<string, string | string[] | boolean>>({});
   readonly quizSubmitted      = signal(false);
@@ -224,6 +226,30 @@ export class CoursePlayerView {
 
   toggleSidebar(): void { this.sidebarCollapsed.update(v => !v); }
 
+  // ── Sidebar resize por arrastre ───────────────────────────────────────────────
+  startSidebarResize(event: MouseEvent): void {
+    event.preventDefault();
+    this.isResizingSidebar.set(true);
+    const startX = event.clientX;
+    const startWidth = this.sidebarWidth();
+
+    const onMove = (e: MouseEvent) => {
+      // El sidebar está a la derecha: arrastrar a la izquierda lo agranda
+      const delta = startX - e.clientX;
+      const width = Math.min(720, Math.max(320, startWidth + delta));
+      this.sidebarWidth.set(width);
+    };
+
+    const onUp = () => {
+      this.isResizingSidebar.set(false);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }
+
   // ── Quiz ──────────────────────────────────────────────────────────────────────
   setAnswer(questionId: string, value: string | string[] | boolean): void {
     this.quizAnswers.update(a => ({ ...a, [questionId]: value }));
@@ -291,6 +317,18 @@ export class CoursePlayerView {
   asMCQ(q: IQuestion): IMultipleChoiceQuestion { return q as IMultipleChoiceQuestion; }
   asTF(q: IQuestion):  ITrueFalseQuestion  { return q as ITrueFalseQuestion;  }
   asOpen(q: IQuestion): IOpenQuestion      { return q as IOpenQuestion;        }
+
+  getFlatLessonNumber(moduleIdx: number, lessonIdx: number): number {
+    const c = this.course();
+    if (!c) return lessonIdx + 1;
+    let count = 0;
+    for (let i = 0; i < moduleIdx; i++) count += c.modules[i].lessons.length;
+    return count + lessonIdx + 1;
+  }
+
+  getLessonContentType(lesson: ILesson): string {
+    return lesson.contentBlocks[0]?.type ?? 'video';
+  }
 
   formatDuration(minutes: number): string {
     if (!minutes) return '—';

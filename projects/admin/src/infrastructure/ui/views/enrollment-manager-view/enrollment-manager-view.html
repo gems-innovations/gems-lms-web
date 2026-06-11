@@ -1,0 +1,194 @@
+<div class="enrmgr">
+
+  <!-- ── Header ── -->
+  <div class="enrmgr__header">
+    <div>
+      <h1 class="enrmgr__title">Gestión de Matrículas</h1>
+      <p class="enrmgr__subtitle">Inscribe uno o varios estudiantes en cursos o rutas de aprendizaje.</p>
+    </div>
+    <div class="enrmgr__header-stats">
+      <div class="enrmgr__stat">
+        <span class="enrmgr__stat-n">{{ students().length }}</span>
+        <span class="enrmgr__stat-l">Estudiantes</span>
+      </div>
+      <div class="enrmgr__stat">
+        <span class="enrmgr__stat-n">{{ courses().length + paths().length }}</span>
+        <span class="enrmgr__stat-l">Contenidos</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="enrmgr__body">
+
+    <!-- ══ LEFT: Student selector ══════════════════════════════════════════ -->
+    <div class="enrmgr__panel">
+      <h2 class="enrmgr__panel-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Estudiantes a matricular
+      </h2>
+
+      <!-- Search field -->
+      <div class="enrmgr__search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input class="enrmgr__search" placeholder="Buscar por nombre o correo…"
+               [ngModel]="search()" (ngModelChange)="search.set($event)">
+      </div>
+
+      <!-- Dropdown results -->
+      @if (search().length > 0) {
+        <div class="enrmgr__dropdown">
+          @for (s of filtered(); track s.id) {
+            <button class="enrmgr__dropdown-item"
+                    [class.enrmgr__dropdown-item--selected]="selectedIds().has(s.id)"
+                    (click)="toggle(s)">
+              <div class="enrmgr__avatar enrmgr__avatar--sm">{{ initials(s) }}</div>
+              <div class="enrmgr__item-info">
+                <span class="enrmgr__item-name">{{ s.firstName }} {{ s.lastName }}</span>
+                <span class="enrmgr__item-email">{{ s.email }}</span>
+              </div>
+              @if (selectedIds().has(s.id)) {
+                <svg class="enrmgr__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              }
+            </button>
+          } @empty {
+            <p class="enrmgr__dropdown-empty">Sin resultados</p>
+          }
+        </div>
+      }
+
+      <!-- Selected chips -->
+      @if (selectedStudents().length > 0) {
+        <div class="enrmgr__chips">
+          @for (s of selectedStudents(); track s.id) {
+            <div class="enrmgr__chip">
+              <div class="enrmgr__avatar enrmgr__avatar--xs">{{ initials(s) }}</div>
+              <span>{{ s.firstName }} {{ s.lastName }}</span>
+              <button class="enrmgr__chip-remove" (click)="removeChip(s.id)">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="enrmgr__placeholder">Busca y selecciona estudiantes arriba.</p>
+      }
+    </div>
+
+    <!-- ══ RIGHT: Target selector ═══════════════════════════════════════════ -->
+    <div class="enrmgr__panel">
+      <h2 class="enrmgr__panel-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        Destino
+      </h2>
+
+      <!-- Type toggle -->
+      <div class="enrmgr__type-toggle">
+        <button class="enrmgr__type-btn" [class.enrmgr__type-btn--active]="targetType() === 'course'"
+                (click)="targetType.set('course'); targetId.set('')">
+          Curso
+        </button>
+        <button class="enrmgr__type-btn" [class.enrmgr__type-btn--active]="targetType() === 'path'"
+                (click)="targetType.set('path'); targetId.set('')">
+          Ruta de aprendizaje
+        </button>
+      </div>
+
+      <!-- Course list -->
+      @if (targetType() === 'course') {
+        <div class="enrmgr__target-list">
+          @for (c of courses(); track c.id) {
+            <button class="enrmgr__target-item"
+                    [class.enrmgr__target-item--active]="targetId() === c.id"
+                    (click)="targetId.set(c.id)">
+              @if (c.thumbnailUrl) {
+                <img class="enrmgr__target-thumb" [src]="c.thumbnailUrl" [alt]="c.title">
+              } @else {
+                <div class="enrmgr__target-thumb enrmgr__target-thumb--placeholder">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                  </svg>
+                </div>
+              }
+              <div class="enrmgr__target-info">
+                <span class="enrmgr__target-name">{{ c.title }}</span>
+                <span class="enrmgr__target-meta">{{ c.totalLessons }} lecciones · {{ c.totalDuration }}min</span>
+              </div>
+              @if (targetId() === c.id) {
+                <svg class="enrmgr__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              }
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Learning path list -->
+      @if (targetType() === 'path') {
+        <div class="enrmgr__target-list">
+          @for (p of paths(); track p.id) {
+            <button class="enrmgr__target-item"
+                    [class.enrmgr__target-item--active]="targetId() === p.id"
+                    (click)="targetId.set(p.id)">
+              @if (p.thumbnailUrl) {
+                <img class="enrmgr__target-thumb" [src]="p.thumbnailUrl" [alt]="p.title">
+              } @else {
+                <div class="enrmgr__target-thumb enrmgr__target-thumb--placeholder">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                  </svg>
+                </div>
+              }
+              <div class="enrmgr__target-info">
+                <span class="enrmgr__target-name">{{ p.title }}</span>
+                <span class="enrmgr__target-meta">{{ p.steps.length }} cursos · {{ p.estimatedDuration }}min</span>
+              </div>
+              @if (targetId() === p.id) {
+                <svg class="enrmgr__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              }
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+  </div>
+
+  <!-- ── Footer CTA ── -->
+  <div class="enrmgr__footer">
+    @if (result(); as r) {
+      <div class="enrmgr__result">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        {{ r.success }} matriculado(s) correctamente
+        @if (r.skipped > 0) { · {{ r.skipped }} ya estaba(n) inscrito(s) }
+      </div>
+    }
+    <button class="enrmgr__submit-btn" [disabled]="!canEnroll()" (click)="enroll()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+      </svg>
+      Matricular {{ selectedIds().size > 0 ? selectedIds().size + ' estudiante(s)' : '' }}
+    </button>
+  </div>
+
+</div>

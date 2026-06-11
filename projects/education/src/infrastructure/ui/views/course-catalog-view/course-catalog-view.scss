@@ -1,0 +1,298 @@
+$purple:   #7B6FF0;
+$purple-l: #9B8FF8;
+$teal:     #3DD6C8;
+$green:    #34d399;
+$amber:    #fbbf24;
+$bg:       #0b0b12;
+$surface:  #111119;
+$surface2: #18181f;
+$border:   rgba(255,255,255,.07);
+$text:     #EDEAF8;
+$muted:    rgba(180,178,210,.5);
+
+.catalog {
+  padding: 32px 36px;
+  min-height: 100%;
+  background: $bg;
+
+  &__header {
+    margin-bottom: 28px;
+  }
+
+  &__title {
+    font-size: 22px; font-weight: 800; color: $text;
+    margin: 0 0 6px; letter-spacing: -.3px;
+  }
+
+  &__subtitle {
+    font-size: 14px; color: $muted; margin: 0;
+  }
+
+  // ── Filters row ───────────────────────────────────────────────────────────
+  &__filters {
+    display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap; margin-bottom: 28px;
+  }
+
+  &__search-wrap {
+    display: flex; align-items: center; gap: 10px;
+    flex: 1; min-width: 220px;
+    background: $surface2; border: 1px solid $border;
+    border-radius: 10px; padding: 0 14px;
+    color: $muted;
+    &:focus-within { border-color: rgba($purple,.4); color: $purple-l; }
+  }
+
+  &__search {
+    flex: 1; background: none; border: none; outline: none;
+    color: $text; font-size: 13.5px; padding: 10px 0;
+    &::placeholder { color: $muted; }
+  }
+
+  // ── Filter button + dropdown ───────────────────────────────────────────────
+  &__filter-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  &__filter-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 16px;
+    background: $surface2; border: 1px solid $border;
+    border-radius: 10px; color: $muted;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: border-color .15s, color .15s, background .15s;
+
+    &:hover { border-color: rgba($purple,.3); color: $text; }
+
+    &--active {
+      background: rgba($purple,.1);
+      border-color: rgba($purple,.35);
+      color: $purple-l;
+    }
+  }
+
+  &__filter-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: $purple; color: #fff;
+    font-size: 10px; font-weight: 700;
+  }
+
+  // Backdrop to close on outside click
+  &__filter-backdrop {
+    position: fixed; inset: 0; z-index: 99;
+  }
+
+  &__filter-panel {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    width: 260px; z-index: 100;
+    background: #1a1a24; border: 1px solid rgba(255,255,255,.1);
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0,0,0,.5);
+    overflow: hidden;
+    animation: filter-pop .15s ease;
+  }
+
+  @keyframes filter-pop {
+    from { opacity: 0; transform: translateY(-6px) scale(.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  &__filter-panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    font-size: 13px; font-weight: 700; color: $text;
+  }
+
+  &__filter-clear {
+    background: none; border: none; cursor: pointer;
+    font-size: 12px; color: $muted;
+    transition: color .15s;
+    &:hover:not(:disabled) { color: $purple-l; }
+    &:disabled { opacity: .35; cursor: default; }
+  }
+
+  &__filter-group {
+    padding: 12px 16px;
+    & + & { border-top: 1px solid rgba(255,255,255,.05); }
+  }
+
+  &__filter-label {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: $muted; margin: 0 0 8px;
+  }
+
+  &__filter-options {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+
+  &__filter-opt {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 8px 10px; border-radius: 8px;
+    background: none; border: none; cursor: pointer;
+    font-size: 13px; color: $muted; text-align: left;
+    transition: background .12s, color .12s;
+
+    &:hover { background: rgba(255,255,255,.04); color: $text; }
+
+    &--active {
+      background: rgba($purple,.1); color: $text; font-weight: 600;
+    }
+  }
+
+  &__filter-opt-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(255,255,255,.2);
+    &--purple { background: $purple-l; }
+    &--teal   { background: $teal; }
+    &--green  { background: $green; }
+    &--amber  { background: $amber; }
+    &--red    { background: #f87171; }
+  }
+
+  // ── Active filter chips ────────────────────────────────────────────────────
+  &__active-chips {
+    display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+  }
+
+  &__chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px 4px 12px;
+    background: rgba($purple,.12); border: 1px solid rgba($purple,.25);
+    border-radius: 20px; font-size: 12px; color: $purple-l;
+
+    button {
+      background: none; border: none; cursor: pointer;
+      color: $purple-l; font-size: 14px; line-height: 1;
+      padding: 0; opacity: .7;
+      &:hover { opacity: 1; }
+    }
+  }
+
+  // ── Kind badge ────────────────────────────────────────────────────────────
+  &__kind-badge {
+    position: absolute; top: 10px; left: 10px;
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px; border-radius: 6px;
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+
+    &--path { background: rgba($teal,.25); color: $teal; border: 1px solid rgba($teal,.35); }
+  }
+
+  // ── Path card variant ─────────────────────────────────────────────────────
+  &__card--path {
+    &:hover { border-color: rgba($teal,.3); box-shadow: 0 4px 20px rgba($teal,.08); }
+    &.catalog__card--enrolled { border-color: rgba($green,.25); }
+  }
+
+  // ── Loading / empty ───────────────────────────────────────────────────────
+  &__loading {
+    display: flex; align-items: center; justify-content: center;
+    gap: 14px; padding: 80px; color: $muted; font-size: 14px;
+  }
+
+  &__spinner {
+    width: 28px; height: 28px;
+    border: 3px solid rgba(255,255,255,.06); border-top-color: $purple;
+    border-radius: 50%; animation: cat-spin .7s linear infinite;
+  }
+  @keyframes cat-spin { to { transform: rotate(360deg); } }
+
+  &__empty {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 12px; padding: 80px; color: $muted; font-size: 14px;
+  }
+
+  // ── Grid ─────────────────────────────────────────────────────────────────
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  &__card {
+    background: $surface2; border: 1px solid $border;
+    border-radius: 14px; overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: border-color .2s, box-shadow .2s;
+
+    &:hover { border-color: rgba($purple,.3); box-shadow: 0 4px 20px rgba($purple,.1); }
+    &--enrolled { border-color: rgba($green,.25); }
+  }
+
+  &__thumb {
+    height: 140px; background: $surface;
+    background-size: cover; background-position: center;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+
+  &__level-badge {
+    position: absolute; top: 10px; left: 10px;
+    padding: 3px 9px; border-radius: 6px;
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+
+    &--beginner     { background: rgba($green,.2);  color: $green;    border: 1px solid rgba($green,.3); }
+    &--intermediate { background: rgba($amber,.2);  color: $amber;    border: 1px solid rgba($amber,.3); }
+    &--advanced     { background: rgba($purple,.2); color: $purple-l; border: 1px solid rgba($purple,.3); }
+    &--expert       { background: rgba(239,68,68,.2); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+  }
+
+  &__card-body {
+    flex: 1; padding: 16px 18px 12px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  &__card-title {
+    font-size: 15px; font-weight: 700; color: $text;
+    margin: 0; line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  &__card-desc {
+    font-size: 12.5px; color: $muted; margin: 0; line-height: 1.55;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  &__card-meta {
+    display: flex; gap: 14px; font-size: 12px; color: $muted;
+    span { display: flex; align-items: center; gap: 5px; }
+  }
+
+  &__tags { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  &__tag {
+    padding: 2px 8px; background: rgba($purple,.12);
+    border: 1px solid rgba($purple,.2); border-radius: 20px;
+    font-size: 10.5px; color: $purple-l;
+  }
+
+  &__card-footer {
+    padding: 12px 18px; border-top: 1px solid $border;
+    display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+  }
+
+  &__enrolled-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 600; color: $green;
+    margin-right: auto;
+  }
+
+  &__btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    border: 1px solid transparent; transition: all .15s;
+
+    &--primary {
+      background: linear-gradient(135deg, $purple, $purple-l); color: #fff;
+      &:hover { opacity: .9; box-shadow: 0 4px 12px rgba($purple,.4); }
+    }
+    &--secondary {
+      background: transparent; border-color: rgba(255,255,255,.1); color: $muted;
+      &:hover { background: rgba(255,255,255,.06); color: $text; }
+    }
+  }
+}

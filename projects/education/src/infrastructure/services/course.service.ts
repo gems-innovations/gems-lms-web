@@ -260,6 +260,7 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                 id: 'cb7',
                 type: EContentType.VIDEO,
                 title: 'Angular Architecture Overview',
+                description: 'Componentes, módulos, servicios e inyección de dependencias: cómo encajan las piezas de Angular.',
                 duration: 25,
                 order: 1,
                 isRequired: true,
@@ -296,6 +297,7 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                 id: 'cb9',
                 type: EContentType.VIDEO,
                 title: 'Creando tu primera API REST',
+                description: 'Construye paso a paso una API con Express: rutas, middlewares y manejo de errores.',
                 duration: 45,
                 order: 1,
                 isRequired: true,
@@ -317,6 +319,277 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                   { id: 'r2', criterion: 'Manejo de errores', maxPoints: 20 },
                   { id: 'r3', criterion: 'Calidad del código', maxPoints: 20 },
                   { id: 'r4', criterion: 'Documentación', maxPoints: 10 }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'm2-3',
+        title: 'Bases de Datos con PostgreSQL',
+        description: 'Diseño relacional, consultas SQL y conexión con Node.js.',
+        order: 3,
+        lessons: [
+          {
+            id: 'l2-3-1',
+            title: 'Introducción a PostgreSQL',
+            duration: 50,
+            order: 1,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb20',
+                type: EContentType.VIDEO,
+                title: 'Instalación y primeros pasos con PostgreSQL',
+                description: 'Instala PostgreSQL, crea tu primera base de datos y ejecuta consultas básicas.',
+                duration: 35,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/qw--VYLpxG4',
+                videoProvider: 'youtube'
+              },
+              {
+                id: 'cb21',
+                type: EContentType.DOCUMENT,
+                title: 'Comandos SQL Esenciales',
+                duration: 15,
+                order: 2,
+                isRequired: false,
+                markdownContent: `# SQL Esencial\n\n## DDL — Definición de estructura\n\n\`\`\`sql\nCREATE TABLE users (\n  id SERIAL PRIMARY KEY,\n  email VARCHAR(255) UNIQUE NOT NULL,\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\`\`\`\n\n## DML — Manipulación de datos\n\n\`\`\`sql\nINSERT INTO users (email) VALUES ('test@example.com');\nSELECT * FROM users WHERE id = 1;\nUPDATE users SET email = 'new@example.com' WHERE id = 1;\nDELETE FROM users WHERE id = 1;\n\`\`\`\n\n## JOINs\n\n| Tipo | Descripción |\n|------|-------------|\n| INNER JOIN | Solo coincidencias en ambas tablas |\n| LEFT JOIN  | Todas las filas de la izquierda |\n| RIGHT JOIN | Todas las filas de la derecha |`
+              }
+            ]
+          },
+          {
+            id: 'l2-3-2',
+            title: 'ORM con Prisma',
+            duration: 55,
+            order: 2,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb22',
+                type: EContentType.VIDEO,
+                title: 'Prisma ORM desde cero',
+                description: 'Modela tu esquema, ejecuta migraciones y consulta datos con el cliente tipado de Prisma.',
+                duration: 40,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/RebA5J-rlwg',
+                videoProvider: 'youtube'
+              },
+              {
+                id: 'cb23',
+                type: EContentType.QUIZ,
+                title: 'Evaluación: Bases de Datos',
+                duration: 15,
+                order: 2,
+                isRequired: true,
+                timeLimit: 15,
+                passingScore: 70,
+                maxAttempts: 3,
+                shuffleQuestions: false,
+                questions: [
+                  {
+                    id: 'q-db1',
+                    type: 'multiple-choice',
+                    question: '¿Qué comando Prisma genera el cliente a partir del schema?',
+                    points: 50,
+                    order: 1,
+                    options: [
+                      { id: 'a', text: 'prisma generate' },
+                      { id: 'b', text: 'prisma migrate dev' },
+                      { id: 'c', text: 'prisma db push' },
+                      { id: 'd', text: 'prisma init' }
+                    ],
+                    correctAnswers: ['a'],
+                    explanation: '`prisma generate` lee el schema y genera el Prisma Client tipado.'
+                  },
+                  {
+                    id: 'q-db2',
+                    type: 'true-false',
+                    question: 'Una PRIMARY KEY puede contener valores NULL.',
+                    points: 50,
+                    order: 2,
+                    correctAnswer: false,
+                    explanation: 'Las PRIMARY KEY deben ser únicas y NOT NULL por definición.'
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'l2-3-3',
+            title: 'Proyecto: API con Base de Datos',
+            duration: 90,
+            order: 3,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb24',
+                type: EContentType.ASSIGNMENT,
+                title: 'Integra PostgreSQL en tu API',
+                duration: 90,
+                order: 1,
+                isRequired: true,
+                assignmentInstructions: `## Proyecto: API + PostgreSQL\n\nExtiende tu API REST para usar PostgreSQL con Prisma.\n\n### Requisitos\n- Schema Prisma con al menos 2 modelos relacionados\n- Migraciones aplicadas\n- Todos los endpoints CRUD usando Prisma Client\n- Variables de entorno para DATABASE_URL\n\n## Entrega\nRepositorio GitHub con README que incluya instrucciones de setup.`,
+                maxScore: 100,
+                allowedFileTypes: ['zip', 'txt'],
+                rubric: [
+                  { id: 'r-db1', criterion: 'Schema Prisma correcto', maxPoints: 30 },
+                  { id: 'r-db2', criterion: 'Operaciones CRUD con Prisma', maxPoints: 40 },
+                  { id: 'r-db3', criterion: 'Manejo de relaciones', maxPoints: 30 }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'm2-4',
+        title: 'Autenticación y Seguridad',
+        description: 'JWT, bcrypt, guards y middleware de seguridad.',
+        order: 4,
+        lessons: [
+          {
+            id: 'l2-4-1',
+            title: 'Autenticación con JWT',
+            duration: 65,
+            order: 1,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb25',
+                type: EContentType.VIDEO,
+                title: 'JSON Web Tokens explicado',
+                description: 'Qué es un JWT, cómo se firma y por qué es el estándar para autenticación stateless.',
+                duration: 30,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/7Q17ubqLfaM',
+                videoProvider: 'youtube'
+              },
+              {
+                id: 'cb26',
+                type: EContentType.VIDEO,
+                title: 'Implementando Login y Register',
+                description: 'Endpoints de registro y login con bcrypt para hashear contraseñas y emisión de tokens.',
+                duration: 35,
+                order: 2,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/mbsmsi7l3r4',
+                videoProvider: 'youtube'
+              }
+            ]
+          },
+          {
+            id: 'l2-4-2',
+            title: 'Guards en Angular',
+            duration: 45,
+            order: 2,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb27',
+                type: EContentType.VIDEO,
+                title: 'Route Guards y CanActivate',
+                description: 'Protege rutas de tu aplicación Angular con guards funcionales y redirecciones.',
+                duration: 30,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/kDEl6yn4cBE',
+                videoProvider: 'youtube'
+              },
+              {
+                id: 'cb28',
+                type: EContentType.DOCUMENT,
+                title: 'Interceptors HTTP en Angular',
+                duration: 15,
+                order: 2,
+                isRequired: false,
+                markdownContent: `# HTTP Interceptors\n\nLos interceptors permiten modificar cada petición HTTP de forma global.\n\n## Caso de uso típico: agregar el token JWT\n\n\`\`\`typescript\nexport const authInterceptor: HttpInterceptorFn = (req, next) => {\n  const token = inject(AuthService).token();\n  if (!token) return next(req);\n\n  const authReq = req.clone({\n    headers: req.headers.set('Authorization', \`Bearer \${token}\`)\n  });\n  return next(authReq);\n};\n\`\`\`\n\n> Registra el interceptor en \`app.config.ts\` con \`provideHttpClient(withInterceptors([authInterceptor]))\`.`
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'm2-5',
+        title: 'Deploy y DevOps',
+        description: 'Docker, CI/CD y despliegue en producción.',
+        order: 5,
+        lessons: [
+          {
+            id: 'l2-5-1',
+            title: 'Dockerizando tu aplicación',
+            duration: 55,
+            order: 1,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb29',
+                type: EContentType.VIDEO,
+                title: 'Docker para desarrolladores Node.js',
+                description: 'Imágenes, contenedores y volúmenes: empaqueta tu API Node.js con Docker.',
+                duration: 40,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/9zUHg7xjIqQ',
+                videoProvider: 'youtube'
+              },
+              {
+                id: 'cb30',
+                type: EContentType.DOCUMENT,
+                title: 'Dockerfile y docker-compose.yml',
+                duration: 15,
+                order: 2,
+                isRequired: false,
+                markdownContent: `# Dockerfile para Node.js\n\n\`\`\`dockerfile\nFROM node:20-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --only=production\nCOPY . .\nEXPOSE 3000\nCMD ["node", "src/index.js"]\n\`\`\`\n\n## docker-compose.yml\n\n\`\`\`yaml\nservices:\n  api:\n    build: .\n    ports:\n      - "3000:3000"\n    environment:\n      DATABASE_URL: postgresql://user:pass@db:5432/mydb\n    depends_on:\n      - db\n  db:\n    image: postgres:16-alpine\n    environment:\n      POSTGRES_PASSWORD: pass\n      POSTGRES_USER: user\n      POSTGRES_DB: mydb\n\`\`\`\n`
+              }
+            ]
+          },
+          {
+            id: 'l2-5-2',
+            title: 'CI/CD con GitHub Actions',
+            duration: 50,
+            order: 2,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb31',
+                type: EContentType.VIDEO,
+                title: 'GitHub Actions desde cero',
+                description: 'Crea workflows de CI/CD que ejecutan tests y despliegan automáticamente en cada push.',
+                duration: 35,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/R8_veQiYBjI',
+                videoProvider: 'youtube'
+              }
+            ]
+          },
+          {
+            id: 'l2-5-3',
+            title: 'Proyecto Final: App Full Stack en Producción',
+            duration: 120,
+            order: 3,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb32',
+                type: EContentType.ASSIGNMENT,
+                title: 'Despliega tu aplicación completa',
+                duration: 120,
+                order: 1,
+                isRequired: true,
+                assignmentInstructions: `## Proyecto Final\n\nDespliega una aplicación Full Stack completa que integre todo lo aprendido.\n\n### Stack requerido\n- **Frontend**: Angular con routing y guards\n- **Backend**: Express + Prisma + PostgreSQL\n- **Auth**: JWT con refresh tokens\n- **Deploy**: Docker + cualquier plataforma cloud\n\n### Entrega\nURL pública de la aplicación + repositorio GitHub.`,
+                maxScore: 100,
+                allowedFileTypes: ['txt', 'zip'],
+                rubric: [
+                  { id: 'r-f1', criterion: 'Frontend Angular funcional', maxPoints: 25 },
+                  { id: 'r-f2', criterion: 'API REST completa', maxPoints: 25 },
+                  { id: 'r-f3', criterion: 'Autenticación JWT', maxPoints: 25 },
+                  { id: 'r-f4', criterion: 'Deploy en producción', maxPoints: 25 }
                 ]
               }
             ]

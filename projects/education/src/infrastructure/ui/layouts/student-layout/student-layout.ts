@@ -1,5 +1,6 @@
-import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
 import { AuthSessionService, EUserRole, LogoutUseCase } from 'auth';
 import { BrandingService } from 'shared';
 
@@ -15,6 +16,9 @@ export class StudentLayout implements OnInit, OnDestroy {
   private readonly brandingService = inject(BrandingService);
   private readonly logoutUseCase  = inject(LogoutUseCase);
   private readonly router         = inject(Router);
+  private routerSub?: Subscription;
+
+  readonly isFullWidthRoute = signal(this.checkFullWidth(this.router.url));
 
   readonly user = this.authSession.user;
   readonly role = this.authSession.role;
@@ -31,15 +35,21 @@ export class StudentLayout implements OnInit, OnDestroy {
     this.role() === EUserRole.INSTRUCTOR
   );
 
+  private checkFullWidth(url: string): boolean {
+    return url.includes('/courses/') || url.includes('/paths/');
+  }
+
   ngOnInit(): void {
     const branding = this.authSession.getInstitutionBranding();
-    if (branding) {
-      this.brandingService.apply(branding);
-    }
+    if (branding) this.brandingService.apply(branding);
+
+    this.routerSub = this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe(e => this.isFullWidthRoute.set(this.checkFullWidth((e as NavigationEnd).urlAfterRedirects)));
   }
 
   ngOnDestroy(): void {
-    // Reset branding when leaving the student zone so admin keeps its default theme
+    this.routerSub?.unsubscribe();
     this.brandingService.reset();
   }
 

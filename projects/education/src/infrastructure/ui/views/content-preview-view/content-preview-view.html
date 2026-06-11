@@ -1,0 +1,228 @@
+<div class="preview">
+
+  @if (isLoading()) {
+    <div class="preview__loading"><div class="preview__spinner"></div></div>
+  } @else {
+
+    <!-- ── Hero banner (matches student home style) ── -->
+    <div class="preview__hero-wrap">
+      <div class="preview__hero-bg"></div>
+
+      <div class="preview__hero-inner">
+        <button class="preview__back" (click)="onBack.emit()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Volver al catálogo
+        </button>
+
+    <div class="preview__hero">
+      <div class="preview__hero-info">
+
+        @if (type() === 'path') {
+          <span class="preview__type-badge preview__type-badge--path">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            Ruta de aprendizaje
+          </span>
+        } @else {
+          <span class="preview__type-badge preview__type-badge--course">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            Curso
+          </span>
+        }
+
+        <h1 class="preview__title">{{ title() }}</h1>
+        <p class="preview__desc">{{ description() }}</p>
+
+        <div class="preview__meta">
+          @if (type() === 'course' && course()) {
+            <span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {{ formatDuration(course()!.totalDuration) }}
+            </span>
+            <span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+              {{ course()!.totalLessons }} lecciones
+            </span>
+            <span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              {{ difficultyLabel(course()!.difficulty) }}
+            </span>
+          }
+          @if (type() === 'path' && path()) {
+            <span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {{ formatDuration(path()!.estimatedDuration) }}
+            </span>
+            <span>{{ path()!.steps.length }} curso(s)</span>
+            <span>{{ path()!.enrolledCount }} inscritos</span>
+          }
+        </div>
+
+        @if (tags().length) {
+          <div class="preview__tags">
+            @for (t of tags(); track t) {
+              <span class="preview__tag">{{ t }}</span>
+            }
+          </div>
+        }
+
+        @if (isEnrolled()) {
+          <div class="preview__enrolled-row">
+            <span class="preview__enrolled-badge">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Ya estás inscrito
+            </span>
+            <button class="preview__cta preview__cta--secondary" (click)="onPlay.emit()">
+              Continuar {{ type() === 'path' ? 'ruta' : 'curso' }}
+            </button>
+          </div>
+        } @else {
+          <button class="preview__cta" (click)="onEnroll.emit()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            Inscribirme {{ type() === 'path' ? 'a la ruta' : 'al curso' }}
+          </button>
+          <p class="preview__lock-hint">Inscríbete para acceder al contenido.</p>
+        }
+      </div>
+
+      @if (thumbnail()) {
+        <div class="preview__hero-thumb">
+          <img [src]="thumbnail()!" [alt]="title()!">
+          @if (!isEnrolled()) {
+            <div class="preview__thumb-overlay">
+              <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.6">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+          }
+        </div>
+      }
+    </div><!-- /.preview__hero -->
+      </div><!-- /.preview__hero-inner -->
+    </div><!-- /.preview__hero-wrap -->
+
+    <!-- ── Course outline ── -->
+    @if (type() === 'course' && course()) {
+      <div class="preview__outline">
+        <div class="preview__outline-header">
+          <h2 class="preview__outline-title">Contenido del curso</h2>
+          <span class="preview__outline-summary">
+            {{ course()!.modules?.length ?? 0 }} módulos · {{ course()!.totalLessons }} lecciones
+          </span>
+        </div>
+
+        @for (mod of course()!.modules; track mod.id; let mi = $index) {
+          <!-- Module section header -->
+          <div class="preview__mod-section">
+            <span class="preview__mod-label">{{ mod.title }}</span>
+            <span class="preview__mod-badge">{{ mod.lessons?.length ?? 0 }} lecciones</span>
+          </div>
+
+          <!-- Lesson rows -->
+          @for (lesson of mod.lessons; track lesson.id; let li = $index) {
+            <div class="preview__row">
+              <span class="preview__row-num">{{ li + 1 }}</span>
+
+              <div class="preview__row-thumb">
+                <!-- Play icon over dark placeholder -->
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="preview__row-play">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                <div class="preview__row-lock-dot">
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="preview__row-info">
+                <span class="preview__row-title">{{ lesson.title }}</span>
+                <span class="preview__row-dur">
+                  @if (lesson.contentBlocks?.[0]) {
+                    <span class="preview__row-type">{{ lessonTypeLabel(lesson.contentBlocks[0].type) }}</span>
+                    ·
+                  }
+                  {{ formatDuration(lesson.duration) }}
+                </span>
+              </div>
+
+              <svg class="preview__row-lockicon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+          }
+        }
+      </div>
+    }
+
+    <!-- ── Path sequence ── -->
+    @if (type() === 'path' && path()) {
+      <div class="preview__outline">
+        <div class="preview__outline-header">
+          <h2 class="preview__outline-title">Secuencia del programa</h2>
+          <span class="preview__outline-summary">{{ path()!.steps.length }} cursos en orden</span>
+        </div>
+
+        <div class="preview__path-steps">
+          @for (step of path()!.steps; track step.id; let last = $last) {
+            <div class="preview__path-step" [class.preview__path-step--last]="last">
+              <div class="preview__path-aside">
+                <div class="preview__path-num">{{ step.order }}</div>
+                @if (!last) { <div class="preview__path-line"></div> }
+              </div>
+              <div class="preview__path-card">
+                @if (step.courseThumbnailUrl) {
+                  <img class="preview__path-thumb" [src]="step.courseThumbnailUrl" [alt]="step.courseTitle">
+                } @else {
+                  <div class="preview__path-thumb preview__path-thumb--empty">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25">
+                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                  </div>
+                }
+                <div class="preview__path-info">
+                  <span class="preview__path-course-title">{{ step.courseTitle }}</span>
+                  <div class="preview__path-meta">
+                    @if (step.estimatedDuration) {
+                      <span>{{ formatDuration(step.estimatedDuration) }}</span>
+                    }
+                    @if (step.isRequired) {
+                      <span class="preview__path-req">Obligatorio</span>
+                    }
+                  </div>
+                </div>
+                <svg class="preview__path-lockicon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+  }
+</div>

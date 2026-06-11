@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Build all projects",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "build:all"],
+      "port": null
+    },
+    {
+      "name": "gems-lms-web (Angular dev server)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start"],
+      "port": 4200
+    }
+  ]
+}

@@ -52,5 +52,22 @@ export const routes: Routes = [
         loadComponent: () => import('./infrastructure/ui/containers/user-management-container/user-management-container').then(m => m.UserManagementContainer)
       }
     ]
+  },
+
+  // ── Admin: enrollment manager ──────────────────────────────────────────────
+  {
+    path: 'enrollments',
+    component: MainLayout,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/sidebar-container/sidebar-container').then(m => m.SidebarContainer),
+        outlet: 'sidebar'
+      },
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/enrollment-manager-container/enrollment-manager-container').then(m => m.EnrollmentManagerContainer)
+      }
+    ]
   }
 ];

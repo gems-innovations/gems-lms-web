@@ -1,0 +1,274 @@
+$purple:   #7B6FF0;
+$purple-l: #9B8FF8;
+$teal:     #3DD6C8;
+$green:    #34d399;
+$amber:    #fbbf24;
+$bg:       #0b0b12;
+$surface:  #111119;
+$surface2: #18181f;
+$surface3: #1e1e28;
+$border:   rgba(255,255,255,.07);
+$text:     #EDEAF8;
+$muted:    rgba(180,178,210,.5);
+
+.preview {
+  min-height: 100%;
+  background: $bg;
+
+  &__loading { display: flex; justify-content: center; padding: 80px; }
+  &__spinner {
+    width: 28px; height: 28px;
+    border: 3px solid rgba(255,255,255,.06); border-top-color: $purple;
+    border-radius: 50%; animation: prev-spin .7s linear infinite;
+  }
+  @keyframes prev-spin { to { transform: rotate(360deg); } }
+
+  // ── Hero banner ───────────────────────────────────────────────────────────
+  &__hero-wrap {
+    position: relative;
+    padding: 36px 0 40px;
+    overflow: hidden;
+    border-bottom: 1px solid $border;
+    margin-bottom: 40px;
+  }
+
+  &__hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 65% 90% at 10% 50%, rgba($purple,.14) 0%, transparent 65%),
+      radial-gradient(ellipse 45% 60% at 90% 15%, rgba($teal,.07) 0%, transparent 60%),
+      $surface;
+
+    &::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 100% at 50% 50%, black 30%, transparent 100%);
+    }
+  }
+
+  &__hero-inner {
+    position: relative;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 36px;
+  }
+
+  &__back {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: none; border: none; color: $muted; cursor: pointer;
+    font-size: 13px; padding: 0; margin-bottom: 24px;
+    transition: color .15s;
+    &:hover { color: $text; }
+  }
+
+  // ── Hero content grid ─────────────────────────────────────────────────────
+  &__hero {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 36px;
+    align-items: start;
+    @media (max-width: 680px) { grid-template-columns: 1fr; }
+  }
+
+  &__hero-info { display: flex; flex-direction: column; gap: 14px; }
+
+  // ── Body (outline sections) ───────────────────────────────────────────────
+  // wrap outline sections in a padded container
+  &__outline,
+  &__outline + &__outline {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 36px 48px;
+  }
+
+  &__type-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 6px; align-self: flex-start;
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+    &--course { background: rgba($purple,.12); color: $purple-l; border: 1px solid rgba($purple,.22); }
+    &--path   { background: rgba($teal,.12);   color: $teal;     border: 1px solid rgba($teal,.22); }
+  }
+
+  &__title  { font-size: 26px; font-weight: 900; color: $text; margin: 0; line-height: 1.25; letter-spacing: -.3px; }
+  &__desc   { font-size: 14px; color: $muted; margin: 0; line-height: 1.7; }
+
+  &__meta {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    font-size: 12.5px; color: $muted;
+    span { display: inline-flex; align-items: center; gap: 5px; }
+  }
+
+  &__tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  &__tag {
+    padding: 3px 10px; background: rgba($purple,.08);
+    border: 1px solid rgba($purple,.18); border-radius: 20px;
+    font-size: 11px; color: $purple-l;
+  }
+
+  &__cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; border-radius: 10px; align-self: flex-start;
+    background: linear-gradient(135deg, $purple, $purple-l);
+    color: #fff; font-size: 14px; font-weight: 700;
+    border: none; cursor: pointer; transition: opacity .15s, box-shadow .15s;
+    &:hover { opacity: .9; box-shadow: 0 6px 20px rgba($purple,.35); }
+    &--secondary {
+      background: transparent; border: 1px solid rgba($purple,.35); color: $purple-l;
+      &:hover { background: rgba($purple,.08); box-shadow: none; }
+    }
+  }
+
+  &__enrolled-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  &__enrolled-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: $green; }
+  &__lock-hint { font-size: 12px; color: $muted; margin: -6px 0 0; }
+
+  &__hero-thumb {
+    border-radius: 14px; overflow: hidden; position: relative; aspect-ratio: 16/10;
+    img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  }
+  &__thumb-overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,.45);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  &__outline-header {
+    display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px;
+  }
+  &__outline-title   { font-size: 15px; font-weight: 800; color: $text; margin: 0; }
+  &__outline-summary { font-size: 12.5px; color: $muted; }
+
+  // ── Module section header ─────────────────────────────────────────────────
+  &__mod-section {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0 8px;
+    border-top: 1px solid $border;
+    margin-top: 4px;
+    &:first-of-type { border-top: none; margin-top: 0; }
+  }
+
+  &__mod-label {
+    font-size: 11px; font-weight: 700; color: $muted;
+    text-transform: uppercase; letter-spacing: .06em;
+  }
+
+  &__mod-badge {
+    font-size: 11px; color: $muted;
+    background: rgba(255,255,255,.05);
+    border: 1px solid $border;
+    padding: 2px 9px; border-radius: 20px;
+  }
+
+  // ── Lesson row ────────────────────────────────────────────────────────────
+  &__row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    transition: background .12s;
+    cursor: default;
+    &:hover { background: $surface2; }
+  }
+
+  &__row-num {
+    width: 22px; text-align: center; flex-shrink: 0;
+    font-size: 12px; font-weight: 600; color: rgba(180,178,210,.3);
+  }
+
+  &__row-thumb {
+    width: 52px; height: 36px; border-radius: 6px;
+    background: $surface3; flex-shrink: 0;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  &__row-play { color: rgba(255,255,255,.3); }
+
+  &__row-lock-dot {
+    position: absolute; bottom: 3px; right: 3px;
+    width: 14px; height: 14px; border-radius: 3px;
+    background: rgba(0,0,0,.6);
+    display: flex; align-items: center; justify-content: center;
+    color: $muted;
+  }
+
+  &__row-info { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+  &__row-title {
+    font-size: 13px; font-weight: 500; color: rgba($text, .75);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  &__row-dur {
+    font-size: 11.5px; color: $muted;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  &__row-type {
+    padding: 1px 6px; background: rgba(255,255,255,.05);
+    border-radius: 3px; font-size: 10.5px; text-transform: uppercase; letter-spacing: .4px;
+  }
+
+  &__row-lockicon { color: $muted; flex-shrink: 0; opacity: .4; }
+
+  // ── Path steps (preview) ──────────────────────────────────────────────────
+  &__path-steps { display: flex; flex-direction: column; }
+
+  &__path-step {
+    display: flex; align-items: stretch; gap: 0;
+    min-height: 72px;
+  }
+
+  &__path-aside {
+    width: 40px; flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center;
+    padding-top: 16px;
+  }
+
+  &__path-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba($purple,.12); border: 1.5px solid rgba($purple,.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: $purple-l;
+    flex-shrink: 0; z-index: 1;
+  }
+
+  &__path-line {
+    width: 2px; flex: 1; min-height: 16px; margin-top: 4px;
+    background: linear-gradient(to bottom, rgba($purple,.25), rgba($purple,.06));
+    border-radius: 2px;
+  }
+
+  &__path-card {
+    flex: 1; margin-left: 12px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 14px;
+    background: $surface; border: 1px solid $border; border-radius: 10px;
+    padding: 12px 14px;
+    transition: background .15s, border-color .15s;
+    &:hover { background: $surface2; border-color: rgba($purple,.15); }
+  }
+
+  &__path-thumb {
+    width: 72px; height: 46px; border-radius: 7px;
+    object-fit: cover; flex-shrink: 0; background: $surface3;
+    display: block;
+    &--empty {
+      display: flex; align-items: center; justify-content: center;
+    }
+  }
+
+  &__path-info { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  &__path-course-title { font-size: 13.5px; font-weight: 600; color: $text; }
+  &__path-meta {
+    display: flex; gap: 10px; font-size: 11.5px; color: $muted;
+    align-items: center;
+  }
+  &__path-req {
+    padding: 1px 7px; background: rgba($amber,.1);
+    border: 1px solid rgba($amber,.2); border-radius: 4px;
+    color: $amber; font-size: 10.5px; font-weight: 600;
+  }
+  &__path-lockicon { color: $muted; flex-shrink: 0; opacity: .45; }
+}

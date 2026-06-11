@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 // ─── Tokens ──────────────────────────────────────────────────────────────────
 $surface: #0f0e1a;
 $surface-2: #16152a;
@@ -55,7 +57,7 @@ $red: #f87171;
   white-space: nowrap;
   transition: background 0.15s, transform 0.1s;
 
-  &:hover { background: lighten($purple, 6%); }
+  &:hover { background: color.adjust($purple, $lightness: 6%); }
   &:active { transform: scale(0.97); }
 }
 
@@ -465,7 +467,7 @@ $red: #f87171;
   cursor: pointer;
   transition: all 0.15s;
 
-  &:hover:not(:disabled) { background: lighten($red, 5%); }
+  &:hover:not(:disabled) { background: color.adjust($red, $lightness: 5%); }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 

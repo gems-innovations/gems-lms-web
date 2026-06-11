@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 // ─── Tokens ──────────────────────────────────────────────────────────────────
 $surface: #0f0e1a;
 $surface-2: #16152a;
@@ -122,7 +124,7 @@ $red: #f87171;
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover:not(:disabled) { background: lighten($teal, 5%); }
+  &:hover:not(:disabled) { background: color.adjust($teal, $lightness: 5%); }
   &:disabled { opacity: 0.55; cursor: not-allowed; }
 }
 

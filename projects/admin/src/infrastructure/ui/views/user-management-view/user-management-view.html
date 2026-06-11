@@ -6,13 +6,85 @@
       <h1 class="umgmt__title">Gestión de Usuarios</h1>
       <p class="umgmt__subtitle">Crea y administra los usuarios de tu institución</p>
     </div>
-    <button class="umgmt__btn-new" (click)="showCreateForm.set(true)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-      Nuevo Usuario
-    </button>
+    <div class="umgmt__header-actions">
+      <button class="umgmt__btn-import" (click)="showImportPanel.set(true)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        Importar Excel
+      </button>
+      <button class="umgmt__btn-new" (click)="showCreateForm.set(true)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Nuevo Usuario
+      </button>
+    </div>
   </header>
+
+  <!-- ── Excel import panel ── -->
+  @if (showImportPanel()) {
+    <div class="umgmt__import-panel">
+      <div class="umgmt__import-header">
+        <h3>Importar usuarios desde Excel</h3>
+        <button class="umgmt__form-close" (click)="cancelImport()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      @if (importPreview().length === 0) {
+        <div class="umgmt__import-instructions">
+          <p>El archivo Excel debe tener las siguientes columnas:</p>
+          <code>firstName · lastName · email · username · role</code>
+          <p class="umgmt__import-hint">Los valores de <strong>role</strong> aceptados son: <code>student</code>, <code>instructor</code>, <code>admin</code></p>
+          <label class="umgmt__file-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            Seleccionar archivo .xlsx
+            <input type="file" accept=".xlsx,.xls" (change)="onFileChange($event)" hidden>
+          </label>
+          @if (importError()) {
+            <p class="umgmt__import-error">{{ importError() }}</p>
+          }
+        </div>
+      } @else {
+        <div class="umgmt__import-preview">
+          <p class="umgmt__import-count">{{ importPreview().length }} usuario(s) detectados</p>
+          <div class="umgmt__import-table-wrap">
+            <table class="umgmt__import-table">
+              <thead>
+                <tr><th>Nombre</th><th>Apellido</th><th>Email</th><th>Usuario</th><th>Rol</th></tr>
+              </thead>
+              <tbody>
+                @for (row of importPreview(); track row.email) {
+                  <tr>
+                    <td>{{ row.firstName }}</td>
+                    <td>{{ row.lastName }}</td>
+                    <td>{{ row.email }}</td>
+                    <td>{{ row.username }}</td>
+                    <td>{{ getRoleLabel(row.role) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="umgmt__import-actions">
+            <button class="umgmt__btn-cancel" (click)="importPreview.set([])">Volver</button>
+            <button class="umgmt__btn-new" (click)="confirmImport()">
+              Crear {{ importPreview().length }} usuario(s)
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
 
   <!-- ── Stats chips ── -->
   <div class="umgmt__stats">

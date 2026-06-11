@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 // ─── Tokens ──────────────────────────────────────────────────────────────────
 $surface: #0f0e1a;
 $surface-2: #16152a;
@@ -132,7 +134,7 @@ $blue: #60a5fa;
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover:not(:disabled) { background: lighten($purple, 6%); }
+  &:hover:not(:disabled) { background: color.adjust($purple, $lightness: 6%); }
   &:disabled { opacity: 0.55; cursor: not-allowed; }
 }
 
@@ -400,7 +402,7 @@ $blue: #60a5fa;
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover { background: lighten($purple, 6%); }
+  &:hover { background: color.adjust($purple, $lightness: 6%); }
 }
 
 .ceditor__inline-cancel {
