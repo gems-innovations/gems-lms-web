@@ -1,17 +1,63 @@
-<edu-course-list-view
-  [filteredCourses]="uc.filteredCourses()"
-  [stats]="uc.stats()"
-  [isLoading]="uc.isLoading()"
-  [isDeleting]="uc.isDeleting()"
-  [modal]="uc.modal()"
-  [selectedCourse]="uc.selectedCourse()"
-  (onSearch)="onSearch($event)"
-  (onTabChange)="setTab($event)"
-  (onOpenEditor)="openEditor($event)"
-  (onCreateCourse)="createCourse()"
-  (onDelete)="onDelete($event)"
-  (onPublish)="publishCourse($event)"
-  (onArchive)="archiveCourse($event)"
-  (onModalClose)="onModalClose()"
-  (onConfirmDelete)="onConfirmDelete($event)"
-/>
+<lib-page width="full">
+  <lib-page-header
+    title="Cursos"
+    subtitle="Gestiona y crea el contenido educativo de tu plataforma"
+  >
+    <lib-button variant="primary" size="sm" (clicked)="createCourse()">
+      Nuevo Curso
+    </lib-button>
+  </lib-page-header>
+
+  <lib-stat-grid>
+    <lib-stat-card [value]="uc.stats().total" label="Total" />
+    <lib-stat-card [value]="uc.stats().published" label="Publicados" accent="success" />
+    <lib-stat-card [value]="uc.stats().draft" label="Borradores" accent="warning" />
+    <lib-stat-card [value]="uc.stats().totalEnrolled" label="Estudiantes" accent="teal" />
+  </lib-stat-grid>
+
+  <lib-toolbar>
+    <lib-search-bar
+      placeholder="Buscar por título o etiqueta…"
+      [value]="searchTerm()"
+      (search)="onSearch($event)"
+      (clear)="onSearch('')"
+    />
+    <lib-tabs [tabs]="statusTabs" [activeId]="activeTab()" (activeIdChange)="onTabChange($event)" />
+  </lib-toolbar>
+
+  @if (uc.isLoading()) {
+    <lib-loading-skeleton type="card" [rows]="6" />
+  } @else if (uc.filteredCourses().length === 0) {
+    <lib-empty-state
+      title="No hay cursos"
+      [description]="searchTerm() ? 'Ningún curso coincide con tu búsqueda.' : 'Crea tu primer curso para empezar.'"
+      [actionLabel]="searchTerm() ? undefined : 'Crear Curso'"
+      (action)="createCourse()"
+    />
+  } @else {
+    <lib-card-grid>
+      @for (course of uc.filteredCourses(); track course.id) {
+        <edu-course-card
+          [course]="course"
+          (publish)="uc.publishCourse($event)"
+          (archive)="uc.archiveCourse($event)"
+          (edit)="openEditor($event)"
+          (remove)="uc.openModal('delete', $event)"
+        />
+      }
+    </lib-card-grid>
+  }
+</lib-page>
+
+@if (showDeleteDialog()) {
+  <lib-confirmation-dialog
+    type="danger"
+    title="Eliminar curso"
+    [message]="'¿Estás seguro de que deseas eliminar ' + (uc.selectedCourse()?.title ?? 'este curso') + '? Esta acción no se puede deshacer.'"
+    confirmText="Eliminar"
+    cancelText="Cancelar"
+    [isLoading]="uc.isDeleting()"
+    (confirmed)="confirmDelete()"
+    (cancelled)="uc.closeModal()"
+  />
+}

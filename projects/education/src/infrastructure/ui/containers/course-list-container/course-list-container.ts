@@ -1,39 +1,88 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import {
+  CardGridComponent,
+  ConfirmationDialogComponent,
+  EmptyStateComponent,
+  LibButtonComponent,
+  LoadingSkeletonComponent,
+  PageComponent,
+  PageHeaderComponent,
+  SearchBarComponent,
+  StatCardComponent,
+  StatGridComponent,
+  TabsComponent,
+  TabItem,
+  ToolbarComponent
+} from 'shared';
 import { CourseUseCase } from '../../../../application/course.usecase';
 import { ICourse, ECourseStatus } from '../../../../domain/model/course.model';
-import { CourseListView } from '../../views/course-list-view/course-list-view';
+import { CourseCard } from '../../components/course-card/course-card';
+
+const ALL_TAB = 'all';
 
 @Component({
   selector: 'edu-course-list-container',
-  standalone: true,
-  imports: [CourseListView],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [
+    PageComponent,
+    PageHeaderComponent,
+    LibButtonComponent,
+    StatGridComponent,
+    StatCardComponent,
+    ToolbarComponent,
+    SearchBarComponent,
+    TabsComponent,
+    CardGridComponent,
+    LoadingSkeletonComponent,
+    EmptyStateComponent,
+    ConfirmationDialogComponent,
+    CourseCard
+  ],
   templateUrl: './course-list-container.html'
 })
 export class CourseListContainer implements OnInit {
   private readonly router = inject(Router);
   readonly uc = inject(CourseUseCase);
 
-  ngOnInit(): void { this.uc.load(); }
+  readonly statusTabs: TabItem[] = [
+    { id: ALL_TAB, label: 'Todos' },
+    { id: ECourseStatus.PUBLISHED, label: 'Publicados' },
+    { id: ECourseStatus.DRAFT, label: 'Borradores' },
+    { id: ECourseStatus.ARCHIVED, label: 'Archivados' }
+  ];
 
-  onSearch(term: string): void { this.uc.setSearch(term); }
+  readonly activeTab = signal<string>(ALL_TAB);
+  readonly searchTerm = signal<string>('');
 
-  setTab(status: ECourseStatus | null): void { this.uc.setStatusFilter(status); }
+  readonly showDeleteDialog = computed(() => {
+    const modal = this.uc.modal();
+    return modal.isOpen && modal.mode === 'delete';
+  });
+
+  ngOnInit(): void {
+    this.uc.load();
+  }
+
+  onSearch(term: string): void {
+    this.searchTerm.set(term);
+    this.uc.setSearch(term);
+  }
+
+  onTabChange(tabId: string): void {
+    this.activeTab.set(tabId);
+    this.uc.setStatusFilter(tabId === ALL_TAB ? null : (tabId as ECourseStatus));
+  }
 
   openEditor(course: ICourse): void {
     this.router.navigate(['/education/courses', course.id, 'edit']);
   }
 
-  createCourse(): void { this.uc.openModal('create'); }
+  createCourse(): void {
+    this.uc.openModal('create');
+  }
 
-  onDelete(id: string): void { this.uc.openModal('delete', id); }
-
-  onConfirmDelete(id: string): void { this.uc.delete(id); }
-
-  onModalClose(): void { this.uc.closeModal(); }
-
-  publishCourse(id: string): void { this.uc.publishCourse(id); }
-
-  archiveCourse(id: string): void { this.uc.archiveCourse(id); }
+  confirmDelete(): void {
+    const id = this.uc.modal().courseId;
+    if (id) this.uc.delete(id);
+  }
 }
