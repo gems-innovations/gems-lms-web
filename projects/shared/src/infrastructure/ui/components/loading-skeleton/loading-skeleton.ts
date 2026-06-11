@@ -2,7 +2,7 @@ import { Component, input, computed, ChangeDetectionStrategy } from '@angular/co
 
 
 @Component({
-  selector: 'app-loading-skeleton',
+  selector: 'lib-loading-skeleton',
   imports: [],
   templateUrl: './loading-skeleton.html',
   changeDetection: ChangeDetectionStrategy.Eager,

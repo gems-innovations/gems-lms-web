@@ -1,7 +1,7 @@
 import { Component, inject, computed, ViewChild, effect, ChangeDetectionStrategy } from '@angular/core';
 import { ModalBaseComponent, LibButtonComponent, ConfirmationDialogComponent, BrandingService } from 'shared';
 import { InstitutionForm } from '../../forms/institution-form/institution-form';
-import { InstitutionDetailsViewComponent } from '../../components/institution-details-view/institution-details-view';
+import { InstitutionDetailsComponent } from '../../components/institution-details/institution-details';
 import { InstitutionUseCase } from '../../../../application/institution.usecase';
 import type { ICreateInstitutionRequest, IUpdateInstitutionRequest } from '../../../../domain/model/institution';
 import { EInstitutionType, ESubscriptionType } from '../../../../domain/model/institution';
@@ -14,7 +14,7 @@ import { EInstitutionType, ESubscriptionType } from '../../../../domain/model/in
     LibButtonComponent,
     ConfirmationDialogComponent,
     InstitutionForm,
-    InstitutionDetailsViewComponent
+    InstitutionDetailsComponent
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './institution-modal-container.html'

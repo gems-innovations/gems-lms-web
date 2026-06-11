@@ -39,3 +39,8 @@ export { ColorPickerComponent } from "./infrastructure/ui/components/color-picke
 // ── Services ─────────────────────────────────────────────────────────────────
 export { BrandingService } from "./infrastructure/ui/services/branding.service";
 export type { IBrandingConfig } from "./infrastructure/ui/services/branding.service";
+
+export { LoadingSkeletonComponent } from "./infrastructure/ui/components/loading-skeleton/loading-skeleton";
+
+export { PageComponent } from "./infrastructure/ui/components/page/page.component";
+export type { PageWidth } from "./infrastructure/ui/components/page/page.component";

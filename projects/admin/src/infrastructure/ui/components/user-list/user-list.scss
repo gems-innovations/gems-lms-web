@@ -1,0 +1,154 @@
+.ulist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+
+  &__row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto;
+    align-items: center;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--color-tarjeta);
+    border: 1px solid var(--color-borde-principal);
+    border-radius: var(--border-radius-lg);
+    transition: background var(--transition-fast) var(--transition-easing),
+      border-color var(--transition-fast) var(--transition-easing);
+
+    &:hover {
+      background: var(--color-tarjeta-hover);
+      border-color: var(--color-borde-secundario);
+    }
+
+    &--inactive {
+      opacity: 0.6;
+    }
+
+    @media (max-width: 560px) {
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+    }
+  }
+
+  &__avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-texto-invertido);
+    background: var(--gradiente-primario);
+    border-radius: var(--border-radius-full);
+    overflow: hidden;
+
+    &--inactive {
+      filter: grayscale(0.8);
+    }
+  }
+
+  &__avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-texto-principal);
+  }
+
+  &__email {
+    font-size: var(--font-size-xs);
+    color: var(--color-texto-secundario);
+  }
+
+  &__username {
+    font-size: var(--font-size-xs);
+    color: var(--color-texto-terciario);
+  }
+
+  &__role-badge {
+    padding: 2px var(--spacing-md);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--border-radius-full);
+    white-space: nowrap;
+
+    &.role--super {
+      color: var(--color-rol-super);
+      background: color-mix(in srgb, var(--color-rol-super) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-rol-super) 20%, transparent);
+    }
+
+    &.role--admin {
+      color: var(--color-rol-admin);
+      background: color-mix(in srgb, var(--color-rol-admin) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-rol-admin) 20%, transparent);
+    }
+
+    &.role--instructor {
+      color: var(--color-rol-instructor);
+      background: color-mix(in srgb, var(--color-rol-instructor) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-rol-instructor) 20%, transparent);
+    }
+
+    &.role--student {
+      color: var(--color-rol-estudiante);
+      background: color-mix(in srgb, var(--color-rol-estudiante) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-rol-estudiante) 20%, transparent);
+    }
+  }
+
+  &__status {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+
+    &--active {
+      color: var(--color-exito);
+    }
+
+    &--inactive {
+      color: var(--color-advertencia);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--spacing-xs);
+  }
+
+  &__action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    color: var(--color-texto-secundario);
+    background: transparent;
+    border: 1px solid var(--color-borde-principal);
+    border-radius: var(--border-radius-sm);
+    transition: color var(--transition-fast) var(--transition-easing),
+      border-color var(--transition-fast) var(--transition-easing);
+
+    &:hover {
+      color: var(--color-texto-principal);
+      border-color: var(--color-borde-secundario);
+    }
+
+    &--danger:hover {
+      color: var(--color-error);
+      border-color: color-mix(in srgb, var(--color-error) 40%, transparent);
+    }
+  }
+}

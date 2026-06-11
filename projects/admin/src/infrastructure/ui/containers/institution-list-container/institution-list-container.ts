@@ -1,22 +1,21 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { LibButtonComponent, PageComponent, PageHeaderComponent } from 'shared';
 import { InstitutionList } from '../../components/institution-list/institution-list';
 import { DashboardMetricsComponent } from '../../components/dashboard-metrics/dashboard-metrics';
 import { InstitutionModalContainer } from '../institution-modal-container/institution-modal-container';
-import { LoadingSkeletonComponent } from '../../components/loading-skeleton/loading-skeleton';
-import { InstitutionPageHeader } from '../../components/institution-page-header/institution-page-header';
 import { InstitutionUseCase } from '../../../../application/institution.usecase';
 import { IInstitution } from '../../../../domain/model/institution';
 
 @Component({
   selector: 'adm-institution-list-container',
   imports: [
-    InstitutionPageHeader,
+    PageComponent,
+    PageHeaderComponent,
+    LibButtonComponent,
     InstitutionList,
     DashboardMetricsComponent,
-    LoadingSkeletonComponent,
     InstitutionModalContainer
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './institution-list-container.html'
 })
 export class InstitutionListContainer implements OnInit {
@@ -30,6 +29,10 @@ export class InstitutionListContainer implements OnInit {
   readonly searchTerm = this.institutionUseCase.searchTerm;
 
   ngOnInit(): void {
+    this.institutionUseCase.load();
+  }
+
+  reload(): void {
     this.institutionUseCase.load();
   }
 

@@ -1,0 +1,50 @@
+<div class="uform">
+  <div class="uform__header">
+    <h3>Crear nuevo usuario</h3>
+    <button type="button" class="uform__close" (click)="close()" aria-label="Cerrar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <form class="uform__form" (submit)="$event.preventDefault(); submit()">
+    <div class="uform__row">
+      <lib-input [formField]="uform.firstName" label="Nombre" placeholder="Ana" />
+      <lib-input [formField]="uform.lastName" label="Apellido" placeholder="García" />
+    </div>
+
+    <div class="uform__row">
+      <lib-input [formField]="uform.email" label="Correo electrónico" type="email" placeholder="usuario@institución.edu" />
+      <lib-input [formField]="uform.username" label="Nombre de usuario" placeholder="ana.garcia" />
+    </div>
+
+    <div class="uform__field">
+      <span class="uform__label">Rol <span class="uform__req">*</span></span>
+      <div class="uform__role-grid">
+        @for (r of allowedRoles; track r.value) {
+          <label class="uform__role-card" [class.uform__role-card--selected]="uform.role().value() === r.value">
+            <input
+              type="radio"
+              name="user-role"
+              class="uform__radio"
+              [checked]="uform.role().value() === r.value"
+              (change)="setRole(r.value)"
+            />
+            <span class="uform__role-icon">{{ r.icon }}</span>
+            <span class="uform__role-label">{{ r.label }}</span>
+          </label>
+        }
+      </div>
+    </div>
+
+    <div class="uform__actions">
+      <button type="button" class="uform__btn uform__btn--secondary" (click)="close()">
+        Cancelar
+      </button>
+      <button type="submit" class="uform__btn uform__btn--primary" [disabled]="isCreating()">
+        {{ isCreating() ? 'Creando...' : 'Crear Usuario' }}
+      </button>
+    </div>
+  </form>
+</div>

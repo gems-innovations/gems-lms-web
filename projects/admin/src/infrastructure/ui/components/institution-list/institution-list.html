@@ -25,7 +25,7 @@
   </div>
 
   @if (isLoading()) {
-    <app-loading-skeleton [rows]="5" [type]="'table'" />
+    <lib-loading-skeleton [rows]="5" [type]="'table'" />
   }
 
   @if (error() && !isLoading()) {

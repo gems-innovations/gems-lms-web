@@ -1,0 +1,57 @@
+<div class="uimport">
+  <div class="uimport__header">
+    <h3>Importar usuarios desde Excel</h3>
+    <button type="button" class="uimport__close" (click)="close()" aria-label="Cerrar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  @if (preview().length === 0) {
+    <div class="uimport__instructions">
+      <p>El archivo Excel debe tener las siguientes columnas:</p>
+      <code>firstName · lastName · email · username · role</code>
+      <p class="uimport__hint">Los valores de <strong>role</strong> aceptados son: <code>student</code>, <code>instructor</code>, <code>admin</code></p>
+      <label class="uimport__file-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Seleccionar archivo .xlsx
+        <input type="file" accept=".xlsx,.xls" (change)="onFileChange($event)" hidden>
+      </label>
+      @if (error()) {
+        <p class="uimport__error">{{ error() }}</p>
+      }
+    </div>
+  } @else {
+    <div class="uimport__preview">
+      <p class="uimport__count">{{ preview().length }} usuario(s) detectados</p>
+      <div class="uimport__table-wrap">
+        <table class="uimport__table">
+          <thead>
+            <tr><th>Nombre</th><th>Apellido</th><th>Email</th><th>Usuario</th><th>Rol</th></tr>
+          </thead>
+          <tbody>
+            @for (row of preview(); track row.email) {
+              <tr>
+                <td>{{ row.firstName }}</td>
+                <td>{{ row.lastName }}</td>
+                <td>{{ row.email }}</td>
+                <td>{{ row.username }}</td>
+                <td>{{ getRoleLabel(row.role) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="uimport__actions">
+        <button type="button" class="uimport__btn uimport__btn--secondary" (click)="backToUpload()">Volver</button>
+        <button type="button" class="uimport__btn uimport__btn--primary" [disabled]="isImporting()" (click)="confirm()">
+          Crear {{ preview().length }} usuario(s)
+        </button>
+      </div>
+    </div>
+  }
+</div>

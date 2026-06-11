@@ -1,0 +1,37 @@
+.ustats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-xs);
+    color: var(--color-texto-secundario);
+    background: var(--color-tarjeta);
+    border: 1px solid var(--color-borde-principal);
+    border-radius: var(--border-radius-full);
+
+    strong {
+      font-size: var(--font-size-sm);
+      color: var(--color-texto-principal);
+    }
+
+    &--admin {
+      border-color: color-mix(in srgb, var(--color-rol-admin) 25%, transparent);
+      background: color-mix(in srgb, var(--color-rol-admin) 7%, transparent);
+    }
+
+    &--instructor {
+      border-color: color-mix(in srgb, var(--color-rol-instructor) 25%, transparent);
+      background: color-mix(in srgb, var(--color-rol-instructor) 7%, transparent);
+    }
+
+    &--student {
+      border-color: color-mix(in srgb, var(--color-rol-estudiante) 25%, transparent);
+      background: color-mix(in srgb, var(--color-rol-estudiante) 7%, transparent);
+    }
+  }
+}

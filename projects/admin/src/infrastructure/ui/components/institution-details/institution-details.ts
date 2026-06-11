@@ -3,14 +3,14 @@ import { CommonModule } from '@angular/common';
 import { IInstitution, EInstitutionStatus, EBrandingType } from '../../../../domain/model/institution';
 
 @Component({
-  selector: 'adm-institution-details-view',
+  selector: 'adm-institution-details',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './institution-details-view.html',
+  templateUrl: './institution-details.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './institution-details-view.scss'
+  styleUrl: './institution-details.scss'
 })
-export class InstitutionDetailsViewComponent {
+export class InstitutionDetailsComponent {
   institution = input.required<IInstitution>();
 
   statusClass = computed(() => `status-${this.institution().status.toLowerCase()}`);

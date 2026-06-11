@@ -1,33 +1,37 @@
-import { Component, computed, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { DecimalPipe, UpperCasePipe } from '@angular/common';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { AuthSessionService } from 'auth';
+import { EmptyStateComponent, LibButtonComponent, LoadingSkeletonComponent, PageComponent, PageHeaderComponent } from 'shared';
 import { InstitutionUseCase } from '../../../../application/institution.usecase';
 import { InstitutionModalContainer } from '../institution-modal-container/institution-modal-container';
-import { EInstitutionStatus } from '../../../../domain/model/institution';
+import { InstitutionOverviewCard } from '../../components/institution-overview-card/institution-overview-card';
+import { InstitutionBrandingPanel } from '../../components/institution-branding-panel/institution-branding-panel';
 
 @Component({
   selector: 'adm-institution-dashboard-container',
-  imports: [RouterLink, DecimalPipe, UpperCasePipe, InstitutionModalContainer],
-  templateUrl: './institution-dashboard-container.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './institution-dashboard-container.scss'
+  imports: [
+    PageComponent,
+    PageHeaderComponent,
+    LibButtonComponent,
+    LoadingSkeletonComponent,
+    EmptyStateComponent,
+    InstitutionModalContainer,
+    InstitutionOverviewCard,
+    InstitutionBrandingPanel
+  ],
+  templateUrl: './institution-dashboard-container.html'
 })
 export class InstitutionDashboardContainer implements OnInit {
   private readonly authSession = inject(AuthSessionService);
-  private readonly uc          = inject(InstitutionUseCase);
+  private readonly uc = inject(InstitutionUseCase);
 
-  readonly user          = this.authSession.user;
   readonly institutionId = this.authSession.institutionId;
-  readonly isLoading     = this.uc.isLoading;
+  readonly isLoading = this.uc.isLoading;
 
   readonly institution = computed(() => {
     const id = this.institutionId();
     if (!id) return null;
     return this.uc.institutions().find(i => i.id === id) ?? null;
   });
-
-  readonly EInstitutionStatus = EInstitutionStatus;
 
   ngOnInit(): void {
     this.uc.load();
@@ -36,14 +40,5 @@ export class InstitutionDashboardContainer implements OnInit {
   editInstitution(): void {
     const inst = this.institution();
     if (inst) this.uc.openModal('edit', inst.id);
-  }
-
-  getStatusLabel(status: EInstitutionStatus): string {
-    const labels: Record<EInstitutionStatus, string> = {
-      [EInstitutionStatus.ACTIVE]:    'Activa',
-      [EInstitutionStatus.SUSPENDED]: 'Suspendida',
-      [EInstitutionStatus.PENDING]:   'Pendiente'
-    };
-    return labels[status] ?? status;
   }
 }

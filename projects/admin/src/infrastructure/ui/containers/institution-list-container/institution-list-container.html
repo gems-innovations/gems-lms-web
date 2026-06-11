@@ -1,24 +1,33 @@
-<adm-institution-page-header (onCreateNew)="onCreateNew()" />
+<lib-page width="full">
+  <lib-page-header
+    title="Gestión de Clientes"
+    subtitle="Administra las instituciones educativas del sistema"
+  >
+    <lib-button variant="primary" size="sm" (clicked)="onCreateNew()">
+      Nueva Institución
+    </lib-button>
+  </lib-page-header>
 
-<adm-dashboard-metrics
-  [metrics]="dashboardMetrics()"
-  [isLoading]="isLoading()"
-/>
+  <adm-dashboard-metrics
+    [metrics]="dashboardMetrics()"
+    [isLoading]="isLoading()"
+  />
 
-<adm-institution-list
-  [institutions]="institutions()"
-  [isLoading]="isLoading()"
-  [error]="error()"
-  [pagination]="pagination()"
-  [searchTerm]="searchTerm()"
-  [hideCreateButton]="true"
-  (onCreateNew)="onCreateNew()"
-  (onView)="onView($event)"
-  (onEdit)="onEdit($event)"
-  (onDelete)="onDelete($event)"
-  (onPageChange)="onPageChange($event)"
-  (onRetry)="ngOnInit()"
-  (onSearch)="onSearch($event)"
-/>
+  <adm-institution-list
+    [institutions]="institutions()"
+    [isLoading]="isLoading()"
+    [error]="error()"
+    [pagination]="pagination()"
+    [searchTerm]="searchTerm()"
+    [hideCreateButton]="true"
+    (onCreateNew)="onCreateNew()"
+    (onView)="onView($event)"
+    (onEdit)="onEdit($event)"
+    (onDelete)="onDelete($event)"
+    (onPageChange)="onPageChange($event)"
+    (onRetry)="reload()"
+    (onSearch)="onSearch($event)"
+  />
+</lib-page>
 
 <adm-institution-modal-container />
