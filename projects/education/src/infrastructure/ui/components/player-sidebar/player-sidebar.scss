@@ -1,0 +1,197 @@
+:host { display: block; height: 100%; }
+
+.psidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-superficie-elevada);
+  border-left: 1px solid var(--color-borde-sutil);
+  overflow: hidden;
+  transition: width var(--transition-base);
+  flex-shrink: 0;
+}
+
+.psidebar__resize-handle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: ew-resize;
+  z-index: 2;
+
+  &:hover { background: var(--color-primario); opacity: 0.4; }
+}
+
+.psidebar__toggle {
+  position: absolute;
+  top: var(--spacing-md);
+  left: var(--spacing-sm);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-borde-sutil);
+  background: var(--color-superficie);
+  color: var(--color-texto-secundario);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+
+  &:hover { background: var(--color-superficie-hover); color: var(--color-texto-principal); }
+}
+
+.psidebar__header {
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm) 48px;
+  border-bottom: 1px solid var(--color-borde-sutil);
+}
+
+.psidebar__label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-texto-terciario);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--spacing-sm);
+}
+
+.psidebar__progress-bar {
+  height: 4px;
+  background: var(--color-borde-principal);
+  border-radius: var(--border-radius-full);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.psidebar__progress-fill {
+  height: 100%;
+  background: var(--color-primario);
+  border-radius: var(--border-radius-full);
+  transition: width var(--transition-base);
+}
+
+.psidebar__progress-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-texto-terciario);
+}
+
+.psidebar__nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-sm) 0;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb { background: var(--color-borde-principal); border-radius: 2px; }
+}
+
+.psidebar__module { border-bottom: 1px solid var(--color-borde-sutil); }
+
+.psidebar__module-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: none;
+  color: var(--color-texto-secundario);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+
+  &:hover { background: var(--color-superficie-hover); }
+}
+
+.psidebar__chevron {
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+  &--open { transform: rotate(90deg); }
+}
+
+.psidebar__module-title { flex: 1; }
+
+.psidebar__module-meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-texto-terciario);
+  font-weight: var(--font-weight-normal);
+  flex-shrink: 0;
+}
+
+.psidebar__lessons {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 var(--spacing-sm);
+}
+
+.psidebar__lesson {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: 8px var(--spacing-md);
+  background: transparent;
+  border: none;
+  color: var(--color-texto-secundario);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+
+  &:hover { background: var(--color-superficie-hover); }
+
+  &--active {
+    background: color-mix(in srgb, var(--color-primario) 12%, transparent);
+    color: var(--color-primario-claro);
+
+    .psidebar__lesson-num { background: var(--color-primario); color: #fff; }
+  }
+
+  &--done { color: var(--color-texto-principal); }
+}
+
+.psidebar__lesson-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--border-radius-full);
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde-principal);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  flex-shrink: 0;
+  transition: background var(--transition-fast);
+}
+
+.psidebar__lesson-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.psidebar__lesson-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.psidebar__lesson-duration {
+  font-size: var(--font-size-xs);
+  color: var(--color-texto-terciario);
+  margin-top: 1px;
+}
+
+.psidebar__check {
+  flex-shrink: 0;
+  color: var(--color-teal);
+}

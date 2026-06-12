@@ -1,0 +1,110 @@
+:host { display: block; }
+
+.ptopbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-lg);
+  height: 56px;
+  background: var(--color-superficie-elevada);
+  border-bottom: 1px solid var(--color-borde-sutil);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+}
+
+.ptopbar__left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  min-width: 0;
+}
+
+.ptopbar__icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-borde-sutil);
+  background: transparent;
+  color: var(--color-texto-secundario);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--transition-fast), color var(--transition-fast);
+
+  &:hover {
+    background: var(--color-superficie-hover);
+    color: var(--color-texto-principal);
+  }
+}
+
+.ptopbar__course {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ptopbar__title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-texto-principal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ptopbar__lesson {
+  font-size: var(--font-size-xs);
+  color: var(--color-texto-terciario);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ptopbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.ptopbar__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-borde-principal);
+  background: transparent;
+  color: var(--color-texto-secundario);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background: var(--color-superficie-hover);
+    color: var(--color-texto-principal);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  &--next {
+    background: var(--color-primario);
+    border-color: var(--color-primario);
+    color: #fff;
+
+    &:hover:not(:disabled) {
+      background: var(--color-primario-claro);
+      border-color: var(--color-primario-claro);
+      color: #fff;
+    }
+  }
+}

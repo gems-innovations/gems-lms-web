@@ -1,0 +1,188 @@
+:host { display: block; }
+
+.phero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--border-radius-xl, var(--border-radius-lg));
+  margin-bottom: var(--spacing-lg);
+}
+
+.phero__bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--color-primario) 25%, var(--color-fondo-principal)) 0%,
+    var(--color-superficie) 100%);
+  z-index: 0;
+}
+
+.phero__inner {
+  position: relative;
+  z-index: 1;
+  padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-lg);
+}
+
+.phero__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background: none;
+  border: none;
+  color: rgba(255,255,255,.55);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: var(--spacing-md);
+  padding: 0;
+  transition: color var(--transition-fast);
+
+  &:hover { color: #fff; }
+}
+
+.phero__content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xl);
+}
+
+.phero__info { flex: 1; }
+
+.phero__type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-sm);
+
+  &--course {
+    background: color-mix(in srgb, var(--color-primario) 25%, transparent);
+    color: var(--color-primario-claro);
+    border: 1px solid color-mix(in srgb, var(--color-primario) 35%, transparent);
+  }
+
+  &--path {
+    background: color-mix(in srgb, var(--color-teal) 20%, transparent);
+    color: var(--color-teal);
+    border: 1px solid color-mix(in srgb, var(--color-teal) 30%, transparent);
+  }
+}
+
+.phero__title {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: var(--font-weight-bold);
+  color: #fff;
+  margin: 0 0 var(--spacing-sm);
+  line-height: 1.25;
+}
+
+.phero__desc {
+  font-size: var(--font-size-sm);
+  color: rgba(255,255,255,.65);
+  margin: 0 0 var(--spacing-md);
+  line-height: 1.6;
+  max-width: 520px;
+}
+
+.phero__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-xs);
+  color: rgba(255,255,255,.55);
+
+  span { display: flex; align-items: center; gap: 4px; }
+}
+
+.phero__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--spacing-lg);
+}
+
+.phero__tag {
+  padding: 3px 10px;
+  border-radius: var(--border-radius-full);
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.7);
+  font-size: var(--font-size-xs);
+  border: 1px solid rgba(255,255,255,.15);
+}
+
+.phero__cta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.phero__enrolled-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-teal);
+}
+
+.phero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 10px 24px;
+  border-radius: var(--border-radius-md);
+  border: none;
+  background: var(--color-primario);
+  color: #fff;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background var(--transition-fast);
+
+  &:hover { background: var(--color-primario-claro); }
+
+  &--secondary {
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.25);
+
+    &:hover { background: rgba(255,255,255,.2); }
+  }
+}
+
+.phero__lock-hint {
+  margin: var(--spacing-sm) 0 0;
+  font-size: var(--font-size-xs);
+  color: rgba(255,255,255,.4);
+}
+
+.phero__thumb-wrap {
+  position: relative;
+  width: 220px;
+  flex-shrink: 0;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+}
+
+.phero__thumb {
+  width: 100%;
+  display: block;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+}
+
+.phero__thumb-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,.6);
+}

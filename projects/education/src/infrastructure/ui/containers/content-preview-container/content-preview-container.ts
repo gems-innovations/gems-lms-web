@@ -3,40 +3,32 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CourseService } from '../../../services/course.service';
 import { LearningPathService } from '../../../services/learning-path.service';
 import { EnrollmentService } from '../../../services/enrollment.service';
-import { ContentPreviewView, TPreviewType } from '../../views/content-preview-view/content-preview-view';
 import { ICourse } from '../../../../domain/model/course.model';
 import { ILearningPath } from '../../../../domain/model/learning-path.model';
+import { LoadingSkeletonComponent } from 'shared';
+import { PreviewHero, TPreviewType } from '../../components/preview-hero/preview-hero';
+import { PreviewCourseOutline } from '../../components/preview-course-outline/preview-course-outline';
+import { PreviewPathSequence } from '../../components/preview-path-sequence/preview-path-sequence';
 
 @Component({
   selector: 'edu-content-preview-container',
   standalone: true,
-  imports: [ContentPreviewView],
-  template: `
-    <edu-content-preview-view
-      [type]="previewType()"
-      [course]="course()"
-      [path]="path()"
-      [isEnrolled]="isEnrolled()"
-      [isLoading]="isLoading()"
-      (onEnroll)="enroll()"
-      (onPlay)="play()"
-      (onBack)="back()"
-    />
-  `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [LoadingSkeletonComponent, PreviewHero, PreviewCourseOutline, PreviewPathSequence],
+  templateUrl: './content-preview-container.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContentPreviewContainer implements OnInit {
-  private readonly route              = inject(ActivatedRoute);
-  private readonly router             = inject(Router);
-  private readonly courseService      = inject(CourseService);
-  private readonly pathService        = inject(LearningPathService);
-  private readonly enrollmentService  = inject(EnrollmentService);
+  private readonly route             = inject(ActivatedRoute);
+  private readonly router            = inject(Router);
+  private readonly courseService     = inject(CourseService);
+  private readonly pathService       = inject(LearningPathService);
+  private readonly enrollmentService = inject(EnrollmentService);
 
-  readonly previewType = signal<TPreviewType>('course');
-  readonly course      = signal<ICourse | null>(null);
-  readonly path        = signal<ILearningPath | null>(null);
-  readonly isEnrolled  = signal(false);
-  readonly isLoading   = signal(true);
+  protected readonly previewType = signal<TPreviewType>('course');
+  protected readonly course      = signal<ICourse | null>(null);
+  protected readonly path        = signal<ILearningPath | null>(null);
+  protected readonly isEnrolled  = signal(false);
+  protected readonly isLoading   = signal(true);
 
   ngOnInit(): void {
     const type = this.route.snapshot.data['previewType'] as TPreviewType;
@@ -62,33 +54,25 @@ export class ContentPreviewContainer implements OnInit {
     }
   }
 
-  enroll(): void {
-    const type = this.previewType();
-    if (type === 'course') {
+  protected enroll(): void {
+    if (this.previewType() === 'course') {
       const id = this.course()?.id;
       if (!id) return;
-      this.enrollmentService.enrollInCourse(id).subscribe(() => {
-        this.isEnrolled.set(true);
-      });
+      this.enrollmentService.enrollInCourse(id).subscribe(() => this.isEnrolled.set(true));
     } else {
       const id = this.path()?.id;
       if (!id) return;
-      this.enrollmentService.enrollInPath(id).subscribe(() => {
-        this.isEnrolled.set(true);
-      });
+      this.enrollmentService.enrollInPath(id).subscribe(() => this.isEnrolled.set(true));
     }
   }
 
-  play(): void {
-    const type = this.previewType();
-    if (type === 'course') {
+  protected play(): void {
+    if (this.previewType() === 'course') {
       this.router.navigate(['/learn/courses', this.course()?.id]);
     } else {
       this.router.navigate(['/learn/paths', this.path()?.id]);
     }
   }
 
-  back(): void {
-    this.router.navigate(['/learn/catalog']);
-  }
+  protected back(): void { this.router.navigate(['/learn/catalog']); }
 }

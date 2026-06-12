@@ -1,0 +1,21 @@
+@if (isLoading()) {
+  <lib-loading-skeleton [rows]="8" />
+} @else {
+  <edu-preview-hero
+    [type]="previewType()"
+    [course]="course()"
+    [path]="path()"
+    [isEnrolled]="isEnrolled()"
+    (enroll)="enroll()"
+    (play)="play()"
+    (back)="back()"
+  />
+
+  @if (previewType() === 'course' && course(); as c) {
+    <edu-preview-course-outline [course]="c" />
+  }
+
+  @if (previewType() === 'path' && path(); as p) {
+    <edu-preview-path-sequence [path]="p" />
+  }
+}

@@ -1,0 +1,102 @@
+<div class="psteps">
+  <div class="psteps__header">
+    <h2 class="psteps__title">Secuencia de Cursos</h2>
+    <p class="psteps__subtitle">Completa los cursos en orden para avanzar en la ruta.</p>
+  </div>
+
+  <div class="psteps__list">
+    @for (entry of stepEntries(); track entry.step.id; let first = $first) {
+      @if (!first) {
+        <div class="psteps__connector" [class.psteps__connector--done]="entry.isCompleted"></div>
+      }
+
+      <div class="psteps__step"
+           [class.psteps__step--done]="entry.isCompleted"
+           [class.psteps__step--current]="entry.isCurrent && !entry.isCompleted"
+           [class.psteps__step--locked]="entry.isLocked">
+
+        <div class="psteps__bubble">
+          @if (entry.isCompleted) {
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          } @else if (entry.isLocked) {
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          } @else {
+            <span>{{ entry.step.order }}</span>
+          }
+        </div>
+
+        <div class="psteps__card">
+          @if (entry.step.courseThumbnailUrl) {
+            <div class="psteps__thumb" [style.backgroundImage]="'url(' + entry.step.courseThumbnailUrl + ')'"></div>
+          }
+
+          <div class="psteps__body">
+            <div class="psteps__top">
+              <div>
+                <h3 class="psteps__course-title">{{ entry.step.courseTitle }}</h3>
+                <div class="psteps__meta">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  {{ formatDuration(entry.step.estimatedDuration) }}
+                  @if (entry.step.isRequired) {
+                    <span class="psteps__required">Obligatorio</span>
+                  }
+                  @if (entry.step.minimumScore) {
+                    <span class="psteps__score">Mín. {{ entry.step.minimumScore }}%</span>
+                  }
+                </div>
+              </div>
+
+              @if (entry.isCompleted) {
+                <span class="psteps__chip psteps__chip--done">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  Completado
+                </span>
+              } @else if (entry.isCurrent) {
+                <span class="psteps__chip psteps__chip--current">En progreso</span>
+              } @else if (entry.isLocked) {
+                <span class="psteps__chip psteps__chip--locked">Bloqueado</span>
+              } @else {
+                <span class="psteps__chip psteps__chip--pending">Pendiente</span>
+              }
+            </div>
+
+            <div class="psteps__footer">
+              @if (!entry.isLocked) {
+                <button type="button"
+                        class="psteps__btn"
+                        [class.psteps__btn--continue]="entry.isCurrent"
+                        [class.psteps__btn--review]="entry.isCompleted"
+                        (click)="startCourse.emit(entry)">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                  @if (entry.isCompleted) { Revisar }
+                  @else if (entry.isCurrent) { Continuar }
+                  @else { Comenzar }
+                </button>
+              } @else {
+                <span class="psteps__locked-hint">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  Completa el curso anterior para desbloquear
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

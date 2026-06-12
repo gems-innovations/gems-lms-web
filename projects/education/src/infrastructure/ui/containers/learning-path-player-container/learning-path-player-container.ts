@@ -3,60 +3,57 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LearningPathUseCase } from '../../../../application/learning-path.usecase';
 import { EnrollmentUseCase } from '../../../../application/enrollment.usecase';
 import { CourseUseCase } from '../../../../application/course.usecase';
-import { LearningPathPlayerView } from '../../views/learning-path-player-view/learning-path-player-view';
-import type { IStepEntry } from '../../views/learning-path-player-view/learning-path-player-view';
+import { LoadingSkeletonComponent, EmptyStateComponent } from 'shared';
+import { PathPlayerHero } from '../../components/path-player-hero/path-player-hero';
+import { PathStepList, IStepEntry } from '../../components/path-step-list/path-step-list';
 
 @Component({
   selector: 'edu-learning-path-player-container',
   standalone: true,
-  imports: [LearningPathPlayerView],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  templateUrl: './learning-path-player-container.html'
+  imports: [LoadingSkeletonComponent, EmptyStateComponent, PathPlayerHero, PathStepList],
+  templateUrl: './learning-path-player-container.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LearningPathPlayerContainer implements OnInit {
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly lpUc = inject(LearningPathUseCase);
-  private readonly enrollmentUc = inject(EnrollmentUseCase);
-  private readonly courseUc = inject(CourseUseCase);
+  private readonly route         = inject(ActivatedRoute);
+  private readonly router        = inject(Router);
+  private readonly lpUc          = inject(LearningPathUseCase);
+  private readonly enrollmentUc  = inject(EnrollmentUseCase);
+  private readonly courseUc      = inject(CourseUseCase);
 
-  readonly pathId = signal<string | null>(null);
+  protected readonly pathId = signal<string | null>(null);
 
-  // ── Derived ───────────────────────────────────────────────────────────────────
-  readonly learningPath = computed(() => {
+  protected readonly learningPath = computed(() => {
     const id = this.pathId();
     return id ? this.lpUc.learningPaths().find(lp => lp.id === id) ?? null : null;
   });
 
-  readonly pathEnrollment = computed(() => {
+  protected readonly pathEnrollment = computed(() => {
     const id = this.pathId();
     if (!id) return null;
     return this.enrollmentUc.pathEnrollments().find(e => e.learningPathId === id) ?? null;
   });
 
-  readonly isEnrolled = computed(() => !!this.pathEnrollment());
+  protected readonly isEnrolled    = computed(() => !!this.pathEnrollment());
+  protected readonly overallProgress = computed(() => this.pathEnrollment()?.overallPercentage ?? 0);
+  protected readonly isLoading     = computed(() => this.lpUc.isLoading() || this.courseUc.isLoading());
 
-  readonly stepEntries = computed((): IStepEntry[] => {
+  protected readonly stepEntries = computed((): IStepEntry[] => {
     const path = this.learningPath();
     const enrollment = this.pathEnrollment();
     if (!path) return [];
-
     const completedIds = new Set(enrollment?.completedCourseIds ?? []);
-
     return path.steps.map((step, idx) => {
       const isCompleted = completedIds.has(step.courseId);
-      const isCurrent = enrollment?.currentCourseId === step.courseId;
+      const isCurrent   = enrollment?.currentCourseId === step.courseId;
       const prevRequired = path.steps.slice(0, idx).filter(s => s.isRequired);
-      const isLocked = prevRequired.some(s => !completedIds.has(s.courseId));
+      const isLocked    = prevRequired.some(s => !completedIds.has(s.courseId));
       return { step, isCompleted, isCurrent, isLocked };
     });
   });
 
-  readonly overallProgress = computed(() => this.pathEnrollment()?.overallPercentage ?? 0);
-  readonly completedCount  = computed(() => this.stepEntries().filter(e => e.isCompleted).length);
-  readonly isLoading       = computed(() => this.lpUc.isLoading() || this.courseUc.isLoading());
+  protected readonly completedCount = computed(() => this.stepEntries().filter(e => e.isCompleted).length);
 
-  // ── Lifecycle ─────────────────────────────────────────────────────────────────
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     this.pathId.set(id);
@@ -65,12 +62,9 @@ export class LearningPathPlayerContainer implements OnInit {
     if (this.courseUc.courses().length === 0) this.courseUc.load();
   }
 
-  // ── Event handlers ────────────────────────────────────────────────────────────
-  startCourse(entry: IStepEntry): void {
-    if (!entry.isLocked) {
-      this.router.navigate(['/learn/courses', entry.step.courseId]);
-    }
+  protected startCourse(entry: IStepEntry): void {
+    if (!entry.isLocked) this.router.navigate(['/learn/courses', entry.step.courseId]);
   }
 
-  goHome(): void { this.router.navigate(['/learn/home']); }
+  protected goHome(): void { this.router.navigate(['/learn/home']); }
 }

@@ -1,10 +1,20 @@
-<edu-learning-path-player-view
-  [learningPath]="learningPath()"
-  [stepEntries]="stepEntries()"
-  [overallProgress]="overallProgress()"
-  [completedCount]="completedCount()"
-  [isEnrolled]="isEnrolled()"
-  [isLoading]="isLoading()"
-  (onStartCourse)="startCourse($event)"
-  (onGoHome)="goHome()"
-/>
+@if (isLoading()) {
+  <lib-loading-skeleton [rows]="8" />
+} @else if (learningPath(); as path) {
+  <edu-path-player-hero
+    [path]="path"
+    [overallProgress]="overallProgress()"
+    [completedCount]="completedCount()"
+    [isEnrolled]="isEnrolled()"
+    (goHome)="goHome()"
+  />
+  <edu-path-step-list
+    [stepEntries]="stepEntries()"
+    (startCourse)="startCourse($event)"
+  />
+} @else {
+  <lib-empty-state
+    title="Ruta no encontrada"
+    description="Esta ruta de aprendizaje no existe o no está disponible."
+  />
+}

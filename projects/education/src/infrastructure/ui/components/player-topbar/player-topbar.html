@@ -1,0 +1,30 @@
+<header class="ptopbar">
+  <div class="ptopbar__left">
+    <button type="button" class="ptopbar__icon-btn" (click)="goHome.emit()" title="Volver al inicio">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <div class="ptopbar__course">
+      <span class="ptopbar__title">{{ courseTitle() }}</span>
+      @if (lessonTitle()) {
+        <span class="ptopbar__lesson">{{ lessonTitle() }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="ptopbar__right">
+    <button type="button" class="ptopbar__btn" [disabled]="!hasPrev()" (click)="prev.emit()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Anterior
+    </button>
+    <button type="button" class="ptopbar__btn ptopbar__btn--next" [disabled]="!hasNext()" (click)="next.emit()">
+      Siguiente clase
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
+</header>

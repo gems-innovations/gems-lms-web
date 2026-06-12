@@ -1,0 +1,71 @@
+<aside class="psidebar" [class.psidebar--collapsed]="collapsed()" [style.width.px]="collapsed() ? 48 : sidebarWidth()">
+  <!-- Resize handle -->
+  @if (!collapsed()) {
+    <div class="psidebar__resize-handle" (mousedown)="resizeStart.emit($event)"></div>
+  }
+
+  <!-- Toggle button -->
+  <button type="button" class="psidebar__toggle" (click)="toggleCollapse.emit()" [title]="collapsed() ? 'Expandir' : 'Colapsar'">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      @if (collapsed()) {
+        <polyline points="9 18 15 12 9 6"/>
+      } @else {
+        <polyline points="15 18 9 12 15 6"/>
+      }
+    </svg>
+  </button>
+
+  @if (!collapsed()) {
+    <!-- Progress header -->
+    <div class="psidebar__header">
+      <span class="psidebar__label">Contenido del curso</span>
+      <div class="psidebar__progress-bar">
+        <div class="psidebar__progress-fill" [style.width.%]="courseProgress()"></div>
+      </div>
+      <span class="psidebar__progress-text">{{ courseProgress() | number:'1.0-0' }}% completado</span>
+    </div>
+
+    <!-- Module list -->
+    <nav class="psidebar__nav">
+      @for (module of course().modules; track module.id; let mIdx = $index) {
+        <div class="psidebar__module">
+          <button type="button" class="psidebar__module-header" (click)="toggleModule(module.id)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 class="psidebar__chevron" [class.psidebar__chevron--open]="isModuleExpanded(module.id)">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="psidebar__module-title">{{ module.title }}</span>
+            <span class="psidebar__module-meta">{{ module.lessons.length }} lecciones</span>
+          </button>
+
+          @if (isModuleExpanded(module.id)) {
+            <ul class="psidebar__lessons">
+              @for (lesson of module.lessons; track lesson.id; let lIdx = $index) {
+                <li>
+                  <button
+                    type="button"
+                    class="psidebar__lesson"
+                    [class.psidebar__lesson--active]="lesson.id === selectedLessonId()"
+                    [class.psidebar__lesson--done]="isLessonComplete(lesson)"
+                    (click)="selectLesson.emit(lesson.id)"
+                  >
+                    <span class="psidebar__lesson-num">{{ getFlatLessonNumber(mIdx, lIdx) }}</span>
+                    <span class="psidebar__lesson-info">
+                      <span class="psidebar__lesson-title">{{ lesson.title }}</span>
+                      <span class="psidebar__lesson-duration">{{ formatDuration(lesson.duration) }}</span>
+                    </span>
+                    @if (isLessonComplete(lesson)) {
+                      <svg class="psidebar__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    }
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      }
+    </nav>
+  }
+</aside>
