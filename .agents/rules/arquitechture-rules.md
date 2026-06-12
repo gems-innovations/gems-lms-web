@@ -28,14 +28,17 @@ src/
 ├── infrastructure/       # Implementaciones técnicas
 │   ├── services/        # Servicios HTTP y externos
 │   └── ui/             # Componentes, formularios, layouts
-│       ├── components/  # Componentes reutilizables
-│       ├── containers/ # Contenedores que conectan UI con casos de uso
-│       ├── forms/      # Formularios específicos del módulo
-│       ├── layouts/    # Layouts específicos del módulo
-│       ├── pipes/      # Pipes específicos del módulo
-│       └── styles/     # Estilos específicos del módulo
+│       ├── components/  # Componentes atómicos presentacionales (sin lógica de negocio)
+│       ├── containers/  # Contenedores solo-lógica (orquestan use cases, componen componentes)
+│       ├── forms/       # Formularios con Signal Forms
+│       ├── layouts/     # Layouts específicos del módulo
+│       ├── pipes/       # Pipes específicos del módulo
+│       └── styles/      # Estilos específicos del módulo
 └── index.ts            # Exports públicos del módulo
 ```
+
+> **ELIMINADO**: `ui/views/` ya no existe. Las views eran layouts+containers y han sido eliminadas.
+> Los containers son ahora las "vistas lógicas" y se cargan directamente en las rutas.
 
 ### 2. Domain Layer (Capa de Dominio)
 - **Modelos**: Solo interfaces, sin implementaciones
@@ -65,22 +68,26 @@ src/
 
 ### 5. Patrones de Componentes
 
-#### Contenedores
-- Conectan formularios/componentes con casos de uso
-- Implementan `OnInit` y `OnDestroy`
-- Inyectan casos de uso
-- Manejan subscripciones
+#### Contenedores (solo lógica)
+- Orquestan use cases y componen componentes atómicos
+- Template = solo tags de componentes con bindings (no HTML nativo complejo)
+- **SIN `.scss`** o solo estilos mínimos de chrome de navegación (ej. topbar fijo, back button)
+- `ChangeDetectionStrategy.OnPush`
+- Señales: `signal()` para estado, `computed()` para derivados, `effect()` para side effects
+- Inyectan use cases (NO servicios directamente salvo casos excepcionales)
 
-#### Formularios
-- Usan `ngx-sub-form` para manejo de formularios
-- Implementan interfaces de modelo
-- Usan `ReactiveFormsModule`
+#### Formularios (Signal Forms v22)
+- Usar `form()`, `FormField`, validadores de `@angular/forms/signals`
+- Controles propios implementan `FormValueControl<T>` (NO `ControlValueAccessor`)
+- Directiva `[formField]` en templates (NO `[control]`)
 - Son standalone components
 
-#### Componentes
-- Usan `input()` para propiedades
-- Son standalone components
-- Prefijo específico por módulo (auth, adm, edu, sh)
+#### Componentes (atómicos/presentacionales)
+- **Solo gráficos**: reciben datos por `input()`, emiten eventos por `output()`
+- Sin lógica de negocio; UI-state interno permitido (ej. expanded, open)
+- `ChangeDetectionStrategy.OnPush`
+- SCSS usa **solo** `var(--token)` — cero variables SCSS locales de color/spacing/radius
+- Selector con prefijo del módulo: `lib-*` (shared), `edu-*` (education), `adm-*` (admin), `auth-*` (auth)
 
 ### 6. Gestión de Estado
 - Usar Angular signals para estado local
@@ -188,6 +195,16 @@ export class Form {
 
 ## 🚨 REGLAS CRÍTICAS DE ARQUITECTURA
 
+### **🚫 PROHIBICIONES ABSOLUTAS:**
+```
+❌ NO CREAR: carpetas ui/views/ — eliminadas, usar containers directamente en rutas
+❌ NO USAR: ngx-sub-form — reemplazado por Signal Forms (@angular/forms/signals)
+❌ NO USAR: ControlValueAccessor — usar FormValueControl<T>
+❌ NO PONER: estilos de presentación en containers (solo chrome mínimo)
+❌ NO DEFINIR: variables SCSS locales $color-* en componentes (usar var(--token))
+❌ NO IMPORTAR: desde rutas ui/views/ — no existen
+```
+
 ### **📁 APPLICATION LAYER - REGLAS ESTRICTAS:**
 ```
 ✅ CREAR: UN SOLO Use Case por container
@@ -288,47 +305,35 @@ export class LoginFormContainer implements OnInit, OnDestroy {
 }
 ```
 
-### **✅ CORRECTO - Form Structure (Basado en código real):**
+### **✅ CORRECTO - Form Structure (Signal Forms v22):**
 ```typescript
-// login-form.ts - Form con ngx-sub-form
+// login-form.ts — Signal Forms (@angular/forms/signals)
+import { form, FormField, required, email, minLength } from '@angular/forms/signals';
+
 @Component({
   selector: 'auth-login-form',
   standalone: true,
-  imports: [ReactiveFormsModule, InputComponent],
-  providers: subformComponentProviders(LoginForm),
+  imports: [FormField],
   templateUrl: './login-form.html',
-  styleUrl: './login-form.scss'
+  styleUrl: './login-form.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginForm {
-  private input$: Subject<ILoginCredentials | undefined> = new Subject();
-  public onSubmit = output<ILoginCredentials>();
-  
-  @Input() set model(value: ILoginCredentials | undefined) {
-    this.input$.next(value);
-  }
+  readonly initialModel = input<ILoginCredentials>({ email: '', password: '' });
+  readonly onSubmit = output<ILoginCredentials>();
 
-  private disabled$: Subject<boolean> = new Subject();
-  @Input() set disabled(value: boolean | undefined) {
-    this.disabled$.next(!!value);
-  }
+  readonly model = signal<ILoginCredentials>({ email: '', password: '' });
 
-  @Output() modelUpdate: Subject<ILoginCredentials> = new Subject();
-
-  public form = createForm<ILoginCredentials>(this, {
-    formType: FormType.ROOT,
-    input$: this.input$,
-    output$: this.modelUpdate,
-    disabled$: this.disabled$,
-    formControls: {
-      email: new FormControl(null, [Validators.required, Validators.email]),
-      password: new FormControl(null, [Validators.required, Validators.minLength(8)]),
-    },
+  readonly loginForm = form(this.model, p => {
+    required(p.email, { message: 'El email es obligatorio' });
+    email(p.email, { message: 'Email inválido' });
+    required(p.password);
+    minLength(p.password, 8);
   });
 
+  // Template: <input [formField]="loginForm.email" />
   submit(): void {
-    if (this.form.formGroup.valid) {
-      this.onSubmit.emit(this.form.formGroup.value);
-    }
+    if (this.loginForm().valid()) this.onSubmit.emit(this.model());
   }
 }
 ```

@@ -20,7 +20,7 @@ trigger: always_on
 ✅ REGIONES: Usar //#region y //#endregion para organizar código
 ✅ INJECT: Usar inject() en lugar de constructor injection
 ✅ SIGNALS: Usar signals para estado reactivo
-✅ NGX-SUB-FORM: Usar ngx-sub-form para formularios complejos
+✅ SIGNAL-FORMS: Usar Signal Forms (@angular/forms/signals) para formularios — API estable en Angular 22
 ✅ TYPESCRIPT: Usar tipos estrictos, evitar any
 ✅ INTERFACES: Definir interfaces para todos los modelos
 ✅ OBSERVABLES: Manejar subscripciones correctamente
@@ -200,9 +200,10 @@ import { InputComponent } from 'shared';
 ```
 
 ### **Reglas de Exports por Librería**
-- **auth, admin, education**: SOLO pueden exportar rutas
-- **shared**: Puede exportar componentes, servicios, utilidades, pipes, layouts y otros elementos reutilizables
-- **main**: No debe exportar nada (es la aplicación principal)
+- **auth, admin**: SOLO exportan rutas (`export const routes`)
+- **education**: Exporta rutas + tipos de dominio + servicios + componentes presentacionales compartidos con admin (ej. `EnrollStudentSearch`, `EnrollResultBanner`)
+- **shared**: Exporta componentes `lib-*`, formularios, utilities, pipes — sin dependencias de otros módulos del proyecto
+- **main**: No exporta nada (es la aplicación principal)
 
 ### **Estructura de index.ts por Módulo**
 ```typescript

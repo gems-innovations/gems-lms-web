@@ -1,20 +1,4 @@
-@use 'sass:color';
-
-// ─── Tokens ──────────────────────────────────────────────────────────────────
-$surface: #0f0e1a;
-$surface-2: #16152a;
-$surface-3: #1e1c33;
-$border: rgba(255, 255, 255, 0.07);
-$border-hover: rgba(255, 255, 255, 0.14);
-$text-primary: #f0eeff;
-$text-muted: rgba(240, 238, 255, 0.45);
-$purple: #7c6fcd;
-$purple-light: rgba(124, 111, 205, 0.15);
-$green: #34d399;
-$amber: #fbbf24;
-$red: #f87171;
-$blue: #60a5fa;
-
+﻿
 // ─── Root ─────────────────────────────────────────────────────────────────────
 .ceditor {
   display: flex;
@@ -33,15 +17,15 @@ $blue: #60a5fa;
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   font-size: 0.875rem;
 }
 
 .ceditor__spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid rgba($purple, 0.2);
-  border-top-color: $purple;
+  border: 3px solid rgba(var(--color-primario), 0.2);
+  border-top-color: var(--color-primario);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -57,8 +41,8 @@ $blue: #60a5fa;
   gap: 1rem;
   padding: 0 2rem;
   height: 56px;
-  border-bottom: 1px solid $border;
-  background: rgba($surface, 0.95);
+  border-bottom: 1px solid var(--color-borde-sutil);
+  background: rgba(var(--color-fondo), 0.95);
   backdrop-filter: blur(8px);
   flex-shrink: 0;
   z-index: 10;
@@ -70,15 +54,15 @@ $blue: #60a5fa;
   gap: 0.375rem;
   padding: 0.375rem 0.75rem;
   background: transparent;
-  border: 1px solid $border;
+  border: 1px solid var(--color-borde-sutil);
   border-radius: 6px;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   font-size: 0.8125rem;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
 
-  &:hover { color: $text-primary; border-color: $border-hover; }
+  &:hover { color: var(--color-texto-principal); border-color: var(--color-borde-principal); }
 }
 
 .ceditor__topbar-center {
@@ -92,7 +76,7 @@ $blue: #60a5fa;
 .ceditor__course-name {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: $text-primary;
+  color: var(--color-texto-principal);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -107,9 +91,9 @@ $blue: #60a5fa;
   letter-spacing: 0.05em;
   white-space: nowrap;
 
-  &--draft     { background: rgba($amber, 0.15); color: $amber; }
-  &--published { background: rgba($green, 0.15); color: $green; }
-  &--archived  { background: rgba(255,255,255,0.07); color: $text-muted; }
+  &--draft     { background: rgba(var(--color-advertencia), 0.15); color: var(--color-advertencia); }
+  &--published { background: rgba(var(--color-exito), 0.15); color: var(--color-exito); }
+  &--archived  { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
   &--lg        { font-size: 0.75rem; padding: 0.3rem 0.8rem; }
 }
 
@@ -125,7 +109,7 @@ $blue: #60a5fa;
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1rem;
-  background: $purple;
+  background: var(--color-primario);
   border: none;
   border-radius: 7px;
   color: #fff;
@@ -134,22 +118,22 @@ $blue: #60a5fa;
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover:not(:disabled) { background: color.adjust($purple, $lightness: 6%); }
+  &:hover:not(:disabled) { background: var(--color-primario-claro); }
   &:disabled { opacity: 0.55; cursor: not-allowed; }
 }
 
 .ceditor__btn-archive {
   padding: 0.5rem 1rem;
   background: transparent;
-  border: 1px solid $border;
+  border: 1px solid var(--color-borde-sutil);
   border-radius: 7px;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
 
-  &:hover { color: $text-primary; border-color: $border-hover; }
+  &:hover { color: var(--color-texto-principal); border-color: var(--color-borde-principal); }
 }
 
 // ─── Main area ────────────────────────────────────────────────────────────────
@@ -163,10 +147,10 @@ $blue: #60a5fa;
 .ceditor__tree {
   width: 300px;
   flex-shrink: 0;
-  border-right: 1px solid $border;
+  border-right: 1px solid var(--color-borde-sutil);
   overflow-y: auto;
   padding: 1rem 0 2rem;
-  background: rgba($surface, 0.5);
+  background: rgba(var(--color-fondo), 0.5);
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
@@ -187,12 +171,12 @@ $blue: #60a5fa;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
 }
 
 .ceditor__tree-count {
   font-size: 0.7rem;
-  color: rgba($text-muted, 0.7);
+  color: rgba(var(--color-texto-terciario), 0.7);
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0;
@@ -207,7 +191,7 @@ $blue: #60a5fa;
   background: transparent;
   border: none;
   border-radius: 7px;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   font-size: 0.8125rem;
   cursor: pointer;
   transition: all 0.15s;
@@ -216,8 +200,8 @@ $blue: #60a5fa;
 
   svg { flex-shrink: 0; }
 
-  &:hover { background: rgba(255,255,255,0.04); color: $text-primary; }
-  &--active { background: $purple-light; color: $purple; }
+  &:hover { background: rgba(255,255,255,0.04); color: var(--color-texto-principal); }
+  &--active { background: color-mix(in srgb, var(--color-primario) 15%, transparent); color: var(--color-primario); }
 }
 
 // ─── Module ───────────────────────────────────────────────────────────────────
@@ -235,8 +219,8 @@ $blue: #60a5fa;
   transition: background 0.12s;
 
   &:hover { background: rgba(255,255,255,0.04); }
-  &--active { background: $purple-light; }
-  &--active .ceditor__module-title { color: $purple; }
+  &--active { background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
+  &--active .ceditor__module-title { color: var(--color-primario); }
 }
 
 .ceditor__expand-btn {
@@ -248,13 +232,13 @@ $blue: #60a5fa;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   cursor: pointer;
   transition: transform 0.2s, color 0.15s;
   flex-shrink: 0;
 
   &--open { transform: rotate(90deg); }
-  &:hover { color: $text-primary; }
+  &:hover { color: var(--color-texto-principal); }
 }
 
 .ceditor__module-info {
@@ -266,7 +250,7 @@ $blue: #60a5fa;
   display: block;
   font-size: 0.8125rem;
   font-weight: 600;
-  color: $text-primary;
+  color: var(--color-texto-principal);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -274,26 +258,26 @@ $blue: #60a5fa;
 
 .ceditor__module-meta {
   font-size: 0.7rem;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
 }
 
 .ceditor__add-lesson-btn {
   width: 22px;
   height: 22px;
   background: transparent;
-  border: 1px solid $border;
+  border: 1px solid var(--color-borde-sutil);
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   cursor: pointer;
   opacity: 0;
   transition: all 0.15s;
   flex-shrink: 0;
 
   .ceditor__module-row:hover & { opacity: 1; }
-  &:hover { color: $purple; border-color: rgba($purple, 0.4); background: $purple-light; }
+  &:hover { color: var(--color-primario); border-color: rgba(var(--color-primario), 0.4); background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
 }
 
 // ─── Lessons ──────────────────────────────────────────────────────────────────
@@ -311,18 +295,18 @@ $blue: #60a5fa;
   background: transparent;
   border: none;
   border-radius: 6px;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   font-size: 0.8rem;
   cursor: pointer;
   text-align: left;
   transition: all 0.12s;
 
-  &:hover { background: rgba(255,255,255,0.03); color: $text-primary; }
+  &:hover { background: rgba(255,255,255,0.03); color: var(--color-texto-principal); }
 
   &--active {
-    background: $purple-light;
-    color: $purple;
-    .ceditor__lesson-dot { background: $purple; }
+    background: color-mix(in srgb, var(--color-primario) 15%, transparent);
+    color: var(--color-primario);
+    .ceditor__lesson-dot { background: var(--color-primario); }
   }
 }
 
@@ -343,8 +327,8 @@ $blue: #60a5fa;
 
 .ceditor__free-tag {
   padding: 0.1rem 0.4rem;
-  background: rgba($green, 0.12);
-  color: $green;
+  background: rgba(var(--color-exito), 0.12);
+  color: var(--color-exito);
   border-radius: 3px;
   font-size: 0.65rem;
   font-weight: 600;
@@ -355,15 +339,15 @@ $blue: #60a5fa;
 
 .ceditor__lesson-dur {
   font-size: 0.7rem;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   flex-shrink: 0;
 }
 
 // ─── Inline forms ─────────────────────────────────────────────────────────────
 .ceditor__inline-form {
   padding: 0.5rem;
-  background: $surface-2;
-  border: 1px solid rgba($purple, 0.25);
+  background: var(--color-superficie);
+  border: 1px solid rgba(var(--color-primario), 0.25);
   border-radius: 7px;
   margin: 0.25rem 0;
 
@@ -373,17 +357,17 @@ $blue: #60a5fa;
 .ceditor__inline-input {
   width: 100%;
   padding: 0.5rem 0.625rem;
-  background: $surface-3;
-  border: 1px solid $border;
+  background: var(--color-superficie-elevada);
+  border: 1px solid var(--color-borde-sutil);
   border-radius: 5px;
-  color: $text-primary;
+  color: var(--color-texto-principal);
   font-size: 0.8125rem;
   outline: none;
   margin-bottom: 0.5rem;
   box-sizing: border-box;
 
-  &::placeholder { color: $text-muted; }
-  &:focus { border-color: rgba($purple, 0.5); }
+  &::placeholder { color: var(--color-texto-terciario); }
+  &:focus { border-color: rgba(var(--color-primario), 0.5); }
 }
 
 .ceditor__inline-actions {
@@ -393,7 +377,7 @@ $blue: #60a5fa;
 
 .ceditor__inline-confirm {
   padding: 0.35rem 0.75rem;
-  background: $purple;
+  background: var(--color-primario);
   border: none;
   border-radius: 5px;
   color: #fff;
@@ -402,19 +386,19 @@ $blue: #60a5fa;
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover { background: color.adjust($purple, $lightness: 6%); }
+  &:hover { background: var(--color-primario-claro); }
 }
 
 .ceditor__inline-cancel {
   padding: 0.35rem 0.75rem;
   background: transparent;
-  border: 1px solid $border;
+  border: 1px solid var(--color-borde-sutil);
   border-radius: 5px;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   font-size: 0.75rem;
   cursor: pointer;
 
-  &:hover { color: $text-primary; }
+  &:hover { color: var(--color-texto-principal); }
 }
 
 // ─── Add module button ────────────────────────────────────────────────────────
@@ -428,13 +412,13 @@ $blue: #60a5fa;
   background: transparent;
   border: 1px dashed rgba(255,255,255,0.12);
   border-radius: 7px;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   font-size: 0.8125rem;
   cursor: pointer;
   margin-top: 0.5rem;
   transition: all 0.15s;
 
-  &:hover { color: $purple; border-color: rgba($purple, 0.3); background: $purple-light; }
+  &:hover { color: var(--color-primario); border-color: rgba(var(--color-primario), 0.3); background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
 }
 
 // ─── Right panel ──────────────────────────────────────────────────────────────
@@ -459,8 +443,8 @@ $blue: #60a5fa;
 .ceditor__detail-badge {
   display: inline-block;
   padding: 0.2rem 0.6rem;
-  background: $purple-light;
-  color: $purple;
+  background: color-mix(in srgb, var(--color-primario) 15%, transparent);
+  color: var(--color-primario);
   border-radius: 4px;
   font-size: 0.7rem;
   font-weight: 600;
@@ -472,14 +456,14 @@ $blue: #60a5fa;
 .ceditor__detail-title {
   font-size: 1.375rem;
   font-weight: 700;
-  color: $text-primary;
+  color: var(--color-texto-principal);
   letter-spacing: -0.02em;
   margin: 0 0 0.5rem;
 }
 
 .ceditor__detail-desc {
   font-size: 0.875rem;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   line-height: 1.6;
   margin: 0;
 }
@@ -487,7 +471,7 @@ $blue: #60a5fa;
 // ─── Thumbnail preview ────────────────────────────────────────────────────────
 .ceditor__thumbnail-preview {
   height: 200px;
-  background: $surface-2 center/cover no-repeat;
+  background: var(--color-superficie) center/cover no-repeat;
   border-radius: 12px;
   position: relative;
   margin-bottom: 1.5rem;
@@ -511,8 +495,8 @@ $blue: #60a5fa;
   display: flex;
   flex-direction: column;
   gap: 1px;
-  background: $border;
-  border: 1px solid $border;
+  background: var(--color-borde-sutil);
+  border: 1px solid var(--color-borde-sutil);
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 1.5rem;
@@ -523,18 +507,18 @@ $blue: #60a5fa;
   grid-template-columns: 120px 1fr;
   gap: 1rem;
   padding: 0.875rem 1rem;
-  background: $surface;
+  background: var(--color-fondo);
 
   dt {
     font-size: 0.8rem;
-    color: $text-muted;
+    color: var(--color-texto-terciario);
     font-weight: 500;
     padding-top: 1px;
   }
 
   dd {
     font-size: 0.875rem;
-    color: $text-primary;
+    color: var(--color-texto-principal);
     margin: 0;
     line-height: 1.55;
   }
@@ -546,10 +530,10 @@ $blue: #60a5fa;
   font-size: 0.75rem;
   font-weight: 600;
 
-  &--beginner     { background: rgba($green, 0.12); color: $green; }
-  &--intermediate { background: rgba($amber, 0.12); color: $amber; }
-  &--advanced     { background: rgba($red, 0.12); color: $red; }
-  &--expert       { background: rgba($purple, 0.15); color: $purple; }
+  &--beginner     { background: rgba(var(--color-exito), 0.12); color: var(--color-exito); }
+  &--intermediate { background: rgba(var(--color-advertencia), 0.12); color: var(--color-advertencia); }
+  &--advanced     { background: rgba(var(--color-error), 0.12); color: var(--color-error); }
+  &--expert       { background: rgba(var(--color-primario), 0.15); color: var(--color-primario); }
 }
 
 .ceditor__tags {
@@ -560,19 +544,19 @@ $blue: #60a5fa;
 
 .ceditor__tag {
   padding: 0.2rem 0.55rem;
-  background: $surface-3;
-  border: 1px solid $border;
+  background: var(--color-superficie-elevada);
+  border: 1px solid var(--color-borde-sutil);
   border-radius: 4px;
   font-size: 0.75rem;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
 }
 
 // ─── Course stats ─────────────────────────────────────────────────────────────
 .ceditor__course-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  background: $surface;
-  border: 1px solid $border;
+  background: var(--color-fondo);
+  border: 1px solid var(--color-borde-sutil);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -583,7 +567,7 @@ $blue: #60a5fa;
   align-items: center;
   padding: 1rem;
   gap: 0.25rem;
-  border-right: 1px solid $border;
+  border-right: 1px solid var(--color-borde-sutil);
 
   &:last-child { border-right: none; }
 }
@@ -591,20 +575,20 @@ $blue: #60a5fa;
 .ceditor__course-stat-v {
   font-size: 1.25rem;
   font-weight: 700;
-  color: $text-primary;
+  color: var(--color-texto-principal);
 }
 
 .ceditor__course-stat-l {
   font-size: 0.7rem;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 // ─── Lesson list (in module panel) ────────────────────────────────────────────
 .ceditor__lesson-list {
-  background: $surface;
-  border: 1px solid $border;
+  background: var(--color-fondo);
+  border: 1px solid var(--color-borde-sutil);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -614,15 +598,15 @@ $blue: #60a5fa;
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid $border;
+  border-bottom: 1px solid var(--color-borde-sutil);
   font-size: 0.8125rem;
   font-weight: 600;
-  color: $text-primary;
+  color: var(--color-texto-principal);
 }
 
 .ceditor__lesson-count {
-  background: $surface-3;
-  color: $text-muted;
+  background: var(--color-superficie-elevada);
+  color: var(--color-texto-terciario);
   padding: 0.1rem 0.5rem;
   border-radius: 20px;
   font-size: 0.7rem;
@@ -633,7 +617,7 @@ $blue: #60a5fa;
   align-items: center;
   gap: 0.875rem;
   padding: 0.875rem 1rem;
-  border-bottom: 1px solid $border;
+  border-bottom: 1px solid var(--color-borde-sutil);
   cursor: pointer;
   transition: background 0.15s;
 
@@ -644,14 +628,14 @@ $blue: #60a5fa;
 .ceditor__lesson-card-order {
   width: 28px;
   height: 28px;
-  background: $surface-3;
+  background: var(--color-superficie-elevada);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 600;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   flex-shrink: 0;
 }
 
@@ -664,7 +648,7 @@ $blue: #60a5fa;
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: $text-primary;
+  color: var(--color-texto-principal);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -672,17 +656,17 @@ $blue: #60a5fa;
 
 .ceditor__lesson-card-meta {
   font-size: 0.75rem;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
 }
 
 .ceditor__empty-hint {
   padding: 1.5rem 1rem;
   font-size: 0.8125rem;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   text-align: center;
   line-height: 1.6;
 
-  strong { color: $text-primary; }
+  strong { color: var(--color-texto-principal); }
 }
 
 // ─── Lesson meta row ──────────────────────────────────────────────────────────
@@ -692,7 +676,7 @@ $blue: #60a5fa;
   gap: 1rem;
   margin-top: 0.75rem;
   font-size: 0.8rem;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
 
   span {
     display: flex;
@@ -703,8 +687,8 @@ $blue: #60a5fa;
 
 // ─── Content blocks ───────────────────────────────────────────────────────────
 .ceditor__blocks {
-  background: $surface;
-  border: 1px solid $border;
+  background: var(--color-fondo);
+  border: 1px solid var(--color-borde-sutil);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -714,10 +698,10 @@ $blue: #60a5fa;
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid $border;
+  border-bottom: 1px solid var(--color-borde-sutil);
   font-size: 0.8125rem;
   font-weight: 600;
-  color: $text-primary;
+  color: var(--color-texto-principal);
 }
 
 .ceditor__add-block-btn {
@@ -726,15 +710,15 @@ $blue: #60a5fa;
   gap: 0.375rem;
   padding: 0.35rem 0.75rem;
   background: transparent;
-  border: 1px solid rgba($purple, 0.3);
+  border: 1px solid rgba(var(--color-primario), 0.3);
   border-radius: 6px;
-  color: $purple;
+  color: var(--color-primario);
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
 
-  &:hover { background: $purple-light; }
+  &:hover { background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
 }
 
 .ceditor__block-card {
@@ -742,7 +726,7 @@ $blue: #60a5fa;
   align-items: center;
   gap: 0.875rem;
   padding: 0.875rem 1rem;
-  border-bottom: 1px solid $border;
+  border-bottom: 1px solid var(--color-borde-sutil);
   transition: background 0.12s;
 
   &:last-child { border-bottom: none; }
@@ -764,12 +748,12 @@ $blue: #60a5fa;
   min-width: 90px;
   justify-content: center;
 
-  &--video        { background: rgba($blue, 0.12); color: $blue; }
-  &--document     { background: rgba(255,255,255,0.07); color: $text-muted; }
-  &--quiz         { background: rgba($amber, 0.12); color: $amber; }
-  &--assignment   { background: rgba($green, 0.12); color: $green; }
-  &--live-session { background: rgba($red, 0.12); color: $red; }
-  &--embed        { background: rgba($purple, 0.12); color: $purple; }
+  &--video        { background: rgba(#60a5fa, 0.12); color: #60a5fa; }
+  &--document     { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
+  &--quiz         { background: rgba(var(--color-advertencia), 0.12); color: var(--color-advertencia); }
+  &--assignment   { background: rgba(var(--color-exito), 0.12); color: var(--color-exito); }
+  &--live-session { background: rgba(var(--color-error), 0.12); color: var(--color-error); }
+  &--embed        { background: rgba(var(--color-primario), 0.12); color: var(--color-primario); }
 }
 
 .ceditor__block-type-icon {
@@ -786,7 +770,7 @@ $blue: #60a5fa;
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: $text-primary;
+  color: var(--color-texto-principal);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -795,7 +779,7 @@ $blue: #60a5fa;
 .ceditor__block-desc {
   display: block;
   font-size: 0.75rem;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -807,14 +791,14 @@ $blue: #60a5fa;
   align-items: flex-end;
   gap: 0.25rem;
   font-size: 0.75rem;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   flex-shrink: 0;
 }
 
 .ceditor__required-tag {
   padding: 0.1rem 0.4rem;
-  background: rgba($purple, 0.12);
-  color: $purple;
+  background: rgba(var(--color-primario), 0.12);
+  color: var(--color-primario);
   border-radius: 3px;
   font-size: 0.65rem;
   font-weight: 600;
@@ -829,7 +813,7 @@ $blue: #60a5fa;
   align-items: center;
   gap: 0.75rem;
   text-align: center;
-  color: $text-muted;
+  color: var(--color-texto-terciario);
   font-size: 0.8125rem;
   line-height: 1.6;
 }
