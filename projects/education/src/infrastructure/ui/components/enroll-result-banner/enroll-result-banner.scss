@@ -1,0 +1,35 @@
+:host { display: block; }
+
+.erban {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.erban__row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 10px var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+
+  &--success {
+    background: color-mix(in srgb, var(--color-exito) 12%, transparent);
+    color: var(--color-exito);
+    border: 1px solid color-mix(in srgb, var(--color-exito) 30%, transparent);
+  }
+
+  &--warn {
+    background: color-mix(in srgb, var(--color-advertencia) 12%, transparent);
+    color: var(--color-advertencia);
+    border: 1px solid color-mix(in srgb, var(--color-advertencia) 30%, transparent);
+  }
+
+  &--error {
+    background: color-mix(in srgb, var(--color-error) 12%, transparent);
+    color: var(--color-error);
+    border: 1px solid color-mix(in srgb, var(--color-error) 30%, transparent);
+  }
+}

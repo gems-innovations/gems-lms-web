@@ -3,6 +3,8 @@ import { EducationLayout } from './infrastructure/ui/layouts/education-layout/ed
 import { StudentLayout } from './infrastructure/ui/layouts/student-layout/student-layout';
 
 // ── Public API for cross-library use ────────────────────────────────────────
+export { EnrollStudentSearch } from './infrastructure/ui/components/enroll-student-search/enroll-student-search';
+export { EnrollResultBanner } from './infrastructure/ui/components/enroll-result-banner/enroll-result-banner';
 export { EnrollmentService } from './infrastructure/services/enrollment.service';
 export type { IStudentProfile } from './infrastructure/services/enrollment.service';
 export { CourseService } from './infrastructure/services/course.service';

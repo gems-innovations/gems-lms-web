@@ -1,0 +1,36 @@
+<div class="esearch">
+  <div class="esearch__input-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input
+      class="esearch__input"
+      placeholder="Buscar por nombre o correo…"
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+    />
+  </div>
+
+  @if (filtered().length > 0) {
+    <div class="esearch__dropdown">
+      @for (s of filtered(); track s.id) {
+        <button type="button" class="esearch__item" [class.esearch__item--selected]="selectedIds().has(s.id)" (click)="select(s)">
+          <div class="esearch__avatar">{{ initials(s) }}</div>
+          <div class="esearch__info">
+            <span class="esearch__name">{{ s.firstName }} {{ s.lastName }}</span>
+            <span class="esearch__email">{{ s.email }}</span>
+          </div>
+          @if (selectedIds().has(s.id)) {
+            <svg class="esearch__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          }
+        </button>
+      }
+    </div>
+  } @else if (search().length > 0) {
+    <div class="esearch__dropdown">
+      <p class="esearch__empty">Sin resultados</p>
+    </div>
+  }
+</div>
