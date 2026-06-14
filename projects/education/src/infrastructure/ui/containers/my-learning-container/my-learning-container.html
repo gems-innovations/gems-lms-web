@@ -1,0 +1,241 @@
+@if (uc.isLoading()) {
+  <lib-loading-skeleton [rows]="8" />
+} @else {
+
+<div class="mlearning">
+  <div class="mlearning__layout">
+
+    <!-- ── Columna principal ─────────────────────────────────────────────── -->
+    <div class="mlearning__main">
+
+      <!-- Mis cursos -->
+      <section class="mlearning__section">
+        <div class="mlearning__section-header">
+          <div class="mlearning__section-icon mlearning__section-icon--purple">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+          </div>
+          <h2 class="mlearning__section-title">Mis cursos</h2>
+          <span class="mlearning__section-count">{{ uc.enrolledCourses().length }}</span>
+        </div>
+
+        <div class="mlearning__search">
+          <svg class="mlearning__search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            class="mlearning__search-input"
+            type="text"
+            placeholder="Buscar cursos..."
+            [value]="courseSearch()"
+            (input)="courseSearch.set($any($event.target).value)"
+          />
+          @if (courseSearch()) {
+            <button class="mlearning__search-clear" type="button" (click)="courseSearch.set('')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          }
+        </div>
+
+        @if (filteredCourses().length === 0) {
+          <div class="mlearning__empty">
+            @if (courseSearch()) {
+              <p>Sin resultados para "<strong>{{ courseSearch() }}</strong>".</p>
+            } @else {
+              <p>No tienes cursos aún. <a class="mlearning__link" routerLink="/learn/catalog">Explorar catálogo</a></p>
+            }
+          </div>
+        } @else {
+          @if (filteredInProgress().length > 0) {
+            <p class="mlearning__sub-label">En progreso</p>
+            <div class="mlearning__course-grid">
+              @for (entry of filteredInProgress(); track entry.enrollment.id) {
+                <edu-course-progress-card [entry]="entry" (continue)="continueCourse(entry)" />
+              }
+            </div>
+          }
+          @if (filteredCompleted().length > 0) {
+            <p class="mlearning__sub-label" [class.mlearning__sub-label--mt]="filteredInProgress().length > 0">Completados</p>
+            <div class="mlearning__course-grid">
+              @for (entry of filteredCompleted(); track entry.enrollment.id) {
+                <edu-course-progress-card [entry]="entry" (continue)="continueCourse(entry)" />
+              }
+            </div>
+          }
+        }
+      </section>
+
+      <!-- Mis rutas -->
+      <section class="mlearning__section">
+        <div class="mlearning__section-header">
+          <div class="mlearning__section-icon mlearning__section-icon--yellow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          </div>
+          <h2 class="mlearning__section-title">Mis rutas de aprendizaje</h2>
+          <span class="mlearning__section-count">{{ uc.enrolledPaths().length }}</span>
+        </div>
+
+        <div class="mlearning__search">
+          <svg class="mlearning__search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            class="mlearning__search-input"
+            type="text"
+            placeholder="Buscar rutas..."
+            [value]="pathSearch()"
+            (input)="pathSearch.set($any($event.target).value)"
+          />
+          @if (pathSearch()) {
+            <button class="mlearning__search-clear" type="button" (click)="pathSearch.set('')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          }
+        </div>
+
+        @if (filteredPaths().length === 0) {
+          <div class="mlearning__empty">
+            @if (pathSearch()) {
+              <p>Sin resultados para "<strong>{{ pathSearch() }}</strong>".</p>
+            } @else {
+              <p>No estás inscrito en ninguna ruta. <a class="mlearning__link" routerLink="/learn/catalog">Ver catálogo</a></p>
+            }
+          </div>
+        } @else {
+          <div class="mlearning__path-grid">
+            @for (entry of filteredPaths(); track entry.enrollment.id) {
+              <button type="button" class="mlearning__path-card" (click)="openPath(entry)">
+                <div class="mlearning__path-card-top">
+                  <div class="mlearning__path-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/>
+                    </svg>
+                  </div>
+                  <span class="mlearning__path-tag">Ruta</span>
+                </div>
+                <h3 class="mlearning__path-title">{{ entry.path.title }}</h3>
+                <p class="mlearning__path-desc">{{ entry.path.description }}</p>
+                <div class="mlearning__path-meta">
+                  <span>{{ entry.path.steps?.length ?? 0 }} cursos</span>
+                  <span>·</span>
+                  <span>{{ entry.enrollment.overallPercentage | number:'1.0-0' }}% completado</span>
+                </div>
+                <div class="mlearning__path-bar">
+                  <div class="mlearning__path-fill" [style.width.%]="entry.enrollment.overallPercentage"></div>
+                </div>
+              </button>
+            }
+          </div>
+        }
+      </section>
+
+      <!-- Certificaciones -->
+      <section class="mlearning__section">
+        <div class="mlearning__section-header">
+          <div class="mlearning__section-icon mlearning__section-icon--green">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+            </svg>
+          </div>
+          <h2 class="mlearning__section-title">Mis certificaciones</h2>
+          <span class="mlearning__section-count">{{ uc.certifications().length }}</span>
+        </div>
+        <div class="mlearning__cert-grid">
+          @for (cert of uc.certifications(); track cert.id) {
+            <div class="mlearning__cert-card">
+              <div class="mlearning__cert-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+                </svg>
+              </div>
+              <div class="mlearning__cert-info">
+                <span class="mlearning__cert-title">{{ cert.courseTitle }}</span>
+                <span class="mlearning__cert-date">Emitido el {{ formatDate(cert.issuedAt) }}</span>
+              </div>
+              @if (cert.credentialUrl) {
+                <a class="mlearning__cert-btn" [href]="cert.credentialUrl" target="_blank" rel="noopener">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                    <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                  </svg>
+                  Ver credencial
+                </a>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ── Sidebar derecho ───────────────────────────────────────────────── -->
+    <aside class="mlearning__sidebar">
+
+      <section class="mlearning__widget">
+        <div class="mlearning__widget-header">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+          <h3 class="mlearning__widget-title">Tareas pendientes</h3>
+          <span class="mlearning__section-count">{{ uc.pendingTasks().length }}</span>
+        </div>
+        <div class="mlearning__task-list">
+          @for (task of uc.pendingTasks(); track task.id) {
+            <div class="mlearning__task">
+              <div class="mlearning__task-dot"
+                   [class.mlearning__task-dot--assignment]="task.type === 'assignment'"
+                   [class.mlearning__task-dot--quiz]="task.type === 'quiz'"
+                   [class.mlearning__task-dot--live]="task.type === 'live-session'">
+              </div>
+              <div class="mlearning__task-info">
+                <span class="mlearning__task-title">{{ task.title }}</span>
+                <span class="mlearning__task-course">{{ task.courseTitle }}</span>
+              </div>
+              <div class="mlearning__task-due" [class.mlearning__task-due--soon]="daysUntil(task.dueDate) <= 3">
+                {{ daysUntil(task.dueDate) }}d
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="mlearning__widget">
+        <div class="mlearning__widget-header">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <h3 class="mlearning__widget-title">Calendario de entregas</h3>
+        </div>
+        <div class="mlearning__calendar">
+          @for (task of uc.pendingTasks(); track task.id) {
+            <div class="mlearning__cal-item">
+              <div class="mlearning__cal-date">
+                <span class="mlearning__cal-day">{{ calDay(task.dueDate) }}</span>
+                <span class="mlearning__cal-month">{{ calMonth(task.dueDate) }}</span>
+              </div>
+              <div class="mlearning__cal-info">
+                <span class="mlearning__cal-title">{{ task.title }}</span>
+                <span class="mlearning__cal-course">{{ task.courseTitle }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+    </aside>
+
+  </div>
+</div>
+
+}

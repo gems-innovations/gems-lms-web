@@ -126,6 +126,13 @@ export class CoursePlayerUseCase {
     if (enrollment) this.enrollmentUc.updateProgress(enrollment.id, lessonId, '');
   }
 
+  selectBlock(blockId: string): void {
+    const lesson = this.selectedLesson();
+    if (!lesson) return;
+    const idx = lesson.contentBlocks.findIndex(b => b.id === blockId);
+    if (idx > -1) this._selectedBlockIdx.set(idx);
+  }
+
   nextBlock(): void {
     if (this.hasNextBlock()) {
       this._selectedBlockIdx.update(i => i + 1);

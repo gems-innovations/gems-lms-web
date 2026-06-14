@@ -77,6 +77,7 @@
 .outline__module {
   display: flex;
   gap: 1rem;
+  align-items: stretch;
 }
 
 // ── Spine (nodo + línea vertical) ─────────────────────────────────────────────
@@ -84,6 +85,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   flex-shrink: 0;
   width: 30px;
 }

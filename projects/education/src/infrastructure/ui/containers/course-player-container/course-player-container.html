@@ -28,28 +28,18 @@
         />
       </main>
 
-      <!--
-        El sizing del sidebar se aplica aquí, en el flex item real.
-        - Sin resize: flex: 0 0 30% (CSS puro, responde a cualquier resolución)
-        - Con resize: flex: 0 0 Xpx (override del usuario)
-        - Collapsed: flex: 0 0 48px
-      -->
       <edu-player-sidebar
-        [style.flex]="sidebarCollapsed()
-          ? '0 0 48px'
-          : sidebarWidthPx() !== null
-            ? '0 0 ' + sidebarWidthPx() + 'px'
-            : '0 0 30%'"
-        [style.minWidth]="sidebarCollapsed() ? '48px' : '320px'"
-        [style.maxWidth]="sidebarCollapsed() ? '48px' : '60%'"
+        [style.flex]="sidebarWidthPx() !== null ? '0 0 ' + sidebarWidthPx() + 'px' : '0 0 30%'"
+        [style.minWidth]="'320px'"
+        [style.maxWidth]="'60%'"
         [course]="c"
         [selectedLessonId]="uc.selectedLessonId()"
+        [selectedBlockId]="uc.selectedBlock()?.id ?? null"
         [completedBlockIds]="uc.completedBlockIds()"
         [courseProgress]="uc.courseProgress()"
         [sidebarWidthPx]="sidebarWidthPx()"
-        [collapsed]="sidebarCollapsed()"
         (selectLesson)="uc.selectLesson($event)"
-        (toggleCollapse)="sidebarCollapsed.update(v => !v)"
+        (selectBlock)="uc.selectBlock($event)"
         (resizeStart)="startSidebarResize($event)"
       />
     </div>

@@ -23,9 +23,7 @@ export class CoursePlayerContainer implements OnInit {
   private readonly router = inject(Router);
   protected readonly uc   = inject(CoursePlayerUseCase);
 
-  protected readonly sidebarCollapsed = signal(false);
-  // null = usar CSS default (30%). Solo se pone en píxeles cuando el usuario arrastra.
-  protected readonly sidebarWidthPx   = signal<number | null>(null);
+  protected readonly sidebarWidthPx = signal<number | null>(null);
 
   ngOnInit(): void {
     const snap = this.route.snapshot;

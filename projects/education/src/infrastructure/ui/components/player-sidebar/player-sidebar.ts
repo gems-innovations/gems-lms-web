@@ -19,9 +19,11 @@ export class PlayerSidebar {
   readonly sidebarWidthPx    = input<number | null>(null);
   readonly collapsed         = input<boolean>(false);
 
-  readonly selectLesson   = output<string>();
-  readonly toggleCollapse = output<void>();
-  readonly resizeStart    = output<MouseEvent>();
+  readonly selectedBlockId = input<string | null>(null);
+
+  readonly selectLesson = output<string>();
+  readonly selectBlock  = output<string>();
+  readonly resizeStart  = output<MouseEvent>();
 
   protected readonly EContentType = EContentType;
 

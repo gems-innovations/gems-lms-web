@@ -1,0 +1,479 @@
+$purple:  #7B6FF0;
+$teal:    #3DD6C8;
+$yellow:  #fbbf24;
+$green:   #34d399;
+$surface: #111119;
+$border:  rgba(255,255,255,.06);
+$text:    #EDEAF8;
+$muted:   rgba(237,234,248,.38);
+
+:host { display: block; padding: 32px 40px; }
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+
+.mlearning__layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 28px;
+  align-items: start;
+}
+
+/* ── Sections ────────────────────────────────────────────────────────────── */
+
+.mlearning__section {
+  margin-bottom: 36px;
+  &:last-child { margin-bottom: 0; }
+}
+
+.mlearning__section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.mlearning__section-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &--purple { background: rgba(123,111,240,.12); color: $purple; }
+  &--teal   { background: rgba(61,214,200,.1);   color: $teal;   }
+  &--yellow { background: rgba(251,191,36,.1);   color: $yellow; }
+  &--green  { background: rgba(52,211,153,.1);   color: $green;  }
+}
+
+.mlearning__section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: $text;
+  margin: 0;
+  flex: 1;
+}
+
+.mlearning__section-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: $muted;
+  background: rgba(255,255,255,.05);
+  border: 1px solid $border;
+  border-radius: 100px;
+  padding: 2px 8px;
+}
+
+/* ── Search bar ──────────────────────────────────────────────────────────── */
+
+.mlearning__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.mlearning__search-icon {
+  position: absolute;
+  left: 12px;
+  color: $muted;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.mlearning__search-input {
+  width: 100%;
+  height: 38px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 9px;
+  padding: 0 36px 0 36px;
+  font-size: 13px;
+  font-family: inherit;
+  color: $text;
+  outline: none;
+  transition: border-color .15s;
+
+  &::placeholder { color: rgba(237,234,248,.25); }
+  &:focus { border-color: rgba(123,111,240,.4); }
+}
+
+.mlearning__search-clear {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: rgba(255,255,255,.07);
+  border-radius: 50%;
+  color: $muted;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+
+  &:hover { background: rgba(255,255,255,.12); color: $text; }
+}
+
+/* ── Sub-label (en progreso / completados) ───────────────────────────────── */
+
+.mlearning__sub-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: rgba(237,234,248,.3);
+  margin: 0 0 10px;
+
+  &--mt { margin-top: 20px; }
+}
+
+/* ── Course grid ─────────────────────────────────────────────────────────── */
+
+.mlearning__course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+
+.mlearning__empty {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 20px 16px;
+  font-size: 13px;
+  color: $muted;
+
+  p { margin: 0; }
+  strong { color: $text; font-weight: 600; }
+}
+
+.mlearning__link {
+  color: $purple;
+  text-decoration: none;
+  font-weight: 500;
+  &:hover { text-decoration: underline; }
+}
+
+/* ── Path grid ───────────────────────────────────────────────────────────── */
+
+.mlearning__path-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.mlearning__path-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 18px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: border-color .15s, background .15s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &:hover {
+    border-color: rgba(123,111,240,.3);
+    background: rgba(123,111,240,.04);
+  }
+}
+
+.mlearning__path-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mlearning__path-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(123,111,240,.1);
+  color: $purple;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mlearning__path-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(61,214,200,.8);
+  background: rgba(61,214,200,.08);
+  border: 1px solid rgba(61,214,200,.15);
+  border-radius: 100px;
+  padding: 2px 8px;
+}
+
+.mlearning__path-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: $text;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.mlearning__path-desc {
+  font-size: 12px;
+  color: $muted;
+  margin: 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mlearning__path-meta {
+  display: flex;
+  gap: 6px;
+  font-size: 11px;
+  color: rgba(237,234,248,.35);
+}
+
+.mlearning__path-bar {
+  height: 3px;
+  background: rgba(255,255,255,.06);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.mlearning__path-fill {
+  height: 100%;
+  background: $purple;
+  border-radius: 3px;
+  transition: width .3s ease;
+}
+
+/* ── Certifications ──────────────────────────────────────────────────────── */
+
+.mlearning__cert-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mlearning__cert-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.mlearning__cert-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: rgba(52,211,153,.1);
+  color: $green;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mlearning__cert-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mlearning__cert-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+}
+
+.mlearning__cert-date {
+  font-size: 11px;
+  color: $muted;
+}
+
+.mlearning__cert-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: $purple;
+  text-decoration: none;
+  background: rgba(123,111,240,.08);
+  border: 1px solid rgba(123,111,240,.18);
+  border-radius: 7px;
+  padding: 5px 10px;
+  flex-shrink: 0;
+  transition: background .15s;
+
+  &:hover { background: rgba(123,111,240,.15); }
+}
+
+/* ── Sidebar widgets ─────────────────────────────────────────────────────── */
+
+.mlearning__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 24px;
+}
+
+.mlearning__widget {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.mlearning__widget-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: $muted;
+}
+
+.mlearning__widget-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+  margin: 0;
+  flex: 1;
+}
+
+/* ── Task list ───────────────────────────────────────────────────────────── */
+
+.mlearning__task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mlearning__task {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.mlearning__task-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+
+  &--assignment { background: $purple; }
+  &--quiz       { background: $yellow; }
+  &--live       { background: $green;  }
+}
+
+.mlearning__task-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.mlearning__task-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: $text;
+  line-height: 1.4;
+}
+
+.mlearning__task-course {
+  font-size: 10.5px;
+  color: $muted;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mlearning__task-due {
+  font-size: 11px;
+  font-weight: 600;
+  color: $muted;
+  flex-shrink: 0;
+
+  &--soon { color: #f87171; }
+}
+
+/* ── Calendar ────────────────────────────────────────────────────────────── */
+
+.mlearning__calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mlearning__cal-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mlearning__cal-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid $border;
+  flex-shrink: 0;
+}
+
+.mlearning__cal-day {
+  font-size: 14px;
+  font-weight: 700;
+  color: $text;
+  line-height: 1;
+}
+
+.mlearning__cal-month {
+  font-size: 9px;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.mlearning__cal-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.mlearning__cal-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: $text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mlearning__cal-course {
+  font-size: 10.5px;
+  color: $muted;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,22 +1,10 @@
-<aside class="psidebar" [class.psidebar--collapsed]="collapsed()">
+<aside class="psidebar">
 
   <!-- Resize handle -->
-  @if (!collapsed()) {
-    <div class="psidebar__resize-handle" (mousedown)="resizeStart.emit($event)"></div>
-  }
+  <div class="psidebar__resize-handle" (mousedown)="resizeStart.emit($event)"></div>
 
-  <!-- Toggle -->
-  <button type="button" class="psidebar__toggle" (click)="toggleCollapse.emit()" [title]="collapsed() ? 'Expandir' : 'Colapsar'">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-      @if (collapsed()) { <polyline points="9 18 15 12 9 6"/> }
-      @else { <polyline points="15 18 9 12 15 6"/> }
-    </svg>
-  </button>
-
-  @if (!collapsed()) {
-
-    <!-- Header -->
-    <div class="psidebar__header">
+  <!-- Header -->
+  <div class="psidebar__header">
       <div class="psidebar__header-top">
         <span class="psidebar__label">Contenido del curso</span>
         <span class="psidebar__progress-text">{{ courseProgress() | number:'1.0-0' }}% completado</span>
@@ -96,7 +84,13 @@
                         @if (lesson.contentBlocks?.length > 1) {
                           <div class="psidebar__blocks">
                             @for (block of lesson.contentBlocks; track block.id) {
-                              <span class="psidebar__block" [class]="'psidebar__block--' + block.type">
+                              <button
+                                type="button"
+                                class="psidebar__block"
+                                [class]="'psidebar__block--' + block.type"
+                                [class.psidebar__block--active]="block.id === selectedBlockId()"
+                                (click)="$event.stopPropagation(); selectLesson.emit(lesson.id); selectBlock.emit(block.id)"
+                              >
                                 @switch (block.type) {
                                   @case (EContentType.VIDEO) {
                                     <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -112,7 +106,7 @@
                                   }
                                 }
                                 {{ blockTypeLabel(block.type) }}
-                              </span>
+                              </button>
                             }
                           </div>
                         }
@@ -127,6 +121,5 @@
         }
       </div>
     </nav>
-  }
 
 </aside>

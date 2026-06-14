@@ -141,6 +141,15 @@ export const studentRoutes: Routes = [
           )
       },
 
+      // Mi Aprendizaje — cursos, rutas, certificaciones, tareas
+      {
+        path: 'my-learning',
+        loadComponent: () =>
+          import('./infrastructure/ui/containers/my-learning-container/my-learning-container').then(
+            m => m.MyLearningContainer
+          )
+      },
+
       // Content preview (course or path, locked until enrolled)
       {
         path: 'preview/courses/:id',
