@@ -1,6 +1,9 @@
-import { EDifficulty } from '../../../domain/model/course.model';
+import { EDifficulty } from './course.model';
 
 export type TCatalogKind = 'course' | 'path';
+export type TPreviewType = 'course' | 'path';
+export type TCatalogKindFilter = 'all' | 'course' | 'path';
+export type TCatalogLevelFilter = EDifficulty | 'all';
 
 export interface ICatalogItem {
   kind: TCatalogKind;

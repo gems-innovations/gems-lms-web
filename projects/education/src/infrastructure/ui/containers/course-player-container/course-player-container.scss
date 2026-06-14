@@ -1,24 +1,33 @@
-:host { display: block; height: 100%; }
-
-.cplayer {
+:host {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--color-fondo);
+  background: #0e0e16;
 }
 
-.cplayer__body {
-  flex: 1;
+.course-player-container {
   display: flex;
+  flex-direction: column;
+  flex: 1;
   min-height: 0;
+}
+
+.course-player-container__body {
+  display: flex;
+  flex: 1;
   overflow: hidden;
 }
 
-.cplayer__content {
+.course-player-container__content {
   flex: 1;
   overflow-y: auto;
   min-width: 0;
 
-  &::-webkit-scrollbar { width: 4px; }
-  &::-webkit-scrollbar-thumb { background: var(--color-borde-principal); border-radius: 2px; }
+  &::-webkit-scrollbar { width: 5px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    &:hover { background: rgba(255, 255, 255, 0.14); }
+  }
 }

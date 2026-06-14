@@ -1,9 +1,7 @@
 import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { IAssignmentSubmission } from '../../../../domain/model/enrollment.model';
 import { IStudentProfile } from '../../../services/enrollment.service';
-
-export interface ISubmissionRow extends IAssignmentSubmission { student: IStudentProfile; }
+import { ISubmissionRow } from '../../../../domain/model/instructor.model';
 
 @Component({
   selector: 'edu-instructor-submissions-table',

@@ -1,42 +1,42 @@
-<div class="ulist">
+<div class="user-list">
   @for (user of users(); track user.id) {
-    <div class="ulist__row" [class.ulist__row--inactive]="!user.isActive">
+    <div class="user-list__row" [class.user-list__row--inactive]="!user.isActive">
 
       <!-- Avatar -->
-      <div class="ulist__avatar" [class.ulist__avatar--inactive]="!user.isActive">
+      <div class="user-list__avatar" [class.user-list__avatar--inactive]="!user.isActive">
         @if (user.avatarUrl) {
-          <img [src]="user.avatarUrl" [alt]="user.firstName" class="ulist__avatar-img" />
+          <img [src]="user.avatarUrl" [alt]="user.firstName" class="user-list__avatar-img" />
         } @else {
           <span>{{ getInitials(user) }}</span>
         }
       </div>
 
       <!-- Info -->
-      <div class="ulist__info">
-        <span class="ulist__name">{{ user.firstName }} {{ user.lastName }}</span>
-        <span class="ulist__email">{{ user.email }}</span>
-        <span class="ulist__username">@{{ user.username }}</span>
+      <div class="user-list__info">
+        <span class="user-list__name">{{ user.firstName }} {{ user.lastName }}</span>
+        <span class="user-list__email">{{ user.email }}</span>
+        <span class="user-list__username">@{{ user.username }}</span>
       </div>
 
       <!-- Role badge -->
-      <span class="ulist__role-badge {{ roleClasses[user.role] }}">
+      <span class="user-list__role-badge {{ roleClasses[user.role] }}">
         {{ getRoleLabel(user.role) }}
       </span>
 
       <!-- Status -->
       <span
-        class="ulist__status"
-        [class.ulist__status--active]="user.isActive"
-        [class.ulist__status--inactive]="!user.isActive"
+        class="user-list__status"
+        [class.user-list__status--active]="user.isActive"
+        [class.user-list__status--inactive]="!user.isActive"
       >
         {{ user.isActive ? 'Activo' : 'Suspendido' }}
       </span>
 
       <!-- Actions -->
-      <div class="ulist__actions">
+      <div class="user-list__actions">
         <button
           type="button"
-          class="ulist__action-btn"
+          class="user-list__action-btn"
           [title]="user.isActive ? 'Suspender' : 'Activar'"
           (click)="toggleStatus.emit(user.id)"
         >
@@ -53,7 +53,7 @@
         </button>
         <button
           type="button"
-          class="ulist__action-btn ulist__action-btn--danger"
+          class="user-list__action-btn user-list__action-btn--danger"
           title="Eliminar usuario"
           (click)="deleteUser.emit(user.id)"
         >

@@ -1,12 +1,12 @@
 import { Component, input, output, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { EDifficulty } from '../../../../domain/model/course.model';
+import { TCatalogKindFilter, TCatalogLevelFilter } from '../../../../domain/model/catalog.model';
 import { DIFFICULTY_LABELS } from '../../utils/course-labels';
-
-export type TCatalogKindFilter = 'all' | 'course' | 'path';
-export type TCatalogLevelFilter = EDifficulty | 'all';
 
 @Component({
   selector: 'edu-catalog-filter-bar',
+  standalone: true,
+  host: { style: 'display:block' },
   templateUrl: './catalog-filter-bar.html',
   styleUrl: './catalog-filter-bar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,31 +1,31 @@
-<div class="enrmgr">
+<div class="enrollment-manager-container">
 
-  <div class="enrmgr__header">
+  <div class="enrollment-manager-container__header">
     <div>
-      <h1 class="enrmgr__title">Gestión de Matrículas</h1>
-      <p class="enrmgr__subtitle">Inscribe uno o varios estudiantes en cursos o rutas de aprendizaje.</p>
+      <h1 class="enrollment-manager-container__title">Gestión de Matrículas</h1>
+      <p class="enrollment-manager-container__subtitle">Inscribe uno o varios estudiantes en cursos o rutas de aprendizaje.</p>
     </div>
-    <div class="enrmgr__stats">
-      <div class="enrmgr__stat">
-        <span class="enrmgr__stat-n">{{ students().length }}</span>
-        <span class="enrmgr__stat-l">Estudiantes</span>
+    <div class="enrollment-manager-container__stats">
+      <div class="enrollment-manager-container__stat">
+        <span class="enrollment-manager-container__stat-n">{{ uc.students().length }}</span>
+        <span class="enrollment-manager-container__stat-l">Estudiantes</span>
       </div>
-      <div class="enrmgr__stat">
-        <span class="enrmgr__stat-n">{{ courses().length + paths().length }}</span>
-        <span class="enrmgr__stat-l">Contenidos</span>
+      <div class="enrollment-manager-container__stat">
+        <span class="enrollment-manager-container__stat-n">{{ uc.courses().length + uc.paths().length }}</span>
+        <span class="enrollment-manager-container__stat-l">Contenidos</span>
       </div>
     </div>
   </div>
 
-  @if (isLoading()) {
+  @if (uc.isLoading()) {
     <lib-loading-skeleton [rows]="6" />
   } @else {
 
-    <div class="enrmgr__body">
+    <div class="enrollment-manager-container__body">
 
       <!-- Student selector panel -->
-      <div class="enrmgr__panel">
-        <h2 class="enrmgr__panel-title">
+      <div class="enrollment-manager-container__panel">
+        <h2 class="enrollment-manager-container__panel-title">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
             <circle cx="9" cy="7" r="4"/>
@@ -36,18 +36,18 @@
         </h2>
 
         <edu-enroll-student-search
-          [students]="students()"
-          [selectedIds]="selectedIds()"
+          [students]="uc.students()"
+          [selectedIds]="uc.selectedIds()"
           (studentSelect)="toggleStudent($event)"
         />
 
-        @if (selectedStudents().length > 0) {
-          <div class="enrmgr__chips">
-            @for (s of selectedStudents(); track s.id) {
-              <div class="enrmgr__chip">
-                <div class="enrmgr__avatar">{{ initials(s) }}</div>
+        @if (uc.selectedStudents().length > 0) {
+          <div class="enrollment-manager-container__chips">
+            @for (s of uc.selectedStudents(); track s.id) {
+              <div class="enrollment-manager-container__chip">
+                <div class="enrollment-manager-container__avatar">{{ initials(s) }}</div>
                 <span>{{ s.firstName }} {{ s.lastName }}</span>
-                <button type="button" class="enrmgr__chip-remove" (click)="removeStudent(s.id)">
+                <button type="button" class="enrollment-manager-container__chip-remove" (click)="removeStudent(s.id)">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                   </svg>
@@ -56,13 +56,13 @@
             }
           </div>
         } @else {
-          <p class="enrmgr__placeholder">Busca y selecciona estudiantes arriba.</p>
+          <p class="enrollment-manager-container__placeholder">Busca y selecciona estudiantes arriba.</p>
         }
       </div>
 
       <!-- Target selector panel -->
-      <div class="enrmgr__panel">
-        <h2 class="enrmgr__panel-title">
+      <div class="enrollment-manager-container__panel">
+        <h2 class="enrollment-manager-container__panel-title">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
@@ -70,53 +70,53 @@
           Destino
         </h2>
 
-        <div class="enrmgr__type-toggle">
-          <button type="button" class="enrmgr__type-btn" [class.enrmgr__type-btn--active]="targetType() === 'course'" (click)="setTargetType('course')">Curso</button>
-          <button type="button" class="enrmgr__type-btn" [class.enrmgr__type-btn--active]="targetType() === 'path'" (click)="setTargetType('path')">Ruta de aprendizaje</button>
+        <div class="enrollment-manager-container__type-toggle">
+          <button type="button" class="enrollment-manager-container__type-btn" [class.enrollment-manager-container__type-btn--active]="uc.targetType() === 'course'" (click)="setTargetType('course')">Curso</button>
+          <button type="button" class="enrollment-manager-container__type-btn" [class.enrollment-manager-container__type-btn--active]="uc.targetType() === 'path'" (click)="setTargetType('path')">Ruta de aprendizaje</button>
         </div>
 
-        <div class="enrmgr__target-list">
-          @if (targetType() === 'course') {
-            @for (c of courses(); track c.id) {
-              <button type="button" class="enrmgr__target-item" [class.enrmgr__target-item--active]="targetId() === c.id" (click)="targetId.set(c.id)">
+        <div class="enrollment-manager-container__target-list">
+          @if (uc.targetType() === 'course') {
+            @for (c of uc.courses(); track c.id) {
+              <button type="button" class="enrollment-manager-container__target-item" [class.enrollment-manager-container__target-item--active]="uc.targetId() === c.id" (click)="uc.setTargetId(c.id)">
                 @if (c.thumbnailUrl) {
-                  <img class="enrmgr__target-thumb" [src]="c.thumbnailUrl" [alt]="c.title">
+                  <img class="enrollment-manager-container__target-thumb" [src]="c.thumbnailUrl" [alt]="c.title">
                 } @else {
-                  <div class="enrmgr__target-thumb enrmgr__target-thumb--placeholder">
+                  <div class="enrollment-manager-container__target-thumb enrollment-manager-container__target-thumb--placeholder">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                       <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                     </svg>
                   </div>
                 }
-                <div class="enrmgr__target-info">
-                  <span class="enrmgr__target-name">{{ c.title }}</span>
-                  <span class="enrmgr__target-meta">{{ c.totalLessons }} lecciones · {{ c.totalDuration }}min</span>
+                <div class="enrollment-manager-container__target-info">
+                  <span class="enrollment-manager-container__target-name">{{ c.title }}</span>
+                  <span class="enrollment-manager-container__target-meta">{{ c.totalLessons }} lecciones · {{ c.totalDuration }}min</span>
                 </div>
-                @if (targetId() === c.id) {
-                  <svg class="enrmgr__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                @if (uc.targetId() === c.id) {
+                  <svg class="enrollment-manager-container__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
                 }
               </button>
             }
           } @else {
-            @for (p of paths(); track p.id) {
-              <button type="button" class="enrmgr__target-item" [class.enrmgr__target-item--active]="targetId() === p.id" (click)="targetId.set(p.id)">
+            @for (p of uc.paths(); track p.id) {
+              <button type="button" class="enrollment-manager-container__target-item" [class.enrollment-manager-container__target-item--active]="uc.targetId() === p.id" (click)="uc.setTargetId(p.id)">
                 @if (p.thumbnailUrl) {
-                  <img class="enrmgr__target-thumb" [src]="p.thumbnailUrl" [alt]="p.title">
+                  <img class="enrollment-manager-container__target-thumb" [src]="p.thumbnailUrl" [alt]="p.title">
                 } @else {
-                  <div class="enrmgr__target-thumb enrmgr__target-thumb--placeholder">
+                  <div class="enrollment-manager-container__target-thumb enrollment-manager-container__target-thumb--placeholder">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
                     </svg>
                   </div>
                 }
-                <div class="enrmgr__target-info">
-                  <span class="enrmgr__target-name">{{ p.title }}</span>
-                  <span class="enrmgr__target-meta">{{ p.steps.length }} cursos · {{ p.estimatedDuration }}min</span>
+                <div class="enrollment-manager-container__target-info">
+                  <span class="enrollment-manager-container__target-name">{{ p.title }}</span>
+                  <span class="enrollment-manager-container__target-meta">{{ p.steps.length }} cursos · {{ p.estimatedDuration }}min</span>
                 </div>
-                @if (targetId() === p.id) {
-                  <svg class="enrmgr__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                @if (uc.targetId() === p.id) {
+                  <svg class="enrollment-manager-container__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
                 }
@@ -129,17 +129,17 @@
     </div>
 
     <!-- Footer -->
-    <div class="enrmgr__footer">
-      @if (result(); as r) {
+    <div class="enrollment-manager-container__footer">
+      @if (uc.result(); as r) {
         <edu-enroll-result-banner [success]="r.success" [skipped]="r.skipped" [errors]="[]" />
       }
-      <button type="button" class="enrmgr__submit-btn" [disabled]="!canEnroll()" (click)="enroll()">
+      <button type="button" class="enrollment-manager-container__submit-btn" [disabled]="!uc.canEnroll()" (click)="enroll()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
           <circle cx="9" cy="7" r="4"/>
           <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
         </svg>
-        Matricular @if (selectedIds().size > 0) { {{ selectedIds().size }} estudiante(s) }
+        Matricular @if (uc.selectedIds().size > 0) { {{ uc.selectedIds().size }} estudiante(s) }
       </button>
     </div>
 

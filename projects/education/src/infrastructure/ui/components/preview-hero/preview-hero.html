@@ -1,26 +1,27 @@
-<div class="phero">
-  <div class="phero__bg"></div>
-  <div class="phero__inner">
+<div class="preview-hero">
+  <div class="preview-hero__bg"></div>
 
-    <button type="button" class="phero__back" (click)="back.emit()">
+  <div class="preview-hero__inner">
+
+    <button type="button" class="preview-hero__back" (click)="back.emit()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <polyline points="15 18 9 12 15 6"/>
       </svg>
       Volver al catálogo
     </button>
 
-    <div class="phero__content">
-      <div class="phero__info">
+    <div class="preview-hero__content">
+      <div class="preview-hero__info">
 
         @if (type() === 'path') {
-          <span class="phero__type-badge phero__type-badge--path">
+          <span class="preview-hero__type-badge preview-hero__type-badge--path">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
             </svg>
             Ruta de aprendizaje
           </span>
         } @else {
-          <span class="phero__type-badge phero__type-badge--course">
+          <span class="preview-hero__type-badge preview-hero__type-badge--course">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
               <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
@@ -29,10 +30,10 @@
           </span>
         }
 
-        <h1 class="phero__title">{{ title() }}</h1>
-        <p class="phero__desc">{{ description() }}</p>
+        <h1 class="preview-hero__title">{{ title() }}</h1>
+        <p class="preview-hero__desc">{{ description() }}</p>
 
-        <div class="phero__meta">
+        <div class="preview-hero__meta">
           @if (type() === 'course' && course(); as c) {
             <span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -56,50 +57,49 @@
         </div>
 
         @if (tags().length) {
-          <div class="phero__tags">
+          <div class="preview-hero__tags">
             @for (t of tags(); track t) {
-              <span class="phero__tag">{{ t }}</span>
+              <span class="preview-hero__tag">{{ t }}</span>
             }
           </div>
         }
 
         @if (isEnrolled()) {
-          <div class="phero__cta-row">
-            <span class="phero__enrolled-badge">
+          <div class="preview-hero__cta-row">
+            <span class="preview-hero__enrolled-badge">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
               Ya estás inscrito
             </span>
-            <button type="button" class="phero__cta phero__cta--secondary" (click)="play.emit()">
+            <button type="button" class="preview-hero__cta preview-hero__cta--secondary" (click)="play.emit()">
               Continuar {{ type() === 'path' ? 'ruta' : 'curso' }}
             </button>
           </div>
         } @else {
-          <button type="button" class="phero__cta" (click)="enroll.emit()">
+          <button type="button" class="preview-hero__cta" (click)="enroll.emit()">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
             Inscribirme {{ type() === 'path' ? 'a la ruta' : 'al curso' }}
           </button>
-          <p class="phero__lock-hint">Inscríbete para acceder al contenido.</p>
         }
       </div>
-
-      @if (thumbnail(); as thumb) {
-        <div class="phero__thumb-wrap">
-          <img class="phero__thumb" [src]="thumb" [alt]="title()!">
-          @if (!isEnrolled()) {
-            <div class="phero__thumb-overlay">
-              <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.6">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
-            </div>
-          }
-        </div>
-      }
     </div>
+
+    @if (thumbnail(); as thumb) {
+      <div class="preview-hero__thumb-wrap">
+        <img class="preview-hero__thumb" [src]="thumb" [alt]="title()!">
+        @if (!isEnrolled()) {
+          <div class="preview-hero__thumb-overlay">
+            <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.6">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+        }
+      </div>
+    }
 
   </div>
 </div>

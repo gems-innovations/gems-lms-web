@@ -1,13 +1,13 @@
 @if (block(); as blk) {
-  <div class="pcblock">
+  <div class="player-content-block">
 
     <!-- VIDEO -->
     @if (blk.type === EContentType.VIDEO) {
-      <div class="pcblock__video-wrap">
+      <div class="player-content-block__video-wrap">
         @if (videoEmbedUrl(); as embedUrl) {
-          <iframe [src]="embedUrl" class="pcblock__video" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          <iframe [src]="embedUrl" class="player-content-block__video" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
         } @else {
-          <div class="pcblock__video-placeholder">
+          <div class="player-content-block__video-placeholder">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <polygon points="5 3 19 12 5 21 5 3"/>
             </svg>
@@ -15,18 +15,12 @@
           </div>
         }
       </div>
-      <div class="pcblock__meta">
-        <h2 class="pcblock__title">{{ blk.title }}</h2>
-        @if (blk.description) { <p class="pcblock__desc">{{ blk.description }}</p> }
+      <div class="player-content-block__meta">
+        <h2 class="player-content-block__title">{{ blk.title }}</h2>
+        @if (blk.description) { <p class="player-content-block__desc">{{ blk.description }}</p> }
       </div>
-      @if (!isComplete()) {
-        <div class="pcblock__actions">
-          <button type="button" class="pcblock__btn pcblock__btn--primary" (click)="markComplete.emit()">
-            Marcar como completado
-          </button>
-        </div>
-      } @else {
-        <div class="pcblock__done-badge">
+      @if (isComplete()) {
+        <div class="player-content-block__done-badge">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
@@ -37,18 +31,12 @@
 
     <!-- DOCUMENT -->
     @if (blk.type === EContentType.DOCUMENT) {
-      <div class="pcblock__meta">
-        <h2 class="pcblock__title">{{ blk.title }}</h2>
+      <div class="player-content-block__meta">
+        <h2 class="player-content-block__title">{{ blk.title }}</h2>
       </div>
-      <div class="pcblock__markdown" [innerHTML]="renderedMarkdown()"></div>
-      @if (!isComplete()) {
-        <div class="pcblock__actions">
-          <button type="button" class="pcblock__btn pcblock__btn--primary" (click)="markComplete.emit()">
-            Marcar como leído
-          </button>
-        </div>
-      } @else {
-        <div class="pcblock__done-badge">
+      <div class="player-content-block__markdown" [innerHTML]="renderedMarkdown()"></div>
+      @if (isComplete()) {
+        <div class="player-content-block__done-badge">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
@@ -59,23 +47,23 @@
 
     <!-- QUIZ -->
     @if (blk.type === EContentType.QUIZ) {
-      <div class="pcblock__meta">
-        <h2 class="pcblock__title">{{ blk.title }}</h2>
-        @if (blk.description) { <p class="pcblock__desc">{{ blk.description }}</p> }
+      <div class="player-content-block__meta">
+        <h2 class="player-content-block__title">{{ blk.title }}</h2>
+        @if (blk.description) { <p class="player-content-block__desc">{{ blk.description }}</p> }
       </div>
 
       @if (quizSubmitted()) {
         <!-- Results -->
         @if (lastQuizResult(); as result) {
-          <div class="pcblock__quiz-result" [class.pcblock__quiz-result--pass]="result.passed" [class.pcblock__quiz-result--fail]="!result.passed">
-            <div class="pcblock__quiz-score">
-              <span class="pcblock__quiz-score-num">{{ result.score | number:'1.0-0' }}%</span>
-              <span class="pcblock__quiz-score-label">{{ result.passed ? '¡Aprobado!' : 'No aprobado' }}</span>
+          <div class="player-content-block__quiz-result" [class.player-content-block__quiz-result--pass]="result.passed" [class.player-content-block__quiz-result--fail]="!result.passed">
+            <div class="player-content-block__quiz-score">
+              <span class="player-content-block__quiz-score-num">{{ result.score | number:'1.0-0' }}%</span>
+              <span class="player-content-block__quiz-score-label">{{ result.passed ? '¡Aprobado!' : 'No aprobado' }}</span>
             </div>
             @if (result.feedback?.length) {
-              <ul class="pcblock__quiz-feedback">
+              <ul class="player-content-block__quiz-feedback">
                 @for (fb of result.feedback!; track fb.questionId) {
-                  <li class="pcblock__quiz-fb-item" [class.pcblock__quiz-fb-item--ok]="fb.correct" [class.pcblock__quiz-fb-item--err]="!fb.correct">
+                  <li class="player-content-block__quiz-fb-item" [class.player-content-block__quiz-fb-item--ok]="fb.correct" [class.player-content-block__quiz-fb-item--err]="!fb.correct">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                       @if (fb.correct) { <polyline points="20 6 9 17 4 12"/> }
                       @else { <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/> }
@@ -87,21 +75,21 @@
             }
           </div>
         }
-        <div class="pcblock__actions">
-          <button type="button" class="pcblock__btn" (click)="retryQuiz()">Reintentar</button>
+        <div class="player-content-block__actions">
+          <button type="button" class="player-content-block__btn" (click)="retryQuiz()">Reintentar</button>
         </div>
       } @else {
         <!-- Questions -->
-        <div class="pcblock__questions">
+        <div class="player-content-block__questions">
           @for (q of quizQuestions(); track q.id; let qIdx = $index) {
-            <div class="pcblock__question">
-              <p class="pcblock__q-text">{{ qIdx + 1 }}. {{ q.question }}</p>
+            <div class="player-content-block__question">
+              <p class="player-content-block__q-text">{{ qIdx + 1 }}. {{ q.question }}</p>
 
               @if (q.type === 'multiple-choice') {
-                <ul class="pcblock__options">
+                <ul class="player-content-block__options">
                   @for (opt of asMCQ(q).options; track opt.id) {
                     <li>
-                      <label class="pcblock__option" [class.pcblock__option--checked]="isOptionChecked(q.id, opt.id)">
+                      <label class="player-content-block__option" [class.player-content-block__option--checked]="isOptionChecked(q.id, opt.id)">
                         <input type="checkbox" [checked]="isOptionChecked(q.id, opt.id)" (change)="toggleMultiAnswer(q.id, opt.id)" />
                         {{ opt.text }}
                       </label>
@@ -109,23 +97,23 @@
                   }
                 </ul>
               } @else if (q.type === 'true-false') {
-                <div class="pcblock__tf-options">
-                  <label class="pcblock__option" [class.pcblock__option--checked]="getAnswer(q.id) === true">
+                <div class="player-content-block__tf-options">
+                  <label class="player-content-block__option" [class.player-content-block__option--checked]="getAnswer(q.id) === true">
                     <input type="radio" [name]="'tf-' + q.id" [value]="'true'" (change)="setAnswer(q.id, true)" /> Verdadero
                   </label>
-                  <label class="pcblock__option" [class.pcblock__option--checked]="getAnswer(q.id) === false">
+                  <label class="player-content-block__option" [class.player-content-block__option--checked]="getAnswer(q.id) === false">
                     <input type="radio" [name]="'tf-' + q.id" [value]="'false'" (change)="setAnswer(q.id, false)" /> Falso
                   </label>
                 </div>
               } @else {
-                <textarea class="pcblock__open-input" rows="4" placeholder="Escribe tu respuesta..."
+                <textarea class="player-content-block__open-input" rows="4" placeholder="Escribe tu respuesta..."
                   [value]="(getAnswer(q.id) ?? '') + ''" (input)="setAnswer(q.id, $any($event.target).value)"></textarea>
               }
             </div>
           }
         </div>
-        <div class="pcblock__actions">
-          <button type="button" class="pcblock__btn pcblock__btn--primary" [disabled]="isSubmitting()" (click)="submitQuiz()">
+        <div class="player-content-block__actions">
+          <button type="button" class="player-content-block__btn player-content-block__btn--primary" [disabled]="isSubmitting()" (click)="submitQuiz()">
             {{ isSubmitting() ? 'Enviando…' : 'Enviar respuestas' }}
           </button>
         </div>
@@ -134,24 +122,24 @@
 
     <!-- ASSIGNMENT -->
     @if (blk.type === EContentType.ASSIGNMENT) {
-      <div class="pcblock__meta">
-        <h2 class="pcblock__title">{{ blk.title }}</h2>
-        @if (blk.description) { <p class="pcblock__desc">{{ blk.description }}</p> }
-        @if (blk.assignmentInstructions) { <p class="pcblock__instructions">{{ blk.assignmentInstructions }}</p> }
+      <div class="player-content-block__meta">
+        <h2 class="player-content-block__title">{{ blk.title }}</h2>
+        @if (blk.description) { <p class="player-content-block__desc">{{ blk.description }}</p> }
+        @if (blk.assignmentInstructions) { <p class="player-content-block__instructions">{{ blk.assignmentInstructions }}</p> }
       </div>
 
       @if (assignmentSubmitted()) {
-        <div class="pcblock__done-badge">
+        <div class="player-content-block__done-badge">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
           Tarea enviada — pendiente de revisión
         </div>
       } @else {
-        <textarea class="pcblock__assignment-input" rows="8" placeholder="Escribe tu respuesta aquí…"
+        <textarea class="player-content-block__assignment-input" rows="8" placeholder="Escribe tu respuesta aquí…"
           [value]="assignmentText()" (input)="assignmentText.set($any($event.target).value)"></textarea>
-        <div class="pcblock__actions">
-          <button type="button" class="pcblock__btn pcblock__btn--primary"
+        <div class="player-content-block__actions">
+          <button type="button" class="player-content-block__btn player-content-block__btn--primary"
             [disabled]="!assignmentText().trim() || isSubmitting()" (click)="submitAssignment()">
             {{ isSubmitting() ? 'Enviando…' : 'Entregar tarea' }}
           </button>
@@ -161,25 +149,25 @@
 
     <!-- LIVE_SESSION / SCORM -->
     @if (blk.type === EContentType.LIVE_SESSION || blk.type === EContentType.SCORM) {
-      <div class="pcblock__meta">
-        <h2 class="pcblock__title">{{ blk.title }}</h2>
-        @if (blk.description) { <p class="pcblock__desc">{{ blk.description }}</p> }
+      <div class="player-content-block__meta">
+        <h2 class="player-content-block__title">{{ blk.title }}</h2>
+        @if (blk.description) { <p class="player-content-block__desc">{{ blk.description }}</p> }
       </div>
-      <div class="pcblock__live-placeholder">
+      <div class="player-content-block__live-placeholder">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="12" cy="12" r="10"/>
           <polyline points="12 8 12 12 14 14"/>
         </svg>
         <span>{{ blk.type === EContentType.LIVE_SESSION ? 'Sesión en vivo próximamente' : 'Contenido SCORM externo' }}</span>
         @if (blk.url) {
-          <a [href]="blk.url" target="_blank" rel="noopener" class="pcblock__btn pcblock__btn--primary">Abrir enlace</a>
+          <a [href]="blk.url" target="_blank" rel="noopener" class="player-content-block__btn player-content-block__btn--primary">Abrir enlace</a>
         }
       </div>
     }
 
   </div>
 } @else {
-  <div class="pcblock pcblock--empty">
+  <div class="player-content-block player-content-block--empty">
     <p>Selecciona una lección del panel lateral para comenzar.</p>
   </div>
 }

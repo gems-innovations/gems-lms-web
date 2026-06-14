@@ -1,0 +1,147 @@
+<div class="enrollment-manager-view">
+
+  <div class="enrollment-manager-view__header">
+    <div>
+      <h1 class="enrollment-manager-view__title">Gestión de Matrículas</h1>
+      <p class="enrollment-manager-view__subtitle">Inscribe uno o varios estudiantes en cursos o rutas de aprendizaje.</p>
+    </div>
+    <div class="enrollment-manager-view__stats">
+      <div class="enrollment-manager-view__stat">
+        <span class="enrollment-manager-view__stat-n">{{ uc.students().length }}</span>
+        <span class="enrollment-manager-view__stat-l">Estudiantes</span>
+      </div>
+      <div class="enrollment-manager-view__stat">
+        <span class="enrollment-manager-view__stat-n">{{ uc.courses().length + uc.paths().length }}</span>
+        <span class="enrollment-manager-view__stat-l">Contenidos</span>
+      </div>
+    </div>
+  </div>
+
+  @if (uc.isLoading()) {
+    <lib-loading-skeleton [rows]="6" />
+  } @else {
+
+    <div class="enrollment-manager-view__body">
+
+      <!-- Student selector panel -->
+      <div class="enrollment-manager-view__panel">
+        <h2 class="enrollment-manager-view__panel-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Estudiantes a matricular
+        </h2>
+
+        <edu-enroll-student-search
+          [students]="uc.students()"
+          [selectedIds]="uc.selectedIds()"
+          (studentSelect)="toggleStudent($event)"
+        />
+
+        @if (uc.selectedStudents().length > 0) {
+          <div class="enrollment-manager-view__chips">
+            @for (s of uc.selectedStudents(); track s.id) {
+              <div class="enrollment-manager-view__chip">
+                <div class="enrollment-manager-view__avatar">{{ initials(s) }}</div>
+                <span>{{ s.firstName }} {{ s.lastName }}</span>
+                <button type="button" class="enrollment-manager-view__chip-remove" (click)="removeStudent(s.id)">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="enrollment-manager-view__placeholder">Busca y selecciona estudiantes arriba.</p>
+        }
+      </div>
+
+      <!-- Target selector panel -->
+      <div class="enrollment-manager-view__panel">
+        <h2 class="enrollment-manager-view__panel-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          Destino
+        </h2>
+
+        <div class="enrollment-manager-view__type-toggle">
+          <button type="button" class="enrollment-manager-view__type-btn" [class.enrollment-manager-view__type-btn--active]="uc.targetType() === 'course'" (click)="setTargetType('course')">Curso</button>
+          <button type="button" class="enrollment-manager-view__type-btn" [class.enrollment-manager-view__type-btn--active]="uc.targetType() === 'path'" (click)="setTargetType('path')">Ruta de aprendizaje</button>
+        </div>
+
+        <div class="enrollment-manager-view__target-list">
+          @if (uc.targetType() === 'course') {
+            @for (c of uc.courses(); track c.id) {
+              <button type="button" class="enrollment-manager-view__target-item" [class.enrollment-manager-view__target-item--active]="uc.targetId() === c.id" (click)="uc.setTargetId(c.id)">
+                @if (c.thumbnailUrl) {
+                  <img class="enrollment-manager-view__target-thumb" [src]="c.thumbnailUrl" [alt]="c.title">
+                } @else {
+                  <div class="enrollment-manager-view__target-thumb enrollment-manager-view__target-thumb--placeholder">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                  </div>
+                }
+                <div class="enrollment-manager-view__target-info">
+                  <span class="enrollment-manager-view__target-name">{{ c.title }}</span>
+                  <span class="enrollment-manager-view__target-meta">{{ c.totalLessons }} lecciones · {{ c.totalDuration }}min</span>
+                </div>
+                @if (uc.targetId() === c.id) {
+                  <svg class="enrollment-manager-view__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                }
+              </button>
+            }
+          } @else {
+            @for (p of uc.paths(); track p.id) {
+              <button type="button" class="enrollment-manager-view__target-item" [class.enrollment-manager-view__target-item--active]="uc.targetId() === p.id" (click)="uc.setTargetId(p.id)">
+                @if (p.thumbnailUrl) {
+                  <img class="enrollment-manager-view__target-thumb" [src]="p.thumbnailUrl" [alt]="p.title">
+                } @else {
+                  <div class="enrollment-manager-view__target-thumb enrollment-manager-view__target-thumb--placeholder">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                  </div>
+                }
+                <div class="enrollment-manager-view__target-info">
+                  <span class="enrollment-manager-view__target-name">{{ p.title }}</span>
+                  <span class="enrollment-manager-view__target-meta">{{ p.steps.length }} cursos · {{ p.estimatedDuration }}min</span>
+                </div>
+                @if (uc.targetId() === p.id) {
+                  <svg class="enrollment-manager-view__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                }
+              </button>
+            }
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="enrollment-manager-view__footer">
+      @if (uc.result(); as r) {
+        <edu-enroll-result-banner [success]="r.success" [skipped]="r.skipped" [errors]="[]" />
+      }
+      <button type="button" class="enrollment-manager-view__submit-btn" [disabled]="!uc.canEnroll()" (click)="enroll()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+        </svg>
+        Matricular @if (uc.selectedIds().size > 0) { {{ uc.selectedIds().size }} estudiante(s) }
+      </button>
+    </div>
+
+  }
+</div>

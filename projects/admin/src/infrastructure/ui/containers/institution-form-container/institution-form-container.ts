@@ -2,7 +2,7 @@ import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { InstitutionForm } from '../../forms/institution-form/institution-form';
 import { InstitutionUseCase } from '../../../../application/institution.usecase';
-import { ICreateInstitutionRequest } from '../../../../domain/model/institution';
+import { ICreateInstitutionRequest } from '../../../../domain/model/institution.model';
 
 @Component({
   selector: 'adm-institution-form-container',

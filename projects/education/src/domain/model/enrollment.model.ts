@@ -124,3 +124,16 @@ export interface IEnrolledPathEntry {
   enrollment: ILearningPathEnrollment;
   path: import('./learning-path.model').ILearningPath;
 }
+
+export type TEnrollTab = 'individual' | 'bulk';
+
+export interface IBulkEnrollEntry {
+  email: string;
+  courseId: string;
+}
+
+export interface IBulkResult {
+  success: number;
+  skipped: number;
+  errors: string[];
+}

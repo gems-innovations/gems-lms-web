@@ -1,9 +1,8 @@
 import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ICourse, EDifficulty } from '../../../../domain/model/course.model';
 import { ILearningPath } from '../../../../domain/model/learning-path.model';
+import { TPreviewType } from '../../../../domain/model/catalog.model';
 import { DIFFICULTY_LABELS, formatDuration } from '../../utils/course-labels';
-
-export type TPreviewType = 'course' | 'path';
 
 @Component({
   selector: 'edu-preview-hero',
@@ -12,6 +11,7 @@ export type TPreviewType = 'course' | 'path';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreviewHero {
+  protected readonly _r = 1;
   readonly type       = input.required<TPreviewType>();
   readonly course     = input<ICourse | null>(null);
   readonly path       = input<ILearningPath | null>(null);
@@ -27,5 +27,5 @@ export class PreviewHero {
   protected readonly tags        = computed(() => this.type() === 'course' ? (this.course()?.tags ?? []) : (this.path()?.tags ?? []));
 
   protected difficultyLabel(d: EDifficulty): string { return DIFFICULTY_LABELS[d] ?? d; }
-  protected formatDuration(min: number): string { return formatDuration(min); }
+  protected formatDuration(m: number): string { return formatDuration(m); }
 }

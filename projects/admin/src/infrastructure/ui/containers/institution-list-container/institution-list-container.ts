@@ -4,7 +4,7 @@ import { InstitutionList } from '../../components/institution-list/institution-l
 import { DashboardMetricsComponent } from '../../components/dashboard-metrics/dashboard-metrics';
 import { InstitutionModalContainer } from '../institution-modal-container/institution-modal-container';
 import { InstitutionUseCase } from '../../../../application/institution.usecase';
-import { IInstitution } from '../../../../domain/model/institution';
+import { IInstitution } from '../../../../domain/model/institution.model';
 
 @Component({
   selector: 'adm-institution-list-container',

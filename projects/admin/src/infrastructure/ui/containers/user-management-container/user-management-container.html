@@ -3,57 +3,57 @@
     title="Gestión de Usuarios"
     subtitle="Crea y administra los usuarios de tu institución"
   >
-    <lib-button variant="secondary" size="sm" (clicked)="showImportPanel.set(true)">
+    <lib-button variant="secondary" size="sm" (clicked)="uc.showImportPanel.set(true)">
       Importar Excel
     </lib-button>
-    <lib-button variant="primary" size="sm" (clicked)="showCreateForm.set(true)">
+    <lib-button variant="primary" size="sm" (clicked)="uc.showCreateForm.set(true)">
       Nuevo Usuario
     </lib-button>
   </lib-page-header>
 
-  @if (showImportPanel()) {
+  @if (uc.showImportPanel()) {
     <adm-user-import-panel
-      [isImporting]="isCreating()"
+      [isImporting]="uc.isCreating()"
       (importUsers)="bulkImport($event)"
-      (closed)="showImportPanel.set(false)"
+      (closed)="uc.showImportPanel.set(false)"
     />
   }
 
-  <adm-user-stats-chips [users]="users()" />
+  <adm-user-stats-chips [users]="uc.users()" />
 
-  @if (showCreateForm()) {
+  @if (uc.showCreateForm()) {
     <adm-user-form
-      [isCreating]="isCreating()"
+      [isCreating]="uc.isCreating()"
       (save)="createUser($event)"
-      (closed)="showCreateForm.set(false)"
+      (closed)="uc.showCreateForm.set(false)"
     />
   }
 
-  @if (isLoading()) {
+  @if (uc.isLoading()) {
     <lib-loading-skeleton type="table" [rows]="6" />
-  } @else if (users().length === 0) {
+  } @else if (uc.users().length === 0) {
     <lib-empty-state
       title="No hay usuarios aún"
       description="Crea el primer usuario para tu institución."
     />
   } @else {
     <adm-user-list
-      [users]="users()"
+      [users]="uc.users()"
       (toggleStatus)="toggleStatus($event)"
-      (deleteUser)="pendingDeleteId.set($event)"
+      (deleteUser)="uc.requestDelete($event)"
     />
   }
 </lib-page>
 
-@if (pendingDeleteId()) {
+@if (uc.pendingDeleteId()) {
   <lib-confirmation-dialog
     type="danger"
     title="¿Eliminar usuario?"
     message="Esta acción no se puede deshacer."
     confirmText="Eliminar"
     cancelText="Cancelar"
-    [isLoading]="isDeleting()"
+    [isLoading]="uc.isDeleting()"
     (confirmed)="executeDelete()"
-    (cancelled)="pendingDeleteId.set(null)"
+    (cancelled)="uc.cancelDelete()"
   />
 }

@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { IInstitution } from '../model/institution';
+import { IInstitution } from '../model/institution.model';
 
 export interface IInstitutionState {
   institutions: IInstitution[];

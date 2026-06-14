@@ -1,51 +1,137 @@
-<lib-page width="lg">
-  <edu-student-hero
-    [enrolledCount]="enrolledCourses().length"
-    [completedCount]="completed().length"
-    [activePathsCount]="enrolledPathEntries().length"
-  />
+<edu-student-hero
+  [enrolledCount]="uc.enrolledCourses().length"
+  [completedCount]="uc.completed().length"
+  [activePathsCount]="uc.enrolledPathEntries().length"
+  (explore)="openCatalog()"
+/>
 
-  @if (isLoading()) {
-    <lib-loading-skeleton type="card" [rows]="3" />
-  } @else {
-    @if (inProgress().length > 0) {
-      <section>
-        <edu-section-header title="Continúa aprendiendo" accent="purple" [count]="inProgress().length" />
-        <lib-card-grid minWidth="280px">
-          @for (entry of inProgress(); track entry.enrollment.id) {
-            <edu-course-progress-card [entry]="entry" (open)="continueCourse($event)" />
+@if (uc.isLoading()) {
+  <lib-loading-skeleton type="card" [rows]="3" />
+} @else {
+  <div class="s-home">
+
+    <!-- ── Feed principal ── -->
+    <main class="s-home__feed">
+
+      <!-- Continúa aprendiendo -->
+      @if (uc.inProgress().length > 0) {
+        <section class="s-home__section">
+          <div class="s-home__section-head">
+            <h2 class="s-home__section-title">
+              <span class="s-home__section-accent s-home__section-accent--purple">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              </span>
+              Continúa aprendiendo
+            </h2>
+            <span class="s-home__section-count">{{ uc.inProgress().length }}</span>
+          </div>
+          <div class="s-home__progress-list">
+            @for (entry of uc.inProgress().slice(0, 3); track entry.enrollment.id) {
+              <edu-course-progress-card [entry]="entry" (open)="continueCourse($event)" />
+            }
+          </div>
+          @if (uc.inProgress().length > 3) {
+            <button type="button" class="s-home__see-more-divider">
+              <span class="s-home__see-more-line"></span>
+              <span class="s-home__see-more-label">Ver más</span>
+              <span class="s-home__see-more-line"></span>
+            </button>
           }
-        </lib-card-grid>
-      </section>
-    }
+        </section>
+      }
 
-    @if (enrolledPathEntries().length > 0) {
-      <section>
-        <edu-section-header title="Rutas de aprendizaje" accent="teal" [count]="enrolledPathEntries().length" />
-        <lib-card-grid minWidth="420px">
-          @for (entry of enrolledPathEntries(); track entry.enrollment.id) {
-            <edu-path-progress-card [entry]="entry" (open)="openPath($event)" />
+      <!-- Cursos populares -->
+      @if (uc.popularCourses().length > 0) {
+        <section class="s-home__section">
+          <div class="s-home__section-head">
+            <h2 class="s-home__section-title">
+              <span class="s-home__section-accent s-home__section-accent--yellow">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </span>
+              Cursos populares
+            </h2>
+          </div>
+          <div class="s-home__popular-grid">
+            @for (item of uc.popularCourses(); track item.id) {
+              <edu-catalog-card [item]="item" (previewItem)="openCatalogItem($event)" (enrollItem)="enrollCatalogItem($event)" (openItem)="openCatalogItem($event)" />
+            }
+            <button type="button" class="s-home__catalog-more-card" (click)="openCatalog()">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+              </svg>
+              <span>Ver catálogo completo</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+        </section>
+      }
+
+      <!-- Completados -->
+      @if (uc.completed().length > 0) {
+        <section class="s-home__section">
+          <div class="s-home__section-head">
+            <h2 class="s-home__section-title">
+              <span class="s-home__section-accent s-home__section-accent--green">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </span>
+              Completados
+            </h2>
+            <span class="s-home__section-count">{{ uc.completed().length }}</span>
+          </div>
+          <div class="s-home__popular-grid">
+            @for (entry of uc.completed(); track entry.enrollment.id) {
+              <edu-course-progress-card [entry]="entry" (open)="continueCourse($event)" />
+            }
+          </div>
+        </section>
+      }
+
+      @if (uc.enrolledCourses().length === 0 && uc.popularCourses().length === 0) {
+        <lib-empty-state
+          title="Sin cursos por ahora"
+          description="Explora el catálogo y matricúlate en un curso para iniciar tu recorrido."
+        />
+      }
+    </main>
+
+    <!-- ── Sidebar de rutas ── -->
+    @if (uc.enrolledPathEntries().length > 0) {
+      <aside class="s-home__sidebar">
+        <div class="s-home__sidebar-head">
+          <h2 class="s-home__sidebar-title">
+            <span class="s-home__section-accent s-home__section-accent--teal">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              </svg>
+            </span>
+            Rutas de aprendizaje
+          </h2>
+          <span class="s-home__section-count">{{ uc.enrolledPathEntries().length }}</span>
+        </div>
+        <div class="s-home__path-list">
+          @for (entry of uc.enrolledPathEntries().slice(0, 4); track entry.enrollment.id) {
+            <edu-home-path-sidebar-item [entry]="entry" (open)="openPath($event)" />
           }
-        </lib-card-grid>
-      </section>
+        </div>
+        @if (uc.enrolledPathEntries().length > 4) {
+          <button type="button" class="s-home__path-more-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+            Ver más
+          </button>
+        }
+      </aside>
     }
 
-    @if (completed().length > 0) {
-      <section>
-        <edu-section-header title="Completados" accent="green" [count]="completed().length" />
-        <lib-card-grid minWidth="280px">
-          @for (entry of completed(); track entry.enrollment.id) {
-            <edu-course-progress-card [entry]="entry" (open)="continueCourse($event)" />
-          }
-        </lib-card-grid>
-      </section>
-    }
-
-    @if (enrolledCourses().length === 0) {
-      <lib-empty-state
-        title="Sin cursos por ahora"
-        description="Explora el catálogo y matricúlate en un curso para iniciar tu recorrido de aprendizaje."
-      />
-    }
-  }
-</lib-page>
+  </div>
+}

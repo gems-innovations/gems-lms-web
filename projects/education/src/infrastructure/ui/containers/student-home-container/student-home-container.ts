@@ -1,87 +1,53 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { EmptyStateComponent, LoadingSkeletonComponent, PageComponent } from 'shared';
-import { EnrollmentUseCase } from '../../../../application/enrollment.usecase';
-import { CourseUseCase } from '../../../../application/course.usecase';
-import { LearningPathUseCase } from '../../../../application/learning-path.usecase';
-import {
-  IEnrolledCourseEntry,
-  IEnrolledPathEntry
-} from '../../../../domain/model/enrollment.model';
+import { LoadingSkeletonComponent, EmptyStateComponent } from 'shared';
+import { StudentHomeUseCase } from '../../../../application/student-home.usecase';
+import { IEnrolledCourseEntry } from '../../../../domain/model/enrollment.model';
 import { StudentHero } from '../../components/student-hero/student-hero';
-import { SectionHeader } from '../../components/section-header/section-header';
 import { CourseProgressCard } from '../../components/course-progress-card/course-progress-card';
-import { PathProgressCard } from '../../components/path-progress-card/path-progress-card';
-import { CardGridComponent } from 'shared';
+import { CatalogCard } from '../../components/catalog-card/catalog-card';
+import { HomePathSidebarItem } from '../../components/home-path-sidebar-item/home-path-sidebar-item';
+import { ICatalogItem } from '../../../../domain/model/catalog.model';
 
 @Component({
   selector: 'edu-student-home-container',
   imports: [
-    PageComponent,
     LoadingSkeletonComponent,
     EmptyStateComponent,
-    CardGridComponent,
     StudentHero,
-    SectionHeader,
     CourseProgressCard,
-    PathProgressCard
+    CatalogCard,
+    HomePathSidebarItem,
   ],
-  templateUrl: './student-home-container.html'
+  templateUrl: './student-home-container.html',
 })
 export class StudentHomeContainer implements OnInit {
   private readonly router = inject(Router);
-  private readonly enrollmentUc = inject(EnrollmentUseCase);
-  private readonly courseUc = inject(CourseUseCase);
-  private readonly pathUc = inject(LearningPathUseCase);
+  protected readonly uc   = inject(StudentHomeUseCase);
 
-  readonly enrolledCourses = computed(() => {
-    const enrollments = this.enrollmentUc.enrollments();
-    const courses = this.courseUc.courses();
-    return enrollments
-      .map(e => ({ enrollment: e, course: courses.find(c => c.id === e.courseId)! }))
-      .filter(x => !!x.course);
-  });
+  ngOnInit(): void { this.uc.load(); }
 
-  readonly inProgress = computed(() =>
-    this.enrolledCourses()
-      .filter(x => x.enrollment.status === 'active')
-      .sort(
-        (a, b) =>
-          b.enrollment.progress.lastAccessedAt.getTime() -
-          a.enrollment.progress.lastAccessedAt.getTime()
-      )
-  );
-
-  readonly completed = computed(() =>
-    this.enrolledCourses().filter(x => x.enrollment.status === 'completed')
-  );
-
-  readonly enrolledPathEntries = computed((): IEnrolledPathEntry[] => {
-    const pathEnrollments = this.enrollmentUc.pathEnrollments();
-    const paths = this.pathUc.learningPaths();
-    return pathEnrollments
-      .map(e => ({ enrollment: e, path: paths.find(p => p.id === e.learningPathId)! }))
-      .filter(x => !!x.path);
-  });
-
-  readonly isLoading = computed(() => this.enrollmentUc.isLoading() || this.courseUc.isLoading());
-
-  ngOnInit(): void {
-    if (this.enrollmentUc.enrollments().length === 0) this.enrollmentUc.loadEnrollments();
-    if (this.enrollmentUc.pathEnrollments().length === 0) this.enrollmentUc.loadPathEnrollments();
-    if (this.courseUc.courses().length === 0) this.courseUc.load();
-    if (this.pathUc.learningPaths().length === 0) this.pathUc.load();
-  }
-
-  continueCourse(entry: IEnrolledCourseEntry): void {
+  protected continueCourse(entry: IEnrolledCourseEntry): void {
     const { courseId, currentLessonId, currentBlockId } = entry.enrollment.progress;
     const params: Record<string, string> = {};
     if (currentLessonId) params['lesson'] = currentLessonId;
-    if (currentBlockId) params['block'] = currentBlockId;
+    if (currentBlockId)  params['block']  = currentBlockId;
     this.router.navigate(['/learn/courses', courseId], { queryParams: params });
   }
 
-  openPath(pathId: string): void {
-    this.router.navigate(['/learn/paths', pathId]);
+  protected openPath(pathId: string): void {
+    this.router.navigate(['/learn/preview', 'paths', pathId]);
+  }
+
+  protected openCatalogItem(item: ICatalogItem): void {
+    this.router.navigate(['/learn/preview', item.kind === 'path' ? 'paths' : 'courses', item.id]);
+  }
+
+  protected enrollCatalogItem(item: ICatalogItem): void {
+    this.router.navigate(['/learn/preview', 'courses', item.id]);
+  }
+
+  protected openCatalog(): void {
+    this.router.navigate(['/learn/catalog']);
   }
 }

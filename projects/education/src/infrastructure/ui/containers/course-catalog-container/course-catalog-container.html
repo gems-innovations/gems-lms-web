@@ -1,31 +1,28 @@
+<edu-catalog-hero [totalCount]="uc.filtered().length" />
+
 <lib-page>
-  <lib-page-header
-    title="Catálogo"
-    subtitle="Explora cursos y rutas de aprendizaje disponibles e inscríbete en los que te interesen."
-  />
-
   <edu-catalog-filter-bar
-    [search]="search()"
-    [filterKind]="filterKind()"
-    [filterLevel]="filterLevel()"
-    (searchChange)="search.set($event)"
-    (filterKindChange)="filterKind.set($event)"
-    (filterLevelChange)="filterLevel.set($event)"
+    [search]="uc.search()"
+    [filterKind]="uc.filterKind()"
+    [filterLevel]="uc.filterLevel()"
+    (searchChange)="uc.setSearch($event)"
+    (filterKindChange)="uc.setFilterKind($event)"
+    (filterLevelChange)="uc.setFilterLevel($event)"
   />
 
-  @if (isLoading()) {
+  @if (uc.isLoading()) {
     <lib-loading-skeleton [rows]="6" />
-  } @else if (filtered().length === 0) {
+  } @else if (uc.filtered().length === 0) {
     <lib-empty-state
       title="Sin resultados"
       description="No se encontraron resultados con esos filtros."
     />
   } @else {
     <lib-card-grid>
-      @for (item of filtered(); track item.id) {
+      @for (item of uc.filtered(); track item.id) {
         <edu-catalog-card
           [item]="item"
-          [enrolled]="isEnrolled(item)"
+          [enrolled]="uc.isEnrolled(item)"
           (enrollItem)="enroll($event)"
           (openItem)="open($event)"
           (previewItem)="preview($event)"

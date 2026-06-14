@@ -1,7 +1,8 @@
 <div class="slayout">
 
   <!-- ── Left sidebar nav ─────────────────────────────────────────────────── -->
-  <aside class="slayout__leftnav" [class.slayout__leftnav--collapsed]="isFullWidthRoute()">
+  <aside class="slayout__leftnav"
+         [class.slayout__leftnav--collapsed]="isFullWidthRoute() || sidebarCollapsed()">
 
     <!-- Brand -->
     <a class="slayout__brand" routerLink="/learn/home">
@@ -43,6 +44,7 @@
       }
     </nav>
 
+
     <!-- User section — solo en home (no en cursos) -->
     @if (!isFullWidthRoute()) {
       <div class="slayout__user">
@@ -69,9 +71,21 @@
 
   </aside>
 
+  <!-- Collapse toggle — fuera del aside para no ser clippeado por overflow:hidden -->
+  @if (!isFullWidthRoute()) {
+    <button class="slayout__toggle-btn" (click)="toggleSidebar()"
+            [title]="sidebarCollapsed() ? 'Expandir menú' : 'Contraer menú'">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline [attr.points]="sidebarCollapsed() ? '9 18 15 12 9 6' : '15 18 9 12 15 6'"/>
+      </svg>
+    </button>
+  }
+
   <!-- ── Main content ─────────────────────────────────────────────────────── -->
-  <main class="slayout__main">
-    <router-outlet />
+  <main class="slayout__main" [class.slayout__main--full]="isFullWidthRoute()">
+    <div class="slayout__inner" [class.slayout__inner--full]="isFullWidthRoute()">
+      <router-outlet />
+    </div>
   </main>
 
 </div>

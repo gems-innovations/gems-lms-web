@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { IBranding } from '../../../../domain/model/institution';
+import { IBranding } from '../../../../domain/model/institution.model';
 
 @Component({
   selector: 'adm-institution-branding-panel',

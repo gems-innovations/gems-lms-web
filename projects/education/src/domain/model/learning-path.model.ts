@@ -17,6 +17,8 @@ export interface ILearningPathStep {
   isRequired: boolean;
   minimumScore?: number; // percentage required to advance
   estimatedDuration: number; // minutes
+  moduleCount?: number;
+  lessonCount?: number;
 }
 
 export interface ILearningPath {
@@ -31,6 +33,8 @@ export interface ILearningPath {
   estimatedDuration: number; // total minutes
   enrolledCount: number;
   completionRate: number;
+  averageRating?: number;
+  ratingCount?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -56,4 +60,11 @@ export interface ILearningPathListResponse {
   total: number;
   page: number;
   limit: number;
+}
+
+export interface IStepEntry {
+  step: ILearningPathStep;
+  isCompleted: boolean;
+  isCurrent: boolean;
+  isLocked: boolean;
 }

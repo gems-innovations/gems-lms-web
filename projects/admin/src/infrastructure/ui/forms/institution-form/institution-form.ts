@@ -14,7 +14,7 @@ import {
   EInstitutionType,
   EBrandingType,
   ESubscriptionType
-} from '../../../../domain/model/institution';
+} from '../../../../domain/model/institution.model';
 
 export interface InstitutionFormValue {
   name: string;

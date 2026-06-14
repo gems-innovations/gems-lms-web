@@ -1,30 +1,50 @@
-<header class="ptopbar">
-  <div class="ptopbar__left">
-    <button type="button" class="ptopbar__icon-btn" (click)="goHome.emit()" title="Volver al inicio">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+<header class="player-topbar">
+  <div class="player-topbar__left">
+    <button type="button" class="player-topbar__back" (click)="goHome.emit()" title="Volver al inicio">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <polyline points="15 18 9 12 15 6"/>
       </svg>
     </button>
-    <div class="ptopbar__course">
-      <span class="ptopbar__title">{{ courseTitle() }}</span>
+
+    <div class="player-topbar__divider"></div>
+
+    <div class="player-topbar__breadcrumb">
+      <span class="player-topbar__course-name">{{ courseTitle() }}</span>
       @if (lessonTitle()) {
-        <span class="ptopbar__lesson">{{ lessonTitle() }}</span>
+        <span class="player-topbar__lesson-name">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+          {{ lessonTitle() }}
+        </span>
       }
     </div>
   </div>
 
-  <div class="ptopbar__right">
-    <button type="button" class="ptopbar__btn" [disabled]="!hasPrev()" (click)="prev.emit()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <div class="player-topbar__right">
+    @if (progress() > 0) {
+      <span class="player-topbar__progress-chip">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        {{ progress() | number:'1.0-0' }}%
+      </span>
+    }
+    <button type="button" class="player-topbar__nav-btn" [disabled]="!hasPrev()" (click)="prev.emit()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <polyline points="15 18 9 12 15 6"/>
       </svg>
       Anterior
     </button>
-    <button type="button" class="ptopbar__btn ptopbar__btn--next" [disabled]="!hasNext()" (click)="next.emit()">
-      Siguiente clase
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <button type="button" class="player-topbar__nav-btn player-topbar__nav-btn--next" [disabled]="!hasNext()" (click)="next.emit()">
+      Siguiente
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <polyline points="9 18 15 12 9 6"/>
       </svg>
     </button>
+  </div>
+
+  <div class="player-topbar__progress-track">
+    <div class="player-topbar__progress-fill" [style.width.%]="progress()"></div>
   </div>
 </header>

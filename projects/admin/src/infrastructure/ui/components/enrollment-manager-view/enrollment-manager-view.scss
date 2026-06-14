@@ -1,59 +1,59 @@
 :host { display: block; }
 
-.enrmgr {
+.enrollment-manager-view {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
   padding: var(--spacing-xl);
 }
 
-.enrmgr__header {
+.enrollment-manager-view__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-lg);
 }
 
-.enrmgr__title {
+.enrollment-manager-view__title {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-texto-principal);
   margin: 0 0 4px;
 }
 
-.enrmgr__subtitle {
+.enrollment-manager-view__subtitle {
   font-size: var(--font-size-sm);
   color: var(--color-texto-terciario);
   margin: 0;
 }
 
-.enrmgr__stats {
+.enrollment-manager-view__stats {
   display: flex;
   gap: var(--spacing-lg);
   flex-shrink: 0;
 }
 
-.enrmgr__stat {
+.enrollment-manager-view__stat {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
 }
 
-.enrmgr__stat-n {
+.enrollment-manager-view__stat-n {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-primario-claro);
 }
 
-.enrmgr__stat-l {
+.enrollment-manager-view__stat-l {
   font-size: var(--font-size-xs);
   color: var(--color-texto-terciario);
 }
 
 /* ── Two-panel body ────────────────────────────────────────────────────────── */
 
-.enrmgr__body {
+.enrollment-manager-view__body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-lg);
@@ -61,7 +61,7 @@
   @media (max-width: 768px) { grid-template-columns: 1fr; }
 }
 
-.enrmgr__panel {
+.enrollment-manager-view__panel {
   background: var(--color-tarjeta);
   border: 1px solid var(--color-borde-sutil);
   border-radius: var(--border-radius-lg);
@@ -71,7 +71,7 @@
   gap: var(--spacing-md);
 }
 
-.enrmgr__panel-title {
+.enrollment-manager-view__panel-title {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -83,14 +83,14 @@
 
 /* ── Multi-student chips ───────────────────────────────────────────────────── */
 
-.enrmgr__chips {
+.enrollment-manager-view__chips {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-sm);
   margin-top: var(--spacing-sm);
 }
 
-.enrmgr__chip {
+.enrollment-manager-view__chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -102,7 +102,7 @@
   color: var(--color-primario-claro);
 }
 
-.enrmgr__avatar {
+.enrollment-manager-view__avatar {
   width: 22px;
   height: 22px;
   border-radius: var(--border-radius-full);
@@ -116,7 +116,7 @@
   flex-shrink: 0;
 }
 
-.enrmgr__chip-remove {
+.enrollment-manager-view__chip-remove {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -134,7 +134,7 @@
   &:hover { opacity: 1; }
 }
 
-.enrmgr__placeholder {
+.enrollment-manager-view__placeholder {
   font-size: var(--font-size-sm);
   color: var(--color-texto-terciario);
   margin: var(--spacing-md) 0 0;
@@ -142,7 +142,7 @@
 
 /* ── Target type toggle ────────────────────────────────────────────────────── */
 
-.enrmgr__type-toggle {
+.enrollment-manager-view__type-toggle {
   display: flex;
   gap: 4px;
   background: var(--color-superficie);
@@ -150,7 +150,7 @@
   padding: 4px;
 }
 
-.enrmgr__type-btn {
+.enrollment-manager-view__type-btn {
   flex: 1;
   padding: 7px var(--spacing-md);
   border-radius: calc(var(--border-radius-md) - 2px);
@@ -174,7 +174,7 @@
 
 /* ── Target list ───────────────────────────────────────────────────────────── */
 
-.enrmgr__target-list {
+.enrollment-manager-view__target-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -185,7 +185,7 @@
   &::-webkit-scrollbar-thumb { background: var(--color-borde-principal); border-radius: 2px; }
 }
 
-.enrmgr__target-item {
+.enrollment-manager-view__target-item {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -206,7 +206,7 @@
   }
 }
 
-.enrmgr__target-thumb {
+.enrollment-manager-view__target-thumb {
   width: 40px;
   height: 40px;
   border-radius: var(--border-radius-sm);
@@ -223,14 +223,14 @@
   }
 }
 
-.enrmgr__target-info {
+.enrollment-manager-view__target-info {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 
-.enrmgr__target-name {
+.enrollment-manager-view__target-name {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--color-texto-principal);
@@ -239,16 +239,16 @@
   text-overflow: ellipsis;
 }
 
-.enrmgr__target-meta {
+.enrollment-manager-view__target-meta {
   font-size: var(--font-size-xs);
   color: var(--color-texto-terciario);
 }
 
-.enrmgr__check { color: var(--color-primario-claro); flex-shrink: 0; }
+.enrollment-manager-view__check { color: var(--color-primario-claro); flex-shrink: 0; }
 
 /* ── Footer ────────────────────────────────────────────────────────────────── */
 
-.enrmgr__footer {
+.enrollment-manager-view__footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -257,7 +257,7 @@
   border-top: 1px solid var(--color-borde-sutil);
 }
 
-.enrmgr__submit-btn {
+.enrollment-manager-view__submit-btn {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);

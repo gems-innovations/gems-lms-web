@@ -1,6 +1,6 @@
 :host { display: block; }
 
-.enrmgr {
+.enrollment-manager-view {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
@@ -8,60 +8,60 @@
   max-width: 760px;
 }
 
-.enrmgr__header {
+.enrollment-manager-view__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-lg);
 }
 
-.enrmgr__title {
+.enrollment-manager-view__title {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-texto-principal);
   margin: 0 0 4px;
 }
 
-.enrmgr__subtitle {
+.enrollment-manager-view__subtitle {
   font-size: var(--font-size-sm);
   color: var(--color-texto-terciario);
   margin: 0;
 }
 
-.enrmgr__stats {
+.enrollment-manager-view__stats {
   display: flex;
   gap: var(--spacing-lg);
   flex-shrink: 0;
 }
 
-.enrmgr__stat {
+.enrollment-manager-view__stat {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
 }
 
-.enrmgr__stat-n {
+.enrollment-manager-view__stat-n {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-primario-claro);
 }
 
-.enrmgr__stat-l {
+.enrollment-manager-view__stat-l {
   font-size: var(--font-size-xs);
   color: var(--color-texto-terciario);
 }
 
 /* ── Tabs ──────────────────────────────────────────────────────────────────── */
 
-.enrmgr__tabs {
+.enrollment-manager-view__tabs {
   display: flex;
   gap: var(--spacing-sm);
   border-bottom: 1px solid var(--color-borde-sutil);
   padding-bottom: 0;
 }
 
-.enrmgr__tab {
+.enrollment-manager-view__tab {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -87,27 +87,27 @@
 
 /* ── Panel / Form ──────────────────────────────────────────────────────────── */
 
-.enrmgr__panel {
+.enrollment-manager-view__panel {
   background: var(--color-tarjeta);
   border: 1px solid var(--color-borde-sutil);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
 }
 
-.enrmgr__form {
+.enrollment-manager-view__form {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
 }
 
-.enrmgr__field {
+.enrollment-manager-view__field {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
   position: relative;
 }
 
-.enrmgr__label {
+.enrollment-manager-view__label {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--color-texto-secundario);
@@ -116,13 +116,13 @@
   gap: var(--spacing-sm);
 }
 
-.enrmgr__label-hint {
+.enrollment-manager-view__label-hint {
   font-weight: var(--font-weight-normal);
   color: var(--color-texto-terciario);
   font-size: var(--font-size-xs);
 }
 
-.enrmgr__select {
+.enrollment-manager-view__select {
   padding: 10px var(--spacing-md);
   background: var(--color-superficie-elevada);
   border: 1px solid var(--color-borde-principal);
@@ -137,7 +137,7 @@
   option { background: var(--color-superficie-elevada); }
 }
 
-.enrmgr__textarea {
+.enrollment-manager-view__textarea {
   padding: var(--spacing-md);
   background: var(--color-superficie-elevada);
   border: 1px solid var(--color-borde-principal);
@@ -152,7 +152,7 @@
   &::placeholder { color: var(--color-texto-terciario); }
 }
 
-.enrmgr__preview-count {
+.enrollment-manager-view__preview-count {
   font-size: var(--font-size-xs);
   color: var(--color-primario-claro);
   font-weight: var(--font-weight-medium);
@@ -160,7 +160,7 @@
 
 /* ── Selected student card ─────────────────────────────────────────────────── */
 
-.enrmgr__selected-student {
+.enrollment-manager-view__selected-student {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
@@ -170,7 +170,7 @@
   border-radius: var(--border-radius-md);
 }
 
-.enrmgr__avatar {
+.enrollment-manager-view__avatar {
   width: 36px;
   height: 36px;
   border-radius: var(--border-radius-full);
@@ -184,20 +184,20 @@
   flex-shrink: 0;
 }
 
-.enrmgr__selected-info { flex: 1; display: flex; flex-direction: column; }
+.enrollment-manager-view__selected-info { flex: 1; display: flex; flex-direction: column; }
 
-.enrmgr__selected-name {
+.enrollment-manager-view__selected-name {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--color-texto-principal);
 }
 
-.enrmgr__selected-email {
+.enrollment-manager-view__selected-email {
   font-size: var(--font-size-xs);
   color: var(--color-texto-terciario);
 }
 
-.enrmgr__clear-btn {
+.enrollment-manager-view__clear-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -215,7 +215,7 @@
 
 /* ── Submit button ─────────────────────────────────────────────────────────── */
 
-.enrmgr__submit-btn {
+.enrollment-manager-view__submit-btn {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);

@@ -1,14 +1,8 @@
 import { Component, input, output, signal, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ISubmissionRow } from '../instructor-submissions-table/instructor-submissions-table';
 import { IStudentProfile } from '../../../services/enrollment.service';
-
-export interface IGradeSubmitEvent {
-  submissionId: string;
-  grade: number;
-  feedback: string;
-}
+import { ISubmissionRow, IGradeSubmitEvent } from '../../../../domain/model/instructor.model';
 
 @Component({
   selector: 'edu-instructor-submission-detail',

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthSessionService } from './auth-session.service';
+import { AuthSessionService } from '../infrastructure/services/auth-session.service';
 import { BrandingService } from 'shared';
 
 @Injectable({ providedIn: 'root' })

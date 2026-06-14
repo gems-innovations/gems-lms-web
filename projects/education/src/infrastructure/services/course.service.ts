@@ -612,6 +612,8 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
     completionRate: 81,
     totalDuration: 960,
     totalLessons: 29,
+    averageRating: 4.7,
+    ratingCount: 1284,
     createdAt: new Date('2024-03-01'),
     updatedAt: new Date('2024-09-20'),
     publishedAt: new Date('2024-04-05'),
@@ -649,6 +651,270 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                 assignmentInstructions: `## Ejercicios de NumPy\n\nSube un Jupyter Notebook con tus soluciones.\n\n1. Crea un array de 10 ceros, uno del 1 al 20 y una identidad 5x5\n2. Dado a = [1,4,9,16,25]: calcula raíz, máximo, mínimo, media\n3. De una matriz 4x4: extrae fila 2, columna 3, bloque 2x2 inferior`,
                 maxScore: 100,
                 allowedFileTypes: ['ipynb', 'zip']
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'm3-2',
+        title: 'Análisis Exploratorio de Datos',
+        description: 'Limpieza, visualización y estadística descriptiva con pandas y matplotlib.',
+        order: 2,
+        lessons: [
+          {
+            id: 'l3-2-1',
+            title: 'Carga y limpieza de datasets',
+            duration: 40,
+            order: 1,
+            isFree: true,
+            contentBlocks: [
+              {
+                id: 'cb21',
+                type: EContentType.VIDEO,
+                title: 'pandas read_csv, dropna, fillna',
+                duration: 25,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/QUT1VHiLmmI',
+                videoProvider: 'youtube'
+              },
+              {
+                id: 'cb22',
+                type: EContentType.DOCUMENT,
+                title: 'Guía de referencia: operaciones con DataFrames',
+                duration: 15,
+                order: 2,
+                isRequired: false
+              }
+            ]
+          },
+          {
+            id: 'l3-2-2',
+            title: 'Visualización con Matplotlib y Seaborn',
+            duration: 50,
+            order: 2,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb23',
+                type: EContentType.VIDEO,
+                title: 'Gráficas de dispersión, histogramas y heatmaps',
+                duration: 35,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/QUT1VHiLmmI',
+                videoProvider: 'youtube'
+              },
+              {
+                id: 'cb24',
+                type: EContentType.QUIZ,
+                title: 'Quiz: pandas y visualización',
+                duration: 15,
+                order: 2,
+                isRequired: true,
+                questions: [
+                  { id: 'q1', question: '¿Qué método devuelve estadísticas descriptivas de un DataFrame?', type: 'multiple-choice' as const, options: [{ id: 'a', text: 'df.info()' }, { id: 'b', text: 'df.describe()' }, { id: 'c', text: 'df.stats()' }], correctAnswers: ['b'], points: 10, order: 1 }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'l3-2-3',
+            title: 'Estadística descriptiva aplicada',
+            duration: 35,
+            order: 3,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb25',
+                type: EContentType.VIDEO,
+                title: 'Media, mediana, varianza y correlaciones',
+                duration: 35,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/QUT1VHiLmmI',
+                videoProvider: 'youtube'
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'm3-3',
+        title: 'Machine Learning con Scikit-Learn',
+        description: 'Regresión, clasificación, validación cruzada y pipelines de ML.',
+        order: 3,
+        lessons: [
+          {
+            id: 'l3-3-1',
+            title: 'Introducción al aprendizaje supervisado',
+            duration: 45,
+            order: 1,
+            isFree: true,
+            contentBlocks: [
+              {
+                id: 'cb31',
+                type: EContentType.VIDEO,
+                title: 'Train/test split, métricas y overfitting',
+                duration: 30,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/QUT1VHiLmmI',
+                videoProvider: 'youtube'
+              },
+              {
+                id: 'cb32',
+                type: EContentType.DOCUMENT,
+                title: 'Conceptos clave: bias-variance tradeoff',
+                duration: 15,
+                order: 2,
+                isRequired: false
+              }
+            ]
+          },
+          {
+            id: 'l3-3-2',
+            title: 'Regresión lineal y logística',
+            duration: 55,
+            order: 2,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb33',
+                type: EContentType.VIDEO,
+                title: 'Implementación con sklearn y evaluación',
+                duration: 40,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/QUT1VHiLmmI',
+                videoProvider: 'youtube'
+              },
+              {
+                id: 'cb34',
+                type: EContentType.ASSIGNMENT,
+                title: 'Proyecto: predicción de precios de vivienda',
+                duration: 15,
+                order: 2,
+                isRequired: true,
+                assignmentInstructions: '## Predicción con regresión\n\nUsa el dataset de Boston Housing para entrenar un modelo de regresión lineal. Reporta R², MAE y RMSE.',
+                maxScore: 100,
+                allowedFileTypes: ['ipynb', 'zip']
+              }
+            ]
+          },
+          {
+            id: 'l3-3-3',
+            title: 'Árboles de decisión y Random Forest',
+            duration: 60,
+            order: 3,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb35',
+                type: EContentType.VIDEO,
+                title: 'Ensemble methods y feature importance',
+                duration: 45,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/QUT1VHiLmmI',
+                videoProvider: 'youtube'
+              },
+              {
+                id: 'cb36',
+                type: EContentType.QUIZ,
+                title: 'Quiz: árboles y ensembles',
+                duration: 15,
+                order: 2,
+                isRequired: true,
+                questions: [
+                  { id: 'q2', question: '¿Qué técnica reduce la varianza combinando múltiples árboles?', type: 'multiple-choice' as const, options: [{ id: 'a', text: 'Boosting' }, { id: 'b', text: 'Bagging (Random Forest)' }, { id: 'c', text: 'Pruning' }], correctAnswers: ['b'], points: 10, order: 1 }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'l3-3-4',
+            title: 'Pipelines y Cross-Validation',
+            duration: 40,
+            order: 4,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb37',
+                type: EContentType.VIDEO,
+                title: 'Pipeline de preprocesamiento + modelo + CV',
+                duration: 40,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/QUT1VHiLmmI',
+                videoProvider: 'youtube'
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'm3-4',
+        title: 'Proyecto Final: Pipeline de Datos End-to-End',
+        description: 'Integra todo lo aprendido en un pipeline completo: ingesta, EDA, modelo y dashboard.',
+        order: 4,
+        lessons: [
+          {
+            id: 'l3-4-1',
+            title: 'Definición del problema y dataset',
+            duration: 30,
+            order: 1,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb41',
+                type: EContentType.VIDEO,
+                title: 'Planteamiento del caso de negocio',
+                duration: 30,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/QUT1VHiLmmI',
+                videoProvider: 'youtube'
+              }
+            ]
+          },
+          {
+            id: 'l3-4-2',
+            title: 'Implementación del pipeline',
+            duration: 90,
+            order: 2,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb42',
+                type: EContentType.ASSIGNMENT,
+                title: 'Entrega final: pipeline completo',
+                duration: 90,
+                order: 1,
+                isRequired: true,
+                assignmentInstructions: '## Proyecto Final\n\nEntrega un Jupyter Notebook con:\n1. Ingesta y limpieza de datos\n2. EDA con al menos 5 visualizaciones\n3. Modelo entrenado y evaluado con CV\n4. Conclusiones y próximos pasos',
+                maxScore: 100,
+                allowedFileTypes: ['ipynb', 'zip', 'pdf']
+              }
+            ]
+          },
+          {
+            id: 'l3-4-3',
+            title: 'Presentación de resultados',
+            duration: 20,
+            order: 3,
+            isFree: false,
+            contentBlocks: [
+              {
+                id: 'cb43',
+                type: EContentType.VIDEO,
+                title: 'Cómo comunicar hallazgos de datos',
+                duration: 20,
+                order: 1,
+                isRequired: true,
+                url: 'https://www.youtube.com/embed/QUT1VHiLmmI',
+                videoProvider: 'youtube'
               }
             ]
           }
@@ -710,6 +976,111 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
         ]
       }
     ]
+  },
+  {
+    id: 'c5',
+    title: 'Machine Learning Avanzado con TensorFlow',
+    description: 'Domina redes neuronales profundas, CNNs, RNNs y transformers con TensorFlow y Keras para proyectos reales de producción.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1555255707-c07966088b7b?w=600&q=80',
+    status: ECourseStatus.PUBLISHED,
+    difficulty: EDifficulty.ADVANCED,
+    tags: ['TensorFlow', 'Deep Learning', 'Python'],
+    institutionId: '1',
+    instructorName: 'Dr. Andrés Mora',
+    enrolledCount: 4120,
+    completionRate: 68,
+    totalDuration: 1080,
+    totalLessons: 32,
+    averageRating: 4.9,
+    ratingCount: 980,
+    createdAt: new Date('2024-05-01'),
+    updatedAt: new Date('2024-11-10'),
+    publishedAt: new Date('2024-06-01'),
+    modules: [{ id: 'm5-1', title: 'Introducción a TensorFlow', order: 1, lessons: [] }]
+  },
+  {
+    id: 'c6',
+    title: 'Despliegue de Modelos en Producción',
+    description: 'Aprende a empaquetar, versionar y servir modelos de ML usando Docker, FastAPI, Kubernetes y pipelines de CI/CD.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=80',
+    status: ECourseStatus.PUBLISHED,
+    difficulty: EDifficulty.ADVANCED,
+    tags: ['MLOps', 'Docker', 'Kubernetes'],
+    institutionId: '1',
+    instructorName: 'Valentina Torres',
+    enrolledCount: 2870,
+    completionRate: 59,
+    totalDuration: 540,
+    totalLessons: 15,
+    averageRating: 4.6,
+    ratingCount: 620,
+    createdAt: new Date('2024-06-15'),
+    updatedAt: new Date('2024-11-20'),
+    publishedAt: new Date('2024-07-01'),
+    modules: [{ id: 'm6-1', title: 'Fundamentos de MLOps', order: 1, lessons: [] }]
+  },
+  {
+    id: 'c7',
+    title: 'React y Next.js: De Cero a Producción',
+    description: 'Construye aplicaciones web modernas con React 18, hooks, Context, y Next.js 14 con App Router, SSR y despliegue en Vercel.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1633356122102-3fe601e05bd2?w=600&q=80',
+    status: ECourseStatus.PUBLISHED,
+    difficulty: EDifficulty.INTERMEDIATE,
+    tags: ['React', 'Next.js', 'JavaScript'],
+    institutionId: '2',
+    instructorName: 'Luis Herrera',
+    enrolledCount: 6340,
+    completionRate: 77,
+    totalDuration: 900,
+    totalLessons: 26,
+    averageRating: 4.8,
+    ratingCount: 1890,
+    createdAt: new Date('2024-02-01'),
+    updatedAt: new Date('2024-10-30'),
+    publishedAt: new Date('2024-03-01'),
+    modules: [{ id: 'm7-1', title: 'Fundamentos de React', order: 1, lessons: [] }]
+  },
+  {
+    id: 'c8',
+    title: 'AWS Cloud Practitioner + Solutions Architect',
+    description: 'Domina los servicios core de AWS: EC2, S3, RDS, Lambda, VPC y más. Preparación para la certificación Solutions Architect Associate.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=600&q=80',
+    status: ECourseStatus.PUBLISHED,
+    difficulty: EDifficulty.INTERMEDIATE,
+    tags: ['AWS', 'Cloud', 'DevOps'],
+    institutionId: '2',
+    instructorName: 'Roberto Salinas',
+    enrolledCount: 3980,
+    completionRate: 64,
+    totalDuration: 1200,
+    totalLessons: 35,
+    averageRating: 4.7,
+    ratingCount: 1120,
+    createdAt: new Date('2024-03-15'),
+    updatedAt: new Date('2024-11-05'),
+    publishedAt: new Date('2024-04-15'),
+    modules: [{ id: 'm8-1', title: 'Introducción a AWS', order: 1, lessons: [] }]
+  },
+  {
+    id: 'c9',
+    title: 'UX/UI Design: Figma a Producto Real',
+    description: 'Aprende diseño de interfaces desde cero con Figma, sistemas de diseño, pruebas de usabilidad y handoff a desarrollo.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&q=80',
+    status: ECourseStatus.PUBLISHED,
+    difficulty: EDifficulty.BEGINNER,
+    tags: ['UX', 'UI', 'Figma'],
+    institutionId: '3',
+    instructorName: 'Camila Rondón',
+    enrolledCount: 5210,
+    completionRate: 83,
+    totalDuration: 720,
+    totalLessons: 22,
+    averageRating: 4.9,
+    ratingCount: 2340,
+    createdAt: new Date('2024-01-20'),
+    updatedAt: new Date('2024-10-15'),
+    publishedAt: new Date('2024-02-15'),
+    modules: [{ id: 'm9-1', title: 'Fundamentos de UX', order: 1, lessons: [] }]
   }
 ];
 

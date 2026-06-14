@@ -60,7 +60,6 @@ const newQuestion = (order: number): IQuestionDraft => ({
   imports: [CommonModule, FormsModule],
   templateUrl: './content-block-modal-container.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './content-block-modal-container.scss'
 })
 export class ContentBlockModalContainer {
   private readonly sanitizer = inject(DomSanitizer);

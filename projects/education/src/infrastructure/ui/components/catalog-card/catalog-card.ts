@@ -1,5 +1,5 @@
 import { Component, computed, input, output } from '@angular/core';
-import { ICatalogItem } from '../../models/catalog-item.model';
+import { ICatalogItem } from '../../../../domain/model/catalog.model';
 import { DIFFICULTY_LABELS, formatDuration } from '../../utils/course-labels';
 
 @Component({

@@ -2,7 +2,7 @@ import { Component, input, output, ChangeDetectionStrategy } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { LoadingSkeletonComponent } from '@gems-lms-web/shared';
 import { SearchBarComponent } from '@gems-lms-web/shared';
-import { IInstitution } from '../../../../domain/model/institution';
+import { IInstitution } from '../../../../domain/model/institution.model';
 
 @Component({
   selector: 'adm-institution-list',

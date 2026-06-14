@@ -27,7 +27,7 @@ export type { IUserState } from './domain/state/user.state';
 export { UserState } from './domain/state/user.state';
 
 // Application
-export { AuthSessionService } from './application/auth-session.service';
+export { AuthSessionService } from './infrastructure/services/auth-session.service';
 export { LoginUseCase } from './application/login.usecase';
 export { LogoutUseCase } from './application/logout.usecase';
 export { UserManagementUseCase } from './application/user-management.usecase';

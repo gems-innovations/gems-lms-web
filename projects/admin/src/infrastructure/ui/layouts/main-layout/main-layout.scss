@@ -6,7 +6,7 @@
   background: var(--color-fondo-principal);
 
   &__sidebar {
-    width: 256px;
+    // Width is managed by lib-sidebar's :host via transition
     flex-shrink: 0;
     height: 100vh;
     overflow: hidden;

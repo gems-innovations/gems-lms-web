@@ -1,115 +1,121 @@
-<div class="cfilter">
+<div class="catalog-filter-bar">
 
-  <!-- Search -->
-  <div class="cfilter__search-wrap">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    <input
-      class="cfilter__search"
-      type="text"
-      placeholder="Buscar…"
-      [value]="search()"
-      (input)="searchChange.emit($any($event.target).value)"
-    >
-  </div>
+  <!-- Main row: search 80% + filter button 20% -->
+  <div class="catalog-filter-bar__row">
 
-  <!-- Filter toggle -->
-  <div class="cfilter__dropdown-wrap">
-    <button
-      type="button"
-      class="cfilter__btn"
-      [class.cfilter__btn--active]="activeFilterCount() > 0"
-      (click)="toggleFilter()"
-    >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+    <!-- Search -->
+    <div class="catalog-filter-bar__search-wrap">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
-      Filtros
-      @if (activeFilterCount() > 0) {
-        <span class="cfilter__badge">{{ activeFilterCount() }}</span>
-      }
-    </button>
+      <input
+        class="catalog-filter-bar__search"
+        type="text"
+        placeholder="Buscar cursos, rutas, tecnologías…"
+        [value]="search()"
+        (input)="searchChange.emit($any($event.target).value)"
+      >
+    </div>
 
-    @if (filterOpen()) {
-      <div class="cfilter__backdrop" (click)="closeFilter()"></div>
+    <!-- Filter toggle -->
+    <div class="catalog-filter-bar__dropdown-wrap">
+      <button
+        type="button"
+        class="catalog-filter-bar__btn"
+        [class.catalog-filter-bar__btn--active]="activeFilterCount() > 0"
+        (click)="toggleFilter()"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+        </svg>
+        Filtros
+        @if (activeFilterCount() > 0) {
+          <span class="catalog-filter-bar__badge">{{ activeFilterCount() }}</span>
+        }
+      </button>
 
-      <div class="cfilter__panel">
-        <div class="cfilter__panel-head">
-          <span>Filtros</span>
-          <button
-            type="button"
-            class="cfilter__clear"
-            [disabled]="activeFilterCount() === 0"
-            (click)="clearFilters()"
-          >Limpiar</button>
-        </div>
+      @if (filterOpen()) {
+        <div class="catalog-filter-bar__backdrop" (click)="closeFilter()"></div>
 
-        <!-- Tipo -->
-        <div class="cfilter__group">
-          <p class="cfilter__group-label">Tipo de contenido</p>
-          <div class="cfilter__opts">
-            <button type="button" class="cfilter__opt" [class.cfilter__opt--active]="filterKind() === 'all'"
-                    (click)="setKind('all')">
-              <span class="cfilter__dot"></span> Todo
-            </button>
-            <button type="button" class="cfilter__opt" [class.cfilter__opt--active]="filterKind() === 'course'"
-                    (click)="setKind('course')">
-              <span class="cfilter__dot cfilter__dot--purple"></span> Cursos
-            </button>
-            <button type="button" class="cfilter__opt" [class.cfilter__opt--active]="filterKind() === 'path'"
-                    (click)="setKind('path')">
-              <span class="cfilter__dot cfilter__dot--teal"></span> Rutas
-            </button>
+        <div class="catalog-filter-bar__panel">
+          <div class="catalog-filter-bar__panel-head">
+            <span>Filtros</span>
+            <button
+              type="button"
+              class="catalog-filter-bar__clear"
+              [disabled]="activeFilterCount() === 0"
+              (click)="clearFilters()"
+            >Limpiar</button>
           </div>
-        </div>
 
-        <!-- Nivel (solo si no está en modo path) -->
-        @if (filterKind() !== 'path') {
-          <div class="cfilter__group">
-            <p class="cfilter__group-label">Nivel de dificultad</p>
-            <div class="cfilter__opts">
-              <button type="button" class="cfilter__opt" [class.cfilter__opt--active]="filterLevel() === 'all'"
-                      (click)="filterLevelChange.emit('all')">
-                <span class="cfilter__dot"></span> Todos los niveles
+          <!-- Tipo -->
+          <div class="catalog-filter-bar__group">
+            <p class="catalog-filter-bar__group-label">Tipo de contenido</p>
+            <div class="catalog-filter-bar__opts">
+              <button type="button" class="catalog-filter-bar__opt" [class.catalog-filter-bar__opt--active]="filterKind() === 'all'"
+                      (click)="setKind('all')">
+                <span class="catalog-filter-bar__dot"></span> Todo
               </button>
-              <button type="button" class="cfilter__opt"
-                      [class.cfilter__opt--active]="filterLevel() === EDifficulty.BEGINNER"
-                      (click)="filterLevelChange.emit(EDifficulty.BEGINNER)">
-                <span class="cfilter__dot cfilter__dot--green"></span> Principiante
+              <button type="button" class="catalog-filter-bar__opt" [class.catalog-filter-bar__opt--active]="filterKind() === 'course'"
+                      (click)="setKind('course')">
+                <span class="catalog-filter-bar__dot catalog-filter-bar__dot--purple"></span> Cursos
               </button>
-              <button type="button" class="cfilter__opt"
-                      [class.cfilter__opt--active]="filterLevel() === EDifficulty.INTERMEDIATE"
-                      (click)="filterLevelChange.emit(EDifficulty.INTERMEDIATE)">
-                <span class="cfilter__dot cfilter__dot--amber"></span> Intermedio
-              </button>
-              <button type="button" class="cfilter__opt"
-                      [class.cfilter__opt--active]="filterLevel() === EDifficulty.ADVANCED"
-                      (click)="filterLevelChange.emit(EDifficulty.ADVANCED)">
-                <span class="cfilter__dot cfilter__dot--red"></span> Avanzado
+              <button type="button" class="catalog-filter-bar__opt" [class.catalog-filter-bar__opt--active]="filterKind() === 'path'"
+                      (click)="setKind('path')">
+                <span class="catalog-filter-bar__dot catalog-filter-bar__dot--teal"></span> Rutas
               </button>
             </div>
           </div>
-        }
-      </div>
-    }
+
+          <!-- Nivel -->
+          @if (filterKind() !== 'path') {
+            <div class="catalog-filter-bar__group">
+              <p class="catalog-filter-bar__group-label">Nivel de dificultad</p>
+              <div class="catalog-filter-bar__opts">
+                <button type="button" class="catalog-filter-bar__opt" [class.catalog-filter-bar__opt--active]="filterLevel() === 'all'"
+                        (click)="filterLevelChange.emit('all')">
+                  <span class="catalog-filter-bar__dot"></span> Todos los niveles
+                </button>
+                <button type="button" class="catalog-filter-bar__opt"
+                        [class.catalog-filter-bar__opt--active]="filterLevel() === EDifficulty.BEGINNER"
+                        (click)="filterLevelChange.emit(EDifficulty.BEGINNER)">
+                  <span class="catalog-filter-bar__dot catalog-filter-bar__dot--green"></span> Principiante
+                </button>
+                <button type="button" class="catalog-filter-bar__opt"
+                        [class.catalog-filter-bar__opt--active]="filterLevel() === EDifficulty.INTERMEDIATE"
+                        (click)="filterLevelChange.emit(EDifficulty.INTERMEDIATE)">
+                  <span class="catalog-filter-bar__dot catalog-filter-bar__dot--amber"></span> Intermedio
+                </button>
+                <button type="button" class="catalog-filter-bar__opt"
+                        [class.catalog-filter-bar__opt--active]="filterLevel() === EDifficulty.ADVANCED"
+                        (click)="filterLevelChange.emit(EDifficulty.ADVANCED)">
+                  <span class="catalog-filter-bar__dot catalog-filter-bar__dot--red"></span> Avanzado
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
   </div>
 
-  <!-- Active chips -->
+  <!-- Active chips below the row -->
   @if (activeFilterCount() > 0) {
-    <div class="cfilter__chips">
+    <div class="catalog-filter-bar__chips">
       @if (filterKind() !== 'all') {
-        <span class="cfilter__chip">
+        <span class="catalog-filter-bar__chip">
           {{ filterKind() === 'course' ? 'Cursos' : 'Rutas' }}
           <button type="button" (click)="filterKindChange.emit('all')">×</button>
         </span>
       }
       @if (filterLevel() !== 'all') {
-        <span class="cfilter__chip">
+        <span class="catalog-filter-bar__chip">
           {{ difficultyLabel($any(filterLevel())) }}
           <button type="button" (click)="filterLevelChange.emit('all')">×</button>
         </span>
       }
     </div>
   }
+
 </div>

@@ -118,6 +118,44 @@ const MOCK_ENROLLMENTS: IEnrollment[] = [
         { moduleId: 'm2-2', completedLessons: 0, totalLessons: 1, percentage: 0 }
       ]
     }
+  },
+  {
+    id: 'enr3',
+    userId: MOCK_USER_ID,
+    courseId: 'c7',
+    status: 'active',
+    enrolledAt: new Date('2025-03-10'),
+    progress: {
+      courseId: 'c7',
+      overallPercentage: 20,
+      completedLessons: 5,
+      totalLessons: 26,
+      lastAccessedAt: new Date('2025-05-18'),
+      currentLessonId: 'l7-1-1',
+      currentBlockId: 'cb20',
+      moduleProgress: [
+        { moduleId: 'm7-1', completedLessons: 5, totalLessons: 26, percentage: 20 }
+      ]
+    }
+  },
+  {
+    id: 'enr4',
+    userId: MOCK_USER_ID,
+    courseId: 'c9',
+    status: 'active',
+    enrolledAt: new Date('2025-04-05'),
+    progress: {
+      courseId: 'c9',
+      overallPercentage: 45,
+      completedLessons: 10,
+      totalLessons: 22,
+      lastAccessedAt: new Date('2025-05-10'),
+      currentLessonId: 'l9-1-1',
+      currentBlockId: 'cb30',
+      moduleProgress: [
+        { moduleId: 'm9-1', completedLessons: 10, totalLessons: 22, percentage: 45 }
+      ]
+    }
   }
 ];
 
@@ -131,6 +169,46 @@ const MOCK_PATH_ENROLLMENTS: ILearningPathEnrollment[] = [
     completedCourseIds: [],
     currentCourseId: 'c3',
     overallPercentage: 20
+  },
+  {
+    id: 'penr2',
+    userId: MOCK_USER_ID,
+    learningPathId: 'lp2',
+    status: 'active',
+    enrolledAt: new Date('2025-02-20'),
+    completedCourseIds: ['c2'],
+    currentCourseId: 'c2',
+    overallPercentage: 55
+  },
+  {
+    id: 'penr3',
+    userId: MOCK_USER_ID,
+    learningPathId: 'lp4',
+    status: 'active',
+    enrolledAt: new Date('2025-03-05'),
+    completedCourseIds: [],
+    currentCourseId: 'c9',
+    overallPercentage: 10
+  },
+  {
+    id: 'penr4',
+    userId: MOCK_USER_ID,
+    learningPathId: 'lp5',
+    status: 'active',
+    enrolledAt: new Date('2025-04-01'),
+    completedCourseIds: [],
+    currentCourseId: 'c8',
+    overallPercentage: 35
+  },
+  {
+    id: 'penr5',
+    userId: MOCK_USER_ID,
+    learningPathId: 'lp3',
+    status: 'active',
+    enrolledAt: new Date('2025-05-01'),
+    completedCourseIds: [],
+    currentCourseId: 'c4',
+    overallPercentage: 5
   }
 ];
 

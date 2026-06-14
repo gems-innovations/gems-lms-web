@@ -1,55 +1,55 @@
-<article class="ccard">
+<article class="course-card">
 
   <!-- Thumbnail -->
-  <div class="ccard__thumb" [style.backgroundImage]="course().thumbnailUrl ? 'url(' + course().thumbnailUrl + ')' : ''">
-    <div class="ccard__thumb-overlay"></div>
-    <span class="ccard__badge ccard__badge--difficulty ccard__badge--{{ course().difficulty }}">
+  <div class="course-card__thumb" [style.backgroundImage]="course().thumbnailUrl ? 'url(' + course().thumbnailUrl + ')' : ''">
+    <div class="course-card__thumb-overlay"></div>
+    <span class="course-card__badge course-card__badge--difficulty course-card__badge--{{ course().difficulty }}">
       {{ difficultyLabels[course().difficulty] }}
     </span>
-    <span class="ccard__badge ccard__badge--status ccard__badge--{{ course().status }}">
+    <span class="course-card__badge course-card__badge--status course-card__badge--{{ course().status }}">
       {{ statusLabels[course().status] }}
     </span>
   </div>
 
   <!-- Body -->
-  <div class="ccard__body">
-    <h3 class="ccard__title">{{ course().title }}</h3>
-    <p class="ccard__desc">{{ course().description }}</p>
+  <div class="course-card__body">
+    <h3 class="course-card__title">{{ course().title }}</h3>
+    <p class="course-card__desc">{{ course().description }}</p>
 
     @if (course().tags.length > 0) {
-      <div class="ccard__tags">
+      <div class="course-card__tags">
         @for (tag of course().tags.slice(0, 3); track tag) {
-          <span class="ccard__tag">{{ tag }}</span>
+          <span class="course-card__tag">{{ tag }}</span>
         }
         @if (course().tags.length > 3) {
-          <span class="ccard__tag ccard__tag--more">+{{ course().tags.length - 3 }}</span>
+          <span class="course-card__tag course-card__tag--more">+{{ course().tags.length - 3 }}</span>
         }
       </div>
     }
   </div>
 
   <!-- Stats -->
-  <div class="ccard__stats">
-    <div class="ccard__stat-item">
+  <div class="course-card__stats">
+    <div class="course-card__stat-item">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
         <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
       </svg>
       {{ course().enrolledCount | number }}
     </div>
-    <div class="ccard__stat-item">
+    <div class="course-card__stat-item">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
       </svg>
       {{ course().completionRate }}%
     </div>
-    <div class="ccard__stat-item">
+    <div class="course-card__stat-item">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
       </svg>
       {{ course().totalLessons }} lecciones
     </div>
-    <div class="ccard__stat-item">
+    <div class="course-card__stat-item">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
       </svg>
@@ -58,9 +58,9 @@
   </div>
 
   <!-- Actions -->
-  <footer class="ccard__footer">
+  <footer class="course-card__footer">
     @if (course().status === ECourseStatus.DRAFT) {
-      <button type="button" class="ccard__action ccard__action--publish" (click)="publish.emit(course().id)" title="Publicar">
+      <button type="button" class="course-card__action course-card__action--publish" (click)="publish.emit(course().id)" title="Publicar">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
         </svg>
@@ -68,7 +68,7 @@
       </button>
     }
     @if (course().status === ECourseStatus.PUBLISHED) {
-      <button type="button" class="ccard__action ccard__action--archive" (click)="archive.emit(course().id)" title="Archivar">
+      <button type="button" class="course-card__action course-card__action--archive" (click)="archive.emit(course().id)" title="Archivar">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/>
           <line x1="10" y1="12" x2="14" y2="12"/>
@@ -76,14 +76,14 @@
         Archivar
       </button>
     }
-    <button type="button" class="ccard__action ccard__action--edit" (click)="edit.emit(course())" title="Editar currículo">
+    <button type="button" class="course-card__action course-card__action--edit" (click)="edit.emit(course())" title="Editar currículo">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
       </svg>
       Editar
     </button>
-    <button type="button" class="ccard__action ccard__action--delete" (click)="remove.emit(course().id)" title="Eliminar">
+    <button type="button" class="course-card__action course-card__action--delete" (click)="remove.emit(course().id)" title="Eliminar">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
       </svg>

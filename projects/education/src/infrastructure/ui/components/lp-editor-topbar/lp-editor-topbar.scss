@@ -1,0 +1,91 @@
+.lpeditor-topbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 2rem;
+  height: 56px;
+  border-bottom: 1px solid var(--color-borde-sutil);
+  background: rgba(var(--color-fondo), 0.95);
+  backdrop-filter: blur(8px);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.lpeditor-topbar__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: transparent;
+  border: 1px solid var(--color-borde-sutil);
+  border-radius: 6px;
+  color: var(--color-texto-terciario);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { color: var(--color-texto-principal); border-color: var(--color-borde-principal); }
+}
+
+.lpeditor-topbar__center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.lpeditor-topbar__name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-texto-principal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lpeditor-topbar__status {
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+
+  &--draft     { background: rgba(var(--color-advertencia), 0.15); color: var(--color-advertencia); }
+  &--published { background: rgba(var(--color-exito), 0.15); color: var(--color-exito); }
+  &--archived  { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
+}
+
+.lpeditor-topbar__actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+
+.lpeditor-topbar__btn-publish {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-teal);
+  border: none;
+  border-radius: 7px;
+  color: #0a1a18;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
+}
+
+.lpeditor-topbar__btn-archive {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--color-borde-sutil);
+  border-radius: 7px;
+  color: var(--color-texto-terciario);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { color: var(--color-texto-principal); border-color: var(--color-borde-principal); }
+}

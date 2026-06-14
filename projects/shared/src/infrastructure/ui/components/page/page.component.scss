@@ -6,6 +6,10 @@
   padding: var(--spacing-2xl) 0;
   width: 100%;
 
+  &--no-top-pad {
+    padding-top: var(--spacing-lg);
+  }
+
   &--md {
     max-width: 900px;
   }

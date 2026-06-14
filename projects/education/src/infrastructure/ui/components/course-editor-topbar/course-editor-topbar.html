@@ -1,0 +1,31 @@
+@if (uc.course(); as c) {
+  <header class="ceditor-topbar">
+    <button class="ceditor-topbar__back" (click)="back.emit()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Cursos
+    </button>
+
+    <div class="ceditor-topbar__center">
+      <span class="ceditor-topbar__name">{{ c.title }}</span>
+      <span class="ceditor-topbar__status ceditor-topbar__status--{{ c.status }}">
+        {{ c.status === uc.ECourseStatus.DRAFT ? 'Borrador' : c.status === uc.ECourseStatus.PUBLISHED ? 'Publicado' : 'Archivado' }}
+      </span>
+    </div>
+
+    <div class="ceditor-topbar__actions">
+      @if (c.status === uc.ECourseStatus.DRAFT) {
+        <button class="ceditor-topbar__btn-publish" (click)="uc.publishCourse()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+          </svg>
+          Publicar
+        </button>
+      }
+      @if (c.status === uc.ECourseStatus.PUBLISHED) {
+        <button class="ceditor-topbar__btn-archive" (click)="uc.archiveCourse()">Archivar</button>
+      }
+    </div>
+  </header>
+}

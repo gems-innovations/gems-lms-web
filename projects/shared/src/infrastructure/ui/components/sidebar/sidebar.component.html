@@ -9,6 +9,13 @@
         <span class="sidebar__logo-subtitle">ADMIN PANEL</span>
       </div>
     </div>
+    <button class="sidebar__toggle" (click)="toggle()"
+            [title]="collapsed() ? 'Expandir menú' : 'Contraer menú'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           class="sidebar__toggle-icon">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
   </div>
 
   <nav class="sidebar__nav">

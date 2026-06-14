@@ -1,46 +1,136 @@
-<div class="poutline">
-  <div class="poutline__header">
-    <h2 class="poutline__title">Contenido del curso</h2>
-    <span class="poutline__summary">
-      {{ course().modules?.length ?? 0 }} módulos · {{ course().totalLessons }} lecciones
-    </span>
+<div class="outline">
+  <div class="outline__header">
+    <div class="outline__header-left">
+      <h2 class="outline__title">Contenido del curso</h2>
+      <span class="outline__meta">
+        {{ course().modules?.length ?? 0 }} módulos · {{ course().totalLessons }} lecciones
+      </span>
+    </div>
+    @if (course().averageRating) {
+      <div class="outline__rating">
+        <div class="outline__stars">
+          @for (s of stars(course().averageRating!); track $index) {
+            @if (s === 'full') {
+              <svg class="outline__star outline__star--full" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            } @else if (s === 'half') {
+              <svg class="outline__star outline__star--half" width="14" height="14" viewBox="0 0 24 24">
+                <defs><clipPath id="half"><rect x="0" y="0" width="12" height="24"/></clipPath></defs>
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="rgba(255,255,255,0.12)" stroke="none"/>
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor" clip-path="url(#half)"/>
+              </svg>
+            } @else {
+              <svg class="outline__star outline__star--empty" width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.12)">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            }
+          }
+        </div>
+        <span class="outline__rating-num">{{ course().averageRating!.toFixed(1) }}</span>
+        @if (course().ratingCount) {
+          <span class="outline__rating-count">({{ formatRatingCount(course().ratingCount!) }})</span>
+        }
+      </div>
+    }
   </div>
 
-  @for (mod of course().modules; track mod.id; let mi = $index) {
-    <button type="button" class="poutline__module" (click)="toggleModule(mod.id)">
-      <span class="poutline__module-title">{{ mod.title }}</span>
-      <span class="poutline__module-badge">{{ mod.lessons?.length ?? 0 }} lecciones</span>
-      <svg class="poutline__chevron" [class.poutline__chevron--open]="isExpanded(mod.id)"
-           width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="6 9 12 15 18 9"/>
-      </svg>
-    </button>
+  <div class="outline__timeline">
+    @for (mod of course().modules; track mod.id; let mi = $index; let last = $last) {
+      <div class="outline__module">
 
-    @if (isExpanded(mod.id)) {
-      @for (lesson of mod.lessons; track lesson.id; let li = $index) {
-        <div class="poutline__row">
-          <span class="poutline__row-num">{{ li + 1 }}</span>
-          <div class="poutline__row-thumb">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="poutline__play">
-              <polygon points="5 3 19 12 5 21 5 3"/>
-            </svg>
+        <div class="outline__spine">
+          <div class="outline__node" [class.outline__node--open]="isExpanded(mod.id)">
+            <span class="outline__node-num">{{ mi + 1 }}</span>
           </div>
-          <div class="poutline__row-info">
-            <span class="poutline__row-title">{{ lesson.title }}</span>
-            <span class="poutline__row-dur">
-              @if (lesson.contentBlocks?.[0]) {
-                <span class="poutline__row-type">{{ lessonTypeLabel(lesson.contentBlocks[0].type) }}</span>
-                ·
-              }
-              {{ formatDuration(lesson.duration) }}
-            </span>
-          </div>
-          <svg class="poutline__lock" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
+          @if (!last || isExpanded(mod.id)) {
+            <div class="outline__line" [class.outline__line--active]="isExpanded(mod.id)"></div>
+          }
         </div>
-      }
+
+        <div class="outline__module-body">
+          <button type="button" class="outline__module-header" (click)="toggleModule(mod.id)">
+            <div class="outline__module-title-group">
+              <span class="outline__module-title">{{ mod.title }}</span>
+              <span class="outline__module-badge">{{ mod.lessons?.length ?? 0 }} lecciones</span>
+            </div>
+            <svg class="outline__chevron" [class.outline__chevron--open]="isExpanded(mod.id)"
+                 width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          @if (isExpanded(mod.id)) {
+            <div class="outline__lessons">
+              @for (lesson of mod.lessons; track lesson.id; let li = $index) {
+                <div class="outline__lesson">
+
+                  <!-- Thumbnail o ícono de tipo -->
+                  <div class="outline__lesson-thumb">
+                    @if (lessonThumbUrl(lesson); as thumbUrl) {
+                      <img class="outline__lesson-thumb-img" [src]="thumbUrl" [alt]="lesson.title">
+                    } @else {
+                      <div class="outline__lesson-thumb-icon">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Info de la lección: título + bloques de contenido -->
+                  <div class="outline__lesson-detail">
+                    <div class="outline__lesson-title-row">
+                      <span class="outline__lesson-num">{{ li + 1 }}.</span>
+                      <span class="outline__lesson-title">{{ lesson.title }}</span>
+                      <div class="outline__lesson-right">
+                        <span class="outline__lesson-dur">{{ formatDuration(lesson.duration) }}</span>
+                        @if (!lesson.isFree) {
+                          <svg class="outline__lock" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                          </svg>
+                        } @else {
+                          <svg class="outline__free-lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                          </svg>
+                        }
+                      </div>
+                    </div>
+
+                    @if (lesson.contentBlocks?.length > 1) {
+                      <div class="outline__blocks">
+                        @for (block of lesson.contentBlocks; track block.id) {
+                          <span class="outline__block" [class]="'outline__block--' + block.type">
+                            @switch (block.type) {
+                              @case ('video') {
+                                <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                              }
+                              @case ('quiz') {
+                                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                              }
+                              @case ('assignment') {
+                                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              }
+                              @default {
+                                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                              }
+                            }
+                            {{ blockTypeLabel(block.type) }}
+                            <span class="outline__block-dur">{{ formatDuration(block.duration) }}</span>
+                          </span>
+                        }
+                      </div>
+                    }
+                  </div>
+
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+      </div>
     }
-  }
+  </div>
 </div>

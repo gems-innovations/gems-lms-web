@@ -1,15 +1,15 @@
-@if (isLoading()) {
+@if (uc.isLoading()) {
   <lib-loading-skeleton [rows]="8" />
-} @else if (learningPath(); as path) {
+} @else if (uc.learningPath(); as path) {
   <edu-path-player-hero
     [path]="path"
-    [overallProgress]="overallProgress()"
-    [completedCount]="completedCount()"
-    [isEnrolled]="isEnrolled()"
+    [overallProgress]="uc.overallProgress()"
+    [completedCount]="uc.completedCount()"
+    [isEnrolled]="uc.isEnrolled()"
     (goHome)="goHome()"
   />
   <edu-path-step-list
-    [stepEntries]="stepEntries()"
+    [stepEntries]="uc.stepEntries()"
     (startCourse)="startCourse($event)"
   />
 } @else {

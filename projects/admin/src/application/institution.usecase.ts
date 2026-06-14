@@ -1,16 +1,19 @@
-import { inject, Injectable, signal, computed, DestroyRef } from '@angular/core';
+import { inject, Injectable, signal, computed, DestroyRef, effect } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InstitutionState } from '../domain/state/institution.state';
 import { InstitutionService } from '../infrastructure/services/institution.service';
-import { ToastService } from '@gems-lms-web/shared';
+import { ToastService, BrandingService } from '@gems-lms-web/shared';
+import { AuthSessionService } from 'auth';
 import { Subject, EMPTY } from 'rxjs';
 import { tap, switchMap, catchError } from 'rxjs/operators';
 import {
   ICreateInstitutionRequest,
   IUpdateInstitutionRequest,
   IInstitutionFilters,
-  IInstitution
-} from '../domain/model/institution';
+  IInstitution,
+  EInstitutionType,
+  ESubscriptionType
+} from '../domain/model/institution.model';
 
 export interface IDashboardMetrics {
   totalInstitutions: number;
@@ -35,10 +38,12 @@ export interface IModalState {
 
 @Injectable({ providedIn: 'root' })
 export class InstitutionUseCase {
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly destroyRef         = inject(DestroyRef);
   private readonly institutionService = inject(InstitutionService);
-  private readonly institutionState = inject(InstitutionState);
-  private readonly toastService = inject(ToastService);
+  private readonly institutionState   = inject(InstitutionState);
+  private readonly toastService       = inject(ToastService);
+  private readonly brandingService    = inject(BrandingService);
+  private readonly authSession        = inject(AuthSessionService);
 
   //#region State
   readonly institutions = this.institutionState.institutions;
@@ -73,6 +78,58 @@ export class InstitutionUseCase {
   readonly dashboardMetrics = computed(() => this._dashboardMetrics());
   readonly modal = computed(() => this._modal());
 
+  readonly currentInstitutionId = computed(() => this.authSession.institutionId());
+
+  readonly currentInstitution = computed((): IInstitution | null => {
+    const id = this.authSession.institutionId();
+    return id ? (this.institutions().find(i => i.id === id) ?? null) : null;
+  });
+
+  readonly institutionForModal = computed((): IInstitution | null => {
+    const { isOpen, institutionId } = this._modal();
+    if (!isOpen || !institutionId) return null;
+    return this.institutions().find(i => i.id === institutionId) ?? null;
+  });
+
+  readonly formModel = computed(() => {
+    const inst = this.institutionForModal();
+    if (!inst) return undefined;
+    return {
+      name:             inst.name,
+      type:             inst.type ?? EInstitutionType.UNIVERSITY,
+      colorPrimary:     inst.branding.colorPrimary,
+      colorSecondary:   inst.branding.colorSecondary || '#1E1B4B',
+      logoUrl:          inst.branding.logoUrl ?? '',
+      darkMode:         inst.branding.darkMode ?? false,
+      description:      inst.metadata?.description ?? '',
+      website:          inst.metadata?.website ?? '',
+      contactEmail:     inst.metadata?.contactEmail ?? '',
+      phoneNumber:      inst.metadata?.phoneNumber ?? '',
+      address:          inst.metadata?.address ?? '',
+      subscriptionType: inst.metadata?.subscriptionType ?? ESubscriptionType.BASIC,
+      maxUsers:         inst.metadata?.maxUsers ?? null
+    };
+  });
+
+  readonly modalTitle = computed((): string => {
+    const { mode } = this._modal();
+    const inst = this.institutionForModal();
+    switch (mode) {
+      case 'create': return 'Nueva Institución';
+      case 'edit':   return inst ? `Editar ${inst.name}` : 'Editar Institución';
+      case 'view':   return inst?.name ?? 'Detalles de Institución';
+      case 'delete': return 'Eliminar Institución';
+      default:       return '';
+    }
+  });
+
+  readonly deleteMessage = computed((): string => {
+    const inst = this.institutionForModal();
+    return inst
+      ? `¿Estás seguro de que deseas eliminar <strong>${inst.name}</strong>? Esta acción eliminará permanentemente la institución y todos los datos asociados.`
+      : '¿Estás seguro de que deseas eliminar esta institución?';
+  });
+
   readonly filteredInstitutions = computed(() => {
     const term = this._searchTerm().toLowerCase();
     const insts = this.institutions();
@@ -93,6 +150,23 @@ export class InstitutionUseCase {
   //#endregion
 
   constructor() {
+    effect(() => {
+      const { isOpen, mode } = this._modal();
+      if (!isOpen || mode !== 'view') {
+        this.brandingService.reset();
+        return;
+      }
+      const inst = this.institutionForModal();
+      if (inst) {
+        this.brandingService.apply({
+          colorPrimary:   inst.branding.colorPrimary,
+          colorSecondary: inst.branding.colorSecondary,
+          logoUrl:        inst.branding.logoUrl,
+          darkMode:       inst.branding.darkMode
+        });
+      }
+    });
+
     this.load$.pipe(
       tap(() => this._isLoading.set(true)),
       switchMap(({ filters, page = 1, limit = 10 }) =>

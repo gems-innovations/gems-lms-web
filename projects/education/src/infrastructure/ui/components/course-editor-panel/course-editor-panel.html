@@ -1,0 +1,166 @@
+@if (uc.course(); as c) {
+  <section class="cpanel">
+
+    @if (uc.selectedItem().type === 'course') {
+      <div class="cpanel__detail">
+        <h2 class="cpanel__detail-title">Detalles del Curso</h2>
+
+        @if (c.thumbnailUrl) {
+          <div class="cpanel__thumbnail" [style.backgroundImage]="'url(' + c.thumbnailUrl + ')'">
+            <div class="cpanel__thumbnail-overlay"></div>
+            <div class="cpanel__thumbnail-info">
+              <span class="cpanel__status-pill cpanel__status-pill--{{ c.status }} cpanel__status-pill--lg">
+                {{ c.status === uc.ECourseStatus.DRAFT ? 'Borrador' : c.status === uc.ECourseStatus.PUBLISHED ? 'Publicado' : 'Archivado' }}
+              </span>
+            </div>
+          </div>
+        }
+
+        <dl class="cpanel__info-grid">
+          <div class="cpanel__info-row"><dt>Título</dt><dd>{{ c.title }}</dd></div>
+          <div class="cpanel__info-row"><dt>Descripción</dt><dd>{{ c.description }}</dd></div>
+          <div class="cpanel__info-row">
+            <dt>Dificultad</dt>
+            <dd><span class="cpanel__diff-pill cpanel__diff-pill--{{ c.difficulty }}">{{ uc.difficultyLabels[c.difficulty] }}</span></dd>
+          </div>
+          @if (c.instructorName) {
+            <div class="cpanel__info-row"><dt>Instructor</dt><dd>{{ c.instructorName }}</dd></div>
+          }
+          <div class="cpanel__info-row">
+            <dt>Etiquetas</dt>
+            <dd>
+              <div class="cpanel__tags">
+                @for (tag of c.tags; track tag) { <span class="cpanel__tag">{{ tag }}</span> }
+              </div>
+            </dd>
+          </div>
+        </dl>
+
+        <div class="cpanel__course-stats">
+          <div class="cpanel__stat"><span class="cpanel__stat-v">{{ c.modules.length }}</span><span class="cpanel__stat-l">Módulos</span></div>
+          <div class="cpanel__stat"><span class="cpanel__stat-v">{{ c.totalLessons }}</span><span class="cpanel__stat-l">Lecciones</span></div>
+          <div class="cpanel__stat"><span class="cpanel__stat-v">{{ uc.formatDuration(c.totalDuration) }}</span><span class="cpanel__stat-l">Duración total</span></div>
+          <div class="cpanel__stat"><span class="cpanel__stat-v">{{ c.enrolledCount | number }}</span><span class="cpanel__stat-l">Matriculados</span></div>
+        </div>
+      </div>
+    }
+
+    @if (uc.selectedItem().type === 'module' && uc.selectedModule(); as mod) {
+      <div class="cpanel__detail">
+        <div class="cpanel__detail-header">
+          <div class="cpanel__badge">Módulo {{ mod.order }}</div>
+          <h2 class="cpanel__detail-title">{{ mod.title }}</h2>
+          @if (mod.description) { <p class="cpanel__detail-desc">{{ mod.description }}</p> }
+        </div>
+
+        <div class="cpanel__lesson-list">
+          <div class="cpanel__lesson-list-header">
+            <span>Lecciones</span>
+            <span class="cpanel__lesson-count">{{ mod.lessons.length }}</span>
+          </div>
+          @for (lesson of mod.lessons; track uc.trackById($index, lesson)) {
+            <div class="cpanel__lesson-card" (click)="uc.selectLesson(mod.id, lesson.id)">
+              <div class="cpanel__lesson-order">{{ lesson.order }}</div>
+              <div class="cpanel__lesson-body">
+                <span class="cpanel__lesson-card-title">{{ lesson.title }}</span>
+                <span class="cpanel__lesson-card-meta">{{ lesson.contentBlocks.length }} bloques · {{ uc.formatDuration(lesson.duration) }}</span>
+              </div>
+              @if (lesson.isFree) { <span class="cpanel__free-tag">Libre</span> }
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          }
+          @if (mod.lessons.length === 0) {
+            <p class="cpanel__empty-hint">Aún no hay lecciones. Usa el botón <strong>+</strong> junto al módulo para agregar una.</p>
+          }
+        </div>
+      </div>
+    }
+
+    @if (uc.selectedItem().type === 'lesson' && uc.selectedLesson(); as lesson) {
+      <div class="cpanel__detail">
+        <div class="cpanel__detail-header">
+          <div class="cpanel__badge">Lección {{ lesson.order }}</div>
+          <h2 class="cpanel__detail-title">{{ lesson.title }}</h2>
+          @if (lesson.description) { <p class="cpanel__detail-desc">{{ lesson.description }}</p> }
+          <div class="cpanel__lesson-meta-row">
+            <span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {{ uc.formatDuration(lesson.duration) }}
+            </span>
+            <span>{{ lesson.contentBlocks.length }} bloques de contenido</span>
+            @if (lesson.isFree) { <span class="cpanel__free-tag">Acceso libre</span> }
+          </div>
+        </div>
+
+        <div class="cpanel__blocks">
+          <div class="cpanel__blocks-header">
+            <span>Bloques de Contenido</span>
+            <button class="cpanel__add-block-btn" (click)="openBlockModal(lesson.id)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Agregar bloque
+            </button>
+          </div>
+
+          @for (block of lesson.contentBlocks; track uc.trackById($index, block)) {
+            <div class="cpanel__block-card">
+              <div class="cpanel__block-type cpanel__block-type--{{ block.type }}">
+                <span class="cpanel__block-type-icon">
+                  @switch (block.type) {
+                    @case (uc.EContentType.VIDEO) {
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                    }
+                    @case (uc.EContentType.DOCUMENT) {
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    }
+                    @case (uc.EContentType.QUIZ) {
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    }
+                    @case (uc.EContentType.ASSIGNMENT) {
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    }
+                    @default {
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                    }
+                  }
+                </span>
+                {{ uc.contentTypeLabels[block.type] }}
+              </div>
+              <div class="cpanel__block-body">
+                <span class="cpanel__block-title">{{ block.title }}</span>
+                @if (block.description) { <span class="cpanel__block-desc">{{ block.description }}</span> }
+              </div>
+              <div class="cpanel__block-meta">
+                <span>{{ uc.formatDuration(block.duration) }}</span>
+                @if (block.isRequired) { <span class="cpanel__required-tag">Requerido</span> }
+              </div>
+            </div>
+          }
+
+          @if (lesson.contentBlocks.length === 0) {
+            <div class="cpanel__empty-blocks">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+              <p>Esta lección aún no tiene contenido. Agrega videos, documentos, quizzes o tareas.</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  @if (showBlockModal() && blockModalLessonId()) {
+    <edu-content-block-modal
+      [lessonId]="blockModalLessonId()!"
+      (onClose)="closeBlockModal()"
+      (onSave)="saveBlock($event)"
+    />
+  }
+}

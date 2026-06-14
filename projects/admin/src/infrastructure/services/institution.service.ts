@@ -12,7 +12,7 @@ import {
   EInstitutionType,
   EBrandingType,
   ESubscriptionType
-} from '../../domain/model/institution';
+} from '../../domain/model/institution.model';
 
 const MOCK_INSTITUTIONS: IInstitution[] = [
   {

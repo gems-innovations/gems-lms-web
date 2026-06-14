@@ -1,15 +1,15 @@
 <!-- CREATE -->
 <lib-modal-base
-  [isOpen]="modal().isOpen && modal().mode === 'create'"
-  [title]="modalTitle()"
+  [isOpen]="uc.modal().isOpen && uc.modal().mode === 'create'"
+  [title]="uc.modalTitle()"
   [size]="'large'"
   [showFooter]="false"
-  [closeOnOverlayClick]="!isCreating()"
+  [closeOnOverlayClick]="!uc.isCreating()"
   (close)="close()"
 >
   <adm-institution-form
-    [disabled]="isCreating()"
-    [submitButtonText]="isCreating() ? 'Creando...' : 'Crear Institución'"
+    [disabled]="uc.isCreating()"
+    [submitButtonText]="uc.isCreating() ? 'Creando...' : 'Crear Institución'"
     (onSubmit)="onCreateSubmit($event)"
     (onCancel)="close()"
   />
@@ -17,18 +17,18 @@
 
 <!-- EDIT -->
 <lib-modal-base
-  [isOpen]="modal().isOpen && modal().mode === 'edit'"
-  [title]="modalTitle()"
+  [isOpen]="uc.modal().isOpen && uc.modal().mode === 'edit'"
+  [title]="uc.modalTitle()"
   [size]="'large'"
   [showFooter]="false"
-  [closeOnOverlayClick]="!isUpdating()"
+  [closeOnOverlayClick]="!uc.isUpdating()"
   (close)="close()"
 >
-  @if (formModel(); as model) {
+  @if (uc.formModel(); as model) {
     <adm-institution-form
       [model]="model"
-      [disabled]="isUpdating()"
-      [submitButtonText]="isUpdating() ? 'Guardando...' : 'Guardar Cambios'"
+      [disabled]="uc.isUpdating()"
+      [submitButtonText]="uc.isUpdating() ? 'Guardando...' : 'Guardar Cambios'"
       (onSubmit)="onEditSubmit($event)"
       (onCancel)="close()"
     />
@@ -37,14 +37,14 @@
 
 <!-- VIEW -->
 <lib-modal-base
-  [isOpen]="modal().isOpen && modal().mode === 'view'"
-  [title]="modalTitle()"
+  [isOpen]="uc.modal().isOpen && uc.modal().mode === 'view'"
+  [title]="uc.modalTitle()"
   [size]="'medium'"
   [showFooter]="true"
   [closeOnOverlayClick]="true"
   (close)="close()"
 >
-  @if (institutionForModal(); as institution) {
+  @if (uc.institutionForModal(); as institution) {
     <adm-institution-details [institution]="institution" />
   }
 
@@ -56,21 +56,21 @@
 
 <!-- DELETE -->
 <lib-modal-base
-  [isOpen]="modal().isOpen && modal().mode === 'delete'"
-  [title]="modalTitle()"
+  [isOpen]="uc.modal().isOpen && uc.modal().mode === 'delete'"
+  [title]="uc.modalTitle()"
   [subtitle]="'Esta acción no se puede deshacer'"
   [size]="'small'"
   [showFooter]="false"
-  [closeOnOverlayClick]="!isDeleting()"
+  [closeOnOverlayClick]="!uc.isDeleting()"
   (close)="close()"
 >
   <lib-confirmation-dialog
     type="danger"
     [title]="'¿Estás seguro?'"
-    [message]="deleteMessage()"
+    [message]="uc.deleteMessage()"
     [confirmText]="'Eliminar Institución'"
     [cancelText]="'Cancelar'"
-    [isLoading]="isDeleting()"
+    [isLoading]="uc.isDeleting()"
     (confirmed)="onConfirmDelete()"
     (cancelled)="close()"
   >

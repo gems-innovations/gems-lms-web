@@ -1,71 +1,132 @@
-<aside class="psidebar" [class.psidebar--collapsed]="collapsed()" [style.width.px]="collapsed() ? 48 : sidebarWidth()">
+<aside class="psidebar" [class.psidebar--collapsed]="collapsed()">
+
   <!-- Resize handle -->
   @if (!collapsed()) {
     <div class="psidebar__resize-handle" (mousedown)="resizeStart.emit($event)"></div>
   }
 
-  <!-- Toggle button -->
+  <!-- Toggle -->
   <button type="button" class="psidebar__toggle" (click)="toggleCollapse.emit()" [title]="collapsed() ? 'Expandir' : 'Colapsar'">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      @if (collapsed()) {
-        <polyline points="9 18 15 12 9 6"/>
-      } @else {
-        <polyline points="15 18 9 12 15 6"/>
-      }
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      @if (collapsed()) { <polyline points="9 18 15 12 9 6"/> }
+      @else { <polyline points="15 18 9 12 15 6"/> }
     </svg>
   </button>
 
   @if (!collapsed()) {
-    <!-- Progress header -->
+
+    <!-- Header -->
     <div class="psidebar__header">
-      <span class="psidebar__label">Contenido del curso</span>
+      <div class="psidebar__header-top">
+        <span class="psidebar__label">Contenido del curso</span>
+        <span class="psidebar__progress-text">{{ courseProgress() | number:'1.0-0' }}% completado</span>
+      </div>
       <div class="psidebar__progress-bar">
         <div class="psidebar__progress-fill" [style.width.%]="courseProgress()"></div>
       </div>
-      <span class="psidebar__progress-text">{{ courseProgress() | number:'1.0-0' }}% completado</span>
     </div>
 
-    <!-- Module list -->
+    <!-- Module timeline -->
     <nav class="psidebar__nav">
-      @for (module of course().modules; track module.id; let mIdx = $index) {
-        <div class="psidebar__module">
-          <button type="button" class="psidebar__module-header" (click)="toggleModule(module.id)">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                 class="psidebar__chevron" [class.psidebar__chevron--open]="isModuleExpanded(module.id)">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-            <span class="psidebar__module-title">{{ module.title }}</span>
-            <span class="psidebar__module-meta">{{ module.lessons.length }} lecciones</span>
-          </button>
+      <div class="psidebar__timeline">
+        @for (mod of course().modules; track mod.id; let mi = $index; let last = $last) {
+          <div class="psidebar__module">
 
-          @if (isModuleExpanded(module.id)) {
-            <ul class="psidebar__lessons">
-              @for (lesson of module.lessons; track lesson.id; let lIdx = $index) {
-                <li>
-                  <button
-                    type="button"
-                    class="psidebar__lesson"
-                    [class.psidebar__lesson--active]="lesson.id === selectedLessonId()"
-                    [class.psidebar__lesson--done]="isLessonComplete(lesson)"
-                    (click)="selectLesson.emit(lesson.id)"
-                  >
-                    <span class="psidebar__lesson-num">{{ getFlatLessonNumber(mIdx, lIdx) }}</span>
-                    <span class="psidebar__lesson-info">
-                      <span class="psidebar__lesson-title">{{ lesson.title }}</span>
-                      <span class="psidebar__lesson-duration">{{ formatDuration(lesson.duration) }}</span>
-                    </span>
-                    @if (isLessonComplete(lesson)) {
-                      <svg class="psidebar__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
-                    }
-                  </button>
-                </li>
+            <!-- Spine -->
+            <div class="psidebar__spine">
+              <div class="psidebar__node" [class.psidebar__node--open]="isModuleExpanded(mod.id)" [class.psidebar__node--active]="isModuleExpanded(mod.id)">
+                <span class="psidebar__node-num">{{ mi + 1 }}</span>
+              </div>
+              @if (!last || isModuleExpanded(mod.id)) {
+                <div class="psidebar__line" [class.psidebar__line--active]="isModuleExpanded(mod.id)"></div>
               }
-            </ul>
-          }
-        </div>
-      }
+            </div>
+
+            <!-- Body -->
+            <div class="psidebar__module-body">
+              <button type="button" class="psidebar__module-header" (click)="toggleModule(mod.id)">
+                <div class="psidebar__module-title-group">
+                  <span class="psidebar__module-title">{{ mod.title }}</span>
+                  <span class="psidebar__module-badge">{{ mod.lessons.length }}</span>
+                </div>
+                <svg class="psidebar__chevron" [class.psidebar__chevron--open]="isModuleExpanded(mod.id)"
+                     width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+
+              @if (isModuleExpanded(mod.id)) {
+                <div class="psidebar__lessons">
+                  @for (lesson of mod.lessons; track lesson.id; let li = $index) {
+                    <button
+                      type="button"
+                      class="psidebar__lesson"
+                      [class.psidebar__lesson--active]="lesson.id === selectedLessonId()"
+                      [class.psidebar__lesson--done]="isLessonComplete(lesson)"
+                      (click)="selectLesson.emit(lesson.id)"
+                    >
+                      <!-- Thumbnail -->
+                      <div class="psidebar__thumb">
+                        @if (lessonThumbUrl(lesson); as thumb) {
+                          <img class="psidebar__thumb-img" [src]="thumb" [alt]="lesson.title">
+                        } @else {
+                          <div class="psidebar__thumb-icon">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                              <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                          </div>
+                        }
+                        @if (isLessonComplete(lesson)) {
+                          <div class="psidebar__thumb-done">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                              <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                          </div>
+                        }
+                      </div>
+
+                      <!-- Detail -->
+                      <div class="psidebar__lesson-detail">
+                        <div class="psidebar__lesson-title-row">
+                          <span class="psidebar__lesson-num">{{ getFlatLessonNumber(mi, li) }}.</span>
+                          <span class="psidebar__lesson-title">{{ lesson.title }}</span>
+                          <span class="psidebar__lesson-dur">{{ formatDuration(lesson.duration) }}</span>
+                        </div>
+
+                        @if (lesson.contentBlocks?.length > 1) {
+                          <div class="psidebar__blocks">
+                            @for (block of lesson.contentBlocks; track block.id) {
+                              <span class="psidebar__block" [class]="'psidebar__block--' + block.type">
+                                @switch (block.type) {
+                                  @case (EContentType.VIDEO) {
+                                    <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                  }
+                                  @case (EContentType.QUIZ) {
+                                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                  }
+                                  @case (EContentType.ASSIGNMENT) {
+                                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                                  }
+                                  @default {
+                                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                  }
+                                }
+                                {{ blockTypeLabel(block.type) }}
+                              </span>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+
+          </div>
+        }
+      </div>
     </nav>
   }
+
 </aside>

@@ -1,0 +1,31 @@
+@if (uc.path(); as lp) {
+  <header class="lpeditor-topbar">
+    <button class="lpeditor-topbar__back" (click)="back.emit()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Rutas
+    </button>
+
+    <div class="lpeditor-topbar__center">
+      <span class="lpeditor-topbar__name">{{ lp.title }}</span>
+      <span class="lpeditor-topbar__status lpeditor-topbar__status--{{ lp.status }}">
+        {{ lp.status === uc.ELearningPathStatus.DRAFT ? 'Borrador' : lp.status === uc.ELearningPathStatus.PUBLISHED ? 'Publicada' : 'Archivada' }}
+      </span>
+    </div>
+
+    <div class="lpeditor-topbar__actions">
+      @if (lp.status === uc.ELearningPathStatus.DRAFT) {
+        <button class="lpeditor-topbar__btn-publish" (click)="uc.publishPath()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+          </svg>
+          Publicar
+        </button>
+      }
+      @if (lp.status === uc.ELearningPathStatus.PUBLISHED) {
+        <button class="lpeditor-topbar__btn-archive" (click)="uc.archivePath()">Archivar</button>
+      }
+    </div>
+  </header>
+}

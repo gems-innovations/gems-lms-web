@@ -1,15 +1,15 @@
-<button type="button" class="icard" (click)="open.emit(course().id)">
-  <div class="icard__thumb"
+<button type="button" class="instructor-course-card" (click)="open.emit(course().id)">
+  <div class="instructor-course-card__thumb"
        [style.backgroundImage]="course().thumbnailUrl ? 'url(' + course().thumbnailUrl + ')' : null">
     @if (stats().pendingCount > 0) {
-      <span class="icard__pending-badge">{{ stats().pendingCount }} por calificar</span>
+      <span class="instructor-course-card__pending-badge">{{ stats().pendingCount }} por calificar</span>
     }
   </div>
 
-  <div class="icard__body">
-    <h3 class="icard__title">{{ course().title }}</h3>
-    <div class="icard__stats">
-      <span class="icard__stat">
+  <div class="instructor-course-card__body">
+    <h3 class="instructor-course-card__title">{{ course().title }}</h3>
+    <div class="instructor-course-card__stats">
+      <span class="instructor-course-card__stat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
           <circle cx="9" cy="7" r="4"/>
@@ -18,11 +18,11 @@
         </svg>
         {{ stats().studentCount }} estudiantes
       </span>
-      <span class="icard__stat">{{ stats().avgProgress }}% avance</span>
+      <span class="instructor-course-card__stat">{{ stats().avgProgress }}% avance</span>
     </div>
   </div>
 
-  <svg class="icard__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <svg class="instructor-course-card__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <polyline points="9 18 15 12 9 6"/>
   </svg>
 </button>

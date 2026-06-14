@@ -1,7 +1,7 @@
 <lib-page width="md">
-  @if (isLoading()) {
+  @if (uc.isLoading()) {
     <lib-loading-skeleton type="card" [rows]="3" />
-  } @else if (institution(); as inst) {
+  } @else if (uc.currentInstitution(); as inst) {
     <lib-page-header
       title="Mi Institución"
       subtitle="Gestiona la información y personalización de tu institución"

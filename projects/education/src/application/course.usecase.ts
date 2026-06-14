@@ -49,7 +49,11 @@ export class CourseUseCase {
   readonly searchTerm = computed(() => this._searchTerm());
   readonly statusFilter = computed(() => this._statusFilter());
   readonly pagination = computed(() => this._pagination());
-  readonly modal = computed(() => this._modal());
+  readonly modal            = computed(() => this._modal());
+  readonly showDeleteDialog = computed(() => {
+    const m = this._modal();
+    return m.isOpen && m.mode === 'delete';
+  });
 
   readonly filteredCourses = computed(() => {
     const term = this._searchTerm().toLowerCase();

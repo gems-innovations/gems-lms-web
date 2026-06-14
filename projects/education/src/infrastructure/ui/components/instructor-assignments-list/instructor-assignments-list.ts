@@ -1,14 +1,6 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { IContentBlock, EContentType } from '../../../../domain/model/course.model';
-
-export interface IAssignmentEntry {
-  block: IContentBlock;
-  lessonTitle: string;
-  moduleTitle: string;
-  submittedCount: number;
-  pendingCount: number;
-  gradedCount: number;
-}
+import { EContentType } from '../../../../domain/model/course.model';
+import { IAssignmentEntry } from '../../../../domain/model/instructor.model';
 
 @Component({
   selector: 'edu-instructor-assignments-list',

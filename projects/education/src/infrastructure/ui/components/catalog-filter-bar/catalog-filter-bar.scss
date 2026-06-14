@@ -1,24 +1,30 @@
 :host {
+  display: block;
+}
+
+// ── Main row ─────────────────────────────────────────────────────────────────
+
+.catalog-filter-bar__row {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: var(--spacing-sm);
-  flex-wrap: wrap;
+  width: 100%;
 }
 
 // ── Search ───────────────────────────────────────────────────────────────────
 
-.cfilter__search-wrap {
+.catalog-filter-bar__search-wrap {
+  flex: 4; // ~80%
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  flex: 1;
-  min-width: 200px;
   background: var(--color-tarjeta);
   border: 1px solid var(--color-borde-principal);
   border-radius: var(--border-radius-md);
   padding: 0 var(--spacing-md);
   color: var(--color-texto-terciario);
   transition: border-color var(--transition-fast);
+  min-width: 0;
 
   &:focus-within {
     border-color: color-mix(in srgb, var(--color-primario) 40%, transparent);
@@ -26,7 +32,7 @@
   }
 }
 
-.cfilter__search {
+.catalog-filter-bar__search {
   flex: 1;
   background: none;
   border: none;
@@ -35,21 +41,25 @@
   font-size: var(--font-size-sm);
   padding: 10px 0;
   font-family: inherit;
+  min-width: 0;
 
   &::placeholder { color: var(--color-texto-terciario); }
 }
 
 // ── Filter button ────────────────────────────────────────────────────────────
 
-.cfilter__dropdown-wrap {
+.catalog-filter-bar__dropdown-wrap {
+  flex: 1; // ~20%
   position: relative;
+  display: flex;
 }
 
-.cfilter__btn {
+.catalog-filter-bar__btn {
+  flex: 1;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-sm);
-  padding: 9px 14px;
   border-radius: var(--border-radius-md);
   border: 1px solid var(--color-borde-principal);
   background: var(--color-tarjeta);
@@ -59,6 +69,7 @@
   cursor: pointer;
   transition: border-color var(--transition-fast), color var(--transition-fast);
   font-family: inherit;
+  white-space: nowrap;
 
   &:hover {
     border-color: color-mix(in srgb, var(--color-primario) 35%, transparent);
@@ -71,7 +82,7 @@
   }
 }
 
-.cfilter__badge {
+.catalog-filter-bar__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -87,13 +98,13 @@
 
 // ── Dropdown panel ───────────────────────────────────────────────────────────
 
-.cfilter__backdrop {
+.catalog-filter-bar__backdrop {
   position: fixed;
   inset: 0;
   z-index: var(--z-dropdown, 100);
 }
 
-.cfilter__panel {
+.catalog-filter-bar__panel {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
@@ -109,7 +120,7 @@
   box-shadow: var(--shadow-lg, 0 8px 32px rgba(0,0,0,.4));
 }
 
-.cfilter__panel-head {
+.catalog-filter-bar__panel-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -118,7 +129,7 @@
   color: var(--color-texto-principal);
 }
 
-.cfilter__clear {
+.catalog-filter-bar__clear {
   background: none;
   border: none;
   cursor: pointer;
@@ -133,13 +144,13 @@
   }
 }
 
-.cfilter__group {
+.catalog-filter-bar__group {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
 }
 
-.cfilter__group-label {
+.catalog-filter-bar__group-label {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--color-texto-terciario);
@@ -148,13 +159,13 @@
   margin: 0;
 }
 
-.cfilter__opts {
+.catalog-filter-bar__opts {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.cfilter__opt {
+.catalog-filter-bar__opt {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -177,7 +188,7 @@
   }
 }
 
-.cfilter__dot {
+.catalog-filter-bar__dot {
   width: 8px;
   height: 8px;
   border-radius: var(--border-radius-full);
@@ -191,16 +202,17 @@
   &--red    { background: var(--color-error); }
 }
 
-// ── Active chips ─────────────────────────────────────────────────────────────
+// ── Active chips (below the row) ─────────────────────────────────────────────
 
-.cfilter__chips {
+.catalog-filter-bar__chips {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
   flex-wrap: wrap;
+  margin-top: var(--spacing-sm);
 }
 
-.cfilter__chip {
+.catalog-filter-bar__chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;

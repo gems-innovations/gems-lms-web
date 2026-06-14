@@ -1,0 +1,19 @@
+<div class="chero">
+  <div class="chero__inner">
+    <div class="chero__copy">
+      <span class="chero__eyebrow">
+        <span class="chero__eyebrow-dot"></span>
+        Explorar contenido
+      </span>
+      <h1 class="chero__title">Catálogo de<br><span class="chero__accent">aprendizaje</span></h1>
+      <p class="chero__sub">Explora cursos y rutas de aprendizaje disponibles e inscríbete en los que te interesen.</p>
+    </div>
+
+    @if (totalCount() > 0) {
+      <div class="chero__stat">
+        <span class="chero__stat-num">{{ totalCount() }}</span>
+        <span class="chero__stat-label">elementos<br>disponibles</span>
+      </div>
+    }
+  </div>
+</div>

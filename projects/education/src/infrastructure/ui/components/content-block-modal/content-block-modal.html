@@ -1,0 +1,429 @@
+<div class="cbm__overlay" (click)="close()">
+  <div class="cbm__modal" (click)="$event.stopPropagation()">
+
+    <!-- ── Header ── -->
+    <header class="cbm__header">
+      @if (step() === 'form') {
+        <button class="cbm__back-btn" (click)="back()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+      }
+      <div class="cbm__header-text">
+        <h2 class="cbm__title">
+          {{ step() === 'type-select' ? 'Agregar Bloque de Contenido' : 'Configurar bloque' }}
+        </h2>
+        @if (step() === 'form' && selectedType()) {
+          <span class="cbm__type-pill cbm__type-pill--{{ selectedType() }}">
+            {{ getTypeLabel(selectedType()) }}
+          </span>
+        }
+      </div>
+      <button class="cbm__close-btn" (click)="close()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- ═══════════════ STEP 1: TYPE SELECTION ═══════════════ -->
+    @if (step() === 'type-select') {
+      <div class="cbm__type-grid">
+        @for (ct of contentTypes; track ct.type) {
+          <button class="cbm__type-card" (click)="selectType(ct.type)">
+            <div class="cbm__type-icon cbm__type-icon--{{ ct.icon }}">
+              @switch (ct.icon) {
+                @case ('video') {
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+                  </svg>
+                }
+                @case ('doc') {
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="8" y1="13" x2="16" y2="13"/>
+                    <line x1="8" y1="17" x2="13" y2="17"/>
+                  </svg>
+                }
+                @case ('quiz') {
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                  </svg>
+                }
+                @case ('task') {
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                }
+                @case ('scorm') {
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+                  </svg>
+                }
+                @case ('live') {
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                }
+              }
+            </div>
+            <div class="cbm__type-label">{{ ct.label }}</div>
+            <div class="cbm__type-desc">{{ ct.desc }}</div>
+          </button>
+        }
+      </div>
+    }
+
+    <!-- ═══════════════ STEP 2: FORM ═══════════════ -->
+    @if (step() === 'form') {
+      <div class="cbm__form-body">
+
+        <!-- Common: title, description, duration, required -->
+        <div class="cbm__section">
+          <div class="cbm__field">
+            <label class="cbm__label">Título <span class="cbm__req">*</span></label>
+            <input class="cbm__input" type="text" placeholder="Ej: Video introductorio al módulo"
+              [ngModel]="title()" (ngModelChange)="title.set($event)" />
+          </div>
+          <div class="cbm__row">
+            <div class="cbm__field cbm__field--sm">
+              <label class="cbm__label">Duración (min)</label>
+              <input class="cbm__input" type="number" min="0" [ngModel]="duration()" (ngModelChange)="duration.set(+$event)" />
+            </div>
+            <div class="cbm__field cbm__field--toggle">
+              <label class="cbm__label">Requerido</label>
+              <button class="cbm__toggle" [class.cbm__toggle--on]="isRequired()" (click)="isRequired.set(!isRequired())">
+                {{ isRequired() ? 'Sí' : 'No' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── VIDEO ─────────────────────────────────────── -->
+        @if (selectedType() === EContentType.VIDEO) {
+          <div class="cbm__section">
+            <h3 class="cbm__section-title">Fuente del Video</h3>
+            <div class="cbm__provider-tabs">
+              @for (p of [['youtube','YouTube'],['vimeo','Vimeo'],['external','URL Externa'],['upload','Subir archivo']]; track p[0]) {
+                <button class="cbm__provider-tab"
+                  [class.cbm__provider-tab--active]="videoProvider() === p[0]"
+                  (click)="videoProvider.set($any(p[0]))">{{ p[1] }}</button>
+              }
+            </div>
+
+            <div class="cbm__field">
+              <label class="cbm__label">
+                {{ videoProvider() === 'youtube' ? 'URL de YouTube' : videoProvider() === 'vimeo' ? 'URL de Vimeo' : videoProvider() === 'upload' ? 'URL del archivo subido' : 'URL directa del video' }}
+                <span class="cbm__req">*</span>
+              </label>
+              <input class="cbm__input" type="url" placeholder="https://..."
+                [ngModel]="videoUrl()" (ngModelChange)="videoUrl.set($event)" />
+            </div>
+
+            @if (youtubeEmbedUrl()) {
+              <div class="cbm__video-preview">
+                <iframe
+                  [src]="youtubeEmbedUrl()"
+                  frameborder="0"
+                  allowfullscreen>
+                </iframe>
+              </div>
+            }
+
+            <div class="cbm__field">
+              <label class="cbm__label">Thumbnail URL</label>
+              <input class="cbm__input" type="url" placeholder="https://... (opcional)"
+                [ngModel]="videoThumbnailUrl()" (ngModelChange)="videoThumbnailUrl.set($event)" />
+            </div>
+            <div class="cbm__field">
+              <label class="cbm__label">Transcripción (opcional)</label>
+              <textarea class="cbm__textarea cbm__textarea--sm" placeholder="Texto de la transcripción…"
+                [ngModel]="videoTranscript()" (ngModelChange)="videoTranscript.set($event)"></textarea>
+            </div>
+          </div>
+        }
+
+        <!-- ─── MARKDOWN ──────────────────────────────────── -->
+        @if (selectedType() === EContentType.DOCUMENT) {
+          <div class="cbm__section">
+            <div class="cbm__md-header">
+              <h3 class="cbm__section-title">Contenido Markdown</h3>
+              <button class="cbm__preview-btn" (click)="markdownPreview.set(!markdownPreview())">
+                {{ markdownPreview() ? 'Editar' : 'Vista previa' }}
+              </button>
+            </div>
+            @if (!markdownPreview()) {
+              <textarea class="cbm__textarea cbm__textarea--lg" placeholder="# Título&#10;&#10;Escribe tu contenido en **Markdown**…&#10;&#10;- Lista item&#10;- Otro item"
+                [ngModel]="markdownContent()" (ngModelChange)="markdownContent.set($event)"></textarea>
+              <p class="cbm__hint">Soporta Markdown estándar: **negrita**, *cursiva*, # encabezados, listas, código, tablas.</p>
+            } @else {
+              <div class="cbm__md-preview">
+                <pre class="cbm__md-pre">{{ markdownContent() || '(sin contenido)' }}</pre>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- ─── SCORM ──────────────────────────────────────── -->
+        @if (selectedType() === EContentType.SCORM) {
+          <div class="cbm__section">
+            <h3 class="cbm__section-title">Paquete SCORM</h3>
+            <div class="cbm__field">
+              <label class="cbm__label">URL del paquete SCORM <span class="cbm__req">*</span></label>
+              <input class="cbm__input" type="url" placeholder="https://..."
+                [ngModel]="scormUrl()" (ngModelChange)="scormUrl.set($event)" />
+            </div>
+            <div class="cbm__row">
+              <div class="cbm__field cbm__field--sm">
+                <label class="cbm__label">Versión SCORM</label>
+                <select class="cbm__select" [ngModel]="scormVersion()" (ngModelChange)="scormVersion.set($event)">
+                  <option value="1.2">SCORM 1.2</option>
+                  <option value="2004">SCORM 2004</option>
+                </select>
+              </div>
+              <div class="cbm__field cbm__field--sm">
+                <label class="cbm__label">Umbral de finalización (%)</label>
+                <input class="cbm__input" type="number" min="0" max="100"
+                  [ngModel]="completionThreshold()" (ngModelChange)="completionThreshold.set(+$event)" />
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- ─── QUIZ ───────────────────────────────────────── -->
+        @if (selectedType() === EContentType.QUIZ) {
+          <div class="cbm__section">
+            <h3 class="cbm__section-title">Configuración de la Evaluación</h3>
+            <div class="cbm__row cbm__row--3">
+              <div class="cbm__field cbm__field--sm">
+                <label class="cbm__label">Tiempo límite (min, 0=sin límite)</label>
+                <input class="cbm__input" type="number" min="0"
+                  [ngModel]="quizTimeLimit()" (ngModelChange)="quizTimeLimit.set(+$event)" />
+              </div>
+              <div class="cbm__field cbm__field--sm">
+                <label class="cbm__label">Puntaje para aprobar (%)</label>
+                <input class="cbm__input" type="number" min="0" max="100"
+                  [ngModel]="quizPassingScore()" (ngModelChange)="quizPassingScore.set(+$event)" />
+              </div>
+              <div class="cbm__field cbm__field--sm">
+                <label class="cbm__label">Intentos máx (0=ilimitado)</label>
+                <input class="cbm__input" type="number" min="0"
+                  [ngModel]="quizMaxAttempts()" (ngModelChange)="quizMaxAttempts.set(+$event)" />
+              </div>
+            </div>
+            <div class="cbm__field cbm__field--toggle">
+              <label class="cbm__label">Mezclar preguntas</label>
+              <button class="cbm__toggle" [class.cbm__toggle--on]="quizShuffle()" (click)="quizShuffle.set(!quizShuffle())">
+                {{ quizShuffle() ? 'Sí' : 'No' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Questions -->
+          <div class="cbm__section">
+            <div class="cbm__questions-header">
+              <h3 class="cbm__section-title">Preguntas <span class="cbm__badge">{{ quizQuestions().length }}</span></h3>
+              <span class="cbm__points-total">{{ totalQuizPoints() }} pts total</span>
+            </div>
+
+            @for (q of quizQuestions(); track q.id; let qi = $index) {
+              <div class="cbm__question">
+                <div class="cbm__question-header">
+                  <span class="cbm__question-num">P{{ qi + 1 }}</span>
+                  <select class="cbm__select cbm__select--sm"
+                    [ngModel]="q.type"
+                    (ngModelChange)="updateQuestion(q.id, { type: $event })">
+                    <option value="multiple-choice">Opción múltiple</option>
+                    <option value="true-false">Verdadero / Falso</option>
+                    <option value="open">Respuesta abierta</option>
+                  </select>
+                  <input class="cbm__input cbm__input--sm" type="number" min="1" style="width:70px"
+                    [ngModel]="q.points"
+                    (ngModelChange)="updateQuestion(q.id, { points: +$event })"
+                    title="Puntos" />
+                  <span class="cbm__pts-label">pts</span>
+                  <button class="cbm__remove-btn" (click)="removeQuestion(q.id)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <textarea class="cbm__textarea cbm__textarea--question"
+                  placeholder="Escribe la pregunta aquí…"
+                  [ngModel]="q.question"
+                  (ngModelChange)="updateQuestion(q.id, { question: $event })"></textarea>
+
+                <!-- MCQ Options -->
+                @if (q.type === 'multiple-choice') {
+                  <div class="cbm__options">
+                    <div class="cbm__options-hint">
+                      <label class="cbm__toggle-sm">
+                        <input type="checkbox" [checked]="q.allowMultiple"
+                          (change)="updateQuestion(q.id, { allowMultiple: $any($event.target).checked })" />
+                        Permite múltiples respuestas correctas
+                      </label>
+                    </div>
+                    @for (opt of q.options; track opt.id) {
+                      <div class="cbm__option-row">
+                        <button
+                          class="cbm__correct-btn"
+                          [class.cbm__correct-btn--on]="q.correctAnswers.includes(opt.id)"
+                          (click)="toggleCorrectAnswer(q.id, opt.id, q.allowMultiple)"
+                          title="Marcar como correcta">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"/>
+                          </svg>
+                        </button>
+                        <span class="cbm__opt-letter">{{ opt.id.toUpperCase() }}</span>
+                        <input class="cbm__input cbm__input--opt"
+                          type="text"
+                          [placeholder]="'Opción ' + opt.id.toUpperCase()"
+                          [ngModel]="opt.text"
+                          (ngModelChange)="updateOption(q.id, opt.id, $event)" />
+                        @if (q.options.length > 2) {
+                          <button class="cbm__opt-remove" (click)="removeOption(q.id, opt.id)">×</button>
+                        }
+                      </div>
+                    }
+                    @if (q.options.length < 6) {
+                      <button class="cbm__add-option-btn" (click)="addOption(q.id)">+ Agregar opción</button>
+                    }
+                  </div>
+                }
+
+                <!-- True / False -->
+                @if (q.type === 'true-false') {
+                  <div class="cbm__tf-row">
+                    <label class="cbm__label">Respuesta correcta:</label>
+                    <button class="cbm__tf-btn" [class.cbm__tf-btn--on]="q.correctBoolean === true"
+                      (click)="updateQuestion(q.id, { correctBoolean: true })">Verdadero</button>
+                    <button class="cbm__tf-btn" [class.cbm__tf-btn--on]="q.correctBoolean === false"
+                      (click)="updateQuestion(q.id, { correctBoolean: false })">Falso</button>
+                  </div>
+                }
+
+                <!-- Open -->
+                @if (q.type === 'open') {
+                  <div class="cbm__field">
+                    <label class="cbm__label">Respuesta de ejemplo (opcional)</label>
+                    <textarea class="cbm__textarea cbm__textarea--sm"
+                      placeholder="Respuesta modelo para el evaluador…"
+                      [ngModel]="q.sampleAnswer"
+                      (ngModelChange)="updateQuestion(q.id, { sampleAnswer: $event })"></textarea>
+                  </div>
+                }
+
+                <!-- Explanation -->
+                <div class="cbm__field cbm__field--exp">
+                  <label class="cbm__label">Explicación (retroalimentación, opcional)</label>
+                  <input class="cbm__input" type="text" placeholder="Se muestra al estudiante después de responder…"
+                    [ngModel]="q.explanation"
+                    (ngModelChange)="updateQuestion(q.id, { explanation: $event })" />
+                </div>
+              </div>
+            }
+
+            <button class="cbm__add-question-btn" (click)="addQuestion()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Agregar pregunta
+            </button>
+          </div>
+        }
+
+        <!-- ─── ASSIGNMENT ─────────────────────────────────── -->
+        @if (selectedType() === EContentType.ASSIGNMENT) {
+          <div class="cbm__section">
+            <h3 class="cbm__section-title">Detalles de la Tarea</h3>
+            <div class="cbm__field">
+              <label class="cbm__label">Instrucciones <span class="cbm__req">*</span></label>
+              <textarea class="cbm__textarea cbm__textarea--lg"
+                placeholder="Describe qué deben entregar los estudiantes, criterios, formato…"
+                [ngModel]="assignmentInstructions()"
+                (ngModelChange)="assignmentInstructions.set($event)"></textarea>
+              <p class="cbm__hint">Soporta Markdown para formato enriquecido.</p>
+            </div>
+            <div class="cbm__field cbm__field--sm">
+              <label class="cbm__label">Puntaje máximo</label>
+              <input class="cbm__input" type="number" min="1"
+                [ngModel]="maxScore()" (ngModelChange)="maxScore.set(+$event)" />
+            </div>
+
+            <!-- File types -->
+            <div class="cbm__field">
+              <label class="cbm__label">Tipos de archivo permitidos</label>
+              <div class="cbm__file-types">
+                @for (ft of allowedFileTypes(); track ft) {
+                  <span class="cbm__ft-chip">
+                    .{{ ft }}
+                    <button (click)="removeFileType(ft)">×</button>
+                  </span>
+                }
+                <div class="cbm__ft-add">
+                  <input class="cbm__input cbm__input--sm" type="text" placeholder="pdf, docx…"
+                    [ngModel]="newFileType()" (ngModelChange)="newFileType.set($event)"
+                    (keyup.enter)="addFileType()" />
+                  <button class="cbm__ft-add-btn" (click)="addFileType()">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Rubric -->
+            <div class="cbm__field">
+              <label class="cbm__label">Rúbrica de evaluación</label>
+              <div class="cbm__rubric">
+                @for (item of rubric(); track item.id) {
+                  <div class="cbm__rubric-row">
+                    <input class="cbm__input cbm__input--rubric" type="text" placeholder="Criterio de evaluación…"
+                      [ngModel]="item.criterion"
+                      (ngModelChange)="updateRubricItem(item.id, { criterion: $event })" />
+                    <input class="cbm__input cbm__input--pts" type="number" min="1"
+                      [ngModel]="item.maxPoints"
+                      (ngModelChange)="updateRubricItem(item.id, { maxPoints: +$event })" />
+                    <span class="cbm__pts-label">pts</span>
+                    <button class="cbm__rubric-remove" (click)="removeRubricItem(item.id)">×</button>
+                  </div>
+                }
+                <button class="cbm__add-rubric-btn" (click)="addRubricItem()">+ Agregar criterio</button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- ─── LIVE SESSION ───────────────────────────────── -->
+        @if (selectedType() === EContentType.LIVE_SESSION) {
+          <div class="cbm__section">
+            <h3 class="cbm__section-title">Sesión en Vivo</h3>
+            <div class="cbm__field">
+              <label class="cbm__label">Descripción / Agenda</label>
+              <textarea class="cbm__textarea cbm__textarea--md"
+                placeholder="Describe qué se abordará en esta sesión sincrónica…"
+                [ngModel]="description()" (ngModelChange)="description.set($event)"></textarea>
+            </div>
+            <div class="cbm__field">
+              <label class="cbm__label">Enlace de la sesión</label>
+              <input class="cbm__input" type="url" placeholder="https://meet.google.com/... o https://zoom.us/..."
+                [ngModel]="videoUrl()" (ngModelChange)="videoUrl.set($event)" />
+            </div>
+          </div>
+        }
+
+      </div>
+
+      <!-- ── Footer actions ── -->
+      <footer class="cbm__footer">
+        <button class="cbm__cancel-btn" (click)="close()">Cancelar</button>
+        <button class="cbm__save-btn" [disabled]="!canSave()" (click)="save()">
+          Agregar bloque
+        </button>
+      </footer>
+    }
+
+  </div>
+</div>

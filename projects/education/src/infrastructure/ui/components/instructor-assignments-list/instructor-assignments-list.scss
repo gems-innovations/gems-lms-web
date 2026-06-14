@@ -1,13 +1,13 @@
 :host { display: flex; flex-direction: column; gap: 4px; }
 
-.ialist__empty {
+.instructor-assignments-list__empty {
   padding: var(--spacing-xl);
   text-align: center;
   color: var(--color-texto-terciario);
   font-size: var(--font-size-sm);
 }
 
-.ialist__row {
+.instructor-assignments-list__row {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
@@ -27,7 +27,7 @@
   }
 }
 
-.ialist__icon {
+.instructor-assignments-list__icon {
   width: 36px;
   height: 36px;
   border-radius: var(--border-radius-sm);
@@ -44,7 +44,7 @@
   }
 }
 
-.ialist__info {
+.instructor-assignments-list__info {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -52,7 +52,7 @@
   min-width: 0;
 }
 
-.ialist__title {
+.instructor-assignments-list__title {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--color-texto-principal);
@@ -61,19 +61,19 @@
   text-overflow: ellipsis;
 }
 
-.ialist__meta {
+.instructor-assignments-list__meta {
   font-size: var(--font-size-xs);
   color: var(--color-texto-terciario);
 }
 
-.ialist__counts {
+.instructor-assignments-list__counts {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
   flex-shrink: 0;
 }
 
-.ialist__chip {
+.instructor-assignments-list__chip {
   padding: 3px 10px;
   border-radius: var(--border-radius-full);
   font-size: var(--font-size-xs);
@@ -89,10 +89,10 @@
   }
 }
 
-.ialist__arrow {
+.instructor-assignments-list__arrow {
   color: var(--color-texto-terciario);
   flex-shrink: 0;
   transition: color var(--transition-fast);
 
-  .ialist__row:hover & { color: var(--color-primario-claro); }
+  .instructor-assignments-list__row:hover & { color: var(--color-primario-claro); }
 }

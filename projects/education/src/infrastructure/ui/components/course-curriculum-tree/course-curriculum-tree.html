@@ -1,0 +1,95 @@
+@if (uc.course(); as c) {
+  <aside class="ctree">
+
+    <div class="ctree__section">
+      <button class="ctree__course-btn"
+        [class.ctree__course-btn--active]="uc.selectedItem().type === 'course'"
+        (click)="uc.selectCoursePanel()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        Detalles del Curso
+      </button>
+    </div>
+
+    <div class="ctree__section">
+      <div class="ctree__section-header">
+        <span>Currículo</span>
+        <span class="ctree__count">{{ c.modules.length }} módulos · {{ c.totalLessons }} lecciones</span>
+      </div>
+
+      @for (mod of c.modules; track uc.trackById($index, mod)) {
+        <div class="ctree__module">
+          <div class="ctree__module-row"
+            [class.ctree__module-row--active]="uc.selectedItem().type === 'module' && uc.selectedItem().moduleId === mod.id"
+            (click)="selectModule(mod.id)">
+            <button class="ctree__expand-btn"
+              [class.ctree__expand-btn--open]="isModuleExpanded(mod.id)"
+              (click)="$event.stopPropagation(); toggleExpand(mod.id)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+            <div class="ctree__module-info">
+              <span class="ctree__module-title">{{ mod.title }}</span>
+              <span class="ctree__module-meta">{{ mod.lessons.length }} lecciones</span>
+            </div>
+            <button class="ctree__add-lesson-btn" title="Agregar lección" (click)="startAddLesson(mod.id, $event)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+          </div>
+
+          @if (isModuleExpanded(mod.id)) {
+            <div class="ctree__lessons">
+              @for (lesson of mod.lessons; track uc.trackById($index, lesson)) {
+                <button class="ctree__lesson-row"
+                  [class.ctree__lesson-row--active]="uc.selectedItem().type === 'lesson' && uc.selectedItem().lessonId === lesson.id"
+                  (click)="uc.selectLesson(mod.id, lesson.id)">
+                  <span class="ctree__lesson-dot"></span>
+                  <span class="ctree__lesson-title">{{ lesson.title }}</span>
+                  @if (lesson.isFree) { <span class="ctree__free-tag">Libre</span> }
+                  <span class="ctree__lesson-dur">{{ uc.formatDuration(lesson.duration) }}</span>
+                </button>
+              }
+
+              @if (addingLessonInModule() === mod.id) {
+                <div class="ctree__inline-form">
+                  <input class="ctree__inline-input" type="text" placeholder="Título de la lección…"
+                    [ngModel]="newLessonTitle()" (ngModelChange)="newLessonTitle.set($event)"
+                    (keyup.enter)="submitAddLesson()" (keyup.escape)="cancelAddLesson()" autofocus />
+                  <div class="ctree__inline-actions">
+                    <button class="ctree__inline-confirm" (click)="submitAddLesson()">Agregar</button>
+                    <button class="ctree__inline-cancel" (click)="cancelAddLesson()">Cancelar</button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (addingModule()) {
+        <div class="ctree__inline-form ctree__inline-form--module">
+          <input class="ctree__inline-input" type="text" placeholder="Título del módulo…"
+            [ngModel]="newModuleTitle()" (ngModelChange)="newModuleTitle.set($event)"
+            (keyup.enter)="submitAddModule()" (keyup.escape)="cancelAddModule()" autofocus />
+          <div class="ctree__inline-actions">
+            <button class="ctree__inline-confirm" (click)="submitAddModule()">Crear</button>
+            <button class="ctree__inline-cancel" (click)="cancelAddModule()">Cancelar</button>
+          </div>
+        </div>
+      }
+
+      @if (!addingModule()) {
+        <button class="ctree__add-module-btn" (click)="startAddModule()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Agregar Módulo
+        </button>
+      }
+    </div>
+  </aside>
+}

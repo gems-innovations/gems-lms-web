@@ -1,5 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { AuthSessionService, UserManagementUseCase, ICreateUserPayload } from 'auth';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   ConfirmationDialogComponent,
   EmptyStateComponent,
@@ -8,7 +7,8 @@ import {
   PageComponent,
   PageHeaderComponent
 } from 'shared';
-import { UserForm, ICreateUserForm } from '../../forms/user-form/user-form';
+import { AdminUserManagementUseCase, ICreateUserForm } from '../../../../application/admin-user-management.usecase';
+import { UserForm } from '../../forms/user-form/user-form';
 import { UserImportPanel } from '../../components/user-import-panel/user-import-panel';
 import { UserStatsChips } from '../../components/user-stats-chips/user-stats-chips';
 import { UserList } from '../../components/user-list/user-list';
@@ -30,51 +30,12 @@ import { UserList } from '../../components/user-list/user-list';
   templateUrl: './user-management-container.html'
 })
 export class UserManagementContainer implements OnInit {
-  private readonly authSession = inject(AuthSessionService);
-  private readonly uc = inject(UserManagementUseCase);
+  protected readonly uc = inject(AdminUserManagementUseCase);
 
-  readonly users = this.uc.users;
-  readonly isLoading = this.uc.isLoading;
-  readonly isCreating = this.uc.isCreating;
-  readonly isDeleting = this.uc.isDeleting;
+  ngOnInit(): void { this.uc.load(); }
 
-  readonly showCreateForm = signal(false);
-  readonly showImportPanel = signal(false);
-  readonly pendingDeleteId = signal<string | null>(null);
-
-  ngOnInit(): void {
-    const institutionId = this.authSession.institutionId();
-    if (institutionId) {
-      this.uc.loadUsers(institutionId);
-    }
-  }
-
-  createUser(form: ICreateUserForm): void {
-    const institutionId = this.authSession.institutionId();
-    if (!institutionId) return;
-    const payload: ICreateUserPayload = { ...form, institutionId };
-    this.uc.createUser(payload);
-    this.showCreateForm.set(false);
-  }
-
-  bulkImport(forms: ICreateUserForm[]): void {
-    const institutionId = this.authSession.institutionId();
-    if (!institutionId) return;
-    for (const form of forms) {
-      this.uc.createUser({ ...form, institutionId });
-    }
-    this.showImportPanel.set(false);
-  }
-
-  toggleStatus(userId: string): void {
-    this.uc.toggleStatus(userId);
-  }
-
-  executeDelete(): void {
-    const id = this.pendingDeleteId();
-    if (id) {
-      this.uc.deleteUser(id);
-      this.pendingDeleteId.set(null);
-    }
-  }
+  protected createUser(form: ICreateUserForm): void  { this.uc.createUser(form); }
+  protected bulkImport(forms: ICreateUserForm[]): void { this.uc.bulkCreate(forms); }
+  protected toggleStatus(userId: string): void       { this.uc.toggleStatus(userId); }
+  protected executeDelete(): void                    { this.uc.executeDelete(); }
 }

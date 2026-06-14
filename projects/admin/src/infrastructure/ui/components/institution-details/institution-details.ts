@@ -1,6 +1,6 @@
 import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IInstitution, EInstitutionStatus, EBrandingType } from '../../../../domain/model/institution';
+import { IInstitution, EInstitutionStatus, EBrandingType } from '../../../../domain/model/institution.model';
 
 @Component({
   selector: 'adm-institution-details',

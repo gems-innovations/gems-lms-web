@@ -3,13 +3,14 @@ $purple:   #7B6FF0;
 $purple-l: #9B8FF8;
 $teal:     #3DD6C8;
 $bg:       #0b0b12;
-$surface:  #111119;
-$border:   rgba(255,255,255,.07);
+$surface:  #0e0e16;
+$border:   rgba(255,255,255,.06);
 $text:     #EDEAF8;
-$muted:    rgba(180,178,210,.45);
+$muted:    rgba(237,234,248,.38);
+$muted-hi: rgba(237,234,248,.6);
 
-$nav-open:   240px;
-$nav-closed:  64px;
+$nav-open:   252px;
+$nav-closed:  60px;
 
 :host { display: block; height: 100vh; }
 
@@ -18,6 +19,7 @@ $nav-closed:  64px;
   flex-direction: row;
   height: 100vh;
   background: $bg;
+  position: relative;
 
   // ── Left sidebar ───────────────────────────────────────────────────────────
   &__leftnav {
@@ -27,16 +29,19 @@ $nav-closed:  64px;
     border-right: 1px solid $border;
     display: flex;
     flex-direction: column;
-    transition: width .25s ease;
+    transition: width .22s ease;
     overflow: hidden;
 
     &--collapsed {
       width: $nav-closed;
 
-      .slayout__brand       { justify-content: center; padding: 0; height: 68px; }
-      .slayout__brand-name  { display: none; }
-      .slayout__navlink     { justify-content: center; padding: 14px 0; }
+      .slayout__brand         { justify-content: center; padding: 0; height: 60px; }
+      .slayout__brand-name    { display: none; }
+      .slayout__navlink       { justify-content: center; padding: 10px 0; }
       .slayout__navlink-label { display: none; }
+      .slayout__user          { justify-content: center; padding: 10px 0; }
+      .slayout__user-info     { display: none; }
+      .slayout__signout-btn   { display: none; }
     }
   }
 
@@ -44,19 +49,22 @@ $nav-closed:  64px;
   &__brand {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 0 18px;
-    height: 68px;
+    gap: 10px;
+    padding: 0 16px;
+    height: 60px;
     text-decoration: none;
     flex-shrink: 0;
     border-bottom: 1px solid $border;
+    transition: opacity .15s;
+
+    &:hover { opacity: .8; }
   }
 
   &__brand-icon {
-    width: 34px;
-    height: 34px;
-    background: linear-gradient(135deg, $purple 0%, $teal 100%);
-    border-radius: 9px;
+    width: 30px;
+    height: 30px;
+    background: $purple;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -65,9 +73,10 @@ $nav-closed:  64px;
   }
 
   &__brand-name {
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: .04em;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
     color: $text;
     white-space: nowrap;
   }
@@ -77,8 +86,8 @@ $nav-closed:  64px;
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 3px;
-    padding: 12px 10px;
+    gap: 1px;
+    padding: 16px 8px;
     overflow-y: auto;
     overflow-x: hidden;
   }
@@ -86,60 +95,102 @@ $nav-closed:  64px;
   &__navlink {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border-radius: 10px;
-    font-size: 14px;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 7px;
+    font-size: 13.5px;
     font-weight: 500;
     color: $muted;
     text-decoration: none;
     border: none;
     background: none;
     cursor: pointer;
-    transition: background .15s, color .15s;
+    transition: background .12s, color .12s;
     white-space: nowrap;
     width: 100%;
     box-sizing: border-box;
+    letter-spacing: .01em;
 
-    svg { flex-shrink: 0; width: 18px; height: 18px; }
+    svg {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      opacity: .7;
+      transition: opacity .12s;
+    }
 
     &:hover {
-      background: rgba(255,255,255,.05);
-      color: $text;
+      background: rgba(255,255,255,.04);
+      color: $muted-hi;
+      svg { opacity: .9; }
     }
 
     &--active {
-      background: rgba($purple,.12);
-      color: $purple-l;
+      background: rgba(255,255,255,.07);
+      color: $text;
+      font-weight: 600;
+      svg { opacity: 1; }
     }
   }
 
   &__navlink-label { /* visible by default, hidden via collapsed modifier */ }
 
+  // Círculo flotante en el borde derecho del sidebar, a la altura del logo
+  // Posicionado relativo a .slayout; left sigue al ancho del sidebar con transition
+  &__toggle-btn {
+    position: absolute;
+    top: 18px;
+    left: calc(#{$nav-open} - 12px);
+    z-index: 20;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.12);
+    background: #1c1c28;
+    color: $muted-hi;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: left .22s ease, background .15s, color .15s, border-color .15s;
+    flex-shrink: 0;
+
+    &:hover {
+      background: #252536;
+      border-color: rgba(255,255,255,.22);
+      color: $text;
+    }
+  }
+
+  // Cuando el sidebar está colapsado, el botón se desplaza al nuevo borde
+  &__leftnav--collapsed ~ &__toggle-btn {
+    left: calc(#{$nav-closed} - 12px);
+  }
+
   // User section (home only)
   &__user {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 12px;
+    gap: 9px;
+    padding: 10px 10px;
     border-top: 1px solid $border;
     flex-shrink: 0;
   }
 
   &__avatar {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background: linear-gradient(135deg, $purple 0%, $teal 100%);
+    background: rgba(255,255,255,.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: $text;
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 700;
     flex-shrink: 0;
     overflow: hidden;
-    border: 1.5px solid rgba($purple,.3);
+    border: 1px solid $border;
     user-select: none;
   }
 
@@ -169,23 +220,24 @@ $nav-closed:  64px;
   &__user-role {
     font-size: 10.5px;
     color: $muted;
+    letter-spacing: .02em;
   }
 
   &__signout-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border: none;
     background: transparent;
-    border-radius: 7px;
+    border-radius: 6px;
     color: $muted;
     cursor: pointer;
     flex-shrink: 0;
-    transition: background .15s, color .15s;
+    transition: background .12s, color .12s;
 
-    &:hover { background: rgba(239,68,68,.1); color: #f87171; }
+    &:hover { background: rgba(239,68,68,.08); color: rgba(248,113,113,.8); }
   }
 
   // ── Main content ───────────────────────────────────────────────────────────
@@ -195,9 +247,38 @@ $nav-closed:  64px;
     min-height: 0;
     min-width: 0;
     background: $bg;
+    container-type: inline-size;
 
     &::-webkit-scrollbar       { width: 4px; }
     &::-webkit-scrollbar-track { background: transparent; }
     &::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 2px; }
+
+    // En rutas full-width (player), el scroll lo gestiona el propio componente
+    &--full {
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  &__inner {
+    max-width: 1280px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 2.75rem 3rem 2.75rem;
+    // Sass passes CSS custom property values through unprocessed.
+    // calc() wrapping keeps / as CSS division (not Sass division).
+    --slayout-centering-gap: max(0px, calc((100cqi - 1280px) / 2));
+
+    // En rutas full-width: sin restricción de ancho, sin padding, ocupa todo
+    &--full {
+      max-width: none;
+      padding: 0;
+      margin: 0;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
   }
 }

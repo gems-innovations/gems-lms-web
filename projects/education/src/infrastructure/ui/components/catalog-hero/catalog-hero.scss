@@ -1,0 +1,134 @@
+:host { display: block; }
+
+// El contenido queda en flujo normal (sin negative margins).
+// El fondo full-bleed se hace con pseudo-elementos absolutos para
+// que el texto quede pixel-perfect alineado con lib-page.
+.chero {
+  position: relative;
+  z-index: 0;       // stacking context — confina los z-index negativos internos
+  margin-bottom: 0;
+
+  // Fondo sólido full-bleed
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(-3rem - var(--slayout-centering-gap, 0px));
+    right: calc(-3rem - var(--slayout-centering-gap, 0px));
+    background: #0e0e16;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    z-index: -2;
+    pointer-events: none;
+  }
+
+  // Patrón de dots + máscara encima del fondo
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(-3rem - var(--slayout-centering-gap, 0px));
+    right: calc(-3rem - var(--slayout-centering-gap, 0px));
+    background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 26px 26px;
+    mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,0.5) 35%, rgba(0,0,0,0.5) 65%, transparent);
+    z-index: -1;
+    pointer-events: none;
+  }
+}
+
+.chero__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  max-width: 1140px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.75rem 0; /* align: lib-page--lg */
+}
+
+// ── Left copy ──────────────────────────────────────────────────────────────────
+
+.chero__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.chero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(237, 234, 248, 0.35);
+}
+
+.chero__eyebrow-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #7B6FF0;
+  flex-shrink: 0;
+}
+
+.chero__title {
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: #EDEAF8;
+  margin: 0;
+}
+
+.chero__accent {
+  color: rgba(237, 234, 248, 0.3);
+  font-weight: 300;
+}
+
+.chero__sub {
+  font-size: 0.875rem;
+  color: rgba(237, 234, 248, 0.4);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 44ch;
+}
+
+// ── Right stat ─────────────────────────────────────────────────────────────────
+
+.chero__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 1rem 1.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.chero__stat-num {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #EDEAF8;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.chero__stat-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(237, 234, 248, 0.3);
+  line-height: 1.4;
+}

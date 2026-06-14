@@ -1,14 +1,7 @@
-import { Component, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, signal, effect, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { ICourse, ICourseModule, ILesson } from '../../../../domain/model/course.model';
-
-export interface ISidebarLesson {
-  lesson: ILesson;
-  module: ICourseModule;
-  lessonNumber: number;
-  isSelected: boolean;
-  isComplete: boolean;
-}
+import { ICourse, ILesson, EContentType } from '../../../../domain/model/course.model';
+import { formatDuration } from '../../utils/course-labels';
 
 @Component({
   selector: 'edu-player-sidebar',
@@ -19,27 +12,36 @@ export interface ISidebarLesson {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlayerSidebar {
-  readonly course          = input.required<ICourse>();
-  readonly selectedLessonId = input<string | null>(null);
+  readonly course            = input.required<ICourse>();
+  readonly selectedLessonId  = input<string | null>(null);
   readonly completedBlockIds = input<Set<string>>(new Set());
-  readonly courseProgress  = input<number>(0);
-  readonly sidebarWidth    = input<number>(500);
-  readonly collapsed       = input<boolean>(false);
+  readonly courseProgress    = input<number>(0);
+  readonly sidebarWidthPx    = input<number | null>(null);
+  readonly collapsed         = input<boolean>(false);
 
-  readonly selectLesson    = output<string>();
-  readonly toggleCollapse  = output<void>();
-  readonly resizeStart     = output<MouseEvent>();
+  readonly selectLesson   = output<string>();
+  readonly toggleCollapse = output<void>();
+  readonly resizeStart    = output<MouseEvent>();
+
+  protected readonly EContentType = EContentType;
 
   protected readonly expandedModuleIds = signal<Set<string>>(new Set());
 
-  protected isModuleExpanded(moduleId: string): boolean {
-    return this.expandedModuleIds().has(moduleId);
+  constructor() {
+    effect(() => {
+      const firstId = this.course().modules?.[0]?.id;
+      if (firstId && this.expandedModuleIds().size === 0) {
+        this.expandedModuleIds.set(new Set([firstId]));
+      }
+    });
   }
 
-  protected toggleModule(moduleId: string): void {
+  protected isModuleExpanded(id: string): boolean { return this.expandedModuleIds().has(id); }
+
+  protected toggleModule(id: string): void {
     this.expandedModuleIds.update(s => {
       const next = new Set(s);
-      next.has(moduleId) ? next.delete(moduleId) : next.add(moduleId);
+      next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
   }
@@ -56,11 +58,24 @@ export class PlayerSidebar {
     return count + lessonIdx + 1;
   }
 
-  protected formatDuration(minutes: number): string {
-    if (!minutes) return '—';
-    if (minutes < 60) return `${minutes} min`;
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  protected formatDuration(minutes: number): string { return formatDuration(minutes); }
+
+  protected lessonThumbUrl(lesson: ILesson): string | null {
+    const block = lesson.contentBlocks?.[0];
+    if (!block) return null;
+    if (block.videoThumbnailUrl) return block.videoThumbnailUrl;
+    if (block.type === EContentType.VIDEO && block.url) {
+      const m = block.url.match(/embed\/([^?/]+)/);
+      if (m) return `https://img.youtube.com/vi/${m[1]}/mqdefault.jpg`;
+    }
+    return null;
+  }
+
+  protected blockTypeLabel(type: EContentType): string {
+    const map: Record<string, string> = {
+      video: 'Video', document: 'Doc', quiz: 'Quiz',
+      assignment: 'Tarea', 'live-session': 'Live', scorm: 'SCORM',
+    };
+    return map[type] ?? type;
   }
 }

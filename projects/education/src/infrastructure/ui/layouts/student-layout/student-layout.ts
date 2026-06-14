@@ -1,8 +1,10 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, computed, inject, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AuthSessionService, EUserRole, LogoutUseCase } from 'auth';
 import { BrandingService } from 'shared';
+
+const COLLAPSED_KEY = 'gems-sl-collapsed';
 
 @Component({
   selector: 'edu-student-layout',
@@ -13,13 +15,14 @@ import { BrandingService } from 'shared';
   styleUrl: './student-layout.scss'
 })
 export class StudentLayout implements OnInit, OnDestroy {
-  private readonly authSession    = inject(AuthSessionService);
+  private readonly authSession     = inject(AuthSessionService);
   private readonly brandingService = inject(BrandingService);
-  private readonly logoutUseCase  = inject(LogoutUseCase);
-  private readonly router         = inject(Router);
+  private readonly logoutUseCase   = inject(LogoutUseCase);
+  private readonly router          = inject(Router);
   private routerSub?: Subscription;
 
-  readonly isFullWidthRoute = signal(this.checkFullWidth(this.router.url));
+  readonly isFullWidthRoute  = signal(this.checkFullWidth(this.router.url));
+  readonly sidebarCollapsed  = signal(this.initCollapsed(this.router.url));
 
   readonly user = this.authSession.user;
   readonly role = this.authSession.role;
@@ -37,7 +40,22 @@ export class StudentLayout implements OnInit, OnDestroy {
   );
 
   private checkFullWidth(url: string): boolean {
-    return url.includes('/courses/') || url.includes('/paths/');
+    // Solo el player real es full-width; preview no cuenta
+    return (url.includes('/courses/') || url.includes('/paths/'))
+      && !url.includes('/preview/');
+  }
+
+  private initCollapsed(url: string): boolean {
+    const stored = localStorage.getItem(COLLAPSED_KEY);
+    if (stored !== null) return stored === '1';
+    // Sin preferencia guardada: home abierto, resto colapsado
+    return !url.includes('/learn/home');
+  }
+
+  toggleSidebar(): void {
+    const next = !this.sidebarCollapsed();
+    this.sidebarCollapsed.set(next);
+    localStorage.setItem(COLLAPSED_KEY, next ? '1' : '0');
   }
 
   ngOnInit(): void {

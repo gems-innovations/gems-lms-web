@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe, UpperCasePipe } from '@angular/common';
-import { IInstitution, EInstitutionStatus } from '../../../../domain/model/institution';
+import { IInstitution, EInstitutionStatus } from '../../../../domain/model/institution.model';
 
 @Component({
   selector: 'adm-institution-overview-card',

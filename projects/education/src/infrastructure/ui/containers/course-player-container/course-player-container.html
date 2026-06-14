@@ -1,40 +1,54 @@
-@if (isLoading()) {
+@if (uc.isLoading()) {
   <lib-loading-skeleton [rows]="10" />
-} @else if (course(); as c) {
-  <div class="cplayer">
+} @else if (uc.course(); as c) {
+  <div class="course-player-container">
     <edu-player-topbar
       [courseTitle]="c.title"
-      [lessonTitle]="selectedLesson()?.title"
-      [hasPrev]="hasPrevBlock()"
-      [hasNext]="hasNextBlock() || hasNextLesson()"
+      [lessonTitle]="uc.selectedLesson()?.title"
+      [hasPrev]="uc.hasPrevBlock()"
+      [hasNext]="uc.hasNextBlock() || uc.hasNextLesson()"
+      [progress]="uc.courseProgress()"
       (goHome)="goHome()"
-      (prev)="prevBlock()"
-      (next)="nextBlock()"
+      (prev)="uc.prevBlock()"
+      (next)="uc.nextBlock()"
     />
 
-    <div class="cplayer__body">
-      <main class="cplayer__content">
+    <div class="course-player-container__body">
+      <main class="course-player-container__content">
         <edu-player-content-block
-          [block]="selectedBlock()"
-          [courseId]="courseId()"
-          [lessonId]="selectedLessonId()"
-          [isSubmitting]="isSubmitting()"
-          [lastQuizResult]="lastQuizResult()"
-          [isComplete]="isBlockComplete()"
+          [block]="uc.selectedBlock()"
+          [courseId]="uc.courseId()"
+          [lessonId]="uc.selectedLessonId()"
+          [isSubmitting]="uc.isSubmitting()"
+          [lastQuizResult]="uc.lastQuizResult()"
+          [isComplete]="uc.isBlockComplete()"
           (quizSubmit)="handleQuizSubmit($event)"
           (assignmentSubmit)="handleAssignmentSubmit($event)"
-          (markComplete)="markComplete()"
+          (markComplete)="uc.markComplete()"
         />
       </main>
 
+      <!--
+        El sizing del sidebar se aplica aquí, en el flex item real.
+        - Sin resize: flex: 0 0 30% (CSS puro, responde a cualquier resolución)
+        - Con resize: flex: 0 0 Xpx (override del usuario)
+        - Collapsed: flex: 0 0 48px
+      -->
       <edu-player-sidebar
+        [style.flex]="sidebarCollapsed()
+          ? '0 0 48px'
+          : sidebarWidthPx() !== null
+            ? '0 0 ' + sidebarWidthPx() + 'px'
+            : '0 0 30%'"
+        [style.minWidth]="sidebarCollapsed() ? '48px' : '320px'"
+        [style.maxWidth]="sidebarCollapsed() ? '48px' : '60%'"
         [course]="c"
-        [selectedLessonId]="selectedLessonId()"
-        [completedBlockIds]="completedBlockIds()"
-        [courseProgress]="courseProgress()"
-        [sidebarWidth]="sidebarWidth()"
+        [selectedLessonId]="uc.selectedLessonId()"
+        [completedBlockIds]="uc.completedBlockIds()"
+        [courseProgress]="uc.courseProgress()"
+        [sidebarWidthPx]="sidebarWidthPx()"
         [collapsed]="sidebarCollapsed()"
-        (selectLesson)="selectLesson($event)"
+        (selectLesson)="uc.selectLesson($event)"
         (toggleCollapse)="sidebarCollapsed.update(v => !v)"
         (resizeStart)="startSidebarResize($event)"
       />

@@ -1,0 +1,147 @@
+@if (uc.path(); as lp) {
+  <section class="lp-sequencer">
+
+    <div class="lp-sequencer__header">
+      <h3 class="lp-sequencer__title">Secuencia de Cursos</h3>
+      <button class="lp-sequencer__btn-add" (click)="showCoursePicker.set(true)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Agregar Curso
+      </button>
+    </div>
+
+    @if (lp.steps.length === 0) {
+      <div class="lp-sequencer__empty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        <p>No hay cursos en esta ruta todavía.</p>
+        <p>Agrega cursos para construir el itinerario de aprendizaje.</p>
+        <button class="lp-sequencer__btn-add" (click)="showCoursePicker.set(true)">
+          Agregar primer curso
+        </button>
+      </div>
+    }
+
+    <div class="lp-sequencer__steps">
+      @for (step of lp.steps; track uc.trackById($index, step); let last = $last) {
+        <div class="lp-sequencer__step">
+          @if (!last) {
+            <div class="lp-sequencer__connector"></div>
+          }
+
+          <div class="lp-sequencer__order">{{ step.order }}</div>
+
+          <div class="lp-sequencer__card">
+            @if (step.courseThumbnailUrl) {
+              <div class="lp-sequencer__thumb" [style.backgroundImage]="'url(' + step.courseThumbnailUrl + ')'"></div>
+            } @else {
+              <div class="lp-sequencer__thumb lp-sequencer__thumb--placeholder">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+              </div>
+            }
+
+            <div class="lp-sequencer__body">
+              <span class="lp-sequencer__step-title">{{ step.courseTitle }}</span>
+              <div class="lp-sequencer__meta">
+                <span>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  {{ uc.formatDuration(step.estimatedDuration) }}
+                </span>
+                @if (step.minimumScore) {
+                  <span>Mín. {{ step.minimumScore }}%</span>
+                }
+              </div>
+            </div>
+
+            <button
+              class="lp-sequencer__req-toggle"
+              [class.lp-sequencer__req-toggle--on]="step.isRequired"
+              (click)="uc.toggleRequired(step.id)"
+              [title]="step.isRequired ? 'Obligatorio (clic para cambiar)' : 'Opcional (clic para cambiar)'"
+            >
+              {{ step.isRequired ? 'Obligatorio' : 'Opcional' }}
+            </button>
+
+            <div class="lp-sequencer__controls">
+              <button class="lp-sequencer__order-btn" [disabled]="step.order === 1" (click)="uc.moveStep(step.id, 'up')" title="Mover arriba">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="18 15 12 9 6 15"/>
+                </svg>
+              </button>
+              <button class="lp-sequencer__order-btn" [disabled]="step.order === lp.steps.length" (click)="uc.moveStep(step.id, 'down')" title="Mover abajo">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              <button class="lp-sequencer__order-btn lp-sequencer__order-btn--remove" (click)="uc.removeStep(step.id)" title="Quitar de la ruta">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (showCoursePicker()) {
+      <div class="lp-sequencer__overlay" (click)="showCoursePicker.set(false)">
+        <div class="lp-sequencer__picker" (click)="$event.stopPropagation()">
+          <div class="lp-sequencer__picker-header">
+            <h3>Agregar Curso</h3>
+            <button class="lp-sequencer__picker-close" (click)="showCoursePicker.set(false)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="lp-sequencer__picker-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Buscar curso…"
+              [ngModel]="uc.coursePickerSearch()"
+              (ngModelChange)="uc.setCoursePickerSearch($event)"
+              autofocus
+            />
+          </div>
+
+          <div class="lp-sequencer__picker-list">
+            @if (uc.availableCourses().length === 0) {
+              <p class="lp-sequencer__picker-empty">
+                {{ uc.coursePickerSearch() ? 'Ningún curso encontrado.' : 'Todos los cursos ya están en la ruta.' }}
+              </p>
+            }
+            @for (course of uc.availableCourses(); track course.id) {
+              <button class="lp-sequencer__picker-item" (click)="addCourse(course)">
+                @if (course.thumbnailUrl) {
+                  <div class="lp-sequencer__picker-thumb" [style.backgroundImage]="'url(' + course.thumbnailUrl + ')'"></div>
+                } @else {
+                  <div class="lp-sequencer__picker-thumb lp-sequencer__picker-thumb--empty"></div>
+                }
+                <div class="lp-sequencer__picker-body">
+                  <span class="lp-sequencer__picker-title">{{ course.title }}</span>
+                  <span class="lp-sequencer__picker-meta">{{ uc.formatDuration(course.totalDuration) }} · {{ course.totalLessons }} lecciones</span>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+  </section>
+}

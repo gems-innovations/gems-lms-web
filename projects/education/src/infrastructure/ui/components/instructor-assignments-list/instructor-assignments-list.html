@@ -1,10 +1,10 @@
 @if (assignments().length === 0) {
-  <div class="ialist__empty">Este curso no tiene evaluaciones ni tareas.</div>
+  <div class="instructor-assignments-list__empty">Este curso no tiene evaluaciones ni tareas.</div>
 }
 
 @for (a of assignments(); track a.block.id) {
-  <button type="button" class="ialist__row" (click)="selectAssignment.emit(a.block.id)">
-    <div class="ialist__icon" [class.ialist__icon--quiz]="a.block.type === EContentType.QUIZ">
+  <button type="button" class="instructor-assignments-list__row" (click)="selectAssignment.emit(a.block.id)">
+    <div class="instructor-assignments-list__icon" [class.instructor-assignments-list__icon--quiz]="a.block.type === EContentType.QUIZ">
       @if (a.block.type === EContentType.QUIZ) {
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"/>
@@ -19,19 +19,19 @@
       }
     </div>
 
-    <div class="ialist__info">
-      <span class="ialist__title">{{ a.block.title }}</span>
-      <span class="ialist__meta">{{ a.moduleTitle }} · {{ a.lessonTitle }}</span>
+    <div class="instructor-assignments-list__info">
+      <span class="instructor-assignments-list__title">{{ a.block.title }}</span>
+      <span class="instructor-assignments-list__meta">{{ a.moduleTitle }} · {{ a.lessonTitle }}</span>
     </div>
 
-    <div class="ialist__counts">
+    <div class="instructor-assignments-list__counts">
       @if (a.pendingCount > 0) {
-        <span class="ialist__chip ialist__chip--pending">{{ a.pendingCount }} pendientes</span>
+        <span class="instructor-assignments-list__chip instructor-assignments-list__chip--pending">{{ a.pendingCount }} pendientes</span>
       }
-      <span class="ialist__chip">{{ a.submittedCount }} entregas</span>
+      <span class="instructor-assignments-list__chip">{{ a.submittedCount }} entregas</span>
     </div>
 
-    <svg class="ialist__arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <svg class="instructor-assignments-list__arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <polyline points="9 18 15 12 9 6"/>
     </svg>
   </button>

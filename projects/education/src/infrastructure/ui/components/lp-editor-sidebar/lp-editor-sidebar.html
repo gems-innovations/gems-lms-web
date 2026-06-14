@@ -1,0 +1,49 @@
+@if (uc.path(); as lp) {
+  <aside class="lp-sidebar">
+    @if (lp.thumbnailUrl) {
+      <div class="lp-sidebar__thumbnail" [style.backgroundImage]="'url(' + lp.thumbnailUrl + ')'">
+        <div class="lp-sidebar__thumbnail-overlay"></div>
+      </div>
+    }
+
+    <div class="lp-sidebar__meta">
+      <h2 class="lp-sidebar__title">{{ lp.title }}</h2>
+      <p class="lp-sidebar__desc">{{ lp.description }}</p>
+
+      @if (lp.tags.length > 0) {
+        <div class="lp-sidebar__tags">
+          @for (tag of lp.tags; track tag) {
+            <span class="lp-sidebar__tag">{{ tag }}</span>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="lp-sidebar__stats">
+      <div class="lp-sidebar__stat">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        <span>{{ lp.steps.length }} cursos</span>
+      </div>
+      <div class="lp-sidebar__stat">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span>{{ uc.formatDuration(uc.totalDuration(lp)) }}</span>
+      </div>
+      <div class="lp-sidebar__stat">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        </svg>
+        <span>{{ lp.enrolledCount | number }} estudiantes</span>
+      </div>
+      <div class="lp-sidebar__stat">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        <span>{{ lp.completionRate }}% completado</span>
+      </div>
+    </div>
+  </aside>
+}

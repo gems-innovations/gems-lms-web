@@ -140,6 +140,8 @@ export interface ICourse {
   totalLessons: number;
   enrolledCount: number;
   completionRate: number;
+  averageRating?: number;   // 0-5
+  ratingCount?: number;
   createdAt: Date;
   updatedAt: Date;
   publishedAt?: Date;

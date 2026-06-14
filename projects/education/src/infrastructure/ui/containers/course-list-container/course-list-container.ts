@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   CardGridComponent,
@@ -51,17 +51,10 @@ export class CourseListContainer implements OnInit {
     { id: ECourseStatus.ARCHIVED, label: 'Archivados' }
   ];
 
-  readonly activeTab = signal<string>(ALL_TAB);
+  readonly activeTab  = signal<string>(ALL_TAB);
   readonly searchTerm = signal<string>('');
 
-  readonly showDeleteDialog = computed(() => {
-    const modal = this.uc.modal();
-    return modal.isOpen && modal.mode === 'delete';
-  });
-
-  ngOnInit(): void {
-    this.uc.load();
-  }
+  ngOnInit(): void { this.uc.load(); }
 
   onSearch(term: string): void {
     this.searchTerm.set(term);

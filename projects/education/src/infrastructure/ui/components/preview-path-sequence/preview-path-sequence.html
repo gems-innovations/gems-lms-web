@@ -1,45 +1,108 @@
-<div class="pseq">
-  <div class="pseq__header">
-    <h2 class="pseq__title">Secuencia del programa</h2>
-    <span class="pseq__summary">{{ path().steps.length }} cursos en orden</span>
+<div class="psequence">
+
+  <!-- ── Header ── -->
+  <div class="psequence__header">
+    <div class="psequence__header-left">
+      <h2 class="psequence__title">Cursos en esta ruta</h2>
+      <p class="psequence__subtitle">
+        {{ path().steps.length }} cursos · {{ formatDuration(path().estimatedDuration) }} totales
+      </p>
+    </div>
+
+    @if (path().averageRating) {
+      <div class="psequence__rating">
+        <div class="psequence__stars">
+          @for (s of stars(path().averageRating!); track $index) {
+            @if (s === 'full') {
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            } @else if (s === 'half') {
+              <svg width="14" height="14" viewBox="0 0 24 24"><defs><clipPath id="ph"><rect x="0" y="0" width="12" height="24"/></clipPath></defs><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="rgba(255,255,255,0.12)"/><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor" clip-path="url(#ph)"/></svg>
+            } @else {
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.12)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            }
+          }
+        </div>
+        <span class="psequence__rating-num">{{ path().averageRating!.toFixed(1) }}</span>
+        <span class="psequence__rating-count">({{ formatRatingCount(path().ratingCount!) }})</span>
+      </div>
+    }
   </div>
 
-  <div class="pseq__steps">
+  <!-- ── Timeline ── -->
+  <div class="psequence__steps">
     @for (step of path().steps; track step.id; let last = $last) {
-      <div class="pseq__step" [class.pseq__step--last]="last">
-        <div class="pseq__aside">
-          <div class="pseq__num">{{ step.order }}</div>
-          @if (!last) { <div class="pseq__line"></div> }
+      <div class="psequence__step">
+
+        <!-- Spine: numbered node + connecting line -->
+        <div class="psequence__spine">
+          <div class="psequence__node">{{ step.order }}</div>
+          @if (!last) { <div class="psequence__connector"></div> }
         </div>
 
-        <div class="pseq__card">
-          @if (step.courseThumbnailUrl) {
-            <img class="pseq__thumb" [src]="step.courseThumbnailUrl" [alt]="step.courseTitle">
-          } @else {
-            <div class="pseq__thumb pseq__thumb--empty">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-              </svg>
-            </div>
-          }
+        <!-- Course card -->
+        <div class="psequence__card">
 
-          <div class="pseq__info">
-            <span class="pseq__course-title">{{ step.courseTitle }}</span>
-            <div class="pseq__meta">
+          <!-- Thumbnail -->
+          <div class="psequence__thumb-wrap">
+            @if (step.courseThumbnailUrl) {
+              <img class="psequence__thumb" [src]="step.courseThumbnailUrl" [alt]="step.courseTitle">
+            } @else {
+              <div class="psequence__thumb psequence__thumb--empty">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25">
+                  <rect x="2" y="3" width="20" height="14" rx="2"/>
+                  <path d="M8 21h8M12 17v4"/>
+                </svg>
+              </div>
+            }
+          </div>
+
+          <!-- Info -->
+          <div class="psequence__info">
+            <span class="psequence__course-title">{{ step.courseTitle }}</span>
+
+            <div class="psequence__meta">
               @if (step.estimatedDuration) {
-                <span>{{ formatDuration(step.estimatedDuration) }}</span>
+                <span class="psequence__meta-item">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  {{ formatDuration(step.estimatedDuration) }}
+                </span>
               }
+              @if (step.moduleCount) {
+                <span class="psequence__meta-item">{{ step.moduleCount }} módulos</span>
+              }
+              @if (step.lessonCount) {
+                <span class="psequence__meta-item">{{ step.lessonCount }} lecciones</span>
+              }
+            </div>
+
+            <div class="psequence__badges">
               @if (step.isRequired) {
-                <span class="pseq__required">Obligatorio</span>
+                <span class="psequence__badge psequence__badge--required">Obligatorio</span>
+              } @else {
+                <span class="psequence__badge psequence__badge--optional">Opcional</span>
+              }
+              @if (step.minimumScore) {
+                <span class="psequence__badge psequence__badge--score">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  Mín. {{ step.minimumScore }}%
+                </span>
               }
             </div>
           </div>
 
-          <svg class="pseq__lock" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
+          <!-- Access icon -->
+          @if (step.order === 1) {
+            <svg class="psequence__access psequence__access--free" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+            </svg>
+          } @else {
+            <svg class="psequence__access" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          }
+
         </div>
       </div>
     }

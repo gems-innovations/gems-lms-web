@@ -1,35 +1,35 @@
-<div class="enrmgr">
+<div class="enrollment-manager-container">
 
-  <div class="enrmgr__header">
+  <div class="enrollment-manager-container__header">
     <div>
-      <h1 class="enrmgr__title">Gestión de Matrículas</h1>
-      <p class="enrmgr__subtitle">Inscribe estudiantes en cursos de forma individual o masiva.</p>
+      <h1 class="enrollment-manager-container__title">Gestión de Matrículas</h1>
+      <p class="enrollment-manager-container__subtitle">Inscribe estudiantes en cursos de forma individual o masiva.</p>
     </div>
-    <div class="enrmgr__stats">
-      <div class="enrmgr__stat">
-        <span class="enrmgr__stat-n">{{ students().length }}</span>
-        <span class="enrmgr__stat-l">Estudiantes</span>
+    <div class="enrollment-manager-container__stats">
+      <div class="enrollment-manager-container__stat">
+        <span class="enrollment-manager-container__stat-n">{{ uc.students().length }}</span>
+        <span class="enrollment-manager-container__stat-l">Estudiantes</span>
       </div>
-      <div class="enrmgr__stat">
-        <span class="enrmgr__stat-n">{{ courses().length }}</span>
-        <span class="enrmgr__stat-l">Cursos</span>
+      <div class="enrollment-manager-container__stat">
+        <span class="enrollment-manager-container__stat-n">{{ uc.courses().length }}</span>
+        <span class="enrollment-manager-container__stat-l">Cursos</span>
       </div>
     </div>
   </div>
 
-  @if (isLoading()) {
+  @if (uc.isLoading()) {
     <lib-loading-skeleton [rows]="6" />
   } @else {
 
-    <div class="enrmgr__tabs">
-      <button type="button" class="enrmgr__tab" [class.enrmgr__tab--active]="activeTab() === 'individual'" (click)="activeTab.set('individual')">
+    <div class="enrollment-manager-container__tabs">
+      <button type="button" class="enrollment-manager-container__tab" [class.enrollment-manager-container__tab--active]="uc.activeTab() === 'individual'" (click)="uc.setActiveTab('individual')">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
         Matriculación individual
       </button>
-      <button type="button" class="enrmgr__tab" [class.enrmgr__tab--active]="activeTab() === 'bulk'" (click)="activeTab.set('bulk')">
+      <button type="button" class="enrollment-manager-container__tab" [class.enrollment-manager-container__tab--active]="uc.activeTab() === 'bulk'" (click)="uc.setActiveTab('bulk')">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
           <circle cx="9" cy="7" r="4"/>
@@ -41,20 +41,20 @@
     </div>
 
     <!-- Individual tab -->
-    @if (activeTab() === 'individual') {
-      <div class="enrmgr__panel">
-        <div class="enrmgr__form">
+    @if (uc.activeTab() === 'individual') {
+      <div class="enrollment-manager-container__panel">
+        <div class="enrollment-manager-container__form">
 
-          <div class="enrmgr__field">
-            <label class="enrmgr__label">Estudiante</label>
-            @if (selectedStudent(); as s) {
-              <div class="enrmgr__selected-student">
-                <div class="enrmgr__avatar">{{ initials(s) }}</div>
-                <div class="enrmgr__selected-info">
-                  <span class="enrmgr__selected-name">{{ s.firstName }} {{ s.lastName }}</span>
-                  <span class="enrmgr__selected-email">{{ s.email }}</span>
+          <div class="enrollment-manager-container__field">
+            <label class="enrollment-manager-container__label">Estudiante</label>
+            @if (uc.selectedStudent(); as s) {
+              <div class="enrollment-manager-container__selected-student">
+                <div class="enrollment-manager-container__avatar">{{ initials(s) }}</div>
+                <div class="enrollment-manager-container__selected-info">
+                  <span class="enrollment-manager-container__selected-name">{{ s.firstName }} {{ s.lastName }}</span>
+                  <span class="enrollment-manager-container__selected-email">{{ s.email }}</span>
                 </div>
-                <button type="button" class="enrmgr__clear-btn" (click)="clearStudent()">
+                <button type="button" class="enrollment-manager-container__clear-btn" (click)="clearStudent()">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                   </svg>
@@ -62,30 +62,30 @@
               </div>
             } @else {
               <edu-enroll-student-search
-                [students]="students()"
+                [students]="uc.students()"
                 (studentSelect)="selectStudent($event)"
               />
             }
           </div>
 
-          <div class="enrmgr__field">
-            <label class="enrmgr__label">Curso</label>
-            <select class="enrmgr__select" [ngModel]="selectedCourse()" (ngModelChange)="selectedCourse.set($event)">
+          <div class="enrollment-manager-container__field">
+            <label class="enrollment-manager-container__label">Curso</label>
+            <select class="enrollment-manager-container__select" [ngModel]="uc.selectedCourse()" (ngModelChange)="uc.setSelectedCourse($event)">
               <option value="">Selecciona un curso…</option>
-              @for (c of courses(); track c.id) {
+              @for (c of uc.courses(); track c.id) {
                 <option [value]="c.id">{{ c.title }}</option>
               }
             </select>
           </div>
 
-          <button type="button" class="enrmgr__submit-btn" [disabled]="!selectedStudent() || !selectedCourse()" (click)="enrollSingle()">
+          <button type="button" class="enrollment-manager-container__submit-btn" [disabled]="!uc.selectedStudent() || !uc.selectedCourse()" (click)="enrollSingle()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
             Matricular estudiante
           </button>
 
-          @if (bulkResult(); as r) {
+          @if (uc.bulkResult(); as r) {
             <edu-enroll-result-banner [success]="r.success" [skipped]="r.skipped" [errors]="r.errors" />
           }
 
@@ -94,45 +94,45 @@
     }
 
     <!-- Bulk tab -->
-    @if (activeTab() === 'bulk') {
-      <div class="enrmgr__panel">
-        <div class="enrmgr__form">
+    @if (uc.activeTab() === 'bulk') {
+      <div class="enrollment-manager-container__panel">
+        <div class="enrollment-manager-container__form">
 
-          <div class="enrmgr__field">
-            <label class="enrmgr__label">Curso destino</label>
-            <select class="enrmgr__select" [ngModel]="bulkCourseId()" (ngModelChange)="bulkCourseId.set($event)">
+          <div class="enrollment-manager-container__field">
+            <label class="enrollment-manager-container__label">Curso destino</label>
+            <select class="enrollment-manager-container__select" [ngModel]="uc.bulkCourseId()" (ngModelChange)="uc.setBulkCourseId($event)">
               <option value="">Selecciona un curso…</option>
-              @for (c of courses(); track c.id) {
+              @for (c of uc.courses(); track c.id) {
                 <option [value]="c.id">{{ c.title }}</option>
               }
             </select>
           </div>
 
-          <div class="enrmgr__field">
-            <label class="enrmgr__label">
+          <div class="enrollment-manager-container__field">
+            <label class="enrollment-manager-container__label">
               Correos electrónicos
-              <span class="enrmgr__label-hint">uno por línea</span>
+              <span class="enrollment-manager-container__label-hint">uno por línea</span>
             </label>
-            <textarea class="enrmgr__textarea" rows="10"
+            <textarea class="enrollment-manager-container__textarea" rows="10"
               placeholder="ana.garcia@company.com&#10;carlos.lopez@company.com"
-              [ngModel]="bulkText()" (ngModelChange)="bulkText.set($event)"></textarea>
-            @if (bulkText().length > 0) {
-              <span class="enrmgr__preview-count">{{ bulkEntries().length }} correo(s) detectado(s)</span>
+              [ngModel]="uc.bulkText()" (ngModelChange)="uc.setBulkText($event)"></textarea>
+            @if (uc.bulkText().length > 0) {
+              <span class="enrollment-manager-container__preview-count">{{ uc.bulkEntries().length }} correo(s) detectado(s)</span>
             }
           </div>
 
-          <button type="button" class="enrmgr__submit-btn"
-            [disabled]="!bulkCourseId() || bulkEntries().length === 0"
+          <button type="button" class="enrollment-manager-container__submit-btn"
+            [disabled]="!uc.bulkCourseId() || uc.bulkEntries().length === 0"
             (click)="submitBulk()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
               <circle cx="9" cy="7" r="4"/>
               <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
             </svg>
-            Matricular {{ bulkEntries().length }} estudiante(s)
+            Matricular {{ uc.bulkEntries().length }} estudiante(s)
           </button>
 
-          @if (bulkResult(); as r) {
+          @if (uc.bulkResult(); as r) {
             <edu-enroll-result-banner [success]="r.success" [skipped]="r.skipped" [errors]="r.errors" />
           }
 

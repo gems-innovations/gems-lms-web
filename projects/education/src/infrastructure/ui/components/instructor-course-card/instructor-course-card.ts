@@ -1,12 +1,6 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { ICourse } from '../../../../domain/model/course.model';
-
-export interface ICourseStats {
-  studentCount: number;
-  avgProgress: number;
-  avgGrade: number | null;
-  pendingCount: number;
-}
+import { ICourseStats } from '../../../../domain/model/instructor.model';
 
 @Component({
   selector: 'edu-instructor-course-card',

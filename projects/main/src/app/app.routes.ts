@@ -12,7 +12,7 @@ export const routes: Routes = [
   {
     path: 'auth',
     canActivate: [loginRedirectGuard], // already logged in? → go to role home
-    loadChildren: () => import('auth').then(m => m.routes)
+    loadChildren: () => import('auth').then(m => m.routes) 
   },
 
   // ── Admin panel (super_admin + admin + instructor for preview) ─────────

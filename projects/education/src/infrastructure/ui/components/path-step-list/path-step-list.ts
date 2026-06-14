@@ -1,13 +1,6 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { ILearningPathStep } from '../../../../domain/model/learning-path.model';
+import { IStepEntry } from '../../../../domain/model/learning-path.model';
 import { formatDuration } from '../../utils/course-labels';
-
-export interface IStepEntry {
-  step: ILearningPathStep;
-  isCompleted: boolean;
-  isCurrent: boolean;
-  isLocked: boolean;
-}
 
 @Component({
   selector: 'edu-path-step-list',

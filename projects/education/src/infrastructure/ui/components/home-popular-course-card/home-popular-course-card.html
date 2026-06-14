@@ -1,0 +1,47 @@
+<article class="pccard" (click)="open.emit(course())">
+  <div
+    class="pccard__thumb"
+    [style.backgroundImage]="course().thumbnailUrl ? 'url(' + course().thumbnailUrl + ')' : 'none'"
+  >
+    @if (!course().thumbnailUrl) {
+      <div class="pccard__thumb-placeholder">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.3">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+      </div>
+    }
+    <div class="pccard__overlay"></div>
+    <span class="pccard__diff pccard__diff--{{ course().difficulty }}">
+      {{ diffLabel[course().difficulty] }}
+    </span>
+  </div>
+
+  <div class="pccard__body">
+    <h3 class="pccard__title">{{ course().title }}</h3>
+    @if (course().instructorName) {
+      <p class="pccard__instructor">{{ course().instructorName }}</p>
+    }
+    <div class="pccard__meta">
+      <span>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        {{ formatDuration(course().totalDuration) }}
+      </span>
+      <span>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        </svg>
+        {{ course().enrolledCount | number }}
+      </span>
+    </div>
+  </div>
+
+  <div class="pccard__cta">
+    Ver curso
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
+  </div>
+</article>

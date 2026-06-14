@@ -1,9 +1,7 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { IEnrollment } from '../../../../domain/model/enrollment.model';
 import { IStudentProfile } from '../../../services/enrollment.service';
-
-export interface IEnrollmentRow extends IEnrollment { student: IStudentProfile; }
+import { IEnrollmentRow } from '../../../../domain/model/instructor.model';
 
 @Component({
   selector: 'edu-instructor-student-table',
