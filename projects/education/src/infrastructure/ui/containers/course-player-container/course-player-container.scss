@@ -18,6 +18,54 @@
   overflow: hidden;
 }
 
+/* ── Banner curso completado ───────────────────────────────────────────────── */
+
+.course-complete-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 11px 24px;
+  background: linear-gradient(90deg, rgba(61,214,200,0.12), rgba(123,111,240,0.1));
+  border-bottom: 1px solid rgba(61,214,200,0.2);
+  flex-shrink: 0;
+}
+
+.course-complete-banner__content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #3DD6C8;
+
+  strong { color: #EDEAF8; font-weight: 600; }
+}
+
+.course-complete-banner__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(61,214,200,0.35);
+  background: rgba(61,214,200,0.1);
+  color: #3DD6C8;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(61,214,200,0.18);
+    border-color: rgba(61,214,200,0.55);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+
 .course-player-container__content {
   flex: 1;
   overflow-y: auto;

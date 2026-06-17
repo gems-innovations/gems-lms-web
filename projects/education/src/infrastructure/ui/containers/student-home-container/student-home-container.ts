@@ -50,4 +50,8 @@ export class StudentHomeContainer implements OnInit {
   protected openCatalog(): void {
     this.router.navigate(['/learn/catalog']);
   }
+
+  protected openMyLearning(): void {
+    this.router.navigate(['/learn/my-learning']);
+  }
 }

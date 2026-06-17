@@ -6,6 +6,9 @@ import { MyLearningUseCase } from '../../../../application/my-learning.usecase';
 import { IEnrolledCourseEntry, IEnrolledPathEntry } from '../../../../domain/model/enrollment.model';
 import { CourseProgressCard } from '../../components/course-progress-card/course-progress-card';
 
+const PAGE_SIZE      = 4;
+const PATH_PAGE_SIZE = 6;
+
 @Component({
   selector: 'edu-my-learning-container',
   standalone: true,
@@ -20,7 +23,15 @@ export class MyLearningContainer implements OnInit {
   readonly today = new Date();
 
   protected readonly courseSearch = signal('');
-  protected readonly pathSearch   = signal('');
+  protected readonly coursePage   = signal(1);
+
+  protected readonly pathSearch = signal('');
+  protected readonly pathPage   = signal(1);
+
+  protected readonly certSearch = signal('');
+  protected readonly certPage   = signal(1);
+
+  /* ── Courses ── */
 
   protected readonly filteredCourses = computed(() => {
     const q = this.courseSearch().toLowerCase().trim();
@@ -31,13 +42,16 @@ export class MyLearningContainer implements OnInit {
     );
   });
 
-  protected readonly filteredInProgress = computed(() =>
-    this.filteredCourses().filter(e => e.enrollment.status === 'active')
+  protected readonly courseTotalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredCourses().length / PAGE_SIZE))
   );
 
-  protected readonly filteredCompleted = computed(() =>
-    this.filteredCourses().filter(e => e.enrollment.status === 'completed')
-  );
+  protected readonly pagedCourses = computed(() => {
+    const page = this.coursePage();
+    return this.filteredCourses().slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  });
+
+  /* ── Paths ── */
 
   protected readonly filteredPaths = computed(() => {
     const q = this.pathSearch().toLowerCase().trim();
@@ -48,6 +62,34 @@ export class MyLearningContainer implements OnInit {
     );
   });
 
+  protected readonly pathTotalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredPaths().length / PATH_PAGE_SIZE))
+  );
+
+  protected readonly pagedPaths = computed(() => {
+    const page = this.pathPage();
+    return this.filteredPaths().slice((page - 1) * PATH_PAGE_SIZE, page * PATH_PAGE_SIZE);
+  });
+
+  /* ── Certifications ── */
+
+  protected readonly filteredCerts = computed(() => {
+    const q = this.certSearch().toLowerCase().trim();
+    if (!q) return this.uc.certifications();
+    return this.uc.certifications().filter(c =>
+      c.courseTitle.toLowerCase().includes(q)
+    );
+  });
+
+  protected readonly certTotalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredCerts().length / PAGE_SIZE))
+  );
+
+  protected readonly pagedCerts = computed(() => {
+    const page = this.certPage();
+    return this.filteredCerts().slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  });
+
   ngOnInit(): void { this.uc.load(); }
 
   protected continueCourse(entry: IEnrolledCourseEntry): void {
@@ -55,7 +97,7 @@ export class MyLearningContainer implements OnInit {
   }
 
   protected openPath(entry: IEnrolledPathEntry): void {
-    this.router.navigate(['/learn/paths', entry.path.id]);
+    this.router.navigate(['/learn/preview', 'paths', entry.path.id]);
   }
 
   protected daysUntil(date: Date): number {

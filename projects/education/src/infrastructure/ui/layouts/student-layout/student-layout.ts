@@ -41,8 +41,7 @@ export class StudentLayout implements OnInit, OnDestroy {
 
   private checkFullWidth(url: string): boolean {
     // Solo el player real es full-width; preview no cuenta
-    return (url.includes('/courses/') || url.includes('/paths/'))
-      && !url.includes('/preview/');
+    return url.includes('/courses/') && !url.includes('/preview/');
   }
 
   private initCollapsed(url: string): boolean {

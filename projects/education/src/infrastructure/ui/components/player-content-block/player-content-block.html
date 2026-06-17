@@ -1,11 +1,25 @@
-@if (block(); as blk) {
+@if (isLocked()) {
+  <div class="player-content-block player-content-block--locked">
+    <div class="pcb-locked">
+      <div class="pcb-locked__icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <h3 class="pcb-locked__title">Contenido bloqueado</h3>
+      <p class="pcb-locked__desc">Debes completar el elemento anterior para desbloquear este contenido.</p>
+    </div>
+  </div>
+} @else if (block(); as blk) {
   <div class="player-content-block">
 
-    <!-- VIDEO -->
+    <!-- ═══════════════════════════ VIDEO ═══════════════════════════════════ -->
     @if (blk.type === EContentType.VIDEO) {
       <div class="player-content-block__video-wrap">
         @if (videoEmbedUrl(); as embedUrl) {
-          <iframe [src]="embedUrl" class="player-content-block__video" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          <iframe [src]="embedUrl" class="player-content-block__video" allowfullscreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
         } @else {
           <div class="player-content-block__video-placeholder">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -21,54 +35,256 @@
       </div>
       @if (isComplete()) {
         <div class="player-content-block__done-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           Completado
         </div>
+      } @else {
+        <p class="pcb-consumption-hint">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Mira el video completo para continuar
+        </p>
       }
     }
 
-    <!-- DOCUMENT -->
+    <!-- ═══════════════════════════ DOCUMENT ════════════════════════════════ -->
     @if (blk.type === EContentType.DOCUMENT) {
       <div class="player-content-block__meta">
         <h2 class="player-content-block__title">{{ blk.title }}</h2>
       </div>
-      <div class="player-content-block__markdown" [innerHTML]="renderedMarkdown()"></div>
+      <markdown class="player-content-block__markdown markdown-body"
+        [data]="blk.markdownContent ?? ''" ngPreserveWhitespaces></markdown>
       @if (isComplete()) {
         <div class="player-content-block__done-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           Completado
+        </div>
+      } @else {
+        <div class="pcb-reading-progress">
+          <div class="pcb-reading-progress__bar">
+            <div class="pcb-reading-progress__fill" [style.width.%]="readingPct()"></div>
+          </div>
+          <span class="pcb-reading-progress__label">
+            @if (readingRemaining() > 0) {
+              Leyendo… {{ readingRemaining() }}s restantes
+            } @else {
+              Completando…
+            }
+          </span>
         </div>
       }
     }
 
-    <!-- QUIZ -->
+    <!-- ═══════════════════════════ QUIZ ════════════════════════════════════ -->
     @if (blk.type === EContentType.QUIZ) {
       <div class="player-content-block__meta">
         <h2 class="player-content-block__title">{{ blk.title }}</h2>
         @if (blk.description) { <p class="player-content-block__desc">{{ blk.description }}</p> }
       </div>
 
-      @if (quizSubmitted()) {
-        <!-- Results -->
+      <!-- ── FASE: confirmación ── -->
+      @if (quizPhase() === 'confirm') {
+        <div class="quiz-confirm">
+          <div class="quiz-confirm__icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <h3 class="quiz-confirm__title">¿Listo para comenzar?</h3>
+          <ul class="quiz-confirm__info">
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/></svg>
+              {{ quizQuestions().length }} preguntas
+            </li>
+            @if (blk.timeLimit) {
+              <li>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                {{ blk.timeLimit }} minutos
+              </li>
+            }
+            @if (blk.passingScore) {
+              <li>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Puntaje mínimo: {{ blk.passingScore }}%
+              </li>
+            }
+            @if (blk.maxAttempts) {
+              <li>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+                Máximo {{ blk.maxAttempts }} intentos
+              </li>
+            }
+          </ul>
+          <button type="button" class="pcb-btn pcb-btn--primary pcb-btn--lg" (click)="startQuiz()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Comenzar quiz
+          </button>
+        </div>
+      }
+
+      <!-- ── FASE: respondiendo ── -->
+      @if (quizPhase() === 'taking') {
+        <div class="quiz-layout">
+
+          <!-- Columna principal -->
+          <div class="quiz-main">
+            <!-- Barra superior: progreso + timer -->
+            <div class="quiz-topbar">
+              <div class="quiz-progress">
+                <div class="quiz-progress__bar">
+                  <div class="quiz-progress__fill"
+                    [style.width.%]="(currentQIdx() + 1) / quizQuestions().length * 100"></div>
+                </div>
+                <span class="quiz-progress__label">
+                  {{ currentQIdx() + 1 }} / {{ quizQuestions().length }}
+                </span>
+              </div>
+              @if (blk.timeLimit) {
+                <div class="quiz-timer" [class.quiz-timer--warning]="timerWarning()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  {{ timerDisplay() }}
+                </div>
+              }
+            </div>
+
+            <!-- Pregunta -->
+            @if (currentQuestion(); as q) {
+              <div class="quiz-question">
+                <p class="quiz-question__text">
+                  <span class="quiz-question__num">{{ currentQIdx() + 1 }}.</span>
+                  {{ q.question }}
+                </p>
+
+                @if (q.type === 'multiple-choice') {
+                  <ul class="quiz-options">
+                    @for (opt of asMCQ(q).options; track opt.id) {
+                      <li>
+                        <label class="quiz-option" [class.quiz-option--checked]="isOptionChecked(q.id, opt.id)">
+                          <input type="checkbox" [checked]="isOptionChecked(q.id, opt.id)"
+                            (change)="toggleMultiAnswer(q.id, opt.id)" />
+                          <span class="quiz-option__mark"></span>
+                          {{ opt.text }}
+                        </label>
+                      </li>
+                    }
+                  </ul>
+                } @else if (q.type === 'true-false') {
+                  <div class="quiz-tf">
+                    <label class="quiz-option quiz-option--tf" [class.quiz-option--checked]="getAnswer(q.id) === true">
+                      <input type="radio" [name]="'tf-' + q.id" (change)="setAnswer(q.id, true)" />
+                      <span class="quiz-option__mark quiz-option__mark--circle"></span>
+                      Verdadero
+                    </label>
+                    <label class="quiz-option quiz-option--tf" [class.quiz-option--checked]="getAnswer(q.id) === false">
+                      <input type="radio" [name]="'tf-' + q.id" (change)="setAnswer(q.id, false)" />
+                      <span class="quiz-option__mark quiz-option__mark--circle"></span>
+                      Falso
+                    </label>
+                  </div>
+                } @else {
+                  <textarea class="pcb-textarea" rows="5" placeholder="Escribe tu respuesta..."
+                    [value]="(getAnswer(q.id) ?? '') + ''"
+                    (input)="setAnswer(q.id, $any($event.target).value)"></textarea>
+                }
+              </div>
+            }
+
+            <!-- Navegación entre preguntas -->
+            <div class="quiz-nav">
+              <button type="button" class="pcb-btn" (click)="goToQuestion(currentQIdx() - 1)"
+                [disabled]="currentQIdx() === 0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                Anterior
+              </button>
+              @if (currentQIdx() < quizQuestions().length - 1) {
+                <button type="button" class="pcb-btn pcb-btn--primary" (click)="goToQuestion(currentQIdx() + 1)">
+                  Siguiente
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </button>
+              } @else {
+                <button type="button" class="pcb-btn pcb-btn--primary"
+                  (click)="submitQuiz()" [disabled]="isSubmitting()">
+                  {{ isSubmitting() ? 'Enviando…' : 'Entregar quiz' }}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Panel lateral: resumen de preguntas -->
+          <div class="quiz-summary">
+            <p class="quiz-summary__title">Resumen</p>
+            <p class="quiz-summary__stat">
+              <span class="quiz-summary__answered">{{ answeredCount() }}</span>
+              / {{ quizQuestions().length }} respondidas
+            </p>
+            <div class="quiz-summary__grid">
+              @for (q of quizQuestions(); track q.id; let i = $index) {
+                <button type="button" class="quiz-dot"
+                  [class.quiz-dot--current]="i === currentQIdx()"
+                  [class.quiz-dot--answered]="isQuestionAnswered(q.id)"
+                  (click)="goToQuestion(i)"
+                  [title]="'Pregunta ' + (i + 1)">
+                  {{ i + 1 }}
+                </button>
+              }
+            </div>
+            <div class="quiz-summary__legend">
+              <span class="quiz-dot quiz-dot--answered quiz-dot--sm"></span> Respondida
+              <span class="quiz-dot quiz-dot--sm"></span> Sin responder
+            </div>
+            @if (allAnswered()) {
+              <button type="button" class="pcb-btn pcb-btn--primary quiz-summary__submit"
+                (click)="submitQuiz()" [disabled]="isSubmitting()">
+                {{ isSubmitting() ? 'Enviando…' : 'Entregar quiz' }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- ── FASE: resultado ── -->
+      @if (quizPhase() === 'result') {
         @if (lastQuizResult(); as result) {
-          <div class="player-content-block__quiz-result" [class.player-content-block__quiz-result--pass]="result.passed" [class.player-content-block__quiz-result--fail]="!result.passed">
-            <div class="player-content-block__quiz-score">
-              <span class="player-content-block__quiz-score-num">{{ result.score | number:'1.0-0' }}%</span>
-              <span class="player-content-block__quiz-score-label">{{ result.passed ? '¡Aprobado!' : 'No aprobado' }}</span>
+          <div class="quiz-result" [class.quiz-result--pass]="result.passed" [class.quiz-result--fail]="!result.passed">
+            <div class="quiz-result__header">
+              <div class="quiz-result__icon" [class.quiz-result__icon--pass]="result.passed">
+                @if (result.passed) {
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                } @else {
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                }
+              </div>
+              <div>
+                <p class="quiz-result__label">{{ result.passed ? '¡Quiz aprobado!' : 'Quiz no aprobado' }}</p>
+                <p class="quiz-result__score">{{ result.score | number:'1.0-0' }}%</p>
+              </div>
             </div>
             @if (result.feedback?.length) {
-              <ul class="player-content-block__quiz-feedback">
-                @for (fb of result.feedback!; track fb.questionId) {
-                  <li class="player-content-block__quiz-fb-item" [class.player-content-block__quiz-fb-item--ok]="fb.correct" [class.player-content-block__quiz-fb-item--err]="!fb.correct">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      @if (fb.correct) { <polyline points="20 6 9 17 4 12"/> }
-                      @else { <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/> }
-                    </svg>
-                    @if (fb.explanation) { <span>{{ fb.explanation }}</span> }
+              <ul class="quiz-result__feedback">
+                @for (fb of result.feedback!; track fb.questionId; let i = $index) {
+                  <li class="quiz-fb-item" [class.quiz-fb-item--ok]="fb.correct" [class.quiz-fb-item--err]="!fb.correct">
+                    <div class="quiz-fb-item__mark">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        @if (fb.correct) { <polyline points="20 6 9 17 4 12"/> }
+                        @else { <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/> }
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="quiz-fb-item__q">Pregunta {{ i + 1 }}</p>
+                      @if (fb.explanation) { <p class="quiz-fb-item__exp">{{ fb.explanation }}</p> }
+                    </div>
                   </li>
                 }
               </ul>
@@ -76,78 +292,167 @@
           </div>
         }
         <div class="player-content-block__actions">
-          <button type="button" class="player-content-block__btn" (click)="retryQuiz()">Reintentar</button>
-        </div>
-      } @else {
-        <!-- Questions -->
-        <div class="player-content-block__questions">
-          @for (q of quizQuestions(); track q.id; let qIdx = $index) {
-            <div class="player-content-block__question">
-              <p class="player-content-block__q-text">{{ qIdx + 1 }}. {{ q.question }}</p>
-
-              @if (q.type === 'multiple-choice') {
-                <ul class="player-content-block__options">
-                  @for (opt of asMCQ(q).options; track opt.id) {
-                    <li>
-                      <label class="player-content-block__option" [class.player-content-block__option--checked]="isOptionChecked(q.id, opt.id)">
-                        <input type="checkbox" [checked]="isOptionChecked(q.id, opt.id)" (change)="toggleMultiAnswer(q.id, opt.id)" />
-                        {{ opt.text }}
-                      </label>
-                    </li>
-                  }
-                </ul>
-              } @else if (q.type === 'true-false') {
-                <div class="player-content-block__tf-options">
-                  <label class="player-content-block__option" [class.player-content-block__option--checked]="getAnswer(q.id) === true">
-                    <input type="radio" [name]="'tf-' + q.id" [value]="'true'" (change)="setAnswer(q.id, true)" /> Verdadero
-                  </label>
-                  <label class="player-content-block__option" [class.player-content-block__option--checked]="getAnswer(q.id) === false">
-                    <input type="radio" [name]="'tf-' + q.id" [value]="'false'" (change)="setAnswer(q.id, false)" /> Falso
-                  </label>
-                </div>
-              } @else {
-                <textarea class="player-content-block__open-input" rows="4" placeholder="Escribe tu respuesta..."
-                  [value]="(getAnswer(q.id) ?? '') + ''" (input)="setAnswer(q.id, $any($event.target).value)"></textarea>
-              }
-            </div>
-          }
-        </div>
-        <div class="player-content-block__actions">
-          <button type="button" class="player-content-block__btn player-content-block__btn--primary" [disabled]="isSubmitting()" (click)="submitQuiz()">
-            {{ isSubmitting() ? 'Enviando…' : 'Enviar respuestas' }}
+          <button type="button" class="pcb-btn" (click)="retryQuiz()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+            Reintentar
           </button>
         </div>
       }
     }
 
-    <!-- ASSIGNMENT -->
+    <!-- ═══════════════════════════ ASSIGNMENT ═══════════════════════════════ -->
     @if (blk.type === EContentType.ASSIGNMENT) {
       <div class="player-content-block__meta">
         <h2 class="player-content-block__title">{{ blk.title }}</h2>
         @if (blk.description) { <p class="player-content-block__desc">{{ blk.description }}</p> }
-        @if (blk.assignmentInstructions) { <p class="player-content-block__instructions">{{ blk.assignmentInstructions }}</p> }
+        @if (blk.assignmentInstructions) {
+          <markdown class="player-content-block__instructions markdown-body"
+            [data]="blk.assignmentInstructions" ngPreserveWhitespaces></markdown>
+        }
+        @if (blk.maxScore) {
+          <p class="pcb-max-score">Puntaje máximo: {{ blk.maxScore }} pts</p>
+        }
       </div>
 
-      @if (assignmentSubmitted()) {
-        <div class="player-content-block__done-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          Tarea enviada — pendiente de revisión
+      <!-- Estado: calificada -->
+      @if (assignmentSubmission()?.grade; as grade) {
+        <div class="assign-grade" [class.assign-grade--pass]="gradePercent(grade) >= (blk.passingScore ?? 60)"
+          [class.assign-grade--fail]="gradePercent(grade) < (blk.passingScore ?? 60)">
+          <div class="assign-grade__header">
+            <div class="assign-grade__score-wrap">
+              <span class="assign-grade__score">{{ grade.score }}</span>
+              <span class="assign-grade__max">/ {{ grade.maxScore }}</span>
+            </div>
+            <div class="assign-grade__meta">
+              <p class="assign-grade__label">{{ gradeLabel(gradePercent(grade)) }}</p>
+              <p class="assign-grade__pct">{{ gradePercent(grade) }}%</p>
+              @if (grade.gradedBy) { <p class="assign-grade__by">Revisado por {{ grade.gradedBy }}</p> }
+            </div>
+          </div>
+
+          <!-- Barra de puntaje -->
+          <div class="assign-grade__bar-wrap">
+            <div class="assign-grade__bar">
+              <div class="assign-grade__bar-fill" [style.width.%]="gradePercent(grade)"></div>
+            </div>
+          </div>
+
+          <!-- Feedback del instructor -->
+          @if (grade.feedback) {
+            <div class="assign-grade__feedback">
+              <p class="assign-grade__feedback-title">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                Retroalimentación del instructor
+              </p>
+              <p class="assign-grade__feedback-text">{{ grade.feedback }}</p>
+            </div>
+          }
+
+          <!-- Rúbrica si existe -->
+          @if (grade.rubricScores?.length) {
+            <div class="assign-grade__rubric">
+              <p class="assign-grade__rubric-title">Detalle por criterio</p>
+              <ul class="assign-grade__rubric-list">
+                @for (rs of grade.rubricScores!; track rs.criterionId) {
+                  @if (blk.rubric?.find(r => r.id === rs.criterionId); as criterion) {
+                    <li class="assign-rubric-item">
+                      <div class="assign-rubric-item__header">
+                        <span class="assign-rubric-item__name">{{ criterion.criterion }}</span>
+                        <span class="assign-rubric-item__pts">{{ rs.score }} / {{ criterion.maxPoints }}</span>
+                      </div>
+                      @if (rs.comment) { <p class="assign-rubric-item__comment">{{ rs.comment }}</p> }
+                    </li>
+                  }
+                }
+              </ul>
+            </div>
+          }
         </div>
-      } @else {
-        <textarea class="player-content-block__assignment-input" rows="8" placeholder="Escribe tu respuesta aquí…"
+
+        <!-- Lo que el estudiante entregó -->
+        @if (assignmentSubmission(); as sub) {
+          <div class="assign-submission">
+            <p class="assign-submission__title">Tu entrega</p>
+            @if (sub.textContent) {
+              <p class="assign-submission__text">{{ sub.textContent }}</p>
+            }
+            @if (sub.fileName) {
+              <div class="assign-submission__file">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                {{ sub.fileName }}
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- Estado: entregada, pendiente de revisión -->
+      @else if (assignmentSubmission()?.status === 'pending_review' || assignmentSubmitted()) {
+        <div class="assign-pending">
+          <div class="assign-pending__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <p class="assign-pending__title">Tarea entregada</p>
+          <p class="assign-pending__sub">Tu tarea está pendiente de revisión por el instructor. Te notificaremos cuando esté calificada.</p>
+          @if (assignmentSubmission(); as sub) {
+            <p class="assign-pending__date">
+              Entregada el {{ sub.submittedAt | date:'dd/MM/yyyy HH:mm' }}
+            </p>
+          }
+        </div>
+      }
+
+      <!-- Estado: sin entregar -->
+      @else {
+        <textarea class="pcb-textarea" rows="8" placeholder="Escribe tu respuesta aquí…"
           [value]="assignmentText()" (input)="assignmentText.set($any($event.target).value)"></textarea>
+
+        @if (attachedFile(); as file) {
+          <div class="pcb-file-preview">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <span class="pcb-file-preview__name">{{ file.name }}</span>
+            <span class="pcb-file-preview__size">{{ formatFileSize(file.size) }}</span>
+            <button type="button" class="pcb-file-remove" (click)="removeFile()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        } @else {
+          <label class="pcb-file-label">
+            <input type="file" class="pcb-file-input"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.webp,.svg,.mp4,.webm,.mov,.mp3,.wav,.ogg"
+              (change)="onFileSelect($event)" />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+            </svg>
+            Adjuntar archivo
+            <span class="pcb-file-hint">PDF, Word, Excel, PPT, imagen, video o audio · máx. 10 MB</span>
+          </label>
+        }
+        @if (fileError()) { <p class="pcb-file-error">{{ fileError() }}</p> }
+
         <div class="player-content-block__actions">
-          <button type="button" class="player-content-block__btn player-content-block__btn--primary"
-            [disabled]="!assignmentText().trim() || isSubmitting()" (click)="submitAssignment()">
+          <button type="button" class="pcb-btn pcb-btn--primary"
+            [disabled]="!canSubmitAssignment() || isSubmitting()" (click)="submitAssignment()">
             {{ isSubmitting() ? 'Enviando…' : 'Entregar tarea' }}
           </button>
         </div>
       }
     }
 
-    <!-- LIVE_SESSION / SCORM -->
+    <!-- ═══════════════════════════ LIVE / SCORM ═════════════════════════════ -->
     @if (blk.type === EContentType.LIVE_SESSION || blk.type === EContentType.SCORM) {
       <div class="player-content-block__meta">
         <h2 class="player-content-block__title">{{ blk.title }}</h2>
@@ -155,12 +460,11 @@
       </div>
       <div class="player-content-block__live-placeholder">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12 8 12 12 14 14"/>
+          <circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/>
         </svg>
         <span>{{ blk.type === EContentType.LIVE_SESSION ? 'Sesión en vivo próximamente' : 'Contenido SCORM externo' }}</span>
         @if (blk.url) {
-          <a [href]="blk.url" target="_blank" rel="noopener" class="player-content-block__btn player-content-block__btn--primary">Abrir enlace</a>
+          <a [href]="blk.url" target="_blank" rel="noopener" class="pcb-btn pcb-btn--primary">Abrir enlace</a>
         }
       </div>
     }

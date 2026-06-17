@@ -33,6 +33,7 @@ export interface ICourseProgress {
   overallPercentage: number;
   completedLessons: number;
   totalLessons: number;
+  completedBlockIds?: string[];
   moduleProgress: IModuleProgress[];
   currentLessonId?: string;
   currentBlockId?: string;

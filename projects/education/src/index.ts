@@ -123,15 +123,6 @@ export const studentRoutes: Routes = [
           )
       },
 
-      // Learning path player
-      {
-        path: 'paths/:id',
-        loadComponent: () =>
-          import('./infrastructure/ui/containers/learning-path-player-container/learning-path-player-container').then(
-            m => m.LearningPathPlayerContainer
-          )
-      },
-
       // Course catalog (self-enroll)
       {
         path: 'catalog',

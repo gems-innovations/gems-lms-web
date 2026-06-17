@@ -64,6 +64,7 @@
   // =========================================================================
   // BORDES
   // =========================================================================
+  --color-borde-sutil: rgba(255, 255, 255, 0.05);
   --color-borde-principal: rgba(255, 255, 255, 0.07);
   --color-borde-secundario: rgba(255, 255, 255, 0.14);
   --color-borde-activo: var(--color-primario);
@@ -173,6 +174,7 @@
   --color-texto-terciario: #64748B;
   --color-texto-contraste: #1A202C;
 
+  --color-borde-sutil: #EAEFF5;
   --color-borde-principal: #E2E8F0;
   --color-borde-secundario: #CBD5E1;
 

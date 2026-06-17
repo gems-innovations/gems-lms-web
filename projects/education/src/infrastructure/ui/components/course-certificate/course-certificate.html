@@ -1,0 +1,81 @@
+<div class="cert-overlay" (click)="close.emit()">
+  <div class="cert-modal" (click)="$event.stopPropagation()">
+
+    <!-- Acciones -->
+    <div class="cert-actions no-print">
+      <button type="button" class="cert-action-btn" (click)="print()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"/>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        Imprimir / Guardar PDF
+      </button>
+      <button type="button" class="cert-close-btn" (click)="close.emit()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Certificado -->
+    <div class="cert-paper">
+      <!-- Marco decorativo exterior -->
+      <div class="cert-border-outer">
+        <div class="cert-border-inner">
+
+          <!-- Cabecera -->
+          <div class="cert-header">
+            <div class="cert-logo-wrap">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              </svg>
+            </div>
+            <div>
+              <p class="cert-org">{{ certificate().institutionName ?? 'GEMS LMS' }}</p>
+              <p class="cert-doc-title">Certificado de finalización</p>
+            </div>
+          </div>
+
+          <div class="cert-divider"></div>
+
+          <!-- Cuerpo -->
+          <div class="cert-body">
+            <p class="cert-presents">Este certificado se otorga a</p>
+            <h1 class="cert-student">{{ certificate().studentName }}</h1>
+            <p class="cert-by">por haber completado satisfactoriamente el curso</p>
+            <h2 class="cert-course">{{ certificate().courseTitle }}</h2>
+
+            @if (certificate().instructorName) {
+              <p class="cert-instructor">Instructor: <strong>{{ certificate().instructorName }}</strong></p>
+            }
+          </div>
+
+          <div class="cert-divider"></div>
+
+          <!-- Pie -->
+          <div class="cert-footer">
+            <div class="cert-footer__col">
+              <span class="cert-footer__label">Fecha de finalización</span>
+              <span class="cert-footer__value">{{ certificate().completedAt | date:'dd MMMM yyyy' }}</span>
+            </div>
+            <div class="cert-seal">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="6"/>
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="cert-footer__col cert-footer__col--right">
+              <span class="cert-footer__label">Certificado N.°</span>
+              <span class="cert-footer__value cert-footer__value--id">{{ certificate().certificateId }}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

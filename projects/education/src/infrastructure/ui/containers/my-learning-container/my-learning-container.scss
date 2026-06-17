@@ -1,11 +1,9 @@
-$purple:  #7B6FF0;
-$teal:    #3DD6C8;
-$yellow:  #fbbf24;
-$green:   #34d399;
-$surface: #111119;
-$border:  rgba(255,255,255,.06);
-$text:    #EDEAF8;
-$muted:   rgba(237,234,248,.38);
+// Brand/state colors — iguales en ambos temas
+$purple:  var(--color-primario);
+$teal:    var(--color-teal);
+$yellow:  var(--color-advertencia);
+$green:   var(--color-exito);
+$red:     var(--color-error);
 
 :host { display: block; padding: 32px 40px; }
 
@@ -50,7 +48,7 @@ $muted:   rgba(237,234,248,.38);
 .mlearning__section-title {
   font-size: 15px;
   font-weight: 600;
-  color: $text;
+  color: var(--color-texto-principal);
   margin: 0;
   flex: 1;
 }
@@ -58,9 +56,9 @@ $muted:   rgba(237,234,248,.38);
 .mlearning__section-count {
   font-size: 11px;
   font-weight: 600;
-  color: $muted;
-  background: rgba(255,255,255,.05);
-  border: 1px solid $border;
+  color: var(--color-texto-terciario);
+  background: var(--color-superficie-alta);
+  border: 1px solid var(--color-borde-principal);
   border-radius: 100px;
   padding: 2px 8px;
 }
@@ -77,7 +75,7 @@ $muted:   rgba(237,234,248,.38);
 .mlearning__search-icon {
   position: absolute;
   left: 12px;
-  color: $muted;
+  color: var(--color-texto-terciario);
   pointer-events: none;
   flex-shrink: 0;
 }
@@ -85,17 +83,17 @@ $muted:   rgba(237,234,248,.38);
 .mlearning__search-input {
   width: 100%;
   height: 38px;
-  background: $surface;
-  border: 1px solid $border;
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde-principal);
   border-radius: 9px;
   padding: 0 36px 0 36px;
   font-size: 13px;
   font-family: inherit;
-  color: $text;
+  color: var(--color-texto-principal);
   outline: none;
   transition: border-color .15s;
 
-  &::placeholder { color: rgba(237,234,248,.25); }
+  &::placeholder { color: var(--color-texto-terciario); }
   &:focus { border-color: rgba(123,111,240,.4); }
 }
 
@@ -108,23 +106,23 @@ $muted:   rgba(237,234,248,.38);
   width: 20px;
   height: 20px;
   border: none;
-  background: rgba(255,255,255,.07);
+  background: var(--color-superficie-alta);
   border-radius: 50%;
-  color: $muted;
+  color: var(--color-texto-terciario);
   cursor: pointer;
   transition: background .12s, color .12s;
 
-  &:hover { background: rgba(255,255,255,.12); color: $text; }
+  &:hover { background: var(--color-borde-secundario); color: var(--color-texto-principal); }
 }
 
-/* ── Sub-label (en progreso / completados) ───────────────────────────────── */
+/* ── Sub-label ───────────────────────────────────────────────────────────── */
 
 .mlearning__sub-label {
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .08em;
-  color: rgba(237,234,248,.3);
+  color: var(--color-texto-terciario);
   margin: 0 0 10px;
 
   &--mt { margin-top: 20px; }
@@ -138,18 +136,66 @@ $muted:   rgba(237,234,248,.38);
   gap: 14px;
 }
 
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+
+.mlearning__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 16px;
+  min-height: 40px;
+
+  &--hidden { visibility: hidden; }
+}
+
+.mlearning__page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--color-borde-principal);
+  background: var(--color-superficie);
+  color: var(--color-texto-terciario);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+  &:hover:not(:disabled) {
+    background: rgba(123, 111, 240, 0.12);
+    border-color: rgba(123, 111, 240, 0.35);
+    color: var(--color-texto-principal);
+  }
+
+  &--active {
+    background: rgba(123, 111, 240, 0.18);
+    border-color: rgba(123, 111, 240, 0.5);
+    color: var(--color-primario-claro);
+    font-weight: 600;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
 /* ── Empty state ─────────────────────────────────────────────────────────── */
 
 .mlearning__empty {
-  background: $surface;
-  border: 1px solid $border;
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde-principal);
   border-radius: 10px;
   padding: 20px 16px;
   font-size: 13px;
-  color: $muted;
+  color: var(--color-texto-terciario);
 
   p { margin: 0; }
-  strong { color: $text; font-weight: 600; }
+  strong { color: var(--color-texto-principal); font-weight: 600; }
 }
 
 .mlearning__link {
@@ -168,8 +214,8 @@ $muted:   rgba(237,234,248,.38);
 }
 
 .mlearning__path-card {
-  background: $surface;
-  border: 1px solid $border;
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde-principal);
   border-radius: 12px;
   padding: 18px;
   cursor: pointer;
@@ -216,14 +262,14 @@ $muted:   rgba(237,234,248,.38);
 .mlearning__path-title {
   font-size: 13.5px;
   font-weight: 600;
-  color: $text;
+  color: var(--color-texto-principal);
   margin: 0;
   line-height: 1.35;
 }
 
 .mlearning__path-desc {
   font-size: 12px;
-  color: $muted;
+  color: var(--color-texto-terciario);
   margin: 0;
   line-height: 1.5;
   display: -webkit-box;
@@ -236,12 +282,12 @@ $muted:   rgba(237,234,248,.38);
   display: flex;
   gap: 6px;
   font-size: 11px;
-  color: rgba(237,234,248,.35);
+  color: var(--color-texto-terciario);
 }
 
 .mlearning__path-bar {
   height: 3px;
-  background: rgba(255,255,255,.06);
+  background: var(--color-borde-principal);
   border-radius: 3px;
   overflow: hidden;
   margin-top: 4px;
@@ -266,8 +312,8 @@ $muted:   rgba(237,234,248,.38);
   display: flex;
   align-items: center;
   gap: 14px;
-  background: $surface;
-  border: 1px solid $border;
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde-principal);
   border-radius: 10px;
   padding: 14px 16px;
 }
@@ -295,12 +341,12 @@ $muted:   rgba(237,234,248,.38);
 .mlearning__cert-title {
   font-size: 13px;
   font-weight: 600;
-  color: $text;
+  color: var(--color-texto-principal);
 }
 
 .mlearning__cert-date {
   font-size: 11px;
-  color: $muted;
+  color: var(--color-texto-terciario);
 }
 
 .mlearning__cert-btn {
@@ -332,8 +378,8 @@ $muted:   rgba(237,234,248,.38);
 }
 
 .mlearning__widget {
-  background: $surface;
-  border: 1px solid $border;
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde-principal);
   border-radius: 12px;
   padding: 18px;
 }
@@ -343,13 +389,13 @@ $muted:   rgba(237,234,248,.38);
   align-items: center;
   gap: 8px;
   margin-bottom: 14px;
-  color: $muted;
+  color: var(--color-texto-terciario);
 }
 
 .mlearning__widget-title {
   font-size: 13px;
   font-weight: 600;
-  color: $text;
+  color: var(--color-texto-principal);
   margin: 0;
   flex: 1;
 }
@@ -391,13 +437,13 @@ $muted:   rgba(237,234,248,.38);
 .mlearning__task-title {
   font-size: 12px;
   font-weight: 500;
-  color: $text;
+  color: var(--color-texto-principal);
   line-height: 1.4;
 }
 
 .mlearning__task-course {
   font-size: 10.5px;
-  color: $muted;
+  color: var(--color-texto-terciario);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -406,10 +452,10 @@ $muted:   rgba(237,234,248,.38);
 .mlearning__task-due {
   font-size: 11px;
   font-weight: 600;
-  color: $muted;
+  color: var(--color-texto-terciario);
   flex-shrink: 0;
 
-  &--soon { color: #f87171; }
+  &--soon { color: var(--color-error); }
 }
 
 /* ── Calendar ────────────────────────────────────────────────────────────── */
@@ -434,21 +480,21 @@ $muted:   rgba(237,234,248,.38);
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid $border;
+  background: var(--color-superficie-alta);
+  border: 1px solid var(--color-borde-principal);
   flex-shrink: 0;
 }
 
 .mlearning__cal-day {
   font-size: 14px;
   font-weight: 700;
-  color: $text;
+  color: var(--color-texto-principal);
   line-height: 1;
 }
 
 .mlearning__cal-month {
   font-size: 9px;
-  color: $muted;
+  color: var(--color-texto-terciario);
   text-transform: uppercase;
   letter-spacing: .04em;
 }
@@ -464,7 +510,7 @@ $muted:   rgba(237,234,248,.38);
 .mlearning__cal-title {
   font-size: 12px;
   font-weight: 500;
-  color: $text;
+  color: var(--color-texto-principal);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -472,7 +518,7 @@ $muted:   rgba(237,234,248,.38);
 
 .mlearning__cal-course {
   font-size: 10.5px;
-  color: $muted;
+  color: var(--color-texto-terciario);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

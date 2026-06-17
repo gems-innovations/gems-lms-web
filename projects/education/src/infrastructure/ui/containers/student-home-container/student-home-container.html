@@ -33,7 +33,7 @@
             }
           </div>
           @if (uc.inProgress().length > 3) {
-            <button type="button" class="s-home__see-more-divider">
+            <button type="button" class="s-home__see-more-divider" (click)="openMyLearning()">
               <span class="s-home__see-more-line"></span>
               <span class="s-home__see-more-label">Ver más</span>
               <span class="s-home__see-more-line"></span>
@@ -73,27 +73,6 @@
         </section>
       }
 
-      <!-- Completados -->
-      @if (uc.completed().length > 0) {
-        <section class="s-home__section">
-          <div class="s-home__section-head">
-            <h2 class="s-home__section-title">
-              <span class="s-home__section-accent s-home__section-accent--green">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-              </span>
-              Completados
-            </h2>
-            <span class="s-home__section-count">{{ uc.completed().length }}</span>
-          </div>
-          <div class="s-home__popular-grid">
-            @for (entry of uc.completed(); track entry.enrollment.id) {
-              <edu-course-progress-card [entry]="entry" (open)="continueCourse($event)" />
-            }
-          </div>
-        </section>
-      }
 
       @if (uc.enrolledCourses().length === 0 && uc.popularCourses().length === 0) {
         <lib-empty-state
@@ -118,12 +97,12 @@
           <span class="s-home__section-count">{{ uc.enrolledPathEntries().length }}</span>
         </div>
         <div class="s-home__path-list">
-          @for (entry of uc.enrolledPathEntries().slice(0, 4); track entry.enrollment.id) {
+          @for (entry of uc.enrolledPathEntries().slice(0, 3); track entry.enrollment.id) {
             <edu-home-path-sidebar-item [entry]="entry" (open)="openPath($event)" />
           }
         </div>
-        @if (uc.enrolledPathEntries().length > 4) {
-          <button type="button" class="s-home__path-more-btn">
+        @if (uc.enrolledPathEntries().length > 3) {
+          <button type="button" class="s-home__path-more-btn" (click)="openMyLearning()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <polyline points="6 9 12 15 18 9"/>
             </svg>

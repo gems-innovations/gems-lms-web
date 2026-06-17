@@ -13,6 +13,27 @@
       (next)="uc.nextBlock()"
     />
 
+    <!-- Banner de curso completado -->
+    @if (uc.courseProgress() === 100) {
+      <div class="course-complete-banner">
+        <div class="course-complete-banner__content">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+          <span>¡Felicidades! Has completado el curso <strong>{{ c.title }}</strong></span>
+        </div>
+        <button type="button" class="course-complete-banner__btn" (click)="openCertificate()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="6"/>
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Ver certificado
+        </button>
+      </div>
+    }
+
     <div class="course-player-container__body">
       <main class="course-player-container__content">
         <edu-player-content-block
@@ -22,6 +43,8 @@
           [isSubmitting]="uc.isSubmitting()"
           [lastQuizResult]="uc.lastQuizResult()"
           [isComplete]="uc.isBlockComplete()"
+          [isLocked]="uc.isCurrentBlockLocked()"
+          [assignmentSubmission]="currentSubmission()"
           (quizSubmit)="handleQuizSubmit($event)"
           (assignmentSubmit)="handleAssignmentSubmit($event)"
           (markComplete)="uc.markComplete()"
@@ -36,6 +59,8 @@
         [selectedLessonId]="uc.selectedLessonId()"
         [selectedBlockId]="uc.selectedBlock()?.id ?? null"
         [completedBlockIds]="uc.completedBlockIds()"
+        [lockedLessonIds]="uc.lockedLessonIds()"
+        [lockedBlockIds]="uc.lockedBlockIds()"
         [courseProgress]="uc.courseProgress()"
         [sidebarWidthPx]="sidebarWidthPx()"
         (selectLesson)="uc.selectLesson($event)"
@@ -44,6 +69,12 @@
       />
     </div>
   </div>
+
+  <!-- Certificado (modal) -->
+  @if (showCertificate() && certificate(); as cert) {
+    <edu-course-certificate [certificate]="cert" (close)="closeCertificate()" />
+  }
+
 } @else {
   <lib-empty-state
     title="Curso no encontrado"

@@ -50,22 +50,24 @@
             }
           </div>
         } @else {
-          @if (filteredInProgress().length > 0) {
-            <p class="mlearning__sub-label">En progreso</p>
-            <div class="mlearning__course-grid">
-              @for (entry of filteredInProgress(); track entry.enrollment.id) {
-                <edu-course-progress-card [entry]="entry" (continue)="continueCourse(entry)" />
-              }
-            </div>
-          }
-          @if (filteredCompleted().length > 0) {
-            <p class="mlearning__sub-label" [class.mlearning__sub-label--mt]="filteredInProgress().length > 0">Completados</p>
-            <div class="mlearning__course-grid">
-              @for (entry of filteredCompleted(); track entry.enrollment.id) {
-                <edu-course-progress-card [entry]="entry" (continue)="continueCourse(entry)" />
-              }
-            </div>
-          }
+          <div class="mlearning__course-grid">
+            @for (entry of pagedCourses(); track entry.enrollment.id) {
+              <edu-course-progress-card [entry]="entry" (open)="continueCourse($event)" />
+            }
+          </div>
+          <div class="mlearning__pagination" [class.mlearning__pagination--hidden]="courseTotalPages() <= 1">
+            <button class="mlearning__page-btn" [disabled]="coursePage() === 1" (click)="coursePage.update(p => p - 1)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            @for (p of [].constructor(courseTotalPages()); track $index) {
+              <button class="mlearning__page-btn" [class.mlearning__page-btn--active]="coursePage() === $index + 1" (click)="coursePage.set($index + 1)">
+                {{ $index + 1 }}
+              </button>
+            }
+            <button class="mlearning__page-btn" [disabled]="coursePage() === courseTotalPages()" (click)="coursePage.update(p => p + 1)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
         }
       </section>
 
@@ -111,7 +113,7 @@
           </div>
         } @else {
           <div class="mlearning__path-grid">
-            @for (entry of filteredPaths(); track entry.enrollment.id) {
+            @for (entry of pagedPaths(); track entry.enrollment.id) {
               <button type="button" class="mlearning__path-card" (click)="openPath(entry)">
                 <div class="mlearning__path-card-top">
                   <div class="mlearning__path-icon">
@@ -134,6 +136,19 @@
               </button>
             }
           </div>
+          <div class="mlearning__pagination" [class.mlearning__pagination--hidden]="pathTotalPages() <= 1">
+            <button class="mlearning__page-btn" [disabled]="pathPage() === 1" (click)="pathPage.update(p => p - 1)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            @for (p of [].constructor(pathTotalPages()); track $index) {
+              <button class="mlearning__page-btn" [class.mlearning__page-btn--active]="pathPage() === $index + 1" (click)="pathPage.set($index + 1)">
+                {{ $index + 1 }}
+              </button>
+            }
+            <button class="mlearning__page-btn" [disabled]="pathPage() === pathTotalPages()" (click)="pathPage.update(p => p + 1)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
         }
       </section>
 
@@ -148,30 +163,74 @@
           <h2 class="mlearning__section-title">Mis certificaciones</h2>
           <span class="mlearning__section-count">{{ uc.certifications().length }}</span>
         </div>
-        <div class="mlearning__cert-grid">
-          @for (cert of uc.certifications(); track cert.id) {
-            <div class="mlearning__cert-card">
-              <div class="mlearning__cert-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
-                </svg>
-              </div>
-              <div class="mlearning__cert-info">
-                <span class="mlearning__cert-title">{{ cert.courseTitle }}</span>
-                <span class="mlearning__cert-date">Emitido el {{ formatDate(cert.issuedAt) }}</span>
-              </div>
-              @if (cert.credentialUrl) {
-                <a class="mlearning__cert-btn" [href]="cert.credentialUrl" target="_blank" rel="noopener">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                    <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-                  </svg>
-                  Ver credencial
-                </a>
-              }
-            </div>
+
+        <div class="mlearning__search">
+          <svg class="mlearning__search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            class="mlearning__search-input"
+            type="text"
+            placeholder="Buscar certificaciones..."
+            [value]="certSearch()"
+            (input)="certSearch.set($any($event.target).value)"
+          />
+          @if (certSearch()) {
+            <button class="mlearning__search-clear" type="button" (click)="certSearch.set('')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           }
         </div>
+
+        @if (filteredCerts().length === 0) {
+          <div class="mlearning__empty">
+            @if (certSearch()) {
+              <p>Sin resultados para "<strong>{{ certSearch() }}</strong>".</p>
+            } @else {
+              <p>Aún no tienes certificaciones.</p>
+            }
+          </div>
+        } @else {
+          <div class="mlearning__cert-grid">
+            @for (cert of pagedCerts(); track cert.id) {
+              <div class="mlearning__cert-card">
+                <div class="mlearning__cert-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+                  </svg>
+                </div>
+                <div class="mlearning__cert-info">
+                  <span class="mlearning__cert-title">{{ cert.courseTitle }}</span>
+                  <span class="mlearning__cert-date">Emitido el {{ formatDate(cert.issuedAt) }}</span>
+                </div>
+                @if (cert.credentialUrl) {
+                  <a class="mlearning__cert-btn" [href]="cert.credentialUrl" target="_blank" rel="noopener">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                    Ver credencial
+                  </a>
+                }
+              </div>
+            }
+          </div>
+          <div class="mlearning__pagination" [class.mlearning__pagination--hidden]="certTotalPages() <= 1">
+            <button class="mlearning__page-btn" [disabled]="certPage() === 1" (click)="certPage.update(p => p - 1)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            @for (p of [].constructor(certTotalPages()); track $index) {
+              <button class="mlearning__page-btn" [class.mlearning__page-btn--active]="certPage() === $index + 1" (click)="certPage.set($index + 1)">
+                {{ $index + 1 }}
+              </button>
+            }
+            <button class="mlearning__page-btn" [disabled]="certPage() === certTotalPages()" (click)="certPage.update(p => p + 1)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        }
       </section>
 
     </div>

@@ -88,9 +88,64 @@ export class CoursePlayerUseCase {
     const b = this.selectedBlock();
     return !!b && this._completedBlockIds().has(b.id);
   });
+
+  /** Ordered flat list: all blocks across all lessons in curriculum order */
+  readonly allFlatBlocks = computed((): { blockId: string; lessonId: string }[] => {
+    const c = this.course();
+    if (!c) return [];
+    return c.modules.flatMap(mod =>
+      mod.lessons.flatMap(lesson =>
+        lesson.contentBlocks.map(block => ({ blockId: block.id, lessonId: lesson.id }))
+      )
+    );
+  });
+
+  /** Blocks that cannot be accessed yet (previous block not completed) */
+  readonly lockedBlockIds = computed((): Set<string> => {
+    const flat = this.allFlatBlocks();
+    const done = this._completedBlockIds();
+    const locked = new Set<string>();
+    for (let i = 1; i < flat.length; i++) {
+      const prev = flat[i - 1];
+      if (!done.has(prev.blockId) || locked.has(prev.blockId)) {
+        locked.add(flat[i].blockId);
+      }
+    }
+    return locked;
+  });
+
+  /** Lessons whose first block is locked (entire lesson inaccessible) */
+  readonly lockedLessonIds = computed((): Set<string> => {
+    const locked = this.lockedBlockIds();
+    const c = this.course();
+    if (!c) return new Set();
+    const result = new Set<string>();
+    for (const mod of c.modules) {
+      for (const lesson of mod.lessons) {
+        if (lesson.contentBlocks.length > 0 && locked.has(lesson.contentBlocks[0].id)) {
+          result.add(lesson.id);
+        }
+      }
+    }
+    return result;
+  });
+
+  readonly isCurrentBlockLocked = computed(() => {
+    const b = this.selectedBlock();
+    return !!b && this.lockedBlockIds().has(b.id);
+  });
   //#endregion
 
   constructor() {
+    effect(() => {
+      const enrollment = this.enrollment();
+      if (!enrollment) return;
+      const ids = enrollment.progress.completedBlockIds;
+      if (ids?.length) {
+        this._completedBlockIds.set(new Set(ids));
+      }
+    });
+
     effect(() => {
       if (this._selectedLessonId() || !this.course()) return;
       const c = this.course()!;
@@ -112,13 +167,22 @@ export class CoursePlayerUseCase {
   //#region Public API
   init(courseId: string, initialLessonId?: string | null, initialBlockId?: string | null): void {
     this._courseId.set(courseId);
+    this._selectedLessonId.set(null);
+    this._selectedBlockIdx.set(0);
+    this._completedBlockIds.set(new Set());
     this._initialLessonId = initialLessonId ?? null;
     this._initialBlockId  = initialBlockId  ?? null;
-    if (this.courseUc.courses().length === 0) this.courseUc.load();
+    // Seed immediately from cache if available
+    const cached = this.enrollmentUc.getEnrollmentByCourse(courseId);
+    if (cached?.progress.completedBlockIds?.length) {
+      this._completedBlockIds.set(new Set(cached.progress.completedBlockIds));
+    }
+    this.courseUc.load();
     if (this.enrollmentUc.enrollments().length === 0) this.enrollmentUc.loadEnrollments();
   }
 
   selectLesson(lessonId: string): void {
+    if (this.lockedLessonIds().has(lessonId)) return;
     if (this._selectedLessonId() === lessonId) return;
     this._selectedLessonId.set(lessonId);
     this._selectedBlockIdx.set(0);
@@ -127,6 +191,7 @@ export class CoursePlayerUseCase {
   }
 
   selectBlock(blockId: string): void {
+    if (this.lockedBlockIds().has(blockId)) return;
     const lesson = this.selectedLesson();
     if (!lesson) return;
     const idx = lesson.contentBlocks.findIndex(b => b.id === blockId);
@@ -134,6 +199,8 @@ export class CoursePlayerUseCase {
   }
 
   nextBlock(): void {
+    const current = this.selectedBlock();
+    if (current && !this._completedBlockIds().has(current.id)) return;
     if (this.hasNextBlock()) {
       this._selectedBlockIdx.update(i => i + 1);
     } else if (this.hasNextLesson()) {
@@ -152,6 +219,10 @@ export class CoursePlayerUseCase {
     if (!block) return;
     this._completedBlockIds.update(s => new Set([...s, block.id]));
     if (this.hasNextBlock() || this.hasNextLesson()) this.nextBlock();
+  }
+
+  markBlockComplete(blockId: string): void {
+    this._completedBlockIds.update(s => new Set([...s, blockId]));
   }
 
   handleQuizSubmit(payload: { blockId: string; lessonId: string; courseId: string; answers: any[] }): void {

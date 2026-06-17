@@ -33,6 +33,9 @@
     "@angular/router": "^22.0.1",
     "@angular/ssr": "^22.0.1",
     "express": "^5.1.0",
+    "github-markdown-css": "^5.9.0",
+    "marked": "^18.0.5",
+    "ngx-markdown": "^22.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "xlsx": "^0.18.5"

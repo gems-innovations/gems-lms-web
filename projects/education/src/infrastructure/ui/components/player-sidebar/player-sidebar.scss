@@ -262,6 +262,12 @@
   &--done {
     .psidebar__lesson-title { color: rgba(255,255,255,0.65); }
   }
+
+  &--locked {
+    opacity: 0.7;
+    cursor: not-allowed;
+    &:hover { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.04); }
+  }
 }
 
 /* ── Thumbnail ─────────────────────────────────────────────────────────────── */
@@ -291,7 +297,12 @@
   align-items: center;
   justify-content: center;
   color: #9B8FF8;
-  opacity: 0.55;
+  opacity: 0.7;
+
+  &[data-type="quiz"]        { color: #fbbf24; }
+  &[data-type="assignment"]  { color: #34d399; }
+  &[data-type="live-session"]{ color: #f87171; }
+  &[data-type="scorm"]       { color: #3DD6C8; }
 }
 
 .psidebar__thumb-done {
@@ -302,6 +313,16 @@
   align-items: center;
   justify-content: center;
   color: #fff;
+}
+
+.psidebar__thumb-lock {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 /* ── Detalle ───────────────────────────────────────────────────────────────── */
@@ -382,5 +403,14 @@
   &--active {
     outline-color: currentColor;
     font-weight: 700;
+  }
+
+  &--locked {
+    background: rgba(255,255,255,0.03) !important;
+    color: rgba(255,255,255,0.2) !important;
+    border-color: rgba(255,255,255,0.06) !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+    &:hover { opacity: 0.6; }
   }
 }

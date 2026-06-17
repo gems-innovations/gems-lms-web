@@ -19,7 +19,9 @@ export class PlayerSidebar {
   readonly sidebarWidthPx    = input<number | null>(null);
   readonly collapsed         = input<boolean>(false);
 
-  readonly selectedBlockId = input<string | null>(null);
+  readonly selectedBlockId   = input<string | null>(null);
+  readonly lockedLessonIds   = input<Set<string>>(new Set());
+  readonly lockedBlockIds    = input<Set<string>>(new Set());
 
   readonly selectLesson = output<string>();
   readonly selectBlock  = output<string>();
@@ -31,9 +33,9 @@ export class PlayerSidebar {
 
   constructor() {
     effect(() => {
-      const firstId = this.course().modules?.[0]?.id;
-      if (firstId && this.expandedModuleIds().size === 0) {
-        this.expandedModuleIds.set(new Set([firstId]));
+      const ids = this.course().modules?.map(m => m.id) ?? [];
+      if (ids.length > 0 && this.expandedModuleIds().size === 0) {
+        this.expandedModuleIds.set(new Set(ids));
       }
     });
   }
@@ -46,6 +48,14 @@ export class PlayerSidebar {
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
+  }
+
+  protected isLessonLocked(lesson: ILesson): boolean {
+    return this.lockedLessonIds().has(lesson.id);
+  }
+
+  protected isBlockLocked(blockId: string): boolean {
+    return this.lockedBlockIds().has(blockId);
   }
 
   protected isLessonComplete(lesson: ILesson): boolean {
@@ -61,6 +71,10 @@ export class PlayerSidebar {
   }
 
   protected formatDuration(minutes: number): string { return formatDuration(minutes); }
+
+  protected lessonPrimaryType(lesson: ILesson): EContentType {
+    return lesson.contentBlocks?.[0]?.type ?? EContentType.DOCUMENT;
+  }
 
   protected lessonThumbUrl(lesson: ILesson): string | null {
     const block = lesson.contentBlocks?.[0];

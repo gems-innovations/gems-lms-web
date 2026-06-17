@@ -32,7 +32,7 @@ export class CourseCatalogContainer implements OnInit {
 
   protected open(item: ICatalogItem): void {
     if (item.kind === 'course') this.router.navigate(['/learn/courses', item.id]);
-    else this.router.navigate(['/learn/paths', item.id]);
+    else this.router.navigate(['/learn/preview', 'paths', item.id]);
   }
 
   protected preview(item: ICatalogItem): void {

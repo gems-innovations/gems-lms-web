@@ -38,8 +38,8 @@
   gap: 0.5rem;
   flex-shrink: 0;
   padding: 0.5rem 0.875rem;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--color-superficie-alta);
+  border: 1px solid var(--color-borde-principal);
   border-radius: 10px;
 }
 
@@ -47,7 +47,7 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  color: #fbbf24;
+  color: var(--color-advertencia);
 }
 
 .outline__star {
@@ -59,7 +59,7 @@
 .outline__rating-num {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
   line-height: 1;
 }
 
@@ -112,7 +112,7 @@
 .outline__node-num {
   font-size: 0.68rem;
   font-weight: 700;
-  color: #9B8FF8;
+  color: var(--color-primario-claro);
 }
 
 .outline__line {
@@ -146,7 +146,7 @@
   text-align: left;
   margin-bottom: 0;
 
-  &:hover .outline__module-title { color: #EDEAF8; }
+  &:hover .outline__module-title { color: var(--color-texto-principal); }
 }
 
 .outline__module-title-group {
@@ -167,8 +167,8 @@
 .outline__module-badge {
   font-size: 0.68rem;
   color: var(--color-texto-terciario);
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--color-superficie-alta);
+  border: 1px solid var(--color-borde-principal);
   border-radius: 100px;
   padding: 1px 7px;
   white-space: nowrap;
@@ -180,7 +180,7 @@
   flex-shrink: 0;
   transition: transform 0.2s, color 0.15s;
 
-  &--open { transform: rotate(180deg); color: #9B8FF8; }
+  &--open { transform: rotate(180deg); color: var(--color-primario-claro); }
 }
 
 // ── Lista de lecciones ────────────────────────────────────────────────────────
@@ -197,11 +197,11 @@
   gap: 0.75rem;
   padding: 0.625rem 0.875rem;
   border-radius: 8px;
-  background: rgba(255,255,255,0.025);
-  border: 1px solid rgba(255,255,255,0.05);
+  background: var(--color-tarjeta);
+  border: 1px solid var(--color-borde-principal);
   transition: background 0.12s;
 
-  &:hover { background: rgba(255,255,255,0.04); }
+  &:hover { background: var(--color-tarjeta-hover); }
 }
 
 // ── Thumbnail de lección ──────────────────────────────────────────────────────
@@ -212,7 +212,7 @@
   border-radius: 6px;
   overflow: hidden;
   background: rgba(123,111,240,0.12);
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid var(--color-borde-principal);
 }
 
 .outline__lesson-thumb-img {
@@ -228,7 +228,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9B8FF8;
+  color: var(--color-primario-claro);
   opacity: 0.6;
 }
 
@@ -283,7 +283,7 @@
 }
 
 .outline__free-lock {
-  color: #3DD6C8;
+  color: var(--color-teal);
   flex-shrink: 0;
 }
 
@@ -308,7 +308,7 @@
   &--quiz       { background: rgba(251,191,36,0.08); color: #fbbf24; border-color: rgba(251,191,36,0.18); }
   &--assignment { background: rgba(61,214,200,0.08); color: #3DD6C8; border-color: rgba(61,214,200,0.18); }
   &--document,
-  &--scorm      { background: rgba(255,255,255,0.05); color: rgba(237,234,248,0.4); border-color: rgba(255,255,255,0.08); }
+  &--scorm      { background: var(--color-superficie-alta); color: var(--color-texto-terciario); border-color: var(--color-borde-principal); }
   &--live-session { background: rgba(52,211,153,0.08); color: #34d399; border-color: rgba(52,211,153,0.18); }
 }
 

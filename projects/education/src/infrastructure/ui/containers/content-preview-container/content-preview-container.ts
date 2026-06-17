@@ -32,7 +32,7 @@ export class ContentPreviewContainer implements OnInit {
     } else {
       const courseId = this.uc.currentCourseId();
       if (courseId) this.router.navigate(['/learn/courses', courseId]);
-      else this.router.navigate(['/learn/paths', this.uc.path()?.id]);
+      else this.router.navigate(['/learn/preview', 'paths', this.uc.path()?.id]);
     }
   }
 

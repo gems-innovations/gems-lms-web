@@ -156,6 +156,47 @@ const MOCK_ENROLLMENTS: IEnrollment[] = [
         { moduleId: 'm9-1', completedLessons: 10, totalLessons: 22, percentage: 45 }
       ]
     }
+  },
+  {
+    id: 'enr-almost',
+    userId: MOCK_USER_ID,
+    courseId: 'c-almost',
+    status: 'active',
+    enrolledAt: new Date('2026-03-01'),
+    progress: {
+      courseId: 'c-almost',
+      overallPercentage: 83,
+      completedLessons: 2,
+      totalLessons: 3,
+      lastAccessedAt: new Date('2026-06-14'),
+      currentLessonId: 'la-2-1',
+      currentBlockId: 'cba-5',
+      completedBlockIds: ['cba-1', 'cba-2', 'cba-3', 'cba-4', 'cba-5'],
+      moduleProgress: [
+        { moduleId: 'ma-1', completedLessons: 2, totalLessons: 2, percentage: 100 },
+        { moduleId: 'ma-2', completedLessons: 0, totalLessons: 1, percentage: 0 },
+      ]
+    }
+  },
+  {
+    id: 'enr-done',
+    userId: MOCK_USER_ID,
+    courseId: 'c-done',
+    status: 'completed',
+    enrolledAt: new Date('2025-11-01'),
+    completedAt: new Date('2026-01-20'),
+    progress: {
+      courseId: 'c-done',
+      overallPercentage: 100,
+      completedLessons: 5,
+      totalLessons: 5,
+      lastAccessedAt: new Date('2026-01-20'),
+      completedBlockIds: ['cbd-1', 'cbd-2', 'cbd-3', 'cbd-4', 'cbd-5', 'cbd-6', 'cbd-7', 'cbd-8'],
+      moduleProgress: [
+        { moduleId: 'md-1', completedLessons: 2, totalLessons: 2, percentage: 100 },
+        { moduleId: 'md-2', completedLessons: 3, totalLessons: 3, percentage: 100 }
+      ]
+    }
   }
 ];
 
