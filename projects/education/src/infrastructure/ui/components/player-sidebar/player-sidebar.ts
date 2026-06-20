@@ -81,8 +81,11 @@ export class PlayerSidebar {
     if (!block) return null;
     if (block.videoThumbnailUrl) return block.videoThumbnailUrl;
     if (block.type === EContentType.VIDEO && block.url) {
-      const m = block.url.match(/embed\/([^?/]+)/);
-      if (m) return `https://img.youtube.com/vi/${m[1]}/mqdefault.jpg`;
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = block.url.match(regExp);
+      if (match && match[2].length === 11) {
+        return `https://img.youtube.com/vi/${match[2]}/mqdefault.jpg`;
+      }
     }
     return null;
   }

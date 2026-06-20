@@ -27,14 +27,12 @@
   <div class="cpcard__body">
     <h3 class="cpcard__title">{{ entry().course.title }}</h3>
 
-    @if (!isDone()) {
-      <p class="cpcard__meta">
-        {{ entry().course.totalLessons }} lecciones
-        @if (entry().course.instructorName) {
-          &nbsp;·&nbsp;{{ entry().course.instructorName }}
-        }
-      </p>
-    }
+    <p class="cpcard__meta">
+      {{ entry().course.totalLessons }} lecciones
+      @if (entry().course.instructorName) {
+        &nbsp;·&nbsp;{{ entry().course.instructorName }}
+      }
+    </p>
 
     <div class="cpcard__progress-wrap">
       <div class="cpcard__progress-bar">
@@ -49,18 +47,16 @@
       </span>
     </div>
 
-    @if (!isDone()) {
-      <div class="cpcard__footer">
-        <span class="cpcard__last-access">
-          {{ entry().enrollment.progress.lastAccessedAt | date: 'd MMM · HH:mm' }}
-        </span>
-        <button type="button" class="cpcard__continue-btn" tabindex="-1">
-          Continuar
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </button>
-      </div>
-    }
+    <div class="cpcard__footer">
+      <span class="cpcard__last-access">
+        {{ entry().enrollment.progress.lastAccessedAt | date: 'd MMM · HH:mm' }}
+      </span>
+      <button type="button" class="cpcard__continue-btn" tabindex="-1">
+        {{ isDone() ? 'Ver curso' : 'Continuar' }}
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </div>
   </div>
 </article>

@@ -26,7 +26,13 @@ export class CoursePlayerUseCase {
 
   readonly isLoading    = computed(() => this.courseUc.isLoading() || this.enrollmentUc.isLoading());
   readonly isSubmitting = computed(() => this.enrollmentUc.isSubmitting());
-  readonly lastQuizResult = computed(() => this.enrollmentUc.lastQuizResult());
+  readonly lastQuizResult = computed(() => {
+    const block = this.selectedBlock();
+    if (!block) return null;
+    const attempts = this.enrollmentUc.quizAttempts().filter(a => a.blockId === block.id);
+    if (!attempts.length) return null;
+    return attempts.reduce((prev, current) => (prev.attemptNumber > current.attemptNumber) ? prev : current);
+  });
 
   readonly course = computed(() => {
     const id = this._courseId();

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
+import { Observable, of, delay, map } from 'rxjs';
 import { NotificationService } from './notification.service';
 import { CourseService } from './course.service';
 import {
@@ -12,7 +12,7 @@ import {
   ICourseProgress
 } from '../../domain/model/enrollment.model';
 
-const MOCK_USER_ID = 'u1';
+export const MOCK_USER_ID = 'u1';
 
 // ── Mock students (para instructor/admin) ────────────────────────────────────
 export interface IStudentProfile {
@@ -349,22 +349,68 @@ export class EnrollmentService {
 
   submitQuiz(req: ISubmitQuizRequest): Observable<IQuizAttempt> {
     if (this.USE_MOCK) {
-      const prevAttempts = MOCK_QUIZ_ATTEMPTS.filter(a => a.blockId === req.blockId).length;
-      // Simple scoring: 25 points per correct answer (mock)
-      const score = Math.floor(Math.random() * 40) + 60; // 60-100 random for demo
-      const attempt: IQuizAttempt = {
-        id: `att${Date.now()}`,
-        blockId: req.blockId,
-        lessonId: req.lessonId,
-        courseId: req.courseId,
-        attemptNumber: prevAttempts + 1,
-        answers: req.answers,
-        score,
-        passed: score >= 70,
-        completedAt: new Date()
-      };
-      MOCK_QUIZ_ATTEMPTS.push(attempt);
-      return of(attempt).pipe(delay(800));
+      return this.courseService.getCourseById(req.courseId).pipe(
+        delay(800),
+        map(course => {
+          const prevAttempts = MOCK_QUIZ_ATTEMPTS.filter(a => a.blockId === req.blockId).length;
+          let score = 0;
+          let maxScore = 0;
+          let passingScore = 70;
+          const feedback: any[] = [];
+          
+          if (course) {
+             for (const mod of course.modules || []) {
+                for (const lesson of mod.lessons || []) {
+                   const blk = lesson.contentBlocks?.find(b => b.id === req.blockId);
+                   if (blk && blk.type === 'quiz' && blk.questions) {
+                      passingScore = blk.passingScore || 70;
+                      for (const q of blk.questions) {
+                         const points = q.points || 1;
+                         maxScore += points;
+                         const userAnswer = req.answers.find(a => a.questionId === q.id)?.answer;
+                         let isCorrect = false;
+                         
+                         if (q.type === 'multiple-choice') {
+                           const correctAnswers = q.correctAnswers || [];
+                           const userArr = Array.isArray(userAnswer) ? userAnswer : (userAnswer !== undefined && userAnswer !== '' ? [userAnswer] : []);
+                           isCorrect = correctAnswers.length > 0 && correctAnswers.length === userArr.length && correctAnswers.every(c => userArr.includes(c));
+                         } else if (q.type === 'true-false') {
+                           isCorrect = (userAnswer === q.correctAnswer);
+                         } else {
+                           isCorrect = !!userAnswer;
+                         }
+                         
+                         if (isCorrect) score += points;
+                         
+                         feedback.push({
+                           questionId: q.id,
+                           correct: isCorrect,
+                           explanation: q.explanation
+                         });
+                      }
+                   }
+                }
+             }
+          }
+          
+          const finalScore = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
+          
+          const attempt: IQuizAttempt = {
+            id: `att${Date.now()}`,
+            blockId: req.blockId,
+            lessonId: req.lessonId,
+            courseId: req.courseId,
+            attemptNumber: prevAttempts + 1,
+            answers: req.answers,
+            score: finalScore,
+            passed: finalScore >= passingScore,
+            feedback,
+            completedAt: new Date()
+          };
+          MOCK_QUIZ_ATTEMPTS.push(attempt);
+          return attempt;
+        })
+      );
     }
     return of({} as IQuizAttempt);
   }

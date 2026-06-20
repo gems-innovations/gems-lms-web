@@ -101,6 +101,7 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   protected readonly quizPhase        = signal<QuizPhase>('confirm');
   protected readonly currentQIdx      = signal(0);
   protected readonly quizAnswers      = signal<Record<string, string | string[] | boolean>>({});
+  protected readonly quizBookmarks    = signal<Record<string, boolean>>({});
   protected readonly timerSeconds     = signal(0);
   protected readonly timerStartedAt   = signal<number | null>(null);
   private _timerInterval: ReturnType<typeof setInterval> | null = null;
@@ -144,6 +145,23 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
     const limit = this.timeLimitSeconds();
     if (!limit) return false;
     return (limit - this.timerSeconds()) <= 60;
+  });
+
+  protected readonly quizAttempts = computed(() => {
+    const result = this.lastQuizResult() as any;
+    return result ? (result.attemptNumber ?? 0) : 0;
+  });
+
+  protected readonly quizAttemptsLeft = computed(() => {
+    const block = this.block();
+    if (!block || block.type !== EContentType.QUIZ) return 0;
+    const max = block.maxAttempts ?? 0;
+    if (max === 0) return Infinity;
+    return Math.max(0, max - this.quizAttempts());
+  });
+
+  protected readonly canRetryQuiz = computed(() => {
+    return this.quizAttemptsLeft() > 0;
   });
 
   constructor() {
@@ -200,6 +218,7 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
 
   // ── Quiz actions ───────────────────────────────────────────────────────────
   protected startQuiz(): void {
+    if (!this.canRetryQuiz()) return;
     this.quizPhase.set('taking');
     this.currentQIdx.set(0);
     this.startTimer();
@@ -231,6 +250,14 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
     return Array.isArray(a) ? a.includes(optionId) : a === optionId;
   }
 
+  protected toggleBookmark(questionId: string): void {
+    this.quizBookmarks.update(b => ({ ...b, [questionId]: !b[questionId] }));
+  }
+
+  protected isQuestionBookmarked(questionId: string): boolean {
+    return !!this.quizBookmarks()[questionId];
+  }
+
   protected isQuestionAnswered(questionId: string): boolean {
     const a = this.quizAnswers()[questionId];
     if (a === undefined || a === null || a === '') return false;
@@ -254,14 +281,21 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   }
 
   protected retryQuiz(): void {
+    if (!this.canRetryQuiz()) return;
     this.resetQuiz();
+    this.quizPhase.set('confirm');
   }
 
   private resetQuiz(): void {
     this.stopTimer();
-    this.quizPhase.set('confirm');
+    if (this.lastQuizResult()) {
+      this.quizPhase.set('result');
+    } else {
+      this.quizPhase.set('confirm');
+    }
     this.currentQIdx.set(0);
     this.quizAnswers.set({});
+    this.quizBookmarks.set({});
     this.timerSeconds.set(0);
     this.timerStartedAt.set(null);
   }

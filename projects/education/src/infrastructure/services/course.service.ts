@@ -1165,6 +1165,7 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                 isRequired: true,
                 timeLimit: 8,
                 passingScore: 70,
+                maxAttempts: 3,
                 questions: [
                   {
                     id: 'qa-1', type: 'multiple-choice', question: '¿Qué hace el flag -p 8080:80 en docker run?', points: 1, order: 1,
@@ -1175,6 +1176,66 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                     id: 'qa-2', type: 'true-false', question: 'Un Dockerfile es un archivo de texto con instrucciones para construir una imagen Docker.', points: 1, order: 2,
                     correctAnswer: true, explanation: 'Correcto. FROM, RUN, COPY, CMD son instrucciones comunes.',
                   },
+                  {
+                    id: 'qa-3', type: 'multiple-choice', question: '¿Cuál es el comando correcto para listar todos los contenedores (activos e inactivos)?', points: 1, order: 3,
+                    options: [{ id: 'a', text: 'docker ps' }, { id: 'b', text: 'docker containers list' }, { id: 'c', text: 'docker ps -a' }, { id: 'd', text: 'docker list all' }],
+                    correctAnswers: ['c'], explanation: 'El flag -a (o --all) permite ver todos los contenedores, incluso los detenidos.',
+                  },
+                  {
+                    id: 'qa-4', type: 'true-false', question: 'Docker Compose se utiliza para definir y ejecutar aplicaciones multi-contenedor en Docker.', points: 1, order: 4,
+                    correctAnswer: true, explanation: 'Correcto. Con docker-compose.yml puedes orquestar múltiples servicios fácilmente.',
+                  },
+                  {
+                    id: 'qa-5', type: 'multiple-choice', question: '¿Para qué sirve la instrucción WORKDIR en un Dockerfile?', points: 1, order: 5,
+                    options: [{ id: 'a', text: 'Para descargar dependencias' }, { id: 'b', text: 'Para establecer el directorio de trabajo donde se ejecutarán las siguientes instrucciones' }, { id: 'c', text: 'Para definir el punto de entrada de la aplicación' }, { id: 'd', text: 'Ninguna de las anteriores' }],
+                    correctAnswers: ['b'], explanation: 'Establece el directorio base para cualquier comando RUN, CMD, ENTRYPOINT, COPY o ADD.',
+                  },
+                  {
+                    id: 'qa-6', type: 'true-false', question: 'Las imágenes de Docker son mutables y se pueden modificar una vez creadas.', points: 1, order: 6,
+                    correctAnswer: false, explanation: 'Falso. Las imágenes de Docker son de solo lectura (inmutables). Se instancian en contenedores que tienen una capa de escritura temporal.',
+                  },
+                  {
+                    id: 'qa-7', type: 'multiple-choice', question: '¿Qué comando descarga una imagen de un registro como Docker Hub sin ejecutarla?', points: 1, order: 7,
+                    options: [{ id: 'a', text: 'docker get' }, { id: 'b', text: 'docker fetch' }, { id: 'c', text: 'docker pull' }, { id: 'd', text: 'docker load' }],
+                    correctAnswers: ['c'], explanation: 'docker pull descarga la imagen a la máquina host.',
+                  },
+                  {
+                    id: 'qa-8', type: 'multiple-choice', question: 'En un docker-compose.yml, ¿qué etiqueta define las dependencias entre servicios?', points: 1, order: 8,
+                    options: [{ id: 'a', text: 'requires:' }, { id: 'b', text: 'depends_on:' }, { id: 'c', text: 'links:' }, { id: 'd', text: 'needs:' }],
+                    correctAnswers: ['b'], explanation: 'depends_on expresa el orden de inicio (y apagado) de los servicios.',
+                  },
+                  {
+                    id: 'qa-9', type: 'true-false', question: 'El comando `docker rm` elimina una imagen del disco duro.', points: 1, order: 9,
+                    correctAnswer: false, explanation: 'Falso. `docker rm` elimina contenedores. Para eliminar imágenes se usa `docker rmi`.',
+                  },
+                  {
+                    id: 'qa-10', type: 'multiple-choice', question: '¿Cuál es la principal diferencia entre CMD y ENTRYPOINT?', points: 1, order: 10,
+                    options: [{ id: 'a', text: 'Ninguna, hacen exactamente lo mismo' }, { id: 'b', text: 'ENTRYPOINT no puede ser sobreescrito fácilmente, CMD sí' }, { id: 'c', text: 'CMD se ejecuta en tiempo de build, ENTRYPOINT en tiempo de run' }, { id: 'd', text: 'ENTRYPOINT solo funciona con imágenes Alpine' }],
+                    correctAnswers: ['b'], explanation: 'CMD define parámetros por defecto que son fácilmente reemplazables, ENTRYPOINT configura el ejecutable principal.',
+                  },
+                  {
+                    id: 'qa-11', type: 'multiple-choice', question: '¿Cómo puedes pasar una variable de entorno a un contenedor al iniciarlo?', points: 1, order: 11,
+                    options: [{ id: 'a', text: 'Usando el flag -e o --env' }, { id: 'b', text: 'Usando el flag -v' }, { id: 'c', text: 'Mediante docker set-env' }, { id: 'd', text: 'Usando el flag --var' }],
+                    correctAnswers: ['a'], explanation: 'El flag -e o --env permite inyectar variables de entorno en tiempo de ejecución.',
+                  },
+                  {
+                    id: 'qa-12', type: 'true-false', question: 'Es una buena práctica ejecutar múltiples aplicaciones (ej. base de datos y backend web) dentro del mismo contenedor Docker.', points: 1, order: 12,
+                    correctAnswer: false, explanation: 'Falso. La convención de Docker es "un proceso/servicio por contenedor" para mayor modularidad.',
+                  },
+                  {
+                    id: 'qa-13', type: 'multiple-choice', question: '¿Qué comando permite ver los logs generados por un contenedor en ejecución?', points: 1, order: 13,
+                    options: [{ id: 'a', text: 'docker view' }, { id: 'b', text: 'docker inspect' }, { id: 'c', text: 'docker logs' }, { id: 'd', text: 'docker monitor' }],
+                    correctAnswers: ['c'], explanation: '`docker logs <id_contenedor>` muestra la salida estándar y de error del contenedor.',
+                  },
+                  {
+                    id: 'qa-14', type: 'true-false', question: 'Los volúmenes de Docker (volumes) permiten persistir datos incluso si el contenedor es destruido.', points: 1, order: 14,
+                    correctAnswer: true, explanation: 'Correcto. Los volúmenes almacenan datos fuera del ciclo de vida del contenedor.',
+                  },
+                  {
+                    id: 'qa-15', type: 'multiple-choice', question: '¿Qué instrucción del Dockerfile se usa para copiar archivos desde el host al contenedor?', points: 1, order: 15,
+                    options: [{ id: 'a', text: 'TRANSFER' }, { id: 'b', text: 'COPY' }, { id: 'c', text: 'MOVE' }, { id: 'd', text: 'CLONE' }],
+                    correctAnswers: ['b'], explanation: 'COPY y ADD son las instrucciones utilizadas para copiar archivos. COPY es preferida para tareas sencillas.',
+                  }
                 ],
               },
             ],
@@ -1400,6 +1461,24 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
 export class CourseService {
   private readonly USE_MOCK = true;
 
+  private calculateDurations(course: ICourse): ICourse {
+    if (!course) return course;
+    let totalCourseDuration = 0;
+    if (course.modules) {
+      course.modules.forEach(mod => {
+        if (mod.lessons) {
+          mod.lessons.forEach(les => {
+            const sum = les.contentBlocks?.reduce((acc, block) => acc + (block.duration ?? 0), 0) ?? 0;
+            les.duration = sum;
+            totalCourseDuration += sum;
+          });
+        }
+      });
+    }
+    course.totalDuration = totalCourseDuration;
+    return course;
+  }
+
   getCourses(filters?: ICourseFilters, page = 1, limit = 12): Observable<ICourseListResponse> {
     if (this.USE_MOCK) {
       let filtered = [...MOCK_COURSES];
@@ -1412,7 +1491,7 @@ export class CourseService {
         );
       }
       const total = filtered.length;
-      const courses = filtered.slice((page - 1) * limit, page * limit);
+      const courses = filtered.slice((page - 1) * limit, page * limit).map(c => this.calculateDurations(c));
       return of({ courses, total, page, limit }).pipe(delay(400));
     }
     return of({ courses: [], total: 0, page, limit });
@@ -1420,7 +1499,8 @@ export class CourseService {
 
   getCourseById(id: string): Observable<ICourse> {
     if (this.USE_MOCK) {
-      return of(MOCK_COURSES.find(c => c.id === id)!).pipe(delay(200));
+      const found = MOCK_COURSES.find(c => c.id === id);
+      return of(found ? this.calculateDurations(found) : null!).pipe(delay(200));
     }
     return of(MOCK_COURSES[0]);
   }

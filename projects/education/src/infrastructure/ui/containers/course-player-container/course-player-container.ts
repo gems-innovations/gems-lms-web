@@ -13,6 +13,8 @@ import {
   IQuizSubmitPayload, IAssignmentSubmitPayload,
   IAssignmentSubmission, ICourseCertificate
 } from '../../../../domain/model/player.model';
+import { MOCK_STUDENTS, MOCK_USER_ID } from '../../../services/enrollment.service';
+import { AuthSessionService } from 'auth';
 
 const INACTIVITY_THRESHOLD_MS = 5 * 60 * 1000; // 5 min
 
@@ -32,6 +34,7 @@ export class CoursePlayerContainer implements OnInit, OnDestroy {
   private readonly route  = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly uc   = inject(CoursePlayerUseCase);
+  private readonly authSession = inject(AuthSessionService);
 
   protected readonly sidebarWidthPx = signal<number | null>(null);
   protected readonly showCertificate = signal(false);
@@ -53,10 +56,22 @@ export class CoursePlayerContainer implements OnInit, OnDestroy {
   protected readonly certificate = computed((): ICourseCertificate | null => {
     const c = this.uc.course();
     if (!c || this.uc.courseProgress() < 100) return null;
+    
+    const user = this.authSession.user();
+    let studentName = 'Estudiante';
+    if (user) {
+      studentName = `${user.firstName} ${user.lastName}`.trim();
+    } else {
+      const student = MOCK_STUDENTS.find(s => s.id === MOCK_USER_ID);
+      if (student) {
+        studentName = `${student.firstName} ${student.lastName}`;
+      }
+    }
+
     return {
       courseId:        c.id,
       courseTitle:     c.title,
-      studentName:     'Estudiante',
+      studentName:     studentName,
       completedAt:     new Date(),
       certificateId:   `CERT-${c.id.slice(0, 8).toUpperCase()}`,
       instructorName:  c.instructorName,

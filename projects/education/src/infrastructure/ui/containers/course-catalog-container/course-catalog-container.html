@@ -19,7 +19,7 @@
     />
   } @else {
     <lib-card-grid>
-      @for (item of uc.filtered(); track item.id) {
+      @for (item of pagedItems(); track item.id) {
         <edu-catalog-card
           [item]="item"
           [enrolled]="uc.isEnrolled(item)"
@@ -29,5 +29,19 @@
         />
       }
     </lib-card-grid>
+
+    <div class="catalog-pagination" [class.catalog-pagination--hidden]="catalogTotalPages() <= 1">
+      <button class="catalog-page-btn" [disabled]="catalogPage() === 1" (click)="catalogPage.update(p => p - 1)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      @for (p of [].constructor(catalogTotalPages()); track $index) {
+        <button class="catalog-page-btn" [class.catalog-page-btn--active]="catalogPage() === $index + 1" (click)="catalogPage.set($index + 1)">
+          {{ $index + 1 }}
+        </button>
+      }
+      <button class="catalog-page-btn" [disabled]="catalogPage() === catalogTotalPages()" (click)="catalogPage.update(p => p + 1)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
   }
 </lib-page>
