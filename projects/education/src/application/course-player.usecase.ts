@@ -2,11 +2,15 @@ import { inject, Injectable, signal, computed, effect, DestroyRef } from '@angul
 import { CourseUseCase } from './course.usecase';
 import { EnrollmentUseCase } from './enrollment.usecase';
 import { ILesson } from '../domain/model/course.model';
+import { ICourseCertificate } from '../domain/model/player.model';
+import { AuthSessionService } from 'auth';
+import { MOCK_STUDENTS, MOCK_USER_ID } from '../infrastructure/services/enrollment.service';
 
 @Injectable({ providedIn: 'root' })
 export class CoursePlayerUseCase {
   private readonly courseUc     = inject(CourseUseCase);
   private readonly enrollmentUc = inject(EnrollmentUseCase);
+  private readonly authSession  = inject(AuthSessionService);
 
   //#region State
   private readonly _courseId         = signal<string | null>(null);
@@ -31,7 +35,8 @@ export class CoursePlayerUseCase {
     if (!block) return null;
     const attempts = this.enrollmentUc.quizAttempts().filter(a => a.blockId === block.id);
     if (!attempts.length) return null;
-    return attempts.reduce((prev, current) => (prev.attemptNumber > current.attemptNumber) ? prev : current);
+    // Always show the best score, not the latest attempt
+    return attempts.reduce((best, current) => current.score > best.score ? current : best);
   });
 
   readonly course = computed(() => {
@@ -140,6 +145,41 @@ export class CoursePlayerUseCase {
     const b = this.selectedBlock();
     return !!b && this.lockedBlockIds().has(b.id);
   });
+
+  /** Submissions for the current course that have been graded by the instructor */
+  readonly gradedSubmissions = computed(() => {
+    const courseId = this._courseId();
+    if (!courseId) return [];
+    return this.enrollmentUc.submissions().filter(s => s.courseId === courseId && s.status === 'graded');
+  });
+
+  readonly quizAttemptCount = computed(() => {
+    const block = this.selectedBlock();
+    if (!block) return 0;
+    return this.enrollmentUc.quizAttempts().filter(a => a.blockId === block.id).length;
+  });
+
+  readonly certificate = computed((): ICourseCertificate | null => {
+    const c = this.course();
+    if (!c || this.courseProgress() < 100) return null;
+    const user = this.authSession.user();
+    let studentName = 'Estudiante';
+    if (user) {
+      studentName = `${user.firstName} ${user.lastName}`.trim();
+    } else {
+      const student = MOCK_STUDENTS.find(s => s.id === MOCK_USER_ID);
+      if (student) studentName = `${student.firstName} ${student.lastName}`;
+    }
+    return {
+      courseId:        c.id,
+      courseTitle:     c.title,
+      studentName,
+      completedAt:     new Date(),
+      certificateId:   `CERT-${c.id.slice(0, 8).toUpperCase()}`,
+      instructorName:  c.instructorName,
+      institutionName: 'GEMS LMS',
+    };
+  });
   //#endregion
 
   constructor() {
@@ -148,9 +188,56 @@ export class CoursePlayerUseCase {
       if (!enrollment) return;
       const ids = enrollment.progress.completedBlockIds;
       if (ids?.length) {
-        this._completedBlockIds.set(new Set(ids));
+        // Merge (not replace) so blocks completed this session (quiz pass, timer, grade)
+        // aren't wiped when enrollment signal re-fires (e.g. after updateProgress())
+        this._completedBlockIds.update(s => {
+          const next = new Set(s);
+          ids.forEach(id => next.add(id));
+          return next;
+        });
       }
-    });
+    }, { allowSignalWrites: true });
+
+    // Mark quiz blocks complete only when the student has a passing attempt
+    effect(() => {
+      const courseId = this._courseId();
+      if (!courseId) return;
+      for (const attempt of this.enrollmentUc.quizAttempts()) {
+        if (attempt.courseId === courseId && attempt.passed) {
+          this._completedBlockIds.update(s => new Set([...s, attempt.blockId]));
+        }
+      }
+    }, { allowSignalWrites: true });
+
+    // Mark assignment blocks complete when instructor grades them
+    effect(() => {
+      const courseId = this._courseId();
+      if (!courseId) return;
+      for (const sub of this.enrollmentUc.submissions()) {
+        if (sub.courseId === courseId && sub.status === 'graded') {
+          this._completedBlockIds.update(s => new Set([...s, sub.blockId]));
+        }
+      }
+    }, { allowSignalWrites: true });
+
+    // Mark quiz blocks complete only when the best attempt is passing
+    effect(() => {
+      const courseId = this._courseId();
+      if (!courseId) return;
+      const attempts = this.enrollmentUc.quizAttempts().filter(a => a.courseId === courseId);
+      if (!attempts.length) return;
+      const byBlock = new Map<string, typeof attempts>();
+      for (const a of attempts) {
+        if (!byBlock.has(a.blockId)) byBlock.set(a.blockId, []);
+        byBlock.get(a.blockId)!.push(a);
+      }
+      for (const [blockId, blockAttempts] of byBlock) {
+        const best = blockAttempts.reduce((b, c) => c.score > b.score ? c : b);
+        if (best.passed) {
+          this._completedBlockIds.update(s => new Set([...s, blockId]));
+        }
+      }
+    }, { allowSignalWrites: true });
 
     effect(() => {
       if (this._selectedLessonId() || !this.course()) return;
@@ -233,12 +320,12 @@ export class CoursePlayerUseCase {
 
   handleQuizSubmit(payload: { blockId: string; lessonId: string; courseId: string; answers: any[] }): void {
     this.enrollmentUc.submitQuiz(payload);
-    this._completedBlockIds.update(s => new Set([...s, payload.blockId]));
+    // Block completion is handled reactively by the quiz-attempts effect (only if passed)
   }
 
   handleAssignmentSubmit(payload: { blockId: string; lessonId: string; courseId: string; textContent: string }): void {
     this.enrollmentUc.submitAssignment(payload);
-    this._completedBlockIds.update(s => new Set([...s, payload.blockId]));
+    // Block is NOT marked complete here — only when the instructor grades it
   }
   //#endregion
 }

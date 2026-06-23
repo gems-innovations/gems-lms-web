@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, computed, DestroyRef } from '@angular/core';
+import { inject, Injectable, signal, computed, DestroyRef, effect } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, forkJoin, EMPTY } from 'rxjs';
 import { tap, switchMap, catchError } from 'rxjs/operators';
@@ -9,6 +9,8 @@ import { ECourseStatus } from '../domain/model/course.model';
 import { ELearningPathStatus } from '../domain/model/learning-path.model';
 import { ICatalogItem, TCatalogKindFilter, TCatalogLevelFilter } from '../domain/model/catalog.model';
 import { DIFFICULTY_LABELS } from '../infrastructure/ui/utils/course-labels';
+
+const CATALOG_PAGE_SIZE = 9;
 
 @Injectable({ providedIn: 'root' })
 export class CourseCatalogUseCase {
@@ -25,11 +27,13 @@ export class CourseCatalogUseCase {
   private readonly _search          = signal('');
   private readonly _filterKind      = signal<TCatalogKindFilter>('all');
   private readonly _filterLevel     = signal<TCatalogLevelFilter>('all');
+  private readonly _page            = signal(1);
 
   readonly isLoading   = computed(() => this._isLoading());
   readonly search      = computed(() => this._search());
   readonly filterKind  = computed(() => this._filterKind());
   readonly filterLevel = computed(() => this._filterLevel());
+  readonly page        = computed(() => this._page());
 
   readonly filtered = computed(() => {
     const q    = this._search().toLowerCase();
@@ -43,7 +47,12 @@ export class CourseCatalogUseCase {
     });
   });
 
-  readonly totalCount = computed(() => this.filtered().length);
+  readonly totalCount  = computed(() => this.filtered().length);
+  readonly totalPages  = computed(() => Math.max(1, Math.ceil(this.filtered().length / CATALOG_PAGE_SIZE)));
+  readonly pagedItems  = computed(() => {
+    const p = this._page();
+    return this.filtered().slice((p - 1) * CATALOG_PAGE_SIZE, p * CATALOG_PAGE_SIZE);
+  });
   //#endregion
 
   //#region Action subjects
@@ -52,6 +61,13 @@ export class CourseCatalogUseCase {
   //#endregion
 
   constructor() {
+    effect(() => {
+      this._search();
+      this._filterKind();
+      this._filterLevel();
+      this._page.set(1);
+    }, { allowSignalWrites: true });
+
     this.load$.pipe(
       tap(() => this._isLoading.set(true)),
       switchMap(() => forkJoin({
@@ -119,6 +135,9 @@ export class CourseCatalogUseCase {
   setSearch(q: string): void { this._search.set(q); }
   setFilterKind(kind: TCatalogKindFilter): void { this._filterKind.set(kind); }
   setFilterLevel(level: TCatalogLevelFilter): void { this._filterLevel.set(level); }
+  setPage(p: number): void { this._page.set(p); }
+  prevPage(): void { this._page.update(p => Math.max(1, p - 1)); }
+  nextPage(): void { this._page.update(p => Math.min(this.totalPages(), p + 1)); }
 
   isEnrolled(item: ICatalogItem): boolean {
     return item.kind === 'course'

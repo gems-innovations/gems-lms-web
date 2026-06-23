@@ -51,14 +51,18 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   readonly lessonId           = input<string | null>(null);
   readonly isSubmitting       = input<boolean>(false);
   readonly lastQuizResult     = input<IQuizResult | null>(null);
-  readonly isComplete         = input<boolean>(false);
-  readonly isLocked           = input<boolean>(false);
+  readonly isComplete           = input<boolean>(false);
+  readonly isLocked             = input<boolean>(false);
   readonly assignmentSubmission = input<IAssignmentSubmission | null>(null);
+  readonly quizAttemptCount     = input<number>(0);
+  readonly forceSubmitTrigger   = input<number>(0);
 
   // ── Outputs ───────────────────────────────────────────────────────────────
   readonly quizSubmit        = output<IQuizSubmitPayload>();
   readonly assignmentSubmit  = output<IAssignmentSubmitPayload>();
   readonly markComplete      = output<void>();
+  readonly quizPhaseChange   = output<QuizPhase>();
+  readonly quizForceSubmitted = output<void>();
 
   protected readonly EContentType = EContentType;
 
@@ -91,24 +95,39 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   // ── Assignment state ───────────────────────────────────────────────────────
   protected readonly assignmentText      = signal('');
   protected readonly assignmentSubmitted = signal(false);
+  protected readonly assignmentEditing   = signal(false);
   protected readonly attachedFile        = signal<File | null>(null);
   protected readonly fileError           = signal<string | null>(null);
   protected readonly canSubmitAssignment = computed(() =>
     this.assignmentText().trim().length > 0 || this.attachedFile() !== null
   );
+  protected readonly assignmentIsPending = computed(() => {
+    const sub = this.assignmentSubmission();
+    return !!sub && sub.status === 'pending_review' && !sub.grade;
+  });
+  protected readonly assignmentIsGraded = computed(() => {
+    const sub = this.assignmentSubmission();
+    return !!sub && (sub.status === 'graded' || !!sub.grade);
+  });
 
   // ── Quiz state ─────────────────────────────────────────────────────────────
-  protected readonly quizPhase        = signal<QuizPhase>('confirm');
-  protected readonly currentQIdx      = signal(0);
-  protected readonly quizAnswers      = signal<Record<string, string | string[] | boolean>>({});
-  protected readonly quizBookmarks    = signal<Record<string, boolean>>({});
-  protected readonly timerSeconds     = signal(0);
-  protected readonly timerStartedAt   = signal<number | null>(null);
+  protected readonly quizPhase         = signal<QuizPhase>('confirm');
+  protected readonly currentQIdx       = signal(0);
+  protected readonly quizAnswers       = signal<Record<string, string | string[] | boolean>>({});
+  protected readonly quizBookmarks     = signal<Record<string, boolean>>({});
+  protected readonly timerSeconds      = signal(0);
+  protected readonly timerStartedAt    = signal<number | null>(null);
+  protected readonly showSubmitConfirm = signal(false);
+  private readonly _attemptQuestions   = signal<IQuestion[]>([]);
+  private readonly _submittedAnswers   = signal<Record<string, string | string[] | boolean>>({});
   private _timerInterval: ReturnType<typeof setInterval> | null = null;
 
-  protected readonly quizQuestions = computed(() =>
-    (this.block()?.questions ?? []) as IQuestion[]
-  );
+  protected readonly quizQuestions = computed(() => {
+    const phase = this.quizPhase();
+    const attempt = this._attemptQuestions();
+    if ((phase === 'taking' || phase === 'result') && attempt.length) return attempt;
+    return ((this.block()?.questions ?? []) as IQuestion[]).filter(q => q.type !== 'open');
+  });
 
   protected readonly currentQuestion = computed(() =>
     this.quizQuestions()[this.currentQIdx()] ?? null
@@ -147,10 +166,7 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
     return (limit - this.timerSeconds()) <= 60;
   });
 
-  protected readonly quizAttempts = computed(() => {
-    const result = this.lastQuizResult() as any;
-    return result ? (result.attemptNumber ?? 0) : 0;
-  });
+  protected readonly quizAttempts = computed(() => this.quizAttemptCount());
 
   protected readonly quizAttemptsLeft = computed(() => {
     const block = this.block();
@@ -168,6 +184,20 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
     // Stop reading timer when block is marked complete externally
     effect(() => {
       if (this.isComplete()) this._stopReadingTimer();
+    });
+
+    // Notify container when quiz phase changes
+    effect(() => {
+      this.quizPhaseChange.emit(this.quizPhase());
+    });
+
+    // Force-submit quiz when container requests it (e.g. student navigates away)
+    effect(() => {
+      const trigger = this.forceSubmitTrigger();
+      if (trigger > 0 && this.quizPhase() === 'taking') {
+        this.submitQuiz();
+        this.quizForceSubmitted.emit();
+      }
     });
   }
 
@@ -219,6 +249,15 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   // ── Quiz actions ───────────────────────────────────────────────────────────
   protected startQuiz(): void {
     if (!this.canRetryQuiz()) return;
+    const base = ((this.block()?.questions ?? []) as IQuestion[]).filter(q => q.type !== 'open');
+    const shuffled = this._shuffle(base).map(q => {
+      if (q.type === 'multiple-choice') {
+        return { ...(q as IMultipleChoiceQuestion), options: this._shuffle((q as IMultipleChoiceQuestion).options) };
+      }
+      return q;
+    });
+    this._attemptQuestions.set(shuffled);
+    this._submittedAnswers.set({});
     this.quizPhase.set('taking');
     this.currentQIdx.set(0);
     this.startTimer();
@@ -265,13 +304,26 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
     return true;
   }
 
+  protected trySubmitQuiz(): void {
+    this.showSubmitConfirm.set(true);
+  }
+
+  protected cancelSubmitConfirm(): void {
+    this.showSubmitConfirm.set(false);
+  }
+
+  protected confirmAndSubmit(): void {
+    this.showSubmitConfirm.set(false);
+    this.submitQuiz();
+  }
+
   protected submitQuiz(): void {
     const block = this.block();
     const cid   = this.courseId();
     const lid   = this.lessonId();
     if (!block || !cid || !lid) return;
-    const elapsed = this.timerSeconds();
     this.stopTimer();
+    this._submittedAnswers.set({ ...this.quizAnswers() });
     const answers: IQuizAnswer[] = this.quizQuestions().map(q => ({
       questionId: q.id,
       answer: this.quizAnswers()[q.id] ?? ''
@@ -344,6 +396,13 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 
+  protected editAssignment(): void {
+    const sub = this.assignmentSubmission();
+    if (sub?.textContent) this.assignmentText.set(sub.textContent);
+    this.assignmentEditing.set(true);
+    this.assignmentSubmitted.set(false);
+  }
+
   protected submitAssignment(): void {
     const block = this.block();
     const cid   = this.courseId();
@@ -355,6 +414,35 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
       attachedFile: this.attachedFile() ?? undefined,
     });
     this.assignmentSubmitted.set(true);
+    this.assignmentEditing.set(false);
+  }
+
+  protected findAttemptQuestion(questionId: string): IQuestion | null {
+    return this._attemptQuestions().find(q => q.id === questionId) ?? null;
+  }
+
+  protected getAnswerText(q: IQuestion, answer: string | string[] | boolean | undefined): string {
+    if (answer === undefined || answer === null || answer === '') return 'Sin responder';
+    if (q.type === 'true-false') return answer === true ? 'Verdadero' : 'Falso';
+    if (q.type === 'multiple-choice') {
+      const opts = (q as IMultipleChoiceQuestion).options;
+      const ids = Array.isArray(answer) ? answer : [answer as string];
+      return ids.map(id => opts.find(o => o.id === id)?.text ?? id).join(', ');
+    }
+    return String(answer);
+  }
+
+  protected submittedAnswers(): Record<string, string | string[] | boolean> {
+    return this._submittedAnswers();
+  }
+
+  private _shuffle<T>(arr: T[]): T[] {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
   }
 
   protected gradePercent(grade: { score: number; maxScore: number }): number {

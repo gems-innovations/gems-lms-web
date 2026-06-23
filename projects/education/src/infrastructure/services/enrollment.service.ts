@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, of, delay, map } from 'rxjs';
+import { Observable, of, delay, map, Subject } from 'rxjs';
 import { NotificationService } from './notification.service';
 import { CourseService } from './course.service';
 import {
@@ -171,7 +171,7 @@ const MOCK_ENROLLMENTS: IEnrollment[] = [
       lastAccessedAt: new Date('2026-06-14'),
       currentLessonId: 'la-2-1',
       currentBlockId: 'cba-5',
-      completedBlockIds: ['cba-1', 'cba-2', 'cba-3', 'cba-4', 'cba-5'],
+      completedBlockIds: ['cba-1', 'cba-2', 'cba-3'],
       moduleProgress: [
         { moduleId: 'ma-1', completedLessons: 2, totalLessons: 2, percentage: 100 },
         { moduleId: 'ma-2', completedLessons: 0, totalLessons: 1, percentage: 0 },
@@ -365,19 +365,18 @@ export class EnrollmentService {
                    if (blk && blk.type === 'quiz' && blk.questions) {
                       passingScore = blk.passingScore || 70;
                       for (const q of blk.questions) {
+                         if (q.type === 'open') continue; // open questions are not graded
                          const points = q.points || 1;
                          maxScore += points;
                          const userAnswer = req.answers.find(a => a.questionId === q.id)?.answer;
                          let isCorrect = false;
-                         
+
                          if (q.type === 'multiple-choice') {
                            const correctAnswers = q.correctAnswers || [];
                            const userArr = Array.isArray(userAnswer) ? userAnswer : (userAnswer !== undefined && userAnswer !== '' ? [userAnswer] : []);
                            isCorrect = correctAnswers.length > 0 && correctAnswers.length === userArr.length && correctAnswers.every(c => userArr.includes(c));
                          } else if (q.type === 'true-false') {
                            isCorrect = (userAnswer === q.correctAnswer);
-                         } else {
-                           isCorrect = !!userAnswer;
                          }
                          
                          if (isCorrect) score += points;
@@ -424,8 +423,10 @@ export class EnrollmentService {
 
   submitAssignment(req: ISubmitAssignmentRequest): Observable<IAssignmentSubmission> {
     if (this.USE_MOCK) {
+      // Update existing submission if one already exists for this block
+      const existingIdx = MOCK_SUBMISSIONS.findIndex(s => s.blockId === req.blockId && s.courseId === req.courseId);
       const submission: IAssignmentSubmission = {
-        id: `sub${Date.now()}`,
+        id: existingIdx >= 0 ? MOCK_SUBMISSIONS[existingIdx].id : `sub${Date.now()}`,
         blockId: req.blockId,
         lessonId: req.lessonId,
         courseId: req.courseId,
@@ -434,28 +435,52 @@ export class EnrollmentService {
         submittedAt: new Date(),
         status: 'pending'
       };
-      MOCK_SUBMISSIONS.push(submission);
 
-      // Notify the instructor about the new submission
+      if (existingIdx >= 0) {
+        MOCK_SUBMISSIONS[existingIdx] = submission;
+      } else {
+        MOCK_SUBMISSIONS.push(submission);
+      }
+
+      // Notify instructor
       const student = MOCK_STUDENTS.find(s => s.id === MOCK_USER_ID);
       const studentName = student ? `${student.firstName} ${student.lastName}` : 'Un estudiante';
       this.courseService.getCourseById(req.courseId).subscribe(course => {
         let blockTitle = 'una tarea';
+        let blockMaxScore = 100;
         for (const m of course?.modules ?? []) {
           for (const l of m.lessons ?? []) {
             const blk = l.contentBlocks?.find(b => b.id === req.blockId);
-            if (blk) blockTitle = blk.title;
+            if (blk) { blockTitle = blk.title; blockMaxScore = blk.maxScore ?? 100; }
           }
         }
         this.notifications.notifySubmission(
           studentName, blockTitle, course?.title ?? req.courseId, req.courseId, submission.id
         );
+
+        // Mock auto-grade: instructor grades after 8 seconds
+        setTimeout(() => {
+          const idx = MOCK_SUBMISSIONS.findIndex(s => s.id === submission.id);
+          if (idx < 0) return;
+          const score = Math.floor(Math.random() * 30) + 70; // 70–100
+          const graded: IAssignmentSubmission = {
+            ...MOCK_SUBMISSIONS[idx],
+            status:   'graded',
+            grade:    score,
+            feedback: 'Buen trabajo. Entrega completa y bien documentada.',
+          };
+          MOCK_SUBMISSIONS[idx] = graded;
+          this._gradedSubmission$.next(graded);
+        }, 8000);
       });
 
       return of(submission).pipe(delay(600));
     }
     return of({} as IAssignmentSubmission);
   }
+
+  private readonly _gradedSubmission$ = new Subject<IAssignmentSubmission>();
+  readonly gradedSubmission$ = this._gradedSubmission$.asObservable();
 
   // ── Instructor / Admin methods ─────────────────────────────────────────────
 

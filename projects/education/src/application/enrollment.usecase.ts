@@ -62,6 +62,15 @@ export class EnrollmentUseCase {
   //#endregion
 
   constructor() {
+    // React to async instructor grading from the mock service
+    this.service.gradedSubmission$.pipe(
+      tap(graded => {
+        this.state.updateSubmission(graded);
+        this.toastService.success('¡Tu tarea ha sido calificada!');
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
+
     this.loadEnrollments$.pipe(
       tap(() => this._isLoading.set(true)),
       switchMap(() => this.service.getMyEnrollments().pipe(
@@ -123,10 +132,15 @@ export class EnrollmentUseCase {
       tap(() => this._isSubmitting.set(true)),
       switchMap(req => this.service.submitAssignment(req).pipe(
         tap(submission => {
-          this.state.addSubmission(submission);
+          const existing = this.state.submissions().find(s => s.blockId === submission.blockId);
+          if (existing) {
+            this.state.updateSubmission(submission);
+          } else {
+            this.state.addSubmission(submission);
+          }
           this._lastSubmission.set(submission);
           this._isSubmitting.set(false);
-          this.toastService.success('Tarea enviada correctamente');
+          this.toastService.success('Tarea enviada. Pendiente de calificación por el instructor.');
         }),
         catchError(err => {
           this._isSubmitting.set(false);

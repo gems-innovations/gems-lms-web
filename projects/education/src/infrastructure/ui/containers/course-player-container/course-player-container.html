@@ -9,8 +9,8 @@
       [hasNext]="uc.hasNextBlock() || uc.hasNextLesson()"
       [progress]="uc.courseProgress()"
       (goHome)="goHome()"
-      (prev)="uc.prevBlock()"
-      (next)="uc.nextBlock()"
+      (prev)="_guardedNav(uc.prevBlock.bind(uc))"
+      (next)="_guardedNav(uc.nextBlock.bind(uc))"
     />
 
     <!-- Banner de curso completado -->
@@ -45,9 +45,13 @@
           [isComplete]="uc.isBlockComplete()"
           [isLocked]="uc.isCurrentBlockLocked()"
           [assignmentSubmission]="currentSubmission()"
+          [quizAttemptCount]="uc.quizAttemptCount()"
+          [forceSubmitTrigger]="forceSubmitTrigger()"
           (quizSubmit)="handleQuizSubmit($event)"
           (assignmentSubmit)="handleAssignmentSubmit($event)"
           (markComplete)="uc.markComplete()"
+          (quizPhaseChange)="onQuizPhaseChange($event)"
+          (quizForceSubmitted)="onQuizForceSubmitted()"
         />
       </main>
 
@@ -63,16 +67,53 @@
         [lockedBlockIds]="uc.lockedBlockIds()"
         [courseProgress]="uc.courseProgress()"
         [sidebarWidthPx]="sidebarWidthPx()"
-        (selectLesson)="uc.selectLesson($event)"
-        (selectBlock)="uc.selectBlock($event)"
+        (selectLesson)="_guardedNav(uc.selectLesson.bind(uc, $event))"
+        (selectBlock)="_guardedNav(uc.selectBlock.bind(uc, $event))"
         (resizeStart)="startSidebarResize($event)"
       />
     </div>
   </div>
 
+  <!-- Confeti (primera completación) -->
+  @if (showConfetti()) {
+    <div class="confetti-container" aria-hidden="true">
+      @for (i of confettiPieces; track i) {
+        <div class="confetti-piece" [ngStyle]="confettiStyle(i)"></div>
+      }
+    </div>
+  }
+
   <!-- Certificado (modal) -->
   @if (showCertificate() && certificate(); as cert) {
     <edu-course-certificate [certificate]="cert" (close)="closeCertificate()" />
+  }
+
+  <!-- Modal: advertencia de quiz activo -->
+  @if (showQuizWarning()) {
+    <div class="quiz-nav-warning-overlay" (click)="cancelQuizNav()">
+      <div class="quiz-nav-warning" (click)="$event.stopPropagation()">
+        <div class="quiz-nav-warning__icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <h3 class="quiz-nav-warning__title">¿Salir del quiz?</h3>
+        <p class="quiz-nav-warning__body">
+          Si sales ahora, el quiz se enviará automáticamente con las respuestas que llevas hasta este momento y
+          <strong>se contará como un intento utilizado</strong>.
+        </p>
+        <div class="quiz-nav-warning__actions">
+          <button type="button" class="quiz-nav-warning__btn quiz-nav-warning__btn--cancel" (click)="cancelQuizNav()">
+            Continuar el quiz
+          </button>
+          <button type="button" class="quiz-nav-warning__btn quiz-nav-warning__btn--confirm" (click)="confirmQuizNav()">
+            Enviar y salir
+          </button>
+        </div>
+      </div>
+    </div>
   }
 
 } @else {

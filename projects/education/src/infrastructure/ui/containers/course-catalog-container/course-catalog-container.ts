@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy, signal, computed, effect } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CourseCatalogUseCase } from '../../../../application/course-catalog.usecase';
 import { ICatalogItem } from '../../../../domain/model/catalog.model';
@@ -9,8 +9,6 @@ import {
   PageComponent, CardGridComponent,
   LoadingSkeletonComponent, EmptyStateComponent,
 } from 'shared';
-
-const CATALOG_PAGE_SIZE = 9;
 
 @Component({
   selector: 'edu-course-catalog-container',
@@ -28,27 +26,6 @@ const CATALOG_PAGE_SIZE = 9;
 export class CourseCatalogContainer implements OnInit {
   private readonly router = inject(Router);
   protected readonly uc   = inject(CourseCatalogUseCase);
-
-  protected readonly catalogPage = signal(1);
-
-  protected readonly catalogTotalPages = computed(() =>
-    Math.max(1, Math.ceil(this.uc.filtered().length / CATALOG_PAGE_SIZE))
-  );
-
-  protected readonly pagedItems = computed(() => {
-    const page = this.catalogPage();
-    return this.uc.filtered().slice((page - 1) * CATALOG_PAGE_SIZE, page * CATALOG_PAGE_SIZE);
-  });
-
-  constructor() {
-    effect(() => {
-      // Reset page to 1 when filters change
-      this.uc.search();
-      this.uc.filterKind();
-      this.uc.filterLevel();
-      this.catalogPage.set(1);
-    }, { allowSignalWrites: true });
-  }
 
   ngOnInit(): void { this.uc.load(); }
 

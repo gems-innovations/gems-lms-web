@@ -171,15 +171,30 @@
                 </div>
 
                 @if (q.type === 'multiple-choice') {
+                  @if (asMCQ(q).allowMultiple) {
+                    <p class="quiz-question__hint">Selecciona todas las que apliquen</p>
+                  } @else {
+                    <p class="quiz-question__hint">Selecciona una opción</p>
+                  }
                   <ul class="quiz-options">
                     @for (opt of asMCQ(q).options; track opt.id) {
                       <li>
-                        <label class="quiz-option" [class.quiz-option--checked]="isOptionChecked(q.id, opt.id)">
-                          <input type="checkbox" [checked]="isOptionChecked(q.id, opt.id)"
-                            (change)="toggleMultiAnswer(q.id, opt.id)" />
-                          <span class="quiz-option__mark"></span>
-                          {{ opt.text }}
-                        </label>
+                        @if (asMCQ(q).allowMultiple) {
+                          <label class="quiz-option" [class.quiz-option--checked]="isOptionChecked(q.id, opt.id)">
+                            <input type="checkbox" [checked]="isOptionChecked(q.id, opt.id)"
+                              (change)="toggleMultiAnswer(q.id, opt.id)" />
+                            <span class="quiz-option__mark"></span>
+                            {{ opt.text }}
+                          </label>
+                        } @else {
+                          <label class="quiz-option quiz-option--radio" [class.quiz-option--checked]="isOptionChecked(q.id, opt.id)">
+                            <input type="radio" [name]="'mcq-' + q.id" [value]="opt.id"
+                              [checked]="isOptionChecked(q.id, opt.id)"
+                              (change)="setAnswer(q.id, opt.id)" />
+                            <span class="quiz-option__mark quiz-option__mark--circle"></span>
+                            {{ opt.text }}
+                          </label>
+                        }
                       </li>
                     }
                   </ul>
@@ -196,10 +211,6 @@
                       Falso
                     </label>
                   </div>
-                } @else {
-                  <textarea class="pcb-textarea" rows="5" placeholder="Escribe tu respuesta..."
-                    [value]="(getAnswer(q.id) ?? '') + ''"
-                    (input)="setAnswer(q.id, $any($event.target).value)"></textarea>
                 }
               </div>
             }
@@ -222,7 +233,7 @@
                 </button>
               } @else {
                 <button type="button" class="pcb-btn pcb-btn--primary"
-                  (click)="submitQuiz()" [disabled]="isSubmitting()">
+                  (click)="trySubmitQuiz()" [disabled]="isSubmitting()">
                   {{ isSubmitting() ? 'Enviando…' : 'Entregar quiz' }}
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <polyline points="20 6 9 17 4 12"/>
@@ -253,14 +264,37 @@
               }
             </div>
 
-            @if (allAnswered()) {
-              <button type="button" class="pcb-btn pcb-btn--primary quiz-summary__submit"
-                (click)="submitQuiz()" [disabled]="isSubmitting()">
-                {{ isSubmitting() ? 'Enviando…' : 'Entregar quiz' }}
-              </button>
-            }
           </div>
         </div>
+
+        <!-- Modal de confirmación de entrega -->
+        @if (showSubmitConfirm()) {
+          <div class="quiz-submit-overlay" (click)="cancelSubmitConfirm()">
+            <div class="quiz-submit-modal" (click)="$event.stopPropagation()">
+              <div class="quiz-submit-modal__icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+              </div>
+              <h3 class="quiz-submit-modal__title">¿Entregar el quiz?</h3>
+              <p class="quiz-submit-modal__body">
+                Respondiste <strong>{{ answeredCount() }} de {{ quizQuestions().length }}</strong> preguntas.
+                @if (timeLimitSeconds() > 0) {
+                  Tiempo restante: <strong class="quiz-submit-modal__time" [class.quiz-submit-modal__time--warn]="timerWarning()">{{ timerDisplay() }}</strong>.
+                }
+                Esta acción no se puede deshacer y contará como un intento.
+              </p>
+              <div class="quiz-submit-modal__actions">
+                <button type="button" class="quiz-submit-modal__btn quiz-submit-modal__btn--cancel" (click)="cancelSubmitConfirm()">
+                  Seguir respondiendo
+                </button>
+                <button type="button" class="quiz-submit-modal__btn quiz-submit-modal__btn--submit" (click)="confirmAndSubmit()" [disabled]="isSubmitting()">
+                  {{ isSubmitting() ? 'Enviando…' : 'Sí, entregar' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        }
       }
 
       <!-- ── FASE: resultado ── -->
@@ -291,30 +325,34 @@
               </div>
             </div>
             @if (result.feedback?.length) {
-              @if (!canRetryQuiz() || !block()?.maxAttempts) {
-                <ul class="quiz-result__feedback">
-                  @for (fb of result.feedback!; track fb.questionId; let i = $index) {
-                    <li class="quiz-fb-item" [class.quiz-fb-item--ok]="fb.correct" [class.quiz-fb-item--err]="!fb.correct">
-                      <div class="quiz-fb-item__mark">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                          @if (fb.correct) { <polyline points="20 6 9 17 4 12"/> }
-                          @else { <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/> }
-                        </svg>
-                      </div>
-                      <div>
+              <ul class="quiz-result__feedback">
+                @for (fb of result.feedback!; track fb.questionId; let i = $index) {
+                  <li class="quiz-fb-item" [class.quiz-fb-item--ok]="fb.correct" [class.quiz-fb-item--err]="!fb.correct">
+                    <div class="quiz-fb-item__mark">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        @if (fb.correct) { <polyline points="20 6 9 17 4 12"/> }
+                        @else { <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/> }
+                      </svg>
+                    </div>
+                    <div class="quiz-fb-item__body">
+                      @if (findAttemptQuestion(fb.questionId); as q) {
+                        <p class="quiz-fb-item__q">{{ q.question }}</p>
+                        <p class="quiz-fb-item__answer">
+                          Tu respuesta: <em>{{ getAnswerText(q, submittedAnswers()[fb.questionId]) }}</em>
+                        </p>
+                      } @else {
                         <p class="quiz-fb-item__q">Pregunta {{ i + 1 }}</p>
-                        @if (fb.explanation) { <p class="quiz-fb-item__exp">{{ fb.explanation }}</p> }
-                      </div>
-                    </li>
-                  }
-                </ul>
-              } @else {
-                <div style="margin-top: 1.5rem; padding: 1rem; background-color: rgba(255,255,255,0.05); border-radius: 8px; text-align: center;">
-                  <p style="font-size: 0.95rem; opacity: 0.8; margin: 0;">
-                    El detalle de respuestas correctas e incorrectas se mostrará cuando agotes tus intentos disponibles.
-                  </p>
-                </div>
-              }
+                      }
+                      @if (fb.correct && fb.explanation) {
+                        <p class="quiz-fb-item__exp">{{ fb.explanation }}</p>
+                      }
+                      @if (!fb.correct) {
+                        <p class="quiz-fb-item__incorrect">Respuesta incorrecta. Revisa el material antes de reintentar.</p>
+                      }
+                    </div>
+                  </li>
+                }
+              </ul>
             }
           </div>
         }
@@ -425,7 +463,7 @@
       }
 
       <!-- Estado: entregada, pendiente de revisión -->
-      @else if (assignmentSubmission()?.status === 'pending_review' || assignmentSubmitted()) {
+      @else if (assignmentIsPending() && !assignmentEditing()) {
         <div class="assign-pending">
           <div class="assign-pending__icon">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -434,17 +472,25 @@
             </svg>
           </div>
           <p class="assign-pending__title">Tarea entregada</p>
-          <p class="assign-pending__sub">Tu tarea está pendiente de revisión por el instructor. Te notificaremos cuando esté calificada.</p>
+          <p class="assign-pending__sub">Tu tarea está pendiente de calificación por el instructor. Mientras esperas puedes modificar tu entrega.</p>
           @if (assignmentSubmission(); as sub) {
-            <p class="assign-pending__date">
-              Entregada el {{ sub.submittedAt | date:'dd/MM/yyyy HH:mm' }}
-            </p>
+            <p class="assign-pending__date">Entregada el {{ sub.submittedAt | date:'dd/MM/yyyy HH:mm' }}</p>
+            @if (sub.textContent) {
+              <p class="assign-pending__preview">{{ sub.textContent }}</p>
+            }
           }
+          <button type="button" class="pcb-btn pcb-btn--outline assign-edit-btn" (click)="editAssignment()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Modificar entrega
+          </button>
         </div>
       }
 
-      <!-- Estado: sin entregar -->
-      @else {
+      <!-- Estado: sin entregar / editando -->
+      @else if (!assignmentIsGraded()) {
         <textarea class="pcb-textarea" rows="8" placeholder="Escribe tu respuesta aquí…"
           [value]="assignmentText()" (input)="assignmentText.set($any($event.target).value)"></textarea>
 

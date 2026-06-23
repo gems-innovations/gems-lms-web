@@ -130,8 +130,9 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                     id: 'q1',
                     type: 'multiple-choice',
                     question: '¿Cuál de los siguientes es un ejemplo de aprendizaje supervisado?',
-                    points: 25,
+                    points: 1,
                     order: 1,
+                    allowMultiple: false,
                     options: [
                       { id: 'a', text: 'Clasificación de emails como spam o no spam' },
                       { id: 'b', text: 'Agrupación de clientes por comportamiento de compra' },
@@ -145,7 +146,7 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                     id: 'q2',
                     type: 'true-false',
                     question: 'El aprendizaje por refuerzo requiere un conjunto de datos etiquetados para entrenarse.',
-                    points: 25,
+                    points: 1,
                     order: 2,
                     correctAnswer: false,
                     explanation: 'El aprendizaje por refuerzo aprende a través de la interacción con el entorno y señales de recompensa, no de datos etiquetados.'
@@ -153,8 +154,8 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                   {
                     id: 'q3',
                     type: 'multiple-choice',
-                    question: '¿Qué algoritmos pertenecen al aprendizaje no supervisado? (Selecciona todos)',
-                    points: 25,
+                    question: '¿Qué algoritmos pertenecen al aprendizaje no supervisado? (Selecciona todos los que apliquen)',
+                    points: 1,
                     order: 3,
                     allowMultiple: true,
                     options: [
@@ -168,11 +169,19 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                   },
                   {
                     id: 'q4',
-                    type: 'open',
-                    question: 'Explica con tus propias palabras la diferencia entre clasificación y regresión.',
-                    points: 25,
+                    type: 'multiple-choice',
+                    question: '¿Cuál es la principal diferencia entre clasificación y regresión?',
+                    points: 1,
                     order: 4,
-                    sampleAnswer: 'Clasificación predice categorías discretas (spam/no spam), regresión predice valores continuos (precio de una casa).'
+                    allowMultiple: false,
+                    options: [
+                      { id: 'a', text: 'La clasificación predice categorías discretas; la regresión predice valores continuos' },
+                      { id: 'b', text: 'La regresión predice categorías; la clasificación predice valores numéricos' },
+                      { id: 'c', text: 'No hay diferencia, ambas predicen lo mismo' },
+                      { id: 'd', text: 'La clasificación solo funciona con imágenes' }
+                    ],
+                    correctAnswers: ['a'],
+                    explanation: 'Clasificación → categorías discretas (spam/no spam). Regresión → valores continuos (precio de una casa).'
                   }
                 ]
               }
@@ -1121,6 +1130,7 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                 type: EContentType.VIDEO,
                 title: '¿Qué es Docker y cómo funciona?',
                 duration: 20,
+                minTimeSeconds: 30,
                 order: 1,
                 isRequired: true,
                 description: 'Introducción a contenedores, diferencias con VMs y arquitectura de Docker.',
@@ -1132,6 +1142,7 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                 type: EContentType.DOCUMENT,
                 title: 'Guía: comandos esenciales de Docker',
                 duration: 20,
+                minTimeSeconds: 20,
                 order: 2,
                 isRequired: true,
                 markdownContent: `# Comandos esenciales de Docker\n\n## Imágenes\n\n\`\`\`bash\ndocker pull nginx          # descargar imagen\ndocker images              # listar imágenes\ndocker rmi nginx           # eliminar imagen\n\`\`\`\n\n## Contenedores\n\n\`\`\`bash\ndocker run -d -p 80:80 nginx   # ejecutar en background\ndocker ps                      # contenedores activos\ndocker stop <id>               # detener\ndocker rm <id>                 # eliminar\n\`\`\`\n\n## Cheat sheet de flags\n\n| Flag | Significado |\n|------|-------------|\n| \`-d\` | Detached (background) |\n| \`-p\` | Port mapping host:container |\n| \`-v\` | Volume mount |\n| \`--name\` | Nombre personalizado |\n`,
@@ -1150,6 +1161,7 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                 type: EContentType.VIDEO,
                 title: 'Docker Compose en la práctica',
                 duration: 25,
+                minTimeSeconds: 30,
                 order: 1,
                 isRequired: true,
                 description: 'Orquesta múltiples servicios con docker-compose.yml: base de datos, backend y frontend juntos.',
@@ -1168,7 +1180,7 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                 maxAttempts: 3,
                 questions: [
                   {
-                    id: 'qa-1', type: 'multiple-choice', question: '¿Qué hace el flag -p 8080:80 en docker run?', points: 1, order: 1,
+                    id: 'qa-1', type: 'multiple-choice', question: '¿Qué hace el flag -p 8080:80 en docker run?', points: 1, order: 1, allowMultiple: false,
                     options: [{ id: 'a', text: 'Expone el puerto 8080 del contenedor al 80 del host' }, { id: 'b', text: 'Mapea el puerto 8080 del host al 80 del contenedor' }, { id: 'c', text: 'Crea una red en el puerto 8080' }, { id: 'd', text: 'Ninguna de las anteriores' }],
                     correctAnswers: ['b'], explanation: 'host:container — el tráfico al puerto 8080 del host llega al 80 del contenedor.',
                   },
@@ -1177,7 +1189,7 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                     correctAnswer: true, explanation: 'Correcto. FROM, RUN, COPY, CMD son instrucciones comunes.',
                   },
                   {
-                    id: 'qa-3', type: 'multiple-choice', question: '¿Cuál es el comando correcto para listar todos los contenedores (activos e inactivos)?', points: 1, order: 3,
+                    id: 'qa-3', type: 'multiple-choice', question: '¿Cuál es el comando correcto para listar todos los contenedores (activos e inactivos)?', points: 1, order: 3, allowMultiple: false,
                     options: [{ id: 'a', text: 'docker ps' }, { id: 'b', text: 'docker containers list' }, { id: 'c', text: 'docker ps -a' }, { id: 'd', text: 'docker list all' }],
                     correctAnswers: ['c'], explanation: 'El flag -a (o --all) permite ver todos los contenedores, incluso los detenidos.',
                   },
@@ -1186,7 +1198,7 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                     correctAnswer: true, explanation: 'Correcto. Con docker-compose.yml puedes orquestar múltiples servicios fácilmente.',
                   },
                   {
-                    id: 'qa-5', type: 'multiple-choice', question: '¿Para qué sirve la instrucción WORKDIR en un Dockerfile?', points: 1, order: 5,
+                    id: 'qa-5', type: 'multiple-choice', question: '¿Para qué sirve la instrucción WORKDIR en un Dockerfile?', points: 1, order: 5, allowMultiple: false,
                     options: [{ id: 'a', text: 'Para descargar dependencias' }, { id: 'b', text: 'Para establecer el directorio de trabajo donde se ejecutarán las siguientes instrucciones' }, { id: 'c', text: 'Para definir el punto de entrada de la aplicación' }, { id: 'd', text: 'Ninguna de las anteriores' }],
                     correctAnswers: ['b'], explanation: 'Establece el directorio base para cualquier comando RUN, CMD, ENTRYPOINT, COPY o ADD.',
                   },
@@ -1195,12 +1207,12 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                     correctAnswer: false, explanation: 'Falso. Las imágenes de Docker son de solo lectura (inmutables). Se instancian en contenedores que tienen una capa de escritura temporal.',
                   },
                   {
-                    id: 'qa-7', type: 'multiple-choice', question: '¿Qué comando descarga una imagen de un registro como Docker Hub sin ejecutarla?', points: 1, order: 7,
+                    id: 'qa-7', type: 'multiple-choice', question: '¿Qué comando descarga una imagen de un registro como Docker Hub sin ejecutarla?', points: 1, order: 7, allowMultiple: false,
                     options: [{ id: 'a', text: 'docker get' }, { id: 'b', text: 'docker fetch' }, { id: 'c', text: 'docker pull' }, { id: 'd', text: 'docker load' }],
                     correctAnswers: ['c'], explanation: 'docker pull descarga la imagen a la máquina host.',
                   },
                   {
-                    id: 'qa-8', type: 'multiple-choice', question: 'En un docker-compose.yml, ¿qué etiqueta define las dependencias entre servicios?', points: 1, order: 8,
+                    id: 'qa-8', type: 'multiple-choice', question: 'En un docker-compose.yml, ¿qué etiqueta define las dependencias entre servicios?', points: 1, order: 8, allowMultiple: false,
                     options: [{ id: 'a', text: 'requires:' }, { id: 'b', text: 'depends_on:' }, { id: 'c', text: 'links:' }, { id: 'd', text: 'needs:' }],
                     correctAnswers: ['b'], explanation: 'depends_on expresa el orden de inicio (y apagado) de los servicios.',
                   },
@@ -1209,12 +1221,12 @@ Con la llegada de mayor poder computacional, grandes conjuntos de datos y nuevos
                     correctAnswer: false, explanation: 'Falso. `docker rm` elimina contenedores. Para eliminar imágenes se usa `docker rmi`.',
                   },
                   {
-                    id: 'qa-10', type: 'multiple-choice', question: '¿Cuál es la principal diferencia entre CMD y ENTRYPOINT?', points: 1, order: 10,
+                    id: 'qa-10', type: 'multiple-choice', question: '¿Cuál es la principal diferencia entre CMD y ENTRYPOINT?', points: 1, order: 10, allowMultiple: false,
                     options: [{ id: 'a', text: 'Ninguna, hacen exactamente lo mismo' }, { id: 'b', text: 'ENTRYPOINT no puede ser sobreescrito fácilmente, CMD sí' }, { id: 'c', text: 'CMD se ejecuta en tiempo de build, ENTRYPOINT en tiempo de run' }, { id: 'd', text: 'ENTRYPOINT solo funciona con imágenes Alpine' }],
                     correctAnswers: ['b'], explanation: 'CMD define parámetros por defecto que son fácilmente reemplazables, ENTRYPOINT configura el ejecutable principal.',
                   },
                   {
-                    id: 'qa-11', type: 'multiple-choice', question: '¿Cómo puedes pasar una variable de entorno a un contenedor al iniciarlo?', points: 1, order: 11,
+                    id: 'qa-11', type: 'multiple-choice', question: '¿Cómo puedes pasar una variable de entorno a un contenedor al iniciarlo?', points: 1, order: 11, allowMultiple: false,
                     options: [{ id: 'a', text: 'Usando el flag -e o --env' }, { id: 'b', text: 'Usando el flag -v' }, { id: 'c', text: 'Mediante docker set-env' }, { id: 'd', text: 'Usando el flag --var' }],
                     correctAnswers: ['a'], explanation: 'El flag -e o --env permite inyectar variables de entorno en tiempo de ejecución.',
                   },

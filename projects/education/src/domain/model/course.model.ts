@@ -74,6 +74,8 @@ export interface IContentBlock {
   isRequired: boolean;
   description?: string;
 
+  minTimeSeconds?: number;  // minimum seconds student must spend before auto-complete
+
   // ── VIDEO ──
   url?: string;
   videoProvider?: 'youtube' | 'vimeo' | 'external' | 'upload';

@@ -2,19 +2,20 @@ import {
   Component, inject, OnInit, OnDestroy, signal, computed,
   ChangeDetectionStrategy, HostListener, effect
 } from '@angular/core';
+import { NgStyle } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, Observable } from 'rxjs';
 import { CoursePlayerUseCase } from '../../../../application/course-player.usecase';
 import { LoadingSkeletonComponent, EmptyStateComponent } from 'shared';
 import { PlayerTopbar } from '../../components/player-topbar/player-topbar';
 import { PlayerSidebar } from '../../components/player-sidebar/player-sidebar';
 import { PlayerContentBlock } from '../../components/player-content-block/player-content-block';
 import { CourseCertificate } from '../../components/course-certificate/course-certificate';
+import { CanDeactivateQuiz } from '../../guards/quiz-deactivate.guard';
 import {
   IQuizSubmitPayload, IAssignmentSubmitPayload,
   IAssignmentSubmission, ICourseCertificate
 } from '../../../../domain/model/player.model';
-import { MOCK_STUDENTS, MOCK_USER_ID } from '../../../services/enrollment.service';
-import { AuthSessionService } from 'auth';
 
 const INACTIVITY_THRESHOLD_MS = 5 * 60 * 1000; // 5 min
 
@@ -22,6 +23,7 @@ const INACTIVITY_THRESHOLD_MS = 5 * 60 * 1000; // 5 min
   selector: 'edu-course-player-container',
   standalone: true,
   imports: [
+    NgStyle,
     LoadingSkeletonComponent, EmptyStateComponent,
     PlayerTopbar, PlayerSidebar, PlayerContentBlock, CourseCertificate
   ],
@@ -30,20 +32,41 @@ const INACTIVITY_THRESHOLD_MS = 5 * 60 * 1000; // 5 min
   host: { style: 'display:block;height:100%' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CoursePlayerContainer implements OnInit, OnDestroy {
+export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQuiz {
   private readonly route  = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly uc   = inject(CoursePlayerUseCase);
-  private readonly authSession = inject(AuthSessionService);
 
-  protected readonly sidebarWidthPx = signal<number | null>(null);
-  protected readonly showCertificate = signal(false);
+  protected readonly sidebarWidthPx     = signal<number | null>(null);
+  protected readonly showCertificate    = signal(false);
+  protected readonly showConfetti       = signal(false);
+  protected readonly forceSubmitTrigger = signal(0);
+  private readonly _quizActive          = signal(false);
+  private readonly _pendingNav          = signal<(() => void) | null>(null);
+  protected readonly showQuizWarning    = signal(false);
+  private _deactivateSubject: Subject<boolean> | null = null;
+  private _celebrationDone  = false;
+  private _prevProgress     = -1; // tracks last seen progress to detect transition to 100%
+  protected readonly confettiPieces = Array.from({ length: 80 }, (_, i) => i);
+  protected readonly confettiColors = ['#7B6FF0','#3DD6C8','#FFB800','#FF6B6B','#A8E6CF','#FFC3A0'];
 
-  // ── Time tracking ──────────────────────────────────────────────────────────
-  private _timePerLesson = new Map<string, number>(); // lessonId → elapsed seconds
+  protected confettiStyle(i: number): Record<string, string> {
+    const seed = (i * 7919) % 100;
+    return {
+      '--x':     `${(i * 1.3 + seed * 0.7) % 100}vw`,
+      '--delay': `${(i * 0.06) % 3}s`,
+      '--dur':   `${3 + (i % 4) * 0.5}s`,
+      '--color': this.confettiColors[i % this.confettiColors.length],
+      '--rot':   `${(seed * 3.6)}deg`,
+      '--size':  `${6 + (i % 5) * 2}px`,
+    };
+  }
+
+  // ── Time tracking (per block) ──────────────────────────────────────────────
+  private _timePerBlock  = new Map<string, number>(); // blockId → elapsed seconds
   private _tickInterval: ReturnType<typeof setInterval> | null = null;
-  private _lastActivity = Date.now();
-  private _paused = false;
+  private _lastActivity  = Date.now();
+  private _paused        = false;
 
   // ── Submissions ────────────────────────────────────────────────────────────
   private readonly _submissions = signal<Record<string, IAssignmentSubmission>>({});
@@ -53,39 +76,53 @@ export class CoursePlayerContainer implements OnInit, OnDestroy {
     return blockId ? (this._submissions()[blockId] ?? null) : null;
   });
 
-  protected readonly certificate = computed((): ICourseCertificate | null => {
-    const c = this.uc.course();
-    if (!c || this.uc.courseProgress() < 100) return null;
-    
-    const user = this.authSession.user();
-    let studentName = 'Estudiante';
-    if (user) {
-      studentName = `${user.firstName} ${user.lastName}`.trim();
-    } else {
-      const student = MOCK_STUDENTS.find(s => s.id === MOCK_USER_ID);
-      if (student) {
-        studentName = `${student.firstName} ${student.lastName}`;
-      }
-    }
-
-    return {
-      courseId:        c.id,
-      courseTitle:     c.title,
-      studentName:     studentName,
-      completedAt:     new Date(),
-      certificateId:   `CERT-${c.id.slice(0, 8).toUpperCase()}`,
-      instructorName:  c.instructorName,
-      institutionName: 'GEMS LMS',
-    };
-  });
+  protected readonly certificate = computed((): ICourseCertificate | null => this.uc.certificate());
 
   constructor() {
-    // Re-start tick when lesson changes
+    // Restart tick when selected block changes
     effect(() => {
-      const lessonId = this.uc.selectedLessonId();
-      if (!lessonId) return;
+      const block = this.uc.selectedBlock();
+      if (!block) return;
       this._startTick();
     });
+
+    // First-time course completion: confetti + auto-open certificate
+    // Only fires when progress TRANSITIONS to 100 (not on reload of already-completed course)
+    effect(() => {
+      const progress = this.uc.courseProgress();
+      const wasBelow = this._prevProgress >= 0 && this._prevProgress < 100;
+      this._prevProgress = progress;
+      if (progress === 100 && wasBelow && !this._celebrationDone) {
+        this._celebrationDone = true;
+        this.showConfetti.set(true);
+        this.showCertificate.set(true);
+        setTimeout(() => this.showConfetti.set(false), 5000);
+      }
+    }, { allowSignalWrites: true });
+
+    // Sync graded submissions from enrollment state into local display state
+    effect(() => {
+      const graded = this.uc.gradedSubmissions();
+      if (!graded.length) return;
+      this._submissions.update(map => {
+        const next = { ...map };
+        for (const sub of graded) {
+          next[sub.blockId] = {
+            submittedAt: sub.submittedAt,
+            textContent: sub.textContent ?? '',
+            fileName:    undefined,
+            status:      'graded',
+            grade: sub.grade != null ? {
+              score:    sub.grade,
+              maxScore: 100,
+              feedback: sub.feedback ?? '',
+              gradedAt: sub.submittedAt,
+            } : undefined,
+          };
+        }
+        return next;
+      });
+    }, { allowSignalWrites: true });
   }
 
   ngOnInit(): void {
@@ -103,6 +140,13 @@ export class CoursePlayerContainer implements OnInit, OnDestroy {
   }
 
   // ── Activity detection ─────────────────────────────────────────────────────
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this._quizActive()) {
+      event.preventDefault();
+    }
+  }
+
   @HostListener('mousemove')
   onMouseMove(): void { this._onActivity(); }
 
@@ -136,57 +180,30 @@ export class CoursePlayerContainer implements OnInit, OnDestroy {
   }
 
   private _tick(): void {
-    const lessonId = this.uc.selectedLessonId();
-    if (!lessonId) return;
+    const block = this.uc.selectedBlock();
+    if (!block) return;
+    if (this.uc.isBlockComplete()) return; // already done, no need to count
 
     const idle = Date.now() - this._lastActivity;
-    if (idle >= INACTIVITY_THRESHOLD_MS) {
-      this._paused = true;
-    }
-
+    if (idle >= INACTIVITY_THRESHOLD_MS) this._paused = true;
     if (this._paused) return;
 
-    const prev = this._timePerLesson.get(lessonId) ?? 0;
+    const prev = this._timePerBlock.get(block.id) ?? 0;
     const next = prev + 1;
-    this._timePerLesson.set(lessonId, next);
+    this._timePerBlock.set(block.id, next);
 
-    const threshold = this._lessonDurationSeconds(lessonId);
+    const threshold = this._blockThresholdSeconds(block);
     if (threshold > 0 && next >= threshold) {
-      this._markLessonComplete(lessonId);
+      this.uc.markBlockComplete(block.id);
     }
   }
 
-  private _lessonDurationSeconds(lessonId: string): number {
-    const course = this.uc.course();
-    if (!course) return 0;
-    for (const mod of course.modules) {
-      const lesson = mod.lessons.find(l => l.id === lessonId);
-      if (lesson) return (lesson.duration ?? 0) * 60;
-    }
+  private _blockThresholdSeconds(block: { minTimeSeconds?: number; duration?: number; type: string }): number {
+    // Quiz and assignment complete via their own logic
+    if (block.type === 'quiz' || block.type === 'assignment') return 0;
+    if (block.minTimeSeconds && block.minTimeSeconds > 0) return block.minTimeSeconds;
+    if (block.duration && block.duration > 0) return block.duration * 60;
     return 0;
-  }
-
-  private _markLessonComplete(lessonId: string): void {
-    const course = this.uc.course();
-    if (!course) return;
-    for (const mod of course.modules) {
-      const lesson = mod.lessons.find(l => l.id === lessonId);
-      if (lesson) {
-        for (const block of lesson.contentBlocks) {
-          if (!this.uc.completedBlockIds().has(block.id)) {
-            // Use the use case's markComplete but we need to set specific block
-            // We'll call selectBlock then markComplete for each incomplete block
-          }
-        }
-        // Mark via use case — select each block and mark
-        lesson.contentBlocks.forEach(block => {
-          if (!this.uc.completedBlockIds().has(block.id)) {
-            this.uc.markBlockComplete(block.id);
-          }
-        });
-        return;
-      }
-    }
   }
 
   // ── Sidebar resize ─────────────────────────────────────────────────────────
@@ -211,7 +228,58 @@ export class CoursePlayerContainer implements OnInit, OnDestroy {
     document.addEventListener('mouseup', onUp);
   }
 
-  protected goHome(): void { this.router.navigate(['/learn/home']); }
+  // ── Quiz navigation guard ──────────────────────────────────────────────────
+  canDeactivate(): Observable<boolean> | boolean {
+    if (!this._quizActive()) return true;
+    this._deactivateSubject = new Subject<boolean>();
+    this.showQuizWarning.set(true);
+    return this._deactivateSubject.asObservable();
+  }
+
+  onQuizPhaseChange(phase: string): void {
+    this._quizActive.set(phase === 'taking');
+  }
+
+  onQuizForceSubmitted(): void {
+    this._quizActive.set(false);
+    const nav = this._pendingNav();
+    this._pendingNav.set(null);
+    nav?.();
+    // Resolve deactivation guard if it was triggered externally
+    if (this._deactivateSubject) {
+      this._deactivateSubject.next(true);
+      this._deactivateSubject.complete();
+      this._deactivateSubject = null;
+    }
+  }
+
+  protected _guardedNav(action: () => void): void {
+    if (this._quizActive()) {
+      this._pendingNav.set(action);
+      this.showQuizWarning.set(true);
+    } else {
+      action();
+    }
+  }
+
+  protected confirmQuizNav(): void {
+    this.forceSubmitTrigger.update(n => n + 1);
+    this.showQuizWarning.set(false);
+    // Navigation executes in onQuizForceSubmitted after the submit completes
+    // If triggered by the deactivate guard (no pending nav), resolve after submit
+  }
+
+  protected cancelQuizNav(): void {
+    this._pendingNav.set(null);
+    this.showQuizWarning.set(false);
+    if (this._deactivateSubject) {
+      this._deactivateSubject.next(false);
+      this._deactivateSubject.complete();
+      this._deactivateSubject = null;
+    }
+  }
+
+  protected goHome(): void { this._guardedNav(() => this.router.navigate(['/learn/home'])); }
 
   protected handleQuizSubmit(payload: IQuizSubmitPayload): void {
     this.uc.handleQuizSubmit(payload);

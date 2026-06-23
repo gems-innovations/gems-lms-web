@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { EducationLayout } from './infrastructure/ui/layouts/education-layout/education-layout';
 import { StudentLayout } from './infrastructure/ui/layouts/student-layout/student-layout';
+import { quizDeactivateGuard } from './infrastructure/ui/guards/quiz-deactivate.guard';
 
 // ── Public API for cross-library use ────────────────────────────────────────
 export { EnrollStudentSearch } from './infrastructure/ui/components/enroll-student-search/enroll-student-search';
@@ -117,6 +118,7 @@ export const studentRoutes: Routes = [
       // Course player
       {
         path: 'courses/:id',
+        canDeactivate: [quizDeactivateGuard],
         loadComponent: () =>
           import('./infrastructure/ui/containers/course-player-container/course-player-container').then(
             m => m.CoursePlayerContainer
