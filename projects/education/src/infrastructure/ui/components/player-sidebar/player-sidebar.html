@@ -3,17 +3,6 @@
   <!-- Resize handle -->
   <div class="psidebar__resize-handle" (mousedown)="resizeStart.emit($event)"></div>
 
-  <!-- Header -->
-  <div class="psidebar__header">
-      <div class="psidebar__header-top">
-        <span class="psidebar__label">Contenido del curso</span>
-        <span class="psidebar__progress-text">{{ courseProgress() | number:'1.0-0' }}% completado</span>
-      </div>
-      <div class="psidebar__progress-bar">
-        <div class="psidebar__progress-fill" [style.width.%]="courseProgress()"></div>
-      </div>
-    </div>
-
     <!-- Module timeline -->
     <nav class="psidebar__nav">
       <div class="psidebar__timeline">

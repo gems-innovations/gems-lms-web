@@ -171,7 +171,7 @@ const MOCK_ENROLLMENTS: IEnrollment[] = [
       lastAccessedAt: new Date('2026-06-14'),
       currentLessonId: 'la-2-1',
       currentBlockId: 'cba-5',
-      completedBlockIds: ['cba-1', 'cba-2', 'cba-3'],
+      completedBlockIds: ['cba-1', 'cba-2'],
       moduleProgress: [
         { moduleId: 'ma-1', completedLessons: 2, totalLessons: 2, percentage: 100 },
         { moduleId: 'ma-2', completedLessons: 0, totalLessons: 1, percentage: 0 },
