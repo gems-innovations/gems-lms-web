@@ -201,12 +201,12 @@
                 } @else if (q.type === 'true-false') {
                   <div class="quiz-tf">
                     <label class="quiz-option quiz-option--tf" [class.quiz-option--checked]="getAnswer(q.id) === true">
-                      <input type="radio" [name]="'tf-' + q.id" (change)="setAnswer(q.id, true)" />
+                      <input type="radio" [name]="'tf-' + q.id" [checked]="getAnswer(q.id) === true" (change)="setAnswer(q.id, true)" />
                       <span class="quiz-option__mark quiz-option__mark--circle"></span>
                       Verdadero
                     </label>
                     <label class="quiz-option quiz-option--tf" [class.quiz-option--checked]="getAnswer(q.id) === false">
-                      <input type="radio" [name]="'tf-' + q.id" (change)="setAnswer(q.id, false)" />
+                      <input type="radio" [name]="'tf-' + q.id" [checked]="getAnswer(q.id) === false" (change)="setAnswer(q.id, false)" />
                       <span class="quiz-option__mark quiz-option__mark--circle"></span>
                       Falso
                     </label>
