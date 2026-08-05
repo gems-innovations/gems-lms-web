@@ -52,6 +52,14 @@ const ALL_ENROLLMENTS: IEnrollment[] = [
   { id: 'enr12', userId: 'u2', courseId: 'c2', status: 'active',    enrolledAt: new Date('2025-03-20'), progress: { courseId:'c2', overallPercentage:30, completedLessons:3,  totalLessons:9, lastAccessedAt: new Date('2025-05-19'), moduleProgress:[] } },
 ];
 
+// Asigna cada matrícula a un grupo/cohorte (curso 1 tiene 2 grupos: A y B).
+const ENROLLMENT_GROUP_MAP: Record<string, string> = {
+  enr1: 'g1', enr3: 'g1', enr4: 'g1',                 // Grupo A · c1
+  enr5: 'g2', enr9: 'g2', enr11: 'g2',                // Grupo B · c1
+  enr6: 'g3', enr7: 'g3', enr8: 'g3', enr10: 'g3',    // Grupo C · c2
+};
+for (const e of ALL_ENROLLMENTS) e.groupId = ENROLLMENT_GROUP_MAP[e.id];
+
 // ── Submissions de tareas (todas) ─────────────────────────────────────────────
 const ALL_SUBMISSIONS: IAssignmentSubmission[] = [
   // cb6 → Tarea: Análisis exploratorio (c1, módulo 1)
@@ -545,14 +553,16 @@ export class EnrollmentService {
     return of({ success, skipped, errors }).pipe(delay(600));
   }
 
-  enrollStudents(userIds: string[], targetId: string, type: 'course' | 'path'): Observable<{ success: number; skipped: number }> {
+  enrollStudents(
+    userIds: string[], targetId: string, type: 'course' | 'path', groupId?: string,
+  ): Observable<{ success: number; skipped: number }> {
     let success = 0; let skipped = 0;
     for (const userId of userIds) {
       if (type === 'course') {
-        const exists = ALL_ENROLLMENTS.find(e => e.userId === userId && e.courseId === targetId);
+        const exists = ALL_ENROLLMENTS.find(e => e.userId === userId && e.courseId === targetId && e.groupId === groupId);
         if (exists) { skipped++; continue; }
         ALL_ENROLLMENTS.push({
-          id: `enr${Date.now()}-${success}`, userId, courseId: targetId, status: 'active',
+          id: `enr${Date.now()}-${success}`, userId, courseId: targetId, groupId, status: 'active',
           enrolledAt: new Date(),
           progress: { courseId: targetId, overallPercentage: 0, completedLessons: 0, totalLessons: 0, lastAccessedAt: new Date(), moduleProgress: [] }
         });
@@ -562,6 +572,27 @@ export class EnrollmentService {
       }
     }
     return of({ success, skipped }).pipe(delay(500));
+  }
+
+  /** Crea estudiantes nuevos en el pool (para importación Excel de grupos). */
+  addStudents(rows: { firstName: string; lastName: string; email: string }[]): IStudentProfile[] {
+    const created: IStudentProfile[] = [];
+    for (const r of rows) {
+      const email = r.email.trim().toLowerCase();
+      if (!email || !r.firstName.trim()) continue;
+      let student = MOCK_STUDENTS.find(s => s.email.toLowerCase() === email);
+      if (!student) {
+        student = {
+          id: `u-${Date.now()}-${MOCK_STUDENTS.length}`,
+          firstName: r.firstName.trim(),
+          lastName: r.lastName.trim(),
+          email,
+        };
+        MOCK_STUDENTS.push(student);
+      }
+      created.push(student);
+    }
+    return created;
   }
 
   enrollInPath(pathId: string): Observable<ILearningPathEnrollment> {

@@ -1,10 +1,10 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
-import { SidebarComponent } from 'shared';
+import { AppSidebarComponent } from 'shared';
 import { AdminSidebarUseCase } from '../../../../application/admin-sidebar.usecase';
 
 @Component({
   selector: 'adm-sidebar-container',
-  imports: [SidebarComponent],
+  imports: [AppSidebarComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './sidebar-container.html'
 })

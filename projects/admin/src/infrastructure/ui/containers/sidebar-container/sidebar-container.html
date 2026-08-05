@@ -1,4 +1,6 @@
-<lib-sidebar
+<lib-app-sidebar
+  [brandRoute]="uc.homeRoute()"
+  storageKey="gems-admin-sidebar-collapsed"
   [menuItems]="uc.menuItems()"
   [userProfile]="uc.userProfile()"
   (onLogout)="uc.logout()"

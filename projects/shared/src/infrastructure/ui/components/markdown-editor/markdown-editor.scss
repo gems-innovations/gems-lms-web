@@ -1,0 +1,161 @@
+.mde {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-borde-principal);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  background: var(--color-superficie);
+  transition: border-color 0.15s;
+
+  &--focused { border-color: var(--color-primario); }
+
+  &__label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-texto-secundario);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 8px 12px 0;
+  }
+
+  // ── Toolbar ──────────────────────────────────────────────────────────────────
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    row-gap: 2px;
+    background: var(--color-superficie-alta);
+    border-bottom: 1px solid var(--color-borde-principal);
+    padding: 2px 6px;
+    gap: 4px;
+    min-height: 36px;
+  }
+
+  &__toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  &__tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 7px 10px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--color-texto-secundario);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+
+    &:hover { color: var(--color-texto-principal); }
+
+    &--active {
+      color: var(--color-primario-claro);
+      border-bottom-color: var(--color-primario);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    flex-wrap: wrap;
+  }
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    padding: 4px 6px;
+    min-width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-texto-secundario);
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    line-height: 1;
+
+    &:hover { background: var(--color-tarjeta-hover); color: var(--color-texto-principal); }
+    &--italic { font-style: italic; }
+    &--h3 { font-size: 0.68rem; }
+
+    svg { pointer-events: none; }
+  }
+
+  &__divider {
+    width: 1px;
+    height: 16px;
+    background: var(--color-borde-principal);
+    margin: 0 3px;
+  }
+
+  // ── Textarea ─────────────────────────────────────────────────────────────────
+  &__textarea {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--color-superficie);
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-family: 'Consolas', 'Fira Code', 'Menlo', monospace;
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: var(--color-texto-principal);
+    box-sizing: border-box;
+
+    &::placeholder { color: var(--color-texto-terciario); }
+  }
+
+  // ── Footer ───────────────────────────────────────────────────────────────────
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 5px 12px;
+    background: var(--color-superficie-alta);
+    border-top: 1px solid var(--color-borde-principal);
+  }
+
+  &__hint {
+    font-size: 0.7rem;
+    color: var(--color-texto-terciario);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__chars {
+    font-size: 0.7rem;
+    color: var(--color-texto-terciario);
+    font-feature-settings: 'tnum';
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  // ── Preview ──────────────────────────────────────────────────────────────────
+  &__preview {
+    padding: 16px 18px;
+    min-height: 160px;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--color-texto-principal);
+    overflow-y: auto;
+  }
+
+  &__preview-empty {
+    color: var(--color-texto-terciario);
+    font-style: italic;
+    font-size: 0.85rem;
+  }
+}

@@ -1,0 +1,34 @@
+<lib-page width="full">
+  <lib-page-header
+    eyebrow="Panel docente"
+    title="Mis cursos"
+    subtitle="Gestiona el contenido, los estudiantes y las calificaciones de tus grupos."
+  />
+
+  @if (uc.isLoading()) {
+    <lib-loading-skeleton [rows]="5" />
+  } @else if (uc.courses().length === 0) {
+    <lib-empty-state
+      title="Sin grupos asignados"
+      description="No tienes cursos ni grupos asignados como instructor en este momento."
+    />
+  } @else {
+    <div class="ins-courses__toolbar">
+      <div class="ins-courses__search">
+        <lib-search-bar placeholder="Buscar curso…" (search)="onSearch($event)" (clear)="onSearch('')" />
+      </div>
+    </div>
+
+    @if (uc.filteredCourses().length === 0) {
+      <lib-empty-state title="Sin resultados" description="Ningún curso coincide con la búsqueda." />
+    } @else {
+      <lib-card-grid minWidth="300px">
+        @for (summary of pagedCourses(); track summary.course.id) {
+          <ins-course-summary-card [summary]="summary" (open)="openCourse($event)" />
+        }
+      </lib-card-grid>
+
+      <lib-pagination [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)" />
+    }
+  }
+</lib-page>

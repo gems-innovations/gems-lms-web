@@ -1,0 +1,126 @@
+@if (uc.isLoading()) {
+  <lib-loading-skeleton [rows]="4" />
+} @else if (uc.survey(); as survey) {
+
+  <!-- Mode toggle + status -->
+  <div class="svp__toolbar">
+    <div class="svp__modes">
+      <button type="button" class="svp__mode" [class.svp__mode--active]="uc.mode() === 'edit'"
+              (click)="uc.setMode('edit')">Editar</button>
+      <button type="button" class="svp__mode" [class.svp__mode--active]="uc.mode() === 'results'"
+              (click)="uc.setMode('results')">
+        Resultados <span class="svp__mode-count">{{ uc.responseCount() }}</span>
+      </button>
+    </div>
+    @if (survey.isPublished) {
+      <lib-badge variant="success" size="md">Publicada</lib-badge>
+    } @else {
+      <lib-badge variant="neutral" size="md">Borrador</lib-badge>
+    }
+  </div>
+
+  <!-- ════════════════ EDITAR ════════════════ -->
+  @if (uc.mode() === 'edit') {
+    <div class="svp__field">
+      <label class="svp__label">Título de la encuesta</label>
+      <input class="svp__input" type="text" [ngModel]="survey.title" (ngModelChange)="uc.setTitle($event)" />
+    </div>
+    <div class="svp__field">
+      <label class="svp__label">Descripción</label>
+      <textarea class="svp__textarea" rows="2" [ngModel]="survey.description" (ngModelChange)="uc.setDescription($event)"></textarea>
+    </div>
+
+    @for (section of survey.sections; track section.id; let si = $index) {
+      <div class="svp__section">
+        <div class="svp__section-head">
+          <span class="svp__section-num">Sección {{ si + 1 }}</span>
+          <button type="button" class="svp__icon-btn" title="Eliminar sección" (click)="uc.removeSection(section.id)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+        <input class="svp__input svp__input--section" type="text" placeholder="Título de la sección"
+               [ngModel]="section.title" (ngModelChange)="uc.updateSection(section.id, { title: $event })" />
+        <input class="svp__input svp__input--sm" type="text" placeholder="Descripción (opcional)"
+               [ngModel]="section.description" (ngModelChange)="uc.updateSection(section.id, { description: $event })" />
+
+        @for (q of section.questions; track q.id; let qi = $index) {
+          <div class="svp__question">
+            <span class="svp__q-num">{{ qi + 1 }}</span>
+            <div class="svp__q-type">
+              <button type="button" class="svp__type-btn" [class.svp__type-btn--active]="q.type === 'scale'"
+                      (click)="uc.setQuestionType(section.id, q.id, 'scale')">1–10</button>
+              <button type="button" class="svp__type-btn" [class.svp__type-btn--active]="q.type === 'text'"
+                      (click)="uc.setQuestionType(section.id, q.id, 'text')">Texto</button>
+            </div>
+            <input class="svp__input svp__input--q" type="text" placeholder="Escribe la pregunta…"
+                   [ngModel]="q.label" (ngModelChange)="uc.setQuestionLabel(section.id, q.id, $event)" />
+            <button type="button" class="svp__icon-btn" title="Eliminar pregunta" (click)="uc.removeQuestion(section.id, q.id)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        }
+
+        <div class="svp__add-q">
+          <button type="button" class="svp__add-q-btn" (click)="uc.addQuestion(section.id, 'scale')">+ Pregunta 1–10</button>
+          <button type="button" class="svp__add-q-btn" (click)="uc.addQuestion(section.id, 'text')">+ Pregunta de texto</button>
+        </div>
+      </div>
+    }
+
+    <button type="button" class="svp__add-section" (click)="uc.addSection()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Agregar sección
+    </button>
+
+    <div class="svp__actions">
+      <lib-button variant="ghost" [loading]="uc.isSaving()" (clicked)="uc.save()">Guardar borrador</lib-button>
+      <lib-button [variant]="survey.isPublished ? 'outline' : 'primary'" (clicked)="uc.togglePublish()">
+        {{ survey.isPublished ? 'Despublicar' : 'Publicar encuesta' }}
+      </lib-button>
+    </div>
+  }
+
+  <!-- ════════════════ RESULTADOS ════════════════ -->
+  @if (uc.mode() === 'results') {
+    @if (uc.responseCount() === 0) {
+      <lib-empty-state title="Sin respuestas"
+        description="Aún no hay respuestas de estudiantes para esta encuesta." />
+    } @else {
+      <div class="svp__results">
+        @for (stat of uc.scaleStats(); track stat.questionId) {
+          <div class="svp__stat">
+            <div class="svp__stat-head">
+              <span class="svp__stat-label">{{ stat.label }}</span>
+              <span class="svp__stat-avg">{{ stat.avg }}<span>/10</span></span>
+            </div>
+            <div class="svp__dist">
+              @for (count of stat.distribution; track $index) {
+                <div class="svp__dist-col">
+                  <div class="svp__dist-bar" [style.height.%]="(count / maxDist()) * 100"></div>
+                  <span class="svp__dist-x">{{ $index + 1 }}</span>
+                </div>
+              }
+            </div>
+            <span class="svp__stat-count">{{ stat.count }} respuestas</span>
+          </div>
+        }
+
+        @for (group of uc.textAnswers(); track group.questionId) {
+          <div class="svp__text-group">
+            <h4 class="svp__text-label">{{ group.label }}</h4>
+            @if (group.answers.length === 0) {
+              <p class="svp__text-empty">Sin comentarios.</p>
+            } @else {
+              @for (a of group.answers; track $index) {
+                <div class="svp__comment">
+                  <span class="svp__comment-author">{{ a.studentName }}</span>
+                  <p class="svp__comment-text">{{ a.text }}</p>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+}

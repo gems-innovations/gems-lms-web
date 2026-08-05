@@ -53,6 +53,27 @@
           (quizPhaseChange)="onQuizPhaseChange($event)"
           (quizForceSubmitted)="onQuizForceSubmitted()"
         />
+
+        <!-- Encuesta de retroalimentación: solo disponible cuando el estudiante culmina el curso -->
+        @if (uc.isCourseEnd() && uc.surveyEnabled()) {
+          <div class="course-survey-cta">
+            <div class="course-survey-cta__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <div class="course-survey-cta__text">
+              <h3 class="course-survey-cta__title">Llegaste al final del curso</h3>
+              <p class="course-survey-cta__desc">Cuéntanos tu experiencia: tu retroalimentación ayuda a mejorar el curso.</p>
+            </div>
+            <button type="button" class="course-survey-cta__btn" (click)="openSurvey()">
+              Dar retroalimentación
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+        }
       </main>
 
       <edu-player-sidebar
@@ -67,8 +88,11 @@
         [lockedBlockIds]="uc.lockedBlockIds()"
         [courseProgress]="uc.courseProgress()"
         [sidebarWidthPx]="sidebarWidthPx()"
+        [hasSurvey]="uc.hasSurvey()"
+        [surveyUnlocked]="uc.surveyEnabled()"
         (selectLesson)="_guardedNav(uc.selectLesson.bind(uc, $event))"
         (selectBlock)="_guardedNav(uc.selectBlock.bind(uc, $event))"
+        (surveyClick)="openSurvey()"
         (resizeStart)="startSidebarResize($event)"
       />
     </div>

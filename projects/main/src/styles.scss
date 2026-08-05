@@ -8,6 +8,59 @@
 @use 'design-system';
 @import 'github-markdown-css/github-markdown-dark.css';
 
+// ── Markdown body overrides — adapt GitHub Dark theme to GEMS design system ──
+.markdown-body {
+  background-color: transparent !important;
+  color: inherit;
+  font-family: inherit;
+
+  // Code blocks
+  pre {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+  }
+
+  // Inline code
+  code:not(pre code) {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #c9a6f5 !important;
+    border-radius: 4px !important;
+    padding: 0.15em 0.4em !important;
+    font-size: 0.875em !important;
+  }
+
+  // Blockquote — remove greenish left border, use subtle purple instead
+  blockquote {
+    background: rgba(123, 111, 240, 0.06) !important;
+    border-left: 3px solid rgba(123, 111, 240, 0.4) !important;
+    color: rgba(255, 255, 255, 0.65) !important;
+    border-radius: 0 6px 6px 0;
+    padding: 0.5rem 1rem !important;
+  }
+
+  // Tables
+  table tr {
+    background-color: transparent !important;
+    &:nth-child(2n) { background-color: rgba(255, 255, 255, 0.03) !important; }
+  }
+
+  th, td {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  // Horizontal rule
+  hr {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    background-color: transparent !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+  }
+}
+
 *,
 *::before,
 *::after {
@@ -157,81 +210,8 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-// ---- Instructor ----
-.instructor-container {
-  &__course-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-sm);
-  }
-
-  &__back {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: 6px 12px;
-    border-radius: var(--border-radius-md);
-    border: 1px solid var(--color-borde-sutil);
-    background: transparent;
-    color: var(--color-texto-secundario);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    cursor: pointer;
-    font-family: inherit;
-    margin-bottom: var(--spacing-md);
-    transition: border-color var(--transition-fast), color var(--transition-fast);
-
-    &:hover {
-      border-color: var(--color-borde-principal);
-      color: var(--color-texto-principal);
-    }
-  }
-
-  &__tabs {
-    display: flex;
-    gap: 4px;
-    border-bottom: 1px solid var(--color-borde-sutil);
-    margin-bottom: var(--spacing-lg);
-  }
-
-  &__tab {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: 8px var(--spacing-md);
-    border: none;
-    border-bottom: 2px solid transparent;
-    background: none;
-    color: var(--color-texto-terciario);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    cursor: pointer;
-    font-family: inherit;
-    transition: color var(--transition-fast), border-color var(--transition-fast);
-    margin-bottom: -1px;
-
-    &:hover { color: var(--color-texto-secundario); }
-
-    &--active {
-      color: var(--color-primario-claro);
-      border-bottom-color: var(--color-primario);
-    }
-  }
-
-  &__tab-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 18px;
-    height: 18px;
-    border-radius: var(--border-radius-full);
-    background: var(--color-advertencia);
-    color: #000;
-    font-size: 10px;
-    font-weight: var(--font-weight-bold);
-    padding: 0 4px;
-  }
-}
+// ---- Instructor (legacy class kept for compatibility) ----
+// Actual styles live in instructor-container.scss under .ins-panel
 
 // ---- Course editor ----
 .ceditor {
@@ -266,6 +246,20 @@ h1, h2, h3, h4, h5, h6 {
     flex: 1;
     overflow: hidden;
   }
+}
+
+// El editor de cursos se reutiliza dentro del layout del instructor
+// (.ilayout__inner--full). Allí el inner no tiene padding lateral, así que se
+// neutralizan los márgenes negativos pensados para el layout de education y se
+// deja que el editor ocupe el alto completo sin recortarse a los lados.
+.ilayout__inner--full .ceditor {
+  margin: 0;
+  // Patrón flex: el editor llena la columna del layout y min-height:0 permite
+  // que su panel interno (.cpanel, overflow-y:auto) tenga un alto definido y
+  // pueda hacer scroll. (Reemplaza el height:100vh global pensado para education.)
+  flex: 1;
+  min-height: 0;
+  height: auto;
 }
 
 // ---- Student home layout ----

@@ -1,5 +1,7 @@
-import { Component, computed, input, model, output, signal } from '@angular/core';
-import { FormValueControl, ValidationError } from '@angular/forms/signals';
+import {
+  Component, ElementRef, HostListener, computed, effect, input, model,
+  output, signal, viewChild, ChangeDetectionStrategy,
+} from '@angular/core';
 
 export interface SelectOption {
   value: string;
@@ -7,54 +9,99 @@ export interface SelectOption {
   disabled?: boolean;
 }
 
-const ERROR_FALLBACKS: Record<string, string> = {
-  required: 'Este campo es obligatorio.'
-};
+// Umbral a partir del cual mostramos el buscador (por debajo, sobra con la lista).
+const SEARCH_THRESHOLD = 6;
 
 @Component({
   selector: 'lib-select',
   templateUrl: './lib-select.html',
-  styleUrl: './lib-select.scss'
+  styleUrl: './lib-select.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LibSelectComponent implements FormValueControl<string> {
-  // Estado sincronizado por la directiva [formField] de Signal Forms
-  readonly value = model<string>('');
-  readonly touched = input<boolean>(false);
-  readonly touch = output<void>();
-  readonly errors = input<readonly ValidationError[]>([]);
-  readonly disabled = input<boolean>(false);
-  readonly required = input<boolean>(false);
+export class LibSelectComponent {
+  readonly value       = model<string>('');
+  readonly disabled    = input<boolean>(false);
+  readonly required    = input<boolean>(false);
 
-  readonly label = input<string>('');
+  readonly label       = input<string>('');
   readonly placeholder = input<string>('Selecciona una opción');
-  readonly helpText = input<string>('');
-  readonly options = input<SelectOption[]>([]);
-  readonly icon = input<string | undefined>(undefined);
+  readonly helpText    = input<string>('');
+  readonly options     = input<SelectOption[]>([]);
+  readonly icon        = input<string | undefined>(undefined);
+  /** Alto máximo (px) de la lista antes de hacer scroll. */
+  readonly maxHeight   = input<number>(240);
 
-  protected readonly focused = signal(false);
+  readonly touch = output<void>();
 
-  protected readonly showError = computed(() => this.touched() && this.errors().length > 0);
+  protected readonly open   = signal(false);
+  protected readonly search = signal('');
 
-  protected readonly errorMessage = computed(() => {
-    const [first] = this.errors();
-    if (!first) return '';
-    return first.message ?? ERROR_FALLBACKS[first.kind] ?? 'El valor seleccionado no es válido.';
+  private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+  private readonly host        = viewChild<ElementRef<HTMLElement>>('rootEl');
+
+  protected readonly showSearch = computed(() => this.options().length > SEARCH_THRESHOLD);
+
+  protected readonly filteredOptions = computed(() => {
+    const q = this.search().trim().toLowerCase();
+    if (!q) return this.options();
+    return this.options().filter(o => o.label.toLowerCase().includes(q));
   });
+
+  protected readonly selectedOption = computed(() =>
+    this.options().find(o => o.value === this.value()) ?? null
+  );
 
   protected readonly selectId = computed(
     () => `lib-select-${this.label().toLowerCase().replace(/\s+/g, '-')}`
   );
 
-  protected onChange(value: string): void {
-    this.value.set(value);
+  constructor() {
+    // Al abrir, enfoca el buscador (si aplica) en el siguiente tick.
+    effect(() => {
+      if (!this.open()) return;
+      const input = this.searchInput()?.nativeElement;
+      if (input) queueMicrotask(() => input.focus());
+    });
   }
 
-  protected onFocus(): void {
-    this.focused.set(true);
+  protected toggle(): void {
+    if (this.disabled()) return;
+    this.open() ? this.close() : this.openPanel();
   }
 
-  protected onBlur(): void {
-    this.focused.set(false);
+  protected openPanel(): void {
+    this.search.set('');
+    this.open.set(true);
+  }
+
+  protected close(): void {
+    if (!this.open()) return;
+    this.open.set(false);
     this.touch.emit();
   }
+
+  protected selectOption(opt: SelectOption): void {
+    if (opt.disabled) return;
+    this.value.set(opt.value);
+    this.close();
+  }
+
+  protected onSearchKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') { event.stopPropagation(); this.close(); }
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const first = this.filteredOptions().find(o => !o.disabled);
+      if (first) this.selectOption(first);
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.open()) return;
+    const el = this.host()?.nativeElement;
+    if (el && !el.contains(event.target as Node)) this.close();
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void { this.close(); }
 }

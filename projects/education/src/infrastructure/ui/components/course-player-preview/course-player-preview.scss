@@ -1,0 +1,132 @@
+.preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 500;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
+  animation: overlay-in 0.18s ease;
+}
+
+// Panel lateral que entra desde la derecha (misma estrategia que el resto de
+// formularios del módulo), en lugar de modal centrado.
+.preview-modal {
+  display: flex;
+  flex-direction: column;
+  // Contexto de posición: los overlays absolutos del player (p.ej. confirmar
+  // entrega del quiz) se centran dentro del drawer, no en toda la página.
+  position: relative;
+  background: var(--color-fondo-secundario);
+  border-left: 1px solid var(--color-borde-principal);
+  border-radius: 0;
+  width: 720px;
+  max-width: 92vw;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  box-shadow: -16px 0 48px rgba(0, 0, 0, 0.45);
+  animation: modal-in 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--color-borde-sutil);
+    background: var(--color-superficie-alta);
+    flex-shrink: 0;
+  }
+
+  &__header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  &__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-primario);
+    background: color-mix(in srgb, var(--color-primario) 15%, transparent);
+    padding: 3px 9px;
+    border-radius: 20px;
+    width: fit-content;
+  }
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-texto-principal);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid var(--color-borde-sutil);
+    border-radius: 8px;
+    padding: 6px;
+    cursor: pointer;
+    color: var(--color-texto-secundario);
+    flex-shrink: 0;
+    transition: color 0.12s, border-color 0.12s;
+
+    &:hover { color: var(--color-texto-principal); border-color: var(--color-texto-secundario); }
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+
+  &__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: var(--color-texto-terciario);
+    font-size: 0.88rem;
+    font-style: italic;
+    text-align: center;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 12px 22px;
+    border-top: 1px solid var(--color-borde-sutil);
+    background: var(--color-superficie-alta);
+    font-size: 0.72rem;
+    color: var(--color-texto-terciario);
+    flex-shrink: 0;
+    line-height: 1.5;
+
+    svg { flex-shrink: 0; opacity: 0.6; }
+  }
+}
+
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modal-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}

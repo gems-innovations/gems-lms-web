@@ -1,0 +1,23 @@
+<lib-page width="full">
+  @if (uc.isLoading()) {
+    <lib-loading-skeleton [rows]="5" />
+  } @else {
+    <lib-back-button label="Mis cursos" (back)="backToCourses()" />
+
+    <lib-page-header
+      eyebrow="Panel docente"
+      [title]="courseTitle() || 'Curso'"
+      subtitle="Selecciona el grupo que quieres gestionar."
+    />
+
+    @if (cohortsForCourse().length === 0) {
+      <lib-empty-state title="Sin grupos" description="No tienes grupos asignados para este curso." />
+    } @else {
+      <lib-card-grid minWidth="300px">
+        @for (cohort of cohortsForCourse(); track cohort.group.id) {
+          <ins-course-card [cohort]="cohort" (open)="openCohort($event)" />
+        }
+      </lib-card-grid>
+    }
+  }
+</lib-page>

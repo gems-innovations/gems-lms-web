@@ -1,0 +1,51 @@
+<lib-page width="full">
+  <lib-page-header
+    eyebrow="Panel docente"
+    title="Estadísticas"
+    subtitle="Desempeño general de tus cursos. Las reseñas de estudiantes están en cada curso."
+  />
+
+  @if (uc.isLoading()) {
+    <lib-loading-skeleton [rows]="6" />
+  } @else {
+
+    <!-- Resumen general -->
+    <lib-stat-grid>
+      <lib-stat-card [value]="uc.overview().totalCourses.toString()" label="Cursos" accent="primary" />
+      <lib-stat-card [value]="uc.overview().totalStudents.toString()" label="Estudiantes" accent="teal" />
+      <lib-stat-card [value]="uc.overview().avgRating.toFixed(1)" label="Valoración media" accent="warning" />
+      <lib-stat-card [value]="uc.overview().avgCompletion + '%'" label="Completitud media" accent="success" />
+    </lib-stat-grid>
+
+    <!-- Rendimiento por curso -->
+    <section class="ins-stats__section">
+      <h2 class="ins-stats__title">Rendimiento por curso</h2>
+      <div class="ins-stats__courses">
+        @for (row of uc.courseRows(); track row.course.id) {
+          <div class="ins-stats__course">
+            <div class="ins-stats__course-head">
+              <span class="ins-stats__course-name">{{ row.course.title }}</span>
+              <div class="ins-stats__course-rating">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                {{ row.course.averageRating ? (row.course.averageRating | number:'1.1-1') : '—' }}
+              </div>
+            </div>
+            <div class="ins-stats__course-bar">
+              <lib-progress-bar [value]="row.avgProgress" size="sm" variant="primary" [showLabel]="true" />
+            </div>
+            <div class="ins-stats__course-meta">
+              <span>{{ row.studentCount }} estudiantes</span>
+              @if (row.pendingCount > 0) {
+                <lib-badge variant="warning" size="sm">{{ row.pendingCount }} por calificar</lib-badge>
+              } @else {
+                <lib-badge variant="success" size="sm">Al día</lib-badge>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+</lib-page>

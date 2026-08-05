@@ -2,6 +2,7 @@ import { Component, inject, input, output, signal, computed, ChangeDetectionStra
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { MarkdownEditorComponent } from 'shared';
 import {
   EContentType,
   ICreateContentBlockRequest,
@@ -51,7 +52,7 @@ const newQuestion = (order: number): IQuestionDraft => ({
 @Component({
   selector: 'edu-content-block-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MarkdownEditorComponent],
   templateUrl: './content-block-modal.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './content-block-modal.scss'

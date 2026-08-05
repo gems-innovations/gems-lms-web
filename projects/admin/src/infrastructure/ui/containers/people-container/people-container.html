@@ -1,0 +1,16 @@
+<lib-page width="lg">
+  <lib-page-header
+    title="Personas"
+    subtitle="Gestiona los usuarios y los grupos de estudiantes de tu institución."
+  />
+
+  <div class="people__tabs">
+    <lib-tabs [tabs]="tabs" [activeId]="activeTab()" (activeIdChange)="setTab($event)" />
+  </div>
+
+  @if (activeTab() === 'users') {
+    <adm-user-management-container />
+  } @else {
+    <adm-groups-view />
+  }
+</lib-page>

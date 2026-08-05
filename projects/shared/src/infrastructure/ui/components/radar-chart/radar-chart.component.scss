@@ -1,0 +1,60 @@
+.radar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+
+  &__svg {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    overflow: visible;
+  }
+
+  &__ring {
+    fill: none;
+    stroke: var(--color-borde-principal);
+    stroke-width: 1;
+  }
+
+  &__spoke {
+    stroke: var(--color-borde-principal);
+    stroke-width: 1;
+  }
+
+  &__area {
+    fill-opacity: 0.18;
+    stroke-width: 2;
+    stroke-linejoin: round;
+  }
+
+  &__dot { stroke: var(--color-fondo-secundario); stroke-width: 1; }
+
+  &__label {
+    fill: var(--color-texto-secundario);
+    font-size: 10px;
+    font-family: var(--font-texto);
+  }
+
+  &__legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-lg);
+  }
+
+  &__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--font-size-xs);
+    color: var(--color-texto-secundario);
+  }
+
+  &__legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+}

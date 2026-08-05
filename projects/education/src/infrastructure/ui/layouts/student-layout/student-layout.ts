@@ -2,14 +2,14 @@
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AuthSessionService, EUserRole, LogoutUseCase } from 'auth';
-import { BrandingService } from 'shared';
+import { BrandingService, AvatarComponent } from 'shared';
 
 const COLLAPSED_KEY = 'gems-sl-collapsed';
 
 @Component({
   selector: 'edu-student-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, AvatarComponent],
   templateUrl: './student-layout.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './student-layout.scss'
@@ -40,8 +40,9 @@ export class StudentLayout implements OnInit, OnDestroy {
   );
 
   private checkFullWidth(url: string): boolean {
-    // Solo el player real es full-width; preview no cuenta
-    return url.includes('/courses/') && !url.includes('/preview/');
+    // Solo el player real es full-width (maneja su propio scroll interno);
+    // preview y encuesta usan el layout normal con scroll de página.
+    return url.includes('/courses/') && !url.includes('/preview/') && !url.includes('/survey');
   }
 
   private initCollapsed(url: string): boolean {

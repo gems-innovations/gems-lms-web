@@ -22,10 +22,13 @@ export class PlayerSidebar {
   readonly selectedBlockId   = input<string | null>(null);
   readonly lockedLessonIds   = input<Set<string>>(new Set());
   readonly lockedBlockIds    = input<Set<string>>(new Set());
+  readonly hasSurvey         = input<boolean>(false);
+  readonly surveyUnlocked    = input<boolean>(false);
 
   readonly selectLesson = output<string>();
   readonly selectBlock  = output<string>();
   readonly resizeStart  = output<MouseEvent>();
+  readonly surveyClick  = output<void>();
 
   protected readonly EContentType = EContentType;
 

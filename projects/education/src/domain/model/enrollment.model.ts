@@ -44,6 +44,7 @@ export interface IEnrollment {
   id: string;
   userId: string;
   courseId: string;
+  groupId?: string;          // cohorte al que pertenece esta matrícula (si aplica)
   status: 'active' | 'completed' | 'paused';
   enrolledAt: Date;
   completedAt?: Date;

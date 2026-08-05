@@ -44,7 +44,7 @@ export function getRoleHomePath(role: EUserRole): string {
   switch (role) {
     case EUserRole.SUPER_ADMIN: return '/admin/institutions';
     case EUserRole.ADMIN:       return '/admin/dashboard';
-    case EUserRole.INSTRUCTOR:  return '/education/courses';
+    case EUserRole.INSTRUCTOR:  return '/instructor';
     case EUserRole.STUDENT:     return '/learn/home';
   }
 }

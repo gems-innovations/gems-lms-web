@@ -37,9 +37,9 @@ export const routes: Routes = [
     ]
   },
 
-  // ── Admin: user management ─────────────────────────────────────────────────
+  // ── Admin: personas (usuarios + grupos, unificado) ──────────────────────────
   {
-    path: 'users',
+    path: 'people',
     component: MainLayout,
     children: [
       {
@@ -49,7 +49,7 @@ export const routes: Routes = [
       },
       {
         path: '',
-        loadComponent: () => import('./infrastructure/ui/containers/user-management-container/user-management-container').then(m => m.UserManagementContainer)
+        loadComponent: () => import('./infrastructure/ui/containers/people-container/people-container').then(m => m.PeopleContainer)
       }
     ]
   },

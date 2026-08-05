@@ -32,15 +32,11 @@
     <h3 class="catalog-card__title">{{ item().title }}</h3>
     <p class="catalog-card__desc">{{ item().description }}</p>
 
-    <div class="catalog-card__meta">
-      <span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-        </svg>
-        {{ duration() }}
-      </span>
-      <span>{{ item().meta }}</span>
-    </div>
+    @if (item().meta) {
+      <div class="catalog-card__meta">
+        <span>{{ item().meta }}</span>
+      </div>
+    }
 
     @if (item().tags.length) {
       <div class="catalog-card__tags">
@@ -64,8 +60,11 @@
         Continuar
       </button>
     } @else {
-      <button type="button" class="catalog-card__btn catalog-card__btn--secondary" (click)="previewItem.emit(item())">
-        Ver detalles
+      <button type="button" class="catalog-card__btn catalog-card__btn--icon" (click)="previewItem.emit(item())" aria-label="Ver detalles" title="Ver detalles">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
       </button>
       <button type="button" class="catalog-card__btn catalog-card__btn--primary" (click)="enrollItem.emit(item())">
         Inscribirme

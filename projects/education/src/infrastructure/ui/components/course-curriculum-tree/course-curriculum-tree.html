@@ -58,7 +58,7 @@
                 <div class="ctree__inline-form">
                   <input class="ctree__inline-input" type="text" placeholder="Título de la lección…"
                     [ngModel]="newLessonTitle()" (ngModelChange)="newLessonTitle.set($event)"
-                    (keyup.enter)="submitAddLesson()" (keyup.escape)="cancelAddLesson()" autofocus />
+                    (keyup.enter)="submitAddLesson()" (keyup.escape)="cancelAddLesson()" libAutofocus />
                   <div class="ctree__inline-actions">
                     <button class="ctree__inline-confirm" (click)="submitAddLesson()">Agregar</button>
                     <button class="ctree__inline-cancel" (click)="cancelAddLesson()">Cancelar</button>
@@ -74,7 +74,7 @@
         <div class="ctree__inline-form ctree__inline-form--module">
           <input class="ctree__inline-input" type="text" placeholder="Título del módulo…"
             [ngModel]="newModuleTitle()" (ngModelChange)="newModuleTitle.set($event)"
-            (keyup.enter)="submitAddModule()" (keyup.escape)="cancelAddModule()" autofocus />
+            (keyup.enter)="submitAddModule()" (keyup.escape)="cancelAddModule()" libAutofocus />
           <div class="ctree__inline-actions">
             <button class="ctree__inline-confirm" (click)="submitAddModule()">Crear</button>
             <button class="ctree__inline-cancel" (click)="cancelAddModule()">Cancelar</button>

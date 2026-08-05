@@ -300,4 +300,8 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
 
   protected openCertificate(): void { this.showCertificate.set(true); }
   protected closeCertificate(): void { this.showCertificate.set(false); }
+
+  protected openSurvey(): void {
+    this._guardedNav(() => this.router.navigate(['/learn/courses', this.uc.courseId(), 'survey']));
+  }
 }

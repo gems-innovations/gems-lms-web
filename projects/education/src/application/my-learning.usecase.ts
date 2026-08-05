@@ -2,14 +2,17 @@ import { inject, Injectable, computed } from '@angular/core';
 import { EnrollmentUseCase } from './enrollment.usecase';
 import { CourseUseCase } from './course.usecase';
 import { LearningPathUseCase } from './learning-path.usecase';
+import { AuthSessionService } from 'auth';
 import { IEnrolledCourseEntry, IEnrolledPathEntry } from '../domain/model/enrollment.model';
+import { ICourseCertificate } from '../domain/model/player.model';
+import { MOCK_STUDENTS, MOCK_USER_ID } from '../infrastructure/services/enrollment.service';
 
 export interface ICertification {
   id: string;
+  courseId: string;
   courseTitle: string;
   issuedAt: Date;
   expiresAt?: Date;
-  credentialUrl?: string;
 }
 
 export interface IPendingTask {
@@ -19,12 +22,6 @@ export interface IPendingTask {
   dueDate: Date;
   type: 'assignment' | 'quiz' | 'live-session';
 }
-
-const MOCK_CERTIFICATIONS: ICertification[] = [
-  { id: 'cert1', courseTitle: 'Python para Ciencia de Datos', issuedAt: new Date('2025-03-10'), credentialUrl: '#' },
-  { id: 'cert2', courseTitle: 'Node.js Backend Avanzado',     issuedAt: new Date('2025-04-22'), credentialUrl: '#' },
-  { id: 'cert3', courseTitle: 'Docker & Kubernetes',           issuedAt: new Date('2024-11-05'), credentialUrl: '#' },
-];
 
 const MOCK_PENDING_TASKS: IPendingTask[] = [
   { id: 'task1', title: 'Análisis exploratorio de datos',   courseTitle: 'Python para Ciencia de Datos', dueDate: new Date('2026-06-20'), type: 'assignment' },
@@ -39,6 +36,7 @@ export class MyLearningUseCase {
   private readonly enrollmentUc = inject(EnrollmentUseCase);
   private readonly courseUc     = inject(CourseUseCase);
   private readonly pathUc       = inject(LearningPathUseCase);
+  private readonly authSession  = inject(AuthSessionService);
 
   readonly isLoading = computed(() => this.enrollmentUc.isLoading() || this.courseUc.isLoading());
 
@@ -71,7 +69,39 @@ export class MyLearningUseCase {
       .filter(x => !!x.path);
   });
 
-  readonly certifications = computed((): ICertification[] => MOCK_CERTIFICATIONS);
+  readonly certifications = computed((): ICertification[] =>
+    this.completed().map(x => ({
+      id: x.enrollment.id,
+      courseId: x.course.id,
+      courseTitle: x.course.title,
+      issuedAt: x.enrollment.completedAt ?? x.enrollment.enrolledAt,
+    }))
+  );
+
+  /** Construye el certificado (mismo formato que se ve al completar el curso) para una certificación dada. */
+  buildCertificate(cert: ICertification): ICourseCertificate | null {
+    const entry = this.completed().find(x => x.course.id === cert.courseId);
+    if (!entry) return null;
+
+    const user = this.authSession.user();
+    let studentName = 'Estudiante';
+    if (user) {
+      studentName = `${user.firstName} ${user.lastName}`.trim();
+    } else {
+      const student = MOCK_STUDENTS.find(s => s.id === MOCK_USER_ID);
+      if (student) studentName = `${student.firstName} ${student.lastName}`;
+    }
+
+    return {
+      courseId:        entry.course.id,
+      courseTitle:     entry.course.title,
+      studentName,
+      completedAt:     cert.issuedAt,
+      certificateId:   `CERT-${entry.course.id.slice(0, 8).toUpperCase()}`,
+      instructorName:  entry.course.instructorName,
+      institutionName: 'GEMS LMS',
+    };
+  }
 
   readonly pendingTasks = computed((): IPendingTask[] =>
     MOCK_PENDING_TASKS.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())

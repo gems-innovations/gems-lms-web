@@ -150,21 +150,13 @@
         <!-- ─── MARKDOWN ──────────────────────────────────── -->
         @if (selectedType() === EContentType.DOCUMENT) {
           <div class="cbm__section">
-            <div class="cbm__md-header">
-              <h3 class="cbm__section-title">Contenido Markdown</h3>
-              <button class="cbm__preview-btn" (click)="markdownPreview.set(!markdownPreview())">
-                {{ markdownPreview() ? 'Editar' : 'Vista previa' }}
-              </button>
-            </div>
-            @if (!markdownPreview()) {
-              <textarea class="cbm__textarea cbm__textarea--lg" placeholder="# Título&#10;&#10;Escribe tu contenido en **Markdown**…&#10;&#10;- Lista item&#10;- Otro item"
-                [ngModel]="markdownContent()" (ngModelChange)="markdownContent.set($event)"></textarea>
-              <p class="cbm__hint">Soporta Markdown estándar: **negrita**, *cursiva*, # encabezados, listas, código, tablas.</p>
-            } @else {
-              <div class="cbm__md-preview">
-                <pre class="cbm__md-pre">{{ markdownContent() || '(sin contenido)' }}</pre>
-              </div>
-            }
+            <h3 class="cbm__section-title">Contenido del Documento</h3>
+            <lib-markdown-editor
+              placeholder="# Título del documento&#10;&#10;Escribe aquí el contenido en **Markdown**…&#10;&#10;- Soporta listas, tablas, código y más."
+              [rows]="16"
+              [ngModel]="markdownContent()"
+              (ngModelChange)="markdownContent.set($event)"
+            />
           </div>
         }
 
@@ -343,11 +335,12 @@
             <h3 class="cbm__section-title">Detalles de la Tarea</h3>
             <div class="cbm__field">
               <label class="cbm__label">Instrucciones <span class="cbm__req">*</span></label>
-              <textarea class="cbm__textarea cbm__textarea--lg"
-                placeholder="Describe qué deben entregar los estudiantes, criterios, formato…"
+              <lib-markdown-editor
+                placeholder="## Descripción de la tarea&#10;&#10;Describe qué deben entregar, criterios de evaluación y formato esperado…"
+                [rows]="12"
                 [ngModel]="assignmentInstructions()"
-                (ngModelChange)="assignmentInstructions.set($event)"></textarea>
-              <p class="cbm__hint">Soporta Markdown para formato enriquecido.</p>
+                (ngModelChange)="assignmentInstructions.set($event)"
+              />
             </div>
             <div class="cbm__field cbm__field--sm">
               <label class="cbm__label">Puntaje máximo</label>

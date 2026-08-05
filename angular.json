@@ -210,6 +210,32 @@
         }
       }
     },
+    "instructor": {
+      "projectType": "library",
+      "root": "projects/instructor",
+      "sourceRoot": "projects/instructor/src",
+      "prefix": "ins",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss",
+          "skipTests": true
+        }
+      },
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/instructor/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/instructor/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        }
+      }
+    },
     "education": {
       "projectType": "library",
       "root": "projects/education",

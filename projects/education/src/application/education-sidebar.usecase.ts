@@ -23,14 +23,12 @@ export class EducationSidebarUseCase {
     const items: NavigationItem[] = [
       { id: 'courses',        label: 'Cursos',               icon: 'courses',        route: '/education/courses' },
       { id: 'learning-paths', label: 'Rutas de Aprendizaje', icon: 'learning-paths', route: '/education/learning-paths' },
-      { id: 'instructor',     label: 'Panel Instructor',     icon: 'home',           route: '/education/instructor' }
     ];
 
     if (role === EUserRole.ADMIN || role === EUserRole.SUPER_ADMIN) {
       items.push({ id: 'enrollments', label: 'Matrículas', icon: 'home', route: '/education/enrollments' });
     }
 
-    items.push({ id: 'preview', label: 'Vista Estudiante', icon: 'home', route: '/learn/home' });
     return items;
   });
 

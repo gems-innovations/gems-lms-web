@@ -139,6 +139,14 @@
                 <span>{{ uc.formatDuration(block.duration) }}</span>
                 @if (block.isRequired) { <span class="cpanel__required-tag">Requerido</span> }
               </div>
+              <button class="cpanel__preview-btn" type="button" title="Vista previa del player"
+                      (click)="openPreview(block)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                Vista previa
+              </button>
             </div>
           }
 
@@ -161,6 +169,13 @@
       [lessonId]="blockModalLessonId()!"
       (onClose)="closeBlockModal()"
       (onSave)="saveBlock($event)"
+    />
+  }
+
+  @if (previewBlock()) {
+    <edu-course-player-preview
+      [block]="previewBlock()"
+      (close)="closePreview()"
     />
   }
 }

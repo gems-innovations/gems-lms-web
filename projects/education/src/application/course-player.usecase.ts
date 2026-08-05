@@ -5,18 +5,21 @@ import { ILesson } from '../domain/model/course.model';
 import { ICourseCertificate } from '../domain/model/player.model';
 import { AuthSessionService } from 'auth';
 import { MOCK_STUDENTS, MOCK_USER_ID } from '../infrastructure/services/enrollment.service';
+import { SurveyService } from '../infrastructure/services/survey.service';
 
 @Injectable({ providedIn: 'root' })
 export class CoursePlayerUseCase {
   private readonly courseUc     = inject(CourseUseCase);
   private readonly enrollmentUc = inject(EnrollmentUseCase);
   private readonly authSession  = inject(AuthSessionService);
+  private readonly surveyService = inject(SurveyService);
 
   //#region State
   private readonly _courseId         = signal<string | null>(null);
   private readonly _selectedLessonId = signal<string | null>(null);
   private readonly _selectedBlockIdx = signal(0);
   private readonly _completedBlockIds = signal<Set<string>>(new Set());
+  private readonly _hasSurvey        = signal(false);
 
   private _initialLessonId: string | null = null;
   private _initialBlockId:  string | null = null;
@@ -24,6 +27,7 @@ export class CoursePlayerUseCase {
 
   //#region Computed
   readonly courseId         = computed(() => this._courseId());
+  readonly hasSurvey        = computed(() => this._hasSurvey());
   readonly selectedLessonId = computed(() => this._selectedLessonId());
   readonly selectedBlockIdx = computed(() => this._selectedBlockIdx());
   readonly completedBlockIds = computed(() => this._completedBlockIds());
@@ -87,6 +91,9 @@ export class CoursePlayerUseCase {
     return idx >= 0 && idx < all.length - 1;
   });
 
+  // El estudiante está en el último bloque del curso (no hay siguiente).
+  readonly isCourseEnd = computed(() => !this.hasNextBlock() && !this.hasNextLesson());
+
   readonly courseProgress = computed(() => {
     const c = this.course();
     if (!c) return 0;
@@ -94,6 +101,9 @@ export class CoursePlayerUseCase {
     if (!totalBlocks) return 0;
     return Math.round((this._completedBlockIds().size / totalBlocks) * 100);
   });
+
+  // La encuesta solo se habilita cuando el estudiante culmina el curso (100% de avance).
+  readonly surveyEnabled = computed(() => this.hasSurvey() && this.courseProgress() === 100);
 
   readonly isBlockComplete = computed(() => {
     const b = this.selectedBlock();
@@ -263,6 +273,8 @@ export class CoursePlayerUseCase {
     this._selectedLessonId.set(null);
     this._selectedBlockIdx.set(0);
     this._completedBlockIds.set(new Set());
+    this._hasSurvey.set(false);
+    this.surveyService.getSurvey(courseId).subscribe(s => this._hasSurvey.set(!!s && s.isPublished));
     this._initialLessonId = initialLessonId ?? null;
     this._initialBlockId  = initialBlockId  ?? null;
     // Seed immediately from cache if available

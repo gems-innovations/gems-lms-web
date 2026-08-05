@@ -1,0 +1,103 @@
+<lib-page>
+  <lib-back-button label="Mi aprendizaje" (back)="goBack()" />
+
+  @if (uc.isLoading()) {
+    <lib-loading-skeleton [rows]="4" />
+  } @else if (uc.submitted()) {
+    <lib-empty-state
+      title="¡Gracias por tu retroalimentación!"
+      description="Tus respuestas se enviaron correctamente y ayudarán a mejorar el curso."
+      actionLabel="Volver a mi aprendizaje"
+      (action)="goBack()"
+    />
+  } @else if (!uc.survey()) {
+    <lib-empty-state
+      title="Sin encuesta disponible"
+      description="Este curso no tiene una encuesta de retroalimentación publicada."
+    />
+  } @else if (uc.survey(); as survey) {
+    <lib-page-header eyebrow="Retroalimentación" [title]="survey.title" [subtitle]="survey.description ?? ''" />
+
+    <div class="csv">
+      <!-- Stepper de secciones -->
+      <div class="csv__stepper">
+        @for (section of uc.sections(); track section.id; let i = $index) {
+          <button
+            type="button"
+            class="csv__step"
+            [class.csv__step--active]="i === uc.sectionIndex()"
+            [class.csv__step--done]="uc.completedSections().has(i) && i !== uc.sectionIndex()"
+            [class.csv__step--locked]="!canJumpTo(i)"
+            [disabled]="!canJumpTo(i)"
+            (click)="uc.goToSection(i)"
+          >
+            <span class="csv__step-dot">
+              @if (uc.completedSections().has(i) && i !== uc.sectionIndex()) {
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              } @else {
+                {{ i + 1 }}
+              }
+            </span>
+            <span class="csv__step-label">{{ section.title }}</span>
+          </button>
+          @if (!$last) { <span class="csv__step-line" [class.csv__step-line--done]="uc.completedSections().has(i)"></span> }
+        }
+      </div>
+
+      @if (uc.currentSection(); as section) {
+        <div class="csv__section">
+          <h2 class="csv__section-title">{{ section.title }}</h2>
+          @if (section.description) { <p class="csv__section-desc">{{ section.description }}</p> }
+
+          @for (q of section.questions; track q.id) {
+            <div class="csv__question">
+              <span class="csv__q-label">
+                {{ q.label }}
+                @if (q.type === 'scale') { <span class="csv__q-required">*</span> }
+              </span>
+
+              @if (q.type === 'scale') {
+                <div class="csv__scale">
+                  @for (v of scaleValues; track v) {
+                    <button type="button" class="csv__scale-btn"
+                            [class]="scaleBtnClass(v, uc.answers()[q.id])"
+                            (click)="uc.setAnswer(q.id, v)">{{ v }}</button>
+                  }
+                </div>
+                <div class="csv__scale-hint">
+                  <span>1 · Muy en desacuerdo</span>
+                  <span>10 · Muy de acuerdo</span>
+                </div>
+              } @else {
+                <textarea class="csv__textarea" rows="4"
+                          placeholder="Escribe tu respuesta o recomendación… (opcional)"
+                          [value]="asString(uc.answers()[q.id])"
+                          (input)="uc.setAnswer(q.id, $any($event.target).value)"></textarea>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Navigation -->
+      <div class="csv__nav">
+        <lib-button variant="ghost" [disabled]="uc.isFirst()" (clicked)="uc.prev()">Anterior</lib-button>
+
+        <div class="csv__nav-right">
+          @if (!uc.currentSectionAnswered()) {
+            <span class="csv__hint">Responde todas las preguntas para continuar</span>
+          }
+          @if (uc.isLast()) {
+            <lib-button variant="primary" [disabled]="!uc.currentSectionAnswered()" [loading]="uc.isSubmitting()" (clicked)="uc.submit()">
+              Enviar respuestas
+            </lib-button>
+          } @else {
+            <lib-button variant="primary" [disabled]="!uc.currentSectionAnswered()" (clicked)="uc.next()">Siguiente</lib-button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</lib-page>

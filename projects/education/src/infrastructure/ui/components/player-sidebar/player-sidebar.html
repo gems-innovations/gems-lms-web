@@ -164,6 +164,41 @@
           </div>
         }
       </div>
+
+      <!-- Encuesta de retroalimentación: elemento final del curso (deshabilitada hasta culminar el curso) -->
+      @if (hasSurvey()) {
+        <button
+          type="button"
+          class="psidebar__survey"
+          [class.psidebar__survey--locked]="!surveyUnlocked()"
+          [disabled]="!surveyUnlocked()"
+          (click)="surveyClick.emit()"
+        >
+          <span class="psidebar__survey-icon">
+            @if (surveyUnlocked()) {
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            } @else {
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            }
+          </span>
+          <span class="psidebar__survey-text">
+            <span class="psidebar__survey-title">Encuesta de retroalimentación</span>
+            <span class="psidebar__survey-sub">
+              {{ surveyUnlocked() ? 'Cuéntanos tu experiencia' : 'Disponible al finalizar el curso' }}
+            </span>
+          </span>
+          @if (surveyUnlocked()) {
+            <svg class="psidebar__survey-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          }
+        </button>
+      }
     </nav>
 
 </aside>

@@ -158,16 +158,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .cpcard__last-access {
   font-size: 0.7rem;
   color: var(--color-texto-terciario);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .cpcard__continue-btn {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 0.35rem;
   padding: 0.3rem 0.875rem;
   font-size: 0.75rem;

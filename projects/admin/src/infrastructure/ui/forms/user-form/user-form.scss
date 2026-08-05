@@ -2,41 +2,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
-  padding: var(--spacing-xl);
-  background: var(--color-superficie);
-  border: 1px solid var(--color-borde-principal);
-  border-radius: var(--border-radius-lg);
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    h3 {
-      font-size: var(--font-size-base);
-      font-weight: var(--font-weight-semibold);
-      color: var(--color-texto-principal);
-    }
-  }
-
-  &__close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    color: var(--color-texto-secundario);
-    background: transparent;
-    border: none;
-    border-radius: var(--border-radius-sm);
-    transition: color var(--transition-fast) var(--transition-easing),
-      background var(--transition-fast) var(--transition-easing);
-
-    &:hover {
-      color: var(--color-texto-principal);
-      background: var(--color-tarjeta-hover);
-    }
-  }
 
   &__form {
     display: flex;

@@ -1,0 +1,56 @@
+<div class="preview-overlay" (click)="close.emit()">
+  <div class="preview-modal" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <header class="preview-modal__header">
+      <div class="preview-modal__header-left">
+        <div class="preview-modal__tag">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          Vista previa del player
+        </div>
+        @if (block()) {
+          <h2 class="preview-modal__title">{{ block()!.title }}</h2>
+        }
+      </div>
+      <button type="button" class="preview-modal__close" (click)="close.emit()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Player preview area -->
+    <div class="preview-modal__body">
+      @if (block()) {
+        <edu-player-content-block
+          [block]="block()"
+          [isLocked]="false"
+          [isComplete]="false"
+          [isSubmitting]="false"
+          [quizAttemptCount]="0"
+          [forceSubmitTrigger]="0"
+          [lastQuizResult]="null"
+          [assignmentSubmission]="null"
+          [courseId]="'preview'"
+          [lessonId]="'preview'"
+        />
+      } @else {
+        <div class="preview-modal__empty">
+          Selecciona un bloque de contenido en el editor para ver la vista previa.
+        </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <footer class="preview-modal__footer">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      Esta es una vista previa. El estudiante verá exactamente este contenido al tomar el curso.
+      Las interacciones (quiz, entrega) no guardan datos reales.
+    </footer>
+  </div>
+</div>

@@ -11,11 +11,11 @@ export const routes: Routes = [
   // ── Auth ───────────────────────────────────────────────────────────────
   {
     path: 'auth',
-    canActivate: [loginRedirectGuard], // already logged in? → go to role home
-    loadChildren: () => import('auth').then(m => m.routes) 
+    canActivate: [loginRedirectGuard],
+    loadChildren: () => import('auth').then(m => m.routes)
   },
 
-  // ── Admin panel (super_admin + admin + instructor for preview) ─────────
+  // ── Admin panel ────────────────────────────────────────────────────────
   {
     path: 'admin',
     canActivate: [authGuard, roleGuard([
@@ -24,20 +24,44 @@ export const routes: Routes = [
     loadChildren: () => import('admin').then(m => m.routes)
   },
 
-  // ── Course authoring (instructor and above) ────────────────────────────
+  // ── Course authoring (admin/instructor) ──────────────────────────────────
   {
     path: 'education',
     canActivate: [authGuard, roleGuard([
       EUserRole.SUPER_ADMIN, EUserRole.ADMIN, EUserRole.INSTRUCTOR
     ])],
-    loadChildren: () => import('education').then(m => m.routes)
+    loadComponent: () => import('education').then(m => m.EducationLayout),
+    children: [
+      {
+        path: '',
+        outlet: 'sidebar',
+        loadComponent: () => import('education').then(m => m.EducationSidebarContainer)
+      },
+      {
+        path: '',
+        loadChildren: () => import('education').then(m => m.educationChildRoutes)
+      }
+    ]
   },
 
-  // ── Student learning zone (all authenticated roles) ────────────────────
+  // ── Student zone (StudentLayout) ─────────────────────────────────────────
   {
     path: 'learn',
     canActivate: [authGuard],
-    loadChildren: () => import('education').then(m => m.studentRoutes)
+    loadComponent: () => import('education').then(m => m.StudentLayout),
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('education').then(m => m.studentChildRoutes)
+      }
+    ]
+  },
+
+  // ── Panel del instructor (layout y sidebar propios) ──────────────────────
+  {
+    path: 'instructor',
+    canActivate: [authGuard, roleGuard([EUserRole.SUPER_ADMIN, EUserRole.ADMIN, EUserRole.INSTRUCTOR])],
+    loadChildren: () => import('instructor').then(m => m.instructorRoutes)
   },
 
   { path: '**', redirectTo: 'auth/signin' }

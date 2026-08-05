@@ -4,8 +4,7 @@ import {
   EmptyStateComponent,
   LibButtonComponent,
   LoadingSkeletonComponent,
-  PageComponent,
-  PageHeaderComponent
+  ModalBaseComponent,
 } from 'shared';
 import { AdminUserManagementUseCase, ICreateUserForm } from '../../../../application/admin-user-management.usecase';
 import { UserForm } from '../../forms/user-form/user-form';
@@ -16,18 +15,18 @@ import { UserList } from '../../components/user-list/user-list';
 @Component({
   selector: 'adm-user-management-container',
   imports: [
-    PageComponent,
-    PageHeaderComponent,
     LibButtonComponent,
     LoadingSkeletonComponent,
     EmptyStateComponent,
     ConfirmationDialogComponent,
+    ModalBaseComponent,
     UserForm,
     UserImportPanel,
     UserStatsChips,
     UserList
   ],
-  templateUrl: './user-management-container.html'
+  templateUrl: './user-management-container.html',
+  styleUrl: './user-management-container.scss',
 })
 export class UserManagementContainer implements OnInit {
   protected readonly uc = inject(AdminUserManagementUseCase);

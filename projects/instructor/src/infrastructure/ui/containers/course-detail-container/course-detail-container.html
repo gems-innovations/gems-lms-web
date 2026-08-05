@@ -1,0 +1,124 @@
+<lib-page width="full">
+  @if (uc.isLoading()) {
+    <lib-loading-skeleton [rows]="5" />
+  } @else if (uc.course(); as course) {
+
+    <lib-back-button label="Mis cursos" (back)="backToCourses()" />
+
+    <lib-page-header eyebrow="Curso" [title]="course.title" [subtitle]="course.description">
+      <div class="ins-detail__group-select">
+        <lib-select
+          [options]="groupOptions()"
+          [value]="groupId()"
+          (valueChange)="changeGroup($event)"
+          placeholder="Seleccionar grupo…"
+        />
+      </div>
+      <lib-button variant="outline" [icon]="'edit'" (clicked)="editContent()">
+        <svg slot="icon-left" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+        Editar contenido
+      </lib-button>
+    </lib-page-header>
+
+    <div class="ins-detail__tabs">
+      <lib-tabs
+        [tabs]="[
+          { id: 'overview', label: 'Resumen' },
+          { id: 'students', label: 'Estudiantes', count: uc.stats().studentCount },
+          { id: 'submissions', label: 'Entregas', count: uc.stats().pendingCount },
+          { id: 'reviews', label: 'Reseñas', count: uc.reviews().length },
+          { id: 'survey', label: 'Encuesta', count: surveyUc.responseCount() }
+        ]"
+        [activeId]="uc.activeTab()"
+        (activeIdChange)="setTab($event)"
+      />
+    </div>
+
+    <!-- ── Resumen ── -->
+    @if (uc.activeTab() === 'overview') {
+      <lib-stat-grid>
+        <lib-stat-card [value]="uc.stats().studentCount.toString()" label="Estudiantes" accent="primary" />
+        <lib-stat-card [value]="uc.stats().avgProgress + '%'" label="Avance promedio" accent="teal" />
+        <lib-stat-card [value]="(uc.stats().avgGrade ?? '—').toString()" label="Nota promedio" accent="success" />
+        <lib-stat-card [value]="uc.stats().pendingCount.toString()" label="Por calificar" accent="warning" />
+      </lib-stat-grid>
+
+      <div class="ins-detail__meta">
+        <div class="ins-detail__meta-item">
+          <span class="ins-detail__meta-label">Valoración</span>
+          <span class="ins-detail__meta-value">
+            {{ course.averageRating ? (course.averageRating | number:'1.1-1') : '—' }}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="ins-detail__star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
+        </div>
+        <div class="ins-detail__meta-item">
+          <span class="ins-detail__meta-label">Tasa de finalización</span>
+          <span class="ins-detail__meta-value">{{ course.completionRate }}%</span>
+        </div>
+        <div class="ins-detail__meta-item">
+          <span class="ins-detail__meta-label">Lecciones</span>
+          <span class="ins-detail__meta-value">{{ course.totalLessons }}</span>
+        </div>
+        <div class="ins-detail__meta-item">
+          <span class="ins-detail__meta-label">Matriculados (total)</span>
+          <span class="ins-detail__meta-value">{{ course.enrolledCount | number }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- ── Estudiantes (con drill-in) ── -->
+    @if (uc.activeTab() === 'students') {
+      @if (uc.selectedStudent(); as student) {
+        <ins-student-detail
+          [enrollment]="student"
+          [gradeRows]="uc.studentGradeRows()"
+          [radar]="uc.studentRadar()"
+          [courseTitle]="course.title"
+          (back)="uc.clearStudent()"
+        />
+      } @else {
+        <ins-students-table
+          [enrollments]="uc.enrollments()"
+          (selectStudent)="uc.selectStudent($event)"
+          (exportExcel)="exportExcel()"
+        />
+      }
+    }
+
+    <!-- ── Entregas ── -->
+    @if (uc.activeTab() === 'submissions') {
+      <ins-grading-panel
+        [assignments]="uc.assignments()"
+        [selectedAssignment]="uc.selectedAssignment()"
+        [submissions]="uc.blockSubmissions()"
+        [selectedSubmission]="uc.selectedSubmission()"
+        [nonSubmitters]="uc.nonSubmitters()"
+        (selectAssignment)="uc.openAssignment($event)"
+        (backToAssignments)="uc.backToAssignments()"
+        (selectSubmission)="openSubmission($event)"
+        (backToSubmissions)="uc.backToSubmissionList()"
+        (gradeSubmit)="grade($event)"
+      />
+    }
+
+    <!-- ── Reseñas ── -->
+    @if (uc.activeTab() === 'reviews') {
+      @if (uc.reviews().length === 0) {
+        <lib-empty-state title="Sin reseñas" description="Este curso aún no tiene reseñas de estudiantes." />
+      } @else {
+        <div class="ins-detail__reviews">
+          @for (review of uc.reviews(); track review.id) {
+            <ins-review-card [review]="review" />
+          }
+        </div>
+      }
+    }
+
+    <!-- ── Encuesta ── -->
+    @if (uc.activeTab() === 'survey') {
+      <ins-survey-panel />
+    }
+  }
+</lib-page>

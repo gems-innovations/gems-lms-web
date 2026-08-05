@@ -5,7 +5,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: 0 var(--spacing-md);
-  background: var(--color-superficie-elevada);
+  background: var(--color-superficie-alta);
   border: 1px solid var(--color-borde-principal);
   border-radius: var(--border-radius-md);
   color: var(--color-texto-terciario);
@@ -35,7 +35,7 @@
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  background: var(--color-superficie-elevada);
+  background: var(--color-superficie-alta);
   border: 1px solid var(--color-borde-sutil);
   border-radius: var(--border-radius-md);
   box-shadow: var(--sombra-lg, 0 8px 24px rgba(0,0,0,.3));
@@ -60,7 +60,7 @@
   text-align: left;
   transition: background var(--transition-fast);
 
-  &:hover { background: var(--color-superficie-hover); }
+  &:hover { background: var(--color-tarjeta-hover); }
 
   &--selected {
     background: color-mix(in srgb, var(--color-primario) 10%, transparent);

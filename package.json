@@ -6,7 +6,7 @@
     "start": "npm run build:all && ng s",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "build:all": "ng build shared && ng build auth && ng build education && ng build admin",
+    "build:all": "ng build shared && ng build auth && ng build education && ng build instructor && ng build admin",
     "test": "ng test",
     "serve:ssr:main": "node dist/main/server/server.mjs"
   },

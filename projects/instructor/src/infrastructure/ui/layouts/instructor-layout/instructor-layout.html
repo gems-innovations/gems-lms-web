@@ -1,0 +1,18 @@
+<div class="ilayout">
+
+  <lib-app-sidebar
+    brandRoute="/instructor/courses"
+    storageKey="gems-il-collapsed"
+    [menuItems]="menuItems"
+    [userProfile]="userProfile()"
+    (onLogout)="logout()"
+  />
+
+  <!-- ── Main content ─────────────────────────────────────────────────────── -->
+  <main class="ilayout__main" [class.ilayout__main--full]="isFullWidthRoute()">
+    <div class="ilayout__inner" [class.ilayout__inner--full]="isFullWidthRoute()">
+      <router-outlet />
+    </div>
+  </main>
+
+</div>

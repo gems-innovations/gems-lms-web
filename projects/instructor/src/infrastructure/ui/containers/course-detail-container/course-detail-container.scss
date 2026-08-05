@@ -1,0 +1,44 @@
+.ins-detail__tabs {
+  margin-bottom: var(--spacing-xl);
+}
+
+.ins-detail__group-select {
+  width: 220px;
+}
+
+.ins-detail__reviews {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.ins-detail__meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  background: var(--color-tarjeta);
+  border: 1px solid var(--color-borde-sutil);
+  border-radius: var(--border-radius-lg);
+
+  &-item { display: flex; flex-direction: column; gap: 4px; }
+
+  &-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-texto-terciario);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-texto-principal);
+  }
+}
+
+.ins-detail__star { color: var(--color-advertencia); }

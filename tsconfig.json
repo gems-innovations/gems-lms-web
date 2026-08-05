@@ -21,8 +21,14 @@
       "education": [
         "./dist/education"
       ],
+      "instructor": [
+        "./dist/instructor"
+      ],
       "shared": [
         "./dist/shared"
+      ],
+      "@gems-lms-web/instructor": [
+        "./dist/instructor"
       ],
       "@gems-lms-web/admin": [
         "./dist/admin"
@@ -79,6 +85,9 @@
     },
     {
       "path": "./projects/education/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/instructor/tsconfig.lib.json"
     }
   ]
 }

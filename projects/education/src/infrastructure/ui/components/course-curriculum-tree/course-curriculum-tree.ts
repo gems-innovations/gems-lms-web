@@ -1,11 +1,12 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { AutofocusDirective } from 'shared';
 import { CourseEditorUseCase } from '../../../../application/course-editor.usecase';
 
 @Component({
   selector: 'edu-course-curriculum-tree',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, AutofocusDirective],
   templateUrl: './course-curriculum-tree.html',
   styleUrl: './course-curriculum-tree.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

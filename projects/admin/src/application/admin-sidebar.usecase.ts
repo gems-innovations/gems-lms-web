@@ -21,7 +21,7 @@ export class AdminSidebarUseCase {
     if (role === EUserRole.ADMIN) {
       return [
         { id: 'dashboard',   label: 'Mi Institución', icon: 'dashboard', route: '/admin/dashboard' },
-        { id: 'users',       label: 'Usuarios',        icon: 'users',     route: '/admin/users' },
+        { id: 'people',      label: 'Personas',        icon: 'users',     route: '/admin/people' },
         { id: 'enrollments', label: 'Matrículas',      icon: 'courses',   route: '/admin/enrollments' }
       ];
     }
@@ -32,6 +32,8 @@ export class AdminSidebarUseCase {
     }
     return [];
   });
+
+  readonly homeRoute = computed<string>(() => this.menuItems()[0]?.route ?? '/admin/dashboard');
 
   readonly userProfile = computed<UserProfile | null>(() => {
     const u = this.user();

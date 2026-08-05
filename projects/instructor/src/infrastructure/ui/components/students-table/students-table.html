@@ -1,0 +1,73 @@
+@if (enrollments().length === 0) {
+  <lib-empty-state
+    title="Sin estudiantes"
+    description="No hay estudiantes matriculados en este curso."
+  />
+} @else {
+  <div class="stable__toolbar">
+    <div class="stable__search">
+      <lib-search-bar placeholder="Buscar estudiante…" (search)="onSearch($event)" (clear)="onSearch('')" />
+    </div>
+    <lib-button variant="outline" [icon]="'xls'" (clicked)="exportExcel.emit()">
+      <svg slot="icon-left" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        <line x1="9" y1="15" x2="15" y2="15"/>
+      </svg>
+      Exportar Excel
+    </lib-button>
+  </div>
+
+  @if (filtered().length === 0) {
+    <lib-empty-state title="Sin resultados" description="Ningún estudiante coincide con la búsqueda." />
+  } @else {
+    <div class="stable__wrap">
+      <table class="stable__table">
+        <thead>
+          <tr>
+            <th>Estudiante</th>
+            <th>Progreso</th>
+            <th>Estado</th>
+            <th>Inscrito</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (enr of paged(); track enr.id) {
+            <tr class="stable__row" (click)="selectStudent.emit(enr.student.id)">
+              <td>
+                <div class="stable__student">
+                  <lib-avatar [name]="enr.student.firstName + ' ' + enr.student.lastName" size="sm" />
+                  <div>
+                    <div class="stable__name">{{ enr.student.firstName }} {{ enr.student.lastName }}</div>
+                    <div class="stable__email">{{ enr.student.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="stable__progress">
+                  <lib-progress-bar
+                    [value]="enr.progress?.overallPercentage ?? 0"
+                    size="sm" variant="primary" [showLabel]="true"
+                  />
+                </div>
+              </td>
+              <td>
+                <lib-badge [variant]="statusVariant(enr.status)" size="sm">
+                  {{ statusLabel(enr.status) }}
+                </lib-badge>
+              </td>
+              <td class="stable__date">{{ enr.enrolledAt | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <svg class="stable__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <lib-pagination [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)" />
+  }
+}

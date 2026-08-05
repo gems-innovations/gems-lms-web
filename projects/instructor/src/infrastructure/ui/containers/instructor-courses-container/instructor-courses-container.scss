@@ -1,0 +1,22 @@
+.ins-courses__toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.ins-courses__search {
+  flex: 1;
+  min-width: 220px;
+  max-width: 360px;
+}
+
+.ins-courses__filters {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+
+  lib-select { min-width: 180px; }
+}

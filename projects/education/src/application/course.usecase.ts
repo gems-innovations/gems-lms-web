@@ -173,12 +173,14 @@ export class CourseUseCase {
     this.addModule$.pipe(
       switchMap(req =>
         this.courseService.addModule(req).pipe(
-          tap(mod => {
+          tap(() => {
+            // El servicio (mock) ya hizo push del módulo en course.modules; aquí
+            // solo refrescamos el estado. No re-agregar para evitar duplicados.
             const course = this.courses().find(c => c.id === req.courseId);
             if (course) {
-              this.courseState.updateCourse({ ...course, modules: [...course.modules, mod], updatedAt: new Date() });
+              this.courseState.updateCourse({ ...course, updatedAt: new Date() });
               if (this.selectedCourse()?.id === course.id) {
-                this.courseState.setSelectedCourse({ ...course, modules: [...course.modules, mod] });
+                this.courseState.setSelectedCourse({ ...course });
               }
             }
             this.toastService.success('Módulo añadido');

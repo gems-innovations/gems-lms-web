@@ -1,0 +1,70 @@
+<article class="icard" tabindex="0"
+         (click)="open.emit(summary())"
+         (keydown.enter)="open.emit(summary())">
+
+  <!-- Thumbnail -->
+  <div class="icard__thumb"
+       [style.backgroundImage]="summary().course.thumbnailUrl ? 'url(' + summary().course.thumbnailUrl + ')' : ''">
+    <div class="icard__thumb-overlay"></div>
+
+    @if (!summary().course.thumbnailUrl) {
+      <div class="icard__thumb-placeholder">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+      </div>
+    }
+
+    @if (summary().stats.pendingCount > 0) {
+      <span class="icard__badge">
+        <lib-badge variant="warning" size="sm">{{ summary().stats.pendingCount }} por calificar</lib-badge>
+      </span>
+    }
+  </div>
+
+  <!-- Body -->
+  <div class="icard__body">
+    <span class="icard__group">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      {{ summary().groupCount }} {{ summary().groupCount === 1 ? 'grupo' : 'grupos' }}
+    </span>
+    <h3 class="icard__title">{{ summary().course.title }}</h3>
+    <p class="icard__desc">{{ summary().course.description }}</p>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="icard__stats">
+    <div class="icard__stat">
+      <span class="icard__stat-value">{{ summary().stats.studentCount }}</span>
+      <span class="icard__stat-label">Estudiantes</span>
+    </div>
+    <div class="icard__stat">
+      <span class="icard__stat-value">{{ summary().stats.avgProgress }}%</span>
+      <span class="icard__stat-label">Avance</span>
+    </div>
+    <div class="icard__stat">
+      <span class="icard__stat-value">
+        {{ summary().course.averageRating ? (summary().course.averageRating | number:'1.1-1') : '—' }}
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" class="icard__star">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </span>
+      <span class="icard__stat-label">Valoración</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="icard__footer">
+    <span class="icard__link">
+      Ver grupos
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </span>
+  </footer>
+
+</article>

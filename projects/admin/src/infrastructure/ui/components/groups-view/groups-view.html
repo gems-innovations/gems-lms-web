@@ -1,0 +1,215 @@
+<div class="groups">
+
+  @if (uc.result(); as msg) {
+    <div class="groups__toast">{{ msg }}</div>
+  }
+
+  @if (uc.isLoading()) {
+    <lib-loading-skeleton [rows]="6" />
+  } @else {
+
+    <div class="groups__toolbar">
+      <div class="groups__search">
+        <lib-search-bar placeholder="Buscar grupo, instructor o curso…" (search)="onSearch($event)" (clear)="onSearch('')" />
+      </div>
+      <lib-button variant="primary" [icon]="'add'" (clicked)="openCreate()">
+        <svg slot="icon-left" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Crear grupo
+      </lib-button>
+    </div>
+
+    <!-- ── Lista de grupos ── -->
+    @if (uc.groups().length === 0) {
+      <lib-empty-state title="Sin grupos" description="Aún no has creado ningún grupo." />
+    } @else if (filteredGroups().length === 0) {
+      <lib-empty-state title="Sin resultados" description="Ningún grupo coincide con la búsqueda." />
+    } @else {
+      <div class="groups__grid">
+        @for (group of pagedGroups(); track group.id) {
+          <div class="groups__card">
+            <div class="groups__card-head">
+              <h3 class="groups__card-name">{{ group.name }}</h3>
+              <lib-badge variant="primary" size="sm">{{ group.studentIds.length }} estudiantes</lib-badge>
+            </div>
+
+            <div class="groups__card-row">
+              <lib-avatar [name]="uc.instructorName(group.instructorId)" size="xs" />
+              <span class="groups__card-instructor">{{ uc.instructorName(group.instructorId) }}</span>
+            </div>
+
+            @if (uc.courseTitles(group).length > 0) {
+              <div class="groups__card-courses">
+                @for (title of uc.courseTitles(group); track title) {
+                  <lib-badge variant="neutral" size="sm">{{ title }}</lib-badge>
+                }
+              </div>
+            } @else {
+              <p class="groups__card-empty">Sin cursos inscritos.</p>
+            }
+
+            <div class="groups__card-footer">
+              <lib-button variant="outline" (clicked)="openEdit(group.id)">
+                <svg slot="icon-left" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                Editar grupo
+              </lib-button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <lib-pagination [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)" />
+    }
+  }
+</div>
+
+<!-- ── Crear grupo (drawer) ── -->
+<lib-modal-base
+  [isOpen]="creating()"
+  title="Nuevo grupo"
+  size="medium"
+  [showFooter]="false"
+  (close)="cancelCreate()"
+>
+  <div class="groups__create">
+    <div class="groups__field">
+      <label class="groups__label">Nombre del grupo</label>
+      <input class="groups__input" type="text" placeholder="Ej: Grupo A — 2025-1"
+             [ngModel]="name()" (ngModelChange)="name.set($event)" />
+    </div>
+
+    <div class="groups__field">
+      <label class="groups__label">Instructor asignado</label>
+      <lib-select [options]="instructorOptions()" [value]="instructorId()" (valueChange)="instructorId.set($event)" />
+    </div>
+
+    <div class="groups__modes">
+      <button type="button" class="groups__mode" [class.groups__mode--active]="mode() === 'select'" (click)="mode.set('select')">
+        Seleccionar estudiantes
+      </button>
+      <button type="button" class="groups__mode" [class.groups__mode--active]="mode() === 'excel'" (click)="mode.set('excel')">
+        Importar Excel
+      </button>
+    </div>
+
+    @if (mode() === 'select') {
+      <edu-enroll-student-search
+        [students]="uc.students()"
+        [selectedIds]="selectedIds()"
+        (studentSelect)="toggleStudent($event.id)"
+      />
+      <p class="groups__hint">{{ selectedIds().size }} estudiante(s) seleccionado(s).</p>
+    } @else {
+      <div class="groups__excel">
+        <label class="groups__excel-drop">
+          <input type="file" accept=".xlsx,.xls" (change)="onFile($event)" hidden />
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <span>{{ fileName() || 'Subir archivo .xlsx (columnas: firstName, lastName, email)' }}</span>
+        </label>
+        @if (excelError()) { <p class="groups__error">{{ excelError() }}</p> }
+        @if (excelRows().length > 0) {
+          <p class="groups__hint">{{ excelRows().length }} estudiante(s) listos para crear e incluir.</p>
+        }
+      </div>
+    }
+
+    <div class="groups__create-actions">
+      <lib-button variant="ghost" (clicked)="cancelCreate()">Cancelar</lib-button>
+      <lib-button variant="primary" [disabled]="!canCreate()" (clicked)="create()">Crear grupo</lib-button>
+    </div>
+  </div>
+</lib-modal-base>
+
+<!-- ── Editar grupo (drawer) ── -->
+<lib-modal-base
+  [isOpen]="!!uc.editingGroup()"
+  [title]="uc.editingGroup()?.name ?? 'Editar grupo'"
+  size="large"
+  [showFooter]="false"
+  (close)="closeEdit()"
+>
+  @if (uc.editingGroup(); as group) {
+    <div class="groups__edit">
+      <div class="groups__field">
+        <label class="groups__label">Nombre del grupo</label>
+        <input class="groups__input" type="text"
+               [ngModel]="editName()" (ngModelChange)="editName.set($event)" (blur)="commitName()" />
+      </div>
+
+      <div class="groups__field">
+        <label class="groups__label">Instructor asignado</label>
+        <lib-select
+          [options]="instructorOptions()"
+          [value]="group.instructorId ?? ''"
+          (valueChange)="onEditInstructor($event)"
+        />
+      </div>
+
+      <div class="groups__field">
+        <label class="groups__label">Cursos inscritos</label>
+        @if (uc.courseTitles(group).length > 0) {
+          <div class="groups__chips">
+            @for (courseId of group.courseIds; track courseId) {
+              <span class="groups__chip">
+                {{ uc.courses().find(c => c.id === courseId)?.title ?? courseId }}
+                <button type="button" class="groups__chip-remove" (click)="onEditRemoveCourse(courseId)" aria-label="Quitar curso">×</button>
+              </span>
+            }
+          </div>
+        } @else {
+          <p class="groups__card-empty">Sin cursos inscritos.</p>
+        }
+        <lib-select
+          [options]="editCourseOptions()"
+          [value]="editAddCourse()"
+          (valueChange)="onEditAddCourse($event)"
+        />
+      </div>
+
+      <div class="groups__field">
+        <label class="groups__label">Estudiantes ({{ editStudents().length }})</label>
+        @if (editStudents().length > 0) {
+          <div class="groups__roster">
+            @for (student of editStudents(); track student.id) {
+              <div class="groups__roster-row">
+                <lib-avatar [name]="student.firstName + ' ' + student.lastName" size="xs" />
+                <div class="groups__roster-info">
+                  <span class="groups__roster-name">{{ student.firstName }} {{ student.lastName }}</span>
+                  <span class="groups__roster-email">{{ student.email }}</span>
+                </div>
+                <button type="button" class="groups__chip-remove" (click)="onEditRemoveStudent(student.id)" aria-label="Quitar estudiante">×</button>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="groups__card-empty">Sin estudiantes.</p>
+        }
+
+        <p class="groups__label groups__label--sub">Agregar estudiante existente</p>
+        <edu-enroll-student-search
+          [students]="uc.students()"
+          [selectedIds]="editStudentIds()"
+          (studentSelect)="onEditAddStudent($event)"
+        />
+
+        <p class="groups__label groups__label--sub">Importar desde Excel</p>
+        <label class="groups__excel-drop groups__excel-drop--compact">
+          <input type="file" accept=".xlsx,.xls" (change)="onEditFile($event)" hidden />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <span>{{ editFileName() || 'Subir archivo .xlsx (columnas: firstName, lastName, email)' }}</span>
+        </label>
+        @if (editExcelError()) { <p class="groups__error">{{ editExcelError() }}</p> }
+        <p class="groups__hint">
+          Si el correo ya existe se matricula al estudiante en el curso; si no, se crea y se agrega al grupo y al curso.
+        </p>
+      </div>
+    </div>
+  }
+</lib-modal-base>

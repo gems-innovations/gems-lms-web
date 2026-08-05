@@ -1,0 +1,74 @@
+<lib-back-button label="Estudiantes" (back)="back.emit()" />
+
+<div class="sdet">
+  <!-- Header card -->
+  <div class="sdet__card sdet__head">
+    <lib-avatar [name]="fullName()" size="lg" />
+    <div class="sdet__head-info">
+      <div class="sdet__name">{{ fullName() }}</div>
+      <div class="sdet__email">{{ enrollment().student.email }}</div>
+      <div class="sdet__progress">
+        <lib-progress-bar [value]="enrollment().progress?.overallPercentage ?? 0" size="sm" variant="primary" [showLabel]="true" />
+      </div>
+    </div>
+    <div class="sdet__head-grade">
+      @if (avgGrade() != null) {
+        <span class="sdet__avg" [class]="gradeClass(avgGrade())">{{ avgGrade() }}<span>/100</span></span>
+        <span class="sdet__avg-label">Nota promedio</span>
+      } @else {
+        <span class="sdet__avg sdet__avg--none">—</span>
+        <span class="sdet__avg-label">Sin notas</span>
+      }
+    </div>
+    <lib-button variant="outline" [icon]="'pdf'" [loading]="exporting()" (clicked)="exportPdf()">
+      <svg slot="icon-left" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+      </svg>
+      Exportar PDF
+    </lib-button>
+  </div>
+
+  <div class="sdet__grid">
+    <!-- Radar -->
+    <div class="sdet__card sdet__radar-card">
+      <h3 class="sdet__card-title">Notas vs promedio del grupo</h3>
+      @if (hasRadar()) {
+        <div #radarBox class="sdet__radar">
+          <lib-radar-chart [axes]="radar().axes" [series]="radarSeries()" [max]="100" />
+        </div>
+      } @else {
+        <lib-empty-state
+          title="Datos insuficientes"
+          description="Se necesitan al menos 3 evaluaciones calificadas para mostrar el radar comparativo."
+        />
+      }
+    </div>
+
+    <!-- Grades table -->
+    <div class="sdet__card sdet__grades-card">
+      <h3 class="sdet__card-title">Detalle de notas</h3>
+      <table class="sdet__table">
+        <thead>
+          <tr><th>Evaluación</th><th>Nota</th><th>Prom. grupo</th></tr>
+        </thead>
+        <tbody>
+          @for (row of gradeRows(); track row.blockId) {
+            <tr>
+              <td class="sdet__cell-title">{{ row.title }}</td>
+              <td>
+                @if (row.grade != null) {
+                  <span class="sdet__grade" [class]="gradeClass(row.grade)">{{ row.grade }}</span>
+                } @else {
+                  <lib-badge [variant]="row.status === 'missing' ? 'neutral' : 'warning'" size="sm">
+                    {{ statusLabel(row.status) }}
+                  </lib-badge>
+                }
+              </td>
+              <td class="sdet__group">{{ row.groupAvg != null ? row.groupAvg : '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

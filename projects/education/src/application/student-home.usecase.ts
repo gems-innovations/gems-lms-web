@@ -57,7 +57,7 @@ export class StudentHomeUseCase {
         thumbnailUrl: c.thumbnailUrl,
         tags: c.tags,
         duration: c.totalDuration,
-        meta: [c.instructorName, c.totalLessons ? `${c.totalLessons} lecciones` : ''].filter(Boolean).join(' · '),
+        meta: c.totalLessons ? `${c.totalLessons} lecciones` : '',
         difficulty: c.difficulty,
       }));
   });

@@ -17,9 +17,23 @@ export type { ConfirmationType } from "./infrastructure/ui/components/confirmati
 export { SidebarComponent } from "./infrastructure/ui/components/sidebar/sidebar.component";
 export type { NavigationItem, UserProfile } from "./infrastructure/ui/components/sidebar/sidebar.component";
 
+export { AppSidebarComponent } from "./infrastructure/ui/components/app-sidebar/app-sidebar.component";
+
 // ── UI primitives ────────────────────────────────────────────────────────────
 export { BadgeComponent } from "./infrastructure/ui/components/badge/badge.component";
 export type { BadgeVariant, BadgeSize } from "./infrastructure/ui/components/badge/badge.component";
+
+export { AvatarComponent } from "./infrastructure/ui/components/avatar/avatar.component";
+export type { AvatarSize } from "./infrastructure/ui/components/avatar/avatar.component";
+
+export { BackButtonComponent } from "./infrastructure/ui/components/back-button/back-button.component";
+
+export { PaginationComponent } from "./infrastructure/ui/components/pagination/pagination.component";
+
+export { AutofocusDirective } from "./infrastructure/ui/directives/autofocus.directive";
+
+export { RadarChartComponent } from "./infrastructure/ui/components/radar-chart/radar-chart.component";
+export type { IRadarSeries } from "./infrastructure/ui/components/radar-chart/radar-chart.component";
 
 export { PageHeaderComponent } from "./infrastructure/ui/components/page-header/page-header.component";
 
@@ -48,3 +62,5 @@ export type { PageWidth } from "./infrastructure/ui/components/page/page.compone
 export { ToolbarComponent } from "./infrastructure/ui/components/layout/toolbar.component";
 export { StatGridComponent } from "./infrastructure/ui/components/layout/stat-grid.component";
 export { CardGridComponent } from "./infrastructure/ui/components/layout/card-grid.component";
+
+export { MarkdownEditorComponent } from "./infrastructure/ui/components/markdown-editor/markdown-editor";

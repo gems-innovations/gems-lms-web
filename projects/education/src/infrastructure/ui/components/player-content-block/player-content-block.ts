@@ -6,6 +6,7 @@ import { DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MarkdownComponent } from 'ngx-markdown';
+import { MarkdownEditorComponent } from 'shared';
 import {
   IContentBlock, EContentType, IQuestion, IMultipleChoiceQuestion, ITrueFalseQuestion, IOpenQuestion
 } from '../../../../domain/model/course.model';
@@ -37,7 +38,7 @@ type QuizPhase = 'confirm' | 'taking' | 'result';
 @Component({
   selector: 'edu-player-content-block',
   standalone: true,
-  imports: [DecimalPipe, DatePipe, FormsModule, MarkdownComponent],
+  imports: [DecimalPipe, DatePipe, FormsModule, MarkdownComponent, MarkdownEditorComponent],
   templateUrl: './player-content-block.html',
   styleUrl: './player-content-block.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

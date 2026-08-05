@@ -43,26 +43,27 @@
       </a>
 
       @if (canAccessAdmin()) {
-        <button class="slayout__navlink" (click)="goToAdmin()" title="Panel">
+        <div class="slayout__divider"></div>
+        <a class="slayout__navlink" routerLink="/instructor" routerLinkActive="slayout__navlink--active" title="Gestión docente">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
-          <span class="slayout__navlink-label">Panel</span>
-        </button>
+          <span class="slayout__navlink-label">Gestión docente</span>
+        </a>
       }
     </nav>
 
 
     <!-- User section -->
     <div class="slayout__user">
-      <div class="slayout__avatar" [title]="(user()?.firstName ?? '') + ' ' + (user()?.lastName ?? '')">
-        @if (user()?.avatarUrl) {
-          <img [src]="user()!.avatarUrl" [alt]="user()!.firstName" class="slayout__avatar-img" />
-        } @else {
-          <span>{{ initials() }}</span>
-        }
-      </div>
+      <lib-avatar
+        [name]="(user()?.firstName ?? '') + ' ' + (user()?.lastName ?? '')"
+        [imageUrl]="user()?.avatarUrl"
+        size="xs"
+      />
       <div class="slayout__user-info">
         <span class="slayout__user-name">{{ user()?.firstName }} {{ user()?.lastName }}</span>
         <span class="slayout__user-role">Estudiante</span>

@@ -6,10 +6,11 @@
   background: var(--color-fondo-principal);
 
   &__sidebar {
-    // Width is managed by lib-sidebar's :host via transition
+    // Width la gestiona lib-app-sidebar internamente; overflow visible para
+    // que el botón de colapsar (que sobresale del borde) no se recorte.
     flex-shrink: 0;
     height: 100vh;
-    overflow: hidden;
+    overflow: visible;
     position: sticky;
     top: 0;
   }

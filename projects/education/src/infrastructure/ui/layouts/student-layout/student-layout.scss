@@ -128,6 +128,13 @@ $nav-closed:  60px;
 
   &__navlink-label { /* visible by default, hidden via collapsed modifier */ }
 
+  &__divider {
+    height: 1px;
+    background: var(--color-borde-principal);
+    margin: 6px 8px;
+    opacity: 0.5;
+  }
+
   &__toggle-btn {
     position: absolute;
     top: 18px;

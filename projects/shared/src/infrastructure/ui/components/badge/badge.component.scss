@@ -2,23 +2,52 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-weight: 600;
-  border-radius: 20px;
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--border-radius-full);
   white-space: nowrap;
   line-height: 1;
+  border: 1px solid transparent;
 
   // Sizes
-  &--sm { font-size: 10.5px; padding: 2px 7px; }
-  &--md { font-size: 11.5px; padding: 3px 10px; }
+  &--sm { font-size: 0.68rem; padding: 3px 8px; }
+  &--md { font-size: var(--font-size-xs); padding: 3px 10px; }
 
-  // Variants
-  &--primary  { background: #ede9fe; color: #4F46E5; }
-  &--success  { background: #d1fae5; color: #065f46; }
-  &--warning  { background: #fef3c7; color: #b45309; }
-  &--danger   { background: #fee2e2; color: #991b1b; }
-  &--info     { background: #e0f2fe; color: #0369a1; }
-  &--neutral  { background: #f3f4f6; color: #374151; }
-  &--purple   { background: #f3e8ff; color: #7c3aed; }
+  // Variants — token-based "soft" fills so they adapt to dark/light themes.
+  &--primary {
+    background: var(--color-primario-trans-10);
+    color: var(--color-primario-claro);
+    border-color: var(--color-primario-trans-20);
+  }
+  &--purple {
+    background: color-mix(in srgb, var(--color-magenta) 14%, transparent);
+    color: var(--color-magenta);
+    border-color: color-mix(in srgb, var(--color-magenta) 28%, transparent);
+  }
+  &--success {
+    background: color-mix(in srgb, var(--color-exito) 15%, transparent);
+    color: var(--color-exito);
+    border-color: color-mix(in srgb, var(--color-exito) 28%, transparent);
+  }
+  &--warning {
+    background: color-mix(in srgb, var(--color-advertencia) 15%, transparent);
+    color: var(--color-advertencia);
+    border-color: color-mix(in srgb, var(--color-advertencia) 28%, transparent);
+  }
+  &--danger {
+    background: color-mix(in srgb, var(--color-error) 15%, transparent);
+    color: var(--color-error);
+    border-color: color-mix(in srgb, var(--color-error) 28%, transparent);
+  }
+  &--info {
+    background: color-mix(in srgb, var(--color-info) 15%, transparent);
+    color: var(--color-info);
+    border-color: color-mix(in srgb, var(--color-info) 28%, transparent);
+  }
+  &--neutral {
+    background: var(--color-tarjeta-hover);
+    color: var(--color-texto-terciario);
+    border-color: var(--color-borde-principal);
+  }
 
   &__dot {
     width: 6px;

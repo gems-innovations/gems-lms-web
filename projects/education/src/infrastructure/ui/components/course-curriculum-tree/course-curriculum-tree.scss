@@ -1,4 +1,17 @@
+// El host es un ítem flex de .ceditor__main (estirado a la altura disponible).
+// Lo volvemos contenedor flex en columna para que .ctree quede acotado a esa
+// altura y pueda hacer scroll interno cuando hay muchos módulos.
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
 .ctree {
+  flex: 1;
+  min-height: 0;
   width: 300px;
   flex-shrink: 0;
   border-right: 1px solid var(--color-borde-sutil);

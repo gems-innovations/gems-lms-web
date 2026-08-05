@@ -1,0 +1,209 @@
+<!-- ── State A: lista de evaluaciones ──────────────────────────────────────── -->
+@if (!selectedAssignment()) {
+  @if (assignments().length === 0) {
+    <lib-empty-state
+      title="Sin evaluaciones"
+      description="Este curso no tiene evaluaciones ni tareas para calificar."
+    />
+  } @else {
+    <div class="gpanel__list">
+      @for (a of assignments(); track a.block.id) {
+        <button type="button" class="gpanel__row" (click)="selectAssignment.emit(a.block.id)">
+          <div class="gpanel__icon"
+               [class.gpanel__icon--quiz]="a.block.type === EContentType.QUIZ"
+               [class.gpanel__icon--assignment]="a.block.type === EContentType.ASSIGNMENT">
+            @if (a.block.type === EContentType.QUIZ) {
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            } @else {
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+            }
+          </div>
+
+          <div class="gpanel__info">
+            <span class="gpanel__title">{{ a.block.title }}</span>
+            <span class="gpanel__meta">{{ a.moduleTitle }} · {{ a.lessonTitle }}</span>
+          </div>
+
+          <div class="gpanel__chips">
+            @if (a.pendingCount > 0) {
+              <lib-badge variant="warning" size="sm">{{ a.pendingCount }} pendientes</lib-badge>
+            }
+            @if (a.gradedCount > 0) {
+              <lib-badge variant="success" size="sm">{{ a.gradedCount }} calificadas</lib-badge>
+            }
+            <lib-badge variant="neutral" size="sm">{{ a.submittedCount }} entregas</lib-badge>
+          </div>
+
+          <svg class="gpanel__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      }
+    </div>
+  }
+}
+
+<!-- ── State B: entregas de una evaluación ─────────────────────────────────── -->
+@if (selectedAssignment() && !selectedSubmission()) {
+  <lib-back-button label="Evaluaciones" (back)="backToAssignments.emit()" />
+
+  @if (submissions().length === 0 && nonSubmitters().length === 0) {
+    <lib-empty-state
+      title="Sin entregas"
+      description="Aún no hay entregas para esta evaluación."
+    />
+  } @else {
+    <div class="gpanel__wrap">
+      <table class="gpanel__table">
+        <thead>
+          <tr>
+            <th>Estudiante</th>
+            <th>Fecha entrega</th>
+            <th>Estado</th>
+            <th>Nota</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (sub of submissions(); track sub.id) {
+            <tr class="gpanel__srow" (click)="selectSubmission.emit(sub)">
+              <td>
+                <div class="gpanel__student">
+                  <lib-avatar [name]="sub.student.firstName + ' ' + sub.student.lastName" size="sm" />
+                  <div>
+                    <div class="gpanel__sname">{{ sub.student.firstName }} {{ sub.student.lastName }}</div>
+                    <div class="gpanel__semail">{{ sub.student.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="gpanel__date">{{ sub.submittedAt | date:'dd/MM/yyyy, HH:mm' }}</td>
+              <td><lib-badge [variant]="statusVariant(sub.status)" size="sm">{{ statusLabel(sub.status) }}</lib-badge></td>
+              <td>
+                @if (sub.grade != null) {
+                  <span class="gpanel__grade">{{ sub.grade }}/100</span>
+                } @else {
+                  <span class="gpanel__no-grade">—</span>
+                }
+              </td>
+              <td>
+                <button type="button" class="gpanel__action" (click)="$event.stopPropagation(); selectSubmission.emit(sub)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                  Calificar
+                </button>
+              </td>
+            </tr>
+          }
+          <!-- Inscritos que aún no entregan (seguimiento) -->
+          @for (enr of nonSubmitters(); track enr.id) {
+            <tr class="gpanel__srow gpanel__srow--missing">
+              <td>
+                <div class="gpanel__student">
+                  <lib-avatar [name]="enr.student.firstName + ' ' + enr.student.lastName" size="sm" />
+                  <div>
+                    <div class="gpanel__sname">{{ enr.student.firstName }} {{ enr.student.lastName }}</div>
+                    <div class="gpanel__semail">{{ enr.student.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="gpanel__date">—</td>
+              <td><lib-badge variant="danger" size="sm">No entregado</lib-badge></td>
+              <td><span class="gpanel__no-grade">—</span></td>
+              <td></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+}
+
+<!-- ── State C: detalle de entrega + calificación ──────────────────────────── -->
+@if (selectedSubmission(); as sub) {
+  <lib-back-button label="Entregas" (back)="backToSubmissions.emit()" />
+
+  <div class="gpanel__detail">
+    <div class="gpanel__detail-left">
+      <div class="gpanel__student-card">
+        <lib-avatar [name]="sub.student.firstName + ' ' + sub.student.lastName" size="md" />
+        <div class="gpanel__student-info">
+          <div class="gpanel__sname gpanel__sname--lg">{{ sub.student.firstName }} {{ sub.student.lastName }}</div>
+          <div class="gpanel__semail">{{ sub.student.email }}</div>
+          <div class="gpanel__sdate">Entregado el {{ sub.submittedAt | date:'dd/MM/yyyy · HH:mm' }}</div>
+        </div>
+        <lib-badge [variant]="statusVariant(sub.status)" size="md">{{ statusLabel(sub.status) }}</lib-badge>
+      </div>
+
+      <div>
+        <p class="gpanel__section-label">Entrega del estudiante</p>
+        @if (sub.textContent) {
+          <div class="gpanel__submission markdown-body">
+            <markdown [data]="sub.textContent" />
+          </div>
+        } @else {
+          <div class="gpanel__no-text">El estudiante no incluyó texto en su entrega.</div>
+        }
+      </div>
+
+      @for (url of (sub.fileUrls ?? []); track url) {
+        <a class="gpanel__file" [href]="url" target="_blank" rel="noopener">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Archivo adjunto
+        </a>
+      }
+    </div>
+
+    <div class="gpanel__detail-right">
+      <div class="gpanel__grade-card">
+        <div class="gpanel__grade-header">
+          {{ sub.grade != null ? 'Editar calificación' : 'Calificar entrega' }}
+        </div>
+
+        <div class="gpanel__grade-body">
+          <div>
+            <label class="gpanel__field-label">Nota (0–100)</label>
+            <div class="gpanel__grade-row">
+              <input class="gpanel__grade-number" type="number" min="0" max="100"
+                     [ngModel]="gradeInput()" (ngModelChange)="gradeInput.set(+$event)" />
+              <div class="gpanel__grade-display gpanel__grade-display--{{ gradeColor() }}">
+                {{ gradeInput() }}<span>/100</span>
+              </div>
+            </div>
+            <input class="gpanel__grade-slider" type="range" min="0" max="100"
+                   [ngModel]="gradeInput()" (ngModelChange)="gradeInput.set(+$event)" />
+            <div class="gpanel__grade-hint gpanel__grade-hint--{{ gradeColor() }}">
+              @if (gradeColor() === 'high') { ✓ Aprobado con distinción }
+              @else if (gradeColor() === 'mid') { ◐ Aprobado }
+              @else { ✗ Reprobado }
+            </div>
+          </div>
+
+          <lib-markdown-editor
+            label="Retroalimentación"
+            placeholder="Escribe tu feedback en **Markdown**…"
+            [rows]="8"
+            [ngModel]="feedbackInput()"
+            (ngModelChange)="feedbackInput.set($event)"
+          />
+        </div>
+
+        <div class="gpanel__actions">
+          <lib-button variant="ghost" [fullWidth]="true" (clicked)="backToSubmissions.emit()">Cancelar</lib-button>
+          <lib-button variant="primary" [fullWidth]="true" [icon]="'check'" (clicked)="submit()">
+            <svg slot="icon-left" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Guardar
+          </lib-button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

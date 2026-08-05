@@ -1,10 +1,12 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
-import { LoadingSkeletonComponent, EmptyStateComponent } from 'shared';
-import { MyLearningUseCase } from '../../../../application/my-learning.usecase';
+import { LoadingSkeletonComponent, EmptyStateComponent, PaginationComponent } from 'shared';
+import { MyLearningUseCase, ICertification } from '../../../../application/my-learning.usecase';
 import { IEnrolledCourseEntry, IEnrolledPathEntry } from '../../../../domain/model/enrollment.model';
+import { ICourseCertificate } from '../../../../domain/model/player.model';
 import { CourseProgressCard } from '../../components/course-progress-card/course-progress-card';
+import { CourseCertificate } from '../../components/course-certificate/course-certificate';
 
 const PAGE_SIZE      = 4;
 const PATH_PAGE_SIZE = 6;
@@ -12,13 +14,18 @@ const PATH_PAGE_SIZE = 6;
 @Component({
   selector: 'edu-my-learning-container',
   standalone: true,
-  imports: [LoadingSkeletonComponent, EmptyStateComponent, CourseProgressCard, DecimalPipe, RouterLink],
+  imports: [
+    LoadingSkeletonComponent, EmptyStateComponent, PaginationComponent, CourseProgressCard,
+    CourseCertificate, DecimalPipe, RouterLink,
+  ],
   templateUrl: './my-learning-container.html',
   styleUrl: './my-learning-container.scss',
 })
 export class MyLearningContainer implements OnInit {
   private readonly router = inject(Router);
   protected readonly uc   = inject(MyLearningUseCase);
+
+  protected readonly viewingCertificate = signal<ICourseCertificate | null>(null);
 
   readonly today = new Date();
 
@@ -98,6 +105,14 @@ export class MyLearningContainer implements OnInit {
 
   protected openPath(entry: IEnrolledPathEntry): void {
     this.router.navigate(['/learn/preview', 'paths', entry.path.id]);
+  }
+
+  protected openCertificate(cert: ICertification): void {
+    this.viewingCertificate.set(this.uc.buildCertificate(cert));
+  }
+
+  protected closeCertificate(): void {
+    this.viewingCertificate.set(null);
   }
 
   protected daysUntil(date: Date): number {
