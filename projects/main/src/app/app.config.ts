@@ -7,11 +7,11 @@ import {
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideClientHydration, withEventReplay, withNoIncrementalHydration } from '@angular/platform-browser';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
 import { provideMarkdown } from 'ngx-markdown';
 import { routes } from './app.routes';
-import { AuthSessionService } from 'auth';
+import { AuthSessionService, authInterceptor } from 'auth';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,7 +19,7 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes),
     provideClientHydration(withEventReplay(), withNoIncrementalHydration()),
-    provideHttpClient(),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideMarkdown(),
     // Restore persisted session before route guards run
     provideAppInitializer(() => inject(AuthSessionService).restoreSession()),

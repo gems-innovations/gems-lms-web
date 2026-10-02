@@ -32,3 +32,6 @@ export { LoginUseCase } from './application/login.usecase';
 export { LogoutUseCase } from './application/logout.usecase';
 export { UserManagementUseCase } from './application/user-management.usecase';
 export type { ICreateUserPayload, TUserModalMode } from './application/user-management.usecase';
+export { authInterceptor } from './infrastructure/http/auth.interceptor';
+export { UserService } from './infrastructure/services/user.service';
+export type { ICreatedUser, ILoginResult } from './infrastructure/services/user.service';

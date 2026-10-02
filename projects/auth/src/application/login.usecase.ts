@@ -1,11 +1,21 @@
 import { computed, inject, Injectable, DestroyRef, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserService } from '../infrastructure/services/user.service';
 import { AuthSessionService } from '../infrastructure/services/auth-session.service';
 import { Subject, EMPTY } from 'rxjs';
 import { switchMap, tap, catchError } from 'rxjs/operators';
 import { ILoginCredentials } from '../domain/model/login-credentials.model';
+
+function loginErrorMessage(err: unknown): string {
+  if (err instanceof HttpErrorResponse) {
+    if (err.status === 0) return 'No se pudo conectar con el servidor. Intenta de nuevo en unos minutos.';
+    if (err.error?.code === 'USER_DEACTIVATED') return 'Tu cuenta está desactivada. Contacta al administrador.';
+    if (err.status === 429) return 'Demasiados intentos. Espera un momento e intenta de nuevo.';
+  }
+  return 'Correo o contraseña incorrectos';
+}
 
 @Injectable({ providedIn: 'root' })
 export class LoginUseCase {
@@ -31,13 +41,15 @@ export class LoginUseCase {
       }),
       switchMap(credentials =>
         this.userService.login(credentials).pipe(
-          tap(user => {
-            this.authSession.saveSession(user);
+          tap(({ user, token }) => this.authSession.saveSession(user, token)),
+          // Branding is best-effort: it never blocks the login.
+          switchMap(() => this.authSession.loadInstitutionBranding()),
+          tap(() => {
             this._isLoading.set(false);
             this.router.navigate([this.authSession.getHomeRoute()]);
           }),
-          catchError(() => {
-            this._error.set('Correo o contraseña incorrectos');
+          catchError(err => {
+            this._error.set(loginErrorMessage(err));
             this._isLoading.set(false);
             return EMPTY;
           })

@@ -1,132 +1,114 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
 import { IUser, EUserRole } from '../../domain/model/user.model';
 import { ILoginCredentials } from '../../domain/model/login-credentials.model';
-import { IBrandingConfig } from 'shared';
+import { environment } from 'shared';
 
-// ── Institution branding map ──────────────────────────────────────────────────
-// Mirrors the branding data from the admin InstitutionService so the student
-// zone can apply the correct theme without importing the admin library.
-const INSTITUTION_BRANDINGS: Record<string, IBrandingConfig> = {
-  'inst-1': { colorPrimary: '#6C63FF', colorSecondary: '#1E1B4B', darkMode: true  },
-  'inst-2': { colorPrimary: '#FF6B35', colorSecondary: '#1a1a2e', darkMode: false }
-};
+// ── API contracts (ms-auth) ───────────────────────────────────────────────────
 
-// ── Mock user registry ────────────────────────────────────────────────────────
-// Password for all mock users: "password123"
-const MOCK_USERS: IUser[] = [
-  {
-    id: 'u-super-1',
-    email: 'super@gems.lms',
-    firstName: 'Super',
-    lastName: 'Admin',
-    username: 'superadmin',
-    role: EUserRole.SUPER_ADMIN,
-    institutionId: undefined,
-    isActive: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01')
-  },
-  {
-    id: 'u-admin-1',
-    email: 'admin@unal.edu.co',
-    firstName: 'Carlos',
-    lastName: 'Ramírez',
-    username: 'carlos.ramirez',
-    role: EUserRole.ADMIN,
-    institutionId: 'inst-1',
-    isActive: true,
-    createdAt: new Date('2024-02-01'),
-    updatedAt: new Date('2024-02-01')
-  },
-  {
-    id: 'u-admin-2',
-    email: 'admin@pragma.co',
-    firstName: 'Lucía',
-    lastName: 'Gómez',
-    username: 'lucia.gomez',
-    role: EUserRole.ADMIN,
-    institutionId: 'inst-2',
-    isActive: true,
-    createdAt: new Date('2024-02-15'),
-    updatedAt: new Date('2024-02-15')
-  },
-  {
-    id: 'u-inst-1',
-    email: 'instructor@unal.edu.co',
-    firstName: 'Andrés',
-    lastName: 'Torres',
-    username: 'andres.torres',
-    role: EUserRole.INSTRUCTOR,
-    institutionId: 'inst-1',
-    isActive: true,
-    createdAt: new Date('2024-03-01'),
-    updatedAt: new Date('2024-03-01')
-  },
-  {
-    id: 'u-student-1',
-    email: 'estudiante@unal.edu.co',
-    firstName: 'María',
-    lastName: 'López',
-    username: 'maria.lopez',
-    role: EUserRole.STUDENT,
-    institutionId: 'inst-1',
-    isActive: true,
-    createdAt: new Date('2024-04-01'),
-    updatedAt: new Date('2024-04-01')
-  }
-];
+interface IUserResponse {
+  userId: number;
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  role: string;            // 'SUPER_ADMIN' | 'ADMIN' | 'INSTRUCTOR' | 'STUDENT'
+  institutionId: string | null;
+  avatarUrl: string | null;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+  temporaryPassword?: string | null;
+}
 
-const MOCK_PASSWORD = 'password123';
+interface ILoginResponse extends IUserResponse {
+  token: string;
+}
+
+export interface ILoginResult {
+  user: IUser;
+  token: string;
+}
+
+export interface ICreatedUser {
+  user: IUser;
+  /** Returned by the API when the user was created without a password. */
+  temporaryPassword?: string;
+}
+
+// ── Mapping ───────────────────────────────────────────────────────────────────
+
+export function toUserRole(apiRole: string): EUserRole {
+  return apiRole.toLowerCase() as EUserRole;
+}
+
+export function toApiRole(role: EUserRole): string {
+  return role.toUpperCase();
+}
+
+export function mapUser(r: IUserResponse): IUser {
+  return {
+    id: String(r.userId),
+    email: r.email,
+    firstName: r.firstName,
+    lastName: r.lastName,
+    username: r.username,
+    role: toUserRole(r.role),
+    institutionId: r.institutionId ?? undefined,
+    isActive: r.active,
+    avatarUrl: r.avatarUrl ?? undefined,
+    createdAt: new Date(r.createdAt),
+    updatedAt: new Date(r.updatedAt)
+  };
+}
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  /** Simulate login: find user by email, check password. */
-  login(credentials: ILoginCredentials): Observable<IUser> {
-    const user = MOCK_USERS.find(u => u.email === credentials.email);
-    if (!user || credentials.password !== MOCK_PASSWORD) {
-      return throwError(() => new Error('Invalid credentials')).pipe(delay(400));
-    }
-    return of(user).pipe(delay(400));
+  private readonly http = inject(HttpClient);
+  private readonly urls = environment.apiUrls;
+
+  login(credentials: ILoginCredentials): Observable<ILoginResult> {
+    return this.http.post<ILoginResponse>(this.urls.auth.login, credentials).pipe(
+      map(r => ({ user: mapUser(r), token: r.token }))
+    );
+  }
+
+  /** Return every user (super admin views). */
+  getAllUsers(): Observable<IUser[]> {
+    return this.http.get<IUserResponse[]>(this.urls.users).pipe(map(list => list.map(mapUser)));
   }
 
   /** Return all users for a specific institution. */
   getInstitutionUsers(institutionId: string): Observable<IUser[]> {
-    const users = MOCK_USERS.filter(u => u.institutionId === institutionId);
-    return of(users).pipe(delay(300));
+    return this.http
+      .get<IUserResponse[]>(`${this.urls.users}/institution/${encodeURIComponent(institutionId)}`)
+      .pipe(map(list => list.map(mapUser)));
   }
 
-  /** Create a new user under an institution (mock: push to in-memory array). */
-  createUser(data: Omit<IUser, 'id' | 'createdAt' | 'updatedAt'>): Observable<IUser> {
-    const newUser: IUser = {
-      ...data,
-      id: `u-${Date.now()}`,
-      createdAt: new Date(),
-      updatedAt: new Date()
+  /** Create a user. Without a password the API generates a temporary one and returns it. */
+  createUser(data: Omit<IUser, 'id' | 'createdAt' | 'updatedAt'> & { password?: string }): Observable<ICreatedUser> {
+    const body = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      username: data.username || undefined,
+      email: data.email,
+      password: data.password || undefined,
+      role: toApiRole(data.role),
+      institutionId: data.institutionId ?? null
     };
-    MOCK_USERS.push(newUser);
-    return of(newUser).pipe(delay(300));
+    return this.http.post<IUserResponse>(this.urls.auth.register, body).pipe(
+      map(r => ({ user: mapUser(r), temporaryPassword: r.temporaryPassword ?? undefined }))
+    );
   }
 
   /** Toggle active state for a user. */
   toggleUserStatus(userId: string): Observable<IUser> {
-    const user = MOCK_USERS.find(u => u.id === userId);
-    if (!user) return throwError(() => new Error('User not found'));
-    user.isActive = !user.isActive;
-    user.updatedAt = new Date();
-    return of({ ...user }).pipe(delay(200));
+    return this.http.patch<IUserResponse>(`${this.urls.users}/${userId}/status`, {}).pipe(map(mapUser));
   }
 
-  /** Delete a user (mock: remove from array). */
+  /** Delete a user (the API deactivates it). */
   deleteUser(userId: string): Observable<void> {
-    const idx = MOCK_USERS.findIndex(u => u.id === userId);
-    if (idx > -1) MOCK_USERS.splice(idx, 1);
-    return of(undefined).pipe(delay(200));
-  }
-
-  /** Return the branding configuration for a given institution. */
-  getInstitutionBranding(institutionId: string): IBrandingConfig | null {
-    return INSTITUTION_BRANDINGS[institutionId] ?? null;
+    return this.http.delete<void>(`${this.urls.users}/${userId}`);
   }
 }
