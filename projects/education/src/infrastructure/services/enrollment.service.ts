@@ -108,10 +108,26 @@ interface ICachedEnrollment {
 
 const PATH_ENROLLMENTS_KEY = 'gems_path_enrollments';
 
-function reviveDates<T extends object>(obj: T, keys: string[]): T {
-  const out = { ...obj } as Record<string, unknown>;
-  for (const k of keys) if (typeof out[k] === 'string') out[k] = new Date(out[k] as string);
-  return out as T;
+interface IPathEnrollmentApi {
+  id: number;
+  learningPathId: number;
+  studentId: number;
+  status: 'active' | 'completed';
+  enrolledAt: string;
+  completedAt: string | null;
+}
+
+function toPathEnrollment(e: IPathEnrollmentApi): ILearningPathEnrollment {
+  return {
+    id: String(e.id),
+    userId: String(e.studentId),
+    learningPathId: String(e.learningPathId),
+    status: e.status,
+    enrolledAt: new Date(e.enrolledAt),
+    completedAt: e.completedAt ? new Date(e.completedAt) : undefined,
+    completedCourseIds: [],
+    overallPercentage: 0
+  };
 }
 
 function parseData(raw: string | null): IProgressData {
@@ -367,7 +383,8 @@ export class EnrollmentService {
           map(results => ({
             success: Math.max(...results.map(r => r.success)),
             skipped: Math.max(...results.map(r => r.skipped))
-          }))
+          })),
+          switchMap(result => this.recordPathEnrollments(targetId, userIds).pipe(map(() => result)))
         );
       })
     );
@@ -385,22 +402,30 @@ export class EnrollmentService {
   }
 
   enrollInPath(pathId: string): Observable<ILearningPathEnrollment> {
-    const userId = this.session.user()?.id;
-    if (!userId) return throwError(() => new Error('Inicia sesión para matricularte'));
-    const all = this.readPathEnrollments();
-    const existing = all.find(e => e.learningPathId === pathId && e.userId === userId);
-    if (existing) return of(existing);
-    const enrollment: ILearningPathEnrollment = {
-      id: `penr-${Date.now()}`, userId, learningPathId: pathId,
-      status: 'active', enrolledAt: new Date(), completedCourseIds: [], overallPercentage: 0
-    };
-    this.writePathEnrollments([...all, enrollment]);
-    return of(enrollment);
+    if (!this.session.user()?.id) return throwError(() => new Error('Inicia sesión para matricularte'));
+    return this.http.post<IPathEnrollmentApi[]>(`${environment.apiUrls.education.learningPaths}/${pathId}/enrollments`, null).pipe(
+      map(list => toPathEnrollment(list[0])),
+      catchError(err => throwError(() => new Error(
+        err instanceof HttpErrorResponse && err.status === 403
+          ? 'Esta ruta no está disponible para matrícula'
+          : 'No se pudo completar la matrícula en la ruta'
+      )))
+    );
   }
 
   getMyPathEnrollments(): Observable<ILearningPathEnrollment[]> {
-    const userId = this.session.user()?.id;
-    return of(this.readPathEnrollments().filter(e => e.userId === userId));
+    return this.migrateLegacyPathEnrollments().pipe(
+      switchMap(() => this.http.get<IPathEnrollmentApi[]>(`${environment.apiUrls.education.learningPaths}/enrollments/me`)),
+      map(list => list.map(toPathEnrollment))
+    );
+  }
+
+  /** Records the path enrollment of these users (their course enrollments are made separately). */
+  private recordPathEnrollments(pathId: string, userIds: string[]): Observable<unknown> {
+    const studentIds = userIds.map(Number).filter(Number.isFinite);
+    if (!studentIds.length) return of(null);
+    return this.http.post(`${environment.apiUrls.education.learningPaths}/${pathId}/enrollments`, { studentIds })
+      .pipe(catchError(() => of(null)));
   }
 
   getStudents(): Observable<IStudentProfile[]> {
@@ -533,19 +558,26 @@ export class EnrollmentService {
     return this.people$;
   }
 
-  // Path enrollments have no API yet; they are kept in this browser only.
-  private readPathEnrollments(): ILearningPathEnrollment[] {
-    if (!this.isBrowser) return [];
+  /** Path enrollments this browser kept before the API existed: uploaded once, then removed. */
+  private migrateLegacyPathEnrollments(): Observable<unknown> {
+    const userId = this.session.user()?.id;
+    if (!this.isBrowser || !userId) return of(null);
+    let legacy: ILearningPathEnrollment[] = [];
     try {
       const raw = localStorage.getItem(PATH_ENROLLMENTS_KEY);
-      return raw ? (JSON.parse(raw) as ILearningPathEnrollment[]).map(e => reviveDates(e, ['enrolledAt', 'completedAt'])) : [];
+      legacy = raw ? (JSON.parse(raw) as ILearningPathEnrollment[]).filter(e => e.userId === userId) : [];
+      if (raw) {
+        const others = (JSON.parse(raw) as ILearningPathEnrollment[]).filter(e => e.userId !== userId);
+        if (others.length) localStorage.setItem(PATH_ENROLLMENTS_KEY, JSON.stringify(others));
+        else localStorage.removeItem(PATH_ENROLLMENTS_KEY);
+      }
     } catch {
-      return [];
+      return of(null);
     }
-  }
-
-  private writePathEnrollments(list: ILearningPathEnrollment[]): void {
-    if (!this.isBrowser) return;
-    try { localStorage.setItem(PATH_ENROLLMENTS_KEY, JSON.stringify(list)); } catch { /* storage unavailable */ }
+    if (!legacy.length) return of(null);
+    return forkJoin(legacy.map(e =>
+      this.http.post(`${environment.apiUrls.education.learningPaths}/${e.learningPathId}/enrollments`, null)
+        .pipe(catchError(() => of(null)))
+    ));
   }
 }

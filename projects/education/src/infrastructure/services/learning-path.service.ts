@@ -15,27 +15,38 @@ import { ICourseApi, mapCourse } from './course.service';
 
 // ── API contract (ms-education) ───────────────────────────────────────────────
 
+interface ILearningPathStepApi {
+  courseId: number;
+  required: boolean;
+  minimumScore: number | null;
+}
+
 interface ILearningPathApi {
   id: number;
   title: string;
   description: string | null;
   institutionId: string;
   createdAt: string;
+  updatedAt: string | null;
+  status: ELearningPathStatus | null;
+  tags: string[] | null;
+  thumbnailUrl: string | null;
+  steps: ILearningPathStepApi[] | null;
+  enrolledCount: number | null;
   courses: ICourseApi[] | null;
 }
 
-// The API stores only title, description, institution and the ordered course list.
-// Status, tags, thumbnail and per-step settings are not persisted yet: every path is
-// treated as published and every step as required.
 function mapLearningPath(r: ILearningPathApi): ILearningPath {
   const courses = (r.courses ?? []).map(mapCourse);
+  const settings = new Map((r.steps ?? []).map(s => [String(s.courseId), s]));
   const steps: ILearningPathStep[] = courses.map((c, i) => ({
     id: `${r.id}-${c.id}`,
     courseId: c.id,
     courseTitle: c.title,
     courseThumbnailUrl: c.thumbnailUrl,
     order: i + 1,
-    isRequired: true,
+    isRequired: settings.get(c.id)?.required ?? true,
+    minimumScore: settings.get(c.id)?.minimumScore ?? undefined,
     estimatedDuration: c.totalDuration,
     moduleCount: c.modules.length,
     lessonCount: c.totalLessons
@@ -45,16 +56,25 @@ function mapLearningPath(r: ILearningPathApi): ILearningPath {
     id: String(r.id),
     title: r.title,
     description: r.description ?? '',
-    status: ELearningPathStatus.PUBLISHED,
+    thumbnailUrl: r.thumbnailUrl ?? undefined,
+    status: r.status ?? ELearningPathStatus.PUBLISHED,
     steps,
-    tags: [],
+    tags: r.tags ?? [],
     institutionId: r.institutionId,
     estimatedDuration: steps.reduce((s, st) => s + st.estimatedDuration, 0),
-    enrolledCount: 0,
+    enrolledCount: r.enrolledCount ?? 0,
     completionRate: 0,
     createdAt,
-    updatedAt: createdAt
+    updatedAt: r.updatedAt ? new Date(r.updatedAt) : createdAt
   };
+}
+
+function toStepsApi(steps: ILearningPathStep[]): ILearningPathStepApi[] {
+  return [...steps].sort((a, b) => a.order - b.order).map(s => ({
+    courseId: Number(s.courseId),
+    required: s.isRequired,
+    minimumScore: s.minimumScore ?? null
+  }));
 }
 
 @Injectable({ providedIn: 'root' })
@@ -89,22 +109,27 @@ export class LearningPathService {
       title: req.title,
       description: req.description,
       institutionId,
+      tags: req.tags,
+      thumbnailUrl: req.thumbnailUrl,
       courseIds: []
     }).pipe(map(mapLearningPath));
   }
 
-  /** The API replaces title, description and course list together, so unchanged fields are re-sent. */
+  /**
+   * The API replaces title, description and the course list together, so unchanged ones are
+   * re-sent; status, tags and thumbnail are only sent when they change.
+   */
   updateLearningPath(id: string, req: IUpdateLearningPathRequest): Observable<ILearningPath> {
     return this.getLearningPathById(id).pipe(
-      switchMap(current => {
-        const steps = req.steps ?? current.steps;
-        return this.http.put<ILearningPathApi>(`${this.baseUrl}/${id}`, {
-          title: req.title ?? current.title,
-          description: req.description ?? current.description,
-          institutionId: current.institutionId,
-          courseIds: [...steps].sort((a, b) => a.order - b.order).map(s => Number(s.courseId))
-        });
-      }),
+      switchMap(current => this.http.put<ILearningPathApi>(`${this.baseUrl}/${id}`, {
+        title: req.title ?? current.title,
+        description: req.description ?? current.description,
+        institutionId: current.institutionId,
+        status: req.status,
+        tags: req.tags,
+        thumbnailUrl: req.thumbnailUrl,
+        steps: toStepsApi(req.steps ?? current.steps)
+      })),
       map(mapLearningPath)
     );
   }
