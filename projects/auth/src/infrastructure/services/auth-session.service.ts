@@ -23,6 +23,16 @@ interface IInstitutionBrandingResponse {
   } | null;
 }
 
+/** Reads a claim from a JWT payload without verifying it (the API does that). */
+function tokenClaim(token: string, claim: string): unknown {
+  try {
+    const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(payload))[claim];
+  } catch {
+    return undefined;
+  }
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
   private readonly userState  = inject(UserState);
@@ -68,6 +78,8 @@ export class AuthSessionService {
     try {
       const parsed = JSON.parse(raw) as IStoredSession;
       if (!parsed.token || !parsed.user) throw new Error('Invalid session');
+      // Tokens issued before the API added the institutionId claim get 403 everywhere.
+      if (parsed.user.institutionId && !tokenClaim(parsed.token, 'institutionId')) throw new Error('Outdated token');
       parsed.user.createdAt = new Date(parsed.user.createdAt);
       parsed.user.updatedAt = new Date(parsed.user.updatedAt);
       this.userState.setCurrentUser(parsed.user);
