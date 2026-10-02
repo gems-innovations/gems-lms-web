@@ -1,42 +1,76 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Observable, of, forkJoin, map, switchMap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of, forkJoin, map, switchMap, catchError, concatMap, toArray, from } from 'rxjs';
+import { environment } from 'shared';
 import { AuthSessionService } from 'auth';
 import { IGroup, INewStudentRow } from '../../domain/model/group.model';
 import { EnrollmentService } from './enrollment.service';
 import { CourseService } from './course.service';
 
-const STORAGE_PREFIX = 'gems_groups_';
+/** Groups kept in this browser before the API existed; migrated once and then removed. */
+const LEGACY_STORAGE_PREFIX = 'gems_groups_';
 const VIRTUAL_PREFIX = 'all-';
 
+interface GroupDto {
+  id: number;
+  name: string;
+  institutionId: string;
+  instructorId: number | null;
+  studentIds: number[];
+  courseIds: number[];
+  pathIds: number[];
+}
+
+/** Partial update (PUT on the API): fields left out stay as they are. */
+interface GroupPatch {
+  name?: string;
+  instructorId?: number;
+  clearInstructor?: boolean;
+  studentIds?: number[];
+  courseIds?: number[];
+  pathIds?: number[];
+}
+
 /**
- * Groups (cohorts) have no API yet, so they are kept in this browser's storage, per
- * institution. Until they exist in the back end, an instructor also gets one virtual
- * group per institution course that no stored group covers: "Todos los inscritos",
- * made of the course's real enrollments.
+ * Groups (cohorts) of the institution, stored by ms-education (`/groups`). An instructor also
+ * gets one virtual group per institution course that no real group covers: "Todos los
+ * inscritos", made of the course's real enrollments.
  */
 @Injectable({ providedIn: 'root' })
 export class GroupService {
+  private readonly http = inject(HttpClient);
   private readonly enrollmentService = inject(EnrollmentService);
   private readonly courseService = inject(CourseService);
   private readonly session = inject(AuthSessionService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly url = environment.apiUrls.education.groups;
 
   getGroups(): Observable<IGroup[]> {
-    return of(this.read());
+    return this.migrateLegacy().pipe(
+      switchMap(() => this.http.get<GroupDto[]>(this.url, { params: this.institutionParam() })),
+      map(list => list.map(toGroup))
+    );
   }
 
   getGroup(id: string): Observable<IGroup | null> {
+    if (!id) return of(null);
     if (id.startsWith(VIRTUAL_PREFIX)) {
       return this.virtualGroups().pipe(map(list => list.find(g => g.id === id) ?? null));
     }
-    return of(this.read().find(g => g.id === id) ?? null);
+    if (!/^\d+$/.test(id)) return of(null);
+    return this.http.get<GroupDto>(`${this.url}/${id}`).pipe(map(toGroup), catchError(() => of(null)));
   }
 
   getGroupsForInstructor(instructorId: string): Observable<IGroup[]> {
-    const own = this.read().filter(g => g.instructorId === instructorId);
-    return this.virtualGroups().pipe(
-      map(virtual => {
+    return forkJoin({
+      own: this.getGroups().pipe(
+        map(list => list.filter(g => g.instructorId === instructorId)),
+        catchError(() => of([] as IGroup[]))
+      ),
+      virtual: this.virtualGroups()
+    }).pipe(
+      map(({ own, virtual }) => {
         const covered = new Set(own.flatMap(g => g.courseIds));
         return [...own, ...virtual.filter(v => !covered.has(v.courseIds[0]))];
       })
@@ -44,20 +78,30 @@ export class GroupService {
   }
 
   createGroup(name: string, studentIds: string[], instructorId: string | null): Observable<IGroup> {
-    const group: IGroup = {
-      id: `g${Date.now()}`,
+    return this.http.post<GroupDto>(this.url, {
       name: name.trim() || 'Nuevo grupo',
-      studentIds: [...studentIds],
-      instructorId,
-      courseIds: [],
-      pathIds: [],
-    };
-    this.write([...this.read(), group]);
-    return of({ ...group });
+      institutionId: this.session.institutionId() ?? undefined,
+      instructorId: toId(instructorId),
+      studentIds: toIds(studentIds),
+    }).pipe(map(toGroup));
   }
 
   updateGroup(id: string, patch: Partial<IGroup>): Observable<IGroup | null> {
-    return of(this.mutate(id, g => Object.assign(g, patch)));
+    const body: GroupPatch = {};
+    if (patch.name !== undefined) body.name = patch.name;
+    if (patch.instructorId !== undefined) {
+      const instructor = toId(patch.instructorId);
+      if (instructor == null) body.clearInstructor = true;
+      else body.instructorId = instructor;
+    }
+    if (patch.studentIds) body.studentIds = toIds(patch.studentIds);
+    if (patch.courseIds) body.courseIds = toIds(patch.courseIds);
+    if (patch.pathIds) body.pathIds = toIds(patch.pathIds);
+    return this.patch(id, body);
+  }
+
+  deleteGroup(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`);
   }
 
   /**
@@ -76,38 +120,63 @@ export class GroupService {
 
   /** Agrega estudiantes existentes al roster y los matricula en los cursos ya inscritos del grupo. */
   addStudentsToGroup(groupId: string, studentIds: string[]): Observable<IGroup | null> {
-    let newIds: string[] = [];
-    const group = this.mutate(groupId, g => {
-      newIds = studentIds.filter(id => !g.studentIds.includes(id));
-      g.studentIds.push(...newIds);
-    });
-    if (!group || !newIds.length || !group.courseIds.length) return of(group);
-    return forkJoin(group.courseIds.map(courseId =>
-      this.enrollmentService.enrollStudents(newIds, courseId, 'course', groupId)
-    )).pipe(map(() => group));
+    return this.getGroup(groupId).pipe(
+      switchMap(group => {
+        if (!group) return of(null);
+        const newIds = studentIds.filter(id => !group.studentIds.includes(id));
+        if (!newIds.length) return of(group);
+        return this.updateGroup(groupId, { studentIds: [...group.studentIds, ...newIds] }).pipe(
+          switchMap(updated => {
+            if (!updated || !updated.courseIds.length) return of(updated);
+            return forkJoin(updated.courseIds.map(courseId =>
+              this.enrollmentService.enrollStudents(newIds, courseId, 'course', groupId)
+            )).pipe(map(() => updated));
+          })
+        );
+      })
+    );
   }
 
   /** Quita un estudiante del roster del grupo (no borra sus matrículas históricas). */
   removeStudentFromGroup(groupId: string, studentId: string): Observable<IGroup | null> {
-    return of(this.mutate(groupId, g => { g.studentIds = g.studentIds.filter(id => id !== studentId); }));
+    return this.change(groupId, g => ({ studentIds: g.studentIds.filter(id => id !== studentId) }));
   }
 
   /** Quita un curso del grupo (las matrículas ya creadas quedan como registro histórico). */
   removeCourseFromGroup(groupId: string, courseId: string): Observable<IGroup | null> {
-    return of(this.mutate(groupId, g => { g.courseIds = g.courseIds.filter(id => id !== courseId); }));
+    return this.change(groupId, g => ({ courseIds: g.courseIds.filter(id => id !== courseId) }));
   }
 
   /** Inscribe a todos los estudiantes del grupo en un curso/ruta (con groupId). */
   enrollGroup(groupId: string, targetId: string, type: 'course' | 'path'): Observable<{ success: number; skipped: number }> {
-    const group = this.mutate(groupId, g => {
-      if (type === 'course' && !g.courseIds.includes(targetId)) g.courseIds.push(targetId);
-      if (type === 'path' && !g.pathIds.includes(targetId)) g.pathIds.push(targetId);
-    });
-    if (!group) return of({ success: 0, skipped: 0 });
-    return this.enrollmentService.enrollStudents(group.studentIds, targetId, type, groupId);
+    return this.change(groupId, g => type === 'course'
+      ? { courseIds: g.courseIds.includes(targetId) ? g.courseIds : [...g.courseIds, targetId] }
+      : { pathIds: g.pathIds.includes(targetId) ? g.pathIds : [...g.pathIds, targetId] }
+    ).pipe(
+      switchMap(group => group
+        ? this.enrollmentService.enrollStudents(group.studentIds, targetId, type, groupId)
+        : of({ success: 0, skipped: 0 }))
+    );
   }
 
   // ── Internals ──────────────────────────────────────────────────────────────
+
+  /** Reads the group, derives a change from it and saves only that change. */
+  private change(groupId: string, derive: (g: IGroup) => Partial<IGroup>): Observable<IGroup | null> {
+    return this.getGroup(groupId).pipe(
+      switchMap(group => group ? this.updateGroup(groupId, derive(group)) : of(null))
+    );
+  }
+
+  private patch(id: string, body: GroupPatch): Observable<IGroup | null> {
+    return this.http.put<GroupDto>(`${this.url}/${id}`, body).pipe(map(toGroup));
+  }
+
+  /** The super admin lists the groups of the institution they are looking at, if any. */
+  private institutionParam(): Record<string, string> {
+    const institutionId = this.session.institutionId();
+    return institutionId ? { institutionId } : {};
+  }
 
   private virtualGroups(): Observable<IGroup[]> {
     const instructorId = this.session.user()?.id ?? null;
@@ -126,31 +195,49 @@ export class GroupService {
     );
   }
 
-  private mutate(id: string, change: (g: IGroup) => void): IGroup | null {
-    const groups = this.read();
-    const group = groups.find(g => g.id === id);
-    if (!group) return null;
-    change(group);
-    this.write(groups);
-    return { ...group };
-  }
-
-  private storageKey(): string {
-    return `${STORAGE_PREFIX}${this.session.institutionId() ?? 'global'}`;
-  }
-
-  private read(): IGroup[] {
-    if (!this.isBrowser) return [];
+  /** Uploads the groups this browser stored before the API existed, then forgets them. */
+  private migrateLegacy(): Observable<void> {
+    if (!this.isBrowser) return of(undefined);
+    const key = `${LEGACY_STORAGE_PREFIX}${this.session.institutionId() ?? 'global'}`;
+    let legacy: IGroup[] = [];
     try {
-      const raw = localStorage.getItem(this.storageKey());
-      return raw ? JSON.parse(raw) as IGroup[] : [];
+      legacy = JSON.parse(localStorage.getItem(key) ?? '[]') as IGroup[];
+      localStorage.removeItem(key);
     } catch {
-      return [];
+      return of(undefined);
     }
+    if (!legacy.length) return of(undefined);
+    return from(legacy).pipe(
+      concatMap(g => this.http.post<GroupDto>(this.url, {
+        name: g.name,
+        institutionId: this.session.institutionId() ?? undefined,
+        instructorId: toId(g.instructorId),
+        studentIds: toIds(g.studentIds),
+        courseIds: toIds(g.courseIds),
+        pathIds: toIds(g.pathIds),
+      }).pipe(catchError(() => of(null)))),
+      toArray(),
+      map(() => undefined)
+    );
   }
+}
 
-  private write(groups: IGroup[]): void {
-    if (!this.isBrowser) return;
-    try { localStorage.setItem(this.storageKey(), JSON.stringify(groups)); } catch { /* storage unavailable */ }
-  }
+function toGroup(dto: GroupDto): IGroup {
+  return {
+    id: String(dto.id),
+    name: dto.name,
+    studentIds: dto.studentIds.map(String),
+    instructorId: dto.instructorId == null ? null : String(dto.instructorId),
+    courseIds: dto.courseIds.map(String),
+    pathIds: dto.pathIds.map(String),
+  };
+}
+
+function toId(id: string | null | undefined): number | undefined {
+  const n = Number(id);
+  return id != null && id !== '' && Number.isFinite(n) ? n : undefined;
+}
+
+function toIds(ids: string[] | undefined): number[] {
+  return (ids ?? []).map(toId).filter((n): n is number => n !== undefined);
 }

@@ -210,6 +210,11 @@
           Si el correo ya existe se matricula al estudiante en el curso; si no, se crea y se agrega al grupo y al curso.
         </p>
       </div>
+
+      <div class="groups__danger">
+        <lib-button variant="ghost" (clicked)="onDeleteGroup(group)">Eliminar grupo</lib-button>
+        <span class="groups__hint">Las matrículas de sus estudiantes se conservan.</span>
+      </div>
     </div>
   }
 </lib-modal-base>
