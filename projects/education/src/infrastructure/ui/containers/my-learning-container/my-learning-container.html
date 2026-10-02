@@ -221,9 +221,11 @@
                 <span class="mlearning__task-title">{{ task.title }}</span>
                 <span class="mlearning__task-course">{{ task.courseTitle }}</span>
               </div>
-              <div class="mlearning__task-due" [class.mlearning__task-due--soon]="daysUntil(task.dueDate) <= 3">
-                {{ daysUntil(task.dueDate) }}d
-              </div>
+              @if (task.dueDate) {
+                <div class="mlearning__task-due" [class.mlearning__task-due--soon]="daysUntil(task.dueDate) <= 3">
+                  {{ daysUntil(task.dueDate) }}d
+                </div>
+              }
             </div>
           }
         </div>
@@ -239,7 +241,7 @@
           <h3 class="mlearning__widget-title">Calendario de entregas</h3>
         </div>
         <div class="mlearning__calendar">
-          @for (task of uc.pendingTasks(); track task.id) {
+          @for (task of uc.datedTasks(); track task.id) {
             <div class="mlearning__cal-item">
               <div class="mlearning__cal-date">
                 <span class="mlearning__cal-day">{{ calDay(task.dueDate) }}</span>

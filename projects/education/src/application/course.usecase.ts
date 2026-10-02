@@ -1,7 +1,7 @@
 import { inject, Injectable, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, EMPTY } from 'rxjs';
-import { tap, switchMap, catchError } from 'rxjs/operators';
+import { tap, switchMap, concatMap, catchError } from 'rxjs/operators';
 import { CourseState } from '../domain/state/course.state';
 import { CourseService } from '../infrastructure/services/course.service';
 import { ToastService } from '@gems-lms-web/shared';
@@ -170,19 +170,13 @@ export class CourseUseCase {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe();
 
+    // Tree edits are queued (concatMap): each one reads and rewrites the whole course
+    // tree, so running them in parallel or cancelling one would lose changes.
     this.addModule$.pipe(
-      switchMap(req =>
+      concatMap(req =>
         this.courseService.addModule(req).pipe(
-          tap(() => {
-            // El servicio (mock) ya hizo push del módulo en course.modules; aquí
-            // solo refrescamos el estado. No re-agregar para evitar duplicados.
-            const course = this.courses().find(c => c.id === req.courseId);
-            if (course) {
-              this.courseState.updateCourse({ ...course, updatedAt: new Date() });
-              if (this.selectedCourse()?.id === course.id) {
-                this.courseState.setSelectedCourse({ ...course });
-              }
-            }
+          tap(course => {
+            this.courseState.updateCourse(course);
             this.toastService.success('Módulo añadido');
           }),
           catchError(err => { this.toastService.error(err.message ?? 'Error'); return EMPTY; })
@@ -192,14 +186,10 @@ export class CourseUseCase {
     ).subscribe();
 
     this.addLesson$.pipe(
-      switchMap(req =>
+      concatMap(req =>
         this.courseService.addLesson(req).pipe(
-          tap(() => {
-            // reload selected course from state after mutation
-            const c = this.courses().find(c2 => c2.modules.some(m => m.id === req.moduleId));
-            if (c && this.selectedCourse()?.id === c.id) {
-              this.courseState.setSelectedCourse({ ...c });
-            }
+          tap(course => {
+            this.courseState.updateCourse(course);
             this.toastService.success('Lección añadida');
           }),
           catchError(err => { this.toastService.error(err.message ?? 'Error'); return EMPTY; })
@@ -209,9 +199,12 @@ export class CourseUseCase {
     ).subscribe();
 
     this.addBlock$.pipe(
-      switchMap(req =>
+      concatMap(req =>
         this.courseService.addContentBlock(req).pipe(
-          tap(() => this.toastService.success('Contenido añadido')),
+          tap(course => {
+            this.courseState.updateCourse(course);
+            this.toastService.success('Contenido añadido');
+          }),
           catchError(err => { this.toastService.error(err.message ?? 'Error'); return EMPTY; })
         )
       ),

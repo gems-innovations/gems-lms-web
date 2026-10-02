@@ -1,7 +1,12 @@
-import { Injectable, inject } from '@angular/core';
-import { Observable, of, delay, map, Subject } from 'rxjs';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Observable, Subject, of, forkJoin, map, switchMap, throwError, catchError, shareReplay } from 'rxjs';
+import { environment } from 'shared';
+import { AuthSessionService, EUserRole, IUser, UserService } from 'auth';
 import { NotificationService } from './notification.service';
 import { CourseService } from './course.service';
+import { ICourse, IQuestion } from '../../domain/model/course.model';
 import {
   IEnrollment,
   ILearningPathEnrollment,
@@ -12,9 +17,6 @@ import {
   ICourseProgress
 } from '../../domain/model/enrollment.model';
 
-export const MOCK_USER_ID = 'u1';
-
-// ── Mock students (para instructor/admin) ────────────────────────────────────
 export interface IStudentProfile {
   id: string;
   firstName: string;
@@ -23,591 +25,501 @@ export interface IStudentProfile {
   avatarUrl?: string;
 }
 
-export const MOCK_STUDENTS: IStudentProfile[] = [
-  { id: 'u1',  firstName: 'Ana',     lastName: 'García',    email: 'ana.garcia@company.com' },
-  { id: 'u2',  firstName: 'Carlos',  lastName: 'López',     email: 'carlos.lopez@company.com' },
-  { id: 'u3',  firstName: 'María',   lastName: 'Martínez',  email: 'maria.martinez@company.com' },
-  { id: 'u4',  firstName: 'Juan',    lastName: 'Rodríguez', email: 'juan.rodriguez@company.com' },
-  { id: 'u5',  firstName: 'Laura',   lastName: 'Sánchez',   email: 'laura.sanchez@company.com' },
-  { id: 'u6',  firstName: 'Pedro',   lastName: 'Fernández', email: 'pedro.fernandez@company.com' },
-  { id: 'u7',  firstName: 'Sofia',   lastName: 'Torres',    email: 'sofia.torres@company.com' },
-  { id: 'u8',  firstName: 'Diego',   lastName: 'Ramírez',   email: 'diego.ramirez@company.com' },
-  { id: 'u9',  firstName: 'Valentina',lastName: 'Cruz',     email: 'valentina.cruz@company.com' },
-  { id: 'u10', firstName: 'Andrés',  lastName: 'Morales',   email: 'andres.morales@company.com' },
-];
+// ── API contract (ms-education) ───────────────────────────────────────────────
 
-// ── Enrollments de todos los estudiantes (instructor/admin view) ──────────────
-const ALL_ENROLLMENTS: IEnrollment[] = [
-  { id: 'enr1',  userId: 'u1', courseId: 'c1', status: 'active',    enrolledAt: new Date('2025-01-15'), progress: { courseId:'c1', overallPercentage:35, completedLessons:3,  totalLessons:8, lastAccessedAt: new Date('2025-05-20'), moduleProgress:[] } },
-  { id: 'enr2',  userId: 'u1', courseId: 'c2', status: 'active',    enrolledAt: new Date('2025-02-01'), progress: { courseId:'c2', overallPercentage:60, completedLessons:5,  totalLessons:9, lastAccessedAt: new Date('2025-05-22'), moduleProgress:[] } },
-  { id: 'enr3',  userId: 'u2', courseId: 'c1', status: 'active',    enrolledAt: new Date('2025-02-10'), progress: { courseId:'c1', overallPercentage:80, completedLessons:6,  totalLessons:8, lastAccessedAt: new Date('2025-05-21'), moduleProgress:[] } },
-  { id: 'enr4',  userId: 'u3', courseId: 'c1', status: 'completed', enrolledAt: new Date('2025-01-20'), progress: { courseId:'c1', overallPercentage:100,completedLessons:8,  totalLessons:8, lastAccessedAt: new Date('2025-04-30'), moduleProgress:[] } },
-  { id: 'enr5',  userId: 'u4', courseId: 'c1', status: 'active',    enrolledAt: new Date('2025-03-01'), progress: { courseId:'c1', overallPercentage:20, completedLessons:2,  totalLessons:8, lastAccessedAt: new Date('2025-05-18'), moduleProgress:[] } },
-  { id: 'enr6',  userId: 'u5', courseId: 'c2', status: 'active',    enrolledAt: new Date('2025-02-15'), progress: { courseId:'c2', overallPercentage:45, completedLessons:4,  totalLessons:9, lastAccessedAt: new Date('2025-05-23'), moduleProgress:[] } },
-  { id: 'enr7',  userId: 'u6', courseId: 'c2', status: 'paused',    enrolledAt: new Date('2025-01-28'), progress: { courseId:'c2', overallPercentage:15, completedLessons:1,  totalLessons:9, lastAccessedAt: new Date('2025-04-10'), moduleProgress:[] } },
-  { id: 'enr8',  userId: 'u7', courseId: 'c2', status: 'active',    enrolledAt: new Date('2025-03-05'), progress: { courseId:'c2', overallPercentage:70, completedLessons:6,  totalLessons:9, lastAccessedAt: new Date('2025-05-24'), moduleProgress:[] } },
-  { id: 'enr9',  userId: 'u8', courseId: 'c1', status: 'active',    enrolledAt: new Date('2025-03-10'), progress: { courseId:'c1', overallPercentage:55, completedLessons:4,  totalLessons:8, lastAccessedAt: new Date('2025-05-20'), moduleProgress:[] } },
-  { id: 'enr10', userId: 'u9', courseId: 'c2', status: 'completed', enrolledAt: new Date('2025-01-10'), progress: { courseId:'c2', overallPercentage:100,completedLessons:9,  totalLessons:9, lastAccessedAt: new Date('2025-05-01'), moduleProgress:[] } },
-  { id: 'enr11', userId:'u10', courseId: 'c1', status: 'active',    enrolledAt: new Date('2025-04-01'), progress: { courseId:'c1', overallPercentage:10, completedLessons:1,  totalLessons:8, lastAccessedAt: new Date('2025-05-15'), moduleProgress:[] } },
-  { id: 'enr12', userId: 'u2', courseId: 'c2', status: 'active',    enrolledAt: new Date('2025-03-20'), progress: { courseId:'c2', overallPercentage:30, completedLessons:3,  totalLessons:9, lastAccessedAt: new Date('2025-05-19'), moduleProgress:[] } },
-];
+interface IEnrollmentApi {
+  id: number;
+  studentId: number;      // ms-auth user id
+  courseId: number;
+  status: string;
+  enrolledAt: string;
+  progress: number | null;
+  completedAt: string | null;
+  progressData: string | null;
+}
 
-// Asigna cada matrícula a un grupo/cohorte (curso 1 tiene 2 grupos: A y B).
-const ENROLLMENT_GROUP_MAP: Record<string, string> = {
-  enr1: 'g1', enr3: 'g1', enr4: 'g1',                 // Grupo A · c1
-  enr5: 'g2', enr9: 'g2', enr11: 'g2',                // Grupo B · c1
-  enr6: 'g3', enr7: 'g3', enr8: 'g3', enr10: 'g3',    // Grupo C · c2
-};
-for (const e of ALL_ENROLLMENTS) e.groupId = ENROLLMENT_GROUP_MAP[e.id];
+/**
+ * Detailed progress kept in the enrollment's `progressData` JSON. The API has no
+ * dedicated resources for quiz attempts or assignment submissions yet, so they are
+ * stored here too (the instructor grades by rewriting the student's enrollment).
+ */
+interface IProgressData {
+  progress?: Partial<ICourseProgress>;
+  quizAttempts?: IQuizAttempt[];
+  submissions?: IAssignmentSubmission[];
+  groupId?: string;
+}
 
-// ── Submissions de tareas (todas) ─────────────────────────────────────────────
-const ALL_SUBMISSIONS: IAssignmentSubmission[] = [
-  // cb6 → Tarea: Análisis exploratorio (c1, módulo 1)
-  { id: 'sub1', blockId: 'cb6',  lessonId: 'l1-1-2', courseId: 'c1', textContent: 'Análisis exploratorio completo en Jupyter con visualizaciones. Repo: https://github.com/ana/eda-python',    submittedAt: new Date('2025-05-18'), status: 'graded', grade: 92, feedback: 'Muy buen análisis. Las visualizaciones son claras y bien documentadas.' },
-  { id: 'sub2', blockId: 'cb6',  lessonId: 'l1-1-2', courseId: 'c1', textContent: 'https://github.com/diego/python-eda — incluye limpieza de datos y 3 gráficas comparativas.',              submittedAt: new Date('2025-05-23'), status: 'pending' },
-  { id: 'sub3', blockId: 'cb6',  lessonId: 'l1-1-2', courseId: 'c1', textContent: 'Notebook adjunto con EDA completo. Usé Pandas, Seaborn y Plotly. Repo: https://github.com/carlos/eda',   submittedAt: new Date('2025-05-25'), status: 'pending' },
-  // cb10 → Tarea: CRUD API REST (c2, módulo 2)
-  { id: 'sub4', blockId: 'cb10', lessonId: 'l2-2-1', courseId: 'c2', textContent: 'https://github.com/carlos/crud-api — API REST con Express, validación con Joi y tests con Jest.',         submittedAt: new Date('2025-05-20'), status: 'pending' },
-  { id: 'sub5', blockId: 'cb10', lessonId: 'l2-2-1', courseId: 'c2', textContent: 'Repositorio con solución completa: https://github.com/sofia/express-crud. Incluye Swagger.',              submittedAt: new Date('2025-05-21'), status: 'graded', grade: 88, feedback: 'Excelente manejo de errores. Podrías agregar más tests de integración.' },
-  { id: 'sub6', blockId: 'cb10', lessonId: 'l2-2-1', courseId: 'c2', textContent: 'Implementé todos los endpoints CRUD con validación de datos. Link: https://github.com/ana/api-rest',      submittedAt: new Date('2025-05-19'), status: 'graded', grade: 95, feedback: 'Implementación impecable. La documentación Swagger es un plus.' },
-  // cb24 → Tarea: Integración con PostgreSQL (c2, módulo 3)
-  { id: 'sub7', blockId: 'cb24', lessonId: 'l2-3-3', courseId: 'c2', textContent: 'https://github.com/carlos/pg-api — integración con Sequelize y migraciones automáticas.',               submittedAt: new Date('2025-05-22'), status: 'pending' },
-  { id: 'sub8', blockId: 'cb24', lessonId: 'l2-3-3', courseId: 'c2', textContent: 'Implementé el ORM con TypeORM. Repositorio: https://github.com/maria/typeorm-api.',                       submittedAt: new Date('2025-05-24'), status: 'graded', grade: 80, feedback: 'Buen trabajo. Falta manejar las transacciones en operaciones críticas.' },
-  // cb32 → Tarea: Proyecto final (c2, módulo 5)
-  { id: 'sub9', blockId: 'cb32', lessonId: 'l2-5-3', courseId: 'c2', textContent: 'Proyecto final desplegado en Railway. URL: https://my-app.railway.app — CI/CD con GitHub Actions.',      submittedAt: new Date('2025-05-24'), status: 'returned', grade: 75, feedback: 'Falta documentación del pipeline CI/CD. Por favor agrega el diagrama de arquitectura.' },
-  { id: 'sub10',blockId: 'cb32', lessonId: 'l2-5-3', courseId: 'c2', textContent: 'App desplegada en Vercel + Render. Repo: https://github.com/juan/fullstack-final.',                       submittedAt: new Date('2025-05-26'), status: 'pending' },
-];
+interface ICachedEnrollment {
+  enrollment: IEnrollment;
+  data: IProgressData;
+}
 
-// Asociar userId a cada submission (simulando que pertenecen a distintos estudiantes)
-const SUBMISSION_USER_MAP: Record<string, string> = {
-  'sub1': 'u1',  'sub2': 'u8',  'sub3': 'u2',
-  'sub4': 'u2',  'sub5': 'u7',  'sub6': 'u1',
-  'sub7': 'u2',  'sub8': 'u3',
-  'sub9': 'u9',  'sub10': 'u4',
-};
+const PATH_ENROLLMENTS_KEY = 'gems_path_enrollments';
 
-const MOCK_ENROLLMENTS: IEnrollment[] = [
-  {
-    id: 'enr1',
-    userId: MOCK_USER_ID,
-    courseId: 'c1',
-    status: 'active',
-    enrolledAt: new Date('2025-01-15'),
-    progress: {
-      courseId: 'c1',
-      overallPercentage: 35,
-      completedLessons: 1,
-      totalLessons: 24,
-      lastAccessedAt: new Date('2025-05-20'),
-      currentLessonId: 'l1-1-2',
-      currentBlockId: 'cb3',
-      moduleProgress: [
-        { moduleId: 'm1-1', completedLessons: 1, totalLessons: 2, percentage: 50 },
-        { moduleId: 'm1-2', completedLessons: 0, totalLessons: 1, percentage: 0 }
-      ]
-    }
-  },
-  {
-    id: 'enr2',
-    userId: MOCK_USER_ID,
-    courseId: 'c2',
-    status: 'active',
-    enrolledAt: new Date('2025-02-01'),
-    progress: {
-      courseId: 'c2',
-      overallPercentage: 60,
-      completedLessons: 1,
-      totalLessons: 38,
-      lastAccessedAt: new Date('2025-05-22'),
-      currentLessonId: 'l2-2-1',
-      currentBlockId: 'cb9',
-      moduleProgress: [
-        { moduleId: 'm2-1', completedLessons: 1, totalLessons: 1, percentage: 100 },
-        { moduleId: 'm2-2', completedLessons: 0, totalLessons: 1, percentage: 0 }
-      ]
-    }
-  },
-  {
-    id: 'enr3',
-    userId: MOCK_USER_ID,
-    courseId: 'c7',
-    status: 'active',
-    enrolledAt: new Date('2025-03-10'),
-    progress: {
-      courseId: 'c7',
-      overallPercentage: 20,
-      completedLessons: 5,
-      totalLessons: 26,
-      lastAccessedAt: new Date('2025-05-18'),
-      currentLessonId: 'l7-1-1',
-      currentBlockId: 'cb20',
-      moduleProgress: [
-        { moduleId: 'm7-1', completedLessons: 5, totalLessons: 26, percentage: 20 }
-      ]
-    }
-  },
-  {
-    id: 'enr4',
-    userId: MOCK_USER_ID,
-    courseId: 'c9',
-    status: 'active',
-    enrolledAt: new Date('2025-04-05'),
-    progress: {
-      courseId: 'c9',
-      overallPercentage: 45,
-      completedLessons: 10,
-      totalLessons: 22,
-      lastAccessedAt: new Date('2025-05-10'),
-      currentLessonId: 'l9-1-1',
-      currentBlockId: 'cb30',
-      moduleProgress: [
-        { moduleId: 'm9-1', completedLessons: 10, totalLessons: 22, percentage: 45 }
-      ]
-    }
-  },
-  {
-    id: 'enr-almost',
-    userId: MOCK_USER_ID,
-    courseId: 'c-almost',
-    status: 'active',
-    enrolledAt: new Date('2026-03-01'),
-    progress: {
-      courseId: 'c-almost',
-      overallPercentage: 83,
-      completedLessons: 2,
-      totalLessons: 3,
-      lastAccessedAt: new Date('2026-06-14'),
-      currentLessonId: 'la-2-1',
-      currentBlockId: 'cba-5',
-      completedBlockIds: ['cba-1', 'cba-2'],
-      moduleProgress: [
-        { moduleId: 'ma-1', completedLessons: 2, totalLessons: 2, percentage: 100 },
-        { moduleId: 'ma-2', completedLessons: 0, totalLessons: 1, percentage: 0 },
-      ]
-    }
-  },
-  {
-    id: 'enr-done',
-    userId: MOCK_USER_ID,
-    courseId: 'c-done',
-    status: 'completed',
-    enrolledAt: new Date('2025-11-01'),
-    completedAt: new Date('2026-01-20'),
-    progress: {
-      courseId: 'c-done',
-      overallPercentage: 100,
-      completedLessons: 5,
-      totalLessons: 5,
-      lastAccessedAt: new Date('2026-01-20'),
-      completedBlockIds: ['cbd-1', 'cbd-2', 'cbd-3', 'cbd-4', 'cbd-5', 'cbd-6', 'cbd-7', 'cbd-8'],
-      moduleProgress: [
-        { moduleId: 'md-1', completedLessons: 2, totalLessons: 2, percentage: 100 },
-        { moduleId: 'md-2', completedLessons: 3, totalLessons: 3, percentage: 100 }
-      ]
-    }
+function reviveDates<T extends object>(obj: T, keys: string[]): T {
+  const out = { ...obj } as Record<string, unknown>;
+  for (const k of keys) if (typeof out[k] === 'string') out[k] = new Date(out[k] as string);
+  return out as T;
+}
+
+function parseData(raw: string | null): IProgressData {
+  if (!raw) return {};
+  try {
+    const d = JSON.parse(raw) as IProgressData;
+    return {
+      ...d,
+      quizAttempts: (d.quizAttempts ?? []).map(a => reviveDates(a, ['completedAt'])),
+      submissions: (d.submissions ?? []).map(s => reviveDates(s, ['submittedAt']))
+    };
+  } catch {
+    return {};
   }
-];
+}
 
-const MOCK_PATH_ENROLLMENTS: ILearningPathEnrollment[] = [
-  {
-    id: 'penr1',
-    userId: MOCK_USER_ID,
-    learningPathId: 'lp1',
-    status: 'active',
-    enrolledAt: new Date('2025-01-15'),
-    completedCourseIds: [],
-    currentCourseId: 'c3',
-    overallPercentage: 20
-  },
-  {
-    id: 'penr2',
-    userId: MOCK_USER_ID,
-    learningPathId: 'lp2',
-    status: 'active',
-    enrolledAt: new Date('2025-02-20'),
-    completedCourseIds: ['c2'],
-    currentCourseId: 'c2',
-    overallPercentage: 55
-  },
-  {
-    id: 'penr3',
-    userId: MOCK_USER_ID,
-    learningPathId: 'lp4',
-    status: 'active',
-    enrolledAt: new Date('2025-03-05'),
-    completedCourseIds: [],
-    currentCourseId: 'c9',
-    overallPercentage: 10
-  },
-  {
-    id: 'penr4',
-    userId: MOCK_USER_ID,
-    learningPathId: 'lp5',
-    status: 'active',
-    enrolledAt: new Date('2025-04-01'),
-    completedCourseIds: [],
-    currentCourseId: 'c8',
-    overallPercentage: 35
-  },
-  {
-    id: 'penr5',
-    userId: MOCK_USER_ID,
-    learningPathId: 'lp3',
-    status: 'active',
-    enrolledAt: new Date('2025-05-01'),
-    completedCourseIds: [],
-    currentCourseId: 'c4',
-    overallPercentage: 5
+function mapEnrollment(r: IEnrollmentApi): ICachedEnrollment {
+  const data = parseData(r.progressData);
+  const p = data.progress ?? {};
+  const courseId = String(r.courseId);
+  const enrollment: IEnrollment = {
+    id: String(r.id),
+    userId: String(r.studentId),
+    courseId,
+    groupId: data.groupId,
+    status: r.status === 'completed' ? 'completed' : r.status === 'paused' ? 'paused' : 'active',
+    enrolledAt: new Date(r.enrolledAt),
+    completedAt: r.completedAt ? new Date(r.completedAt) : undefined,
+    progress: {
+      courseId,
+      overallPercentage: r.progress ?? 0,
+      completedLessons: p.completedLessons ?? 0,
+      totalLessons: p.totalLessons ?? 0,
+      completedBlockIds: p.completedBlockIds ?? [],
+      moduleProgress: p.moduleProgress ?? [],
+      currentLessonId: p.currentLessonId,
+      currentBlockId: p.currentBlockId,
+      lastAccessedAt: p.lastAccessedAt ? new Date(p.lastAccessedAt) : new Date(r.enrolledAt)
+    }
+  };
+  return { enrollment, data };
+}
+
+function toProfile(u: IUser): IStudentProfile {
+  return { id: u.id, firstName: u.firstName, lastName: u.lastName, email: u.email, avatarUrl: u.avatarUrl };
+}
+
+function unknownProfile(userId: string): IStudentProfile {
+  return { id: userId, firstName: 'Usuario', lastName: `#${userId}`, email: '' };
+}
+
+/** Grades a quiz block against its questions (open questions are not graded). */
+function gradeQuiz(course: ICourse, req: ISubmitQuizRequest, attemptNumber: number): IQuizAttempt {
+  const block = course.modules.flatMap(m => m.lessons).flatMap(l => l.contentBlocks).find(b => b.id === req.blockId);
+  const questions: IQuestion[] = block?.questions ?? [];
+  let score = 0;
+  let maxScore = 0;
+  const feedback: NonNullable<IQuizAttempt['feedback']> = [];
+
+  for (const q of questions) {
+    if (q.type === 'open') continue;
+    const points = q.points || 1;
+    maxScore += points;
+    const answer = req.answers.find(a => a.questionId === q.id)?.answer;
+    let correct = false;
+    if (q.type === 'multiple-choice') {
+      const expected = q.correctAnswers || [];
+      const given = Array.isArray(answer) ? answer : (answer !== undefined && answer !== '' ? [String(answer)] : []);
+      correct = expected.length > 0 && expected.length === given.length && expected.every(c => given.includes(c));
+    } else if (q.type === 'true-false') {
+      correct = answer === q.correctAnswer;
+    }
+    if (correct) score += points;
+    feedback.push({ questionId: q.id, correct, explanation: q.explanation });
   }
-];
 
-const MOCK_QUIZ_ATTEMPTS: IQuizAttempt[] = [
-  {
-    id: 'att1',
-    blockId: 'cb4',
-    lessonId: 'l1-1-2',
-    courseId: 'c1',
-    attemptNumber: 1,
-    answers: [
-      { questionId: 'q1', answer: ['a'] },
-      { questionId: 'q2', answer: false },
-      { questionId: 'q3', answer: ['a', 'b'] },
-      { questionId: 'q4', answer: 'La clasificación predice categorías, la regresión valores continuos.' }
-    ],
-    score: 75,
-    passed: true,
-    completedAt: new Date('2025-05-18'),
-    feedback: [
-      { questionId: 'q1', correct: true },
-      { questionId: 'q2', correct: true },
-      { questionId: 'q3', correct: false, explanation: 'Solo K-Means y DBSCAN son no supervisados.' },
-      { questionId: 'q4', correct: true }
-    ]
-  }
-];
-
-const MOCK_SUBMISSIONS: IAssignmentSubmission[] = [];
+  const finalScore = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
+  return {
+    id: `att-${Date.now()}`,
+    blockId: req.blockId,
+    lessonId: req.lessonId,
+    courseId: req.courseId,
+    attemptNumber,
+    answers: req.answers,
+    score: finalScore,
+    passed: finalScore >= (block?.passingScore || 70),
+    feedback,
+    completedAt: new Date()
+  };
+}
 
 @Injectable({ providedIn: 'root' })
 export class EnrollmentService {
-  private readonly USE_MOCK = true;
+  private readonly http = inject(HttpClient);
+  private readonly session = inject(AuthSessionService);
+  private readonly users = inject(UserService);
   private readonly notifications = inject(NotificationService);
   private readonly courseService = inject(CourseService);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly baseUrl = environment.apiUrls.education.enrollments;
 
-  getMyEnrollments(): Observable<IEnrollment[]> {
-    if (this.USE_MOCK) {
-      return of([...MOCK_ENROLLMENTS]).pipe(delay(300));
-    }
-    return of([]);
-  }
-
-  getMyPathEnrollments(): Observable<ILearningPathEnrollment[]> {
-    if (this.USE_MOCK) {
-      return of([...MOCK_PATH_ENROLLMENTS]).pipe(delay(300));
-    }
-    return of([]);
-  }
-
-  enrollInCourse(courseId: string): Observable<IEnrollment> {
-    if (this.USE_MOCK) {
-      const existing = MOCK_ENROLLMENTS.find(e => e.courseId === courseId);
-      if (existing) return of(existing).pipe(delay(200));
-
-      const enrollment: IEnrollment = {
-        id: `enr${Date.now()}`,
-        userId: MOCK_USER_ID,
-        courseId,
-        status: 'active',
-        enrolledAt: new Date(),
-        progress: {
-          courseId,
-          overallPercentage: 0,
-          completedLessons: 0,
-          totalLessons: 0,
-          lastAccessedAt: new Date(),
-          moduleProgress: []
-        }
-      };
-      MOCK_ENROLLMENTS.push(enrollment);
-      return of(enrollment).pipe(delay(400));
-    }
-    return of({} as IEnrollment);
-  }
-
-  updateProgress(enrollmentId: string, progress: Partial<ICourseProgress>): Observable<IEnrollment> {
-    if (this.USE_MOCK) {
-      const idx = MOCK_ENROLLMENTS.findIndex(e => e.id === enrollmentId);
-      if (idx !== -1) {
-        MOCK_ENROLLMENTS[idx] = {
-          ...MOCK_ENROLLMENTS[idx],
-          progress: { ...MOCK_ENROLLMENTS[idx].progress, ...progress, lastAccessedAt: new Date() }
-        };
-        return of(MOCK_ENROLLMENTS[idx]).pipe(delay(100));
-      }
-    }
-    return of({} as IEnrollment);
-  }
-
-  getQuizAttempts(blockId: string): Observable<IQuizAttempt[]> {
-    if (this.USE_MOCK) {
-      return of(MOCK_QUIZ_ATTEMPTS.filter(a => a.blockId === blockId)).pipe(delay(200));
-    }
-    return of([]);
-  }
-
-  submitQuiz(req: ISubmitQuizRequest): Observable<IQuizAttempt> {
-    if (this.USE_MOCK) {
-      return this.courseService.getCourseById(req.courseId).pipe(
-        delay(800),
-        map(course => {
-          const prevAttempts = MOCK_QUIZ_ATTEMPTS.filter(a => a.blockId === req.blockId).length;
-          let score = 0;
-          let maxScore = 0;
-          let passingScore = 70;
-          const feedback: any[] = [];
-          
-          if (course) {
-             for (const mod of course.modules || []) {
-                for (const lesson of mod.lessons || []) {
-                   const blk = lesson.contentBlocks?.find(b => b.id === req.blockId);
-                   if (blk && blk.type === 'quiz' && blk.questions) {
-                      passingScore = blk.passingScore || 70;
-                      for (const q of blk.questions) {
-                         if (q.type === 'open') continue; // open questions are not graded
-                         const points = q.points || 1;
-                         maxScore += points;
-                         const userAnswer = req.answers.find(a => a.questionId === q.id)?.answer;
-                         let isCorrect = false;
-
-                         if (q.type === 'multiple-choice') {
-                           const correctAnswers = q.correctAnswers || [];
-                           const userArr = Array.isArray(userAnswer) ? userAnswer : (userAnswer !== undefined && userAnswer !== '' ? [userAnswer] : []);
-                           isCorrect = correctAnswers.length > 0 && correctAnswers.length === userArr.length && correctAnswers.every(c => userArr.includes(c));
-                         } else if (q.type === 'true-false') {
-                           isCorrect = (userAnswer === q.correctAnswer);
-                         }
-                         
-                         if (isCorrect) score += points;
-                         
-                         feedback.push({
-                           questionId: q.id,
-                           correct: isCorrect,
-                           explanation: q.explanation
-                         });
-                      }
-                   }
-                }
-             }
-          }
-          
-          const finalScore = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
-          
-          const attempt: IQuizAttempt = {
-            id: `att${Date.now()}`,
-            blockId: req.blockId,
-            lessonId: req.lessonId,
-            courseId: req.courseId,
-            attemptNumber: prevAttempts + 1,
-            answers: req.answers,
-            score: finalScore,
-            passed: finalScore >= passingScore,
-            feedback,
-            completedAt: new Date()
-          };
-          MOCK_QUIZ_ATTEMPTS.push(attempt);
-          return attempt;
-        })
-      );
-    }
-    return of({} as IQuizAttempt);
-  }
-
-  getSubmissions(blockId: string): Observable<IAssignmentSubmission[]> {
-    if (this.USE_MOCK) {
-      return of(MOCK_SUBMISSIONS.filter(s => s.blockId === blockId)).pipe(delay(200));
-    }
-    return of([]);
-  }
-
-  submitAssignment(req: ISubmitAssignmentRequest): Observable<IAssignmentSubmission> {
-    if (this.USE_MOCK) {
-      // Update existing submission if one already exists for this block
-      const existingIdx = MOCK_SUBMISSIONS.findIndex(s => s.blockId === req.blockId && s.courseId === req.courseId);
-      const submission: IAssignmentSubmission = {
-        id: existingIdx >= 0 ? MOCK_SUBMISSIONS[existingIdx].id : `sub${Date.now()}`,
-        blockId: req.blockId,
-        lessonId: req.lessonId,
-        courseId: req.courseId,
-        textContent: req.textContent,
-        fileUrls: req.fileUrls,
-        submittedAt: new Date(),
-        status: 'pending'
-      };
-
-      if (existingIdx >= 0) {
-        MOCK_SUBMISSIONS[existingIdx] = submission;
-      } else {
-        MOCK_SUBMISSIONS.push(submission);
-      }
-
-      // Notify instructor
-      const student = MOCK_STUDENTS.find(s => s.id === MOCK_USER_ID);
-      const studentName = student ? `${student.firstName} ${student.lastName}` : 'Un estudiante';
-      this.courseService.getCourseById(req.courseId).subscribe(course => {
-        let blockTitle = 'una tarea';
-        let blockMaxScore = 100;
-        for (const m of course?.modules ?? []) {
-          for (const l of m.lessons ?? []) {
-            const blk = l.contentBlocks?.find(b => b.id === req.blockId);
-            if (blk) { blockTitle = blk.title; blockMaxScore = blk.maxScore ?? 100; }
-          }
-        }
-        this.notifications.notifySubmission(
-          studentName, blockTitle, course?.title ?? req.courseId, req.courseId, submission.id
-        );
-
-        // Mock auto-grade: instructor grades after 8 seconds
-        setTimeout(() => {
-          const idx = MOCK_SUBMISSIONS.findIndex(s => s.id === submission.id);
-          if (idx < 0) return;
-          const score = Math.floor(Math.random() * 30) + 70; // 70–100
-          const graded: IAssignmentSubmission = {
-            ...MOCK_SUBMISSIONS[idx],
-            status:   'graded',
-            grade:    score,
-            feedback: 'Buen trabajo. Entrega completa y bien documentada.',
-          };
-          MOCK_SUBMISSIONS[idx] = graded;
-          this._gradedSubmission$.next(graded);
-        }, 8000);
-      });
-
-      return of(submission).pipe(delay(600));
-    }
-    return of({} as IAssignmentSubmission);
-  }
+  /** Last known state of every enrollment this service has read or written, by id. */
+  private readonly cache = new Map<string, ICachedEnrollment>();
 
   private readonly _gradedSubmission$ = new Subject<IAssignmentSubmission>();
   readonly gradedSubmission$ = this._gradedSubmission$.asObservable();
 
-  // ── Instructor / Admin methods ─────────────────────────────────────────────
+  // ── Student ────────────────────────────────────────────────────────────────
+
+  getMyEnrollments(): Observable<IEnrollment[]> {
+    return this.loadMine().pipe(map(list => list.map(c => c.enrollment)));
+  }
+
+  getMyQuizAttempts(): Observable<IQuizAttempt[]> {
+    return this.loadMine().pipe(map(list => list.flatMap(c => c.data.quizAttempts ?? [])));
+  }
+
+  getMySubmissions(): Observable<IAssignmentSubmission[]> {
+    return this.loadMine().pipe(map(list => list.flatMap(c => c.data.submissions ?? [])));
+  }
+
+  enrollInCourse(courseId: string): Observable<IEnrollment> {
+    const userId = this.session.user()?.id;
+    if (!userId) return throwError(() => new Error('Inicia sesión para matricularte'));
+    return this.post(userId, courseId);
+  }
+
+  updateProgress(enrollmentId: string, progress: Partial<ICourseProgress>): Observable<IEnrollment> {
+    return this.writeData(enrollmentId, data => ({
+      ...data,
+      progress: { ...data.progress, ...progress, lastAccessedAt: new Date() }
+    }), progress.overallPercentage);
+  }
+
+  getQuizAttempts(blockId: string): Observable<IQuizAttempt[]> {
+    return this.getMyQuizAttempts().pipe(map(list => list.filter(a => a.blockId === blockId)));
+  }
+
+  submitQuiz(req: ISubmitQuizRequest): Observable<IQuizAttempt> {
+    return forkJoin({
+      course: this.courseService.getCourseById(req.courseId),
+      mine: this.loadMine()
+    }).pipe(
+      switchMap(({ course, mine }) => {
+        const entry = mine.find(c => c.enrollment.courseId === req.courseId);
+        if (!entry) return throwError(() => new Error('No estás matriculado en este curso'));
+        const previous = (entry.data.quizAttempts ?? []).filter(a => a.blockId === req.blockId).length;
+        const attempt = gradeQuiz(course, req, previous + 1);
+        return this.writeData(entry.enrollment.id, data => ({
+          ...data,
+          quizAttempts: [...(data.quizAttempts ?? []), attempt]
+        })).pipe(map(() => attempt));
+      })
+    );
+  }
+
+  getSubmissions(blockId: string): Observable<IAssignmentSubmission[]> {
+    return this.getMySubmissions().pipe(map(list => list.filter(s => s.blockId === blockId)));
+  }
+
+  submitAssignment(req: ISubmitAssignmentRequest): Observable<IAssignmentSubmission> {
+    return forkJoin({
+      course: this.courseService.getCourseById(req.courseId),
+      mine: this.loadMine()
+    }).pipe(
+      switchMap(({ course, mine }) => {
+        const entry = mine.find(c => c.enrollment.courseId === req.courseId);
+        if (!entry) return throwError(() => new Error('No estás matriculado en este curso'));
+        const existing = (entry.data.submissions ?? []).find(s => s.blockId === req.blockId);
+        const submission: IAssignmentSubmission = {
+          id: existing?.id ?? `sub-${entry.enrollment.id}-${req.blockId}`,
+          blockId: req.blockId,
+          lessonId: req.lessonId,
+          courseId: req.courseId,
+          textContent: req.textContent,
+          fileUrls: req.fileUrls,
+          submittedAt: new Date(),
+          status: 'pending'
+        };
+        return this.writeData(entry.enrollment.id, data => ({
+          ...data,
+          submissions: [...(data.submissions ?? []).filter(s => s.blockId !== req.blockId), submission]
+        })).pipe(
+          map(() => {
+            const user = this.session.user();
+            const blockTitle = course.modules.flatMap(m => m.lessons).flatMap(l => l.contentBlocks)
+              .find(b => b.id === req.blockId)?.title ?? 'una tarea';
+            this.notifications.notifySubmission(
+              user ? `${user.firstName} ${user.lastName}` : 'Un estudiante',
+              blockTitle, course.title, req.courseId, submission.id
+            );
+            return submission;
+          })
+        );
+      })
+    );
+  }
+
+  // ── Instructor / Admin ─────────────────────────────────────────────────────
 
   getEnrollmentsByCourse(courseId: string): Observable<(IEnrollment & { student: IStudentProfile })[]> {
-    const result = ALL_ENROLLMENTS
-      .filter(e => e.courseId === courseId)
-      .map(e => ({ ...e, student: MOCK_STUDENTS.find(s => s.id === e.userId)! }))
-      .filter(e => !!e.student);
-    return of(result).pipe(delay(300));
+    return forkJoin({
+      list: this.http.get<IEnrollmentApi[]>(`${this.baseUrl}/course/${courseId}`),
+      people: this.peopleById()
+    }).pipe(
+      map(({ list, people }) => list.map(r => {
+        const entry = this.remember(mapEnrollment(r));
+        return { ...entry.enrollment, student: people.get(entry.enrollment.userId) ?? unknownProfile(entry.enrollment.userId) };
+      }))
+    );
   }
 
   getAllCourseEnrollments(): Observable<(IEnrollment & { student: IStudentProfile })[]> {
-    const result = ALL_ENROLLMENTS
-      .map(e => ({ ...e, student: MOCK_STUDENTS.find(s => s.id === e.userId)! }))
-      .filter(e => !!e.student);
-    return of(result).pipe(delay(300));
+    return this.courseService.getCourses().pipe(
+      switchMap(res => res.courses.length
+        ? forkJoin(res.courses.map(c => this.getEnrollmentsByCourse(c.id)))
+        : of([])),
+      map(lists => lists.flat())
+    );
   }
 
   getAllSubmissions(): Observable<(IAssignmentSubmission & { student: IStudentProfile })[]> {
-    const result = ALL_SUBMISSIONS.map(s => ({
-      ...s,
-      student: MOCK_STUDENTS.find(st => st.id === SUBMISSION_USER_MAP[s.id])!
-    })).filter(s => !!s.student);
-    return of(result).pipe(delay(300));
+    return this.getAllCourseEnrollments().pipe(
+      map(enrollments => enrollments.flatMap(e =>
+        (this.cache.get(e.id)?.data.submissions ?? []).map(s => ({ ...s, student: e.student }))
+      ))
+    );
   }
 
   gradeSubmission(submissionId: string, grade: number, feedback: string): Observable<IAssignmentSubmission> {
-    const idx = ALL_SUBMISSIONS.findIndex(s => s.id === submissionId);
-    if (idx !== -1) {
-      ALL_SUBMISSIONS[idx] = { ...ALL_SUBMISSIONS[idx], grade, feedback, status: 'graded' };
-      return of(ALL_SUBMISSIONS[idx]).pipe(delay(400));
-    }
-    return of({} as IAssignmentSubmission);
+    const entry = [...this.cache.values()].find(c => c.data.submissions?.some(s => s.id === submissionId));
+    if (!entry) return throwError(() => new Error('Entrega no encontrada. Recarga la lista.'));
+    let graded!: IAssignmentSubmission;
+    return this.writeData(entry.enrollment.id, data => ({
+      ...data,
+      submissions: (data.submissions ?? []).map(s => {
+        if (s.id !== submissionId) return s;
+        graded = { ...s, grade, feedback, status: 'graded' };
+        return graded;
+      })
+    })).pipe(map(() => {
+      this._gradedSubmission$.next(graded);
+      return graded;
+    }));
   }
 
   enrollStudent(userId: string, courseId: string): Observable<IEnrollment> {
-    const existing = ALL_ENROLLMENTS.find(e => e.userId === userId && e.courseId === courseId);
-    if (existing) return of(existing).pipe(delay(200));
-    const enrollment: IEnrollment = {
-      id: `enr${Date.now()}`, userId, courseId, status: 'active',
-      enrolledAt: new Date(),
-      progress: { courseId, overallPercentage: 0, completedLessons: 0, totalLessons: 0, lastAccessedAt: new Date(), moduleProgress: [] }
-    };
-    ALL_ENROLLMENTS.push(enrollment);
-    return of(enrollment).pipe(delay(400));
+    return this.post(userId, courseId);
   }
 
   bulkEnroll(entries: { email: string; courseId: string }[]): Observable<{ success: number; skipped: number; errors: string[] }> {
-    let success = 0; let skipped = 0; const errors: string[] = [];
-    for (const entry of entries) {
-      const student = MOCK_STUDENTS.find(s => s.email.toLowerCase() === entry.email.toLowerCase());
-      if (!student) { errors.push(`No se encontró usuario: ${entry.email}`); continue; }
-      const exists = ALL_ENROLLMENTS.find(e => e.userId === student.id && e.courseId === entry.courseId);
-      if (exists) { skipped++; continue; }
-      ALL_ENROLLMENTS.push({
-        id: `enr${Date.now()}-${success}`, userId: student.id, courseId: entry.courseId, status: 'active',
-        enrolledAt: new Date(),
-        progress: { courseId: entry.courseId, overallPercentage: 0, completedLessons: 0, totalLessons: 0, lastAccessedAt: new Date(), moduleProgress: [] }
-      });
-      success++;
-    }
-    return of({ success, skipped, errors }).pipe(delay(600));
+    return this.getStudents().pipe(
+      switchMap(students => {
+        const errors: string[] = [];
+        const byCourse = new Map<string, string[]>();
+        for (const entry of entries) {
+          const student = students.find(s => s.email.toLowerCase() === entry.email.trim().toLowerCase());
+          if (!student) { errors.push(`No se encontró usuario: ${entry.email}`); continue; }
+          byCourse.set(entry.courseId, [...(byCourse.get(entry.courseId) ?? []), student.id]);
+        }
+        if (!byCourse.size) return of({ success: 0, skipped: 0, errors });
+        return forkJoin([...byCourse].map(([courseId, ids]) => this.enrollMany(ids, courseId))).pipe(
+          map(results => ({
+            success: results.reduce((s, r) => s + r.success, 0),
+            skipped: results.reduce((s, r) => s + r.skipped, 0),
+            errors
+          }))
+        );
+      })
+    );
   }
 
   enrollStudents(
     userIds: string[], targetId: string, type: 'course' | 'path', groupId?: string,
   ): Observable<{ success: number; skipped: number }> {
-    let success = 0; let skipped = 0;
-    for (const userId of userIds) {
-      if (type === 'course') {
-        const exists = ALL_ENROLLMENTS.find(e => e.userId === userId && e.courseId === targetId && e.groupId === groupId);
-        if (exists) { skipped++; continue; }
-        ALL_ENROLLMENTS.push({
-          id: `enr${Date.now()}-${success}`, userId, courseId: targetId, groupId, status: 'active',
-          enrolledAt: new Date(),
-          progress: { courseId: targetId, overallPercentage: 0, completedLessons: 0, totalLessons: 0, lastAccessedAt: new Date(), moduleProgress: [] }
-        });
-        success++;
-      } else {
-        success++;
-      }
-    }
-    return of({ success, skipped }).pipe(delay(500));
+    if (type === 'course') return this.enrollMany(userIds, targetId, groupId);
+    // A path enrollment is an enrollment in each of its courses.
+    return this.http.get<{ courses: { id: number }[] | null }>(
+      `${environment.apiUrls.education.learningPaths}/${targetId}`
+    ).pipe(
+      switchMap(path => {
+        const courseIds = (path.courses ?? []).map(c => String(c.id));
+        if (!courseIds.length) return of({ success: 0, skipped: 0 });
+        return forkJoin(courseIds.map(id => this.enrollMany(userIds, id, groupId))).pipe(
+          map(results => ({
+            success: Math.max(...results.map(r => r.success)),
+            skipped: Math.max(...results.map(r => r.skipped))
+          }))
+        );
+      })
+    );
   }
 
-  /** Crea estudiantes nuevos en el pool (para importación Excel de grupos). */
+  /**
+   * Looks up the given people among the institution's existing users. Creating accounts
+   * from a spreadsheet is done from "Gestión de usuarios"; rows without an account are skipped.
+   */
   addStudents(rows: { firstName: string; lastName: string; email: string }[]): IStudentProfile[] {
-    const created: IStudentProfile[] = [];
-    for (const r of rows) {
-      const email = r.email.trim().toLowerCase();
-      if (!email || !r.firstName.trim()) continue;
-      let student = MOCK_STUDENTS.find(s => s.email.toLowerCase() === email);
-      if (!student) {
-        student = {
-          id: `u-${Date.now()}-${MOCK_STUDENTS.length}`,
-          firstName: r.firstName.trim(),
-          lastName: r.lastName.trim(),
-          email,
-        };
-        MOCK_STUDENTS.push(student);
-      }
-      created.push(student);
-    }
-    return created;
+    const known = this.knownStudents;
+    return rows
+      .map(r => known.find(s => s.email.toLowerCase() === r.email.trim().toLowerCase()))
+      .filter((s): s is IStudentProfile => !!s);
   }
 
   enrollInPath(pathId: string): Observable<ILearningPathEnrollment> {
-    const existing = MOCK_PATH_ENROLLMENTS.find(e => e.learningPathId === pathId);
-    if (existing) return of(existing).pipe(delay(200));
+    const userId = this.session.user()?.id;
+    if (!userId) return throwError(() => new Error('Inicia sesión para matricularte'));
+    const all = this.readPathEnrollments();
+    const existing = all.find(e => e.learningPathId === pathId && e.userId === userId);
+    if (existing) return of(existing);
     const enrollment: ILearningPathEnrollment = {
-      id: `penr${Date.now()}`, userId: MOCK_USER_ID, learningPathId: pathId,
-      status: 'active', enrolledAt: new Date(),
-      completedCourseIds: [], overallPercentage: 0
+      id: `penr-${Date.now()}`, userId, learningPathId: pathId,
+      status: 'active', enrolledAt: new Date(), completedCourseIds: [], overallPercentage: 0
     };
-    MOCK_PATH_ENROLLMENTS.push(enrollment);
-    return of(enrollment).pipe(delay(400));
+    this.writePathEnrollments([...all, enrollment]);
+    return of(enrollment);
+  }
+
+  getMyPathEnrollments(): Observable<ILearningPathEnrollment[]> {
+    const userId = this.session.user()?.id;
+    return of(this.readPathEnrollments().filter(e => e.userId === userId));
   }
 
   getStudents(): Observable<IStudentProfile[]> {
-    return of([...MOCK_STUDENTS]).pipe(delay(200));
+    const institutionId = this.session.institutionId();
+    const source = institutionId ? this.users.getInstitutionUsers(institutionId) : this.users.getAllUsers();
+    return source.pipe(
+      map(list => {
+        const students = list.filter(u => u.role === EUserRole.STUDENT && u.isActive).map(toProfile);
+        this.knownStudents = students;
+        return students;
+      })
+    );
+  }
+
+  // ── Internals ──────────────────────────────────────────────────────────────
+
+  private knownStudents: IStudentProfile[] = [];
+  private mine$: Observable<ICachedEnrollment[]> | null = null;
+  private mineFor: string | null = null;
+
+  /** The current user's enrollments, fetched once per user and refreshed after writes. */
+  private loadMine(): Observable<ICachedEnrollment[]> {
+    const userId = this.session.user()?.id ?? null;
+    if (!userId) return of([]);
+    if (!this.mine$ || this.mineFor !== userId) {
+      this.mineFor = userId;
+      this.mine$ = this.http.get<IEnrollmentApi[]>(`${this.baseUrl}/student/${userId}`).pipe(
+        map(list => list.map(r => this.remember(mapEnrollment(r)))),
+        catchError(err => { this.mine$ = null; return throwError(() => err); }),
+        shareReplay(1)
+      );
+    }
+    return this.mine$.pipe(
+      // Serve the freshest copy of each enrollment (writes update the cache).
+      map(list => list.map(c => this.cache.get(c.enrollment.id) ?? c))
+    );
+  }
+
+  private post(userId: string, courseId: string): Observable<IEnrollment> {
+    return this.http.post<IEnrollmentApi>(this.baseUrl, { studentId: Number(userId), courseId: Number(courseId) }).pipe(
+      map(r => {
+        const entry = this.remember(mapEnrollment(r));
+        if (userId === this.session.user()?.id) this.mine$ = null;
+        return entry.enrollment;
+      })
+    );
+  }
+
+  private enrollMany(userIds: string[], courseId: string, groupId?: string): Observable<{ success: number; skipped: number }> {
+    if (!userIds.length) return of({ success: 0, skipped: 0 });
+    return this.getEnrollmentsByCourse(courseId).pipe(
+      switchMap(current => {
+        const already = new Set(current.map(e => e.userId));
+        const toEnroll = userIds.filter(id => !already.has(id));
+        const skipped = userIds.length - toEnroll.length;
+        if (!toEnroll.length) return of({ success: 0, skipped });
+        return this.http.post<IEnrollmentApi[]>(`${this.baseUrl}/bulk`, {
+          studentIds: toEnroll.map(Number),
+          courseId: Number(courseId)
+        }).pipe(
+          switchMap(created => {
+            const entries = created.map(r => this.remember(mapEnrollment(r)));
+            if (!groupId || !entries.length) return of(entries);
+            return forkJoin(entries.map(e => this.writeData(e.enrollment.id, d => ({ ...d, groupId }))));
+          }),
+          map(() => ({ success: toEnroll.length, skipped }))
+        );
+      })
+    );
+  }
+
+  private readonly writeQueue = new Map<string, Observable<IEnrollment>>();
+
+  /**
+   * Applies `change` to the enrollment's progress data and saves it. Writes to the same
+   * enrollment run one after another, each starting from the previous result, so two
+   * quick updates (e.g. "block completed" and "current lesson") never overwrite each other.
+   * A write keeps running even if its caller unsubscribes.
+   */
+  private writeData(enrollmentId: string, change: (data: IProgressData) => IProgressData, percentage?: number): Observable<IEnrollment> {
+    const previous: Observable<unknown> = this.writeQueue.get(enrollmentId) ?? of(null);
+    const write$: Observable<IEnrollment> = previous.pipe(
+      catchError(() => of(null)),
+      switchMap(() => this.cache.has(enrollmentId)
+        ? of(this.cache.get(enrollmentId)!)
+        : this.http.get<IEnrollmentApi>(`${this.baseUrl}/${enrollmentId}`).pipe(map(r => this.remember(mapEnrollment(r))))),
+      switchMap(current => {
+        const data = change(current.data);
+        const progress = Math.max(0, Math.min(100, Math.round(percentage ?? current.enrollment.progress.overallPercentage)));
+        return this.http.put<IEnrollmentApi>(`${this.baseUrl}/${enrollmentId}/progress`, {
+          progress,
+          progressData: JSON.stringify(data)
+        });
+      }),
+      map(r => this.remember(mapEnrollment(r)).enrollment),
+      shareReplay(1)
+    );
+    this.writeQueue.set(enrollmentId, write$);
+    write$.subscribe({ error: () => { /* reported to the caller */ } });
+    return write$;
+  }
+
+  private remember(entry: ICachedEnrollment): ICachedEnrollment {
+    this.cache.set(entry.enrollment.id, entry);
+    return entry;
+  }
+
+  private people$: Observable<Map<string, IStudentProfile>> | null = null;
+  private peopleFor: string | null = null;
+
+  private peopleById(): Observable<Map<string, IStudentProfile>> {
+    const key = `${this.session.user()?.id}:${this.session.institutionId()}`;
+    if (!this.people$ || this.peopleFor !== key) {
+      this.peopleFor = key;
+      const institutionId = this.session.institutionId();
+      const source = institutionId ? this.users.getInstitutionUsers(institutionId) : this.users.getAllUsers();
+      this.people$ = source.pipe(
+        map(list => new Map(list.map(u => [u.id, toProfile(u)] as const))),
+        catchError(() => of(new Map<string, IStudentProfile>())),
+        shareReplay(1)
+      );
+    }
+    return this.people$;
+  }
+
+  // Path enrollments have no API yet; they are kept in this browser only.
+  private readPathEnrollments(): ILearningPathEnrollment[] {
+    if (!this.isBrowser) return [];
+    try {
+      const raw = localStorage.getItem(PATH_ENROLLMENTS_KEY);
+      return raw ? (JSON.parse(raw) as ILearningPathEnrollment[]).map(e => reviveDates(e, ['enrolledAt', 'completedAt'])) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private writePathEnrollments(list: ILearningPathEnrollment[]): void {
+    if (!this.isBrowser) return;
+    try { localStorage.setItem(PATH_ENROLLMENTS_KEY, JSON.stringify(list)); } catch { /* storage unavailable */ }
   }
 }

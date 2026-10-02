@@ -5,7 +5,7 @@ import { LearningPathUseCase } from './learning-path.usecase';
 import { AuthSessionService } from 'auth';
 import { IEnrolledCourseEntry, IEnrolledPathEntry } from '../domain/model/enrollment.model';
 import { ICourseCertificate } from '../domain/model/player.model';
-import { MOCK_STUDENTS, MOCK_USER_ID } from '../infrastructure/services/enrollment.service';
+import { EContentType } from '../domain/model/course.model';
 
 export interface ICertification {
   id: string;
@@ -19,17 +19,10 @@ export interface IPendingTask {
   id: string;
   title: string;
   courseTitle: string;
-  dueDate: Date;
+  /** Not set until content blocks carry due dates. */
+  dueDate?: Date;
   type: 'assignment' | 'quiz' | 'live-session';
 }
-
-const MOCK_PENDING_TASKS: IPendingTask[] = [
-  { id: 'task1', title: 'Análisis exploratorio de datos',   courseTitle: 'Python para Ciencia de Datos', dueDate: new Date('2026-06-20'), type: 'assignment' },
-  { id: 'task2', title: 'Quiz: Fundamentos de Node.js',     courseTitle: 'Node.js Backend Avanzado',     dueDate: new Date('2026-06-18'), type: 'quiz' },
-  { id: 'task3', title: 'Sesión en vivo: Code Review',      courseTitle: 'React con Next.js',            dueDate: new Date('2026-06-22'), type: 'live-session' },
-  { id: 'task4', title: 'Proyecto final: API REST',         courseTitle: 'Node.js Backend Avanzado',     dueDate: new Date('2026-07-01'), type: 'assignment' },
-  { id: 'task5', title: 'Tarea: Diseño de componentes',     courseTitle: 'UX/UI con Figma',              dueDate: new Date('2026-06-25'), type: 'assignment' },
-];
 
 @Injectable({ providedIn: 'root' })
 export class MyLearningUseCase {
@@ -84,13 +77,7 @@ export class MyLearningUseCase {
     if (!entry) return null;
 
     const user = this.authSession.user();
-    let studentName = 'Estudiante';
-    if (user) {
-      studentName = `${user.firstName} ${user.lastName}`.trim();
-    } else {
-      const student = MOCK_STUDENTS.find(s => s.id === MOCK_USER_ID);
-      if (student) studentName = `${student.firstName} ${student.lastName}`;
-    }
+    const studentName = user ? `${user.firstName} ${user.lastName}`.trim() : 'Estudiante';
 
     return {
       courseId:        entry.course.id,
@@ -103,8 +90,32 @@ export class MyLearningUseCase {
     };
   }
 
-  readonly pendingTasks = computed((): IPendingTask[] =>
-    MOCK_PENDING_TASKS.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())
+  /**
+   * Quizzes and assignments of the courses in progress that the student has not completed
+   * (assignments already submitted are waiting for the instructor, so they are left out).
+   * Content blocks have no due date yet, so tasks are listed in course order.
+   */
+  readonly pendingTasks = computed((): IPendingTask[] => {
+    const submitted = new Set(this.enrollmentUc.submissions().map(s => s.blockId));
+    return this.inProgress().flatMap(({ enrollment, course }) => {
+      const done = new Set(enrollment.progress.completedBlockIds ?? []);
+      return course.modules.flatMap(m => m.lessons).flatMap(l => l.contentBlocks)
+        .filter(b => (b.type === EContentType.QUIZ || b.type === EContentType.ASSIGNMENT)
+          && !done.has(b.id) && !submitted.has(b.id))
+        .map(b => ({
+          id: `${course.id}-${b.id}`,
+          title: b.title,
+          courseTitle: course.title,
+          type: b.type === EContentType.QUIZ ? 'quiz' as const : 'assignment' as const
+        }));
+    });
+  });
+
+  /** Pending tasks that have a due date, soonest first (for the delivery calendar). */
+  readonly datedTasks = computed(() =>
+    this.pendingTasks()
+      .filter((t): t is IPendingTask & { dueDate: Date } => !!t.dueDate)
+      .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())
   );
 
   load(): void {

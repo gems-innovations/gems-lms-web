@@ -4,7 +4,6 @@ import { EnrollmentUseCase } from './enrollment.usecase';
 import { ILesson } from '../domain/model/course.model';
 import { ICourseCertificate } from '../domain/model/player.model';
 import { AuthSessionService } from 'auth';
-import { MOCK_STUDENTS, MOCK_USER_ID } from '../infrastructure/services/enrollment.service';
 import { SurveyService } from '../infrastructure/services/survey.service';
 
 @Injectable({ providedIn: 'root' })
@@ -173,13 +172,7 @@ export class CoursePlayerUseCase {
     const c = this.course();
     if (!c || this.courseProgress() < 100) return null;
     const user = this.authSession.user();
-    let studentName = 'Estudiante';
-    if (user) {
-      studentName = `${user.firstName} ${user.lastName}`.trim();
-    } else {
-      const student = MOCK_STUDENTS.find(s => s.id === MOCK_USER_ID);
-      if (student) studentName = `${student.firstName} ${student.lastName}`;
-    }
+    const studentName = user ? `${user.firstName} ${user.lastName}`.trim() : 'Estudiante';
     return {
       courseId:        c.id,
       courseTitle:     c.title,
@@ -248,6 +241,16 @@ export class CoursePlayerUseCase {
         }
       }
     }, { allowSignalWrites: true });
+
+    // Persist newly completed blocks (and the course percentage) to the enrollment.
+    effect(() => {
+      const enrollment = this.enrollment();
+      const done = this._completedBlockIds();
+      if (!enrollment || !this.course()) return;
+      const saved = new Set(enrollment.progress.completedBlockIds ?? []);
+      if ([...done].every(id => saved.has(id))) return;
+      this.enrollmentUc.saveCompletedBlocks(enrollment.id, [...new Set([...saved, ...done])], this.courseProgress());
+    });
 
     effect(() => {
       if (this._selectedLessonId() || !this.course()) return;

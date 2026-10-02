@@ -6,7 +6,7 @@ import type {
   ICourseStats, IEnrollmentRow, ISubmissionRow, IAssignmentEntry,
   IGradeSubmitEvent, TCourseDetailTab, IStudentGradeRow,
 } from '../domain/model/instructor.model';
-import { MOCK_REVIEWS } from '../domain/model/review.model';
+import { COURSE_REVIEWS } from '../domain/model/review.model';
 
 @Injectable()
 export class CourseDetailUseCase {
@@ -25,7 +25,7 @@ export class CourseDetailUseCase {
 
   // Reseñas de estudiantes de ESTE curso (feedback independiente por curso).
   readonly reviews = computed(() =>
-    MOCK_REVIEWS.filter(r => r.courseId === this._courseId())
+    COURSE_REVIEWS.filter(r => r.courseId === this._courseId())
   );
 
   private readonly _activeTab        = signal<TCourseDetailTab>('overview');
