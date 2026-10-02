@@ -1,12 +1,11 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subject, of, forkJoin, map, switchMap, throwError, catchError, shareReplay } from 'rxjs';
 import { environment } from 'shared';
 import { AuthSessionService, EUserRole, IUser, UserService } from 'auth';
 import { NotificationService } from './notification.service';
 import { CourseService } from './course.service';
-import { ICourse, IQuestion } from '../../domain/model/course.model';
 import {
   IEnrollment,
   ILearningPathEnrollment,
@@ -38,16 +37,68 @@ interface IEnrollmentApi {
   progressData: string | null;
 }
 
-/**
- * Detailed progress kept in the enrollment's `progressData` JSON. The API has no
- * dedicated resources for quiz attempts or assignment submissions yet, so they are
- * stored here too (the instructor grades by rewriting the student's enrollment).
- */
+/** Detailed progress kept in the enrollment's `progressData` JSON. */
 interface IProgressData {
   progress?: Partial<ICourseProgress>;
-  quizAttempts?: IQuizAttempt[];
-  submissions?: IAssignmentSubmission[];
   groupId?: string;
+}
+
+/** Quiz attempt as returned by ms-education (graded on the server). */
+interface IAttemptApi {
+  id: number;
+  courseId: number;
+  blockId: number;
+  lessonId: number | null;
+  attemptNumber: number;
+  answers: IQuizAttempt['answers'];
+  score: number;
+  passed: boolean;
+  feedback: IQuizAttempt['feedback'];
+  completedAt: string;
+}
+
+interface ISubmissionApi {
+  id: number;
+  studentId: number;
+  courseId: number;
+  blockId: number;
+  lessonId: number | null;
+  textContent: string | null;
+  fileUrls: string[] | null;
+  submittedAt: string;
+  grade: number | null;
+  feedback: string | null;
+  status: string;
+}
+
+function mapAttempt(a: IAttemptApi): IQuizAttempt {
+  return {
+    id: String(a.id),
+    blockId: String(a.blockId),
+    lessonId: a.lessonId != null ? String(a.lessonId) : '',
+    courseId: String(a.courseId),
+    attemptNumber: a.attemptNumber,
+    answers: a.answers ?? [],
+    score: a.score,
+    passed: a.passed,
+    feedback: a.feedback ?? [],
+    completedAt: new Date(a.completedAt)
+  };
+}
+
+function mapSubmission(s: ISubmissionApi): IAssignmentSubmission {
+  return {
+    id: String(s.id),
+    blockId: String(s.blockId),
+    lessonId: s.lessonId != null ? String(s.lessonId) : '',
+    courseId: String(s.courseId),
+    textContent: s.textContent ?? undefined,
+    fileUrls: s.fileUrls ?? undefined,
+    submittedAt: new Date(s.submittedAt),
+    grade: s.grade ?? undefined,
+    feedback: s.feedback ?? undefined,
+    status: s.status === 'graded' ? 'graded' : s.status === 'returned' ? 'returned' : 'pending'
+  };
 }
 
 interface ICachedEnrollment {
@@ -67,11 +118,7 @@ function parseData(raw: string | null): IProgressData {
   if (!raw) return {};
   try {
     const d = JSON.parse(raw) as IProgressData;
-    return {
-      ...d,
-      quizAttempts: (d.quizAttempts ?? []).map(a => reviveDates(a, ['completedAt'])),
-      submissions: (d.submissions ?? []).map(s => reviveDates(s, ['submittedAt']))
-    };
+    return { progress: d.progress, groupId: d.groupId };
   } catch {
     return {};
   }
@@ -104,52 +151,23 @@ function mapEnrollment(r: IEnrollmentApi): ICachedEnrollment {
   return { enrollment, data };
 }
 
+/** Readable message for rejected quiz attempts / submissions (the API sends a `code`). */
+function activityError(err: unknown): string {
+  const code = err instanceof HttpErrorResponse ? err.error?.code : undefined;
+  switch (code) {
+    case 'NOT_ENROLLED': return 'No estás matriculado en este curso';
+    case 'ATTEMPT_LIMIT_REACHED': return 'Ya usaste todos los intentos de este quiz';
+    case 'BLOCK_NOT_FOUND': return 'Este contenido ya no existe. Recarga el curso.';
+    default: return 'No se pudo enviar. Intenta de nuevo.';
+  }
+}
+
 function toProfile(u: IUser): IStudentProfile {
   return { id: u.id, firstName: u.firstName, lastName: u.lastName, email: u.email, avatarUrl: u.avatarUrl };
 }
 
 function unknownProfile(userId: string): IStudentProfile {
   return { id: userId, firstName: 'Usuario', lastName: `#${userId}`, email: '' };
-}
-
-/** Grades a quiz block against its questions (open questions are not graded). */
-function gradeQuiz(course: ICourse, req: ISubmitQuizRequest, attemptNumber: number): IQuizAttempt {
-  const block = course.modules.flatMap(m => m.lessons).flatMap(l => l.contentBlocks).find(b => b.id === req.blockId);
-  const questions: IQuestion[] = block?.questions ?? [];
-  let score = 0;
-  let maxScore = 0;
-  const feedback: NonNullable<IQuizAttempt['feedback']> = [];
-
-  for (const q of questions) {
-    if (q.type === 'open') continue;
-    const points = q.points || 1;
-    maxScore += points;
-    const answer = req.answers.find(a => a.questionId === q.id)?.answer;
-    let correct = false;
-    if (q.type === 'multiple-choice') {
-      const expected = q.correctAnswers || [];
-      const given = Array.isArray(answer) ? answer : (answer !== undefined && answer !== '' ? [String(answer)] : []);
-      correct = expected.length > 0 && expected.length === given.length && expected.every(c => given.includes(c));
-    } else if (q.type === 'true-false') {
-      correct = answer === q.correctAnswer;
-    }
-    if (correct) score += points;
-    feedback.push({ questionId: q.id, correct, explanation: q.explanation });
-  }
-
-  const finalScore = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
-  return {
-    id: `att-${Date.now()}`,
-    blockId: req.blockId,
-    lessonId: req.lessonId,
-    courseId: req.courseId,
-    attemptNumber,
-    answers: req.answers,
-    score: finalScore,
-    passed: finalScore >= (block?.passingScore || 70),
-    feedback,
-    completedAt: new Date()
-  };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -161,6 +179,7 @@ export class EnrollmentService {
   private readonly courseService = inject(CourseService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly baseUrl = environment.apiUrls.education.enrollments;
+  private readonly coursesUrl = environment.apiUrls.education.courses;
 
   /** Last known state of every enrollment this service has read or written, by id. */
   private readonly cache = new Map<string, ICachedEnrollment>();
@@ -175,11 +194,11 @@ export class EnrollmentService {
   }
 
   getMyQuizAttempts(): Observable<IQuizAttempt[]> {
-    return this.loadMine().pipe(map(list => list.flatMap(c => c.data.quizAttempts ?? [])));
+    return this.myActivity().pipe(map(a => a.quizAttempts));
   }
 
   getMySubmissions(): Observable<IAssignmentSubmission[]> {
-    return this.loadMine().pipe(map(list => list.flatMap(c => c.data.submissions ?? [])));
+    return this.myActivity().pipe(map(a => a.submissions));
   }
 
   enrollInCourse(courseId: string): Observable<IEnrollment> {
@@ -199,21 +218,13 @@ export class EnrollmentService {
     return this.getMyQuizAttempts().pipe(map(list => list.filter(a => a.blockId === blockId)));
   }
 
+  /** The API grades the answers; correct answers never reach the student. */
   submitQuiz(req: ISubmitQuizRequest): Observable<IQuizAttempt> {
-    return forkJoin({
-      course: this.courseService.getCourseById(req.courseId),
-      mine: this.loadMine()
-    }).pipe(
-      switchMap(({ course, mine }) => {
-        const entry = mine.find(c => c.enrollment.courseId === req.courseId);
-        if (!entry) return throwError(() => new Error('No estás matriculado en este curso'));
-        const previous = (entry.data.quizAttempts ?? []).filter(a => a.blockId === req.blockId).length;
-        const attempt = gradeQuiz(course, req, previous + 1);
-        return this.writeData(entry.enrollment.id, data => ({
-          ...data,
-          quizAttempts: [...(data.quizAttempts ?? []), attempt]
-        })).pipe(map(() => attempt));
-      })
+    return this.http.post<IAttemptApi>(
+      `${this.coursesUrl}/${req.courseId}/blocks/${req.blockId}/attempts`, { answers: req.answers }
+    ).pipe(
+      map(mapAttempt),
+      catchError(err => throwError(() => new Error(activityError(err))))
     );
   }
 
@@ -224,37 +235,21 @@ export class EnrollmentService {
   submitAssignment(req: ISubmitAssignmentRequest): Observable<IAssignmentSubmission> {
     return forkJoin({
       course: this.courseService.getCourseById(req.courseId),
-      mine: this.loadMine()
+      saved: this.http.put<ISubmissionApi>(
+        `${this.coursesUrl}/${req.courseId}/blocks/${req.blockId}/submission`,
+        { textContent: req.textContent, fileUrls: req.fileUrls ?? [] }
+      ).pipe(catchError(err => throwError(() => new Error(activityError(err)))))
     }).pipe(
-      switchMap(({ course, mine }) => {
-        const entry = mine.find(c => c.enrollment.courseId === req.courseId);
-        if (!entry) return throwError(() => new Error('No estás matriculado en este curso'));
-        const existing = (entry.data.submissions ?? []).find(s => s.blockId === req.blockId);
-        const submission: IAssignmentSubmission = {
-          id: existing?.id ?? `sub-${entry.enrollment.id}-${req.blockId}`,
-          blockId: req.blockId,
-          lessonId: req.lessonId,
-          courseId: req.courseId,
-          textContent: req.textContent,
-          fileUrls: req.fileUrls,
-          submittedAt: new Date(),
-          status: 'pending'
-        };
-        return this.writeData(entry.enrollment.id, data => ({
-          ...data,
-          submissions: [...(data.submissions ?? []).filter(s => s.blockId !== req.blockId), submission]
-        })).pipe(
-          map(() => {
-            const user = this.session.user();
-            const blockTitle = course.modules.flatMap(m => m.lessons).flatMap(l => l.contentBlocks)
-              .find(b => b.id === req.blockId)?.title ?? 'una tarea';
-            this.notifications.notifySubmission(
-              user ? `${user.firstName} ${user.lastName}` : 'Un estudiante',
-              blockTitle, course.title, req.courseId, submission.id
-            );
-            return submission;
-          })
+      map(({ course, saved }) => {
+        const submission = mapSubmission(saved);
+        const user = this.session.user();
+        const blockTitle = course.modules.flatMap(m => m.lessons).flatMap(l => l.contentBlocks)
+          .find(b => b.id === req.blockId)?.title ?? 'una tarea';
+        this.notifications.notifySubmission(
+          user ? `${user.firstName} ${user.lastName}` : 'Un estudiante',
+          blockTitle, course.title, req.courseId, submission.id
         );
+        return submission;
       })
     );
   }
@@ -274,6 +269,19 @@ export class EnrollmentService {
   }
 
   getAllCourseEnrollments(): Observable<(IEnrollment & { student: IStudentProfile })[]> {
+    const institutionId = this.session.institutionId();
+    if (institutionId) {
+      return forkJoin({
+        list: this.http.get<IEnrollmentApi[]>(`${this.baseUrl}/institution/${encodeURIComponent(institutionId)}`),
+        people: this.peopleById()
+      }).pipe(
+        map(({ list, people }) => list.map(r => {
+          const entry = this.remember(mapEnrollment(r));
+          return { ...entry.enrollment, student: people.get(entry.enrollment.userId) ?? unknownProfile(entry.enrollment.userId) };
+        }))
+      );
+    }
+    // The super admin has no institution: walk every course.
     return this.courseService.getCourses().pipe(
       switchMap(res => res.courses.length
         ? forkJoin(res.courses.map(c => this.getEnrollmentsByCourse(c.id)))
@@ -283,28 +291,39 @@ export class EnrollmentService {
   }
 
   getAllSubmissions(): Observable<(IAssignmentSubmission & { student: IStudentProfile })[]> {
-    return this.getAllCourseEnrollments().pipe(
-      map(enrollments => enrollments.flatMap(e =>
-        (this.cache.get(e.id)?.data.submissions ?? []).map(s => ({ ...s, student: e.student }))
-      ))
+    const institutionId = this.session.institutionId();
+    if (institutionId) {
+      return forkJoin({
+        list: this.http.get<ISubmissionApi[]>(`${environment.apiUrls.education.submissions}/institution/${encodeURIComponent(institutionId)}`),
+        people: this.peopleById()
+      }).pipe(
+        map(({ list, people }) => list.map(s => ({
+          ...mapSubmission(s),
+          student: people.get(String(s.studentId)) ?? unknownProfile(String(s.studentId))
+        })))
+      );
+    }
+    return forkJoin({ courses: this.courseService.getCourses(), people: this.peopleById() }).pipe(
+      switchMap(({ courses, people }) => courses.courses.length
+        ? forkJoin(courses.courses.map(c =>
+            this.http.get<ISubmissionApi[]>(`${this.coursesUrl}/${c.id}/submissions`).pipe(
+              map(list => list.map(s => ({
+                ...mapSubmission(s),
+                student: people.get(String(s.studentId)) ?? unknownProfile(String(s.studentId))
+              })))
+            )))
+        : of([])),
+      map(lists => lists.flat())
     );
   }
 
   gradeSubmission(submissionId: string, grade: number, feedback: string): Observable<IAssignmentSubmission> {
-    const entry = [...this.cache.values()].find(c => c.data.submissions?.some(s => s.id === submissionId));
-    if (!entry) return throwError(() => new Error('Entrega no encontrada. Recarga la lista.'));
-    let graded!: IAssignmentSubmission;
-    return this.writeData(entry.enrollment.id, data => ({
-      ...data,
-      submissions: (data.submissions ?? []).map(s => {
-        if (s.id !== submissionId) return s;
-        graded = { ...s, grade, feedback, status: 'graded' };
+    return this.http.put<ISubmissionApi>(`${environment.apiUrls.education.submissions}/${submissionId}/grade`, { grade, feedback })
+      .pipe(map(s => {
+        const graded = mapSubmission(s);
+        this._gradedSubmission$.next(graded);
         return graded;
-      })
-    })).pipe(map(() => {
-      this._gradedSubmission$.next(graded);
-      return graded;
-    }));
+      }));
   }
 
   enrollStudent(userId: string, courseId: string): Observable<IEnrollment> {
@@ -397,6 +416,13 @@ export class EnrollmentService {
   }
 
   // ── Internals ──────────────────────────────────────────────────────────────
+
+  /** The caller's quiz attempts and assignment submissions. */
+  private myActivity(): Observable<{ quizAttempts: IQuizAttempt[]; submissions: IAssignmentSubmission[] }> {
+    if (!this.session.user()) return of({ quizAttempts: [], submissions: [] });
+    return this.http.get<{ quizAttempts: IAttemptApi[]; submissions: ISubmissionApi[] }>(environment.apiUrls.education.activity)
+      .pipe(map(r => ({ quizAttempts: r.quizAttempts.map(mapAttempt), submissions: r.submissions.map(mapSubmission) })));
+  }
 
   private knownStudents: IStudentProfile[] = [];
   private mine$: Observable<ICachedEnrollment[]> | null = null;

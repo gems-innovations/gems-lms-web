@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map, switchMap, throwError } from 'rxjs';
+import { Observable, map, switchMap, throwError, catchError, shareReplay, tap } from 'rxjs';
 import { environment } from 'shared';
 import { AuthSessionService, getFullName } from 'auth';
 import {
@@ -157,6 +157,8 @@ function serializeModules(modules: ICourseModule[]) {
   }));
 }
 
+const LIST_CACHE_MS = 5000;
+
 @Injectable({ providedIn: 'root' })
 export class CourseService {
   private readonly http = inject(HttpClient);
@@ -168,6 +170,7 @@ export class CourseService {
   // course tree as a whole.
   private readonly courseIdByModule = new Map<string, string>();
   private readonly courseIdByLesson = new Map<string, string>();
+  private readonly listCache = new Map<string, { at: number; response$: Observable<ICourseListResponse> }>();
 
   getCourses(filters?: ICourseFilters, page = 1, limit = 100): Observable<ICourseListResponse> {
     let params = new HttpParams().set('page', page).set('limit', limit);
@@ -178,14 +181,27 @@ export class CourseService {
     const institutionId = this.session.isSuperAdmin() ? null : this.session.institutionId();
     if (institutionId) params = params.set('institutionId', institutionId);
 
-    return this.http.get<ICourseListApi>(this.baseUrl, { params }).pipe(
+    // Several screens ask for the same list at once (dashboards combine services that each
+    // load it); identical requests within a few seconds share one HTTP call.
+    const key = params.toString();
+    const cached = this.listCache.get(key);
+    if (cached && Date.now() - cached.at < LIST_CACHE_MS) return cached.response$;
+
+    const response$ = this.http.get<ICourseListApi>(this.baseUrl, { params }).pipe(
       map(r => ({
         courses: r.courses.map(c => this.track(mapCourse(c))),
         total: r.total,
         page: r.page,
         limit: r.limit
-      }))
+      })),
+      catchError(err => {
+        this.listCache.delete(key);
+        return throwError(() => err);
+      }),
+      shareReplay(1)
     );
+    this.listCache.set(key, { at: Date.now(), response$ });
+    return response$;
   }
 
   getCourseById(id: string): Observable<ICourse> {
@@ -209,16 +225,16 @@ export class CourseService {
       instructorName: user ? getFullName(user) : undefined,
       modules: []
     };
-    return this.http.post<ICourseApi>(this.baseUrl, body).pipe(map(c => this.track(mapCourse(c))));
+    return this.http.post<ICourseApi>(this.baseUrl, body).pipe(tap(() => this.listCache.clear()), map(c => this.track(mapCourse(c))));
   }
 
   /** Updates course fields only; the API keeps the module tree untouched. */
   updateCourse(id: string, req: IUpdateCourseRequest): Observable<ICourse> {
-    return this.http.put<ICourseApi>(`${this.baseUrl}/${id}`, req).pipe(map(c => this.track(mapCourse(c))));
+    return this.http.put<ICourseApi>(`${this.baseUrl}/${id}`, req).pipe(tap(() => this.listCache.clear()), map(c => this.track(mapCourse(c))));
   }
 
   deleteCourse(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+    return this.http.delete<void>(`${this.baseUrl}/${id}`).pipe(tap(() => this.listCache.clear()));
   }
 
   addModule(req: ICreateModuleRequest): Observable<ICourse> {
@@ -275,6 +291,7 @@ export class CourseService {
         change(course);
         return this.http.put<ICourseApi>(`${this.baseUrl}/${courseId}`, { modules: serializeModules(course.modules) });
       }),
+      tap(() => this.listCache.clear()),
       map(c => this.track(mapCourse(c)))
     );
   }

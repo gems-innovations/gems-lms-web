@@ -21,6 +21,8 @@ export const environment = {
       enrollments: `${API_BASE_URL}/enrollments`,
       learningPaths: `${API_BASE_URL}/learning-paths`,
       quizzes: `${API_BASE_URL}/quizzes`,
+      submissions: `${API_BASE_URL}/submissions`,
+      activity: `${API_BASE_URL}/activity/me`,
     },
   }
 };

@@ -111,20 +111,18 @@ export class GroupService {
 
   private virtualGroups(): Observable<IGroup[]> {
     const instructorId = this.session.user()?.id ?? null;
-    return this.courseService.getCourses().pipe(
-      switchMap(res => res.courses.length
-        ? forkJoin(res.courses.map(course =>
-            this.enrollmentService.getEnrollmentsByCourse(course.id).pipe(
-              map(enrollments => ({
-                id: `${VIRTUAL_PREFIX}${course.id}`,
-                name: 'Todos los inscritos',
-                studentIds: enrollments.map(e => e.userId),
-                instructorId,
-                courseIds: [course.id],
-                pathIds: []
-              } satisfies IGroup))
-            )))
-        : of([]))
+    return forkJoin({
+      courses: this.courseService.getCourses(),
+      enrollments: this.enrollmentService.getAllCourseEnrollments()
+    }).pipe(
+      map(({ courses, enrollments }) => courses.courses.map(course => ({
+        id: `${VIRTUAL_PREFIX}${course.id}`,
+        name: 'Todos los inscritos',
+        studentIds: enrollments.filter(e => e.courseId === course.id).map(e => e.userId),
+        instructorId,
+        courseIds: [course.id],
+        pathIds: []
+      } satisfies IGroup)))
     );
   }
 
