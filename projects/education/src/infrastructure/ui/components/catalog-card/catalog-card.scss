@@ -229,3 +229,15 @@
     }
   }
 }
+
+.catalog-card__blocked,
+.catalog-card__seats {
+  flex: 1;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--color-texto-terciario);
+}
+
+.catalog-card__blocked {
+  color: var(--color-advertencia);
+}

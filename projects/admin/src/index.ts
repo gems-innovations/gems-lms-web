@@ -84,5 +84,20 @@ export const routes: Routes = [
         loadComponent: () => import('./infrastructure/ui/containers/audit-container/audit-container').then(m => m.AuditContainer)
       }
     ]
+  },
+  {
+    path: 'periods',
+    component: MainLayout,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/sidebar-container/sidebar-container').then(m => m.SidebarContainer),
+        outlet: 'sidebar'
+      },
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/academic-periods-container/academic-periods-container').then(m => m.AcademicPeriodsContainer)
+      }
+    ]
   }
 ];

@@ -1,4 +1,5 @@
 import type { IRubricScore } from '../../domain/model/gradebook.model';
+import { enrollmentErrorText } from './enrollment-rules.service';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -488,7 +489,12 @@ export class EnrollmentService {
         const entry = this.remember(mapEnrollment(r));
         if (userId === this.session.user()?.id) this.mine$ = null;
         return entry.enrollment;
-      })
+      }),
+      // Rejected by the enrollment rules of the course: say why.
+      catchError(err => throwError(() => {
+        const reason = enrollmentErrorText(err);
+        return reason ? Object.assign(new Error(reason), { status: 409 }) : err;
+      }))
     );
   }
 

@@ -66,9 +66,16 @@
           <circle cx="12" cy="12" r="3"/>
         </svg>
       </button>
-      <button type="button" class="catalog-card__btn catalog-card__btn--primary" (click)="enrollItem.emit(item())">
-        Inscribirme
-      </button>
+      @if (blockedReason(); as reason) {
+        <span class="catalog-card__blocked" role="note">{{ reason }}</span>
+      } @else {
+        @if (seatsLeft() !== null) {
+          <span class="catalog-card__seats">{{ seatsLeft() }} cupo(s)</span>
+        }
+        <button type="button" class="catalog-card__btn catalog-card__btn--primary" (click)="enrollItem.emit(item())">
+          Inscribirme
+        </button>
+      }
     }
   </div>
 </div>

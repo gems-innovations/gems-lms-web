@@ -247,3 +247,22 @@
   justify-content: center;
   color: rgba(255,255,255,0.55);
 }
+
+.preview-hero__blocked,
+.preview-hero__enroll-info {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+}
+
+.preview-hero__blocked {
+  color: var(--color-advertencia);
+}
+
+.preview-hero__enroll-info {
+  color: var(--color-texto-terciario);
+}
+
+.preview-hero__cta:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

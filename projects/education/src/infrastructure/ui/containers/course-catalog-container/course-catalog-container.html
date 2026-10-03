@@ -23,6 +23,8 @@
         <edu-catalog-card
           [item]="item"
           [enrolled]="uc.isEnrolled(item)"
+          [blockedReason]="uc.blockedReason(item)"
+          [seatsLeft]="uc.seatsLeft(item)"
           (enrollItem)="enroll($event)"
           (openItem)="open($event)"
           (previewItem)="preview($event)"

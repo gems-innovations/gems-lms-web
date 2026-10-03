@@ -1,0 +1,72 @@
+@switch (state()) {
+  @case ('loading') { <lib-loading-skeleton [rows]="5" /> }
+  @case ('error') { <p class="erules__error" role="alert">No se pudieron cargar las reglas de inscripción.</p> }
+  @default {
+    <form class="erules" (submit)="$event.preventDefault(); save()" aria-label="Reglas de inscripción">
+      <p class="erules__hint">
+        Los estudiantes que se inscriben solos deben cumplir todas las reglas. Cuando el equipo docente o la
+        administración inscriben a alguien, solo se respeta el cupo.
+      </p>
+
+      <div class="erules__row">
+        <div class="erules__field">
+          <label for="er-period">Período académico</label>
+          <select id="er-period" class="erules__input" name="period"
+                  [ngModel]="draft().periodId ?? ''" (ngModelChange)="patch({ periodId: $event || null })">
+            <option value="">Sin período</option>
+            @for (p of periods(); track p.id) {
+              <option [value]="p.id">{{ p.name }} ({{ p.startsOn }} → {{ p.endsOn }})</option>
+            }
+          </select>
+          @if (periods().length === 0) {
+            <span class="erules__hint">La administración aún no ha creado períodos.</span>
+          }
+        </div>
+        <div class="erules__field erules__field--sm">
+          <label for="er-capacity">Cupo máximo</label>
+          <input id="er-capacity" class="erules__input" type="number" min="1" placeholder="Sin límite" name="capacity"
+                 [ngModel]="draft().capacity" (ngModelChange)="setCapacity($event)" />
+        </div>
+      </div>
+
+      <div class="erules__row">
+        <div class="erules__field">
+          <label for="er-opens">Inscripción abre</label>
+          <input id="er-opens" class="erules__input" type="datetime-local" name="opens"
+                 [ngModel]="draft().opensAt ?? ''" (ngModelChange)="patch({ opensAt: $event || null })" />
+        </div>
+        <div class="erules__field">
+          <label for="er-closes">Inscripción cierra</label>
+          <input id="er-closes" class="erules__input" type="datetime-local" name="closes"
+                 [ngModel]="draft().closesAt ?? ''" (ngModelChange)="patch({ closesAt: $event || null })" />
+          @if (!draft().closesAt && periodEnd()) {
+            <span class="erules__hint">Sin fecha propia: cierra al terminar el período ({{ periodEnd() }}).</span>
+          }
+        </div>
+      </div>
+
+      <label class="erules__check">
+        <input type="checkbox" name="self" [ngModel]="draft().selfEnrollment" (ngModelChange)="patch({ selfEnrollment: $event })" />
+        Los estudiantes pueden inscribirse desde el catálogo
+      </label>
+
+      <fieldset class="erules__prereqs">
+        <legend>Prerrequisitos (cursos que deben haber completado)</legend>
+        @for (c of candidates(); track c.id) {
+          <label class="erules__check">
+            <input type="checkbox" [name]="'pre-' + c.id" [checked]="draft().prerequisiteIds.includes(c.id)"
+                   (change)="togglePrerequisite(c.id, $any($event.target).checked)" />
+            {{ c.title }}
+          </label>
+        } @empty {
+          <span class="erules__hint">No hay otros cursos en la institución.</span>
+        }
+      </fieldset>
+
+      @if (problem(); as p) { <p class="erules__error" role="alert">{{ p }}</p> }
+      <div class="erules__actions">
+        <lib-button variant="primary" type="submit" [loading]="saving()" [disabled]="!!problem()">Guardar reglas</lib-button>
+      </div>
+    </form>
+  }
+}

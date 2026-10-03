@@ -18,6 +18,7 @@ import { StudentDetail } from '../../components/student-detail/student-detail';
 import { SurveyPanel } from '../../components/survey-panel/survey-panel';
 import { GradebookPanel } from '../../components/gradebook-panel/gradebook-panel';
 import { CourseCommunity } from 'education';
+import { EnrollmentRulesPanel } from '../../components/enrollment-rules-panel/enrollment-rules-panel';
 import type { ISubmissionRow, IGradeSubmitEvent, TCourseDetailTab } from '../../../../domain/model/instructor.model';
 
 @Component({
@@ -27,7 +28,7 @@ import type { ISubmissionRow, IGradeSubmitEvent, TCourseDetailTab } from '../../
     DecimalPipe, PageComponent, PageHeaderComponent, StatGridComponent, StatCardComponent,
     LoadingSkeletonComponent, BackButtonComponent, TabsComponent, LibButtonComponent,
     EmptyStateComponent, LibSelectComponent, StudentsTable, GradingPanel, ReviewCard, StudentDetail, SurveyPanel,
-    GradebookPanel, CourseCommunity,
+    GradebookPanel, CourseCommunity, EnrollmentRulesPanel,
   ],
   providers: [CourseDetailUseCase, SurveyEditorUseCase],
   templateUrl: './course-detail-container.html',

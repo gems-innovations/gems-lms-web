@@ -77,12 +77,18 @@
             </button>
           </div>
         } @else {
-          <button type="button" class="preview-hero__cta" (click)="enroll.emit()">
+          <button type="button" class="preview-hero__cta" [disabled]="!!blockedReason()" (click)="enroll.emit()">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
             Inscribirme {{ type() === 'path' ? 'a la ruta' : 'al curso' }}
           </button>
+          @if (blockedReason(); as reason) {
+            <p class="preview-hero__blocked" role="note">{{ reason }}</p>
+          }
+          @if (enrollmentInfo(); as info) {
+            <p class="preview-hero__enroll-info">{{ info }}</p>
+          }
         }
       </div>
     </div>

@@ -5,6 +5,9 @@ import { tap, switchMap, catchError } from 'rxjs/operators';
 import { CourseService } from '../infrastructure/services/course.service';
 import { LearningPathService } from '../infrastructure/services/learning-path.service';
 import { EnrollmentService } from '../infrastructure/services/enrollment.service';
+import { EnrollmentRulesService, enrollmentBlockText } from '../infrastructure/services/enrollment-rules.service';
+import type { IEligibility } from '../infrastructure/services/enrollment-rules.service';
+import { ToastService } from 'shared';
 import { ECourseStatus } from '../domain/model/course.model';
 import { ELearningPathStatus } from '../domain/model/learning-path.model';
 import { ICatalogItem, TCatalogKindFilter, TCatalogLevelFilter } from '../domain/model/catalog.model';
@@ -18,6 +21,8 @@ export class CourseCatalogUseCase {
   private readonly courseService     = inject(CourseService);
   private readonly pathService       = inject(LearningPathService);
   private readonly enrollmentService = inject(EnrollmentService);
+  private readonly rulesService      = inject(EnrollmentRulesService);
+  private readonly toast             = inject(ToastService);
 
   //#region State
   private readonly _allItems        = signal<ICatalogItem[]>([]);
@@ -28,6 +33,8 @@ export class CourseCatalogUseCase {
   private readonly _filterKind      = signal<TCatalogKindFilter>('all');
   private readonly _filterLevel     = signal<TCatalogLevelFilter>('all');
   private readonly _page            = signal(1);
+  /** Enrollment window, seats and blocks of each course, for the signed-in student. */
+  private readonly _eligibility     = signal<Record<string, IEligibility>>({});
 
   readonly isLoading   = computed(() => this._isLoading());
   readonly search      = computed(() => this._search());
@@ -108,6 +115,7 @@ export class CourseCatalogUseCase {
           this._enrolledIds.set(enrollments.map(e => e.courseId));
           this._enrolledPathIds.set(pathEnrollments.map(e => e.learningPathId));
           this._isLoading.set(false);
+          this.loadEligibility(courseItems.map(c => c.id).filter(id => !this._enrolledIds().includes(id)));
         }),
         catchError(() => { this._isLoading.set(false); return EMPTY; })
       )),
@@ -118,7 +126,11 @@ export class CourseCatalogUseCase {
       switchMap(item => item.kind === 'course'
         ? this.enrollmentService.enrollInCourse(item.id).pipe(
             tap(() => this._enrolledIds.update(ids => [...ids, item.id])),
-            catchError(() => EMPTY)
+            catchError(err => {
+              this.toast.error(err?.message || 'No se pudo completar la inscripción');
+              this.loadEligibility([item.id]);
+              return EMPTY;
+            })
           )
         : this.enrollmentService.enrollInPath(item.id).pipe(
             tap(() => this._enrolledPathIds.update(ids => [...ids, item.id])),
@@ -146,5 +158,26 @@ export class CourseCatalogUseCase {
   }
 
   enroll(item: ICatalogItem): void { this.enroll$.next(item); }
+
+  /** Why the student cannot enroll in this course now; null when they can (or it is a path). */
+  blockedReason(item: ICatalogItem): string | null {
+    if (item.kind !== 'course') return null;
+    const e = this._eligibility()[item.id];
+    return e && !e.allowed ? e.reasons.map(enrollmentBlockText).join('. ') : null;
+  }
+
+  /** Seats left, when the course has a capacity. */
+  seatsLeft(item: ICatalogItem): number | null {
+    return item.kind === 'course' ? this._eligibility()[item.id]?.seatsLeft ?? null : null;
+  }
+
+  private loadEligibility(courseIds: string[]): void {
+    for (let i = 0; i < courseIds.length; i += 100) {
+      this.rulesService.eligibility(courseIds.slice(i, i + 100)).subscribe({
+        next: list => this._eligibility.update(m => ({ ...m, ...Object.fromEntries(list.map(e => [e.courseId, e])) })),
+        error: () => {},
+      });
+    }
+  }
   //#endregion
 }
