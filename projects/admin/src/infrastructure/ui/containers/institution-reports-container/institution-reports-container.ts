@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PageComponent, PageHeaderComponent } from 'shared';
 import { AuthSessionService } from 'auth';
@@ -18,6 +18,10 @@ export class InstitutionReportsContainer implements OnInit {
   readonly loading = signal(false);
   readonly exporting = signal(false);
   readonly error = signal<string | null>(null);
+  readonly courseProgress = computed(() => [...(this.report()?.courses ?? [])]
+    .sort((a, b) => b.averageProgress - a.averageProgress).slice(0, 6));
+
+  barWidth(progress: number): string { return `${Math.min(100, Math.max(0, progress))}%`; }
 
   ngOnInit(): void { this.load(); }
   load(): void {
