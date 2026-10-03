@@ -14,6 +14,9 @@ export { EnrollResultBanner } from './infrastructure/ui/components/enroll-result
 export { QuestionBankService } from './infrastructure/services/question-bank.service';
 export type { IBankQuestion, IBankCategory, IBankQuestionPage, TBankQuestionType } from './infrastructure/services/question-bank.service';
 export { QuizSessionService } from './infrastructure/services/quiz-session.service';
+export { CourseCommunityService } from './infrastructure/services/course-community.service';
+export type { IAnnouncement, IForumThread, IForumPost } from './infrastructure/services/course-community.service';
+export { CourseCommunity } from './infrastructure/ui/components/course-community/course-community';
 export { GradebookService } from './infrastructure/services/gradebook.service';
 export type {
   IGradebook, IGradebookItem, IGradebookRow, IGradebookCell, IRubricScore, TGradebookCellState,
@@ -111,6 +114,13 @@ export const studentChildRoutes: Routes = [
     loadComponent: () =>
       import('./infrastructure/ui/containers/student-home-container/student-home-container').then(
         m => m.StudentHomeContainer
+      )
+  },
+  {
+    path: 'courses/:id/community',
+    loadComponent: () =>
+      import('./infrastructure/ui/containers/course-community-container/course-community-container').then(
+        m => m.CourseCommunityContainer
       )
   },
   {

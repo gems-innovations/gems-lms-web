@@ -22,6 +22,7 @@
   </div>
 
   <div class="player-topbar__right">
+    <button type="button" class="player-topbar__grades" (click)="openCommunity.emit()">Comunidad</button>
     <button type="button" class="player-topbar__grades" (click)="openGrades.emit()">Mis notas</button>
     @if (progress() > 0) {
       <span class="player-topbar__progress-chip">

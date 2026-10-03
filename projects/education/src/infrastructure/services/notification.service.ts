@@ -3,12 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map, tap, catchError, of } from 'rxjs';
 import { environment } from 'shared';
 
+export type TNotificationType = 'submission' | 'graded' | 'announcement' | 'forum';
+
 export interface IInstructorNotification {
   id: string;
-  type: 'submission' | 'graded';
+  type: TNotificationType;
   title: string;
   message: string;
   courseId: string;
+  /** The submission, announcement or forum thread the notification is about. */
   submissionId?: string;
   createdAt: Date;
   read: boolean;
@@ -16,7 +19,7 @@ export interface IInstructorNotification {
 
 interface INotificationApi {
   id: number;
-  type: 'submission' | 'graded';
+  type: TNotificationType;
   title: string;
   message: string;
   courseId: number | null;

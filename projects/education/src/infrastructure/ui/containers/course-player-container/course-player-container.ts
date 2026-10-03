@@ -280,6 +280,10 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
   }
 
   protected goHome(): void { this._guardedNav(() => this.router.navigate(['/learn/home'])); }
+  protected openCommunity(): void {
+    const id = this.uc.courseId();
+    this._guardedNav(() => this.router.navigate(['/learn/courses', id, 'community']));
+  }
   protected openGrades(): void {
     const id = this.uc.courseId();
     this._guardedNav(() => this.router.navigate(['/learn/courses', id, 'grades']));

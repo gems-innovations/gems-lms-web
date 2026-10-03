@@ -29,6 +29,7 @@
           { id: 'students', label: 'Estudiantes', count: uc.stats().studentCount },
           { id: 'submissions', label: 'Entregas', count: uc.stats().pendingCount },
           { id: 'gradebook', label: 'Calificaciones' },
+          { id: 'community', label: 'Comunidad' },
           { id: 'reviews', label: 'Reseñas', count: uc.reviews().length },
           { id: 'survey', label: 'Encuesta', count: surveyUc.responseCount() }
         ]"
@@ -115,6 +116,11 @@
         (exportExcel)="exportGradebook()"
         (openSubmission)="openFromGradebook($event)"
       />
+    }
+
+    <!-- ── Anuncios y foro ── -->
+    @if (uc.activeTab() === 'community') {
+      <edu-course-community [courseId]="courseId" />
     }
 
     <!-- ── Reseñas ── -->

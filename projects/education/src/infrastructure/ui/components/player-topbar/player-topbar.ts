@@ -18,6 +18,7 @@ export class PlayerTopbar {
 
   readonly goHome = output<void>();
   readonly openGrades = output<void>();
+  readonly openCommunity = output<void>();
   readonly prev   = output<void>();
   readonly next   = output<void>();
 }

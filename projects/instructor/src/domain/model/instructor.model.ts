@@ -8,7 +8,7 @@ export interface ICohort {
   stats: ICourseStats;
 }
 
-export type TCourseDetailTab = 'overview' | 'students' | 'submissions' | 'reviews' | 'survey' | 'gradebook';
+export type TCourseDetailTab = 'overview' | 'students' | 'submissions' | 'reviews' | 'survey' | 'gradebook' | 'community';
 
 export interface IStudentGradeRow {
   blockId: string;
