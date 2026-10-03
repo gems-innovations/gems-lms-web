@@ -25,6 +25,7 @@ export class AdminSidebarUseCase {
         { id: 'people',      label: 'Personas',        icon: 'users',     route: '/admin/people' },
         { id: 'enrollments', label: 'Matrículas',      icon: 'courses',   route: '/admin/enrollments' },
         { id: 'periods',     label: 'Períodos',        icon: 'learning-paths', route: '/admin/periods' },
+        { id: 'reports',     label: 'Reportes',         icon: 'stats',     route: '/admin/reports' },
         { id: 'audit',       label: 'Auditoría',       icon: 'stats',     route: '/admin/audit' }
       ];
     }

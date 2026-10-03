@@ -99,5 +99,20 @@ export const routes: Routes = [
         loadComponent: () => import('./infrastructure/ui/containers/academic-periods-container/academic-periods-container').then(m => m.AcademicPeriodsContainer)
       }
     ]
+  },
+  {
+    path: 'reports',
+    component: MainLayout,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/sidebar-container/sidebar-container').then(m => m.SidebarContainer),
+        outlet: 'sidebar'
+      },
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/institution-reports-container/institution-reports-container').then(m => m.InstitutionReportsContainer)
+      }
+    ]
   }
 ];

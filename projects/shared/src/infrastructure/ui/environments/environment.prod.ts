@@ -31,6 +31,7 @@ export const environment = {
       certificates: `${API_BASE_URL}/certificates`,
       questionBank: `${API_BASE_URL}/question-bank`,
       academicPeriods: `${API_BASE_URL}/academic-periods`,
+      reports: `${API_BASE_URL}/reports`,
     },
   }
 };
