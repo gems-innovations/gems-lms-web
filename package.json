@@ -34,6 +34,7 @@
     "@angular/platform-server": "^22.0.1",
     "@angular/router": "^22.0.1",
     "@angular/ssr": "^22.0.1",
+    "driver.js": "^1.9.0",
     "express": "^5.1.0",
     "github-markdown-css": "^5.9.0",
     "html2canvas": "^1.4.1",
