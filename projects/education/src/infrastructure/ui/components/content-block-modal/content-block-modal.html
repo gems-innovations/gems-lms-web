@@ -347,6 +347,10 @@
               <input class="cbm__input" type="number" min="1"
                 [ngModel]="maxScore()" (ngModelChange)="maxScore.set(+$event)" />
             </div>
+            <div class="cbm__field cbm__field--sm">
+              <label class="cbm__label">Fecha de entrega (opcional)</label>
+              <input class="cbm__input" type="date" [ngModel]="dueDate()" (ngModelChange)="dueDate.set($event)" />
+            </div>
 
             <!-- File types -->
             <div class="cbm__field">

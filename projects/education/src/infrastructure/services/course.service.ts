@@ -23,8 +23,14 @@ import {
 // ── API contracts (ms-education) ──────────────────────────────────────────────
 
 interface IContentApi { id: number; lessonId: number; type: string; value: string | null; orderIndex: number; }
-interface ILessonApi { id: number; moduleId: number; title: string; orderIndex: number; contents: IContentApi[] | null; }
-interface IModuleApi { id: number; courseId: number; title: string; orderIndex: number; lessons: ILessonApi[] | null; }
+interface ILessonApi {
+  id: number; moduleId: number; title: string; orderIndex: number; contents: IContentApi[] | null;
+  description?: string | null; isFree?: boolean | null;
+}
+interface IModuleApi {
+  id: number; courseId: number; title: string; orderIndex: number; lessons: ILessonApi[] | null;
+  description?: string | null;
+}
 
 export interface ICourseApi {
   id: number;
@@ -100,6 +106,7 @@ export function mapCourse(r: ICourseApi): ICourse {
     .map(m => ({
       id: String(m.id),
       title: m.title,
+      description: m.description ?? undefined,
       order: m.orderIndex,
       lessons: (m.lessons ?? [])
         .map(l => {
@@ -108,7 +115,8 @@ export function mapCourse(r: ICourseApi): ICourse {
             id: String(l.id),
             title: l.title,
             order: l.orderIndex,
-            isFree: false,
+            description: l.description ?? undefined,
+            isFree: l.isFree === true,
             contentBlocks,
             duration: contentBlocks.reduce((acc, b) => acc + (b.duration ?? 0), 0)
           } satisfies ILesson;
@@ -147,10 +155,13 @@ function serializeModules(modules: ICourseModule[]) {
   return modules.map((m, mi) => ({
     id: toApiId(m.id),
     title: m.title,
+    description: m.description ?? null,
     orderIndex: m.order ?? mi + 1,
     lessons: m.lessons.map((l, li) => ({
       id: toApiId(l.id),
       title: l.title,
+      description: l.description ?? null,
+      isFree: l.isFree ?? false,
       orderIndex: l.order ?? li + 1,
       contents: l.contentBlocks.map(serializeBlock)
     }))

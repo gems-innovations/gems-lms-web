@@ -99,6 +99,8 @@ export interface IContentBlock {
   // ── ASSIGNMENT ──
   assignmentInstructions?: string;
   maxScore?: number;
+  /** Due date (yyyy-mm-dd) of an assignment. */
+  dueDate?: string;
   allowedFileTypes?: string[];  // ['pdf', 'docx', 'zip', 'jpg']
   rubric?: IRubricItem[];
 }
@@ -210,6 +212,8 @@ export interface ICreateContentBlockRequest {
   maxScore?: number;
   allowedFileTypes?: string[];
   rubric?: IRubricItem[];
+  /** Due date (yyyy-mm-dd), shown to students in their delivery calendar. */
+  dueDate?: string;
 }
 
 export interface ICourseListResponse {

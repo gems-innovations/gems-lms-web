@@ -94,6 +94,7 @@ export class ContentBlockModal {
 
   readonly assignmentInstructions = signal('');
   readonly maxScore               = signal(100);
+  readonly dueDate                = signal('');
   readonly allowedFileTypes       = signal<string[]>(['pdf', 'docx']);
   readonly rubric                 = signal<IRubricDraft[]>([{ id: 'r1', criterion: '', maxPoints: 100 }]);
   readonly newFileType            = signal('');
@@ -170,6 +171,7 @@ export class ContentBlockModal {
     if (type === EContentType.ASSIGNMENT) {
       req.assignmentInstructions = this.assignmentInstructions();
       req.maxScore               = this.maxScore();
+      req.dueDate                = this.dueDate() || undefined;
       req.allowedFileTypes       = [...this.allowedFileTypes()];
       req.rubric                 = this.rubric().filter(r => r.criterion.trim()).map(r => ({ id: r.id, criterion: r.criterion, maxPoints: r.maxPoints }));
     }
