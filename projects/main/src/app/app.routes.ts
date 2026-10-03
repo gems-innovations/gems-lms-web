@@ -8,6 +8,11 @@ export const routes: Routes = [
   // ── Root redirect ──────────────────────────────────────────────────────
   { path: '', redirectTo: 'auth/signin', pathMatch: 'full' },
 
+  {
+    path: 'certificates/verify/:code',
+    loadComponent: () => import('education').then(m => m.CertificateVerificationContainer)
+  },
+
   // ── Auth ───────────────────────────────────────────────────────────────
   {
     path: 'auth',

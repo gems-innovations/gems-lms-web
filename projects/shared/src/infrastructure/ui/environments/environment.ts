@@ -28,6 +28,7 @@ export const environment = {
       activity: `${API_BASE_URL}/activity/me`,
       groups: `${API_BASE_URL}/groups`,
       notifications: `${API_BASE_URL}/notifications`,
+      certificates: `${API_BASE_URL}/certificates`,
     },
   }
 };

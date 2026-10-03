@@ -84,7 +84,7 @@ export class MyLearningContainer implements OnInit {
     const q = this.certSearch().toLowerCase().trim();
     if (!q) return this.uc.certifications();
     return this.uc.certifications().filter(c =>
-      c.courseTitle.toLowerCase().includes(q)
+      c.resourceTitle.toLowerCase().includes(q)
     );
   });
 

@@ -1,0 +1,24 @@
+<main class="verify">
+  <section class="verify__card">
+    <a routerLink="/auth/signin" class="verify__brand">GEMS LMS</a>
+    @if (loading()) {
+      <h1>Verificando credencial…</h1>
+    } @else if (invalid()) {
+      <div class="verify__seal verify__seal--invalid">×</div>
+      <h1>Credencial no válida</h1>
+      <p>El código no existe o la credencial fue revocada.</p>
+    } @else if (certificate(); as cert) {
+      <div class="verify__seal">✓</div>
+      <h1>Credencial verificada</h1>
+      <p class="verify__name">{{ cert.studentName }}</p>
+      <p>Completó {{ cert.resourceType === 'COURSE' ? 'el curso' : 'la ruta de aprendizaje' }}</p>
+      <h2>{{ cert.resourceTitle }}</h2>
+      <dl>
+        <div><dt>Código</dt><dd>{{ cert.id }}</dd></div>
+        <div><dt>Finalización</dt><dd>{{ cert.completedAt | date:'dd/MM/yyyy' }}</dd></div>
+        <div><dt>Emisión</dt><dd>{{ cert.issuedAt | date:'dd/MM/yyyy' }}</dd></div>
+        <div><dt>Institución</dt><dd>{{ cert.institutionId }}</dd></div>
+      </dl>
+    }
+  </section>
+</main>

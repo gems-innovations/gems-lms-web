@@ -23,6 +23,7 @@ export { SurveyService } from './infrastructure/services/survey.service';
 export { ReviewService } from './infrastructure/services/review.service';
 export type { ICourseReview } from './infrastructure/services/review.service';
 export { NotificationBell } from './infrastructure/ui/components/notification-bell/notification-bell';
+export { CertificateVerificationContainer } from './infrastructure/ui/containers/certificate-verification-container/certificate-verification-container';
 export type {
   ICourseSurvey, ISurveySection, ISurveyQuestion, ISurveyResponse, ISurveyAnswer,
   TSurveyQuestionType,

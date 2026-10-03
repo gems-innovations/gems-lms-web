@@ -1,19 +1,13 @@
-import { inject, Injectable, computed } from '@angular/core';
+import { inject, Injectable, computed, signal } from '@angular/core';
 import { EnrollmentUseCase } from './enrollment.usecase';
 import { CourseUseCase } from './course.usecase';
 import { LearningPathUseCase } from './learning-path.usecase';
-import { AuthSessionService } from 'auth';
 import { IEnrolledCourseEntry, IEnrolledPathEntry } from '../domain/model/enrollment.model';
 import { ICourseCertificate } from '../domain/model/player.model';
 import { EContentType } from '../domain/model/course.model';
-
-export interface ICertification {
-  id: string;
-  courseId: string;
-  courseTitle: string;
-  issuedAt: Date;
-  expiresAt?: Date;
-}
+import { ICertification } from '../domain/model/certificate.model';
+import { CertificateService } from '../infrastructure/services/certificate.service';
+export type { ICertification } from '../domain/model/certificate.model';
 
 export interface IPendingTask {
   id: string;
@@ -29,7 +23,8 @@ export class MyLearningUseCase {
   private readonly enrollmentUc = inject(EnrollmentUseCase);
   private readonly courseUc     = inject(CourseUseCase);
   private readonly pathUc       = inject(LearningPathUseCase);
-  private readonly authSession  = inject(AuthSessionService);
+  private readonly certificateService = inject(CertificateService);
+  private readonly _certifications = signal<ICertification[]>([]);
 
   readonly isLoading = computed(() => this.enrollmentUc.isLoading() || this.courseUc.isLoading());
 
@@ -62,30 +57,17 @@ export class MyLearningUseCase {
       .filter(x => !!x.path);
   });
 
-  readonly certifications = computed((): ICertification[] =>
-    this.completed().map(x => ({
-      id: x.enrollment.id,
-      courseId: x.course.id,
-      courseTitle: x.course.title,
-      issuedAt: x.enrollment.completedAt ?? x.enrollment.enrolledAt,
-    }))
-  );
+  readonly certifications = this._certifications.asReadonly();
 
   /** Construye el certificado (mismo formato que se ve al completar el curso) para una certificación dada. */
   buildCertificate(cert: ICertification): ICourseCertificate | null {
-    const entry = this.completed().find(x => x.course.id === cert.courseId);
-    if (!entry) return null;
-
-    const user = this.authSession.user();
-    const studentName = user ? `${user.firstName} ${user.lastName}`.trim() : 'Estudiante';
-
     return {
-      courseId:        entry.course.id,
-      courseTitle:     entry.course.title,
-      studentName,
-      completedAt:     cert.issuedAt,
-      certificateId:   `CERT-${entry.course.id.slice(0, 8).toUpperCase()}`,
-      instructorName:  entry.course.instructorName,
+      courseId:        cert.resourceId,
+      courseTitle:     cert.resourceTitle,
+      studentName:     cert.studentName,
+      completedAt:     cert.completedAt,
+      certificateId:   cert.id,
+      instructorName:  cert.instructorName,
       institutionName: 'GEMS LMS',
     };
   }
@@ -123,5 +105,9 @@ export class MyLearningUseCase {
     if (this.enrollmentUc.pathEnrollments().length === 0) this.enrollmentUc.loadPathEnrollments();
     if (this.courseUc.courses().length === 0)             this.courseUc.load();
     if (this.pathUc.learningPaths().length === 0)         this.pathUc.load();
+    this.certificateService.mine().subscribe({
+      next: items => this._certifications.set(items),
+      error: () => this._certifications.set([]),
+    });
   }
 }
