@@ -12,3 +12,15 @@
   gap: var(--spacing-sm);
   flex-shrink: 0;
 }
+
+.umc__search {
+  flex: 1;
+  min-width: 220px;
+  max-width: 360px;
+}
+
+.umc__no-results {
+  margin: var(--spacing-lg) 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-texto-secundario);
+}
