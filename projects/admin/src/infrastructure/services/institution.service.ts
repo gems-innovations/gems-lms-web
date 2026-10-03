@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map, switchMap } from 'rxjs';
+import { Observable, map, switchMap, forkJoin, of, catchError } from 'rxjs';
 import { environment } from 'shared';
 import {
   IInstitution,
@@ -99,6 +99,15 @@ export class InstitutionService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrls.admin.institutions;
 
+  /** Active users per institution, counted by ms-auth (ms-admin does not know the users). */
+  private userCounts(): Observable<Record<string, number> | null> {
+    return this.http.get<Record<string, number>>(`${environment.apiUrls.users}/counts`).pipe(catchError(() => of(null)));
+  }
+
+  private withUserCount(institution: IInstitution, counts: Record<string, number> | null): IInstitution {
+    return counts ? { ...institution, usersCount: counts[institution.id] ?? 0 } : institution;
+  }
+
   createInstitution(request: ICreateInstitutionRequest): Observable<IInstitution> {
     const body = {
       name: request.name,
@@ -114,13 +123,19 @@ export class InstitutionService {
     let params = new HttpParams().set('page', page).set('limit', limit);
     if (filters?.status) params = params.set('status', filters.status);
     if (filters?.search?.trim()) params = params.set('search', filters.search.trim());
-    return this.http.get<IInstitutionListApi>(this.baseUrl, { params }).pipe(
-      map(r => ({ ...r, institutions: r.institutions.map(mapInstitution) }))
+    return forkJoin({ list: this.http.get<IInstitutionListApi>(this.baseUrl, { params }), counts: this.userCounts() }).pipe(
+      map(({ list, counts }) => ({
+        ...list,
+        institutions: list.institutions.map(r => this.withUserCount(mapInstitution(r), counts))
+      }))
     );
   }
 
   getInstitutionById(id: string): Observable<IInstitution> {
-    return this.http.get<IInstitutionApi>(`${this.baseUrl}/${encodeURIComponent(id)}`).pipe(map(mapInstitution));
+    return forkJoin({
+      institution: this.http.get<IInstitutionApi>(`${this.baseUrl}/${encodeURIComponent(id)}`),
+      counts: this.userCounts()
+    }).pipe(map(({ institution, counts }) => this.withUserCount(mapInstitution(institution), counts)));
   }
 
   /**

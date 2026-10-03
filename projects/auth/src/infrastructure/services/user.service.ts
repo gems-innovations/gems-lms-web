@@ -104,7 +104,7 @@ export class UserService {
 
   /** Toggle active state for a user. */
   toggleUserStatus(userId: string): Observable<IUser> {
-    return this.http.patch<IUserResponse>(`${this.urls.users}/${userId}/status`, {}).pipe(map(mapUser));
+    return this.http.put<IUserResponse>(`${this.urls.users}/${userId}/status`, {}).pipe(map(mapUser));
   }
 
   /** Delete a user (the API deactivates it). */

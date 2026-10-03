@@ -33,6 +33,7 @@ interface ILearningPathApi {
   thumbnailUrl: string | null;
   steps: ILearningPathStepApi[] | null;
   enrolledCount: number | null;
+  completionRate: number | null;
   courses: ICourseApi[] | null;
 }
 
@@ -63,7 +64,7 @@ function mapLearningPath(r: ILearningPathApi): ILearningPath {
     institutionId: r.institutionId,
     estimatedDuration: steps.reduce((s, st) => s + st.estimatedDuration, 0),
     enrolledCount: r.enrolledCount ?? 0,
-    completionRate: 0,
+    completionRate: r.completionRate ?? 0,
     createdAt,
     updatedAt: r.updatedAt ? new Date(r.updatedAt) : createdAt
   };
