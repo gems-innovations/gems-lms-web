@@ -9,6 +9,7 @@
     "build:all": "ng build shared && ng build auth && ng build education && ng build instructor && ng build admin",
     "test": "ng test",
     "test:ci": "ng test shared --watch=false --browsers=ChromeHeadless && ng test auth --watch=false --browsers=ChromeHeadless && ng test education --watch=false --browsers=ChromeHeadless && ng test admin --watch=false --browsers=ChromeHeadless && ng test instructor --watch=false --browsers=ChromeHeadless && ng test main --watch=false --browsers=ChromeHeadless",
+    "test:e2e": "npm run build:all && playwright test",
     "serve:ssr:main": "node dist/main/server/server.mjs"
   },
   "prettier": {
@@ -47,6 +48,7 @@
     "@angular/build": "^22.0.1",
     "@angular/cli": "^22.0.1",
     "@angular/compiler-cli": "^22.0.1",
+    "@playwright/test": "^1.63.0",
     "@types/express": "^5.0.1",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^20.17.19",
