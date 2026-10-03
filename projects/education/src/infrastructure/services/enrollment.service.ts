@@ -114,6 +114,10 @@ interface IPathEnrollmentApi {
   status: 'active' | 'completed';
   enrolledAt: string;
   completedAt: string | null;
+  /** Progress, only in GET /learning-paths/enrollments/me. */
+  completedCourseIds?: number[];
+  currentCourseId?: number | null;
+  overallPercentage?: number;
 }
 
 function toPathEnrollment(e: IPathEnrollmentApi): ILearningPathEnrollment {
@@ -124,8 +128,9 @@ function toPathEnrollment(e: IPathEnrollmentApi): ILearningPathEnrollment {
     status: e.status,
     enrolledAt: new Date(e.enrolledAt),
     completedAt: e.completedAt ? new Date(e.completedAt) : undefined,
-    completedCourseIds: [],
-    overallPercentage: 0
+    completedCourseIds: (e.completedCourseIds ?? []).map(String),
+    currentCourseId: e.currentCourseId == null ? undefined : String(e.currentCourseId),
+    overallPercentage: e.overallPercentage ?? 0
   };
 }
 
