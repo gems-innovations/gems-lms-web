@@ -82,6 +82,7 @@ export class LearningPathEditorUseCase {
     });
   }
 
+  setThumbnail(url: string): void { const p = this.path(); if (p) this.lpUc.update(p.id, { thumbnailUrl: url }); }
   publishPath(): void { const id = this._pathId(); if (id) this.lpUc.publishPath(id); }
   archivePath():  void { const id = this._pathId(); if (id) this.lpUc.archivePath(id); }
 

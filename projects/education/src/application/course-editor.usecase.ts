@@ -105,6 +105,7 @@ export class CourseEditorUseCase {
   }
 
   saveBlock(req: ICreateContentBlockRequest): void { this.courseUc.addContentBlock(req); }
+  setThumbnail(url: string): void { const id = this._courseId(); if (id) this.courseUc.update(id, { thumbnailUrl: url }); }
   publishCourse(): void { const id = this._courseId(); if (id) this.courseUc.publishCourse(id); }
   archiveCourse(): void { const id = this._courseId(); if (id) this.courseUc.archiveCourse(id); }
 

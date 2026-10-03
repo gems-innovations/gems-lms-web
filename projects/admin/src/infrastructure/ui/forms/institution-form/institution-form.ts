@@ -8,7 +8,7 @@ import {
   pattern,
   required
 } from '@angular/forms/signals';
-import { ColorPickerComponent } from '@gems-lms-web/shared';
+import { ColorPickerComponent, ImageUploadComponent } from '@gems-lms-web/shared';
 import {
   ICreateInstitutionRequest,
   EInstitutionType,
@@ -50,7 +50,7 @@ const DEFAULTS: InstitutionFormValue = {
 
 @Component({
   selector: 'adm-institution-form',
-  imports: [FormField, ColorPickerComponent],
+  imports: [FormField, ColorPickerComponent, ImageUploadComponent],
   templateUrl: './institution-form.html',
   styleUrl: './institution-form.scss'
 })
@@ -78,6 +78,11 @@ export class InstitutionForm {
   ];
 
   private readonly formModel = signal<InstitutionFormValue>({ ...DEFAULTS });
+
+  /** Uses an uploaded image as the logo. */
+  protected setLogo(url: string): void {
+    this.formModel.update(v => ({ ...v, logoUrl: url }));
+  }
 
   readonly iform = form(this.formModel, p => {
     required(p.name);

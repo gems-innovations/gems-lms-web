@@ -2,7 +2,7 @@ import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subject, of, forkJoin, map, switchMap, throwError, catchError, shareReplay } from 'rxjs';
-import { environment } from 'shared';
+import { environment, FileUploadService } from 'shared';
 import { AuthSessionService, EUserRole, IUser, UserService } from 'auth';
 import { CourseService } from './course.service';
 import {
@@ -192,6 +192,7 @@ export class EnrollmentService {
   private readonly users = inject(UserService);
   private readonly courseService = inject(CourseService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly files = inject(FileUploadService);
   private readonly baseUrl = environment.apiUrls.education.enrollments;
   private readonly coursesUrl = environment.apiUrls.education.courses;
 
@@ -246,16 +247,23 @@ export class EnrollmentService {
     return this.getMySubmissions().pipe(map(list => list.filter(s => s.blockId === blockId)));
   }
 
+  /** Uploads the attached file (if any) as a private file, then sends the delivery. */
   submitAssignment(req: ISubmitAssignmentRequest): Observable<IAssignmentSubmission> {
-    return forkJoin({
-      course: this.courseService.getCourseById(req.courseId),
-      saved: this.http.put<ISubmissionApi>(
+    const upload = req.attachedFile
+      ? this.files.upload(req.attachedFile, 'private').pipe(
+          map(f => [...(req.fileUrls ?? []), f.url]),
+          catchError(err => throwError(() => new Error(
+            err?.status === 413 ? 'El archivo supera el tamaño permitido (10 MB).' : 'No se pudo subir el archivo adjunto.'
+          )))
+        )
+      : of(req.fileUrls ?? []);
+    return upload.pipe(
+      switchMap(fileUrls => this.http.put<ISubmissionApi>(
         `${this.coursesUrl}/${req.courseId}/blocks/${req.blockId}/submission`,
-        { textContent: req.textContent, fileUrls: req.fileUrls ?? [] }
-      ).pipe(catchError(err => throwError(() => new Error(activityError(err)))))
-    }).pipe(
-      /* submission notified by the API */
-      map(({ saved }) => mapSubmission(saved))
+        { textContent: req.textContent, fileUrls }
+      ).pipe(catchError(err => throwError(() => new Error(activityError(err)))))),
+      // The API notifies the institution's staff of the new delivery.
+      map(saved => mapSubmission(saved))
     );
   }
 

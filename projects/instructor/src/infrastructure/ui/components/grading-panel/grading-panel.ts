@@ -1,5 +1,5 @@
 import {
-  Component, input, output, signal, computed, effect, ChangeDetectionStrategy,
+  Component, input, output, signal, computed, effect, inject, ChangeDetectionStrategy,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,7 +7,7 @@ import { MarkdownComponent } from 'ngx-markdown';
 import { EContentType } from 'education';
 import {
   AvatarComponent, BadgeComponent, BackButtonComponent, EmptyStateComponent,
-  LibButtonComponent, MarkdownEditorComponent,
+  LibButtonComponent, MarkdownEditorComponent, FileUploadService,
 } from 'shared';
 import type { BadgeVariant } from 'shared';
 import type {
@@ -27,6 +27,15 @@ import type {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GradingPanel {
+  private readonly files = inject(FileUploadService);
+
+  /** Delivered files of the API need the token: they are fetched and opened as a blob. */
+  protected openFile(url: string, event: Event): void {
+    if (!this.files.isPrivateApiFile(url)) return;
+    event.preventDefault();
+    this.files.open(url);
+  }
+
   readonly assignments        = input<IAssignmentEntry[]>([]);
   readonly selectedAssignment = input<IAssignmentEntry | null>(null);
   readonly submissions        = input<ISubmissionRow[]>([]);

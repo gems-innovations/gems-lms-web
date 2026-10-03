@@ -115,6 +115,8 @@ export interface ISubmitAssignmentRequest {
   courseId: string;
   textContent?: string;
   fileUrls?: string[];
+  /** Uploaded (privately) before the submission is sent. */
+  attachedFile?: File;
 }
 
 export interface IEnrolledCourseEntry {

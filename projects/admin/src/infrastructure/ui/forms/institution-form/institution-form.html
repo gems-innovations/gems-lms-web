@@ -155,6 +155,7 @@
             placeholder="https://ejemplo.com/logo.png"
           />
         </div>
+        <lib-image-upload label="Subir logo" (uploaded)="setLogo($event)" />
         @if (isInvalid(iform.logoUrl)) {
           <span class="iform__error">URL inválida (debe iniciar con http:// o https://)</span>
         }

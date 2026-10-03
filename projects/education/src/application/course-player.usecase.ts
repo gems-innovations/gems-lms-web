@@ -339,7 +339,7 @@ export class CoursePlayerUseCase {
     // Block completion is handled reactively by the quiz-attempts effect (only if passed)
   }
 
-  handleAssignmentSubmit(payload: { blockId: string; lessonId: string; courseId: string; textContent: string }): void {
+  handleAssignmentSubmit(payload: { blockId: string; lessonId: string; courseId: string; textContent: string; attachedFile?: File }): void {
     this.enrollmentUc.submitAssignment(payload);
     // Block is NOT marked complete here — only when the instructor grades it
   }

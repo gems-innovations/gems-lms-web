@@ -6,6 +6,8 @@
       </div>
     }
 
+    <lib-image-upload [label]="lp.thumbnailUrl ? 'Cambiar imagen' : 'Subir imagen'" (uploaded)="uc.setThumbnail($event)" />
+
     <div class="lp-sidebar__meta">
       <h2 class="lp-sidebar__title">{{ lp.title }}</h2>
       <p class="lp-sidebar__desc">{{ lp.description }}</p>

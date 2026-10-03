@@ -64,3 +64,6 @@ export { StatGridComponent } from "./infrastructure/ui/components/layout/stat-gr
 export { CardGridComponent } from "./infrastructure/ui/components/layout/card-grid.component";
 
 export { MarkdownEditorComponent } from "./infrastructure/ui/components/markdown-editor/markdown-editor";
+export { FileUploadService, MAX_UPLOAD_BYTES } from "./infrastructure/services/file-upload.service";
+export type { IUploadedFile, TFileScope } from "./infrastructure/services/file-upload.service";
+export { ImageUploadComponent } from "./infrastructure/ui/components/image-upload/image-upload.component";
