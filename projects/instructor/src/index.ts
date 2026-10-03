@@ -33,6 +33,12 @@ export const instructorRoutes: Routes = [
             .then(m => m.CourseGroupsContainer),
       },
       {
+        path: 'question-bank',
+        loadComponent: () =>
+          import('./infrastructure/ui/containers/question-bank-container/question-bank-container')
+            .then(m => m.QuestionBankContainer),
+      },
+      {
         path: 'stats',
         loadComponent: () =>
           import('./infrastructure/ui/containers/instructor-stats-container/instructor-stats-container')

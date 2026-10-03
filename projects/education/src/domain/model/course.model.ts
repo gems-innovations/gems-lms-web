@@ -63,6 +63,12 @@ export interface IRubricItem {
   maxPoints: number;
 }
 
+/** count random questions of a question-bank category. */
+export interface IQuestionPool {
+  category: string;
+  count: number;
+}
+
 // ── Content Block ─────────────────────────────────────────────────────────────
 
 export interface IContentBlock {
@@ -95,6 +101,8 @@ export interface IContentBlock {
   passingScore?: number;    // percentage (0-100)
   maxAttempts?: number;     // 0 = unlimited
   shuffleQuestions?: boolean;
+  /** Random questions drawn from the question bank on every attempt. */
+  questionPools?: IQuestionPool[];
 
   // ── ASSIGNMENT ──
   assignmentInstructions?: string;
@@ -207,6 +215,7 @@ export interface ICreateContentBlockRequest {
   passingScore?: number;
   maxAttempts?: number;
   shuffleQuestions?: boolean;
+  questionPools?: IQuestionPool[];
   // Assignment
   assignmentInstructions?: string;
   maxScore?: number;

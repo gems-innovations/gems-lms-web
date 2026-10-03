@@ -180,6 +180,8 @@ function activityError(err: unknown): string {
   switch (code) {
     case 'NOT_ENROLLED': return 'No estás matriculado en este curso';
     case 'ATTEMPT_LIMIT_REACHED': return 'Ya usaste todos los intentos de este quiz';
+    case 'SESSION_CLOSED': return 'Este intento ya fue enviado';
+    case 'SESSION_REQUIRED': case 'SESSION_NOT_FOUND': return 'El intento ya no es válido. Vuelve a iniciar la evaluación.';
     case 'BLOCK_NOT_FOUND': return 'Este contenido ya no existe. Recarga el curso.';
     default: return 'No se pudo enviar. Intenta de nuevo.';
   }
@@ -244,7 +246,8 @@ export class EnrollmentService {
   /** The API grades the answers; correct answers never reach the student. */
   submitQuiz(req: ISubmitQuizRequest): Observable<IQuizAttempt> {
     return this.http.post<IAttemptApi>(
-      `${this.coursesUrl}/${req.courseId}/blocks/${req.blockId}/attempts`, { answers: req.answers }
+      `${this.coursesUrl}/${req.courseId}/blocks/${req.blockId}/attempts`,
+      req.sessionId ? { answers: req.answers, sessionId: Number(req.sessionId) } : { answers: req.answers }
     ).pipe(
       map(mapAttempt),
       catchError(err => throwError(() => new Error(activityError(err))))

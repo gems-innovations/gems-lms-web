@@ -11,6 +11,7 @@ import {
   IContentBlock, EContentType, IQuestion, IMultipleChoiceQuestion, ITrueFalseQuestion, IOpenQuestion
 } from '../../../../domain/model/course.model';
 import { IQuizAnswer } from '../../../../domain/model/enrollment.model';
+import { QuizSessionService } from '../../../services/quiz-session.service';
 import {
   IQuizSubmitPayload, IAssignmentSubmitPayload, IQuizResult,
   IAssignmentSubmission
@@ -45,6 +46,7 @@ type QuizPhase = 'confirm' | 'taking' | 'result';
 })
 export class PlayerContentBlock implements OnChanges, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly quizSessions = inject(QuizSessionService);
 
   // ── Inputs ────────────────────────────────────────────────────────────────
   readonly block              = input.required<IContentBlock | null>();
@@ -120,6 +122,12 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   protected readonly timerStartedAt    = signal<number | null>(null);
   protected readonly showSubmitConfirm = signal(false);
   private readonly _attemptQuestions   = signal<IQuestion[]>([]);
+  /** Attempt started on the server; its questions and deadline are fixed there. */
+  private readonly _sessionId          = signal<string | null>(null);
+  /** Seconds left when the attempt (re)started, by the server clock; null = untimed. */
+  private readonly _sessionLimit       = signal<number | null>(null);
+  protected readonly quizStarting      = signal(false);
+  protected readonly quizStartError    = signal<string | null>(null);
   private readonly _submittedAnswers   = signal<Record<string, string | string[] | boolean>>({});
   private _timerInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -149,8 +157,15 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   );
 
   protected readonly timeLimitSeconds = computed(() =>
-    (this.block()?.timeLimit ?? 0) * 60
+    this._sessionLimit() ?? (this.block()?.timeLimit ?? 0) * 60
   );
+
+  /** Questions announced before starting: the block's own (not open) plus those drawn from the bank. */
+  protected readonly plannedQuestionCount = computed(() => {
+    const block = this.block();
+    const own = ((block?.questions ?? []) as IQuestion[]).filter(q => q.type !== 'open').length;
+    return own + (block?.questionPools ?? []).reduce((a, p) => a + (p.count > 0 ? p.count : 0), 0);
+  });
 
   protected readonly timerDisplay = computed(() => {
     const limit = this.timeLimitSeconds();
@@ -248,20 +263,30 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   }
 
   // ── Quiz actions ───────────────────────────────────────────────────────────
+  /** The server draws, orders and times the attempt; reloading resumes the same one. */
   protected startQuiz(): void {
-    if (!this.canRetryQuiz()) return;
-    const base = ((this.block()?.questions ?? []) as IQuestion[]).filter(q => q.type !== 'open');
-    const shuffled = this._shuffle(base).map(q => {
-      if (q.type === 'multiple-choice') {
-        return { ...(q as IMultipleChoiceQuestion), options: this._shuffle((q as IMultipleChoiceQuestion).options) };
-      }
-      return q;
+    const block = this.block();
+    const courseId = this.courseId();
+    if (!this.canRetryQuiz() || !block || !courseId || this.quizStarting()) return;
+    this.quizStarting.set(true);
+    this.quizStartError.set(null);
+    this.quizSessions.start(courseId, block.id).subscribe({
+      next: session => {
+        this.quizStarting.set(false);
+        this._sessionId.set(session.sessionId);
+        this._sessionLimit.set(session.remainingSeconds);
+        this._attemptQuestions.set(session.questions.filter(q => q.type !== 'open'));
+        this._submittedAnswers.set({});
+        this.quizAnswers.set({});
+        this.quizPhase.set('taking');
+        this.currentQIdx.set(0);
+        this.startTimer();
+      },
+      error: (err: Error) => {
+        this.quizStarting.set(false);
+        this.quizStartError.set(err.message);
+      },
     });
-    this._attemptQuestions.set(shuffled);
-    this._submittedAnswers.set({});
-    this.quizPhase.set('taking');
-    this.currentQIdx.set(0);
-    this.startTimer();
   }
 
   protected goToQuestion(idx: number): void {
@@ -329,7 +354,8 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
       questionId: q.id,
       answer: this.quizAnswers()[q.id] ?? ''
     }));
-    this.quizSubmit.emit({ blockId: block.id, lessonId: lid, courseId: cid, answers });
+    this.quizSubmit.emit({ blockId: block.id, lessonId: lid, courseId: cid, answers, sessionId: this._sessionId() ?? undefined });
+    this._sessionId.set(null);
     this.quizPhase.set('result');
   }
 
@@ -351,6 +377,9 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
     this.quizBookmarks.set({});
     this.timerSeconds.set(0);
     this.timerStartedAt.set(null);
+    this._sessionId.set(null);
+    this._sessionLimit.set(null);
+    this.quizStartError.set(null);
   }
 
   private startTimer(): void {
@@ -435,15 +464,6 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
 
   protected submittedAnswers(): Record<string, string | string[] | boolean> {
     return this._submittedAnswers();
-  }
-
-  private _shuffle<T>(arr: T[]): T[] {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
   }
 
   protected gradePercent(grade: { score: number; maxScore: number }): number {

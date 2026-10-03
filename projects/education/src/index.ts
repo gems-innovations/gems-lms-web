@@ -11,6 +11,9 @@ export { CourseEditorContainer } from './infrastructure/ui/containers/course-edi
 export { PlayerContentBlock } from './infrastructure/ui/components/player-content-block/player-content-block';
 export { EnrollStudentSearch } from './infrastructure/ui/components/enroll-student-search/enroll-student-search';
 export { EnrollResultBanner } from './infrastructure/ui/components/enroll-result-banner/enroll-result-banner';
+export { QuestionBankService } from './infrastructure/services/question-bank.service';
+export type { IBankQuestion, IBankCategory, IBankQuestionPage, TBankQuestionType } from './infrastructure/services/question-bank.service';
+export { QuizSessionService } from './infrastructure/services/quiz-session.service';
 export { GradebookService } from './infrastructure/services/gradebook.service';
 export type {
   IGradebook, IGradebookItem, IGradebookRow, IGradebookCell, IRubricScore, TGradebookCellState,
@@ -32,7 +35,7 @@ export type {
   ICourseSurvey, ISurveySection, ISurveyQuestion, ISurveyResponse, ISurveyAnswer,
   TSurveyQuestionType,
 } from './domain/model/survey.model';
-export type { ICourse, IContentBlock, IRubricItem } from './domain/model/course.model';
+export type { ICourse, IContentBlock, IRubricItem, IQuestion, IQuestionPool } from './domain/model/course.model';
 export { EContentType, EDifficulty, ECourseStatus } from './domain/model/course.model';
 export type { ILearningPath, ELearningPathStatus } from './domain/model/learning-path.model';
 export type { IEnrollment, IAssignmentSubmission } from './domain/model/enrollment.model';

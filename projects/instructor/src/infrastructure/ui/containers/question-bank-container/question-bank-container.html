@@ -1,0 +1,159 @@
+<lib-page>
+  <lib-page-header
+    title="Banco de preguntas"
+    subtitle="Preguntas reutilizables de tu institución. Los quizzes pueden tomar preguntas al azar de una categoría."
+  >
+    <lib-button variant="primary" (clicked)="newQuestion()">Nueva pregunta</lib-button>
+  </lib-page-header>
+
+  <div class="qbank">
+    <aside class="qbank__categories" aria-label="Categorías">
+      <button type="button" class="qbank__category" [class.qbank__category--active]="!category()" (click)="filterCategory('')">
+        Todas
+      </button>
+      @for (c of categories(); track c.category) {
+        <button type="button" class="qbank__category" [class.qbank__category--active]="category() === c.category"
+                (click)="filterCategory(c.category)">
+          <span>{{ c.category }}</span><span class="qbank__count">{{ c.count }}</span>
+        </button>
+      }
+    </aside>
+
+    <section class="qbank__main">
+      <form class="qbank__search" (submit)="$event.preventDefault(); applySearch()" role="search">
+        <label class="qbank__sr" for="qbank-search">Buscar preguntas</label>
+        <input id="qbank-search" class="qbank__input" type="search" placeholder="Buscar en el texto de las preguntas…"
+               [ngModel]="search()" (ngModelChange)="search.set($event)" name="search" />
+        <lib-button variant="secondary" type="submit">Buscar</lib-button>
+      </form>
+
+      @if (draft(); as d) {
+        <form class="qbank__editor" (submit)="$event.preventDefault(); save()" aria-label="Editar pregunta">
+          <h2 class="qbank__editor-title">{{ d.id ? 'Editar pregunta' : 'Nueva pregunta' }}</h2>
+          <div class="qbank__row">
+            <div class="qbank__field">
+              <label for="qb-category">Categoría</label>
+              <input id="qb-category" class="qbank__input" list="qb-categories" maxlength="120" name="category"
+                     [ngModel]="d.category" (ngModelChange)="patch({ category: $event })" />
+              <datalist id="qb-categories">
+                @for (c of categories(); track c.category) { <option [value]="c.category"></option> }
+              </datalist>
+            </div>
+            <div class="qbank__field">
+              <label for="qb-type">Tipo</label>
+              <select id="qb-type" class="qbank__input" name="type" [ngModel]="d.type" (ngModelChange)="patch({ type: $event })">
+                <option value="multiple-choice">Opción múltiple</option>
+                <option value="true-false">Verdadero / falso</option>
+                <option value="open">Abierta</option>
+              </select>
+            </div>
+            <div class="qbank__field qbank__field--sm">
+              <label for="qb-points">Puntos</label>
+              <input id="qb-points" class="qbank__input" type="number" min="1" name="points"
+                     [ngModel]="d.points" (ngModelChange)="patch({ points: +$event })" />
+            </div>
+          </div>
+
+          <div class="qbank__field">
+            <label for="qb-question">Pregunta</label>
+            <textarea id="qb-question" class="qbank__input" rows="3" name="question"
+                      [ngModel]="d.question" (ngModelChange)="patch({ question: $event })"></textarea>
+          </div>
+
+          @if (d.type === 'multiple-choice') {
+            <fieldset class="qbank__options">
+              <legend>Opciones (marca la correcta)</legend>
+              <label class="qbank__check">
+                <input type="checkbox" name="multi" [ngModel]="d.allowMultiple"
+                       (ngModelChange)="patch({ allowMultiple: $event, correctAnswers: [] })" />
+                Varias respuestas correctas
+              </label>
+              @for (o of d.options; track o.id) {
+                <div class="qbank__option">
+                  <input [type]="d.allowMultiple ? 'checkbox' : 'radio'" name="correct"
+                         [checked]="d.correctAnswers.includes(o.id)" (change)="toggleCorrect(o.id)"
+                         [attr.aria-label]="'Opción ' + o.id + ' correcta'" />
+                  <input class="qbank__input" [attr.aria-label]="'Texto de la opción ' + o.id" [name]="'opt-' + o.id"
+                         [ngModel]="o.text" (ngModelChange)="setOption(o.id, $event)" />
+                  @if (d.options.length > 2) {
+                    <button type="button" class="qbank__link" (click)="removeOption(o.id)">Quitar</button>
+                  }
+                </div>
+              }
+              @if (d.options.length < 8) {
+                <button type="button" class="qbank__link" (click)="addOption()">+ Agregar opción</button>
+              }
+            </fieldset>
+          } @else if (d.type === 'true-false') {
+            <fieldset class="qbank__options">
+              <legend>Respuesta correcta</legend>
+              <label class="qbank__check"><input type="radio" name="tf" [checked]="d.correctBoolean" (change)="patch({ correctBoolean: true })" /> Verdadero</label>
+              <label class="qbank__check"><input type="radio" name="tf" [checked]="!d.correctBoolean" (change)="patch({ correctBoolean: false })" /> Falso</label>
+            </fieldset>
+          } @else {
+            <div class="qbank__field">
+              <label for="qb-sample">Respuesta modelo (opcional)</label>
+              <textarea id="qb-sample" class="qbank__input" rows="2" name="sample"
+                        [ngModel]="d.sampleAnswer" (ngModelChange)="patch({ sampleAnswer: $event })"></textarea>
+              <span class="qbank__hint">Las preguntas abiertas no se incluyen en los intentos calificados automáticamente.</span>
+            </div>
+          }
+
+          <div class="qbank__field">
+            <label for="qb-explanation">Explicación (se muestra tras responder)</label>
+            <textarea id="qb-explanation" class="qbank__input" rows="2" name="explanation"
+                      [ngModel]="d.explanation" (ngModelChange)="patch({ explanation: $event })"></textarea>
+          </div>
+
+          @if (draftProblem(); as problem) { <p class="qbank__hint">{{ problem }}</p> }
+          <div class="qbank__actions">
+            <lib-button variant="ghost" (clicked)="cancel()">Cancelar</lib-button>
+            <lib-button variant="primary" type="submit" [disabled]="!!draftProblem()" [loading]="saving()">Guardar</lib-button>
+          </div>
+        </form>
+      }
+
+      @if (loading()) {
+        <lib-loading-skeleton [rows]="6" />
+      } @else if (error()) {
+        <lib-empty-state title="Sin datos" [description]="error()!" />
+      } @else if (items().length === 0) {
+        <lib-empty-state title="Sin preguntas" description="Crea preguntas y agrúpalas por categoría para usarlas en tus quizzes." />
+      } @else {
+        <p class="qbank__total">{{ total() }} pregunta(s)</p>
+        <ul class="qbank__list">
+          @for (item of items(); track item.id) {
+            <li class="qbank__item">
+              <div class="qbank__item-head">
+                <span class="qbank__tag">{{ item.category }}</span>
+                <span class="qbank__type">{{ typeLabels[item.type] }}</span>
+              </div>
+              <p class="qbank__question">{{ item.question.question }}</p>
+              <p class="qbank__answer">Respuesta: {{ answerSummary(item) }}</p>
+              <div class="qbank__item-actions">
+                <button type="button" class="qbank__link" (click)="edit(item)">Editar</button>
+                <button type="button" class="qbank__link qbank__link--danger" (click)="confirmDelete(item)">Eliminar</button>
+              </div>
+            </li>
+          }
+        </ul>
+        @if (totalPages() > 1) {
+          <lib-pagination [page]="page()" [totalPages]="totalPages()" (pageChange)="goToPage($event)" />
+        }
+      }
+    </section>
+  </div>
+</lib-page>
+
+@if (pendingDelete()) {
+  <lib-confirmation-dialog
+    type="danger"
+    title="¿Eliminar pregunta?"
+    message="Los quizzes que toman preguntas de esta categoría dejarán de usarla en nuevos intentos."
+    confirmText="Eliminar"
+    cancelText="Cancelar"
+    [isLoading]="deleting()"
+    (confirmed)="executeDelete()"
+    (cancelled)="pendingDelete.set(null)"
+  />
+}

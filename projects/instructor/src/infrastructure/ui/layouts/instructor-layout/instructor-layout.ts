@@ -30,6 +30,7 @@ export class InstructorLayout implements OnInit, OnDestroy {
   readonly menuItems: NavigationItem[] = [
     { id: 'courses', label: 'Mis cursos',    icon: 'courses', route: '/instructor/courses' },
     { id: 'stats',   label: 'Estadísticas',  icon: 'stats',   route: '/instructor/stats' },
+    { id: 'question-bank', label: 'Banco de preguntas', icon: 'bank', route: '/instructor/question-bank' },
   ];
 
   readonly userProfile = computed<UserProfile | null>(() => {

@@ -215,6 +215,43 @@
             </div>
           </div>
 
+          <!-- Question bank pools -->
+          <div class="cbm__section">
+            <div class="cbm__questions-header">
+              <h3 class="cbm__section-title">Preguntas del banco <span class="cbm__badge">{{ pooledQuestionCount() }}</span></h3>
+              <button type="button" class="cbm__add-rubric-btn" [disabled]="bankCategories().length === 0" (click)="addPool()">+ Agregar categoría</button>
+            </div>
+            <p class="cbm__hint">En cada intento se eligen al azar preguntas distintas de la categoría.</p>
+            @if (bankError()) {
+              <p class="cbm__hint cbm__hint--error" role="alert">{{ bankError() }}</p>
+            } @else if (bankCategories().length === 0) {
+              <p class="cbm__hint">El banco de tu institución aún no tiene preguntas. Créalas en el Banco de preguntas.</p>
+            }
+            @for (pool of quizPools(); track $index; let pi = $index) {
+              <div class="cbm__row cbm__row--3">
+                <div class="cbm__field">
+                  <label class="cbm__label" [for]="'pool-cat-' + pi">Categoría</label>
+                  <select class="cbm__select" [id]="'pool-cat-' + pi" [ngModel]="pool.category" (ngModelChange)="updatePool(pi, { category: $event })">
+                    @for (cat of bankCategories(); track cat.category) {
+                      <option [value]="cat.category">{{ cat.category }} ({{ cat.count }})</option>
+                    }
+                  </select>
+                </div>
+                <div class="cbm__field cbm__field--sm">
+                  <label class="cbm__label" [for]="'pool-count-' + pi">Preguntas por intento</label>
+                  <input class="cbm__input" type="number" min="1" [max]="poolAvailable(pool.category)" [id]="'pool-count-' + pi"
+                    [ngModel]="pool.count" (ngModelChange)="updatePool(pi, { count: +$event })" />
+                  @if (pool.count > poolAvailable(pool.category)) {
+                    <span class="cbm__hint cbm__hint--error">Solo hay {{ poolAvailable(pool.category) }}; se usarán todas.</span>
+                  }
+                </div>
+                <div class="cbm__field cbm__field--sm">
+                  <button type="button" class="cbm__remove-btn" (click)="removePool(pi)" aria-label="Quitar categoría">Quitar</button>
+                </div>
+              </div>
+            }
+          </div>
+
           <!-- Questions -->
           <div class="cbm__section">
             <div class="cbm__questions-header">

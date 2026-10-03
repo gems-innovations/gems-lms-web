@@ -110,6 +110,8 @@ export interface ISubmitQuizRequest {
   lessonId: string;
   courseId: string;
   answers: IQuizAnswer[];
+  /** Attempt started on the server (timed, shuffled or bank quizzes). */
+  sessionId?: string;
 }
 
 export interface ISubmitAssignmentRequest {

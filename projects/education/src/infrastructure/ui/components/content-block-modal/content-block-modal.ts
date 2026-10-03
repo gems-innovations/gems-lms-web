@@ -10,8 +10,11 @@ import {
   IMultipleChoiceQuestion,
   ITrueFalseQuestion,
   IOpenQuestion,
-  IRubricItem
+  IRubricItem,
+  IQuestionPool
 } from '../../../../domain/model/course.model';
+import { QuestionBankService } from '../../../services/question-bank.service';
+import type { IBankCategory } from '../../../services/question-bank.service';
 
 type TStep = 'type-select' | 'form';
 
@@ -59,6 +62,7 @@ const newQuestion = (order: number): IQuestionDraft => ({
 })
 export class ContentBlockModal {
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly bank = inject(QuestionBankService);
 
   readonly lessonId = input.required<string>();
   readonly onClose  = output<void>();
@@ -91,6 +95,10 @@ export class ContentBlockModal {
   readonly quizMaxAttempts  = signal(3);
   readonly quizShuffle      = signal(false);
   readonly quizQuestions    = signal<IQuestionDraft[]>([newQuestion(1)]);
+  /** Random questions per attempt from the question bank. */
+  readonly quizPools        = signal<IQuestionPool[]>([]);
+  readonly bankCategories   = signal<IBankCategory[]>([]);
+  readonly bankError        = signal<string | null>(null);
 
   readonly assignmentInstructions = signal('');
   readonly maxScore               = signal(100);
@@ -114,10 +122,17 @@ export class ContentBlockModal {
     const type = this.selectedType();
     if (type === EContentType.VIDEO)      return !!this.videoUrl().trim();
     if (type === EContentType.SCORM)      return !!this.scormUrl().trim();
-    if (type === EContentType.QUIZ)       return this.quizQuestions().length > 0 && this.quizQuestions().every(q => q.question.trim().length > 0);
+    if (type === EContentType.QUIZ) {
+      const pools = this.validPools();
+      return (this.quizQuestions().length > 0 || pools.length > 0)
+        && this.quizQuestions().every(q => q.question.trim().length > 0);
+    }
     if (type === EContentType.ASSIGNMENT) return !!this.assignmentInstructions().trim();
     return true;
   });
+
+  readonly validPools = computed(() => this.quizPools().filter(p => p.category && p.count > 0));
+  readonly pooledQuestionCount = computed(() => this.validPools().reduce((a, p) => a + p.count, 0));
 
   readonly totalQuizPoints = computed(() => this.quizQuestions().reduce((s, q) => s + q.points, 0));
 
@@ -133,7 +148,31 @@ export class ContentBlockModal {
     return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${id}`);
   });
 
-  selectType(type: EContentType): void { this.selectedType.set(type); this.step.set('form'); }
+  selectType(type: EContentType): void {
+    this.selectedType.set(type);
+    this.step.set('form');
+    if (type === EContentType.QUIZ) this.loadBankCategories();
+  }
+
+  private loadBankCategories(): void {
+    this.bankError.set(null);
+    this.bank.categories().subscribe({
+      next: list => this.bankCategories.set(list),
+      error: () => this.bankError.set('No se pudo cargar el banco de preguntas'),
+    });
+  }
+
+  addPool(): void {
+    const first = this.bankCategories()[0]?.category ?? '';
+    this.quizPools.update(p => [...p, { category: first, count: 1 }]);
+  }
+  removePool(index: number): void { this.quizPools.update(p => p.filter((_, i) => i !== index)); }
+  updatePool(index: number, patch: Partial<IQuestionPool>): void {
+    this.quizPools.update(p => p.map((pool, i) => i === index ? { ...pool, ...patch } : pool));
+  }
+  poolAvailable(category: string): number {
+    return this.bankCategories().find(c => c.category === category)?.count ?? 0;
+  }
   back():  void { this.step.set('type-select'); this.selectedType.set(null); }
   close(): void { this.onClose.emit(); }
 
@@ -167,6 +206,8 @@ export class ContentBlockModal {
       req.maxAttempts      = this.quizMaxAttempts();
       req.shuffleQuestions = this.quizShuffle();
       req.questions        = this.quizQuestions().map(q => this.draftToQuestion(q));
+      const pools = this.validPools();
+      if (pools.length) req.questionPools = pools.map(p => ({ category: p.category, count: Math.floor(p.count) }));
     }
     if (type === EContentType.ASSIGNMENT) {
       req.assignmentInstructions = this.assignmentInstructions();

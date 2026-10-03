@@ -695,3 +695,7 @@
   &:hover:not(:disabled) { background: var(--color-primario-claro); }
   &:disabled { opacity: 0.4; cursor: not-allowed; }
 }
+
+.cbm__hint--error {
+  color: #F87171;
+}

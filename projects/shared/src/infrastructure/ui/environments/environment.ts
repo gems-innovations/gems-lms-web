@@ -29,6 +29,7 @@ export const environment = {
       groups: `${API_BASE_URL}/groups`,
       notifications: `${API_BASE_URL}/notifications`,
       certificates: `${API_BASE_URL}/certificates`,
+      questionBank: `${API_BASE_URL}/question-bank`,
     },
   }
 };

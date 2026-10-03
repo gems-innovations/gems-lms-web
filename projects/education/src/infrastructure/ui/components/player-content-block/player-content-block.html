@@ -97,7 +97,7 @@
           <ul class="quiz-confirm__info">
             <li>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/></svg>
-              {{ quizQuestions().length }} preguntas
+              {{ plannedQuestionCount() }} preguntas
             </li>
             @if (blk.timeLimit) {
               <li>
@@ -118,9 +118,12 @@
               </li>
             }
           </ul>
-          <button type="button" class="pcb-btn pcb-btn--primary pcb-btn--lg" [disabled]="!canRetryQuiz()" (click)="startQuiz()">
+          @if (quizStartError()) {
+            <p class="quiz-confirm__error" role="alert">{{ quizStartError() }}</p>
+          }
+          <button type="button" class="pcb-btn pcb-btn--primary pcb-btn--lg" [disabled]="!canRetryQuiz() || quizStarting()" (click)="startQuiz()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            Comenzar quiz
+            {{ quizStarting() ? 'Preparando…' : 'Comenzar quiz' }}
           </button>
         </div>
       }
