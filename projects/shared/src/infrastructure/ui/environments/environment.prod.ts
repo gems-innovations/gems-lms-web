@@ -12,6 +12,7 @@ export const environment = {
       register: `${API_BASE_URL}/auth/register`,
     },
     users: `${API_BASE_URL}/users`,
+    audit: `${API_BASE_URL}/audit/events`,
     files: `${API_BASE_URL}/files`,
     admin: {
       institutions: `${API_BASE_URL}/institutions`,

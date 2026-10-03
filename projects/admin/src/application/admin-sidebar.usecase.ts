@@ -15,14 +15,16 @@ export class AdminSidebarUseCase {
 
     if (role === EUserRole.SUPER_ADMIN) {
       return [
-        { id: 'institutions', label: 'Instituciones', icon: 'institutions', route: '/admin/institutions' }
+        { id: 'institutions', label: 'Instituciones', icon: 'institutions', route: '/admin/institutions' },
+        { id: 'audit', label: 'Auditoría', icon: 'stats', route: '/admin/audit' }
       ];
     }
     if (role === EUserRole.ADMIN) {
       return [
         { id: 'dashboard',   label: 'Mi Institución', icon: 'dashboard', route: '/admin/dashboard' },
         { id: 'people',      label: 'Personas',        icon: 'users',     route: '/admin/people' },
-        { id: 'enrollments', label: 'Matrículas',      icon: 'courses',   route: '/admin/enrollments' }
+        { id: 'enrollments', label: 'Matrículas',      icon: 'courses',   route: '/admin/enrollments' },
+        { id: 'audit',       label: 'Auditoría',       icon: 'stats',     route: '/admin/audit' }
       ];
     }
     if (role === EUserRole.INSTRUCTOR) {
