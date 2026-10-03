@@ -12,6 +12,7 @@ interface IStoredSession {
   user: IUser;
   token: string;
   branding?: IBrandingConfig | null;
+  mustChangePassword?: boolean;
 }
 
 interface IInstitutionBrandingResponse {
@@ -42,12 +43,15 @@ export class AuthSessionService {
 
   private readonly _token    = signal<string | null>(null);
   private readonly _branding = signal<IBrandingConfig | null>(null);
+  private readonly _mustChangePassword = signal(false);
 
   readonly user            = this.userState.currentUser;
   readonly token           = computed(() => this._token());
   readonly isAuthenticated = computed(() => !!this.user() && !!this._token());
   readonly role            = computed(() => this.user()?.role ?? null);
   readonly institutionId   = computed(() => this.user()?.institutionId ?? null);
+  /** Signed in with a temporary password: the app only allows changing it. */
+  readonly mustChangePassword = this._mustChangePassword.asReadonly();
 
   readonly isSuperAdmin        = computed(() => this.role() === EUserRole.SUPER_ADMIN);
   readonly isAdminOrAbove      = computed(() =>
@@ -58,9 +62,15 @@ export class AuthSessionService {
   );
   readonly isStudent = computed(() => this.role() === EUserRole.STUDENT);
 
-  saveSession(user: IUser, token: string): void {
+  saveSession(user: IUser, token: string, mustChangePassword = false): void {
     this.userState.setCurrentUser(user);
     this._token.set(token);
+    this._mustChangePassword.set(mustChangePassword);
+    this.persist();
+  }
+
+  passwordChanged(): void {
+    this._mustChangePassword.set(false);
     this.persist();
   }
 
@@ -68,6 +78,7 @@ export class AuthSessionService {
     this.userState.clearCurrentUser();
     this._token.set(null);
     this._branding.set(null);
+    this._mustChangePassword.set(false);
     if (this.isBrowser) localStorage.removeItem(STORAGE_KEY);
   }
 
@@ -85,6 +96,7 @@ export class AuthSessionService {
       this.userState.setCurrentUser(parsed.user);
       this._token.set(parsed.token);
       this._branding.set(parsed.branding ?? null);
+      this._mustChangePassword.set(parsed.mustChangePassword === true);
     } catch {
       localStorage.removeItem(STORAGE_KEY);
     }
@@ -131,7 +143,9 @@ export class AuthSessionService {
     const user = this.user();
     const token = this._token();
     if (!user || !token) return;
-    const session: IStoredSession = { user, token, branding: this._branding() };
+    const session: IStoredSession = {
+      user, token, branding: this._branding(), mustChangePassword: this._mustChangePassword()
+    };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
   }
 }

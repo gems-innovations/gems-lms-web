@@ -8,5 +8,5 @@ export const loginRedirectGuard: CanActivateFn = () => {
   const router  = inject(Router);
 
   if (!session.isAuthenticated()) return true;
-  return router.createUrlTree([session.getHomeRoute()]);
+  return router.createUrlTree([session.mustChangePassword() ? '/account/password' : session.getHomeRoute()]);
 };

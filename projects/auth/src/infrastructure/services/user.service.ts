@@ -24,11 +24,14 @@ interface IUserResponse {
 
 interface ILoginResponse extends IUserResponse {
   token: string;
+  mustChangePassword?: boolean;
 }
 
 export interface ILoginResult {
   user: IUser;
   token: string;
+  /** The account still has the temporary password it was created with. */
+  mustChangePassword: boolean;
 }
 
 export interface ICreatedUser {
@@ -70,8 +73,21 @@ export class UserService {
 
   login(credentials: ILoginCredentials): Observable<ILoginResult> {
     return this.http.post<ILoginResponse>(this.urls.auth.login, credentials).pipe(
-      map(r => ({ user: mapUser(r), token: r.token }))
+      map(r => ({ user: mapUser(r), token: r.token, mustChangePassword: r.mustChangePassword === true }))
     );
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.urls.auth.base}/change-password`, { currentPassword, newPassword });
+  }
+
+  /** The API answers the same whether or not the e-mail has an account. */
+  forgotPassword(email: string): Observable<void> {
+    return this.http.post<void>(`${this.urls.auth.base}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.urls.auth.base}/reset-password`, { token, newPassword });
   }
 
   /** Return every user (super admin views). */

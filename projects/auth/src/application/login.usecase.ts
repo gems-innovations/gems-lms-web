@@ -41,12 +41,14 @@ export class LoginUseCase {
       }),
       switchMap(credentials =>
         this.userService.login(credentials).pipe(
-          tap(({ user, token }) => this.authSession.saveSession(user, token)),
+          tap(({ user, token, mustChangePassword }) => this.authSession.saveSession(user, token, mustChangePassword)),
           // Branding is best-effort: it never blocks the login.
           switchMap(() => this.authSession.loadInstitutionBranding()),
           tap(() => {
             this._isLoading.set(false);
-            this.router.navigate([this.authSession.getHomeRoute()]);
+            this.router.navigate([this.authSession.mustChangePassword()
+              ? '/account/password'
+              : this.authSession.getHomeRoute()]);
           }),
           catchError(err => {
             this._error.set(loginErrorMessage(err));

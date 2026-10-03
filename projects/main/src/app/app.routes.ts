@@ -15,6 +15,14 @@ export const routes: Routes = [
     loadChildren: () => import('auth').then(m => m.routes)
   },
 
+  // ── Own account: change password (forced after signing in with a temporary one) ──
+  {
+    path: 'account/password',
+    canActivate: [authGuard],
+    data: { mode: 'change' },
+    loadComponent: () => import('auth').then(m => m.PasswordContainer)
+  },
+
   // ── Admin panel ────────────────────────────────────────────────────────
   {
     path: 'admin',

@@ -7,6 +7,7 @@ export const environment = {
   apiBaseUrl: API_BASE_URL,
   apiUrls: {
     auth: {
+      base: `${API_BASE_URL}/auth`,
       login: `${API_BASE_URL}/auth/login`,
       register: `${API_BASE_URL}/auth/register`,
     },
