@@ -340,4 +340,55 @@
 
     lib-button { flex: 1; }
   }
+
+  &__rubric {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  &__criterion {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-borde-principal);
+    border-radius: var(--border-radius-md);
+  }
+
+  &__criterion-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+  }
+
+  &__criterion-name {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-texto-principal);
+  }
+
+  &__criterion-max,
+  &__criterion-desc {
+    font-size: var(--font-size-xs);
+    color: var(--color-texto-terciario);
+    margin: 0;
+  }
+
+  &__criterion-points,
+  &__criterion-comment {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--color-superficie-alta);
+    border: 1px solid var(--color-borde-principal);
+    border-radius: var(--border-radius-md);
+    color: var(--color-texto-principal);
+  }
+
+  &__criterion-points { width: 64px; text-align: center; }
+
+  &__rubric-error {
+    margin: 0;
+    font-size: var(--font-size-xs);
+    color: var(--color-error, #dc2626);
+  }
 }

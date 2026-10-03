@@ -11,6 +11,10 @@ export { CourseEditorContainer } from './infrastructure/ui/containers/course-edi
 export { PlayerContentBlock } from './infrastructure/ui/components/player-content-block/player-content-block';
 export { EnrollStudentSearch } from './infrastructure/ui/components/enroll-student-search/enroll-student-search';
 export { EnrollResultBanner } from './infrastructure/ui/components/enroll-result-banner/enroll-result-banner';
+export { GradebookService } from './infrastructure/services/gradebook.service';
+export type {
+  IGradebook, IGradebookItem, IGradebookRow, IGradebookCell, IRubricScore, TGradebookCellState,
+} from './domain/model/gradebook.model';
 export { EnrollmentService } from './infrastructure/services/enrollment.service';
 export type { IStudentProfile } from './infrastructure/services/enrollment.service';
 export { CourseService } from './infrastructure/services/course.service';
@@ -28,7 +32,7 @@ export type {
   ICourseSurvey, ISurveySection, ISurveyQuestion, ISurveyResponse, ISurveyAnswer,
   TSurveyQuestionType,
 } from './domain/model/survey.model';
-export type { ICourse, IContentBlock } from './domain/model/course.model';
+export type { ICourse, IContentBlock, IRubricItem } from './domain/model/course.model';
 export { EContentType, EDifficulty, ECourseStatus } from './domain/model/course.model';
 export type { ILearningPath, ELearningPathStatus } from './domain/model/learning-path.model';
 export type { IEnrollment, IAssignmentSubmission } from './domain/model/enrollment.model';
@@ -104,6 +108,13 @@ export const studentChildRoutes: Routes = [
     loadComponent: () =>
       import('./infrastructure/ui/containers/student-home-container/student-home-container').then(
         m => m.StudentHomeContainer
+      )
+  },
+  {
+    path: 'courses/:id/grades',
+    loadComponent: () =>
+      import('./infrastructure/ui/containers/student-grades-container/student-grades-container').then(
+        m => m.StudentGradesContainer
       )
   },
   {

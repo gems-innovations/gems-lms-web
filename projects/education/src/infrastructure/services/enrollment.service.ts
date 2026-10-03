@@ -1,3 +1,4 @@
+import type { IRubricScore } from '../../domain/model/gradebook.model';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -68,6 +69,7 @@ interface ISubmissionApi {
   grade: number | null;
   feedback: string | null;
   status: string;
+  rubricScores?: IRubricScore[] | null;
 }
 
 function mapAttempt(a: IAttemptApi): IQuizAttempt {
@@ -96,7 +98,8 @@ function mapSubmission(s: ISubmissionApi): IAssignmentSubmission {
     submittedAt: new Date(s.submittedAt),
     grade: s.grade ?? undefined,
     feedback: s.feedback ?? undefined,
-    status: s.status === 'graded' ? 'graded' : s.status === 'returned' ? 'returned' : 'pending'
+    status: s.status === 'graded' ? 'graded' : s.status === 'returned' ? 'returned' : 'pending',
+    rubricScores: s.rubricScores ?? undefined
   };
 }
 
@@ -335,8 +338,11 @@ export class EnrollmentService {
     );
   }
 
-  gradeSubmission(submissionId: string, grade: number, feedback: string): Observable<IAssignmentSubmission> {
-    return this.http.put<ISubmissionApi>(`${environment.apiUrls.education.submissions}/${submissionId}/grade`, { grade, feedback })
+  /** With rubricScores the API computes the grade from the block rubric and ignores grade. */
+  gradeSubmission(submissionId: string, grade: number, feedback: string,
+                  rubricScores?: IRubricScore[]): Observable<IAssignmentSubmission> {
+    const body = rubricScores?.length ? { rubricScores, feedback } : { grade, feedback };
+    return this.http.put<ISubmissionApi>(`${environment.apiUrls.education.submissions}/${submissionId}/grade`, body)
       .pipe(map(s => {
         const graded = mapSubmission(s);
         this._gradedSubmission$.next(graded);

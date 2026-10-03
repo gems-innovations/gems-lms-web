@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
+import type { IGradebookItem } from 'education';
 import type {
-  IEnrollmentRow, ISubmissionRow, IAssignmentEntry, IStudentGradeRow,
+  IGradebookStudentRow, IEnrollmentRow, ISubmissionRow, IAssignmentEntry, IStudentGradeRow,
 } from '../domain/model/instructor.model';
 
 const fileSafe = (s: string): string =>
@@ -46,6 +47,32 @@ export class ExportUseCase {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Estudiantes');
     XLSX.writeFile(wb, `reporte-estudiantes-${fileSafe(courseTitle)}.xlsx`);
+  }
+
+  /** Excel del libro de calificaciones (notas ponderadas calculadas por la API). */
+  async gradebookExcel(courseTitle: string, items: IGradebookItem[], rows: IGradebookStudentRow[]): Promise<void> {
+    const mod: any = await import('xlsx');
+    const XLSX = mod.utils ? mod : mod.default;
+
+    const headers = ['Estudiante', 'Email',
+      ...items.map(i => `${i.type === 'quiz' ? 'Quiz' : 'Tarea'}: ${i.title || 'Sin título'} (peso ${i.weight})`),
+      'Nota actual', 'Nota final'];
+    const data = rows.map(r => [
+      `${r.student.firstName} ${r.student.lastName}`,
+      r.student.email,
+      ...items.map(i => {
+        const c = r.cells.find(x => x.blockId === i.blockId);
+        return c?.score != null ? c.score : c?.state === 'pending' ? 'Por calificar' : 'Sin entregar';
+      }),
+      r.currentGrade ?? '',
+      r.finalGrade ?? '',
+    ]);
+
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+    ws['!cols'] = headers.map((h, i) => ({ wch: i < 2 ? 26 : Math.min(40, Math.max(12, h.length + 2)) }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Calificaciones');
+    XLSX.writeFile(wb, `calificaciones-${fileSafe(courseTitle)}.xlsx`);
   }
 
   /** PDF con el reporte de un estudiante (info + notas + radar opcional). */

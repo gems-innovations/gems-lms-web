@@ -9,6 +9,7 @@
       [hasNext]="uc.hasNextBlock() || uc.hasNextLesson()"
       [progress]="uc.courseProgress()"
       (goHome)="goHome()"
+      (openGrades)="openGrades()"
       (prev)="_guardedNav(uc.prevBlock.bind(uc))"
       (next)="_guardedNav(uc.nextBlock.bind(uc))"
     />

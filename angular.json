@@ -233,6 +233,15 @@
             }
           },
           "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "tsConfig": "projects/instructor/tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/shared/src/infrastructure/ui/styles"]
+            }
+          }
         }
       }
     },

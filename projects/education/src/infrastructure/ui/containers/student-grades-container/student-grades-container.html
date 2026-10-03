@@ -1,0 +1,79 @@
+<lib-page>
+  <lib-back-button label="Volver al curso" (back)="backToCourse()" />
+  <lib-page-header
+    title="Mis calificaciones"
+    [subtitle]="course()?.title ?? ''"
+  />
+
+  @if (loading()) {
+    <lib-loading-skeleton [rows]="6" />
+  } @else if (error()) {
+    <lib-empty-state title="Sin datos" [description]="error()!" />
+  } @else if (!row()) {
+    <lib-empty-state title="No estás inscrito" description="Inscríbete en el curso para ver tus calificaciones." />
+  } @else if (lines().length === 0) {
+    <lib-empty-state title="Sin evaluaciones" description="Este curso no tiene quizzes ni tareas calificables." />
+  } @else {
+    <section class="sgrades__summary" aria-label="Nota del curso">
+      <div class="sgrades__summary-card">
+        <span class="sgrades__summary-label">Nota actual</span>
+        <strong class="sgrades__summary-value {{ gradeClass(row()!.currentGrade) }}">
+          {{ row()!.currentGrade != null ? (row()!.currentGrade | number:'1.0-1') : '—' }}
+        </strong>
+        <span class="sgrades__summary-hint">Promedio ponderado de lo ya calificado</span>
+      </div>
+      <div class="sgrades__summary-card">
+        <span class="sgrades__summary-label">Nota final proyectada</span>
+        <strong class="sgrades__summary-value {{ gradeClass(row()!.finalGrade) }}">
+          {{ row()!.finalGrade != null ? (row()!.finalGrade | number:'1.0-1') : '—' }}
+        </strong>
+        <span class="sgrades__summary-hint">Lo pendiente cuenta como 0</span>
+      </div>
+    </section>
+
+    <ul class="sgrades__list">
+      @for (line of lines(); track line.item.blockId) {
+        <li class="sgrades__item">
+          <div class="sgrades__item-head">
+            <div>
+              <span class="sgrades__type">{{ line.item.type === 'quiz' ? 'Quiz' : 'Tarea' }} · {{ line.share }}% de la nota</span>
+              <h3 class="sgrades__title">{{ line.item.title || 'Sin título' }}</h3>
+            </div>
+            @switch (line.cell?.state) {
+              @case ('graded') {
+                <strong class="sgrades__score {{ gradeClass(line.cell?.score) }}">{{ line.cell?.score }}<span>/100</span></strong>
+              }
+              @case ('pending') { <span class="sgrades__state">Entregada, por calificar</span> }
+              @default { <span class="sgrades__state sgrades__state--missing">Sin entregar</span> }
+            }
+          </div>
+
+          @if (line.item.type === 'quiz' && line.cell?.attempts) {
+            <p class="sgrades__meta">Mejor de {{ line.cell?.attempts }} intento(s)</p>
+          }
+
+          @if (line.rubric.length) {
+            <table class="sgrades__rubric">
+              <caption>Rúbrica</caption>
+              <tbody>
+                @for (r of line.rubric; track r.criterion) {
+                  <tr>
+                    <th scope="row">{{ r.criterion }}</th>
+                    <td>{{ r.score }} / {{ r.maxPoints }}</td>
+                    <td class="sgrades__comment">{{ r.comment ?? '' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+
+          @if (line.cell?.state === 'graded' && line.submission?.feedback) {
+            <div class="sgrades__feedback markdown-body">
+              <markdown [data]="line.submission!.feedback!" />
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+</lib-page>

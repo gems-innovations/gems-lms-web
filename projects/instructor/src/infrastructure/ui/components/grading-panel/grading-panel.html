@@ -167,23 +167,52 @@
         </div>
 
         <div class="gpanel__grade-body">
-          <div>
-            <label class="gpanel__field-label">Nota (0–100)</label>
-            <div class="gpanel__grade-row">
-              <input class="gpanel__grade-number" type="number" min="0" max="100"
-                     [ngModel]="gradeInput()" (ngModelChange)="gradeInput.set(+$event)" />
+          @if (rubric().length) {
+            <div class="gpanel__rubric">
+              <label class="gpanel__field-label">Rúbrica</label>
+              @for (r of rubric(); track r.id) {
+                <div class="gpanel__criterion">
+                  <div class="gpanel__criterion-head">
+                    <span class="gpanel__criterion-name">{{ r.criterion }}</span>
+                    <span class="gpanel__criterion-max">
+                      <input class="gpanel__criterion-points" type="number" min="0" [max]="r.maxPoints"
+                             [attr.aria-label]="'Puntos de ' + r.criterion"
+                             [ngModel]="rubricPoints()[r.id]" (ngModelChange)="setRubricPoints(r.id, +$event)" />
+                      / {{ r.maxPoints }}
+                    </span>
+                  </div>
+                  @if (r.description) { <p class="gpanel__criterion-desc">{{ r.description }}</p> }
+                  <input class="gpanel__criterion-comment" type="text" placeholder="Comentario (opcional)"
+                         [attr.aria-label]="'Comentario de ' + r.criterion"
+                         [ngModel]="rubricComments()[r.id] ?? ''" (ngModelChange)="setRubricComment(r.id, $event)" />
+                </div>
+              }
               <div class="gpanel__grade-display gpanel__grade-display--{{ gradeColor() }}">
-                {{ gradeInput() }}<span>/100</span>
+                {{ rubricGrade() }}<span>/100</span>
+              </div>
+              @if (!rubricValid()) {
+                <p class="gpanel__rubric-error">Asigna a cada criterio un puntaje entre 0 y su máximo.</p>
+              }
+            </div>
+          } @else {
+            <div>
+              <label class="gpanel__field-label">Nota (0–100)</label>
+              <div class="gpanel__grade-row">
+                <input class="gpanel__grade-number" type="number" min="0" max="100"
+                       [ngModel]="gradeInput()" (ngModelChange)="gradeInput.set(+$event)" />
+                <div class="gpanel__grade-display gpanel__grade-display--{{ gradeColor() }}">
+                  {{ gradeInput() }}<span>/100</span>
+                </div>
+              </div>
+              <input class="gpanel__grade-slider" type="range" min="0" max="100"
+                     [ngModel]="gradeInput()" (ngModelChange)="gradeInput.set(+$event)" />
+              <div class="gpanel__grade-hint gpanel__grade-hint--{{ gradeColor() }}">
+                @if (gradeColor() === 'high') { ✓ Aprobado con distinción }
+                @else if (gradeColor() === 'mid') { ◐ Aprobado }
+                @else { ✗ Reprobado }
               </div>
             </div>
-            <input class="gpanel__grade-slider" type="range" min="0" max="100"
-                   [ngModel]="gradeInput()" (ngModelChange)="gradeInput.set(+$event)" />
-            <div class="gpanel__grade-hint gpanel__grade-hint--{{ gradeColor() }}">
-              @if (gradeColor() === 'high') { ✓ Aprobado con distinción }
-              @else if (gradeColor() === 'mid') { ◐ Aprobado }
-              @else { ✗ Reprobado }
-            </div>
-          </div>
+            }
 
           <lib-markdown-editor
             label="Retroalimentación"
@@ -196,7 +225,7 @@
 
         <div class="gpanel__actions">
           <lib-button variant="ghost" [fullWidth]="true" (clicked)="backToSubmissions.emit()">Cancelar</lib-button>
-          <lib-button variant="primary" [fullWidth]="true" [icon]="'check'" (clicked)="submit()">
+          <lib-button variant="primary" [fullWidth]="true" [icon]="'check'" [disabled]="rubric().length > 0 && !rubricValid()" (clicked)="submit()">
             <svg slot="icon-left" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="20 6 9 17 4 12"/>
             </svg>

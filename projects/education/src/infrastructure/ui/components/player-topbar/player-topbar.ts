@@ -17,6 +17,7 @@ export class PlayerTopbar {
   readonly progress     = input<number>(0);
 
   readonly goHome = output<void>();
+  readonly openGrades = output<void>();
   readonly prev   = output<void>();
   readonly next   = output<void>();
 }

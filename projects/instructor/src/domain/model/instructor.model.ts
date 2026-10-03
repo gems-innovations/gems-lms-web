@@ -1,5 +1,5 @@
 import type {
-  ICourse, IContentBlock, IEnrollment, IAssignmentSubmission, IStudentProfile, IGroup,
+  ICourse, IContentBlock, IEnrollment, IAssignmentSubmission, IStudentProfile, IGroup, IRubricScore, IGradebookRow,
 } from 'education';
 
 export interface ICohort {
@@ -8,7 +8,7 @@ export interface ICohort {
   stats: ICourseStats;
 }
 
-export type TCourseDetailTab = 'overview' | 'students' | 'submissions' | 'reviews' | 'survey';
+export type TCourseDetailTab = 'overview' | 'students' | 'submissions' | 'reviews' | 'survey' | 'gradebook';
 
 export interface IStudentGradeRow {
   blockId: string;
@@ -28,6 +28,11 @@ export interface ICourseStats {
 export interface ICourseWithStats {
   course: ICourse;
   stats: ICourseStats;
+}
+
+/** A gradebook row with the student it belongs to. */
+export interface IGradebookStudentRow extends IGradebookRow {
+  student: IStudentProfile;
 }
 
 export interface IEnrollmentRow extends IEnrollment {
@@ -51,4 +56,6 @@ export interface IGradeSubmitEvent {
   submissionId: string;
   grade: number;
   feedback: string;
+  /** Set when graded with the assignment rubric; the API then computes the grade. */
+  rubricScores?: IRubricScore[];
 }

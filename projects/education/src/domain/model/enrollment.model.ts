@@ -1,3 +1,4 @@
+import type { IRubricScore } from './gradebook.model';
 // ============================================================================
 // GEMS LMS — Enrollment & Student Progress Domain Model
 // ============================================================================
@@ -98,6 +99,8 @@ export interface IAssignmentSubmission {
   grade?: number;        // 0-maxScore
   feedback?: string;
   status: 'pending' | 'graded' | 'returned';
+  /** Scores per rubric criterion when it was graded with the rubric. */
+  rubricScores?: IRubricScore[];
 }
 
 // ── Request types ─────────────────────────────────────────────────────────────

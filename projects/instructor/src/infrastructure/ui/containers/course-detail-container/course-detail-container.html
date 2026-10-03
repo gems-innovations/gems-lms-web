@@ -28,6 +28,7 @@
           { id: 'overview', label: 'Resumen' },
           { id: 'students', label: 'Estudiantes', count: uc.stats().studentCount },
           { id: 'submissions', label: 'Entregas', count: uc.stats().pendingCount },
+          { id: 'gradebook', label: 'Calificaciones' },
           { id: 'reviews', label: 'Reseñas', count: uc.reviews().length },
           { id: 'survey', label: 'Encuesta', count: surveyUc.responseCount() }
         ]"
@@ -100,6 +101,19 @@
         (selectSubmission)="openSubmission($event)"
         (backToSubmissions)="uc.backToSubmissionList()"
         (gradeSubmit)="grade($event)"
+      />
+    }
+
+    <!-- ── Libro de calificaciones ── -->
+    @if (uc.activeTab() === 'gradebook') {
+      <ins-gradebook-panel
+        [items]="uc.gradebook()?.items ?? []"
+        [rows]="uc.gradebookRows()"
+        [loading]="uc.gradebookLoading()"
+        [error]="uc.gradebookError()"
+        (saveWeights)="uc.saveWeights($event)"
+        (exportExcel)="exportGradebook()"
+        (openSubmission)="openFromGradebook($event)"
       />
     }
 

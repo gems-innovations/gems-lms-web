@@ -5,6 +5,7 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarkdownComponent } from 'ngx-markdown';
 import { EContentType } from 'education';
+import type { IRubricItem } from 'education';
 import {
   AvatarComponent, BadgeComponent, BackButtonComponent, EmptyStateComponent,
   LibButtonComponent, MarkdownEditorComponent, FileUploadService,
@@ -53,8 +54,30 @@ export class GradingPanel {
   protected readonly gradeInput    = signal<number>(0);
   protected readonly feedbackInput = signal<string>('');
 
+  /** Rubric of the selected assignment; when present the grade comes from its criteria. */
+  protected readonly rubric = computed<IRubricItem[]>(() =>
+    (this.selectedAssignment()?.block.rubric ?? []).filter(r => r.maxPoints > 0));
+  protected readonly rubricPoints   = signal<Record<string, number>>({});
+  protected readonly rubricComments = signal<Record<string, string>>({});
+
+  /** Percentage of the rubric points, as the API computes it. */
+  protected readonly rubricGrade = computed(() => {
+    const items = this.rubric();
+    const possible = items.reduce((a, r) => a + r.maxPoints, 0);
+    if (!possible) return 0;
+    const earned = items.reduce((a, r) => a + (this.rubricPoints()[r.id] ?? 0), 0);
+    return Math.round(earned * 100 / possible);
+  });
+
+  protected readonly effectiveGrade = computed(() => this.rubric().length ? this.rubricGrade() : this.gradeInput());
+
+  protected readonly rubricValid = computed(() => this.rubric().every(r => {
+    const p = this.rubricPoints()[r.id];
+    return p != null && p >= 0 && p <= r.maxPoints;
+  }));
+
   protected readonly gradeColor = computed<'high' | 'mid' | 'low'>(() => {
-    const g = this.gradeInput();
+    const g = this.effectiveGrade();
     if (g >= 80) return 'high';
     if (g >= 60) return 'mid';
     return 'low';
@@ -66,6 +89,14 @@ export class GradingPanel {
       const sub = this.selectedSubmission();
       this.gradeInput.set(sub?.grade ?? 0);
       this.feedbackInput.set(sub?.feedback ?? '');
+      const points: Record<string, number> = {};
+      const comments: Record<string, string> = {};
+      for (const s of sub?.rubricScores ?? []) {
+        points[s.criterionId] = s.score;
+        if (s.comment) comments[s.criterionId] = s.comment;
+      }
+      this.rubricPoints.set(points);
+      this.rubricComments.set(comments);
     });
   }
 
@@ -82,10 +113,27 @@ export class GradingPanel {
   protected submit(): void {
     const sub = this.selectedSubmission();
     if (!sub) return;
+    const rubric = this.rubric();
+    if (rubric.length && !this.rubricValid()) return;
     this.gradeSubmit.emit({
       submissionId: sub.id,
-      grade: this.gradeInput(),
+      grade: this.effectiveGrade(),
       feedback: this.feedbackInput(),
+      rubricScores: rubric.length
+        ? rubric.map(r => ({
+            criterionId: r.id,
+            score: this.rubricPoints()[r.id] ?? 0,
+            ...(this.rubricComments()[r.id]?.trim() ? { comment: this.rubricComments()[r.id].trim() } : {}),
+          }))
+        : undefined,
     });
+  }
+
+  protected setRubricPoints(id: string, value: number): void {
+    this.rubricPoints.update(p => ({ ...p, [id]: value }));
+  }
+
+  protected setRubricComment(id: string, value: string): void {
+    this.rubricComments.update(c => ({ ...c, [id]: value }));
   }
 }
