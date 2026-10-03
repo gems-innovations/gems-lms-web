@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { map, switchMap, tap } from 'rxjs';
 import { UserService } from '../infrastructure/services/user.service';
 import { AuthSessionService } from '../infrastructure/services/auth-session.service';
 
@@ -42,8 +43,14 @@ export class PasswordUseCase {
   }
 
   changePassword(currentPassword: string, newPassword: string): void {
-    this.run(this.userService.changePassword(currentPassword, newPassword), () => {
-      this.session.passwordChanged();
+    const email = this.session.user()?.email;
+    if (!email) { this.logout(); return; }
+    this.run(this.userService.changePassword(currentPassword, newPassword).pipe(
+      // Changing credentials invalidates the old token; replace it before navigating.
+      switchMap(() => this.userService.login({ email, password: newPassword })),
+      tap(({ user, token, mustChangePassword }) => this.session.saveSession(user, token, mustChangePassword)),
+      map(() => undefined)
+    ), () => {
       this.router.navigate([this.session.getHomeRoute()]);
     });
   }

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, switchMap, catchError, of } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { IUser, EUserRole } from '../../domain/model/user.model';
 import { ILoginCredentials } from '../../domain/model/login-credentials.model';
 import { environment } from 'shared';
@@ -123,16 +123,11 @@ export class UserService {
     return this.http.put<IUserResponse>(`${this.urls.users}/${userId}/status`, {}).pipe(map(mapUser));
   }
 
-  /** Delete a user (the API deactivates it). */
   /**
-   * Deletes the account and then the user's learning data (enrollments, deliveries, reviews…).
+   * The backend removes learning data before deleting the account.
    * Deactivating instead is {@link toggleUserStatus}.
    */
   deleteUser(userId: string): Observable<void> {
-    return this.http.delete<void>(`${this.urls.users}/${userId}`).pipe(
-      switchMap(() => this.http.delete<void>(`${this.urls.education.students}/${userId}/learning-data`).pipe(
-        catchError(() => of(undefined))
-      ))
-    );
+    return this.http.delete<void>(`${this.urls.users}/${userId}`);
   }
 }

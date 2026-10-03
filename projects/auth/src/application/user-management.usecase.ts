@@ -99,7 +99,15 @@ export class UserManagementUseCase {
             this._isDeleting.set(false);
             this.closeModal();
           }),
-          catchError(() => { this._isDeleting.set(false); return EMPTY; })
+          catchError(error => {
+            this._isDeleting.set(false);
+            const message = error?.status === 503
+              ? 'No se pudieron limpiar los datos de aprendizaje. La cuenta se conserva; reintenta eliminarla.'
+              : 'No se pudo eliminar el usuario. Reintenta.';
+            this._error.set(message);
+            this.toast.error(message);
+            return EMPTY;
+          })
         )
       ),
       takeUntilDestroyed(this.destroyRef)

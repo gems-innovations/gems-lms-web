@@ -8,6 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "build:all": "ng build shared && ng build auth && ng build education && ng build instructor && ng build admin",
     "test": "ng test",
+    "test:ci": "ng test shared --watch=false --browsers=ChromeHeadless && ng test auth --watch=false --browsers=ChromeHeadless && ng test education --watch=false --browsers=ChromeHeadless && ng test main --watch=false --browsers=ChromeHeadless",
     "serve:ssr:main": "node dist/main/server/server.mjs"
   },
   "prettier": {

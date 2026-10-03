@@ -10,7 +10,25 @@ import { join } from 'node:path';
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
+
+/**
+ * API (api-gateway) URL from the environment: used while rendering on the server and handed to
+ * the browser through /config.js (read by index.html before the app starts).
+ */
+const apiBaseUrl = process.env['API_BASE_URL'];
+if (apiBaseUrl) {
+  (globalThis as any).API_BASE_URL = apiBaseUrl;
+}
 const angularApp = new AngularNodeAppEngine();
+app.get('/config.js', (_req, res) => {
+  res.set('Cache-Control', 'no-store');
+  if (!apiBaseUrl) {
+    res.sendFile(join(browserDistFolder, 'config.js'), { maxAge: 0 });
+    return;
+  }
+  res.type('application/javascript').set('Cache-Control', 'no-store')
+    .send(`globalThis.API_BASE_URL = ${JSON.stringify(apiBaseUrl)};\n`);
+});
 
 /**
  * Example Express Rest API endpoints can be defined here.
