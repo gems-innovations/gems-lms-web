@@ -27,6 +27,11 @@ export const routes: Routes = [
     data: { mode: 'change' },
     loadComponent: () => import('auth').then(m => m.PasswordContainer)
   },
+  {
+    path: 'account/profile',
+    canActivate: [authGuard],
+    loadComponent: () => import('auth').then(m => m.ProfileContainer)
+  },
 
   // ── Admin panel ────────────────────────────────────────────────────────
   {

@@ -53,6 +53,23 @@ describe('UserService', () => {
     req.flush({ ...apiUser, active: false });
   });
 
+  it('updates only profile fields while preserving the account role and institution', () => {
+    const user = { id: '7', firstName: 'Ana', lastName: 'Ruiz', username: 'ana', email: 'ana@unal.edu.co',
+      role: EUserRole.INSTRUCTOR, institutionId: 'inst-1', isActive: true, createdAt: new Date(), updatedAt: new Date() };
+    let updated: any;
+    service.updateProfile(user, { firstName: 'Ana María', lastName: 'Rojas', username: 'amrojas', avatarUrl: 'https://cdn.example/avatar.png' })
+      .subscribe(value => updated = value);
+
+    const req = http.expectOne(`${urls.users}/7`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({
+      firstName: 'Ana María', lastName: 'Rojas', username: 'amrojas', avatarUrl: 'https://cdn.example/avatar.png',
+      role: 'INSTRUCTOR', institutionId: 'inst-1'
+    });
+    req.flush({ ...apiUser, firstName: 'Ana María', lastName: 'Rojas', username: 'amrojas', avatarUrl: 'https://cdn.example/avatar.png' });
+    expect(updated.username).toBe('amrojas');
+  });
+
   it('propagates a failed backend cleanup instead of reporting successful deletion', () => {
     let failure: any;
     service.deleteUser('7').subscribe({

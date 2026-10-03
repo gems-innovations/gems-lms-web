@@ -52,6 +52,7 @@ export { LoginUseCase } from './application/login.usecase';
 export { LogoutUseCase } from './application/logout.usecase';
 export { PasswordUseCase } from './application/password.usecase';
 export { PasswordContainer } from './infrastructure/ui/containers/password-container/password-container';
+export { ProfileContainer } from './infrastructure/ui/containers/profile-container/profile-container';
 export { UserManagementUseCase } from './application/user-management.usecase';
 export type { ICreateUserPayload, TUserModalMode } from './application/user-management.usecase';
 export { authInterceptor } from './infrastructure/http/auth.interceptor';

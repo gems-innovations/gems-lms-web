@@ -40,6 +40,13 @@ export interface ICreatedUser {
   temporaryPassword?: string;
 }
 
+export interface IProfileUpdate {
+  firstName: string;
+  lastName: string;
+  username: string;
+  avatarUrl?: string;
+}
+
 // ── Mapping ───────────────────────────────────────────────────────────────────
 
 export function toUserRole(apiRole: string): EUserRole {
@@ -129,5 +136,14 @@ export class UserService {
    */
   deleteUser(userId: string): Observable<void> {
     return this.http.delete<void>(`${this.urls.users}/${userId}`);
+  }
+
+  updateProfile(user: IUser, changes: IProfileUpdate): Observable<IUser> {
+    return this.http.put<IUserResponse>(`${this.urls.users}/${user.id}`, {
+      ...changes,
+      role: toApiRole(user.role),
+      institutionId: user.institutionId ?? null,
+      avatarUrl: changes.avatarUrl ?? null
+    }).pipe(map(mapUser));
   }
 }

@@ -74,6 +74,11 @@ export class AuthSessionService {
     this.persist();
   }
 
+  updateUser(user: IUser): void {
+    this.userState.setCurrentUser(user);
+    this.persist();
+  }
+
   clearSession(): void {
     this.userState.clearCurrentUser();
     this._token.set(null);

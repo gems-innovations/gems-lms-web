@@ -29,6 +29,7 @@ $nav-closed:  60px;
     .app-sidebar__navbadge      { display: none; }
     .app-sidebar__user          { justify-content: center; padding: 10px 0; }
     .app-sidebar__user-info     { display: none; }
+    .app-sidebar__profile-btn,
     .app-sidebar__signout-btn   { display: none; }
   }
 }
@@ -199,6 +200,28 @@ $nav-closed:  60px;
   display: flex;
   flex-direction: column;
   gap: 1px;
+}
+
+.app-sidebar__profile-btn,
+.app-sidebar__signout-btn {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  color: var(--color-texto-terciario);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: color .15s ease, background .15s ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-primario);
+    background: var(--color-fondo-hover);
+    outline: none;
+  }
 }
 
 .app-sidebar__user-name {
