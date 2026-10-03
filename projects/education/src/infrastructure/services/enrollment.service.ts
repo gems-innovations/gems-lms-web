@@ -4,7 +4,6 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subject, of, forkJoin, map, switchMap, throwError, catchError, shareReplay } from 'rxjs';
 import { environment } from 'shared';
 import { AuthSessionService, EUserRole, IUser, UserService } from 'auth';
-import { NotificationService } from './notification.service';
 import { CourseService } from './course.service';
 import {
   IEnrollment,
@@ -191,7 +190,6 @@ export class EnrollmentService {
   private readonly http = inject(HttpClient);
   private readonly session = inject(AuthSessionService);
   private readonly users = inject(UserService);
-  private readonly notifications = inject(NotificationService);
   private readonly courseService = inject(CourseService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly baseUrl = environment.apiUrls.education.enrollments;
@@ -256,17 +254,8 @@ export class EnrollmentService {
         { textContent: req.textContent, fileUrls: req.fileUrls ?? [] }
       ).pipe(catchError(err => throwError(() => new Error(activityError(err)))))
     }).pipe(
-      map(({ course, saved }) => {
-        const submission = mapSubmission(saved);
-        const user = this.session.user();
-        const blockTitle = course.modules.flatMap(m => m.lessons).flatMap(l => l.contentBlocks)
-          .find(b => b.id === req.blockId)?.title ?? 'una tarea';
-        this.notifications.notifySubmission(
-          user ? `${user.firstName} ${user.lastName}` : 'Un estudiante',
-          blockTitle, course.title, req.courseId, submission.id
-        );
-        return submission;
-      })
+      /* submission notified by the API */
+      map(({ saved }) => mapSubmission(saved))
     );
   }
 

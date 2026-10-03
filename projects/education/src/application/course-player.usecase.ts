@@ -102,7 +102,8 @@ export class CoursePlayerUseCase {
   });
 
   // La encuesta solo se habilita cuando el estudiante culmina el curso (100% de avance).
-  readonly surveyEnabled = computed(() => this.hasSurvey() && this.courseProgress() === 100);
+  /** Feedback (review, and the survey if the course has one) opens when the course is completed. */
+  readonly surveyEnabled = computed(() => this.courseProgress() === 100);
 
   readonly isBlockComplete = computed(() => {
     const b = this.selectedBlock();

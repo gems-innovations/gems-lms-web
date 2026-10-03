@@ -25,6 +25,7 @@ export const environment = {
       submissions: `${API_BASE_URL}/submissions`,
       activity: `${API_BASE_URL}/activity/me`,
       groups: `${API_BASE_URL}/groups`,
+      notifications: `${API_BASE_URL}/notifications`,
     },
   }
 };

@@ -1,12 +1,20 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { AuthSessionService } from 'auth';
 import { SurveyService } from '../infrastructure/services/survey.service';
+import { ReviewService } from '../infrastructure/services/review.service';
 import type { ICourseSurvey, ISurveyAnswer, ISurveyResponse } from '../domain/model/survey.model';
 
 @Injectable()
 export class CourseSurveyUseCase {
   private readonly surveyService = inject(SurveyService);
   private readonly authSession   = inject(AuthSessionService);
+  private readonly reviewService = inject(ReviewService);
+
+  readonly rating        = signal(0);
+  readonly reviewComment = signal('');
+  readonly reviewSaved   = signal(false);
+  readonly reviewSaving  = signal(false);
+  readonly reviewError   = signal<string | null>(null);
 
   private readonly _survey       = signal<ICourseSurvey | null>(null);
   private readonly _isLoading    = signal(true);
@@ -62,9 +70,41 @@ export class CourseSurveyUseCase {
     this._visited.set(new Set([0]));
     this._answers.set({});
     this._submitted.set(false);
-    this.surveyService.getSurvey(courseId).subscribe(survey => {
-      this._survey.set(survey && survey.isPublished ? survey : null);
-      this._isLoading.set(false);
+    this.surveyService.getSurvey(courseId).subscribe({
+      next: survey => {
+        this._survey.set(survey && survey.isPublished ? survey : null);
+        this._isLoading.set(false);
+      },
+      error: () => this._isLoading.set(false),
+    });
+    this.rating.set(0);
+    this.reviewComment.set('');
+    this.reviewSaved.set(false);
+    this.reviewError.set(null);
+    this.reviewService.getMyReview(courseId).subscribe({
+      next: review => {
+        if (!review) return;
+        this.rating.set(review.rating);
+        this.reviewComment.set(review.comment);
+        this.reviewSaved.set(true);
+      },
+      error: () => { /* reviewing stays possible */ },
+    });
+  }
+
+  saveReview(): void {
+    if (this.rating() < 1 || this.reviewSaving()) return;
+    this.reviewSaving.set(true);
+    this.reviewError.set(null);
+    this.reviewService.saveReview(this.courseId, this.rating(), this.reviewComment().trim()).subscribe({
+      next: () => {
+        this.reviewSaving.set(false);
+        this.reviewSaved.set(true);
+      },
+      error: () => {
+        this.reviewSaving.set(false);
+        this.reviewError.set('No se pudo guardar tu calificación. Intenta de nuevo.');
+      },
     });
   }
 
@@ -109,9 +149,12 @@ export class CourseSurveyUseCase {
       submittedAt: new Date(),
     };
 
-    this.surveyService.submitResponse(response).subscribe(() => {
-      this._isSubmitting.set(false);
-      this._submitted.set(true);
+    this.surveyService.submitResponse(response).subscribe({
+      next: () => {
+        this._isSubmitting.set(false);
+        this._submitted.set(true);
+      },
+      error: () => this._isSubmitting.set(false),
     });
   }
 }

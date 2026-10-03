@@ -5,12 +5,13 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AuthSessionService, LogoutUseCase } from 'auth';
 import { BrandingService, AppSidebarComponent } from 'shared';
+import { NotificationBell } from 'education';
 import type { NavigationItem, UserProfile } from 'shared';
 
 @Component({
   selector: 'ins-instructor-layout',
   standalone: true,
-  imports: [RouterOutlet, AppSidebarComponent],
+  imports: [RouterOutlet, AppSidebarComponent, NotificationBell],
   templateUrl: './instructor-layout.html',
   styleUrl: './instructor-layout.scss',
   changeDetection: ChangeDetectionStrategy.Eager,

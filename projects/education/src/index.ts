@@ -20,6 +20,9 @@ export type { IInstructorNotification } from './infrastructure/services/notifica
 export { GroupService } from './infrastructure/services/group.service';
 export type { IGroup, INewStudentRow } from './domain/model/group.model';
 export { SurveyService } from './infrastructure/services/survey.service';
+export { ReviewService } from './infrastructure/services/review.service';
+export type { ICourseReview } from './infrastructure/services/review.service';
+export { NotificationBell } from './infrastructure/ui/components/notification-bell/notification-bell';
 export type {
   ICourseSurvey, ISurveySection, ISurveyQuestion, ISurveyResponse, ISurveyAnswer,
   TSurveyQuestionType,

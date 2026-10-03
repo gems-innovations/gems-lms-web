@@ -1,18 +1,19 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { forkJoin } from 'rxjs';
-import { CourseService, EnrollmentService, GroupService, EContentType } from 'education';
+import { forkJoin, catchError, of } from 'rxjs';
+import { CourseService, EnrollmentService, GroupService, ReviewService, EContentType } from 'education';
 import type { ICourse, IGroup } from 'education';
 import type {
   ICourseStats, IEnrollmentRow, ISubmissionRow, IAssignmentEntry,
   IGradeSubmitEvent, TCourseDetailTab, IStudentGradeRow,
 } from '../domain/model/instructor.model';
-import { COURSE_REVIEWS } from '../domain/model/review.model';
+import type { IStudentReview } from '../domain/model/review.model';
 
 @Injectable()
 export class CourseDetailUseCase {
   private readonly courseService     = inject(CourseService);
   private readonly enrollmentService = inject(EnrollmentService);
   private readonly groupService      = inject(GroupService);
+  private readonly reviewService     = inject(ReviewService);
 
   private readonly _course      = signal<ICourse | null>(null);
   private readonly _courseId    = signal<string>('');
@@ -24,9 +25,8 @@ export class CourseDetailUseCase {
   readonly group = this._group.asReadonly();
 
   // Reseñas de estudiantes de ESTE curso (feedback independiente por curso).
-  readonly reviews = computed(() =>
-    COURSE_REVIEWS.filter(r => r.courseId === this._courseId())
-  );
+  private readonly _reviews = signal<IStudentReview[]>([]);
+  readonly reviews = this._reviews.asReadonly();
 
   private readonly _activeTab        = signal<TCourseDetailTab>('overview');
   private readonly _selectedBlockId  = signal<string | null>(null);
@@ -138,7 +138,8 @@ export class CourseDetailUseCase {
       group:       this.groupService.getGroup(groupId ?? ''),
       enrollments: this.enrollmentService.getEnrollmentsByCourse(courseId),
       submissions: this.enrollmentService.getAllSubmissions(),
-    }).subscribe(({ course, group, enrollments, submissions }) => {
+      reviews:     this.reviewService.getReviews(courseId).pipe(catchError(() => of([]))),
+    }).subscribe(({ course, group, enrollments, submissions, reviews }) => {
       this._course.set(course ?? null);
       this._group.set(group);
       // Filtra a los estudiantes del grupo/cohorte (si aplica).
@@ -151,6 +152,17 @@ export class CourseDetailUseCase {
           s.courseId === courseId && (!studentSet || studentSet.has(s.student.id))
         )
       );
+      const names = new Map((enrollments as IEnrollmentRow[])
+        .map(e => [e.student.id, `${e.student.firstName} ${e.student.lastName}`]));
+      this._reviews.set(reviews.map(r => ({
+        id: r.id,
+        courseId: r.courseId,
+        courseTitle: course?.title ?? '',
+        studentName: names.get(r.studentId) ?? 'Estudiante',
+        rating: r.rating,
+        comment: r.comment,
+        createdAt: r.updatedAt,
+      })));
       this._isLoading.set(false);
     });
   }

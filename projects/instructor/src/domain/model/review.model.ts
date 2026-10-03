@@ -1,6 +1,5 @@
 // Reseñas que los estudiantes dejan sobre los cursos del instructor.
-// La API todavía no expone reseñas (solo averageRating/ratingCount por curso),
-// así que la lista queda vacía hasta que exista ese recurso.
+// Vienen de la API (GET /courses/{id}/reviews); el nombre se resuelve con los inscritos del curso.
 
 export interface IStudentReview {
   id: string;
@@ -12,4 +11,3 @@ export interface IStudentReview {
   createdAt: Date;
 }
 
-export const COURSE_REVIEWS: IStudentReview[] = [];
