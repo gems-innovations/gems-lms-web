@@ -66,8 +66,8 @@
               }
             ],
             "styles": [
-              "projects/main/src/styles.scss",
-              "node_modules/driver.js/dist/driver.css"
+              "node_modules/driver.js/dist/driver.css",
+              "projects/main/src/styles.scss"
             ],
             "server": "projects/main/src/main.server.ts",
             "outputMode": "server",
@@ -142,8 +142,8 @@
               }
             ],
             "styles": [
-              "projects/main/src/styles.scss",
-              "node_modules/driver.js/dist/driver.css"
+              "node_modules/driver.js/dist/driver.css",
+              "projects/main/src/styles.scss"
             ]
           }
         },

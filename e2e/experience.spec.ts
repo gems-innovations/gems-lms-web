@@ -6,6 +6,14 @@ const password = process.env.E2E_ADMIN_PASSWORD;
 const instructorEmail = process.env.E2E_INSTRUCTOR_EMAIL;
 const studentEmail = process.env.E2E_STUDENT_EMAIL;
 
+async function dismissTour(page: Page): Promise<void> {
+  const closeTour = page.locator('.driver-popover-close-btn');
+  if (await closeTour.waitFor({ state: 'visible', timeout: 1_500 }).then(() => true).catch(() => false)) {
+    await closeTour.click();
+    await page.locator('.driver-overlay').waitFor({ state: 'detached' });
+  }
+}
+
 async function signIn(page: Page): Promise<void> {
   return signInAs(page, email!, password!, /\/admin\//);
 }
@@ -26,8 +34,7 @@ async function signInAs(page: Page, userEmail: string, userPassword: string, des
   await submit.click();
   await expect(page).toHaveURL(destination);
 
-  const closeTour = page.locator('.driver-popover-close-btn');
-  if (await closeTour.isVisible({ timeout: 1_500 }).catch(() => false)) await closeTour.click();
+  await dismissTour(page);
 }
 
 test.describe('experiencia y accesibilidad', () => {
@@ -79,6 +86,7 @@ test.describe('experiencia y accesibilidad', () => {
     for (const route of ['/admin/dashboard', '/account/profile', '/admin/reports']) {
       await page.goto(route);
       await page.locator('body').waitFor({ state: 'visible' });
+      await dismissTour(page);
       const results = await new AxeBuilder({ page }).analyze();
       const severe = results.violations.filter(({ impact }) => impact === 'critical' || impact === 'serious');
       expect(severe, `${route}\n${severe.map(item => `${item.id}: ${item.help}`).join('\n')}`).toEqual([]);
@@ -92,8 +100,7 @@ test.describe('experiencia y accesibilidad', () => {
     const audit = async (routes: string[]): Promise<void> => {
       for (const route of routes) {
         await page.goto(route);
-        const closeTour = page.locator('.driver-popover-close-btn');
-        if (await closeTour.isVisible({ timeout: 1_500 }).catch(() => false)) await closeTour.click();
+        await dismissTour(page);
         const results = await new AxeBuilder({ page }).analyze();
         const severe = results.violations.filter(({ impact }) => impact === 'critical' || impact === 'serious');
         expect(severe, `${route}\n${severe.map(item => `${item.id}: ${item.help}`).join('\n')}`).toEqual([]);

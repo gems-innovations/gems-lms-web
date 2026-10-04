@@ -23,6 +23,10 @@ export class OnboardingService {
     const steps = this.stepsFor(user.role).filter(step => document.querySelector(step.element));
     if (!steps.length) return;
     const key = `gems-onboarding-${user.id}-${user.role}`;
+    // Record automatic tours before loading Driver.js. A hard navigation while
+    // the popover is open must not schedule the same tour again and cover the
+    // destination page.
+    if (markCompleted) localStorage.setItem(key, '1');
     void import('driver.js').then(({ driver }) => {
       const tour = driver({
         animate: true,
@@ -32,7 +36,6 @@ export class OnboardingService {
         nextBtnText: 'Siguiente',
         prevBtnText: 'Anterior',
         doneBtnText: 'Listo',
-        onDestroyed: () => { if (markCompleted) localStorage.setItem(key, '1'); },
         steps: steps.map(step => ({ element: step.element, popover: { title: step.title, description: step.description } }))
       });
       tour.drive();

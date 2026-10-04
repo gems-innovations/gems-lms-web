@@ -3,6 +3,14 @@ import { expect, test } from '@playwright/test';
 const email = process.env.E2E_ADMIN_EMAIL;
 const password = process.env.E2E_ADMIN_PASSWORD;
 
+async function dismissTour(page: import('@playwright/test').Page): Promise<void> {
+  const closeTour = page.locator('.driver-popover-close-btn');
+  if (await closeTour.waitFor({ state: 'visible', timeout: 1_500 }).then(() => true).catch(() => false)) {
+    await closeTour.click();
+    await page.locator('.driver-overlay').waitFor({ state: 'detached' });
+  }
+}
+
 test.describe('reportes institucionales', () => {
   test('protege la ruta para visitantes', async ({ page }) => {
     await page.goto('/admin/reports');
@@ -16,13 +24,13 @@ test.describe('reportes institucionales', () => {
     await page.getByLabel('Contraseña').fill(password!);
     await page.getByRole('button', { name: 'Iniciar sesión' }).click();
     await expect(page).toHaveURL(/\/admin\//);
-    const closeTour = page.locator('.driver-popover-close-btn');
-    if (await closeTour.isVisible({ timeout: 1_500 }).catch(() => false)) await closeTour.click();
+    await dismissTour(page);
 
     const reportResponse = page.waitForResponse(response =>
       response.url().includes('/api/v1/reports/institutions/') && response.status() === 200);
     await page.goto('/admin/reports');
     await reportResponse;
+    await dismissTour(page);
     await expect(page.getByRole('heading', { name: 'Reportes' })).toBeVisible();
     await expect(page.getByText('Resultados por curso')).toBeVisible();
 

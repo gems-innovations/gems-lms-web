@@ -21,7 +21,7 @@ if (apiBaseUrl) {
 }
 const angularApp = new AngularNodeAppEngine();
 const apiOrigin = (() => {
-  try { return apiBaseUrl ? new URL(apiBaseUrl).origin : ''; }
+  try { return new URL(apiBaseUrl || 'http://localhost:8080/api/v1').origin; }
   catch { return ''; }
 })();
 

@@ -10,25 +10,25 @@
   &__icon {
     width: 64px;
     height: 64px;
-    background: #f3f4f6;
+    background: var(--color-superficie-alta, #26233d);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 8px;
-    color: #bbb;
+    color: var(--color-texto-secundario, #b8b5c8);
   }
 
   &__title {
     font-size: 16px;
     font-weight: 600;
-    color: #374151;
+    color: var(--color-texto-principal, #f8fafc);
     margin: 0;
   }
 
   &__desc {
     font-size: 13.5px;
-    color: #9ca3af;
+    color: var(--color-texto-secundario, #b8b5c8);
     margin: 0;
     max-width: 360px;
     line-height: 1.6;

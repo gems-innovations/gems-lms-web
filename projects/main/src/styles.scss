@@ -510,3 +510,37 @@ h1, h2, h3, h4, h5, h6 {
 
 html.compact-mode { font-size: 14px; }
 html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+
+// Driver.js lives outside Angular component encapsulation. These explicit
+// colors keep its controls above WCAG AA contrast in either application theme.
+.driver-popover {
+  background: var(--color-superficie-alta, #26233d);
+  color: var(--color-texto-principal, #f8fafc);
+  border: 1px solid var(--color-borde-sutil, #4b4767);
+}
+
+.driver-popover .driver-popover-title,
+.driver-popover .driver-popover-description,
+.driver-popover .driver-popover-progress-text {
+  color: var(--color-texto-principal, #f8fafc);
+}
+
+.driver-popover .driver-popover-next-btn,
+.driver-popover .driver-popover-prev-btn,
+.driver-popover .driver-popover-close-btn {
+  color: #fff !important;
+  text-shadow: none !important;
+}
+
+.driver-popover .driver-popover-next-btn,
+.driver-popover .driver-popover-prev-btn {
+  background: #312e81 !important;
+  border: 1px solid #a5b4fc !important;
+}
+
+.driver-popover .driver-popover-next-btn:hover,
+.driver-popover .driver-popover-next-btn:focus-visible,
+.driver-popover .driver-popover-prev-btn:hover,
+.driver-popover .driver-popover-prev-btn:focus-visible {
+  background: #1e1b4b !important;
+}
