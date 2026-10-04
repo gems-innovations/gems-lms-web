@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "npm run build:all && ng s",
-    "build": "ng build",
+    "build": "ng build main",
     "watch": "ng build --watch --configuration development",
     "build:all": "ng build shared && ng build auth && ng build education && ng build instructor && ng build admin",
     "test": "ng test",
@@ -40,6 +40,7 @@
     "@angular/platform-browser": "22.2.1",
     "@angular/platform-server": "22.2.1",
     "@angular/router": "22.2.1",
+    "@angular/service-worker": "22.2.1",
     "@angular/ssr": "22.2.1",
     "driver.js": "^1.9.0",
     "exceljs": "^4.4.0",

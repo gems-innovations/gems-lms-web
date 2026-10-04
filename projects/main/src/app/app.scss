@@ -1,0 +1,101 @@
+.skip-link {
+  position: fixed;
+  top: .75rem;
+  left: .75rem;
+  z-index: 2000;
+  padding: .65rem 1rem;
+  border-radius: .5rem;
+  background: #fff;
+  color: #111827;
+  font-weight: 700;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .25);
+  transform: translateY(-160%);
+  transition: transform .15s;
+}
+
+.skip-link:focus { transform: translateY(0); }
+#main-content:focus { outline: none; }
+
+.connection-notice {
+  position: fixed;
+  top: .75rem;
+  left: 50%;
+  z-index: 1500;
+  display: flex;
+  gap: .6rem;
+  align-items: center;
+  max-width: min(92vw, 48rem);
+  padding: .65rem 1rem;
+  border: 1px solid #f59e0b;
+  border-radius: .75rem;
+  background: #fffbeb;
+  color: #78350f;
+  font-size: .875rem;
+  font-weight: 600;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .2);
+  transform: translateX(-50%);
+}
+
+.connection-notice__dot {
+  flex: 0 0 auto;
+  width: .6rem;
+  height: .6rem;
+  border-radius: 50%;
+  background: #d97706;
+}
+
+.update-notice {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 1400;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  max-width: min(92vw, 28rem);
+  padding: .9rem 1rem;
+  border: 1px solid var(--color-borde, rgba(255, 255, 255, .16));
+  border-radius: .85rem;
+  background: var(--color-fondo-secundario, #17152a);
+  color: var(--color-texto-principal, #fff);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, .32);
+}
+
+.update-notice div { display: grid; gap: .15rem; }
+.update-notice span { color: var(--color-texto-secundario, #c7c4d8); font-size: .8rem; }
+.update-notice button {
+  padding: .55rem .8rem;
+  border: 0;
+  border-radius: .55rem;
+  background: var(--color-primario, #6d5ee8);
+  color: #fff;
+  font-weight: 700;
+}
+
+.app-tour-button {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1000;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-primario, #2563eb);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  box-shadow: 0 5px 16px rgba(37, 99, 235, .35);
+  cursor: pointer;
+}
+
+.app-tour-button:focus-visible { outline: 3px solid var(--color-primario, #2563eb); outline-offset: 3px; }
+
+@media (max-width: 40rem) {
+  .connection-notice { top: .5rem; width: calc(100% - 1rem); }
+  .update-notice { right: .5rem; bottom: 4.25rem; left: .5rem; max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link { transition: none; }
+}

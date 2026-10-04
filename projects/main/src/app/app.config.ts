@@ -8,6 +8,8 @@ import {
 import { provideRouter } from '@angular/router';
 import { provideClientHydration, withEventReplay, withNoIncrementalHydration } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideServiceWorker } from '@angular/service-worker';
+import { isDevMode } from '@angular/core';
 
 import { provideMarkdown } from 'ngx-markdown';
 import { routes } from './app.routes';
@@ -21,6 +23,10 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay(), withNoIncrementalHydration()),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideMarkdown(),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000'
+    }),
     // Restore persisted session before route guards run
     provideAppInitializer(() => inject(AuthSessionService).restoreSession()),
   ]
