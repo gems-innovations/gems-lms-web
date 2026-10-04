@@ -52,6 +52,7 @@ export const educationChildRoutes: Routes = [
 
   {
     path: 'courses',
+    title: 'Cursos',
     loadComponent: () =>
       import('./infrastructure/ui/containers/course-list-container/course-list-container').then(
         m => m.CourseListContainer
@@ -59,6 +60,7 @@ export const educationChildRoutes: Routes = [
   },
   {
     path: 'courses/:id/edit',
+    title: 'Editar curso',
     loadComponent: () =>
       import('./infrastructure/ui/containers/course-editor-container/course-editor-container').then(
         m => m.CourseEditorContainer
@@ -66,6 +68,7 @@ export const educationChildRoutes: Routes = [
   },
   {
     path: 'learning-paths',
+    title: 'Rutas de aprendizaje',
     loadComponent: () =>
       import('./infrastructure/ui/containers/learning-path-list-container/learning-path-list-container').then(
         m => m.LearningPathListContainer
@@ -73,6 +76,7 @@ export const educationChildRoutes: Routes = [
   },
   {
     path: 'learning-paths/:id/edit',
+    title: 'Editar ruta de aprendizaje',
     loadComponent: () =>
       import('./infrastructure/ui/containers/learning-path-editor-container/learning-path-editor-container').then(
         m => m.LearningPathEditorContainer
@@ -80,6 +84,7 @@ export const educationChildRoutes: Routes = [
   },
   {
     path: 'enrollments',
+    title: 'Gestionar inscripciones',
     loadComponent: () =>
       import('./infrastructure/ui/containers/enrollment-manager-container/enrollment-manager-container').then(
         m => m.EnrollmentManagerContainer
@@ -113,6 +118,7 @@ export const studentChildRoutes: Routes = [
 
   {
     path: 'home',
+    title: 'Inicio',
     loadComponent: () =>
       import('./infrastructure/ui/containers/student-home-container/student-home-container').then(
         m => m.StudentHomeContainer
@@ -120,6 +126,7 @@ export const studentChildRoutes: Routes = [
   },
   {
     path: 'courses/:id/community',
+    title: 'Comunidad del curso',
     loadComponent: () =>
       import('./infrastructure/ui/containers/course-community-container/course-community-container').then(
         m => m.CourseCommunityContainer
@@ -127,6 +134,7 @@ export const studentChildRoutes: Routes = [
   },
   {
     path: 'courses/:id/grades',
+    title: 'Mis calificaciones',
     loadComponent: () =>
       import('./infrastructure/ui/containers/student-grades-container/student-grades-container').then(
         m => m.StudentGradesContainer
@@ -134,6 +142,7 @@ export const studentChildRoutes: Routes = [
   },
   {
     path: 'courses/:id/survey',
+    title: 'Encuesta del curso',
     loadComponent: () =>
       import('./infrastructure/ui/containers/course-survey-container/course-survey-container').then(
         m => m.CourseSurveyContainer
@@ -141,6 +150,7 @@ export const studentChildRoutes: Routes = [
   },
   {
     path: 'courses/:id',
+    title: 'Aprender',
     canDeactivate: [quizDeactivateGuard],
     loadComponent: () =>
       import('./infrastructure/ui/containers/course-player-container/course-player-container').then(
@@ -149,6 +159,7 @@ export const studentChildRoutes: Routes = [
   },
   {
     path: 'catalog',
+    title: 'Catálogo',
     loadComponent: () =>
       import('./infrastructure/ui/containers/course-catalog-container/course-catalog-container').then(
         m => m.CourseCatalogContainer
@@ -156,6 +167,7 @@ export const studentChildRoutes: Routes = [
   },
   {
     path: 'my-learning',
+    title: 'Mi aprendizaje',
     loadComponent: () =>
       import('./infrastructure/ui/containers/my-learning-container/my-learning-container').then(
         m => m.MyLearningContainer
@@ -163,6 +175,7 @@ export const studentChildRoutes: Routes = [
   },
   {
     path: 'preview/courses/:id',
+    title: 'Vista previa del curso',
     data: { previewType: 'course' },
     loadComponent: () =>
       import('./infrastructure/ui/containers/content-preview-container/content-preview-container').then(
@@ -171,6 +184,7 @@ export const studentChildRoutes: Routes = [
   },
   {
     path: 'preview/paths/:id',
+    title: 'Vista previa de la ruta',
     data: { previewType: 'path' },
     loadComponent: () =>
       import('./infrastructure/ui/containers/content-preview-container/content-preview-container').then(

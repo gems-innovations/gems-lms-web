@@ -10,6 +10,7 @@ export const routes: Routes = [
 
   {
     path: 'certificates/verify/:code',
+    title: 'Verificar certificado',
     loadComponent: () => import('education').then(m => m.CertificateVerificationContainer)
   },
 
@@ -23,12 +24,14 @@ export const routes: Routes = [
   // ── Own account: change password (forced after signing in with a temporary one) ──
   {
     path: 'account/password',
+    title: 'Cambiar contraseña',
     canActivate: [authGuard],
     data: { mode: 'change' },
     loadComponent: () => import('auth').then(m => m.PasswordContainer)
   },
   {
     path: 'account/profile',
+    title: 'Mi perfil',
     canActivate: [authGuard],
     loadComponent: () => import('auth').then(m => m.ProfileContainer)
   },

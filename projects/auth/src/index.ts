@@ -3,6 +3,7 @@ import { LoginLayout } from './infrastructure/ui/layouts/login-layout/login-layo
 
 const passwordPage = (mode: 'forgot' | 'reset') => ({
   path: mode === 'forgot' ? 'forgot-password' : 'reset-password',
+  title: mode === 'forgot' ? 'Recuperar contraseña' : 'Restablecer contraseña',
   component: LoginLayout,
   children: [
     {
@@ -24,6 +25,7 @@ export const routes: Routes = [
   passwordPage('reset'),
   {
     path: 'signin',
+    title: 'Iniciar sesión',
     component: LoginLayout,
     children: [
       {

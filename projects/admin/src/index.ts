@@ -6,6 +6,7 @@ export const routes: Routes = [
   // ── Super-admin: institution list ──────────────────────────────────────────
   {
     path: 'institutions',
+    title: 'Instituciones',
     component: MainLayout,
     children: [
       {
@@ -23,6 +24,7 @@ export const routes: Routes = [
   // ── Admin: own institution dashboard ──────────────────────────────────────
   {
     path: 'dashboard',
+    title: 'Panel institucional',
     component: MainLayout,
     children: [
       {
@@ -40,6 +42,7 @@ export const routes: Routes = [
   // ── Admin: personas (usuarios + grupos, unificado) ──────────────────────────
   {
     path: 'people',
+    title: 'Personas y grupos',
     component: MainLayout,
     children: [
       {
@@ -57,6 +60,7 @@ export const routes: Routes = [
   // ── Admin: enrollment manager ──────────────────────────────────────────────
   {
     path: 'enrollments',
+    title: 'Inscripciones',
     component: MainLayout,
     children: [
       {
@@ -72,6 +76,7 @@ export const routes: Routes = [
   },
   {
     path: 'audit',
+    title: 'Auditoría',
     component: MainLayout,
     children: [
       {
@@ -87,6 +92,7 @@ export const routes: Routes = [
   },
   {
     path: 'periods',
+    title: 'Períodos académicos',
     component: MainLayout,
     children: [
       {
@@ -102,6 +108,7 @@ export const routes: Routes = [
   },
   {
     path: 'reports',
+    title: 'Reportes',
     component: MainLayout,
     children: [
       {
