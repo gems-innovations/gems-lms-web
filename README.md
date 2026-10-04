@@ -70,6 +70,11 @@ npx ng build main --configuration production
 
 Salida: dist/main/browser y dist/main/server. Ejemplo de ejecución SSR en PowerShell:
 
+La carga inicial se controla con un presupuesto de 650 kB sin comprimir y 800 kB como
+límite de error. La medición actual es cercana a 633 kB (161 kB estimados por red). Excel,
+PDF, gráficas y las pantallas de cada rol permanecen en fragmentos diferidos; revisar este
+presupuesto cuando una dependencia pase al paquete inicial.
+
 ```powershell
 $env:API_BASE_URL = 'https://api.example.com/api/v1'
 $env:NG_ALLOWED_HOSTS = 'lms.example.com,localhost'

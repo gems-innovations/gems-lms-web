@@ -1,12 +1,11 @@
 import { Component, input, output, signal, effect, ChangeDetectionStrategy } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
 import { ICourse, ILesson, EContentType } from '../../../../domain/model/course.model';
 import { formatDuration } from '../../utils/course-labels';
 
 @Component({
   selector: 'edu-player-sidebar',
   standalone: true,
-  imports: [DecimalPipe],
+  imports: [],
   templateUrl: './player-sidebar.html',
   styleUrl: './player-sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

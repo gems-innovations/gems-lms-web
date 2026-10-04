@@ -200,7 +200,7 @@ export class CoursePlayerUseCase {
           return next;
         });
       }
-    }, { allowSignalWrites: true });
+    });
 
     // Mark quiz blocks complete only when the student has a passing attempt
     effect(() => {
@@ -211,7 +211,7 @@ export class CoursePlayerUseCase {
           this._completedBlockIds.update(s => new Set([...s, attempt.blockId]));
         }
       }
-    }, { allowSignalWrites: true });
+    });
 
     // Mark assignment blocks complete when instructor grades them
     effect(() => {
@@ -222,7 +222,7 @@ export class CoursePlayerUseCase {
           this._completedBlockIds.update(s => new Set([...s, sub.blockId]));
         }
       }
-    }, { allowSignalWrites: true });
+    });
 
     // Mark quiz blocks complete only when the best attempt is passing
     effect(() => {
@@ -241,7 +241,7 @@ export class CoursePlayerUseCase {
           this._completedBlockIds.update(s => new Set([...s, blockId]));
         }
       }
-    }, { allowSignalWrites: true });
+    });
 
     // Persist newly completed blocks (and the course percentage) to the enrollment.
     effect(() => {

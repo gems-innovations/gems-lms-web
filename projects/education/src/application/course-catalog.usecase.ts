@@ -73,7 +73,7 @@ export class CourseCatalogUseCase {
       this._filterKind();
       this._filterLevel();
       this._page.set(1);
-    }, { allowSignalWrites: true });
+    });
 
     this.load$.pipe(
       tap(() => this._isLoading.set(true)),

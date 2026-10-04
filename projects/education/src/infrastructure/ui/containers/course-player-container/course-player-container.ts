@@ -98,7 +98,7 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
         this.showCertificate.set(true);
         setTimeout(() => this.showConfetti.set(false), 5000);
       }
-    }, { allowSignalWrites: true });
+    });
 
     // Sync graded submissions from enrollment state into local display state
     effect(() => {
@@ -122,7 +122,7 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
         }
         return next;
       });
-    }, { allowSignalWrites: true });
+    });
   }
 
   ngOnInit(): void {
