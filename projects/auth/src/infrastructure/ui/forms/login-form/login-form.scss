@@ -34,7 +34,7 @@
     font-weight: var(--font-weight-semibold);
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-primario-claro);
+    color: #5145b8;
     background: var(--color-primario-trans-10);
     border: 1px solid var(--color-primario-trans-20);
     padding: var(--spacing-xs) 0.625rem;
@@ -74,7 +74,7 @@
 
   &__forgot {
     font-size: 0.8125rem;
-    color: var(--color-primario-claro);
+    color: #5145b8;
     text-align: right;
     margin-top: calc(var(--spacing-sm) * -1);
     transition: color var(--transition-fast) var(--transition-easing);
@@ -86,13 +86,13 @@
 
   &__signup {
     font-size: 0.8125rem;
-    color: var(--color-texto-terciario);
+    color: var(--color-texto-secundario, #475569);
     text-align: center;
     margin: 0;
   }
 
   &__signup-link {
-    color: var(--color-primario-claro);
+    color: #5145b8;
     font-weight: var(--font-weight-semibold);
     transition: color var(--transition-fast) var(--transition-easing);
 

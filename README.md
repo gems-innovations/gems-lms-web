@@ -43,6 +43,24 @@ Para iterar ejecutar solo el proyecto afectado:
 npx ng test auth --watch=false --browsers=ChromeHeadless
 ```
 
+Las pruebas de navegador cubren reportes, perfil, navegación rápida, preferencias,
+onboarding y accesibilidad. Las pruebas públicas funcionan sin credenciales; para los
+recorridos autenticados definir `E2E_ADMIN_EMAIL` y `E2E_ADMIN_PASSWORD`:
+
+```bash
+npm run test:e2e
+```
+
+## Catálogo visual
+
+Storybook documenta los componentes compartidos y ejecuta revisiones de accesibilidad
+durante el desarrollo:
+
+```bash
+npm run storybook
+npm run build:storybook
+```
+
 ## Producción
 
 ```bash
