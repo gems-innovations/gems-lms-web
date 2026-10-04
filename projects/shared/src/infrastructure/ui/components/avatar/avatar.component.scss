@@ -4,9 +4,9 @@
   justify-content: center;
   flex-shrink: 0;
   border-radius: var(--border-radius-full);
-  background: var(--color-primario-trans-10);
-  border: 1px solid color-mix(in srgb, var(--color-primario) 25%, transparent);
-  color: var(--color-primario-claro);
+  background: var(--color-primario);
+  border: 1px solid color-mix(in srgb, var(--color-primario) 70%, transparent);
+  color: var(--color-sobre-primario, #fff);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.03em;
   overflow: hidden;

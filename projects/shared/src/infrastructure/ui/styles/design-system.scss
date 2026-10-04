@@ -57,9 +57,11 @@
   // =========================================================================
   --color-texto-principal: #EDEAF8;
   --color-texto-secundario: #A1A8C3;
-  --color-texto-terciario: rgba(161, 168, 195, 0.55);
+  // Texto auxiliar legible sobre las superficies oscuras (WCAG AA en 12 px).
+  --color-texto-terciario: #8B91AA;
   --color-texto-invertido: #FFFFFF;
   --color-texto-contraste: #0F1021;
+  --color-sobre-primario: #0F1021;
 
   // =========================================================================
   // BORDES

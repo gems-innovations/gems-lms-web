@@ -57,4 +57,16 @@ test.describe('experiencia y accesibilidad', () => {
     await expect(page.locator('.driver-popover')).toBeVisible();
     await expect(page.locator('.driver-popover-title')).not.toBeEmpty();
   });
+
+  test('las pantallas principales no tienen violaciones graves de accesibilidad', async ({ page }) => {
+    test.skip(!email || !password, 'Define E2E_ADMIN_EMAIL y E2E_ADMIN_PASSWORD para la prueba autenticada.');
+    await signIn(page);
+    for (const route of ['/admin/dashboard', '/account/profile', '/admin/reports']) {
+      await page.goto(route);
+      await page.locator('body').waitFor({ state: 'visible' });
+      const results = await new AxeBuilder({ page }).analyze();
+      const severe = results.violations.filter(({ impact }) => impact === 'critical' || impact === 'serious');
+      expect(severe, `${route}\n${severe.map(item => `${item.id}: ${item.help}`).join('\n')}`).toEqual([]);
+    }
+  });
 });
