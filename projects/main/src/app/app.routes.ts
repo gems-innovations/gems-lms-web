@@ -85,5 +85,11 @@ export const routes: Routes = [
     loadChildren: () => import('instructor').then(m => m.instructorRoutes)
   },
 
-  { path: '**', redirectTo: 'auth/signin' }
+  {
+    path: 'not-found',
+    title: 'Página no encontrada',
+    loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent)
+  },
+
+  { path: '**', redirectTo: 'not-found' }
 ];

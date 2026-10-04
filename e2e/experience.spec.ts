@@ -51,6 +51,14 @@ test.describe('experiencia y accesibilidad', () => {
     await expect(page).toHaveURL(/\/auth\/signin/);
   });
 
+  test('una dirección inexistente muestra una salida clara', async ({ page }) => {
+    await page.goto('/contenido-que-no-existe');
+    await expect(page).toHaveURL(/\/not-found/);
+    await expect(page).toHaveTitle('Página no encontrada | GEMS LMS');
+    await expect(page.getByRole('heading', { name: 'Este enlace no lleva a ningún contenido' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Volver al inicio' })).toBeVisible();
+  });
+
   test('el administrador abre su perfil desde el buscador rápido', async ({ page }) => {
     test.skip(!email || !password, 'Define E2E_ADMIN_EMAIL y E2E_ADMIN_PASSWORD para la prueba autenticada.');
     await signIn(page);
