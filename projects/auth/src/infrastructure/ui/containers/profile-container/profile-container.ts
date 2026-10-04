@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthSessionService } from '../../../services/auth-session.service';
 import { UserService } from '../../../services/user.service';
+import { DisplayPreferencesService, ThemePreference } from '../../../services/display-preferences.service';
 import { ImageUploadComponent, PageComponent, PageHeaderComponent, ToastService } from 'shared';
 
 @Component({
@@ -15,6 +16,7 @@ export class ProfileContainer implements OnInit {
   private readonly session = inject(AuthSessionService);
   private readonly users = inject(UserService);
   private readonly toast = inject(ToastService);
+  readonly display = inject(DisplayPreferencesService);
   readonly saving = signal(false);
   firstName = ''; lastName = ''; username = ''; avatarUrl = '';
   readonly user = this.session.user;
@@ -36,4 +38,6 @@ export class ProfileContainer implements OnInit {
       error: () => { this.saving.set(false); this.toast.error('No se pudo actualizar el perfil.'); }
     });
   }
+
+  setTheme(theme: ThemePreference): void { this.display.update({ theme }); }
 }

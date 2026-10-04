@@ -7,5 +7,6 @@
       <section class="profile__meta"><span>{{ account.role }}</span><span>{{ account.institutionId || 'Cuenta global' }}</span></section>
       <button type="submit" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar cambios' }}</button>
     </form>
+    <section class="profile profile__preferences" aria-labelledby="display-title"><h2 id="display-title">Preferencias de visualización</h2><p>Estas opciones se guardan solo en este dispositivo.</p><div class="profile__themes"><button type="button" [class.active]="display.preferences().theme === 'institution'" (click)="setTheme('institution')">Institución</button><button type="button" [class.active]="display.preferences().theme === 'dark'" (click)="setTheme('dark')">Oscuro</button><button type="button" [class.active]="display.preferences().theme === 'light'" (click)="setTheme('light')">Claro</button></div><label class="profile__toggle"><input type="checkbox" [checked]="display.preferences().compact" (change)="display.update({ compact: $any($event.target).checked })" /> Interfaz compacta</label><label class="profile__toggle"><input type="checkbox" [checked]="display.preferences().reducedMotion" (change)="display.update({ reducedMotion: $any($event.target).checked })" /> Reducir animaciones</label></section>
   }
 </lib-page>

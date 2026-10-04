@@ -507,3 +507,6 @@ h1, h2, h3, h4, h5, h6 {
     overflow: hidden;
   }
 }
+
+html.compact-mode { font-size: 14px; }
+html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
