@@ -10,6 +10,8 @@
     "test": "ng test",
     "test:ci": "ng test shared --watch=false --browsers=ChromeHeadless && ng test auth --watch=false --browsers=ChromeHeadless && ng test education --watch=false --browsers=ChromeHeadless && ng test admin --watch=false --browsers=ChromeHeadless && ng test instructor --watch=false --browsers=ChromeHeadless && ng test main --watch=false --browsers=ChromeHeadless",
     "test:e2e": "npm run build:all && playwright test",
+    "storybook": "ng run main:storybook",
+    "build:storybook": "ng run main:build-storybook",
     "serve:ssr:main": "node dist/main/server/server.mjs"
   },
   "prettier": {
@@ -26,14 +28,14 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/common": "^22.0.1",
-    "@angular/compiler": "^22.0.1",
-    "@angular/core": "^22.0.1",
-    "@angular/forms": "^22.0.1",
-    "@angular/platform-browser": "^22.0.1",
-    "@angular/platform-server": "^22.0.1",
-    "@angular/router": "^22.0.1",
-    "@angular/ssr": "^22.0.1",
+    "@angular/common": "22.0.1",
+    "@angular/compiler": "22.0.1",
+    "@angular/core": "22.0.1",
+    "@angular/forms": "22.0.1",
+    "@angular/platform-browser": "22.0.1",
+    "@angular/platform-server": "22.0.1",
+    "@angular/router": "22.0.1",
+    "@angular/ssr": "22.0.1",
     "driver.js": "^1.9.0",
     "express": "^5.1.0",
     "github-markdown-css": "^5.9.0",
@@ -46,10 +48,16 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@angular/build": "^22.0.1",
-    "@angular/cli": "^22.0.1",
-    "@angular/compiler-cli": "^22.0.1",
+    "@angular-devkit/build-angular": "22.0.1",
+    "@angular/animations": "22.0.1",
+    "@angular/build": "22.0.1",
+    "@angular/cli": "22.0.1",
+    "@angular/compiler-cli": "22.0.1",
+    "@angular/platform-browser-dynamic": "22.0.1",
     "@playwright/test": "^1.63.0",
+    "@storybook/addon-a11y": "10.6.1",
+    "@storybook/addon-docs": "10.6.1",
+    "@storybook/angular": "10.6.1",
     "@types/express": "^5.0.1",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^20.17.19",
@@ -62,6 +70,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "ng-packagr": "^22.0.0",
+    "storybook": "10.6.1",
     "typescript": "~6.0.3"
   }
 }

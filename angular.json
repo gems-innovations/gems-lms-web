@@ -101,6 +101,12 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "storybook": {
+              "tsConfig": ".storybook/tsconfig.json",
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
             }
           },
           "defaultConfiguration": "production"
@@ -138,6 +144,26 @@
               "projects/main/src/styles.scss",
               "node_modules/driver.js/dist/driver.css"
             ]
+          }
+        },
+        "storybook": {
+          "builder": "@storybook/angular:start-storybook",
+          "options": {
+            "configDir": ".storybook",
+            "browserTarget": "main:build:storybook",
+            "tsConfig": ".storybook/tsconfig.json",
+            "compodoc": false,
+            "port": 6006
+          }
+        },
+        "build-storybook": {
+          "builder": "@storybook/angular:build-storybook",
+          "options": {
+            "configDir": ".storybook",
+            "browserTarget": "main:build:storybook",
+            "tsConfig": ".storybook/tsconfig.json",
+            "compodoc": false,
+            "outputDir": "storybook-static"
           }
         }
       }

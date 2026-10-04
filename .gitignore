@@ -40,6 +40,7 @@ testem.log
 __screenshots__/
 /playwright-report/
 /test-results/
+/storybook-static/
 
 # System files
 .DS_Store
