@@ -1,5 +1,5 @@
 @if (type() === 'table') {
-  <div class="skeleton-table" role="status" aria-label="Loading table data" aria-live="polite">
+  <div class="skeleton-table" role="status" aria-label="Cargando datos de la tabla" aria-live="polite">
     @for (row of rowsArray(); track $index) {
       <article class="skeleton-row" aria-hidden="true">
         <div class="skeleton-cell skeleton-avatar"></div>
@@ -20,7 +20,7 @@
 }
 
 @if (type() === 'card') {
-  <div class="skeleton-cards" role="status" aria-label="Loading card data" aria-live="polite">
+  <div class="skeleton-cards" role="status" aria-label="Cargando tarjetas" aria-live="polite">
     @for (row of rowsArray(); track $index) {
       <article class="skeleton-card" aria-hidden="true">
         <header class="skeleton-card-header">

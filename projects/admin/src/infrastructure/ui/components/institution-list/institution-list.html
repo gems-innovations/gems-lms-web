@@ -121,8 +121,8 @@
                     type="button" 
                     class="institution-list__action-button" 
                     (click)="handleView(institution)"
-                    title="View details"
-                    aria-label="View institution details"
+                    title="Ver detalles"
+                    aria-label="Ver detalles de la institución"
                   >
                     <svg class="institution-list__action-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
@@ -133,8 +133,8 @@
                     type="button" 
                     class="institution-list__action-button" 
                     (click)="handleEdit(institution)"
-                    title="Edit"
-                    aria-label="Edit institution"
+                    title="Editar"
+                    aria-label="Editar institución"
                   >
                     <svg class="institution-list__action-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
@@ -145,8 +145,8 @@
                     type="button" 
                     class="institution-list__action-button institution-list__action-button--danger" 
                     (click)="handleDelete(institution)"
-                    title="Delete"
-                    aria-label="Delete institution"
+                    title="Eliminar"
+                    aria-label="Eliminar institución"
                   >
                     <svg class="institution-list__action-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                       <polyline points="3,6 5,6 21,6" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
@@ -170,7 +170,7 @@
           class="institution-list__pagination-button institution-list__pagination-button--previous"
           [disabled]="pagination().page === 1"
           (click)="handlePageChange(pagination().page - 1)"
-          aria-label="Previous page"
+          aria-label="Página anterior"
         >
           ← Previous
         </button>
@@ -182,7 +182,7 @@
           class="institution-list__pagination-button institution-list__pagination-button--next"
           [disabled]="pagination().page >= Math.ceil(pagination().total / pagination().limit)"
           (click)="handlePageChange(pagination().page + 1)"
-          aria-label="Next page"
+          aria-label="Página siguiente"
         >
           Next →
         </button>
