@@ -30,6 +30,10 @@ Las suites verifican contratos HTTP, sesión, permisos de navegación, contrase�
 npm run test:ci
 ```
 
+La validación de GitHub ejecuta automáticamente instalación reproducible, auditoría de
+dependencias de producción, compilación de librerías, todas las pruebas unitarias y build PWA/SSR
+en cada cambio dirigido a `develop`, `qa` o `main`.
+
 Si Chrome no se detecta, definir CHROME_BIN. Ejemplo en PowerShell:
 
 ```powershell
