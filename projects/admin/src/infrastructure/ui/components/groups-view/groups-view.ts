@@ -99,7 +99,7 @@ export class GroupsView implements OnInit {
     if (!file) return;
     this.fileName.set(file.name);
     const buffer = await file.arrayBuffer();
-    const result = parseUsersXlsx(buffer);
+    const result = await parseUsersXlsx(buffer);
     if (result.error) { this.excelError.set(result.error); this.excelRows.set([]); return; }
     this.excelError.set(null);
     this.excelRows.set(result.rows.map(r => ({ firstName: r.firstName, lastName: r.lastName, email: r.email })));
@@ -202,7 +202,7 @@ export class GroupsView implements OnInit {
     if (!file || !group) return;
     this.editFileName.set(file.name);
     const buffer = await file.arrayBuffer();
-    const result = parseUsersXlsx(buffer);
+    const result = await parseUsersXlsx(buffer);
     if (result.error) { this.editExcelError.set(result.error); input.value = ''; return; }
     this.editExcelError.set(null);
     this.uc.importStudentsToGroup(

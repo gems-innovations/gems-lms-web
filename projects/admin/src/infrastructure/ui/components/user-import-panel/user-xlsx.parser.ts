@@ -1,5 +1,5 @@
-import * as XLSX from 'xlsx';
 import { EUserRole } from 'auth';
+import { Workbook } from 'exceljs';
 import { ICreateUserForm } from '../../forms/user-form/user-form';
 
 export interface IXlsxParseResult {
@@ -11,20 +11,27 @@ const EMPTY_FILE_ERROR =
   'El archivo no contiene filas válidas. Verifica que tenga columnas: firstName, lastName, email, username, role';
 const READ_ERROR = 'Error al leer el archivo. Asegúrate de que sea un .xlsx válido.';
 
-export function parseUsersXlsx(buffer: ArrayBuffer): IXlsxParseResult {
+export async function parseUsersXlsx(buffer: ArrayBuffer): Promise<IXlsxParseResult> {
   try {
-    const data = new Uint8Array(buffer);
-    const workbook = XLSX.read(data, { type: 'array' });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rawRows = XLSX.utils.sheet_to_json<Record<string, string>>(sheet, { defval: '' });
+    const workbook = new Workbook();
+    await workbook.xlsx.load(buffer);
+    const sheet = workbook.worksheets[0];
+    if (!sheet) return { rows: [], error: EMPTY_FILE_ERROR };
+
+    const headers = new Map<string, number>();
+    sheet.getRow(1).eachCell((cell, column) => headers.set(cell.text.trim(), column));
+    const value = (row: number, ...names: string[]): string => {
+      const column = names.map(name => headers.get(name)).find(Boolean);
+      return column ? sheet.getRow(row).getCell(column).text.trim() : '';
+    };
 
     const rows: ICreateUserForm[] = [];
-    for (const row of rawRows) {
-      const firstName = row['firstName'] || row['Nombre'] || '';
-      const lastName = row['lastName'] || row['Apellido'] || '';
-      const email = row['email'] || row['Correo'] || '';
-      const username = row['username'] || row['Usuario'] || email.split('@')[0];
-      const rawRole = (row['role'] || row['Rol'] || 'student').toLowerCase();
+    for (let row = 2; row <= sheet.rowCount; row++) {
+      const firstName = value(row, 'firstName', 'Nombre');
+      const lastName = value(row, 'lastName', 'Apellido');
+      const email = value(row, 'email', 'Correo');
+      const username = value(row, 'username', 'Usuario') || email.split('@')[0];
+      const rawRole = (value(row, 'role', 'Rol') || 'student').toLowerCase();
       const role =
         rawRole === 'admin' ? EUserRole.ADMIN
         : rawRole === 'instructor' ? EUserRole.INSTRUCTOR

@@ -16,6 +16,8 @@ test.describe('reportes institucionales', () => {
     await page.getByLabel('Contraseña').fill(password!);
     await page.getByRole('button', { name: 'Iniciar sesión' }).click();
     await expect(page).toHaveURL(/\/admin\//);
+    const closeTour = page.locator('.driver-popover-close-btn');
+    if (await closeTour.isVisible({ timeout: 1_500 }).catch(() => false)) await closeTour.click();
 
     const reportResponse = page.waitForResponse(response =>
       response.url().includes('/api/v1/reports/institutions/') && response.status() === 200);

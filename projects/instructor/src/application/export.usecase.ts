@@ -7,6 +7,30 @@ import type {
 const fileSafe = (s: string): string =>
   s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
 
+async function saveExcel(headers: string[], rows: unknown[][], sheetName: string, filename: string): Promise<void> {
+  const excelModule = await import('exceljs');
+  const Workbook = excelModule.Workbook ?? excelModule.default.Workbook;
+  const workbook = new Workbook();
+  const worksheet = workbook.addWorksheet(sheetName);
+  worksheet.addRows([headers, ...rows]);
+  worksheet.columns.forEach((column, index) => {
+    column.width = index < 2 ? 26 : Math.min(40, Math.max(12, headers[index].length + 2));
+  });
+  worksheet.getRow(1).font = { bold: true };
+  worksheet.views = [{ state: 'frozen', ySplit: 1 }];
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([new Uint8Array(buffer)], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 @Injectable({ providedIn: 'root' })
 export class ExportUseCase {
   /** Excel con el reporte de todos los estudiantes del curso. */
@@ -16,9 +40,6 @@ export class ExportUseCase {
     assignments: IAssignmentEntry[],
     submissions: ISubmissionRow[],
   ): Promise<void> {
-    const mod: any = await import('xlsx');
-    const XLSX = mod.utils ? mod : mod.default;
-
     const headers = ['Estudiante', 'Email', 'Estado', 'Avance %', 'Nota promedio',
       ...assignments.map(a => a.block.title)];
 
@@ -42,18 +63,11 @@ export class ExportUseCase {
       ];
     });
 
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-    ws['!cols'] = headers.map((h, i) => ({ wch: i < 2 ? 26 : Math.max(12, h.length + 2) }));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Estudiantes');
-    XLSX.writeFile(wb, `reporte-estudiantes-${fileSafe(courseTitle)}.xlsx`);
+    await saveExcel(headers, rows, 'Estudiantes', `reporte-estudiantes-${fileSafe(courseTitle)}.xlsx`);
   }
 
   /** Excel del libro de calificaciones (notas ponderadas calculadas por la API). */
   async gradebookExcel(courseTitle: string, items: IGradebookItem[], rows: IGradebookStudentRow[]): Promise<void> {
-    const mod: any = await import('xlsx');
-    const XLSX = mod.utils ? mod : mod.default;
-
     const headers = ['Estudiante', 'Email',
       ...items.map(i => `${i.type === 'quiz' ? 'Quiz' : 'Tarea'}: ${i.title || 'Sin título'} (peso ${i.weight})`),
       'Nota actual', 'Nota final'];
@@ -68,11 +82,7 @@ export class ExportUseCase {
       r.finalGrade ?? '',
     ]);
 
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
-    ws['!cols'] = headers.map((h, i) => ({ wch: i < 2 ? 26 : Math.min(40, Math.max(12, h.length + 2)) }));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Calificaciones');
-    XLSX.writeFile(wb, `calificaciones-${fileSafe(courseTitle)}.xlsx`);
+    await saveExcel(headers, data, 'Calificaciones', `calificaciones-${fileSafe(courseTitle)}.xlsx`);
   }
 
   /** PDF con el reporte de un estudiante (info + notas + radar opcional). */
