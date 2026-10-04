@@ -53,6 +53,14 @@ export class CommandPaletteComponent {
     }
   }
 
+  selectFirst(event: KeyboardEvent): void {
+    if (event.key !== 'Enter') return;
+    const first = this.commands()[0];
+    if (!first) return;
+    event.preventDefault();
+    this.go(first);
+  }
+
   show(): void {
     if (!this.session.user()) return;
     this.query.set('');

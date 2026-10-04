@@ -34,6 +34,7 @@ $nav-closed:  60px;
       .slayout__navlink-label { display: none; }
       .slayout__user          { justify-content: center; padding: 10px 0; }
       .slayout__user-info     { display: none; }
+      .slayout__profile-btn,
       .slayout__signout-btn   { display: none; }
     }
   }
@@ -235,6 +236,19 @@ $nav-closed:  60px;
     transition: background .12s, color .12s;
 
     &:hover { background: rgba(239,68,68,.08); color: rgba(248,113,113,.8); }
+  }
+
+  &__profile-btn {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    color: var(--color-texto-terciario);
+    flex-shrink: 0;
+    transition: background .12s, color .12s;
+
+    &:hover, &:focus-visible { color: var(--color-primario); background: var(--color-fondo-hover); outline: none; }
   }
 
   // ── Main content ───────────────────────────────────────────────────────────

@@ -3,11 +3,11 @@
     <section class="command-palette" role="dialog" aria-modal="true" aria-labelledby="command-palette-title" (click)="$event.stopPropagation()">
       <div class="command-palette__search">
         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-        <input #searchInput [value]="query()" (input)="query.set($any($event.target).value)" placeholder="Busca una sección o acción…" aria-label="Buscar una sección o acción" />
+        <input #searchInput [value]="query()" (input)="query.set($any($event.target).value)" (keydown)="selectFirst($event)" placeholder="Busca una sección o acción…" aria-label="Buscar una sección o acción" aria-controls="command-results" />
         <kbd>Esc</kbd>
       </div>
       <h2 id="command-palette-title" class="sr-only">Navegación rápida</h2>
-      <div class="command-palette__results" role="listbox" aria-label="Resultados">
+      <div id="command-results" class="command-palette__results" role="listbox" aria-label="Resultados">
         @for (command of commands(); track command.route) {
           <button type="button" role="option" (click)="go(command)">
             <span><strong>{{ command.label }}</strong><small>{{ command.description }}</small></span>
