@@ -8,9 +8,9 @@
   
   padding: vars.$spacing-xs vars.$spacing-sm;
   
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-superficie-alta);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-borde-secundario);
   border-radius: vars.$border-radius-sm;
   
   transition: all 0.3s ease;
@@ -31,7 +31,7 @@
   height: 16px;
   
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-texto-secundario);
   flex-shrink: 0;
 }
 
@@ -46,10 +46,10 @@
   outline: none;
   
   font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-texto-principal);
   
   &::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--color-texto-terciario);
   }
 }
 
@@ -64,12 +64,12 @@
   
   padding: 0;
   
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-tarjeta-hover);
   border: none;
   border-radius: vars.$border-radius-sm;
   
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-texto-secundario);
   
   cursor: pointer;
   transition: all 0.2s ease;

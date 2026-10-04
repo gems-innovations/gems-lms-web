@@ -21,4 +21,11 @@ describe('BrandingService', () => {
     service.apply({ colorPrimary: '#111827' });
     expect(root.style.getPropertyValue('--color-sobre-primario')).toBe('#FFFFFF');
   });
+
+  it('adjusts a mid-tone brand only for interactive surfaces', () => {
+    service.apply({ colorPrimary: '#6C63FF' });
+    expect(root.style.getPropertyValue('--color-primario')).toBe('#6C63FF');
+    expect(root.style.getPropertyValue('--color-primario-accion')).not.toBe('#6C63FF');
+    expect(root.style.getPropertyValue('--color-sobre-primario')).toBe('#0F1021');
+  });
 });

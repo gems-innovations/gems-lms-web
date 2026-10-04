@@ -3,13 +3,28 @@ import { expect, Page, test } from '@playwright/test';
 
 const email = process.env.E2E_ADMIN_EMAIL;
 const password = process.env.E2E_ADMIN_PASSWORD;
+const instructorEmail = process.env.E2E_INSTRUCTOR_EMAIL;
+const studentEmail = process.env.E2E_STUDENT_EMAIL;
 
 async function signIn(page: Page): Promise<void> {
+  return signInAs(page, email!, password!, /\/admin\//);
+}
+
+async function signInAs(page: Page, userEmail: string, userPassword: string, destination: RegExp): Promise<void> {
   await page.goto('/auth/signin');
-  await page.getByLabel('Correo electrónico').fill(email!);
-  await page.getByLabel('Contraseña').fill(password!);
-  await page.getByRole('button', { name: 'Iniciar sesión' }).click();
-  await expect(page).toHaveURL(/\/admin\//);
+  const emailInput = page.getByLabel('Correo electrónico');
+  const passwordInput = page.getByLabel('Contraseña');
+  const submit = page.getByRole('button', { name: 'Iniciar sesión' });
+  await submit.waitFor();
+  // La hidratación puede restaurar el formulario mientras aparece la vista.
+  // Llenar la contraseña primero y comprobar ambos valores evita clics inestables.
+  await passwordInput.fill(userPassword);
+  await emailInput.fill(userEmail);
+  await expect(emailInput).toHaveValue(userEmail);
+  await expect(passwordInput).toHaveValue(userPassword);
+  await expect(submit).toBeEnabled();
+  await submit.click();
+  await expect(page).toHaveURL(destination);
 
   const closeTour = page.locator('.driver-popover-close-btn');
   if (await closeTour.isVisible({ timeout: 1_500 }).catch(() => false)) await closeTour.click();
@@ -68,5 +83,28 @@ test.describe('experiencia y accesibilidad', () => {
       const severe = results.violations.filter(({ impact }) => impact === 'critical' || impact === 'serious');
       expect(severe, `${route}\n${severe.map(item => `${item.id}: ${item.help}`).join('\n')}`).toEqual([]);
     }
+  });
+
+  test('las zonas de estudiante e instructor cumplen la auditoría principal', async ({ page }) => {
+    test.setTimeout(60_000);
+    test.skip(!password || !instructorEmail || !studentEmail,
+      'Define E2E_INSTRUCTOR_EMAIL, E2E_STUDENT_EMAIL y E2E_ADMIN_PASSWORD para la prueba por roles.');
+    const audit = async (routes: string[]): Promise<void> => {
+      for (const route of routes) {
+        await page.goto(route);
+        const closeTour = page.locator('.driver-popover-close-btn');
+        if (await closeTour.isVisible({ timeout: 1_500 }).catch(() => false)) await closeTour.click();
+        const results = await new AxeBuilder({ page }).analyze();
+        const severe = results.violations.filter(({ impact }) => impact === 'critical' || impact === 'serious');
+        expect(severe, `${route}\n${severe.map(item => `${item.id}: ${item.help}`).join('\n')}`).toEqual([]);
+      }
+    };
+
+    await signInAs(page, instructorEmail!, password!, /\/instructor/);
+    await audit(['/instructor', '/education/courses']);
+    await page.evaluate(() => localStorage.removeItem('gems_session'));
+    await page.goto('/auth/signin');
+    await signInAs(page, studentEmail!, password!, /\/learn\//);
+    await audit(['/learn/home', '/learn/catalog']);
   });
 });

@@ -14,6 +14,7 @@
   // --color-primario y --color-secundario los sobrescribe BrandingService en
   // runtime (estilo inline en <html>) cuando una institución define su marca.
   --color-primario: #7B6FF0;
+  --color-primario-accion: #7B6FF0;
   --color-primario-claro: #9B8FF8;
   --color-primario-profundo: #4F46E5;
   --color-primario-trans-10: rgba(123, 111, 240, 0.1);
@@ -31,6 +32,10 @@
   --color-advertencia: #FBBF24;
   --color-error: #F87171;
   --color-error-intenso: #EF4444;
+  --color-exito-texto: var(--color-exito);
+  --color-advertencia-texto: var(--color-advertencia);
+  --color-error-texto: var(--color-error);
+  --color-teal-texto: var(--color-teal);
   --color-info: #38BDF8;
 
   // =========================================================================
@@ -173,12 +178,17 @@
 
   --color-texto-principal: #1A202C;
   --color-texto-secundario: #475569;
-  --color-texto-terciario: #64748B;
+  --color-texto-terciario: #566276;
   --color-texto-contraste: #1A202C;
 
   --color-borde-sutil: #EAEFF5;
   --color-borde-principal: #E2E8F0;
   --color-borde-secundario: #CBD5E1;
+
+  --color-exito-texto: #047857;
+  --color-advertencia-texto: #92400E;
+  --color-error-texto: #B91C1C;
+  --color-teal-texto: #0F766E;
 
   --color-scrollbar: rgba(0, 0, 0, 0.12);
   --color-scrollbar-hover: rgba(0, 0, 0, 0.2);

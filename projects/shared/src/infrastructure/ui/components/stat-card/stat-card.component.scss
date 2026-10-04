@@ -47,9 +47,9 @@
   }
 
   // Acentos: colorean el valor para lecturas rápidas del dashboard
-  &--primary &__value { color: var(--color-primario-claro); }
-  &--teal &__value { color: var(--color-teal); }
-  &--success &__value { color: var(--color-exito); }
-  &--warning &__value { color: var(--color-advertencia); }
-  &--error &__value { color: var(--color-error); }
+  &--primary &__value { color: var(--color-primario-accion, var(--color-primario)); }
+  &--teal &__value { color: var(--color-teal-texto); }
+  &--success &__value { color: var(--color-exito-texto); }
+  &--warning &__value { color: var(--color-advertencia-texto); }
+  &--error &__value { color: var(--color-error-texto); }
 }

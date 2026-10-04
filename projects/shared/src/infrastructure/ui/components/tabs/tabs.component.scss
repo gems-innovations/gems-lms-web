@@ -26,8 +26,8 @@
     }
 
     &--active {
-      color: var(--color-texto-invertido);
-      background: var(--color-primario);
+      color: var(--color-sobre-primario, var(--color-texto-invertido));
+      background: var(--color-primario-accion, var(--color-primario));
       box-shadow: var(--sombra-activo);
     }
   }

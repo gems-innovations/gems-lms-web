@@ -36,11 +36,11 @@
 
   // ── Variantes ────────────────────────────────────────────────────────────
   &--primary {
-    background: var(--color-primario);
-    color: var(--color-texto-invertido);
+    background: var(--color-primario-accion, var(--color-primario));
+    color: var(--color-sobre-primario, var(--color-texto-invertido));
 
     &:hover:not(:disabled) {
-      background: var(--color-primario-claro);
+      filter: brightness(.92);
       box-shadow: var(--sombra-glow);
     }
   }

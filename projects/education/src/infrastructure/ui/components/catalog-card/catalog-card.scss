@@ -195,10 +195,10 @@
 
   &--primary {
     flex: 1;
-    background: var(--color-primario);
-    color: #fff;
+    background: var(--color-primario-accion, var(--color-primario));
+    color: var(--color-sobre-primario, #fff);
 
-    &:hover { background: var(--color-primario-claro); }
+    &:hover { filter: brightness(.92); }
   }
 
   &--secondary {
