@@ -30,7 +30,7 @@
 
   @if (error() && !isLoading()) {
     <div class="institution-list__error">
-      <div class="institution-list__error-icon">⚠️</div>
+      <div class="institution-list__error-icon"><svg lucideTriangleAlert [size]="24" aria-hidden="true"></svg></div>
       <h3 class="institution-list__error-title">No pudimos cargar la información</h3>
       <p class="institution-list__error-message">{{ error() }}</p>
       <button 
@@ -45,7 +45,7 @@
 
   @if (!isLoading() && !error() && institutions().length === 0) {
     <div class="institution-list__empty">
-      <div class="institution-list__empty-icon">🏫</div>
+      <div class="institution-list__empty-icon"><svg lucideSchool [size]="28" aria-hidden="true"></svg></div>
       <h3 class="institution-list__empty-title">No hay instituciones todavía</h3>
       <p class="institution-list__empty-message">Crea la primera institución para empezar a organizar la plataforma.</p>
       <button 

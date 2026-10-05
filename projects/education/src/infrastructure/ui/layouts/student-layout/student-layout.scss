@@ -57,13 +57,13 @@ $nav-closed:  60px;
   &__brand-icon {
     width: 30px;
     height: 30px;
-    background: var(--color-primario);
-    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
     flex-shrink: 0;
+
+    img { width: 100%; height: 100%; object-fit: contain; }
   }
 
   &__brand-name {
@@ -290,4 +290,18 @@ $nav-closed:  60px;
       flex-direction: column;
     }
   }
+}
+
+@media (max-width: 768px) {
+  .slayout__leftnav { width: 60px; }
+  .slayout__brand { justify-content: center; padding: 0; }
+  .slayout__brand-name,
+  .slayout__navlink-label,
+  .slayout__user-info,
+  .slayout__toggle-btn { display: none; }
+  .slayout__navlink { justify-content: center; padding: 10px 0; }
+  .slayout__user { flex-direction: column; padding: 10px 0; }
+  .slayout__profile-btn,
+  .slayout__signout-btn { display: grid; width: 36px; height: 36px; }
+  .slayout__inner { padding: 0 1rem 2rem; }
 }

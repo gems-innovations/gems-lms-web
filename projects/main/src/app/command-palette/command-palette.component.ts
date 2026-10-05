@@ -40,8 +40,9 @@ export class CommandPaletteComponent {
     const role = this.session.user()?.role;
     const query = this.query().trim().toLocaleLowerCase();
     return COMMANDS
-      .map(command => command.label === 'Mi perfil' && role && role !== EUserRole.STUDENT
-        ? { ...command, route: '/admin/profile' }
+      .map(command => command.label === 'Mi perfil' && role
+        ? { ...command, route: role === EUserRole.STUDENT ? '/learn/profile'
+          : role === EUserRole.INSTRUCTOR ? '/instructor/profile' : '/admin/profile' }
         : command)
       .filter(command => (!command.roles || (role && command.roles.includes(role)))
         && (!query || `${command.label} ${command.description} ${command.keywords}`.toLocaleLowerCase().includes(query)));

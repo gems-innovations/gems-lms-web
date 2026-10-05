@@ -49,8 +49,8 @@ export class StudentLayout implements OnInit, OnDestroy {
   private initCollapsed(url: string): boolean {
     const stored = localStorage.getItem(COLLAPSED_KEY);
     if (stored !== null) return stored === '1';
-    // Sin preferencia guardada: home abierto, resto colapsado
-    return !url.includes('/learn/home');
+    // Mantener la navegación visible por defecto en todas las pantallas.
+    return false;
   }
 
   toggleSidebar(): void {

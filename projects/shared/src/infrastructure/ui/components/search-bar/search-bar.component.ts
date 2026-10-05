@@ -1,7 +1,9 @@
 import { Component, OnDestroy, computed, input, linkedSignal, output } from '@angular/core';
+import { LucideSearch, LucideX } from '@lucide/angular';
 
 @Component({
   selector: 'lib-search-bar',
+  imports: [LucideSearch, LucideX],
   templateUrl: './search-bar.component.html',
   styleUrl: './search-bar.component.scss'
 })

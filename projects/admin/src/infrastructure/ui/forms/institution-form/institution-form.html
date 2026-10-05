@@ -36,7 +36,8 @@
     </div>
     <!-- Mode label -->
     <span class="iform__preview-mode-label">
-      {{ iform.darkMode().value() ? '🌙 Modo oscuro' : '☀️ Modo claro' }}
+      @if (iform.darkMode().value()) { <svg lucideMoon [size]="16" aria-hidden="true"></svg> Modo oscuro }
+      @else { <svg lucideSun [size]="16" aria-hidden="true"></svg> Modo claro }
     </span>
   </div>
 
@@ -79,7 +80,7 @@
                 [checked]="iform.type().value() === t.value"
                 (change)="setType(t.value)"
               />
-              <span class="iform__type-icon">{{ t.icon }}</span>
+              <span class="iform__type-icon"><svg [lucideIcon]="t.icon" [size]="20" aria-hidden="true"></svg></span>
               <span class="iform__type-label">{{ t.label }}</span>
             </label>
           }

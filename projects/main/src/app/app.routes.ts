@@ -1,5 +1,6 @@
-import { Routes } from '@angular/router';
-import { EUserRole } from 'auth';
+import { Routes, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { AuthSessionService, EUserRole } from 'auth';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 import { loginRedirectGuard } from './guards/login-redirect.guard';
@@ -32,7 +33,12 @@ export const routes: Routes = [
   {
     path: 'account/profile',
     title: 'Mi perfil',
-    canActivate: [authGuard],
+    canActivate: [authGuard, () => {
+      const role = inject(AuthSessionService).role();
+      const destination = role === EUserRole.STUDENT ? '/learn/profile'
+        : role === EUserRole.INSTRUCTOR ? '/instructor/profile' : '/admin/profile';
+      return inject(Router).parseUrl(destination);
+    }],
     loadComponent: () => import('auth').then(m => m.ProfileContainer)
   },
 

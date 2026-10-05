@@ -72,6 +72,95 @@ test.describe('experiencia y accesibilidad', () => {
     await expect(page.locator('.app-sidebar')).toBeVisible();
   });
 
+  test('el perfil conserva la navegación y las notificaciones caben en pantalla para cada rol', async ({ page }) => {
+    test.setTimeout(90_000);
+    test.skip(!email || !password || !instructorEmail || !studentEmail,
+      'Define las credenciales E2E de administrador, instructor y estudiante.');
+
+    const roles = [
+      { email: email!, destination: /\/admin\//, profile: /\/admin\/profile/, sidebar: '.app-sidebar', logo: '.app-sidebar__brand-icon img' },
+      { email: instructorEmail!, destination: /\/instructor/, profile: /\/instructor\/profile/, sidebar: '.app-sidebar', logo: '.app-sidebar__brand-icon img' },
+      { email: studentEmail!, destination: /\/learn\//, profile: /\/learn\/profile/, sidebar: '.slayout__leftnav', logo: '.slayout__brand-icon img' },
+    ];
+
+    for (const role of roles) {
+      await signInAs(page, role.email, password!, role.destination);
+      await page.goto('/account/profile');
+      await expect(page).toHaveURL(role.profile);
+      await expect(page.locator(role.sidebar)).toBeVisible();
+      await expect(page.locator(role.logo)).toHaveJSProperty('naturalWidth', 144);
+
+      await page.getByRole('button', { name: 'Notificaciones' }).click();
+      const panel = page.getByRole('dialog', { name: 'Notificaciones' });
+      await expect(panel).toBeVisible();
+      const bounds = await panel.boundingBox();
+      const viewport = page.viewportSize()!;
+      expect(bounds).not.toBeNull();
+      expect(bounds!.x).toBeGreaterThanOrEqual(0);
+      expect(bounds!.y).toBeGreaterThanOrEqual(0);
+      expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport.width + 1);
+      expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport.height + 1);
+      await page.evaluate(() => localStorage.removeItem('gems_session'));
+      await page.goto('/auth/signin');
+    }
+  });
+
+  test('las secciones principales de cada rol mantienen navegación y ancho útil', async ({ page }) => {
+    test.setTimeout(120_000);
+    test.skip(!email || !password || !instructorEmail || !studentEmail,
+      'Define las credenciales E2E de administrador, instructor y estudiante.');
+
+    const cases = [
+      { email: email!, destination: /\/admin\//, sidebar: '.app-sidebar',
+        routes: ['/admin/dashboard', '/admin/people', '/admin/enrollments', '/admin/periods', '/admin/reports', '/admin/audit', '/education/courses', '/education/learning-paths'] },
+      { email: instructorEmail!, destination: /\/instructor/, sidebar: '.app-sidebar',
+        routes: ['/instructor/courses', '/instructor/stats', '/instructor/question-bank', '/instructor/profile'] },
+      { email: studentEmail!, destination: /\/learn\//, sidebar: '.slayout__leftnav',
+        routes: ['/learn/home', '/learn/my-learning', '/learn/catalog', '/learn/profile'] },
+    ];
+
+    for (const role of cases) {
+      await signInAs(page, role.email, password!, role.destination);
+      for (const route of role.routes) {
+        await page.goto(route);
+        await expect(page).toHaveURL(new RegExp(`${route.replaceAll('/', '\\/')}$`));
+        const sidebar = route.startsWith('/education/') ? '.edu-layout__sidebar' : role.sidebar;
+        await expect(page.locator(sidebar)).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Notificaciones' })).toBeVisible();
+        const width = await page.evaluate(() => ({ content: document.documentElement.scrollWidth, viewport: window.innerWidth }));
+        expect(width.content, `${route} produce desbordamiento horizontal`).toBeLessThanOrEqual(width.viewport + 2);
+      }
+      await page.evaluate(() => localStorage.removeItem('gems_session'));
+      await page.goto('/auth/signin');
+    }
+  });
+
+  test('el perfil y las notificaciones conservan espacio útil en móvil', async ({ page }) => {
+    test.setTimeout(90_000);
+    test.skip(!email || !password || !instructorEmail || !studentEmail,
+      'Define las credenciales E2E de administrador, instructor y estudiante.');
+    await page.setViewportSize({ width: 390, height: 844 });
+    const roles = [
+      { email: email!, destination: /\/admin\//, sidebar: '.app-sidebar', main: '.main-layout__content' },
+      { email: instructorEmail!, destination: /\/instructor/, sidebar: '.app-sidebar', main: '.ilayout__main' },
+      { email: studentEmail!, destination: /\/learn\//, sidebar: '.slayout__leftnav', main: '.slayout__main' },
+    ];
+    for (const role of roles) {
+      await signInAs(page, role.email, password!, role.destination);
+      await page.goto('/account/profile');
+      const sidebar = await page.locator(role.sidebar).boundingBox();
+      const main = await page.locator(role.main).boundingBox();
+      expect(sidebar!.width).toBeLessThanOrEqual(65);
+      expect(main!.width).toBeGreaterThanOrEqual(280);
+      await page.getByRole('button', { name: 'Notificaciones' }).click();
+      const panel = await page.getByRole('dialog', { name: 'Notificaciones' }).boundingBox();
+      expect(panel!.x).toBeGreaterThanOrEqual(0);
+      expect(panel!.x + panel!.width).toBeLessThanOrEqual(391);
+      await page.evaluate(() => localStorage.removeItem('gems_session'));
+      await page.goto('/auth/signin');
+    }
+  });
+
   test('las preferencias visuales se guardan en el dispositivo', async ({ page }) => {
     test.skip(!email || !password, 'Define E2E_ADMIN_EMAIL y E2E_ADMIN_PASSWORD para la prueba autenticada.');
     await signIn(page);

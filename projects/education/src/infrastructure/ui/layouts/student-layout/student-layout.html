@@ -7,10 +7,7 @@
     <!-- Brand -->
     <a class="slayout__brand" routerLink="/learn/home" aria-label="Ir al inicio de GEMS LMS">
       <div class="slayout__brand-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-        </svg>
+        <img src="/logo-144.png" width="30" height="30" alt="" aria-hidden="true" />
       </div>
       <span class="slayout__brand-name">GEMS LMS</span>
     </a>
@@ -68,10 +65,9 @@
         <span class="slayout__user-name">{{ user()?.firstName }} {{ user()?.lastName }}</span>
         <span class="slayout__user-role">Estudiante</span>
       </div>
-      <a class="slayout__profile-btn" routerLink="/account/profile" title="Mi perfil" aria-label="Abrir mi perfil">
+      <a class="slayout__profile-btn" routerLink="/learn/profile" title="Mi perfil" aria-label="Abrir mi perfil">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
       </a>
-      <edu-notification-bell align="left" [up]="true" />
       <button class="slayout__signout-btn" (click)="logout()" title="Cerrar sesión">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -82,6 +78,8 @@
     </div>
 
   </aside>
+
+  <edu-notification-bell />
 
   <!-- Collapse toggle — fuera del aside para no ser clippeado por overflow:hidden -->
   <button class="slayout__toggle-btn" (click)="toggleSidebar()"

@@ -42,6 +42,7 @@
     "@angular/router": "22.2.1",
     "@angular/service-worker": "22.2.1",
     "@angular/ssr": "22.2.1",
+    "@lucide/angular": "^1.52.0",
     "driver.js": "^1.9.0",
     "exceljs": "^4.4.0",
     "express": "^5.1.0",

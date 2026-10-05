@@ -32,15 +32,6 @@ export class CourseEditorUseCase {
     [EContentType.SCORM]:        'SCORM'
   };
 
-  readonly contentTypeIcons: Record<EContentType, string> = {
-    [EContentType.VIDEO]:        '▶',
-    [EContentType.DOCUMENT]:     '📄',
-    [EContentType.QUIZ]:         '✏️',
-    [EContentType.ASSIGNMENT]:   '📝',
-    [EContentType.LIVE_SESSION]: '🎙',
-    [EContentType.SCORM]:        '📦'
-  };
-
   readonly difficultyLabels: Record<EDifficulty, string> = {
     [EDifficulty.BEGINNER]:     'Principiante',
     [EDifficulty.INTERMEDIATE]: 'Intermedio',

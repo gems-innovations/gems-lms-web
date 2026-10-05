@@ -2,6 +2,7 @@ import { Component, input, output, signal } from '@angular/core';
 import { FormField, email, form, minLength, required } from '@angular/forms/signals';
 import { LibInputComponent } from '@gems-lms-web/shared';
 import { EUserRole } from 'auth';
+import { LucideDynamicIcon, LucideShieldCheck, LucideBookOpen, LucideGraduationCap, type LucideIcon } from '@lucide/angular';
 
 export type TAssignableRole = EUserRole.ADMIN | EUserRole.INSTRUCTOR | EUserRole.STUDENT;
 
@@ -23,7 +24,7 @@ const DEFAULTS: ICreateUserForm = {
 
 @Component({
   selector: 'adm-user-form',
-  imports: [FormField, LibInputComponent],
+  imports: [FormField, LibInputComponent, LucideDynamicIcon],
   templateUrl: './user-form.html',
   styleUrl: './user-form.scss'
 })
@@ -33,10 +34,10 @@ export class UserForm {
   readonly save = output<ICreateUserForm>();
   readonly closed = output<void>();
 
-  readonly allowedRoles: { value: TAssignableRole; label: string; icon: string }[] = [
-    { value: EUserRole.ADMIN, label: 'Administrador', icon: '🛡️' },
-    { value: EUserRole.INSTRUCTOR, label: 'Instructor', icon: '📖' },
-    { value: EUserRole.STUDENT, label: 'Estudiante', icon: '🎓' }
+  readonly allowedRoles: { value: TAssignableRole; label: string; icon: LucideIcon }[] = [
+    { value: EUserRole.ADMIN, label: 'Administrador', icon: LucideShieldCheck },
+    { value: EUserRole.INSTRUCTOR, label: 'Instructor', icon: LucideBookOpen },
+    { value: EUserRole.STUDENT, label: 'Estudiante', icon: LucideGraduationCap }
   ];
 
   private readonly formModel = signal<ICreateUserForm>({ ...DEFAULTS });

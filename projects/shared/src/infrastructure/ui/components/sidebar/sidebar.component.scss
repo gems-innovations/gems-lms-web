@@ -346,3 +346,25 @@
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
   }
 }
+
+@media (max-width: 768px) {
+  :host { width: 60px; }
+  .sidebar {
+    position: relative;
+    transform: none;
+    width: 60px;
+    z-index: auto;
+    box-shadow: none;
+  }
+  .sidebar__logo-text,
+  .sidebar__nav-label,
+  .sidebar__nav-badge,
+  .sidebar__user-info,
+  .sidebar__user-email,
+  .sidebar__toggle { display: none; }
+  .sidebar__header,
+  .sidebar__logo,
+  .sidebar__user { justify-content: center; }
+  .sidebar__nav-link { justify-content: center; padding: .625rem; }
+  .sidebar__nav-icon { margin: 0; }
+}

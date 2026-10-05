@@ -10,6 +10,11 @@ export const instructorRoutes: Routes = [
     children: [
       { path: '', redirectTo: 'courses', pathMatch: 'full' },
       {
+        path: 'profile',
+        title: 'Mi perfil',
+        loadComponent: () => import('auth').then(m => m.ProfileContainer),
+      },
+      {
         path: 'courses',
         title: 'Mis cursos',
         loadComponent: () =>

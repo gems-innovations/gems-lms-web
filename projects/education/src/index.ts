@@ -117,6 +117,12 @@ export const studentChildRoutes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 
   {
+    path: 'profile',
+    title: 'Mi perfil',
+    loadComponent: () => import('auth').then(m => m.ProfileContainer)
+  },
+
+  {
     path: 'home',
     title: 'Inicio',
     loadComponent: () =>
