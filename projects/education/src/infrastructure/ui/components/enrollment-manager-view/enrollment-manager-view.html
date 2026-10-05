@@ -70,12 +70,8 @@
 
           <div class="enrollment-manager-view__field">
             <label class="enrollment-manager-view__label">Curso</label>
-            <select class="enrollment-manager-view__select" [ngModel]="uc.selectedCourse()" (ngModelChange)="uc.setSelectedCourse($event)">
-              <option value="">Selecciona un curso…</option>
-              @for (c of uc.courses(); track c.id) {
-                <option [value]="c.id">{{ c.title }}</option>
-              }
-            </select>
+            <lib-select ariaLabel="Curso" placeholder="Selecciona un curso…" [options]="courseOptions()"
+                        [ngModel]="uc.selectedCourse()" (ngModelChange)="uc.setSelectedCourse($event)" />
           </div>
 
           <button type="button" class="enrollment-manager-view__submit-btn" [disabled]="!uc.selectedStudent() || !uc.selectedCourse()" (click)="enrollSingle()">
@@ -100,12 +96,8 @@
 
           <div class="enrollment-manager-view__field">
             <label class="enrollment-manager-view__label">Curso destino</label>
-            <select class="enrollment-manager-view__select" [ngModel]="uc.bulkCourseId()" (ngModelChange)="uc.setBulkCourseId($event)">
-              <option value="">Selecciona un curso…</option>
-              @for (c of uc.courses(); track c.id) {
-                <option [value]="c.id">{{ c.title }}</option>
-              }
-            </select>
+            <lib-select ariaLabel="Curso destino" placeholder="Selecciona un curso…" [options]="courseOptions()"
+                        [ngModel]="uc.bulkCourseId()" (ngModelChange)="uc.setBulkCourseId($event)" />
           </div>
 
           <div class="enrollment-manager-view__field">

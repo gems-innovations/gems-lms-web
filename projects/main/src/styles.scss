@@ -165,8 +165,73 @@ input[type='time'] { color-scheme: dark; }
   box-shadow: 0 0 0 3px var(--color-primario-trans-10);
 }
 
+// Casillas y radios con la estética de la plataforma (ambos temas, foco visible, marca animada).
 input[type='checkbox'],
-input[type='radio'] { accent-color: var(--color-primario); }
+input[type='radio'] {
+  appearance: none;
+  flex-shrink: 0;
+  display: inline-grid;
+  place-content: center;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  vertical-align: middle;
+  background: var(--color-tarjeta);
+  border: 1.5px solid var(--color-borde-secundario);
+  cursor: pointer;
+  transition: background var(--transition-fast) var(--transition-easing),
+    border-color var(--transition-fast) var(--transition-easing),
+    box-shadow var(--transition-fast) var(--transition-easing);
+
+  &::before {
+    content: '';
+    transform: scale(0);
+    transition: transform 0.16s var(--transition-easing);
+  }
+
+  &:hover:not(:disabled) { border-color: var(--color-primario); }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-primario-trans-20);
+  }
+
+  &:checked {
+    background: var(--color-primario-accion);
+    border-color: var(--color-primario-accion);
+    &::before { transform: scale(1); }
+  }
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+input[type='checkbox'] {
+  border-radius: 5px;
+
+  &::before {
+    width: 10px;
+    height: 10px;
+    background: var(--color-sobre-primario);
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+
+  &:indeterminate {
+    background: var(--color-primario-accion);
+    border-color: var(--color-primario-accion);
+    &::before { transform: scale(1); clip-path: inset(40% 10%); }
+  }
+}
+
+input[type='radio'] {
+  border-radius: 50%;
+
+  &::before {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-sobre-primario);
+  }
+}
 
 :root.light-mode select,
 :root.light-mode input[type='date'],

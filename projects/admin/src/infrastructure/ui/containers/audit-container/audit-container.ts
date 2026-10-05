@@ -4,14 +4,21 @@ import { FormsModule } from '@angular/forms';
 import { PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent, ClientErrorJournal } from 'shared';
 import { AuditService } from '../../../services/audit.service';
 import { IAuditEvent } from '../../../../domain/model/audit-event.model';
+import { LibSelectComponent, SelectOption } from 'shared';
 
 @Component({
   selector: 'adm-audit-container',
-  imports: [CommonModule, FormsModule, PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent],
+  imports: [LibSelectComponent, CommonModule, FormsModule, PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent],
   templateUrl: './audit-container.html',
   styleUrl: './audit-container.scss',
 })
 export class AuditContainer implements OnInit {
+  protected readonly actionOptions: SelectOption[] = [
+    { value: '', label: 'Todas' },
+    { value: 'CREATE', label: 'Creación' },
+    { value: 'UPDATE', label: 'Cambio' },
+    { value: 'DELETE', label: 'Eliminación' },
+  ];
   private readonly audit = inject(AuditService);
   readonly clientErrors = inject(ClientErrorJournal);
   readonly events = signal<IAuditEvent[]>([]);

@@ -3,7 +3,7 @@
 
   <section class="audit__filters" aria-label="Filtros de auditoría">
     <label><span>Buscar</span><input [(ngModel)]="search" (keyup.enter)="applyFilters()" placeholder="Ruta o id de usuario" /></label>
-    <label><span>Acción</span><select [(ngModel)]="action"><option value="">Todas</option><option value="CREATE">Creación</option><option value="UPDATE">Cambio</option><option value="DELETE">Eliminación</option></select></label>
+    <label><span>Acción</span><lib-select size="sm" ariaLabel="Acción" placeholder="Todas" [options]="actionOptions" [(ngModel)]="action" /></label>
     <label><span>Desde</span><input type="date" [(ngModel)]="from" /></label>
     <label><span>Hasta</span><input type="date" [(ngModel)]="to" /></label>
     <div class="audit__filter-actions"><button class="audit__primary" (click)="applyFilters()">Aplicar</button><button (click)="clearFilters()">Limpiar</button></div>

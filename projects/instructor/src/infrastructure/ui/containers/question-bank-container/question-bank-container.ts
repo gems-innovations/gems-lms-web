@@ -6,6 +6,7 @@ import {
 } from 'shared';
 import { QuestionBankService } from 'education';
 import type { IBankQuestion, IBankCategory, IQuestion, TBankQuestionType } from 'education';
+import { LibSelectComponent, SelectOption } from 'shared';
 
 const PAGE_SIZE = 20;
 
@@ -37,13 +38,20 @@ const TYPE_LABELS: Record<TBankQuestionType, string> = {
 @Component({
   selector: 'ins-question-bank-container',
   standalone: true,
-  imports: [FormsModule, PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent,
+  imports: [LibSelectComponent, FormsModule, PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent,
     LibButtonComponent, PaginationComponent, ConfirmationDialogComponent],
   templateUrl: './question-bank-container.html',
   styleUrl: './question-bank-container.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionBankContainer implements OnInit {
+  protected readonly typeOptions: SelectOption[] = [
+    { value: 'multiple-choice', label: 'Opción múltiple' },
+    { value: 'true-false', label: 'Verdadero / falso' },
+    { value: 'open', label: 'Respuesta abierta' },
+  ];
+  protected readonly categoryOptions = computed<SelectOption[]>(() =>
+    this.categories().map(c => ({ value: c.category, label: c.category, hint: `${c.count} preguntas` })));
   private readonly bank  = inject(QuestionBankService);
   private readonly toast = inject(ToastService);
 

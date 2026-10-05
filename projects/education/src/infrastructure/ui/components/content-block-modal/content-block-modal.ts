@@ -15,6 +15,7 @@ import {
 } from '../../../../domain/model/course.model';
 import { QuestionBankService } from '../../../services/question-bank.service';
 import type { IBankCategory } from '../../../services/question-bank.service';
+import { LibSelectComponent, SelectOption } from 'shared';
 
 type TStep = 'type-select' | 'form';
 
@@ -55,12 +56,23 @@ const newQuestion = (order: number): IQuestionDraft => ({
 @Component({
   selector: 'edu-content-block-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, MarkdownEditorComponent],
+  imports: [LibSelectComponent, CommonModule, FormsModule, MarkdownEditorComponent],
   templateUrl: './content-block-modal.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './content-block-modal.scss'
 })
 export class ContentBlockModal {
+  protected readonly scormOptions: SelectOption[] = [
+    { value: '1.2', label: 'SCORM 1.2' },
+    { value: '2004', label: 'SCORM 2004' },
+  ];
+  protected readonly questionTypeOptions: SelectOption[] = [
+    { value: 'multiple-choice', label: 'Opción múltiple' },
+    { value: 'true-false', label: 'Verdadero / falso' },
+    { value: 'open', label: 'Respuesta abierta' },
+  ];
+  protected readonly bankCategoryOptions = computed<SelectOption[]>(() =>
+    this.bankCategories().map(c => ({ value: c.category, label: c.category, hint: `${c.count} preguntas` })));
   private readonly sanitizer = inject(DomSanitizer);
   private readonly bank = inject(QuestionBankService);
 

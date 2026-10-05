@@ -4,17 +4,22 @@ import { forkJoin } from 'rxjs';
 import { LibButtonComponent, LoadingSkeletonComponent, ToastService } from 'shared';
 import { CourseService, EnrollmentRulesService } from 'education';
 import type { IAcademicPeriod, IEnrollmentRules } from 'education';
+import { LibSelectComponent, SelectOption } from 'shared';
 
 /** Enrollment rules of a course: period, window, capacity, self-enrollment and prerequisites. */
 @Component({
   selector: 'ins-enrollment-rules-panel',
   standalone: true,
-  imports: [FormsModule, LibButtonComponent, LoadingSkeletonComponent],
+  imports: [LibSelectComponent, FormsModule, LibButtonComponent, LoadingSkeletonComponent],
   templateUrl: './enrollment-rules-panel.html',
   styleUrl: './enrollment-rules-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EnrollmentRulesPanel {
+  protected readonly periodOptions = computed<SelectOption[]>(() => [
+    { value: '', label: 'Sin período' },
+    ...this.periods().map(p => ({ value: String(p.id), label: p.name, hint: `${p.startsOn} → ${p.endsOn}` })),
+  ]);
   private readonly rulesService = inject(EnrollmentRulesService);
   private readonly courseService = inject(CourseService);
   private readonly toast = inject(ToastService);

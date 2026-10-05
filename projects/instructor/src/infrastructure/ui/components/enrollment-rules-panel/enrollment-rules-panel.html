@@ -11,13 +11,8 @@
       <div class="erules__row">
         <div class="erules__field">
           <label for="er-period">Período académico</label>
-          <select id="er-period" class="erules__input" name="period"
-                  [ngModel]="draft().periodId ?? ''" (ngModelChange)="patch({ periodId: $event || null })">
-            <option value="">Sin período</option>
-            @for (p of periods(); track p.id) {
-              <option [value]="p.id">{{ p.name }} ({{ p.startsOn }} → {{ p.endsOn }})</option>
-            }
-          </select>
+          <lib-select inputId="er-period" name="period" placeholder="Sin período" [options]="periodOptions()"
+                      [ngModel]="draft().periodId ?? ''" (ngModelChange)="patch({ periodId: $event || null })" />
           @if (periods().length === 0) {
             <span class="erules__hint">La administración aún no ha creado períodos.</span>
           }

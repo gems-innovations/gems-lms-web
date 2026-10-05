@@ -180,10 +180,7 @@
             <div class="cbm__row">
               <div class="cbm__field cbm__field--sm">
                 <label class="cbm__label">Versión SCORM</label>
-                <select class="cbm__select" [ngModel]="scormVersion()" (ngModelChange)="scormVersion.set($event)">
-                  <option value="1.2">SCORM 1.2</option>
-                  <option value="2004">SCORM 2004</option>
-                </select>
+                <lib-select ariaLabel="Versión SCORM" [options]="scormOptions" [ngModel]="scormVersion()" (ngModelChange)="scormVersion.set($event)" />
               </div>
               <div class="cbm__field cbm__field--sm">
                 <label class="cbm__label">Umbral de finalización (%)</label>
@@ -234,13 +231,8 @@
               <div class="cbm__question">
                 <div class="cbm__question-header">
                   <span class="cbm__question-num">P{{ qi + 1 }}</span>
-                  <select class="cbm__select cbm__select--sm"
-                    [ngModel]="q.type"
-                    (ngModelChange)="updateQuestion(q.id, { type: $event })">
-                    <option value="multiple-choice">Opción múltiple</option>
-                    <option value="true-false">Verdadero / Falso</option>
-                    <option value="open">Respuesta abierta</option>
-                  </select>
+                  <lib-select size="sm" ariaLabel="Tipo de pregunta" [options]="questionTypeOptions"
+                    [ngModel]="q.type" (ngModelChange)="updateQuestion(q.id, { type: $event })" />
                   <input class="cbm__input cbm__input--sm" type="number" min="1" style="width:70px"
                     [ngModel]="q.points"
                     (ngModelChange)="updateQuestion(q.id, { points: +$event })"

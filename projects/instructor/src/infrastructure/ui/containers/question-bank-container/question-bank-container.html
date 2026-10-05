@@ -33,19 +33,14 @@
           <div class="qbank__row">
             <div class="qbank__field">
               <label for="qb-category">Categoría</label>
-              <input id="qb-category" class="qbank__input" list="qb-categories" maxlength="120" name="category"
-                     [ngModel]="d.category" (ngModelChange)="patch({ category: $event })" />
-              <datalist id="qb-categories">
-                @for (c of categories(); track c.category) { <option [value]="c.category"></option> }
-              </datalist>
+              <lib-select inputId="qb-category" name="category" [creatable]="true" createLabel="Crear categoría"
+                          placeholder="Elige o crea una categoría" [options]="categoryOptions()"
+                          [ngModel]="d.category" (ngModelChange)="patch({ category: $event.slice(0, 120) })" />
             </div>
             <div class="qbank__field">
               <label for="qb-type">Tipo</label>
-              <select id="qb-type" class="qbank__input" name="type" [ngModel]="d.type" (ngModelChange)="patch({ type: $event })">
-                <option value="multiple-choice">Opción múltiple</option>
-                <option value="true-false">Verdadero / falso</option>
-                <option value="open">Abierta</option>
-              </select>
+              <lib-select inputId="qb-type" name="type" [options]="typeOptions"
+                          [ngModel]="d.type" (ngModelChange)="patch({ type: $event })" />
             </div>
             <div class="qbank__field qbank__field--sm">
               <label for="qb-points">Puntos</label>
