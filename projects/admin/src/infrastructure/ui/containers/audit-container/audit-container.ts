@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent } from 'shared';
+import { PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent, ClientErrorJournal } from 'shared';
 import { AuditService } from '../../../services/audit.service';
 import { IAuditEvent } from '../../../../domain/model/audit-event.model';
 
@@ -13,6 +13,7 @@ import { IAuditEvent } from '../../../../domain/model/audit-event.model';
 })
 export class AuditContainer implements OnInit {
   private readonly audit = inject(AuditService);
+  readonly clientErrors = inject(ClientErrorJournal);
   readonly events = signal<IAuditEvent[]>([]);
   readonly total = signal(0);
   readonly loading = signal(false);

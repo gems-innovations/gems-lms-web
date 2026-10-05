@@ -1,5 +1,17 @@
 :host { display: block; }
 
+.audit__client { margin-top: 1.25rem; }
+.audit__client-header { display: flex; align-items: start; justify-content: space-between; gap: 1rem; padding: 1.25rem; }
+.audit__client-header h2 { margin: 0 0 .3rem; color: var(--color-texto-principal); font-size: 1rem; }
+.audit__client-header p, .audit__client-empty { margin: 0; color: var(--color-texto-secundario); font-size: .82rem; line-height: 1.5; }
+.audit__client-header button { border: 1px solid var(--color-borde-secundario); border-radius: 8px; padding: .5rem .75rem; background: var(--color-superficie); color: var(--color-texto-principal); font: inherit; cursor: pointer; }
+.audit__client-header button:hover { background: var(--color-fondo-hover); }
+.audit__client-list { list-style: none; margin: 0; padding: 0; }
+.audit__client-list li { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: baseline; padding: .75rem 1.25rem; border-top: 1px solid var(--color-borde-principal); color: var(--color-texto-principal); font-size: .82rem; }
+.audit__client-list code { color: var(--color-texto-secundario); overflow-wrap: anywhere; }
+.audit__client-list time { margin-left: auto; color: var(--color-texto-terciario); }
+.audit__client-empty { padding: 0 1.25rem 1.25rem; }
+
 .audit__filters,
 .audit__card {
   overflow: hidden;

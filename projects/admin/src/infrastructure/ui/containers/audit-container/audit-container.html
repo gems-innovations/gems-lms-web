@@ -42,4 +42,28 @@
       </nav>
     }
   </section>
+  <section class="audit__card audit__client" aria-labelledby="client-errors-title">
+    <header class="audit__client-header">
+      <div>
+        <h2 id="client-errors-title">Errores de esta sesión</h2>
+        <p>Fallos detectados en este navegador. Solo se guarda la pantalla y la hora; no se registran datos privados.</p>
+      </div>
+      @if (clientErrors.recent().length) {
+        <button type="button" (click)="clientErrors.clear()">Limpiar</button>
+      }
+    </header>
+    @if (clientErrors.recent().length) {
+      <ul class="audit__client-list">
+        @for (entry of clientErrors.recent(); track entry.id) {
+          <li>
+            <span>{{ entry.category === 'unexpected' ? 'Error inesperado' : 'Operación fallida' }}</span>
+            <code>{{ entry.path }}</code>
+            <time [attr.datetime]="entry.occurredAt">{{ entry.occurredAt | date:'dd/MM/yyyy HH:mm' }}</time>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="audit__client-empty">No se han detectado errores en esta sesión.</p>
+    }
+  </section>
 </lib-page>

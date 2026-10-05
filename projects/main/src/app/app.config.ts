@@ -3,6 +3,7 @@ import {
   inject,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
+  ErrorHandler,
   provideZonelessChangeDetection
 } from '@angular/core';
 import { provideRouter, TitleStrategy } from '@angular/router';
@@ -15,10 +16,12 @@ import { provideMarkdown } from 'ngx-markdown';
 import { routes } from './app.routes';
 import { AuthSessionService, authInterceptor } from 'auth';
 import { AppTitleStrategy } from './app-title.strategy';
+import { ClientErrorHandler } from './client-error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    { provide: ErrorHandler, useClass: ClientErrorHandler },
     provideZonelessChangeDetection(),
     provideRouter(routes),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
