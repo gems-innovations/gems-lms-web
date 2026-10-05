@@ -126,9 +126,59 @@ input, button, textarea, select {
   font: inherit;
 }
 
+// Controles nativos: misma base visual cuando un módulo aún no usa lib-select.
+// Se apoya en CSS nativo para no sumar una biblioteca de animación pesada.
+input:not([type='checkbox']):not([type='radio']),
+textarea,
+select {
+  border: 1px solid var(--color-borde-principal);
+  border-radius: var(--border-radius-md);
+  background: var(--color-superficie-alta);
+  color: var(--color-texto-principal);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+input:not([type='checkbox']):not([type='radio']),
+select { min-height: 44px; }
+
+select {
+  padding: 0 .75rem;
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+input[type='date'],
+input[type='time'] { color-scheme: dark; }
+
+input:not([type='checkbox']):not([type='radio']):hover,
+textarea:hover,
+select:hover { border-color: var(--color-borde-secundario); }
+
+input:not([type='checkbox']):not([type='radio']):focus,
+textarea:focus,
+select:focus { outline: 0; border-color: var(--color-primario); box-shadow: 0 0 0 3px var(--color-primario-trans-10); }
+
+input[type='checkbox'],
+input[type='radio'] { accent-color: var(--color-primario); }
+
+:root.light-mode select,
+:root.light-mode input[type='date'],
+:root.light-mode input[type='time'] { color-scheme: light; }
+
 button {
   cursor: pointer;
 }
+
+// Microinteracciones sobrias: respuesta inmediata sin rebotes ni degradados.
+button, [role='button'], a { transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast); }
+button:active:not(:disabled), [role='button']:active { transform: translateY(1px); }
+
+@keyframes gems-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.gems-enter { animation: gems-enter 180ms var(--transition-easing) both; }
 
 a {
   color: inherit;

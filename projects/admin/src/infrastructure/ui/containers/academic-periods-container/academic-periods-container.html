@@ -7,7 +7,7 @@
   </lib-page-header>
 
   @if (draft(); as d) {
-    <form class="periods__form" (submit)="$event.preventDefault(); save()" aria-label="Período académico">
+    <form class="periods__form gems-enter" (submit)="$event.preventDefault(); save()" aria-label="Período académico">
       <div class="periods__field">
         <label for="per-name">Nombre</label>
         <input id="per-name" class="periods__input" maxlength="120" placeholder="Ej. 2026-2" name="name"
@@ -36,7 +36,7 @@
       @if (periods().length === 0) {
         <lib-empty-state title="Sin períodos" description="Crea el primer período para organizar las inscripciones." />
       } @else {
-        <table class="periods__table">
+        <table class="periods__table gems-enter">
           <caption class="periods__sr">Períodos académicos</caption>
           <thead><tr><th scope="col">Nombre</th><th scope="col">Inicio</th><th scope="col">Fin</th><th scope="col"><span class="periods__sr">Acciones</span></th></tr></thead>
           <tbody>
