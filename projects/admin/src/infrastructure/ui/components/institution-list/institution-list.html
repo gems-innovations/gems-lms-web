@@ -17,7 +17,7 @@
 
   <div class="institution-list__search">
     <lib-search-bar
-      [placeholder]="'Search institutions...'"
+      [placeholder]="'Buscar instituciones...'"
       [debounceTime]="300"
       [value]="searchTerm()"
       (search)="handleSearch($event)"
@@ -31,14 +31,14 @@
   @if (error() && !isLoading()) {
     <div class="institution-list__error">
       <div class="institution-list__error-icon">⚠️</div>
-      <h3 class="institution-list__error-title">Error loading data</h3>
+      <h3 class="institution-list__error-title">No pudimos cargar la información</h3>
       <p class="institution-list__error-message">{{ error() }}</p>
       <button 
         type="button" 
         class="institution-list__button institution-list__button--primary" 
         (click)="loadInstitutions()"
       >
-        Retry
+        Reintentar
       </button>
     </div>
   }
@@ -46,14 +46,14 @@
   @if (!isLoading() && !error() && institutions().length === 0) {
     <div class="institution-list__empty">
       <div class="institution-list__empty-icon">🏫</div>
-      <h3 class="institution-list__empty-title">No institutions found</h3>
-      <p class="institution-list__empty-message">Get started by creating your first institution</p>
+      <h3 class="institution-list__empty-title">No hay instituciones todavía</h3>
+      <p class="institution-list__empty-message">Crea la primera institución para empezar a organizar la plataforma.</p>
       <button 
         type="button" 
         class="institution-list__button institution-list__button--primary" 
         (click)="handleCreateNew()"
       >
-        Create first institution
+        Crear primera institución
       </button>
     </div>
   }
@@ -172,10 +172,10 @@
           (click)="handlePageChange(pagination().page - 1)"
           aria-label="Página anterior"
         >
-          ← Previous
+          ← Anterior
         </button>
         <span class="institution-list__pagination-info">
-          Page {{ pagination().page }} of {{ Math.ceil(pagination().total / pagination().limit) }}
+          Página {{ pagination().page }} de {{ Math.ceil(pagination().total / pagination().limit) }}
         </span>
         <button 
           type="button"
@@ -184,7 +184,7 @@
           (click)="handlePageChange(pagination().page + 1)"
           aria-label="Página siguiente"
         >
-          Next →
+          Siguiente →
         </button>
       </footer>
     }

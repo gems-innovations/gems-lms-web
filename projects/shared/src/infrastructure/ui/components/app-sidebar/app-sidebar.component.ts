@@ -23,6 +23,8 @@ export class AppSidebarComponent {
   readonly brandLabel  = input<string>('GEMS LMS');
   readonly menuItems   = input<NavigationItem[]>([]);
   readonly userProfile = input<UserProfile | null>(null);
+  /** Destination for the personal account action inside this product area. */
+  readonly profileRoute = input<string>('/account/profile');
   /** Clave de localStorage para persistir el colapso (independiente por app). */
   readonly storageKey  = input<string>('gems-app-sidebar-collapsed');
 

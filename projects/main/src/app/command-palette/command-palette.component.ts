@@ -39,8 +39,12 @@ export class CommandPaletteComponent {
   readonly commands = computed(() => {
     const role = this.session.user()?.role;
     const query = this.query().trim().toLocaleLowerCase();
-    return COMMANDS.filter(command => (!command.roles || (role && command.roles.includes(role)))
-      && (!query || `${command.label} ${command.description} ${command.keywords}`.toLocaleLowerCase().includes(query)));
+    return COMMANDS
+      .map(command => command.label === 'Mi perfil' && role && role !== EUserRole.STUDENT
+        ? { ...command, route: '/admin/profile' }
+        : command)
+      .filter(command => (!command.roles || (role && command.roles.includes(role)))
+        && (!query || `${command.label} ${command.description} ${command.keywords}`.toLocaleLowerCase().includes(query)));
   });
 
   @HostListener('window:keydown', ['$event'])

@@ -30,7 +30,8 @@ export class OnboardingService {
     void import('driver.js').then(({ driver }) => {
       const tour = driver({
         animate: true,
-        overlayOpacity: 0.55,
+        overlayOpacity: 0.62,
+        popoverClass: 'gems-tour',
         showProgress: true,
         progressText: '{{current}} de {{total}}',
         nextBtnText: 'Siguiente',

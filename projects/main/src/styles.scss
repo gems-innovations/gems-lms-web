@@ -513,34 +513,40 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
 
 // Driver.js lives outside Angular component encapsulation. These explicit
 // colors keep its controls above WCAG AA contrast in either application theme.
-.driver-popover {
-  background: var(--color-superficie-alta, #26233d);
-  color: var(--color-texto-principal, #f8fafc);
-  border: 1px solid var(--color-borde-sutil, #4b4767);
+.driver-popover.gems-tour {
+  min-width: min(21rem, calc(100vw - 2rem));
+  padding: 1.35rem;
+  border: 1px solid rgba(167, 139, 250, .32);
+  border-radius: 16px;
+  background: linear-gradient(145deg, #28243a, #1e1c2b);
+  box-shadow: 0 24px 65px rgba(0, 0, 0, .48), 0 0 0 1px rgba(255, 255, 255, .025) inset;
+  color: #f4f1ff;
 }
 
-.driver-popover .driver-popover-title,
-.driver-popover .driver-popover-description,
-.driver-popover .driver-popover-progress-text {
-  color: var(--color-texto-principal, #f8fafc);
-}
+.driver-popover.gems-tour .driver-popover-title { color: #f7f5ff; font-size: 1.18rem; font-weight: 760; letter-spacing: -.025em; }
+.driver-popover.gems-tour .driver-popover-description { margin-top: .45rem; color: #c8c2dd; font-size: .92rem; line-height: 1.55; }
+.driver-popover.gems-tour .driver-popover-progress-text { color: #aaa3c6; font-size: .76rem; font-weight: 700; }
+.driver-popover.gems-tour .driver-popover-footer { align-items: center; margin-top: 1.25rem; }
+.driver-popover.gems-tour .driver-popover-close-btn { color: #b8b0cd !important; border-radius: 8px; }
+.driver-popover.gems-tour .driver-popover-close-btn:hover { color: #fff !important; background: rgba(255, 255, 255, .08); }
 
-.driver-popover .driver-popover-next-btn,
-.driver-popover .driver-popover-prev-btn,
-.driver-popover .driver-popover-close-btn {
+.driver-popover.gems-tour .driver-popover-next-btn,
+.driver-popover.gems-tour .driver-popover-prev-btn {
+  border: 1px solid rgba(167, 139, 250, .5) !important;
+  border-radius: 8px;
+  padding: .42rem .72rem;
   color: #fff !important;
+  font-weight: 700;
   text-shadow: none !important;
 }
+.driver-popover.gems-tour .driver-popover-next-btn { background: linear-gradient(135deg, #7c63f2, #6046d8) !important; box-shadow: 0 5px 14px rgba(92, 70, 216, .26); }
+.driver-popover.gems-tour .driver-popover-prev-btn { background: rgba(255, 255, 255, .055) !important; color: #d5cfeb !important; }
+.driver-popover.gems-tour .driver-popover-next-btn:hover,
+.driver-popover.gems-tour .driver-popover-next-btn:focus-visible { background: linear-gradient(135deg, #8b73ff, #6b4eec) !important; }
+.driver-popover.gems-tour .driver-popover-prev-btn:hover,
+.driver-popover.gems-tour .driver-popover-prev-btn:focus-visible { background: rgba(255, 255, 255, .11) !important; }
 
-.driver-popover .driver-popover-next-btn,
-.driver-popover .driver-popover-prev-btn {
-  background: #312e81 !important;
-  border: 1px solid #a5b4fc !important;
-}
-
-.driver-popover .driver-popover-next-btn:hover,
-.driver-popover .driver-popover-next-btn:focus-visible,
-.driver-popover .driver-popover-prev-btn:hover,
-.driver-popover .driver-popover-prev-btn:focus-visible {
-  background: #1e1b4b !important;
-}
+.driver-popover.gems-tour .driver-popover-arrow-side-top { border-bottom-color: #28243a; }
+.driver-popover.gems-tour .driver-popover-arrow-side-bottom { border-top-color: #28243a; }
+.driver-popover.gems-tour .driver-popover-arrow-side-left { border-right-color: #28243a; }
+.driver-popover.gems-tour .driver-popover-arrow-side-right { border-left-color: #28243a; }

@@ -3,6 +3,23 @@ import { MainLayout } from './infrastructure/ui/layouts/main-layout/main-layout'
 
 export const routes: Routes = [
 
+  {
+    path: 'profile',
+    title: 'Mi perfil',
+    component: MainLayout,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/sidebar-container/sidebar-container').then(m => m.SidebarContainer),
+        outlet: 'sidebar'
+      },
+      {
+        path: '',
+        loadComponent: () => import('auth').then(m => m.ProfileContainer)
+      }
+    ]
+  },
+
   // ── Super-admin: institution list ──────────────────────────────────────────
   {
     path: 'institutions',

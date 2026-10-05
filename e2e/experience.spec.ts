@@ -66,9 +66,10 @@ test.describe('experiencia y accesibilidad', () => {
     await expect(page.getByRole('dialog', { name: 'Navegación rápida' })).toBeVisible();
     await page.getByLabel('Buscar una sección o acción').fill('perfil');
     await page.getByLabel('Buscar una sección o acción').press('Enter');
-    await expect(page).toHaveURL(/\/account\/profile/);
+    await expect(page).toHaveURL(/\/admin\/profile/);
     await expect(page).toHaveTitle('Mi perfil | GEMS LMS');
     await expect(page.getByRole('heading', { name: 'Mi perfil' })).toBeVisible();
+    await expect(page.locator('.app-sidebar')).toBeVisible();
   });
 
   test('las preferencias visuales se guardan en el dispositivo', async ({ page }) => {
