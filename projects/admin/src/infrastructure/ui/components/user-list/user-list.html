@@ -38,6 +38,7 @@
           type="button"
           class="user-list__action-btn"
           [title]="user.isActive ? 'Suspender' : 'Activar'"
+          [attr.aria-label]="(user.isActive ? 'Suspender a ' : 'Activar a ') + user.firstName + ' ' + user.lastName"
           (click)="toggleStatus.emit(user.id)"
         >
           @if (user.isActive) {
@@ -55,6 +56,7 @@
           type="button"
           class="user-list__action-btn user-list__action-btn--danger"
           title="Eliminar usuario"
+          [attr.aria-label]="'Eliminar a ' + user.firstName + ' ' + user.lastName"
           (click)="deleteUser.emit(user.id)"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

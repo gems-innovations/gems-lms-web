@@ -12,9 +12,10 @@ describe('BrandingService', () => {
 
   afterEach(() => service.reset());
 
-  it('uses dark text over a light institutional color', () => {
+  it('keeps white text legible by darkening a light institutional color on actions', () => {
     service.apply({ colorPrimary: '#7B6FF0' });
-    expect(root.style.getPropertyValue('--color-sobre-primario')).toBe('#0F1021');
+    expect(root.style.getPropertyValue('--color-sobre-primario')).toBe('#FFFFFF');
+    expect(root.style.getPropertyValue('--color-primario-accion')).not.toBe('#7B6FF0');
   });
 
   it('uses white text over a dark institutional color', () => {
@@ -26,6 +27,6 @@ describe('BrandingService', () => {
     service.apply({ colorPrimary: '#6C63FF' });
     expect(root.style.getPropertyValue('--color-primario')).toBe('#6C63FF');
     expect(root.style.getPropertyValue('--color-primario-accion')).not.toBe('#6C63FF');
-    expect(root.style.getPropertyValue('--color-sobre-primario')).toBe('#0F1021');
+    expect(root.style.getPropertyValue('--color-sobre-primario')).toBe('#FFFFFF');
   });
 });

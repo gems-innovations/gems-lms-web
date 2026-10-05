@@ -32,12 +32,12 @@
     }
 
     &--active {
-      background: var(--color-primario);
-      border-color: var(--color-primario);
-      color: #fff;
+      background: var(--color-primario-accion);
+      border-color: var(--color-primario-accion);
+      color: var(--color-sobre-primario);
       font-weight: var(--font-weight-semibold);
 
-      &:hover { background: var(--color-primario); color: #fff; }
+      &:hover { background: color-mix(in srgb, var(--color-primario-accion) 88%, #000); color: var(--color-sobre-primario); }
     }
 
     &:disabled { opacity: 0.35; cursor: not-allowed; }

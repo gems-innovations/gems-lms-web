@@ -29,7 +29,7 @@
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   background: transparent;
-  border: 1px solid rgba(var(--color-teal), 0.35);
+  border: 1px solid color-mix(in srgb, var(--color-teal) 35%, transparent);
   border-radius: 8px;
   color: var(--color-teal);
   font-size: 0.8125rem;
@@ -72,7 +72,7 @@
   top: 40px;
   bottom: 0;
   width: 2px;
-  background: linear-gradient(to bottom, rgba(var(--color-teal), 0.4), rgba(var(--color-teal), 0.08));
+  background: color-mix(in srgb, var(--color-teal) 40%, transparent);
 }
 
 .lp-sequencer__order {
@@ -80,7 +80,7 @@
   height: 36px;
   border-radius: 50%;
   background: var(--color-superficie);
-  border: 2px solid rgba(var(--color-teal), 0.4);
+  border: 2px solid color-mix(in srgb, var(--color-teal) 40%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,7 +93,7 @@
 
 .lp-sequencer__card {
   flex: 1;
-  background: var(--color-fondo);
+  background: var(--color-fondo-principal);
   border: 1px solid var(--color-borde-sutil);
   border-radius: 12px;
   display: flex;
@@ -103,7 +103,7 @@
   transition: border-color 0.15s;
   min-width: 0;
 
-  &:hover { border-color: rgba(var(--color-teal), 0.3); }
+  &:hover { border-color: color-mix(in srgb, var(--color-teal) 30%, transparent); }
 }
 
 .lp-sequencer__thumb {
@@ -158,9 +158,9 @@
 
   &--on {
     color: var(--color-exito);
-    border-color: rgba(var(--color-exito), 0.3);
-    background: rgba(var(--color-exito), 0.06);
-    &:hover { background: rgba(var(--color-exito), 0.12); }
+    border-color: color-mix(in srgb, var(--color-exito) 30%, transparent);
+    background: color-mix(in srgb, var(--color-exito) 6%, transparent);
+    &:hover { background: color-mix(in srgb, var(--color-exito) 12%, transparent); }
   }
 
   &:not(.lp-sequencer__req-toggle--on) {
@@ -178,8 +178,8 @@
 }
 
 .lp-sequencer__order-btn {
-  width: 26px;
-  height: 26px;
+  width: 36px;
+  height: 36px;
   background: transparent;
   border: 1px solid var(--color-borde-sutil);
   border-radius: 5px;
@@ -193,7 +193,7 @@
   &:hover:not(:disabled) { color: var(--color-texto-principal); border-color: var(--color-borde-principal); background: rgba(255,255,255,0.04); }
   &:disabled { opacity: 0.3; cursor: not-allowed; }
 
-  &--remove:hover:not(:disabled) { color: var(--color-error); border-color: rgba(var(--color-error), 0.35); background: rgba(var(--color-error), 0.06); }
+  &--remove:hover:not(:disabled) { color: var(--color-error); border-color: color-mix(in srgb, var(--color-error) 35%, transparent); background: color-mix(in srgb, var(--color-error) 6%, transparent); }
 }
 
 .lp-sequencer__overlay {
@@ -208,7 +208,7 @@
 }
 
 .lp-sequencer__picker {
-  background: var(--color-fondo);
+  background: var(--color-fondo-principal);
   border: 1px solid var(--color-borde-sutil);
   border-radius: 16px;
   width: 100%;

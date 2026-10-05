@@ -70,17 +70,17 @@
             </button>
 
             <div class="lp-sequencer__controls">
-              <button class="lp-sequencer__order-btn" [disabled]="step.order === 1" (click)="uc.moveStep(step.id, 'up')" title="Mover arriba">
+              <button type="button" class="lp-sequencer__order-btn" [disabled]="step.order === 1" (click)="uc.moveStep(step.id, 'up')" title="Mover arriba" aria-label="Mover paso arriba">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <polyline points="18 15 12 9 6 15"/>
                 </svg>
               </button>
-              <button class="lp-sequencer__order-btn" [disabled]="step.order === lp.steps.length" (click)="uc.moveStep(step.id, 'down')" title="Mover abajo">
+              <button type="button" class="lp-sequencer__order-btn" [disabled]="step.order === lp.steps.length" (click)="uc.moveStep(step.id, 'down')" title="Mover abajo" aria-label="Mover paso abajo">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <polyline points="6 9 12 15 18 9"/>
                 </svg>
               </button>
-              <button class="lp-sequencer__order-btn lp-sequencer__order-btn--remove" (click)="uc.removeStep(step.id)" title="Quitar de la ruta">
+              <button type="button" class="lp-sequencer__order-btn lp-sequencer__order-btn--remove" (click)="uc.removeStep(step.id)" title="Quitar de la ruta" aria-label="Quitar paso de la ruta">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                 </svg>

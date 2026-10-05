@@ -39,7 +39,7 @@
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
     color: var(--color-texto-invertido);
-    background: var(--gradiente-primario);
+    background: var(--color-primario-accion);
     border-radius: var(--border-radius-full);
     overflow: hidden;
 
@@ -132,8 +132,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
+    width: 36px;
+    height: 36px;
     color: var(--color-texto-secundario);
     background: transparent;
     border: 1px solid var(--color-borde-principal);

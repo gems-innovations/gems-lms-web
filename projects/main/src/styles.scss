@@ -128,9 +128,9 @@ input, button, textarea, select {
 
 // Controles nativos: misma base visual cuando un módulo aún no usa lib-select.
 // Se apoya en CSS nativo para no sumar una biblioteca de animación pesada.
-input:not([type='checkbox']):not([type='radio']),
-textarea,
-select {
+:where(input[type='text'], input[type='email'], input[type='password'], input[type='search'],
+  input[type='number'], input[type='tel'], input[type='url'], input[type='date'],
+  input[type='time'], input[type='datetime-local'], textarea, select) {
   border: 1px solid var(--color-borde-principal);
   border-radius: var(--border-radius-md);
   background: var(--color-superficie-alta);
@@ -138,8 +138,9 @@ select {
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
 }
 
-input:not([type='checkbox']):not([type='radio']),
-select { min-height: 44px; }
+:where(input[type='text'], input[type='email'], input[type='password'], input[type='search'],
+  input[type='number'], input[type='tel'], input[type='url'], input[type='date'],
+  input[type='time'], input[type='datetime-local'], select) { min-height: 44px; }
 
 select {
   padding: 0 .75rem;
@@ -150,13 +151,19 @@ select {
 input[type='date'],
 input[type='time'] { color-scheme: dark; }
 
-input:not([type='checkbox']):not([type='radio']):hover,
-textarea:hover,
-select:hover { border-color: var(--color-borde-secundario); }
+:where(input[type='text'], input[type='email'], input[type='password'], input[type='search'],
+  input[type='number'], input[type='tel'], input[type='url'], input[type='date'],
+  input[type='time'], input[type='datetime-local'], textarea, select):hover {
+  border-color: var(--color-borde-secundario);
+}
 
-input:not([type='checkbox']):not([type='radio']):focus,
-textarea:focus,
-select:focus { outline: 0; border-color: var(--color-primario); box-shadow: 0 0 0 3px var(--color-primario-trans-10); }
+:where(input[type='text'], input[type='email'], input[type='password'], input[type='search'],
+  input[type='number'], input[type='tel'], input[type='url'], input[type='date'],
+  input[type='time'], input[type='datetime-local'], textarea, select):focus {
+  outline: 0;
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px var(--color-primario-trans-10);
+}
 
 input[type='checkbox'],
 input[type='radio'] { accent-color: var(--color-primario); }
@@ -170,7 +177,7 @@ button {
 }
 
 // Microinteracciones sobrias: respuesta inmediata sin rebotes ni degradados.
-button, [role='button'], a { transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast); }
+:where(button, [role='button'], a) { transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast); }
 button:active:not(:disabled), [role='button']:active { transform: translateY(1px); }
 
 @keyframes gems-enter {
@@ -241,7 +248,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--color-fondo);
+  background: var(--color-fondo-principal);
 
   &__body {
     flex: 1;
@@ -285,7 +292,7 @@ h1, h2, h3, h4, h5, h6 {
   &__spinner {
     width: 32px;
     height: 32px;
-    border: 3px solid rgba(var(--color-primario), 0.2);
+    border: 3px solid color-mix(in srgb, var(--color-primario) 20%, transparent);
     border-top-color: var(--color-primario);
     border-radius: 50%;
     animation: container-spin 0.8s linear infinite;
@@ -545,7 +552,7 @@ h1, h2, h3, h4, h5, h6 {
   &__spinner {
     width: 32px;
     height: 32px;
-    border: 3px solid rgba(var(--color-teal), 0.2);
+    border: 3px solid color-mix(in srgb, var(--color-teal) 20%, transparent);
     border-top-color: var(--color-teal);
     border-radius: 50%;
     animation: container-spin 0.8s linear infinite;
@@ -568,8 +575,8 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   padding: 1.35rem;
   border: 1px solid rgba(167, 139, 250, .32);
   border-radius: 16px;
-  background: linear-gradient(145deg, #28243a, #1e1c2b);
-  box-shadow: 0 24px 65px rgba(0, 0, 0, .48), 0 0 0 1px rgba(255, 255, 255, .025) inset;
+  background: #1c1b27;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .36);
   color: #f4f1ff;
 }
 
@@ -584,15 +591,16 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
 .driver-popover.gems-tour .driver-popover-prev-btn {
   border: 1px solid rgba(167, 139, 250, .5) !important;
   border-radius: 8px;
+  min-height: 38px;
   padding: .42rem .72rem;
   color: #fff !important;
   font-weight: 700;
   text-shadow: none !important;
 }
-.driver-popover.gems-tour .driver-popover-next-btn { background: linear-gradient(135deg, #7c63f2, #6046d8) !important; box-shadow: 0 5px 14px rgba(92, 70, 216, .26); }
+.driver-popover.gems-tour .driver-popover-next-btn { background: #5b4ec1 !important; box-shadow: none; }
 .driver-popover.gems-tour .driver-popover-prev-btn { background: rgba(255, 255, 255, .055) !important; color: #d5cfeb !important; }
 .driver-popover.gems-tour .driver-popover-next-btn:hover,
-.driver-popover.gems-tour .driver-popover-next-btn:focus-visible { background: linear-gradient(135deg, #8b73ff, #6b4eec) !important; }
+.driver-popover.gems-tour .driver-popover-next-btn:focus-visible { background: #493aaf !important; }
 .driver-popover.gems-tour .driver-popover-prev-btn:hover,
 .driver-popover.gems-tour .driver-popover-prev-btn:focus-visible { background: rgba(255, 255, 255, .11) !important; }
 

@@ -148,7 +148,9 @@
   &__action {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.375rem;
+    min-height: 36px;
     padding: 0.375rem var(--spacing-md);
     border: 1px solid var(--color-borde-principal);
     border-radius: 6px;

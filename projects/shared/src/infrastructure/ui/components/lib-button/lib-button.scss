@@ -20,17 +20,20 @@
 
   // ── Tamaños ──────────────────────────────────────────────────────────────
   &--sm {
-    padding: var(--spacing-xs) var(--spacing-md);
+    min-height: 34px;
+    padding: 0 var(--spacing-md);
     font-size: var(--font-size-xs);
   }
 
   &--md {
-    padding: var(--spacing-sm) var(--spacing-xl);
+    min-height: 44px;
+    padding: 0 var(--spacing-xl);
     font-size: var(--font-size-sm);
   }
 
   &--lg {
-    padding: var(--spacing-md) var(--spacing-2xl);
+    min-height: 50px;
+    padding: 0 var(--spacing-2xl);
     font-size: var(--font-size-base);
   }
 
@@ -40,8 +43,7 @@
     color: var(--color-sobre-primario, var(--color-texto-invertido));
 
     &:hover:not(:disabled) {
-      filter: brightness(.92);
-      box-shadow: var(--sombra-glow);
+      background: color-mix(in srgb, var(--color-primario-accion) 88%, #000);
     }
   }
 

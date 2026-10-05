@@ -31,7 +31,7 @@
 .audit__filters input,
 .audit__filters select {
   width: 100%;
-  min-height: 42px;
+  min-height: 44px;
   border: 1px solid var(--color-borde-secundario);
   border-radius: 9px;
   padding: .6rem .75rem;
@@ -56,7 +56,7 @@
 .audit__filter-actions button,
 .audit__pagination button,
 .audit__state button {
-  min-height: 42px;
+  min-height: 44px;
   border: 1px solid var(--color-borde-secundario);
   border-radius: 9px;
   padding: .6rem .9rem;
@@ -80,12 +80,12 @@
 
 .audit__filter-actions .audit__primary {
   border-color: transparent;
-  background: var(--color-primario);
-  color: #fff;
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--color-primario) 24%, transparent);
+  background: var(--color-primario-accion);
+  color: var(--color-sobre-primario);
+  box-shadow: none;
 }
 
-.audit__filter-actions .audit__primary:hover { background: var(--color-primario-oscuro, #5648d6); }
+.audit__filter-actions .audit__primary:hover { background: color-mix(in srgb, var(--color-primario-accion) 88%, #000); }
 
 .audit__summary {
   display: flex;

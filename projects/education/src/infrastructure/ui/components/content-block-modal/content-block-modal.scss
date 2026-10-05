@@ -1,4 +1,4 @@
-﻿
+
 .cbm__overlay {
   position: fixed;
   inset: 0;
@@ -90,10 +90,10 @@
 
   &--video      { background: rgba(#60a5fa,0.15); color: #60a5fa; }
   &--document   { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
-  &--quiz       { background: rgba(var(--color-advertencia),0.15); color: var(--color-advertencia); }
-  &--assignment { background: rgba(var(--color-exito),0.15); color: var(--color-exito); }
-  &--scorm      { background: rgba(var(--color-primario),0.15); color: var(--color-primario); }
-  &--live-session { background: rgba(var(--color-error),0.15); color: var(--color-error); }
+  &--quiz       { background: color-mix(in srgb, var(--color-advertencia) 15%, transparent); color: var(--color-advertencia); }
+  &--assignment { background: color-mix(in srgb, var(--color-exito) 15%, transparent); color: var(--color-exito); }
+  &--scorm      { background: color-mix(in srgb, var(--color-primario) 15%, transparent); color: var(--color-primario); }
+  &--live-session { background: color-mix(in srgb, var(--color-error) 15%, transparent); color: var(--color-error); }
 }
 
 // ─── Type grid ────────────────────────────────────────────────────────────────
@@ -117,7 +117,7 @@
   transition: all 0.18s;
   text-align: center;
 
-  &:hover { border-color: rgba(var(--color-primario),0.45); background: var(--color-superficie-alta); transform: translateY(-2px); }
+  &:hover { border-color: color-mix(in srgb, var(--color-primario) 45%, transparent); background: var(--color-superficie-alta); transform: translateY(-2px); }
 }
 
 .cbm__type-icon {
@@ -130,10 +130,10 @@
 
   &--video      { background: rgba(#60a5fa,0.12); color: #60a5fa; }
   &--doc        { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
-  &--quiz       { background: rgba(var(--color-advertencia),0.12); color: var(--color-advertencia); }
-  &--task       { background: rgba(var(--color-exito),0.12); color: var(--color-exito); }
-  &--scorm      { background: rgba(var(--color-primario),0.12); color: var(--color-primario); }
-  &--live       { background: rgba(var(--color-error),0.12); color: var(--color-error); }
+  &--quiz       { background: color-mix(in srgb, var(--color-advertencia) 12%, transparent); color: var(--color-advertencia); }
+  &--task       { background: color-mix(in srgb, var(--color-exito) 12%, transparent); color: var(--color-exito); }
+  &--scorm      { background: color-mix(in srgb, var(--color-primario) 12%, transparent); color: var(--color-primario); }
+  &--live       { background: color-mix(in srgb, var(--color-error) 12%, transparent); color: var(--color-error); }
 }
 
 .cbm__type-label {
@@ -224,7 +224,7 @@
   width: 100%;
   box-sizing: border-box;
 
-  &::placeholder { color: rgba(var(--color-texto-terciario),0.7); }
+  &::placeholder { color: color-mix(in srgb, var(--color-texto-terciario) 70%, transparent); }
   &:focus { border-color: var(--color-primario); }
   &--sm { max-width: 120px; }
   &--opt { flex: 1; }
@@ -261,7 +261,7 @@
   width: 100%;
   box-sizing: border-box;
 
-  &::placeholder { color: rgba(var(--color-texto-terciario),0.7); }
+  &::placeholder { color: color-mix(in srgb, var(--color-texto-terciario) 70%, transparent); }
   &:focus { border-color: var(--color-primario); }
   &--sm { min-height: 80px; }
   &--md { min-height: 120px; }
@@ -271,12 +271,12 @@
 
 .cbm__hint {
   font-size: 0.72rem;
-  color: rgba(var(--color-texto-terciario),0.8);
+  color: color-mix(in srgb, var(--color-texto-terciario) 80%, transparent);
   margin: 0;
   padding: 0.375rem 0.625rem;
-  background: rgba(var(--color-primario),0.06);
+  background: color-mix(in srgb, var(--color-primario) 6%, transparent);
   border-radius: 4px;
-  border-left: 2px solid rgba(var(--color-primario),0.3);
+  border-left: 2px solid color-mix(in srgb, var(--color-primario) 30%, transparent);
 }
 
 .cbm__toggle {
@@ -290,7 +290,7 @@
   color: var(--color-texto-terciario);
   transition: all 0.15s;
 
-  &--on { background: rgba(var(--color-exito),0.12); color: var(--color-exito); border-color: rgba(var(--color-exito),0.3); }
+  &--on { background: color-mix(in srgb, var(--color-exito) 12%, transparent); color: var(--color-exito); border-color: color-mix(in srgb, var(--color-exito) 30%, transparent); }
 }
 
 // ─── Video ────────────────────────────────────────────────────────────────────
@@ -342,7 +342,7 @@
 .cbm__preview-btn {
   padding: 0.25rem 0.75rem;
   background: transparent;
-  border: 1px solid rgba(var(--color-primario),0.3);
+  border: 1px solid color-mix(in srgb, var(--color-primario) 30%, transparent);
   border-radius: 6px;
   color: var(--color-primario);
   font-size: 0.78rem;
@@ -430,7 +430,7 @@
   width: 26px;
   height: 26px;
   background: transparent;
-  border: 1px solid rgba(var(--color-error),0.2);
+  border: 1px solid color-mix(in srgb, var(--color-error) 20%, transparent);
   border-radius: 5px;
   display: flex;
   align-items: center;
@@ -440,7 +440,7 @@
   margin-left: auto;
   transition: all 0.12s;
 
-  &:hover { background: rgba(var(--color-error),0.08); }
+  &:hover { background: color-mix(in srgb, var(--color-error) 8%, transparent); }
 }
 
 .cbm__pts-label {
@@ -486,8 +486,8 @@
   transition: all 0.12s;
   flex-shrink: 0;
 
-  &--on { background: rgba(var(--color-exito),0.15); border-color: var(--color-exito); color: var(--color-exito); }
-  &:hover:not(.cbm__correct-btn--on) { border-color: rgba(var(--color-exito),0.4); }
+  &--on { background: color-mix(in srgb, var(--color-exito) 15%, transparent); border-color: var(--color-exito); color: var(--color-exito); }
+  &:hover:not(.cbm__correct-btn--on) { border-color: color-mix(in srgb, var(--color-exito) 40%, transparent); }
 }
 
 .cbm__opt-letter {
@@ -524,7 +524,7 @@
   align-self: flex-start;
   transition: all 0.15s;
 
-  &:hover { color: var(--color-primario); border-color: rgba(var(--color-primario),0.3); }
+  &:hover { color: var(--color-primario); border-color: color-mix(in srgb, var(--color-primario) 30%, transparent); }
 }
 
 .cbm__tf-row {
@@ -544,7 +544,7 @@
   cursor: pointer;
   transition: all 0.15s;
 
-  &--on { background: rgba(var(--color-exito),0.12); color: var(--color-exito); border-color: rgba(var(--color-exito),0.3); }
+  &--on { background: color-mix(in srgb, var(--color-exito) 12%, transparent); color: var(--color-exito); border-color: color-mix(in srgb, var(--color-exito) 30%, transparent); }
   &:hover:not(.cbm__tf-btn--on) { color: var(--color-texto-principal); }
 }
 
@@ -554,14 +554,14 @@
   gap: 0.5rem;
   padding: 0.625rem 1rem;
   background: transparent;
-  border: 1px dashed rgba(var(--color-primario),0.25);
+  border: 1px dashed color-mix(in srgb, var(--color-primario) 25%, transparent);
   border-radius: 8px;
   color: var(--color-texto-terciario);
   font-size: 0.8125rem;
   cursor: pointer;
   transition: all 0.15s;
 
-  &:hover { color: var(--color-primario); border-color: rgba(var(--color-primario),0.5); background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
+  &:hover { color: var(--color-primario); border-color: color-mix(in srgb, var(--color-primario) 50%, transparent); background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
 }
 
 // ─── Assignment ───────────────────────────────────────────────────────────────
@@ -607,7 +607,7 @@
   width: 28px;
   height: 28px;
   background: transparent;
-  border: 1px solid rgba(var(--color-primario),0.3);
+  border: 1px solid color-mix(in srgb, var(--color-primario) 30%, transparent);
   border-radius: 6px;
   color: var(--color-primario);
   font-size: 1rem;
@@ -652,7 +652,7 @@
   align-self: flex-start;
   transition: all 0.15s;
 
-  &:hover { color: var(--color-exito); border-color: rgba(var(--color-exito),0.3); }
+  &:hover { color: var(--color-exito); border-color: color-mix(in srgb, var(--color-exito) 30%, transparent); }
 }
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
@@ -683,10 +683,10 @@
 
 .cbm__save-btn {
   padding: 0.625rem 1.5rem;
-  background: var(--color-primario);
+  background: var(--color-primario-accion);
   border: none;
   border-radius: 8px;
-  color: #fff;
+  color: var(--color-sobre-primario);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;

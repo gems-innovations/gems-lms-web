@@ -117,11 +117,11 @@
     }
 
     &--primary {
-      color: var(--color-texto-invertido);
-      background: var(--color-primario);
+      color: var(--color-sobre-primario);
+      background: var(--color-primario-accion);
 
       &:hover:not(:disabled) {
-        background: var(--color-primario-claro);
+        background: color-mix(in srgb, var(--color-primario-accion) 88%, #000);
       }
 
       &:disabled {

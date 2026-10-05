@@ -112,10 +112,10 @@
     gap: 0.4rem;
     flex-shrink: 0;
     padding: 0.6rem 1.1rem;
-    background: var(--color-primario);
+    background: var(--color-primario-accion);
     border: none;
     border-radius: 10px;
-    color: #fff;
+    color: var(--color-sobre-primario);
     font-size: 0.85rem;
     font-weight: 700;
     font-family: inherit;

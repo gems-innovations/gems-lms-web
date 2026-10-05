@@ -19,41 +19,25 @@
     flex-shrink: 0;
 
     &--warning {
-      background: linear-gradient(
-        135deg,
-        rgba(251, 191, 36, 0.2) 0%,
-        rgba(251, 191, 36, 0.1) 100%
-      );
+      background: color-mix(in srgb, var(--color-advertencia) 12%, transparent);
       border: 2px solid rgba(251, 191, 36, 0.3);
       color: map.get(vars.$colors, 'warning');
     }
 
     &--danger {
-      background: linear-gradient(
-        135deg,
-        rgba(239, 68, 68, 0.2) 0%,
-        rgba(239, 68, 68, 0.1) 100%
-      );
+      background: color-mix(in srgb, var(--color-error) 12%, transparent);
       border: 2px solid rgba(239, 68, 68, 0.3);
       color: map.get(vars.$colors, 'error');
     }
 
     &--info {
-      background: linear-gradient(
-        135deg,
-        rgba(59, 130, 246, 0.2) 0%,
-        rgba(59, 130, 246, 0.1) 100%
-      );
+      background: color-mix(in srgb, var(--color-info) 12%, transparent);
       border: 2px solid rgba(59, 130, 246, 0.3);
       color: #3B82F6;
     }
 
     &--success {
-      background: linear-gradient(
-        135deg,
-        rgba(16, 185, 129, 0.2) 0%,
-        rgba(16, 185, 129, 0.1) 100%
-      );
+      background: color-mix(in srgb, var(--color-exito) 12%, transparent);
       border: 2px solid rgba(16, 185, 129, 0.3);
       color: map.get(vars.$colors, 'success');
     }
@@ -68,14 +52,14 @@
     margin: 0;
     font-size: vars.$font-size-lg;
     font-weight: vars.$font-weight-bold;
-    color: #ffffff;
+    color: var(--color-texto-principal);
     line-height: 1.3;
   }
 
   &__message {
     margin: 0;
     font-size: vars.$font-size-base;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--color-texto-secundario);
     line-height: 1.6;
     max-width: 400px;
   }

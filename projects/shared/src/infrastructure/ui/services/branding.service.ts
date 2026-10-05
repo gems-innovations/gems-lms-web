@@ -53,30 +53,24 @@ export class BrandingService {
     root.classList.remove('light-mode');
   }
 
-  private accessibleAction(color: string): { background: string; foreground: '#0F1021' | '#FFFFFF' } {
+  private accessibleAction(color: string): { background: string; foreground: '#FFFFFF' } {
     const hex = color.trim().replace('#', '');
     const normalized = hex.length === 3 ? hex.split('').map(value => value + value).join('') : hex;
     if (!/^[0-9a-f]{6}$/i.test(normalized)) return { background: '#4F46E5', foreground: '#FFFFFF' };
 
     const rgb = [0, 2, 4].map(index => Number.parseInt(normalized.slice(index, index + 2), 16));
-    const dark: [number, number, number] = [15, 16, 33];
     const white: [number, number, number] = [255, 255, 255];
-    const candidates = ([
-      { foreground: '#0F1021' as const, rgb: dark, target: white },
-      { foreground: '#FFFFFF' as const, rgb: white, target: dark },
-    ]).map(candidate => {
-      for (let step = 0; step <= 20; step++) {
-        const ratio = step / 20;
-        const background = rgb.map((channel, index) => Math.round(channel + (candidate.target[index] - channel) * ratio));
-        if (this.contrast(background, candidate.rgb) >= 4.5) return { ...candidate, background, step };
+    for (let step = 0; step <= 20; step++) {
+      const ratio = step / 20;
+      const background = rgb.map(channel => Math.round(channel * (1 - ratio)));
+      if (this.contrast(background, white) >= 4.5) {
+        return {
+          background: `#${background.map(channel => channel.toString(16).padStart(2, '0')).join('').toUpperCase()}`,
+          foreground: '#FFFFFF',
+        };
       }
-      return { ...candidate, background: rgb, step: 21 };
-    }).sort((a, b) => a.step - b.step)[0];
-
-    return {
-      background: `#${candidates.background.map(channel => channel.toString(16).padStart(2, '0')).join('').toUpperCase()}`,
-      foreground: candidates.foreground,
-    };
+    }
+    return { background: '#000000', foreground: '#FFFFFF' };
   }
 
   private contrast(first: number[], second: number[]): number {

@@ -91,6 +91,30 @@ test.describe('experiencia y accesibilidad', () => {
     await expect(page.locator('.driver-popover-title')).not.toBeEmpty();
   });
 
+  test('los controles clave conservan contraste y tamaño en el panel', async ({ page }) => {
+    test.skip(!email || !password, 'Define E2E_ADMIN_EMAIL y E2E_ADMIN_PASSWORD para la prueba autenticada.');
+    await signIn(page);
+    await page.goto('/admin/profile');
+    const save = page.getByRole('button', { name: 'Guardar cambios' });
+    await expect(save).toBeVisible();
+    const buttonStyle = await save.evaluate(element => {
+      const style = getComputedStyle(element);
+      return { foreground: style.color, background: style.backgroundColor, height: element.getBoundingClientRect().height };
+    });
+    expect(buttonStyle.foreground).toBe('rgb(255, 255, 255)');
+    expect(buttonStyle.background).not.toBe('rgba(0, 0, 0, 0)');
+    expect(buttonStyle.height).toBeGreaterThanOrEqual(43.5);
+
+    await page.goto('/admin/periods');
+    await page.getByRole('button', { name: 'Nuevo período' }).click();
+    const dates = page.locator('input[type="date"]');
+    await expect(dates).toHaveCount(2);
+    for (const input of await dates.all()) {
+      const height = await input.evaluate(element => element.getBoundingClientRect().height);
+      expect(height).toBeGreaterThanOrEqual(44);
+    }
+  });
+
   test('las pantallas principales no tienen violaciones graves de accesibilidad', async ({ page }) => {
     test.skip(!email || !password, 'Define E2E_ADMIN_EMAIL y E2E_ADMIN_PASSWORD para la prueba autenticada.');
     await signIn(page);
