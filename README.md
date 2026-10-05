@@ -11,7 +11,7 @@ npm ci
 npm start
 ```
 
-Abrir http://localhost:4200. API predeterminada: http://localhost:8080/api/v1. Las cuentas están en `../gems-lms-api/docs/integracion-front-back.md`; la contraseña corresponde a `DEV_PASSWORD` en los scripts del backend.
+Abrir http://localhost:4200. API predeterminada: http://localhost:8080/api/v1. Las cuentas están en `../gems-lms-api/docs/integracion-front-back.md`; la contraseña es `DEV_PASSWORD` del `.env` local del backend.
 
 Las librerías shared, auth, education, instructor y admin se consumen desde dist. Después de editar una librería, compilarla y reiniciar el servidor:
 
