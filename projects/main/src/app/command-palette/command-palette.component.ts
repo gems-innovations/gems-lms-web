@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, ViewChild, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthSessionService, EUserRole } from 'auth';
+import { AuthSessionService, EUserRole } from 'auth/core';
 
 interface CommandItem {
   label: string;

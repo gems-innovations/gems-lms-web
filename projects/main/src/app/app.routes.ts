@@ -1,6 +1,6 @@
 import { Routes, Router } from '@angular/router';
 import { inject } from '@angular/core';
-import { AuthSessionService, EUserRole } from 'auth';
+import { AuthSessionService, EUserRole } from 'auth/core';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 import { loginRedirectGuard } from './guards/login-redirect.guard';

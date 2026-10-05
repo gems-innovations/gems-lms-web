@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthSessionService } from '../../../services/auth-session.service';
+import { AuthSessionService } from 'auth/core';
 import { UserService } from '../../../services/user.service';
-import { DisplayPreferencesService, ThemePreference } from '../../../services/display-preferences.service';
+import { DisplayPreferencesService, ThemePreference } from 'auth/core';
 import { ImageUploadComponent, PageComponent, PageHeaderComponent, ToastService } from 'shared';
 
 @Component({

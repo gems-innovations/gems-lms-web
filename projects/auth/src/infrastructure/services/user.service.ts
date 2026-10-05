@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { IUser, EUserRole } from '../../domain/model/user.model';
+import { IUser, EUserRole } from 'auth/core';
 import { ILoginCredentials } from '../../domain/model/login-credentials.model';
 import { environment } from 'shared';
 

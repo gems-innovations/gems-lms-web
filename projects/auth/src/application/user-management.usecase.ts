@@ -4,7 +4,7 @@ import { Subject, EMPTY } from 'rxjs';
 import { switchMap, mergeMap, tap, catchError } from 'rxjs/operators';
 import { ToastService } from 'shared';
 import { UserService } from '../infrastructure/services/user.service';
-import { IUser, EUserRole } from '../domain/model/user.model';
+import { IUser, EUserRole } from 'auth/core';
 
 export type TUserModalMode = 'create' | 'delete' | null;
 

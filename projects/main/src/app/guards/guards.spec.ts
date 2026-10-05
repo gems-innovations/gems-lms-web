@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree, provideRouter } from '@angular/router';
-import { AuthSessionService, EUserRole, IUser } from 'auth';
+import { AuthSessionService, EUserRole, IUser } from 'auth/core';
 import { authGuard } from './auth.guard';
 import { loginRedirectGuard } from './login-redirect.guard';
 

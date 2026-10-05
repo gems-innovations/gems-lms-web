@@ -1,5 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { IUser } from '../model/user.model';
+import { IUser } from './user.model';
 
 export interface IUserState {
   users: IUser[];

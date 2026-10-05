@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ClientErrorJournal } from './client-error-journal.service';
+import { ClientErrorJournal } from 'shared/core';
 
 describe('ClientErrorJournal', () => {
   beforeEach(() => {

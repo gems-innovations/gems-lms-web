@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { ClientErrorJournal } from '../../services/client-error-journal.service';
+import { ClientErrorJournal } from 'shared/core';
 
 export interface Toast {
   id: string;

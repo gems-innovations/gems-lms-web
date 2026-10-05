@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { map, switchMap, tap } from 'rxjs';
 import { UserService } from '../infrastructure/services/user.service';
-import { AuthSessionService } from '../infrastructure/services/auth-session.service';
+import { AuthSessionService } from 'auth/core';
 
 /** Same rule as the API: 8+ characters with a lowercase, an uppercase, a digit and one of @$!%*?& */
 export const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;

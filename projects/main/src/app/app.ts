@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { AuthSessionService } from 'auth';
-import { DisplayPreferencesService } from 'auth';
+import { AuthSessionService } from 'auth/core';
+import { DisplayPreferencesService } from 'auth/core';
 import { CommandPaletteComponent } from './command-palette/command-palette.component';
 import { OnboardingService } from './onboarding.service';
 import { AppStatusService } from './app-status.service';

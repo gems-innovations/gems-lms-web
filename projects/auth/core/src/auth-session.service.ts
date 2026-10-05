@@ -2,9 +2,9 @@ import { computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, map, catchError, tap } from 'rxjs';
-import { UserState } from '../../domain/state/user.state';
-import { EUserRole, getRoleHomePath, IUser } from '../../domain/model/user.model';
-import { environment, IBrandingConfig } from 'shared';
+import { UserState } from './user.state';
+import { EUserRole, getRoleHomePath, IUser } from './user.model';
+import { environment, IBrandingConfig } from 'shared/core';
 
 const STORAGE_KEY = 'gems_session';
 

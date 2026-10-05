@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { AuthSessionService, EUserRole } from 'auth';
+import { AuthSessionService, EUserRole } from 'auth/core';
 
 interface TourStep { element: string; title: string; description: string; }
 

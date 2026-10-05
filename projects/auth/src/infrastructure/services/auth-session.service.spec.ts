@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { AuthSessionService } from './auth-session.service';
-import { EUserRole, IUser } from '../../domain/model/user.model';
+import { AuthSessionService } from 'auth/core';
+import { EUserRole, IUser } from 'auth/core';
 
 /** A JWT-shaped token whose payload carries the given claims (the signature is never checked here). */
 function token(claims: Record<string, unknown>): string {

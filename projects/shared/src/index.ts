@@ -1,4 +1,5 @@
-export { environment } from "./infrastructure/ui/environments/environment";
+export { environment, BrandingService, ClientErrorJournal } from "shared/core";
+export type { IBrandingConfig } from "shared/core";
 export { ModalBaseComponent } from "./infrastructure/ui/components/modal-base/modal-base.component";
 export type { TModalSize } from "./infrastructure/ui/components/modal-base/modal-base.component";
 export { ToastComponent } from "./infrastructure/ui/components/toast/toast.component";
@@ -51,9 +52,6 @@ export { EmptyStateComponent } from "./infrastructure/ui/components/empty-state/
 export { ColorPickerComponent } from "./infrastructure/ui/components/color-picker/color-picker.component";
 
 // ── Services ─────────────────────────────────────────────────────────────────
-export { BrandingService } from "./infrastructure/ui/services/branding.service";
-export { ClientErrorJournal } from "./infrastructure/ui/services/client-error-journal.service";
-export type { IBrandingConfig } from "./infrastructure/ui/services/branding.service";
 
 export { LoadingSkeletonComponent } from "./infrastructure/ui/components/loading-skeleton/loading-skeleton";
 

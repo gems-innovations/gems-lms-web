@@ -81,7 +81,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "650kB",
+                  "maximumWarning": "500kB",
                   "maximumError": "800kB"
                 },
                 {
@@ -93,8 +93,8 @@
               "outputHashing": "all",
               "fileReplacements": [
                 {
-                  "replace": "projects/shared/src/infrastructure/ui/environments/environment.ts",
-                  "with": "projects/shared/src/infrastructure/ui/environments/environment.prod.ts"
+                  "replace": "projects/shared/core/src/environments/environment.ts",
+                  "with": "projects/shared/core/src/environments/environment.prod.ts"
                 }
               ]
             },

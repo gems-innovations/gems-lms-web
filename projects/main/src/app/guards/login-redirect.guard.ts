@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthSessionService } from 'auth';
+import { AuthSessionService } from 'auth/core';
 
 /** If the user is already authenticated, redirect them to their role home page. */
 export const loginRedirectGuard: CanActivateFn = () => {

@@ -27,6 +27,12 @@
       "shared": [
         "./dist/shared"
       ],
+      "shared/core": [
+        "./dist/shared/core"
+      ],
+      "auth/core": [
+        "./dist/auth/core"
+      ],
       "@gems-lms-web/instructor": [
         "./dist/instructor"
       ],

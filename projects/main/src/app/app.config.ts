@@ -14,7 +14,7 @@ import { isDevMode } from '@angular/core';
 
 import { provideMarkdown } from 'ngx-markdown';
 import { routes } from './app.routes';
-import { AuthSessionService, authInterceptor } from 'auth';
+import { AuthSessionService, authInterceptor } from 'auth/core';
 import { AppTitleStrategy } from './app-title.strategy';
 import { ClientErrorHandler } from './client-error-handler';
 

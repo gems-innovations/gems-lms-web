@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { UserService } from '../infrastructure/services/user.service';
-import { AuthSessionService } from '../infrastructure/services/auth-session.service';
+import { AuthSessionService } from 'auth/core';
 
 describe('PASSWORD_RULE', () => {
   it('accepts what the API accepts', () => {

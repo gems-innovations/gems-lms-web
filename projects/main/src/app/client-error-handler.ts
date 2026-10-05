@@ -1,5 +1,5 @@
 import { ErrorHandler, Injectable, inject } from '@angular/core';
-import { ClientErrorJournal } from 'shared';
+import { ClientErrorJournal } from 'shared/core';
 
 @Injectable()
 export class ClientErrorHandler implements ErrorHandler {

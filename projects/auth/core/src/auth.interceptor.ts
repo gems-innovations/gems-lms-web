@@ -2,8 +2,8 @@ import { inject } from '@angular/core';
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-import { environment, BrandingService } from 'shared';
-import { AuthSessionService } from '../services/auth-session.service';
+import { environment, BrandingService } from 'shared/core';
+import { AuthSessionService } from './auth-session.service';
 
 /**
  * Adds the JWT to every request sent to the API gateway and ends the session when the

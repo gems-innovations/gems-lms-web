@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthSessionService, getRoleHomePath } from 'auth';
+import { AuthSessionService, getRoleHomePath } from 'auth/core';
 
 @Component({
   selector: 'app-not-found',

@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { BrandingService } from 'shared';
+import { BrandingService } from 'shared/core';
 
 export type ThemePreference = 'institution' | 'dark' | 'light';
 export interface DisplayPreferences { theme: ThemePreference; compact: boolean; reducedMotion: boolean; }

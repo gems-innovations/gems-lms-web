@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { environment } from 'shared';
 import { UserService } from './user.service';
-import { EUserRole } from '../../domain/model/user.model';
+import { EUserRole } from 'auth/core';
 
 describe('UserService', () => {
   let service: UserService;

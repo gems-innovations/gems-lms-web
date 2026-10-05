@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserService } from '../infrastructure/services/user.service';
-import { AuthSessionService } from '../infrastructure/services/auth-session.service';
+import { AuthSessionService } from 'auth/core';
 import { Subject, EMPTY } from 'rxjs';
 import { switchMap, tap, catchError } from 'rxjs/operators';
 import { ILoginCredentials } from '../domain/model/login-credentials.model';
