@@ -3,8 +3,10 @@
     @if (svgIcon()) {
       <span [innerHTML]="svgIcon()"></span>
     } @else {
-      <!-- Default icon slot -->
-      <ng-content select="[icon]" />
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="4" y="4" width="16" height="16" rx="4" />
+        <path d="M8 12h8M12 8v8" />
+      </svg>
     }
   </div>
 

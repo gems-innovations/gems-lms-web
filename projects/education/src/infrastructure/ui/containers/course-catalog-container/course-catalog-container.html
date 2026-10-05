@@ -11,7 +11,14 @@
   />
 
   @if (uc.isLoading()) {
-    <lib-loading-skeleton [rows]="6" />
+    <lib-loading-skeleton type="card" [rows]="6" />
+  } @else if (uc.loadError()) {
+    <lib-empty-state
+      title="No pudimos cargar el catálogo"
+      description="Comprueba tu conexión e inténtalo de nuevo. Tus filtros se conservarán."
+      actionLabel="Reintentar"
+      (action)="uc.load()"
+    />
   } @else if (uc.filtered().length === 0) {
     <lib-empty-state
       title="Sin resultados"

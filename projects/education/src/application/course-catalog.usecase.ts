@@ -29,6 +29,7 @@ export class CourseCatalogUseCase {
   private readonly _enrolledIds     = signal<string[]>([]);
   private readonly _enrolledPathIds = signal<string[]>([]);
   private readonly _isLoading       = signal(true);
+  private readonly _loadError       = signal(false);
   private readonly _search          = signal('');
   private readonly _filterKind      = signal<TCatalogKindFilter>('all');
   private readonly _filterLevel     = signal<TCatalogLevelFilter>('all');
@@ -37,6 +38,7 @@ export class CourseCatalogUseCase {
   private readonly _eligibility     = signal<Record<string, IEligibility>>({});
 
   readonly isLoading   = computed(() => this._isLoading());
+  readonly loadError   = this._loadError.asReadonly();
   readonly search      = computed(() => this._search());
   readonly filterKind  = computed(() => this._filterKind());
   readonly filterLevel = computed(() => this._filterLevel());
@@ -76,7 +78,7 @@ export class CourseCatalogUseCase {
     });
 
     this.load$.pipe(
-      tap(() => this._isLoading.set(true)),
+      tap(() => { this._isLoading.set(true); this._loadError.set(false); }),
       switchMap(() => forkJoin({
         courses: this.courseService.getCourses(),
         paths: this.pathService.getLearningPaths(),
@@ -112,12 +114,13 @@ export class CourseCatalogUseCase {
             }));
 
           this._allItems.set([...courseItems, ...pathItems]);
+          this._loadError.set(false);
           this._enrolledIds.set(enrollments.map(e => e.courseId));
           this._enrolledPathIds.set(pathEnrollments.map(e => e.learningPathId));
           this._isLoading.set(false);
           this.loadEligibility(courseItems.map(c => c.id).filter(id => !this._enrolledIds().includes(id)));
         }),
-        catchError(() => { this._isLoading.set(false); return EMPTY; })
+        catchError(() => { this._isLoading.set(false); this._loadError.set(true); return EMPTY; })
       )),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe();
@@ -134,7 +137,7 @@ export class CourseCatalogUseCase {
           )
         : this.enrollmentService.enrollInPath(item.id).pipe(
             tap(() => this._enrolledPathIds.update(ids => [...ids, item.id])),
-            catchError(() => EMPTY)
+            catchError(() => { this.toast.error('No se pudo completar la inscripción en la ruta'); return EMPTY; })
           )
       ),
       takeUntilDestroyed(this.destroyRef)

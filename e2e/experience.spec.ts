@@ -39,6 +39,17 @@ async function signInAs(page: Page, userEmail: string, userPassword: string, des
 }
 
 test.describe('experiencia y accesibilidad', () => {
+  test('el catálogo distingue un error de carga de una lista vacía y permite reintentar', async ({ page }) => {
+    test.skip(!studentEmail || !password, 'Define las credenciales E2E del estudiante.');
+    await page.route('**/api/v1/courses**', route => route.abort());
+    await signInAs(page, studentEmail!, password!, /\/learn\//);
+    await page.goto('/learn/catalog');
+    await expect(page.getByRole('heading', { name: 'No pudimos cargar el catálogo' })).toBeVisible();
+    await page.unroute('**/api/v1/courses**');
+    await page.getByRole('button', { name: 'Reintentar' }).click();
+    await expect(page.getByRole('heading', { name: 'No pudimos cargar el catálogo' })).toBeHidden();
+  });
+
   test('la pantalla de acceso no tiene violaciones graves de accesibilidad', async ({ page }) => {
     await page.goto('/auth/signin');
     await expect(page).toHaveTitle('Iniciar sesión | GEMS LMS');
@@ -94,6 +105,11 @@ test.describe('experiencia y accesibilidad', () => {
       const bell = await page.getByRole('button', { name: 'Notificaciones' }).boundingBox();
       const rail = await page.locator(role.sidebar).boundingBox();
       expect(bell!.x + bell!.width).toBeLessThanOrEqual(rail!.x + rail!.width);
+      const account = page.locator(role.sidebar).locator('.app-sidebar__user, .slayout__user');
+      const profile = await account.getByRole('link', { name: 'Abrir mi perfil' }).boundingBox();
+      const signout = await account.getByRole('button', { name: 'Cerrar sesión' }).boundingBox();
+      expect(bell!.x).toBeGreaterThanOrEqual(profile!.x + profile!.width - 1);
+      expect(bell!.x + bell!.width).toBeLessThanOrEqual(signout!.x + 1);
       await page.getByRole('button', { name: 'Notificaciones' }).click();
       const panel = page.getByRole('dialog', { name: 'Notificaciones' });
       await expect(panel).toBeVisible();

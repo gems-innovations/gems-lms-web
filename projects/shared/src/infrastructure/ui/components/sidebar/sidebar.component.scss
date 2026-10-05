@@ -126,7 +126,7 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 0.875rem 0 72px;
+    padding: 0.875rem 0;
 
     &::-webkit-scrollbar { width: 2px; }
     &::-webkit-scrollbar-track { background: transparent; }

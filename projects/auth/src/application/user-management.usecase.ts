@@ -117,7 +117,7 @@ export class UserManagementUseCase {
       switchMap(id =>
         this.userService.toggleUserStatus(id).pipe(
           tap(updated => this._users.update(us => us.map(u => u.id === updated.id ? updated : u))),
-          catchError(() => EMPTY)
+          catchError(() => { this.toast.error('No se pudo cambiar el estado del usuario. Reintenta.'); return EMPTY; })
         )
       ),
       takeUntilDestroyed(this.destroyRef)

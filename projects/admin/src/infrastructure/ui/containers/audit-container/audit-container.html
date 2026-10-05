@@ -12,11 +12,11 @@
   <section class="audit__card">
     <div class="audit__summary"><strong>{{ total() }}</strong> operaciones registradas</div>
     @if (loading()) {
-      <div class="audit__state">Cargando historial…</div>
+      <lib-loading-skeleton [rows]="5" />
     } @else if (error()) {
-      <div class="audit__state audit__state--error">{{ error() }} <button (click)="load()">Reintentar</button></div>
+      <lib-empty-state title="No pudimos cargar la auditoría" description="Comprueba tu conexión y vuelve a intentarlo." actionLabel="Reintentar" (action)="load()" />
     } @else if (events().length === 0) {
-      <div class="audit__state">No hay operaciones para estos filtros.</div>
+      <lib-empty-state title="Sin operaciones" description="No hay registros para los filtros seleccionados." />
     } @else {
       <div class="audit__table-wrap">
         <table>

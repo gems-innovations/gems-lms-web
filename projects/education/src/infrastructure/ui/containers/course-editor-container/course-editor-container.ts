@@ -5,11 +5,12 @@ import { CourseEditorUseCase } from '../../../../application/course-editor.useca
 import { CourseEditorTopbar } from '../../components/course-editor-topbar/course-editor-topbar';
 import { CourseCurriculumTree } from '../../components/course-curriculum-tree/course-curriculum-tree';
 import { CourseEditorPanel } from '../../components/course-editor-panel/course-editor-panel';
+import { LoadingSkeletonComponent, EmptyStateComponent } from 'shared';
 
 @Component({
   selector: 'edu-course-editor-container',
   standalone: true,
-  imports: [CourseEditorTopbar, CourseCurriculumTree, CourseEditorPanel],
+  imports: [CourseEditorTopbar, CourseCurriculumTree, CourseEditorPanel, LoadingSkeletonComponent, EmptyStateComponent],
   templateUrl: './course-editor-container.html',
   host: { class: 'ceditor' },
   changeDetection: ChangeDetectionStrategy.OnPush,

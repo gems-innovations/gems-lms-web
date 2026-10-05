@@ -22,6 +22,7 @@ export class NotificationBell {
   readonly align = input<'left' | 'right'>('right');
   /** Opens the panel upwards (e.g. when the bell sits at the bottom of a sidebar). */
   readonly up = input(false);
+  readonly footer = input(false);
 
   protected readonly open = signal(false);
 

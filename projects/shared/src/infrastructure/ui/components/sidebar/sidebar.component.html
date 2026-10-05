@@ -102,6 +102,7 @@
           <div class="sidebar__user-email">{{ userProfile.email }}</div>
           <div class="sidebar__user-role">{{ userProfile.role }}</div>
         </div>
+        <ng-content select="[sidebar-notifications]" />
         <button 
           class="sidebar__logout-btn"
           (click)="handleLogout()"

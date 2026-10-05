@@ -5,6 +5,35 @@
   z-index: 1100;
   display: inline-flex;
 
+  &--footer {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    flex: 0 0 auto;
+    z-index: auto;
+
+    .nbell__button {
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--color-texto-terciario);
+
+      &:hover, &:focus-visible {
+        background: var(--color-fondo-hover);
+        color: var(--color-primario);
+      }
+    }
+
+    .nbell__panel {
+      position: fixed;
+      left: 12px;
+      bottom: 68px;
+      max-height: min(420px, calc(100vh - 88px));
+    }
+  }
+
   &__button {
     position: relative;
     display: inline-flex;
@@ -137,5 +166,11 @@
     bottom: 172px;
 
     &__panel { max-height: min(420px, calc(100vh - 220px)); }
+  }
+
+  .nbell--footer {
+    bottom: auto;
+    .nbell__button { width: 34px; height: 34px; }
+    .nbell__panel { bottom: 64px; max-height: min(420px, calc(100vh - 84px)); }
   }
 }

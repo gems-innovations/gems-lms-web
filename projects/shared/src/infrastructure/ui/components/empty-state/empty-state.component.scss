@@ -10,25 +10,25 @@
   &__icon {
     width: 64px;
     height: 64px;
-    background: var(--color-superficie-alta, #26233d);
+    background: var(--color-superficie-alta);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 8px;
-    color: var(--color-texto-secundario, #b8b5c8);
+    color: var(--color-primario);
   }
 
   &__title {
     font-size: 16px;
     font-weight: 600;
-    color: var(--color-texto-principal, #f8fafc);
+    color: var(--color-texto-principal);
     margin: 0;
   }
 
   &__desc {
     font-size: 13.5px;
-    color: var(--color-texto-secundario, #b8b5c8);
+    color: var(--color-texto-secundario);
     margin: 0;
     max-width: 360px;
     line-height: 1.6;
@@ -37,8 +37,8 @@
   &__btn {
     margin-top: 8px;
     padding: 8px 20px;
-    background: #4F46E5;
-    color: #fff;
+    background: var(--color-primario-accion);
+    color: var(--color-sobre-primario);
     border: none;
     border-radius: 8px;
     font-size: 13.5px;
@@ -46,6 +46,7 @@
     cursor: pointer;
     transition: background .15s;
 
-    &:hover { background: #4338ca; }
+    &:hover { filter: brightness(1.08); }
+    &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
   }
 }

@@ -7,9 +7,9 @@
     [menuItems]="menuItems"
     [userProfile]="userProfile()"
     (onLogout)="logout()"
-  />
-
-  <edu-notification-bell />
+  >
+    <edu-notification-bell sidebar-notifications [footer]="true" />
+  </lib-app-sidebar>
 
   <!-- ── Main content ─────────────────────────────────────────────────────── -->
   <main class="ilayout__main" [class.ilayout__main--full]="isFullWidthRoute()">

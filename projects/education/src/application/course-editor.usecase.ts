@@ -43,6 +43,7 @@ export class CourseEditorUseCase {
   private readonly _selectedItem = signal<ISelectedItem>({ type: 'course' });
 
   readonly isLoading    = computed(() => this.courseUc.isLoading());
+  readonly loadError    = computed(() => this.courseUc.error());
   readonly courseId     = computed(() => this._courseId());
   readonly selectedItem = computed(() => this._selectedItem());
 
@@ -79,6 +80,8 @@ export class CourseEditorUseCase {
     this._courseId.set(courseId);
     if (this.courseUc.courses().length === 0) this.courseUc.load();
   }
+
+  retry(): void { this.courseUc.load(); }
 
   selectCoursePanel(): void { this._selectedItem.set({ type: 'course' }); }
   selectModule(moduleId: string): void { this._selectedItem.set({ type: 'module', moduleId }); }

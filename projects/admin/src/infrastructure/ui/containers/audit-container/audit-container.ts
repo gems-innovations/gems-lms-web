@@ -1,13 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PageComponent, PageHeaderComponent } from 'shared';
+import { PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent } from 'shared';
 import { AuditService } from '../../../services/audit.service';
 import { IAuditEvent } from '../../../../domain/model/audit-event.model';
 
 @Component({
   selector: 'adm-audit-container',
-  imports: [CommonModule, FormsModule, PageComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent],
   templateUrl: './audit-container.html',
   styleUrl: './audit-container.scss',
 })

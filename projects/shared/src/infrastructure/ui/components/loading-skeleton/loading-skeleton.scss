@@ -36,9 +36,9 @@
   gap: vars.$spacing-md;
   align-items: center;
   padding: vars.$spacing-md;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--color-superficie);
   border-radius: vars.$border-radius-md;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-borde-principal);
 
   @media (max-width: 1024px) {
     grid-template-columns: 60px 2fr 1fr 1fr 120px;
@@ -51,16 +51,23 @@
 }
 
 .skeleton-cell {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite linear;
+  background: var(--color-superficie-alta);
+  position: relative;
+  overflow: hidden;
   border-radius: vars.$border-radius-sm;
 }
+
+.skeleton-cell::after,
+.skeleton-icon::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-texto-principal) 7%, transparent), transparent);
+  transform: translateX(-100%);
+  animation: skeleton-sweep 1.8s ease-in-out infinite;
+}
+
+@keyframes skeleton-sweep { to { transform: translateX(100%); } }
 
 .skeleton-avatar {
   width: 48px;
@@ -97,14 +104,9 @@
   width: 32px;
   height: 32px;
   border-radius: vars.$border-radius-sm;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite linear;
+  background: var(--color-superficie-alta);
+  position: relative;
+  overflow: hidden;
 }
 
 // Card skeleton (for mobile)
@@ -116,10 +118,17 @@
 
 .skeleton-card {
   padding: vars.$spacing-md;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--color-superficie);
   border-radius: vars.$border-radius-lg;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-borde-principal);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-cell::after, .skeleton-icon::after { animation: none; display: none; }
+}
+
+:host-context(html.reduce-motion) .skeleton-cell::after,
+:host-context(html.reduce-motion) .skeleton-icon::after { animation: none; display: none; }
 
 .skeleton-card-header {
   display: flex;
