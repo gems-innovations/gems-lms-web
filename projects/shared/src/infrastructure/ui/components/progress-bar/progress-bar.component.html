@@ -2,6 +2,7 @@
   <div
     class="pbar__track"
     role="progressbar"
+    [attr.aria-label]="label()"
     [attr.aria-valuenow]="percentage()"
     [attr.aria-valuemin]="0"
     [attr.aria-valuemax]="100"

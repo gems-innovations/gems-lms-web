@@ -12,7 +12,7 @@
   </lib-app-sidebar>
 
   <!-- ── Main content ─────────────────────────────────────────────────────── -->
-  <main class="ilayout__main" [class.ilayout__main--full]="isFullWidthRoute()">
+  <main class="ilayout__main" tabindex="0" aria-label="Contenido" [class.ilayout__main--full]="isFullWidthRoute()">
     <div class="ilayout__inner" [class.ilayout__inner--full]="isFullWidthRoute()">
       <router-outlet />
     </div>

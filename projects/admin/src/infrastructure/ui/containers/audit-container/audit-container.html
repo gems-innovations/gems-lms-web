@@ -18,7 +18,7 @@
     } @else if (events().length === 0) {
       <lib-empty-state title="Sin operaciones" description="No hay registros para los filtros seleccionados." />
     } @else {
-      <div class="audit__table-wrap">
+      <div class="audit__table-wrap" tabindex="0" role="region" aria-label="Historial de auditoría">
         <table>
           <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Recurso</th><th>Resultado</th><th>IP</th></tr></thead>
           <tbody>

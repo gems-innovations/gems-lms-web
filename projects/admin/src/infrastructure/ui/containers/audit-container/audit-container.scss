@@ -132,14 +132,14 @@ td small { display: block; margin-top: .27rem; color: var(--color-texto-terciari
   border: 1px solid color-mix(in srgb, #38bdf8 25%, transparent);
   border-radius: 999px;
   background: color-mix(in srgb, #38bdf8 12%, transparent);
-  color: #7dd3fc;
+  color: var(--color-info);
   font-size: .72rem;
   font-weight: 700;
 }
-.audit__action--update { border-color: color-mix(in srgb, #fbbf24 25%, transparent); background: color-mix(in srgb, #fbbf24 12%, transparent); color: #fcd34d; }
-.audit__action--delete { border-color: color-mix(in srgb, #fb7185 25%, transparent); background: color-mix(in srgb, #fb7185 12%, transparent); color: #fda4af; }
-.audit__status-ok { color: #6ee7b7; font-weight: 750; }
-.audit__status-error { color: #fda4af; font-weight: 750; }
+.audit__action--update { border-color: color-mix(in srgb, #fbbf24 25%, transparent); background: color-mix(in srgb, #fbbf24 12%, transparent); color: var(--color-advertencia); }
+.audit__action--delete { border-color: color-mix(in srgb, #fb7185 25%, transparent); background: color-mix(in srgb, #fb7185 12%, transparent); color: var(--color-error); }
+.audit__status-ok { color: var(--color-exito); font-weight: 750; }
+.audit__status-error { color: var(--color-error); font-weight: 750; }
 
 .audit__pagination { display: flex; align-items: center; justify-content: flex-end; gap: .85rem; padding: 1rem 1.35rem; border-top: 1px solid var(--color-borde-principal); color: var(--color-texto-terciario); font-size: .8rem; }
 

@@ -33,7 +33,7 @@
               </div>
             </div>
             <div class="ins-stats__course-bar">
-              <lib-progress-bar [value]="row.avgProgress" size="sm" variant="primary" [showLabel]="true" />
+              <lib-progress-bar [value]="row.avgProgress" size="sm" variant="primary" [showLabel]="true" [label]="'Avance promedio en ' + row.course.title" />
             </div>
             <div class="ins-stats__course-meta">
               <span>{{ row.studentCount }} estudiantes</span>

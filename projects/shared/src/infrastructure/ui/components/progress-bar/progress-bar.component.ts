@@ -19,6 +19,8 @@ export class ProgressBarComponent {
   readonly size      = input<ProgressSize>('sm');
   readonly showLabel = input<boolean>(false);
   readonly animated  = input<boolean>(false);
+  /** What the bar measures, for screen readers (e.g. "Avance de Docker"). */
+  readonly label     = input<string>('Progreso');
 
   readonly percentage = computed(() => {
     const pct = Math.min(Math.max((this.value() / this.max()) * 100, 0), 100);

@@ -21,7 +21,8 @@
     }
 
     &--inactive {
-      opacity: 0.6;
+      // The status badge says it; dimming the text would break contrast.
+      background: var(--color-fondo-sutil);
     }
 
     @media (max-width: 560px) {

@@ -43,7 +43,7 @@
   // ROLES DE USUARIO
   // =========================================================================
   --color-rol-super: #F59E0B;
-  --color-rol-admin: #8B5CF6;
+  --color-rol-admin: #A78BFA;
   --color-rol-instructor: #0EA5E9;
   --color-rol-estudiante: #10B981;
 
@@ -199,6 +199,19 @@
   --color-advertencia-texto: #92400E;
   --color-error-texto: #B91C1C;
   --color-teal-texto: #0F766E;
+
+  // Acentos: en fondos claros los tonos del tema oscuro no alcanzan 4.5:1 como texto.
+  --color-primario-claro: #5848B8;
+  --color-teal: #0F766E;
+  --color-acento: #0E7490;
+  --color-info: #0369A1;
+  --color-exito: #065F46;
+  --color-advertencia: #92400E;
+  --color-error: #B91C1C;
+  --color-rol-super: #92400E;
+  --color-rol-admin: #6D28D9;
+  --color-rol-instructor: #0369A1;
+  --color-rol-estudiante: #065F46;
 
   --color-scrollbar: rgba(0, 0, 0, 0.12);
   --color-scrollbar-hover: rgba(0, 0, 0, 0.2);

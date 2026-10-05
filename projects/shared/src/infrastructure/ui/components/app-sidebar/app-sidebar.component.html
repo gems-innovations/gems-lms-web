@@ -1,7 +1,7 @@
 <aside class="app-sidebar" [class.app-sidebar--collapsed]="collapsed()">
 
   <!-- Brand -->
-  <a class="app-sidebar__brand" [routerLink]="brandRoute()">
+  <a class="app-sidebar__brand" [routerLink]="brandRoute()" [attr.aria-label]="'Ir al inicio de ' + brandLabel()">
     <div class="app-sidebar__brand-icon">
       <img src="/logo-144.png" width="30" height="30" alt="" aria-hidden="true" />
     </div>
