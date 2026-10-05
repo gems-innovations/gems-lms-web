@@ -70,7 +70,6 @@ export class StudentLayout implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routerSub?.unsubscribe();
-    this.brandingService.reset();
   }
 
   goToAdmin(): void {

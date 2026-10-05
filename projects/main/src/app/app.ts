@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthSessionService } from 'auth';
+import { DisplayPreferencesService } from 'auth';
 import { CommandPaletteComponent } from './command-palette/command-palette.component';
 import { OnboardingService } from './onboarding.service';
 import { AppStatusService } from './app-status.service';
@@ -15,6 +16,7 @@ import { AppStatusService } from './app-status.service';
 })
 export class App {
   readonly session = inject(AuthSessionService);
+  private readonly display = inject(DisplayPreferencesService);
   readonly onboarding = inject(OnboardingService);
   readonly appStatus = inject(AppStatusService);
 

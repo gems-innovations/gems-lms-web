@@ -11,11 +11,12 @@ export interface IBrandingConfig {
 @Injectable({ providedIn: 'root' })
 export class BrandingService {
   private readonly document = inject(DOCUMENT);
+  private readonly themePreference = signal<'institution' | 'dark' | 'light'>('institution');
 
   private readonly _config = signal<IBrandingConfig | null>(null);
   readonly config = computed(() => this._config());
-  // Dark is the global default — isDark is true unless institution explicitly opts into light.
-  readonly isDark = computed(() => this._config()?.darkMode !== false);
+  readonly isDark = computed(() => this.themePreference() === 'dark'
+    || (this.themePreference() === 'institution' && this._config()?.darkMode !== false));
 
   apply(config: IBrandingConfig): void {
     this._config.set(config);
@@ -32,13 +33,12 @@ export class BrandingService {
     root.style.setProperty('--color-primario-trans-10', config.colorPrimary + '1a'); // 10% opacity
     root.style.setProperty('--color-primario-trans-20', config.colorPrimary + '33'); // 20% opacity
 
-    // Dark is the global default. Only add 'light-mode' when the institution
-    // explicitly prefers a light theme (darkMode === false).
-    if (config.darkMode === false) {
-      root.classList.add('light-mode');
-    } else {
-      root.classList.remove('light-mode');
-    }
+    this.applyTheme();
+  }
+
+  setThemePreference(preference: 'institution' | 'dark' | 'light'): void {
+    this.themePreference.set(preference);
+    this.applyTheme();
   }
 
   reset(): void {
@@ -50,7 +50,13 @@ export class BrandingService {
     root.style.removeProperty('--color-secundario');
     root.style.removeProperty('--color-primario-trans-10');
     root.style.removeProperty('--color-primario-trans-20');
-    root.classList.remove('light-mode');
+    this.applyTheme();
+  }
+
+  private applyTheme(): void {
+    const light = this.themePreference() === 'light'
+      || (this.themePreference() === 'institution' && this._config()?.darkMode === false);
+    this.document.documentElement.classList.toggle('light-mode', light);
   }
 
   private accessibleAction(color: string): { background: string; foreground: '#FFFFFF' } {

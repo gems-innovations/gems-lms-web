@@ -60,7 +60,6 @@ export class InstructorLayout implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routerSub?.unsubscribe();
-    this.brandingService.reset();
   }
 
   logout(): void { this.logoutUseCase.logout(); }

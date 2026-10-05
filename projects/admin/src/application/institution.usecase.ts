@@ -1,8 +1,8 @@
-import { inject, Injectable, signal, computed, DestroyRef, effect } from '@angular/core';
+import { inject, Injectable, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InstitutionState } from '../domain/state/institution.state';
 import { InstitutionService } from '../infrastructure/services/institution.service';
-import { ToastService, BrandingService } from '@gems-lms-web/shared';
+import { ToastService } from '@gems-lms-web/shared';
 import { AuthSessionService } from 'auth';
 import { Subject, EMPTY } from 'rxjs';
 import { tap, switchMap, catchError } from 'rxjs/operators';
@@ -42,7 +42,6 @@ export class InstitutionUseCase {
   private readonly institutionService = inject(InstitutionService);
   private readonly institutionState   = inject(InstitutionState);
   private readonly toastService       = inject(ToastService);
-  private readonly brandingService    = inject(BrandingService);
   private readonly authSession        = inject(AuthSessionService);
 
   //#region State
@@ -150,23 +149,6 @@ export class InstitutionUseCase {
   //#endregion
 
   constructor() {
-    effect(() => {
-      const { isOpen, mode } = this._modal();
-      if (!isOpen || mode !== 'view') {
-        this.brandingService.reset();
-        return;
-      }
-      const inst = this.institutionForModal();
-      if (inst) {
-        this.brandingService.apply({
-          colorPrimary:   inst.branding.colorPrimary,
-          colorSecondary: inst.branding.colorSecondary,
-          logoUrl:        inst.branding.logoUrl,
-          darkMode:       inst.branding.darkMode
-        });
-      }
-    });
-
     this.load$.pipe(
       tap(() => this._isLoading.set(true)),
       switchMap(({ filters, page = 1, limit = 10 }) =>

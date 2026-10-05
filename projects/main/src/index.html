@@ -10,7 +10,14 @@
   <link rel="apple-touch-icon" href="logo-192.png">
   <meta name="theme-color" content="#17152a">
   <meta name="description" content="GEMS LMS: aprendizaje, formación y seguimiento en un solo lugar.">
-  <script>document.documentElement.classList.add('light-mode')</script>
+  <script>
+    try {
+      const preference = JSON.parse(localStorage.getItem('gems-display-preferences') || '{}').theme;
+      const branding = JSON.parse(localStorage.getItem('gems_session') || '{}').branding;
+      document.documentElement.classList.toggle('light-mode',
+        preference === 'light' || (preference !== 'dark' && branding?.darkMode === false));
+    } catch { document.documentElement.classList.remove('light-mode'); }
+  </script>
   <!-- Runtime configuration (API URL); see public/config.js -->
   <script src="config.js"></script>
 </head>

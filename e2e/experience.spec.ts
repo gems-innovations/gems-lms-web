@@ -5,6 +5,7 @@ const email = process.env.E2E_ADMIN_EMAIL;
 const password = process.env.E2E_ADMIN_PASSWORD;
 const instructorEmail = process.env.E2E_INSTRUCTOR_EMAIL;
 const studentEmail = process.env.E2E_STUDENT_EMAIL;
+const superAdminEmail = process.env.E2E_SUPER_ADMIN_EMAIL;
 
 async function dismissTour(page: Page): Promise<void> {
   const closeTour = page.locator('.driver-popover-close-btn');
@@ -90,6 +91,9 @@ test.describe('experiencia y accesibilidad', () => {
       await expect(page.locator(role.sidebar)).toBeVisible();
       await expect(page.locator(role.logo)).toHaveJSProperty('naturalWidth', 144);
 
+      const bell = await page.getByRole('button', { name: 'Notificaciones' }).boundingBox();
+      const rail = await page.locator(role.sidebar).boundingBox();
+      expect(bell!.x + bell!.width).toBeLessThanOrEqual(rail!.x + rail!.width);
       await page.getByRole('button', { name: 'Notificaciones' }).click();
       const panel = page.getByRole('dialog', { name: 'Notificaciones' });
       await expect(panel).toBeVisible();
@@ -170,6 +174,59 @@ test.describe('experiencia y accesibilidad', () => {
     await expect(page.locator('html')).toHaveClass(/light-mode/);
     await expect.poll(() => page.evaluate(() => localStorage.getItem('gems-display-preferences')))
       .toContain('"compact":true');
+  });
+
+  test('claro y oscuro permanecen estables al navegar y abrir notificaciones en cada rol', async ({ page }) => {
+    test.setTimeout(100_000);
+    test.skip(!email || !password || !instructorEmail || !studentEmail,
+      'Define las credenciales E2E de administrador, instructor y estudiante.');
+
+    const roles = [
+      { email: email!, destination: /\/admin\//, home: '/admin/dashboard' },
+      { email: instructorEmail!, destination: /\/instructor/, home: '/instructor/courses' },
+      { email: studentEmail!, destination: /\/learn\//, home: '/learn/my-learning' },
+    ];
+
+    for (const role of roles) {
+      await signInAs(page, role.email, password!, role.destination);
+      await page.goto('/account/profile');
+      await page.getByRole('button', { name: 'Claro' }).click();
+      await expect(page.locator('html')).toHaveClass(/light-mode/);
+      await page.goto(role.home);
+      await expect(page.locator('html')).toHaveClass(/light-mode/);
+      await page.getByRole('button', { name: 'Notificaciones' }).click();
+      await expect(page.locator('html')).toHaveClass(/light-mode/);
+
+      await page.goto('/account/profile');
+      await page.getByRole('button', { name: 'Oscuro' }).click();
+      await expect(page.locator('html')).not.toHaveClass(/light-mode/);
+      await page.goto(role.home);
+      await expect(page.locator('html')).not.toHaveClass(/light-mode/);
+      await page.getByRole('button', { name: 'Notificaciones' }).click();
+      await expect(page.locator('html')).not.toHaveClass(/light-mode/);
+      await page.evaluate(() => localStorage.removeItem('gems_session'));
+      await page.goto('/auth/signin');
+    }
+  });
+
+  test('la vista previa de instituciones respeta el tema elegido por el usuario', async ({ page }) => {
+    test.skip(!superAdminEmail || !password,
+      'Define E2E_SUPER_ADMIN_EMAIL y E2E_ADMIN_PASSWORD para verificar instituciones.');
+    await signInAs(page, superAdminEmail!, password!, /\/admin\//);
+    for (const theme of ['Claro', 'Oscuro'] as const) {
+      await page.goto('/admin/profile');
+      await page.getByRole('button', { name: theme }).click();
+      const expectsLight = theme === 'Claro';
+      await page.goto('/admin/institutions');
+      const details = page.getByRole('button', { name: 'Ver detalles de la institución' }).first();
+      await expect(details).toBeVisible();
+      await details.click();
+      if (expectsLight) await expect(page.locator('html')).toHaveClass(/light-mode/);
+      else await expect(page.locator('html')).not.toHaveClass(/light-mode/);
+      await page.getByRole('button', { name: 'Cerrar', exact: true }).last().click();
+      if (expectsLight) await expect(page.locator('html')).toHaveClass(/light-mode/);
+      else await expect(page.locator('html')).not.toHaveClass(/light-mode/);
+    }
   });
 
   test('la guía se puede abrir manualmente', async ({ page }) => {

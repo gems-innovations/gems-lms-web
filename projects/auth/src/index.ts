@@ -50,6 +50,7 @@ export { UserState } from './domain/state/user.state';
 
 // Application
 export { AuthSessionService } from './infrastructure/services/auth-session.service';
+export { DisplayPreferencesService } from './infrastructure/services/display-preferences.service';
 export { LoginUseCase } from './application/login.usecase';
 export { LogoutUseCase } from './application/logout.usecase';
 export { PasswordUseCase } from './application/password.usecase';

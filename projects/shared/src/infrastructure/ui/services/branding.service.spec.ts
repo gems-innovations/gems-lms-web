@@ -10,7 +10,34 @@ describe('BrandingService', () => {
     service = TestBed.inject(BrandingService);
   });
 
-  afterEach(() => service.reset());
+  afterEach(() => {
+    service.setThemePreference('institution');
+    service.reset();
+  });
+
+  it('keeps an explicit light preference while branding changes or resets', () => {
+    service.setThemePreference('light');
+    service.apply({ colorPrimary: '#111827', darkMode: true });
+    expect(root.classList.contains('light-mode')).toBeTrue();
+    service.reset();
+    expect(root.classList.contains('light-mode')).toBeTrue();
+  });
+
+  it('keeps an explicit dark preference over light institution branding', () => {
+    service.setThemePreference('dark');
+    service.apply({ colorPrimary: '#7B6FF0', darkMode: false });
+    expect(root.classList.contains('light-mode')).toBeFalse();
+    service.reset();
+    expect(root.classList.contains('light-mode')).toBeFalse();
+  });
+
+  it('follows the institution only when that mode is selected', () => {
+    service.setThemePreference('institution');
+    service.apply({ colorPrimary: '#7B6FF0', darkMode: false });
+    expect(root.classList.contains('light-mode')).toBeTrue();
+    service.apply({ colorPrimary: '#7B6FF0', darkMode: true });
+    expect(root.classList.contains('light-mode')).toBeFalse();
+  });
 
   it('keeps white text legible by darkening a light institutional color on actions', () => {
     service.apply({ colorPrimary: '#7B6FF0' });
