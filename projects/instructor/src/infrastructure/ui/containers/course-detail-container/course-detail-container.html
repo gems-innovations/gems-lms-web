@@ -29,6 +29,7 @@
           { id: 'students', label: 'Estudiantes', count: uc.stats().studentCount },
           { id: 'submissions', label: 'Entregas', count: uc.stats().pendingCount },
           { id: 'gradebook', label: 'Calificaciones' },
+          { id: 'risk', label: 'En riesgo' },
           { id: 'community', label: 'Comunidad' },
           { id: 'enrollment', label: 'Inscripción' },
           { id: 'reviews', label: 'Reseñas', count: uc.reviews().length },
@@ -123,6 +124,11 @@
     <!-- ── Anuncios y foro ── -->
     @if (uc.activeTab() === 'community') {
       <edu-course-community [courseId]="courseId" />
+    }
+
+    <!-- ── Alerta temprana ── -->
+    @if (uc.activeTab() === 'risk') {
+      <ins-risk-panel [courseId]="courseId" [enrollments]="uc.enrollments()" />
     }
 
     <!-- ── Reglas de inscripción ── -->
