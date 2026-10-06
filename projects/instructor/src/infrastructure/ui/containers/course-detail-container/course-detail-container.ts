@@ -20,12 +20,13 @@ import { GradebookPanel } from '../../components/gradebook-panel/gradebook-panel
 import { CourseCommunity } from 'education';
 import { EnrollmentRulesPanel } from '../../components/enrollment-rules-panel/enrollment-rules-panel';
 import { RiskPanel } from '../../components/risk-panel/risk-panel';
+import { AccessibilityReport } from 'education';
 import type { ISubmissionRow, IGradeSubmitEvent, TCourseDetailTab } from '../../../../domain/model/instructor.model';
 
 @Component({
   selector: 'ins-course-detail-container',
   standalone: true,
-  imports: [RiskPanel, 
+  imports: [AccessibilityReport, RiskPanel, 
     DecimalPipe, PageComponent, PageHeaderComponent, StatGridComponent, StatCardComponent,
     LoadingSkeletonComponent, BackButtonComponent, TabsComponent, LibButtonComponent,
     EmptyStateComponent, LibSelectComponent, StudentsTable, GradingPanel, ReviewCard, StudentDetail, SurveyPanel,

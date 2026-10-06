@@ -70,6 +70,8 @@
           <span class="ins-detail__meta-value">{{ course.enrolledCount | number }}</span>
         </div>
       </div>
+
+      <edu-accessibility-report [course]="course" />
     }
 
     <!-- ── Estudiantes (con drill-in) ── -->

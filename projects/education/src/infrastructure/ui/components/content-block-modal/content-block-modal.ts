@@ -15,6 +15,7 @@ import {
 } from '../../../../domain/model/course.model';
 import { QuestionBankService } from '../../../services/question-bank.service';
 import type { IBankCategory } from '../../../services/question-bank.service';
+import { FileUploadService } from 'shared';
 import { LibSelectComponent, SelectOption } from 'shared';
 
 type TStep = 'type-select' | 'form';
@@ -62,6 +63,7 @@ const newQuestion = (order: number): IQuestionDraft => ({
   styleUrl: './content-block-modal.scss'
 })
 export class ContentBlockModal {
+  private readonly fileUpload = inject(FileUploadService);
   protected readonly scormOptions: SelectOption[] = [
     { value: '1.2', label: 'SCORM 1.2' },
     { value: '2004', label: 'SCORM 2004' },
@@ -94,6 +96,9 @@ export class ContentBlockModal {
   readonly videoUrl          = signal('');
   readonly videoThumbnailUrl = signal('');
   readonly videoTranscript   = signal('');
+  readonly captionsUrl       = signal('');
+  readonly captionsBusy      = signal(false);
+  readonly captionsError     = signal<string | null>(null);
 
   readonly markdownContent = signal('');
   readonly markdownPreview = signal(false);
@@ -205,6 +210,7 @@ export class ContentBlockModal {
       req.videoProvider = this.videoProvider();
       req.videoThumbnailUrl = this.videoThumbnailUrl().trim() || undefined;
       req.videoTranscript   = this.videoTranscript().trim() || undefined;
+      req.captionsUrl       = this.captionsUrl().trim() || undefined;
     }
     if (type === EContentType.DOCUMENT) { req.markdownContent = this.markdownContent(); }
     if (type === EContentType.SCORM) {
@@ -280,4 +286,20 @@ export class ContentBlockModal {
   removeFileType(ft: string): void { this.allowedFileTypes.update(list => list.filter(t => t !== ft)); }
 
   trackById(_: number, item: { id: string }): string { return item.id; }
+
+  /** Subtítulos WebVTT: se guardan como archivo público para que el reproductor los cargue. */
+  protected onCaptionsFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    if (!/\.vtt$/i.test(file.name)) { this.captionsError.set('Usa un archivo de subtítulos .vtt (WebVTT).'); return; }
+    this.captionsBusy.set(true);
+    this.captionsError.set(null);
+    const vtt = new File([file], file.name, { type: 'text/vtt' });
+    this.fileUpload.upload(vtt, 'public').subscribe({
+      next: f => { this.captionsBusy.set(false); this.captionsUrl.set(f.url); },
+      error: () => { this.captionsBusy.set(false); this.captionsError.set('No se pudieron subir los subtítulos.'); },
+    });
+  }
 }

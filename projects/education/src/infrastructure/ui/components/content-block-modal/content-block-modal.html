@@ -140,7 +140,20 @@
                 [ngModel]="videoThumbnailUrl()" (ngModelChange)="videoThumbnailUrl.set($event)" />
             </div>
             <div class="cbm__field">
-              <label class="cbm__label">Transcripción (opcional)</label>
+              <label class="cbm__label" for="cbm-captions">Subtítulos (.vtt)</label>
+              <div class="cbm__captions">
+                <input id="cbm-captions" class="cbm__input" type="url" placeholder="URL del archivo .vtt o súbelo"
+                  [ngModel]="captionsUrl()" (ngModelChange)="captionsUrl.set($event)" />
+                <label class="cbm__captions-upload" [class.cbm__captions-upload--busy]="captionsBusy()">
+                  <input type="file" accept=".vtt,text/vtt" hidden (change)="onCaptionsFile($event)" />
+                  {{ captionsBusy() ? 'Subiendo…' : 'Subir .vtt' }}
+                </label>
+              </div>
+              @if (captionsError(); as e) { <p class="cbm__error" role="alert">{{ e }}</p> }
+              <p class="cbm__hint">Se muestran en videos subidos o enlazados como archivo. En YouTube se activan los subtítulos del propio video.</p>
+            </div>
+            <div class="cbm__field">
+              <label class="cbm__label">Transcripción (recomendada)</label>
               <textarea class="cbm__textarea cbm__textarea--sm" placeholder="Texto de la transcripción…"
                 [ngModel]="videoTranscript()" (ngModelChange)="videoTranscript.set($event)"></textarea>
             </div>

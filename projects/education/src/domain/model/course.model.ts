@@ -87,6 +87,8 @@ export interface IContentBlock {
   videoProvider?: 'youtube' | 'vimeo' | 'external' | 'upload';
   videoThumbnailUrl?: string;
   videoTranscript?: string;
+  /** WebVTT subtitles for uploaded/external videos (public file URL). */
+  captionsUrl?: string;
 
   // ── DOCUMENT / MARKDOWN ──
   markdownContent?: string;
@@ -204,6 +206,8 @@ export interface ICreateContentBlockRequest {
   videoProvider?: 'youtube' | 'vimeo' | 'external' | 'upload';
   videoThumbnailUrl?: string;
   videoTranscript?: string;
+  /** WebVTT subtitles for uploaded/external videos (public file URL). */
+  captionsUrl?: string;
   // Markdown
   markdownContent?: string;
   // SCORM

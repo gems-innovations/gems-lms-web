@@ -91,8 +91,18 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   // ── Video ─────────────────────────────────────────────────────────────────
   protected readonly videoEmbedUrl = computed((): SafeResourceUrl | null => {
     const block = this.block();
-    if (!block || block.type !== EContentType.VIDEO || !block.url) return null;
+    if (!block || block.type !== EContentType.VIDEO || !block.url || this.directVideo()) return null;
     return this.sanitizer.bypassSecurityTrustResourceUrl(this.resolveVideoUrl(block));
+  });
+
+  /** Uploaded or external video files play in <video>, with subtitles and keyboard controls. */
+  protected readonly directVideo = computed(() => {
+    const block = this.block();
+    if (!block || block.type !== EContentType.VIDEO || !block.url) return null;
+    const url = block.url;
+    const hosted = /youtube|youtu\.be|vimeo/.test(url) || block.videoProvider === 'youtube' || block.videoProvider === 'vimeo';
+    const file = block.videoProvider === 'upload' || /\/files\/(public\/)?[\w-]+$|\.(mp4|webm|ogg|mov)(\?|$)/i.test(url);
+    return !hosted && file ? url : null;
   });
 
   // ── Assignment state ───────────────────────────────────────────────────────
@@ -505,12 +515,13 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
     if (url.includes('youtube') || url.includes('youtu.be') || block.videoProvider === 'youtube') {
       const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^?&]+)/);
       const id = match?.[1] ?? '';
-      return id ? `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1&enablejsapi=1` : url;
+      // Subtítulos de YouTube activados y en español cuando existen.
+      return id ? `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1&enablejsapi=1&cc_load_policy=1&cc_lang_pref=es&hl=es` : url;
     }
     if (url.includes('vimeo') || block.videoProvider === 'vimeo') {
       const match = url.match(/vimeo\.com\/(\d+)/);
       const id = match?.[1] ?? '';
-      return id ? `https://player.vimeo.com/video/${id}?title=0&byline=0&api=1` : url;
+      return id ? `https://player.vimeo.com/video/${id}?title=0&byline=0&api=1&texttrack=es` : url;
     }
     return url;
   }

@@ -205,3 +205,6 @@ export const studentRoutes: Routes = [
 ];
 export { AchievementsService } from './infrastructure/services/achievements.service';
 export type { IAchievements, IBadge } from './infrastructure/services/achievements.service';
+export { AccessibilityReport } from './infrastructure/ui/components/accessibility-report/accessibility-report';
+export { auditCourseAccessibility } from './application/content-accessibility';
+export type { IA11yIssue, IA11yReport } from './application/content-accessibility';
