@@ -18,6 +18,7 @@ const COLLAPSED_KEY = 'gems-sl-collapsed';
 export class StudentLayout implements OnInit, OnDestroy {
   private readonly authSession     = inject(AuthSessionService);
   private readonly brandingService = inject(BrandingService);
+  protected readonly institutionName = this.brandingService.institutionName;
   private readonly logoutUseCase   = inject(LogoutUseCase);
   private readonly router          = inject(Router);
   private routerSub?: Subscription;

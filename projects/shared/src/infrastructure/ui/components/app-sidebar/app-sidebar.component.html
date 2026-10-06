@@ -5,7 +5,14 @@
     <div class="app-sidebar__brand-icon">
       <img src="/logo-144.png" width="30" height="30" alt="" aria-hidden="true" />
     </div>
-    <span class="app-sidebar__brand-name">{{ brandLabel() }}</span>
+    @if (institutionName(); as org) {
+      <span class="app-sidebar__brand-text">
+        <span class="app-sidebar__brand-name app-sidebar__brand-name--org" [title]="org">{{ org }}</span>
+        <span class="app-sidebar__brand-by">por {{ brandLabel() }}</span>
+      </span>
+    } @else {
+      <span class="app-sidebar__brand-name">{{ brandLabel() }}</span>
+    }
   </a>
 
   <!-- Nav links -->

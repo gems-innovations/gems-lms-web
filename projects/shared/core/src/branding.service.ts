@@ -14,6 +14,13 @@ export class BrandingService {
   private readonly themePreference = signal<'institution' | 'dark' | 'light'>('institution');
 
   private readonly _config = signal<IBrandingConfig | null>(null);
+  private readonly _institutionName = signal<string | null>(null);
+  /** Nombre de la institución del usuario; null para el super admin o sin sesión. */
+  readonly institutionName = this._institutionName.asReadonly();
+
+  setInstitutionName(name: string | null | undefined): void {
+    this._institutionName.set(name?.trim() || null);
+  }
   readonly config = computed(() => this._config());
   readonly isDark = computed(() => this.themePreference() === 'dark'
     || (this.themePreference() === 'institution' && this._config()?.darkMode !== false));

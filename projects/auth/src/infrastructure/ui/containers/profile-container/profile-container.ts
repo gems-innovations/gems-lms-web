@@ -39,5 +39,11 @@ export class ProfileContainer implements OnInit {
     });
   }
 
+  /** La foto se guarda en cuanto se sube; no hace falta pulsar «Guardar». */
+  avatarChanged(url: string): void {
+    this.avatarUrl = url;
+    this.save();
+  }
+
   setTheme(theme: ThemePreference): void { this.display.update({ theme }); }
 }

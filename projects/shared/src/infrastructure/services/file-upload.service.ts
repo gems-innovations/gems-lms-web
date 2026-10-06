@@ -4,7 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from 'shared/core';
 
-export type TFileScope = 'public' | 'private';
+/** avatar: foto de perfil, la puede subir cualquier usuario (solo PNG/JPG/WebP/GIF, 2 MB). */
+export type TFileScope = 'public' | 'private' | 'avatar';
 
 export interface IUploadedFile {
   id: string;

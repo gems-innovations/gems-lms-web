@@ -33,6 +33,8 @@ export class ImageUploadComponent {
   private readonly files = inject(FileUploadService);
 
   readonly label = input('Subir imagen');
+  /** 'avatar' para la foto de perfil (cualquier rol, 2 MB); 'public' para imágenes del personal. */
+  readonly scope = input<'public' | 'avatar'>('public');
   readonly uploaded = output<string>();
 
   protected readonly busy = signal(false);
@@ -44,10 +46,13 @@ export class ImageUploadComponent {
     inputEl.value = '';
     if (!file) return;
     if (!file.type.startsWith('image/')) { this.error.set('Selecciona una imagen.'); return; }
-    if (file.size > MAX_UPLOAD_BYTES) { this.error.set('La imagen supera los 10 MB.'); return; }
+    const avatar = this.scope() === 'avatar';
+    if (avatar && !['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(file.type)) { this.error.set('Usa una imagen PNG, JPG, WebP o GIF.'); return; }
+    const limit = avatar ? 2 * 1024 * 1024 : MAX_UPLOAD_BYTES;
+    if (file.size > limit) { this.error.set(`La imagen supera los ${limit / (1024 * 1024)} MB.`); return; }
     this.busy.set(true);
     this.error.set(null);
-    this.files.upload(file, 'public').subscribe({
+    this.files.upload(file, this.scope()).subscribe({
       next: f => { this.busy.set(false); this.uploaded.emit(f.url); },
       error: (err: unknown) => {
         this.busy.set(false);

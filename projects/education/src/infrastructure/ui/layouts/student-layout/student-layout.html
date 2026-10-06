@@ -9,7 +9,14 @@
       <div class="slayout__brand-icon">
         <img src="/logo-144.png" width="30" height="30" alt="" aria-hidden="true" />
       </div>
-      <span class="slayout__brand-name">GEMS LMS</span>
+      @if (institutionName(); as org) {
+        <span class="slayout__brand-text">
+          <span class="slayout__brand-name slayout__brand-name--org" [title]="org">{{ org }}</span>
+          <span class="slayout__brand-by">por GEMS LMS</span>
+        </span>
+      } @else {
+        <span class="slayout__brand-name">GEMS LMS</span>
+      }
     </a>
 
     <!-- Nav links -->

@@ -29,7 +29,8 @@ $nav-closed:  60px;
       width: $nav-closed;
 
       .slayout__brand         { justify-content: center; padding: 0; height: 60px; }
-      .slayout__brand-name    { display: none; }
+      .slayout__brand-name,
+      .slayout__brand-text    { display: none; }
       .slayout__navlink       { justify-content: center; padding: 10px 0; }
       .slayout__navlink-label { display: none; }
       .slayout__user          { justify-content: center; padding: 10px 0; }
@@ -44,8 +45,8 @@ $nav-closed:  60px;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 0 16px;
-    height: 60px;
+    padding: 14px 16px 12px;
+    min-height: 68px;
     text-decoration: none;
     flex-shrink: 0;
     border-bottom: 1px solid var(--color-borde-principal);
@@ -64,6 +65,35 @@ $nav-closed:  60px;
     flex-shrink: 0;
 
     img { width: 100%; height: 100%; object-fit: contain; }
+  }
+
+  &__brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  &__brand-by {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--color-texto-terciario);
+  }
+
+  // Nombres largos pasan a una segunda línea en vez de cortarse.
+  .slayout__brand-name.slayout__brand-name--org {
+    letter-spacing: .01em;
+    text-transform: none;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    line-height: 1.25;
   }
 
   &__brand-name {
@@ -138,7 +168,7 @@ $nav-closed:  60px;
 
   &__toggle-btn {
     position: absolute;
-    top: 18px;
+    top: 22px;
     left: calc(#{$nav-open} - 12px);
     z-index: 200;
     width: 24px;
@@ -296,6 +326,7 @@ $nav-closed:  60px;
   .slayout__leftnav { width: 60px; }
   .slayout__brand { justify-content: center; padding: 0; }
   .slayout__brand-name,
+  .slayout__brand-text,
   .slayout__navlink-label,
   .slayout__user-info,
   .slayout__toggle-btn { display: none; }

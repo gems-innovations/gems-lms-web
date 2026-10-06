@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, map, catchError, tap } from 'rxjs';
 import { UserState } from './user.state';
 import { EUserRole, getRoleHomePath, IUser } from './user.model';
-import { environment, IBrandingConfig } from 'shared/core';
+import { environment, IBrandingConfig, BrandingService } from 'shared/core';
 
 const STORAGE_KEY = 'gems_session';
 
@@ -12,10 +12,12 @@ interface IStoredSession {
   user: IUser;
   token: string;
   branding?: IBrandingConfig | null;
+  institutionName?: string | null;
   mustChangePassword?: boolean;
 }
 
 interface IInstitutionBrandingResponse {
+  name?: string | null;
   branding?: {
     colorPrimary?: string | null;
     colorSecondary?: string | null;
@@ -43,6 +45,7 @@ export class AuthSessionService {
 
   private readonly _token    = signal<string | null>(null);
   private readonly _branding = signal<IBrandingConfig | null>(null);
+  private readonly brandingService = inject(BrandingService);
   private readonly _mustChangePassword = signal(false);
 
   readonly user            = this.userState.currentUser;
@@ -69,6 +72,12 @@ export class AuthSessionService {
     this.persist();
   }
 
+  /** Token renovado por el API (p. ej. tras editar el propio perfil). */
+  replaceToken(token: string): void {
+    this._token.set(token);
+    this.persist();
+  }
+
   passwordChanged(): void {
     this._mustChangePassword.set(false);
     this.persist();
@@ -83,6 +92,7 @@ export class AuthSessionService {
     this.userState.clearCurrentUser();
     this._token.set(null);
     this._branding.set(null);
+    this.brandingService.setInstitutionName(null);
     this._mustChangePassword.set(false);
     if (this.isBrowser) localStorage.removeItem(STORAGE_KEY);
   }
@@ -101,6 +111,7 @@ export class AuthSessionService {
       this.userState.setCurrentUser(parsed.user);
       this._token.set(parsed.token);
       this._branding.set(parsed.branding ?? null);
+      this.brandingService.setInstitutionName(parsed.institutionName);
       this._mustChangePassword.set(parsed.mustChangePassword === true);
     } catch {
       localStorage.removeItem(STORAGE_KEY);
@@ -126,6 +137,7 @@ export class AuthSessionService {
       .get<IInstitutionBrandingResponse>(`${environment.apiUrls.admin.institutions}/${encodeURIComponent(id)}`)
       .pipe(
         map(inst => {
+          this.brandingService.setInstitutionName(inst.name);
           const b = inst.branding;
           if (!b?.colorPrimary) return null;
           return {
@@ -149,7 +161,7 @@ export class AuthSessionService {
     const token = this._token();
     if (!user || !token) return;
     const session: IStoredSession = {
-      user, token, branding: this._branding(), mustChangePassword: this._mustChangePassword()
+      user, token, branding: this._branding(), institutionName: this.brandingService.institutionName(), mustChangePassword: this._mustChangePassword()
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
   }

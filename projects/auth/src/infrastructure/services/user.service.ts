@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { IUser, EUserRole } from 'auth/core';
+import { IUser, EUserRole, AuthSessionService } from 'auth/core';
 import { ILoginCredentials } from '../../domain/model/login-credentials.model';
 import { environment } from 'shared';
 
@@ -76,6 +76,7 @@ export function mapUser(r: IUserResponse): IUser {
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly http = inject(HttpClient);
+  private readonly session = inject(AuthSessionService);
   private readonly urls = environment.apiUrls;
 
   login(credentials: ILoginCredentials): Observable<ILoginResult> {
@@ -144,6 +145,11 @@ export class UserService {
       role: toApiRole(user.role),
       institutionId: user.institutionId ?? null,
       avatarUrl: changes.avatarUrl ?? null
-    }).pipe(map(mapUser));
+    }, { observe: 'response' }).pipe(map(res => {
+      // Editar el propio perfil cambia la versión de sesión: el API devuelve un token nuevo.
+      const token = res.headers.get('X-Session-Token');
+      if (token) this.session.replaceToken(token);
+      return mapUser(res.body!);
+    }));
   }
 }
