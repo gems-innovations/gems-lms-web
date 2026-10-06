@@ -31,6 +31,7 @@ export { BackButtonComponent } from "./infrastructure/ui/components/back-button/
 
 export { PaginationComponent } from "./infrastructure/ui/components/pagination/pagination.component";
 
+export { parseCsv, parseCsvObjects, normalizeHeader, toCsv, downloadCsv, detectDelimiter } from "./infrastructure/utils/csv";
 export { AutofocusDirective } from "./infrastructure/ui/directives/autofocus.directive";
 export { RevealDirective, CountUpDirective, AutoAnimateDirective, celebrate, prefersReducedMotion } from "./infrastructure/ui/directives/motion";
 
