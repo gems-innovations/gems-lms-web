@@ -117,3 +117,24 @@
     clip: rect(0 0 0 0);
   }
 }
+
+.periods__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--border-radius-full);
+  color: var(--color-exito-texto);
+  background: color-mix(in srgb, var(--color-exito) 12%, transparent);
+
+  &--closed {
+    color: var(--color-texto-secundario);
+    background: var(--color-fondo-sutil);
+    border: 1px solid var(--color-borde-principal);
+  }
+}
+
+.periods__link--strong { font-weight: var(--font-weight-semibold); }
+.periods__link:disabled { opacity: .5; cursor: progress; }

@@ -18,7 +18,7 @@ export { CourseCommunityService } from './infrastructure/services/course-communi
 export type { IAnnouncement, IForumThread, IForumPost } from './infrastructure/services/course-community.service';
 export { CourseCommunity } from './infrastructure/ui/components/course-community/course-community';
 export { EnrollmentRulesService, enrollmentBlockText } from './infrastructure/services/enrollment-rules.service';
-export type { IAcademicPeriod, IEnrollmentRules, IEligibility } from './infrastructure/services/enrollment-rules.service';
+export type { IAcademicPeriod, IEnrollmentRules, IEligibility , IPeriodRecord, IPeriodCloseSummary } from './infrastructure/services/enrollment-rules.service';
 export { GradebookService } from './infrastructure/services/gradebook.service';
 export type {
   IGradebook, IGradebookItem, IGradebookRow, IGradebookCell, IRubricScore, TGradebookCellState,

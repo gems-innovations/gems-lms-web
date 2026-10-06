@@ -182,6 +182,7 @@ function activityError(err: unknown): string {
     case 'NOT_ENROLLED': return 'No estás matriculado en este curso';
     case 'ATTEMPT_LIMIT_REACHED': return 'Ya usaste todos los intentos de este quiz';
     case 'SESSION_CLOSED': return 'Este intento ya fue enviado';
+    case 'PERIOD_CLOSED': return 'El período académico de este curso ya cerró; no se reciben más entregas';
     case 'SESSION_REQUIRED': case 'SESSION_NOT_FOUND': return 'El intento ya no es válido. Vuelve a iniciar la evaluación.';
     case 'BLOCK_NOT_FOUND': return 'Este contenido ya no existe. Recarga el curso.';
     default: return 'No se pudo enviar. Intenta de nuevo.';

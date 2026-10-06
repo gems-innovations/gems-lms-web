@@ -9,7 +9,33 @@ export interface IAcademicPeriod {
   /** yyyy-mm-dd */
   startsOn: string;
   endsOn: string;
+  institutionId?: string;
+  /** Set when the period is closed: grades are frozen and courses accept no more activity. */
+  closedAt?: string | null;
 }
+
+/** One line of the acta: a student's frozen result in a course of a closed period. */
+export interface IPeriodRecord {
+  courseId: string;
+  courseTitle: string;
+  studentId: string;
+  finalGrade: number | null;
+  currentGrade: number | null;
+  progress: number | null;
+  passed: boolean;
+}
+
+export interface IPeriodCloseSummary {
+  courses: number;
+  students: number;
+  passed: number;
+  failed: number;
+}
+
+const toPeriod = (p: any): IAcademicPeriod => ({
+  id: String(p.id), name: p.name, startsOn: p.startsOn, endsOn: p.endsOn,
+  institutionId: p.institutionId, closedAt: p.closedAt ?? null,
+});
 
 /** Enrollment rules of a course; null means no limit. Dates are local date-times (yyyy-mm-ddThh:mm). */
 export interface IEnrollmentRules {
@@ -65,18 +91,34 @@ export class EnrollmentRulesService {
   private readonly coursesUrl = environment.apiUrls.education.courses;
 
   periods(): Observable<IAcademicPeriod[]> {
-    return this.http.get<any[]>(this.periodsUrl).pipe(map(list => list.map(p => ({
-      id: String(p.id), name: p.name, startsOn: p.startsOn, endsOn: p.endsOn,
-    }))));
+    return this.http.get<any[]>(this.periodsUrl).pipe(map(list => list.map(toPeriod)));
   }
 
   savePeriod(value: Omit<IAcademicPeriod, 'id'>, id?: string): Observable<IAcademicPeriod> {
     const request = id ? this.http.put<any>(`${this.periodsUrl}/${id}`, value) : this.http.post<any>(this.periodsUrl, value);
-    return request.pipe(map(p => ({ id: String(p.id), name: p.name, startsOn: p.startsOn, endsOn: p.endsOn })));
+    return request.pipe(map(toPeriod));
   }
 
   deletePeriod(id: string): Observable<void> {
     return this.http.delete<void>(`${this.periodsUrl}/${id}`);
+  }
+
+  /** Freezes the final grades of the period's courses (the acta) and stops their activity. */
+  closePeriod(id: string): Observable<IPeriodCloseSummary & { period: IAcademicPeriod }> {
+    return this.http.post<any>(`${this.periodsUrl}/${id}/close`, {}).pipe(map(r => ({
+      courses: r.courses, students: r.students, passed: r.passed, failed: r.failed, period: toPeriod(r.period),
+    })));
+  }
+
+  reopenPeriod(id: string): Observable<IAcademicPeriod> {
+    return this.http.post<any>(`${this.periodsUrl}/${id}/reopen`, {}).pipe(map(toPeriod));
+  }
+
+  periodRecords(id: string): Observable<IPeriodRecord[]> {
+    return this.http.get<any[]>(`${this.periodsUrl}/${id}/records`).pipe(map(list => list.map(r => ({
+      courseId: String(r.courseId), courseTitle: r.courseTitle, studentId: String(r.studentId),
+      finalGrade: r.finalGrade ?? null, currentGrade: r.currentGrade ?? null, progress: r.progress ?? null, passed: !!r.passed,
+    }))));
   }
 
   rules(courseId: string): Observable<IEnrollmentRules> {

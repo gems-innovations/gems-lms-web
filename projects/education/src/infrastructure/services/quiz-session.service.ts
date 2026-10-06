@@ -48,6 +48,7 @@ function startError(err: unknown): string {
   switch (code) {
     case 'NOT_ENROLLED': return 'No estás matriculado en este curso';
     case 'ATTEMPT_LIMIT_REACHED': return 'Ya usaste todos los intentos de este quiz';
+    case 'PERIOD_CLOSED': return 'El período académico de este curso ya cerró';
     case 'BLOCK_NOT_FOUND': return 'Este contenido ya no existe. Recarga el curso.';
     default: return 'No se pudo iniciar la evaluación. Intenta de nuevo.';
   }

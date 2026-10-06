@@ -1,4 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
+import { ToastService } from 'shared';
 import { forkJoin, catchError, of } from 'rxjs';
 import { CourseService, EnrollmentService, GroupService, ReviewService, GradebookService, EContentType } from 'education';
 import type { ICourse, IGroup, IGradebook } from 'education';
@@ -15,6 +16,7 @@ export class CourseDetailUseCase {
   private readonly groupService      = inject(GroupService);
   private readonly reviewService     = inject(ReviewService);
   private readonly gradebookService  = inject(GradebookService);
+  private readonly toast             = inject(ToastService);
 
   private readonly _course      = signal<ICourse | null>(null);
   private readonly _courseId    = signal<string>('');
@@ -221,12 +223,17 @@ export class CourseDetailUseCase {
 
   grade(event: IGradeSubmitEvent): void {
     this.enrollmentService.gradeSubmission(event.submissionId, event.grade, event.feedback, event.rubricScores)
-      .subscribe(updated => {
-        this._submissions.update(list =>
-          list.map(s => s.id === updated.id ? { ...s, ...updated } : s)
-        );
-        this.backToSubmissionList();
-        if (this._gradebook()) this.loadGradebook();
+      .subscribe({
+        next: updated => {
+          this._submissions.update(list =>
+            list.map(s => s.id === updated.id ? { ...s, ...updated } : s)
+          );
+          this.backToSubmissionList();
+          if (this._gradebook()) this.loadGradebook();
+        },
+        error: err => this.toast.error(err?.error?.code === 'PERIOD_CLOSED'
+          ? 'El período académico de este curso está cerrado: las notas ya quedaron en el acta.'
+          : 'No se pudo guardar la calificación. Intenta de nuevo.'),
       });
   }
 
@@ -246,7 +253,9 @@ export class CourseDetailUseCase {
     this._gradebookError.set(null);
     this.gradebookService.saveWeights(this._courseId(), weights).subscribe({
       next: book => this._gradebook.set(book),
-      error: () => this._gradebookError.set('No se pudieron guardar los pesos'),
+      error: err => this._gradebookError.set(err?.error?.code === 'PERIOD_CLOSED'
+        ? 'El período está cerrado: las ponderaciones ya no se pueden cambiar.'
+        : 'No se pudieron guardar los pesos'),
     });
   }
 }
