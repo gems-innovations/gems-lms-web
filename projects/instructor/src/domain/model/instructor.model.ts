@@ -58,4 +58,6 @@ export interface IGradeSubmitEvent {
   feedback: string;
   /** Set when graded with the assignment rubric; the API then computes the grade. */
   rubricScores?: IRubricScore[];
+  /** Open the next ungraded submission after saving instead of returning to the list. */
+  next?: boolean;
 }

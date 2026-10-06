@@ -1,6 +1,7 @@
 import {
-  Component, input, output, signal, computed, effect, inject, ChangeDetectionStrategy,
+  Component, input, output, signal, computed, effect, inject, ChangeDetectionStrategy, HostListener,
 } from '@angular/core';
+import { GradingToolsService, IFeedbackSnippet, ISimilarityMatch } from '../../../services/grading-tools.service';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarkdownComponent } from 'ngx-markdown';
@@ -8,7 +9,7 @@ import { EContentType } from 'education';
 import type { IRubricItem } from 'education';
 import {
   AvatarComponent, BadgeComponent, BackButtonComponent, EmptyStateComponent,
-  LibButtonComponent, MarkdownEditorComponent, FileUploadService,
+  LibButtonComponent, MarkdownEditorComponent, FileUploadService, ToastService,
 } from 'shared';
 import type { BadgeVariant } from 'shared';
 import type {
@@ -29,6 +30,8 @@ import type {
 })
 export class GradingPanel {
   private readonly files = inject(FileUploadService);
+  private readonly tools = inject(GradingToolsService);
+  private readonly toast = inject(ToastService);
 
   /** Delivered files of the API need the token: they are fetched and opened as a blob. */
   protected openFile(url: string, event: Event): void {
@@ -48,6 +51,35 @@ export class GradingPanel {
   readonly selectSubmission   = output<ISubmissionRow>();
   readonly backToSubmissions  = output<void>();
   readonly gradeSubmit        = output<IGradeSubmitEvent>();
+  /** Previous (-1) or next (1) submission of the assignment. */
+  readonly navigate           = output<1 | -1>();
+
+  // ── Herramientas: similitud entre entregas y comentarios frecuentes ────────
+  protected readonly similarity = signal<ISimilarityMatch[]>([]);
+  protected readonly snippets   = signal<IFeedbackSnippet[]>([]);
+  protected readonly snippetsOpen = signal(false);
+
+  /** Mayor parecido de cada entrega con otra del mismo grupo. */
+  protected readonly similarityBySubmission = computed(() => {
+    const byId = new Map(this.submissions().map(s => [s.id, s]));
+    const best = new Map<string, { score: number; other: string; excerpt: string }>();
+    for (const m of this.similarity()) {
+      for (const [mine, other] of [[m.submissionId, m.otherSubmissionId], [m.otherSubmissionId, m.submissionId]]) {
+        const current = best.get(mine);
+        if (current && current.score >= m.score) continue;
+        const o = byId.get(other);
+        best.set(mine, { score: m.score, excerpt: m.sharedExcerpt,
+          other: o ? `${o.student.firstName} ${o.student.lastName}` : 'otra entrega' });
+      }
+    }
+    return best;
+  });
+
+  protected readonly position = computed(() => {
+    const list = this.submissions();
+    const i = list.findIndex(s => s.id === this.selectedSubmission()?.id);
+    return { index: i + 1, total: list.length, pending: list.filter(s => s.grade == null).length };
+  });
 
   protected readonly EContentType = EContentType;
 
@@ -84,6 +116,18 @@ export class GradingPanel {
   });
 
   constructor() {
+    // Similitud de la evaluación abierta (solo entregas con texto).
+    effect(() => {
+      const assignment = this.selectedAssignment();
+      const courseId = this.submissions()[0]?.courseId;
+      if (!assignment || !courseId) { this.similarity.set([]); return; }
+      this.tools.similarity(courseId, String(assignment.block.id)).subscribe({
+        next: list => this.similarity.set(list),
+        error: () => this.similarity.set([]),
+      });
+    });
+    this.tools.snippets().subscribe({ next: list => this.snippets.set(list), error: () => this.snippets.set([]) });
+
     // Sincroniza el formulario cuando cambia la entrega seleccionada.
     effect(() => {
       const sub = this.selectedSubmission();
@@ -110,7 +154,7 @@ export class GradingPanel {
     return map[status] ?? status;
   }
 
-  protected submit(): void {
+  protected submit(next = false): void {
     const sub = this.selectedSubmission();
     if (!sub) return;
     const rubric = this.rubric();
@@ -126,8 +170,51 @@ export class GradingPanel {
             ...(this.rubricComments()[r.id]?.trim() ? { comment: this.rubricComments()[r.id].trim() } : {}),
           }))
         : undefined,
+      next,
     });
   }
+
+  /** Atajos: Ctrl+Enter guarda, Ctrl+Shift+Enter guarda y abre la siguiente, Alt+←/→ navega. */
+  @HostListener('document:keydown', ['$event'])
+  protected onKey(event: KeyboardEvent): void {
+    if (!this.selectedSubmission()) return;
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+      event.preventDefault();
+      if (this.rubric().length && !this.rubricValid()) return;
+      this.submit(event.shiftKey);
+    } else if (event.altKey && (event.key === 'ArrowRight' || event.key === 'ArrowLeft')) {
+      event.preventDefault();
+      this.navigate.emit(event.key === 'ArrowRight' ? 1 : -1);
+    }
+  }
+
+  protected insertSnippet(snippet: IFeedbackSnippet): void {
+    const current = this.feedbackInput().trimEnd();
+    this.feedbackInput.set(current ? `${current}\n\n${snippet.text}` : snippet.text);
+    this.tools.useSnippet(snippet.id).subscribe({ error: () => undefined });
+  }
+
+  protected saveAsSnippet(): void {
+    const text = this.feedbackInput().trim();
+    if (!text) { this.toast.info('Escribe primero el comentario que quieres guardar.'); return; }
+    this.tools.saveSnippet(text).subscribe({
+      next: saved => {
+        this.snippets.update(list => [saved, ...list.filter(s => s.id !== saved.id)]);
+        this.toast.success('Comentario guardado para reutilizarlo.');
+      },
+      error: err => this.toast.error(err?.error?.message ?? 'No se pudo guardar el comentario.'),
+    });
+  }
+
+  protected removeSnippet(snippet: IFeedbackSnippet, event: Event): void {
+    event.stopPropagation();
+    this.tools.deleteSnippet(snippet.id).subscribe({
+      next: () => this.snippets.update(list => list.filter(s => s.id !== snippet.id)),
+      error: () => this.toast.error('No se pudo eliminar el comentario.'),
+    });
+  }
+
+  protected pct(score: number): number { return Math.round(score * 100); }
 
   protected setRubricPoints(id: string, value: number): void {
     this.rubricPoints.update(p => ({ ...p, [id]: value }));

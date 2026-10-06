@@ -221,6 +221,29 @@ export class CourseDetailUseCase {
   openSubmission(sub: ISubmissionRow): void { this._selectedSubId.set(sub.id); }
   backToSubmissionList(): void { this._selectedSubId.set(null); }
 
+  /** Moves to the previous or next submission of the assignment (wraps around). */
+  openAdjacentSubmission(step: 1 | -1): void {
+    const list = this.blockSubmissions();
+    if (!list.length) return;
+    const i = list.findIndex(s => s.id === this._selectedSubId());
+    this._selectedSubId.set(list[(i + step + list.length) % list.length].id);
+  }
+
+  /** After grading: the next submission still pending, or back to the list when none is left. */
+  private openNextPending(afterId: string): void {
+    const list = this.blockSubmissions();
+    const start = list.findIndex(s => s.id === afterId);
+    const ordered = [...list.slice(start + 1), ...list.slice(0, Math.max(start, 0))];
+    const next = ordered.find(s => s.id !== afterId && s.grade == null);
+    if (next) {
+      this._selectedSubId.set(next.id);
+      this.toast.success('Calificación guardada. Siguiente entrega pendiente.');
+    } else {
+      this.backToSubmissionList();
+      this.toast.success('Calificación guardada. ¡No quedan entregas pendientes!');
+    }
+  }
+
   grade(event: IGradeSubmitEvent): void {
     this.enrollmentService.gradeSubmission(event.submissionId, event.grade, event.feedback, event.rubricScores)
       .subscribe({
@@ -228,7 +251,7 @@ export class CourseDetailUseCase {
           this._submissions.update(list =>
             list.map(s => s.id === updated.id ? { ...s, ...updated } : s)
           );
-          this.backToSubmissionList();
+          if (event.next) this.openNextPending(updated.id); else this.backToSubmissionList();
           if (this._gradebook()) this.loadGradebook();
         },
         error: err => this.toast.error(err?.error?.code === 'PERIOD_CLOSED'

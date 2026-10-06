@@ -392,3 +392,165 @@
     color: var(--color-error, #dc2626);
   }
 }
+
+// ── Navegación entre entregas ────────────────────────────────────────────────
+.gpanel__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.gpanel__nav-pos {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-texto-secundario);
+}
+
+.gpanel__nav-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--color-texto-principal);
+  background: var(--color-tarjeta);
+  border: 1px solid var(--color-borde-secundario);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+  &:hover { border-color: var(--color-primario); background: var(--color-primario-trans-10); }
+}
+
+// ── Similitud ────────────────────────────────────────────────────────────────
+.gpanel__sim {
+  display: inline-block;
+  max-width: 180px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 2px 8px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-advertencia-texto);
+  background: color-mix(in srgb, var(--color-advertencia) 12%, transparent);
+  border-radius: var(--border-radius-full);
+
+  &--high {
+    color: var(--color-error-texto);
+    background: color-mix(in srgb, var(--color-error) 12%, transparent);
+  }
+}
+
+.gpanel__sim-alert {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  color: var(--color-texto-principal);
+  background: color-mix(in srgb, var(--color-advertencia) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-advertencia) 35%, transparent);
+  border-radius: var(--border-radius-md);
+
+  strong { color: var(--color-advertencia-texto); }
+  span { font-style: italic; color: var(--color-texto-secundario); }
+  small { color: var(--color-texto-terciario); }
+}
+
+// ── Comentarios frecuentes ───────────────────────────────────────────────────
+.gpanel__snippets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.gpanel__snippets-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.gpanel__snippets-toggle,
+.gpanel__snippets-save {
+  padding: 0;
+  font: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-texto-acento);
+  background: none;
+  border: none;
+  cursor: pointer;
+  &:hover { text-decoration: underline; }
+}
+
+.gpanel__snippets-save { color: var(--color-texto-secundario); }
+
+.gpanel__snippet-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 160px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    background: var(--color-fondo-sutil);
+    border: 1px solid var(--color-borde-principal);
+    border-radius: var(--border-radius-full);
+    transition: border-color var(--transition-fast);
+    &:hover { border-color: var(--color-primario); }
+  }
+}
+
+.gpanel__snippet {
+  max-width: 260px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 4px 4px 4px 12px;
+  font: inherit;
+  font-size: var(--font-size-xs);
+  color: var(--color-texto-principal);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.gpanel__snippet-del {
+  padding: 2px 10px 2px 6px;
+  font-size: 14px;
+  color: var(--color-texto-terciario);
+  background: none;
+  border: none;
+  cursor: pointer;
+  &:hover { color: var(--color-error-texto); }
+}
+
+.gpanel__snippets-empty {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-texto-terciario);
+}
+
+.gpanel__actions--next {
+  flex-direction: column;
+  padding-top: 0;
+}
+
+.gpanel__shortcuts {
+  margin: 0;
+  font-size: 11px;
+  text-align: center;
+  color: var(--color-texto-terciario);
+}

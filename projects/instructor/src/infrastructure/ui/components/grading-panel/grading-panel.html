@@ -65,6 +65,7 @@
             <th>Fecha entrega</th>
             <th>Estado</th>
             <th>Nota</th>
+            <th>Similitud</th>
             <th></th>
           </tr>
         </thead>
@@ -85,6 +86,14 @@
               <td>
                 @if (sub.grade != null) {
                   <span class="gpanel__grade">{{ sub.grade }}/100</span>
+                } @else {
+                  <span class="gpanel__no-grade">—</span>
+                }
+              </td>
+              <td>
+                @if (similarityBySubmission().get(sub.id); as sim) {
+                  <span class="gpanel__sim" [class.gpanel__sim--high]="sim.score >= 0.6"
+                        [title]="'Parecido con la entrega de ' + sim.other">{{ pct(sim.score) }}% · {{ sim.other }}</span>
                 } @else {
                   <span class="gpanel__no-grade">—</span>
                 }
@@ -115,6 +124,7 @@
               <td><lib-badge variant="danger" size="sm">No entregado</lib-badge></td>
               <td><span class="gpanel__no-grade">—</span></td>
               <td></td>
+              <td></td>
             </tr>
           }
         </tbody>
@@ -125,7 +135,22 @@
 
 <!-- ── State C: detalle de entrega + calificación ──────────────────────────── -->
 @if (selectedSubmission(); as sub) {
-  <lib-back-button label="Entregas" (back)="backToSubmissions.emit()" />
+  <div class="gpanel__nav">
+    <lib-back-button label="Entregas" (back)="backToSubmissions.emit()" />
+    <div class="gpanel__nav-pos">
+      <button type="button" class="gpanel__nav-btn" (click)="navigate.emit(-1)" aria-label="Entrega anterior" title="Anterior (Alt+←)">‹</button>
+      <span>Entrega {{ position().index }} de {{ position().total }} · {{ position().pending }} pendientes</span>
+      <button type="button" class="gpanel__nav-btn" (click)="navigate.emit(1)" aria-label="Entrega siguiente" title="Siguiente (Alt+→)">›</button>
+    </div>
+  </div>
+
+  @if (similarityBySubmission().get(sub.id); as sim) {
+    <div class="gpanel__sim-alert" role="note">
+      <strong>{{ pct(sim.score) }}% de texto en común con la entrega de {{ sim.other }}.</strong>
+      @if (sim.excerpt) { <span>Fragmento repetido: «{{ sim.excerpt }}»</span> }
+      <small>Compara secuencias de cinco palabras entre las entregas de esta evaluación; revísalo antes de concluir que hubo copia.</small>
+    </div>
+  }
 
   <div class="gpanel__detail">
     <div class="gpanel__detail-left">
@@ -214,6 +239,29 @@
             </div>
             }
 
+          <div class="gpanel__snippets">
+            <div class="gpanel__snippets-head">
+              <button type="button" class="gpanel__snippets-toggle" [attr.aria-expanded]="snippetsOpen()" (click)="snippetsOpen.set(!snippetsOpen())">
+                Comentarios frecuentes ({{ snippets().length }})
+              </button>
+              <button type="button" class="gpanel__snippets-save" (click)="saveAsSnippet()">Guardar el actual</button>
+            </div>
+            @if (snippetsOpen()) {
+              @if (snippets().length) {
+                <ul class="gpanel__snippet-list">
+                  @for (sn of snippets(); track sn.id) {
+                    <li>
+                      <button type="button" class="gpanel__snippet" (click)="insertSnippet(sn)" [title]="sn.text">{{ sn.text }}</button>
+                      <button type="button" class="gpanel__snippet-del" (click)="removeSnippet(sn, $event)" aria-label="Eliminar comentario">×</button>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="gpanel__snippets-empty">Escribe un comentario y pulsa «Guardar el actual» para reutilizarlo con un clic.</p>
+              }
+            }
+          </div>
+
           <lib-markdown-editor
             label="Retroalimentación"
             placeholder="Escribe tu feedback en **Markdown**…"
@@ -231,6 +279,12 @@
             </svg>
             Guardar
           </lib-button>
+        </div>
+        <div class="gpanel__actions gpanel__actions--next">
+          <lib-button variant="secondary" [fullWidth]="true" [disabled]="rubric().length > 0 && !rubricValid()" (clicked)="submit(true)">
+            Guardar y siguiente pendiente
+          </lib-button>
+          <p class="gpanel__shortcuts">Ctrl+Enter guarda · Ctrl+Shift+Enter guarda y sigue · Alt+←/→ cambia de entrega</p>
         </div>
       </div>
     </div>
