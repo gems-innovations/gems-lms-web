@@ -75,8 +75,8 @@
     margin-left: var(--spacing-xs);
     padding: 1px 8px;
     border-radius: 999px;
-    background: var(--color-primario);
-    color: #fff;
+    background: var(--color-primario-accion);
+    color: var(--color-sobre-primario);
     font-size: var(--font-size-xs);
   }
 
@@ -126,8 +126,8 @@
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   border-radius: var(--border-radius-full);
-  color: var(--color-exito-texto);
-  background: color-mix(in srgb, var(--color-exito) 12%, transparent);
+  color: var(--color-exito);
+  background: color-mix(in srgb, var(--color-exito) 8%, transparent);
 
   &--closed {
     color: var(--color-texto-secundario);
