@@ -32,6 +32,7 @@ export { BackButtonComponent } from "./infrastructure/ui/components/back-button/
 export { PaginationComponent } from "./infrastructure/ui/components/pagination/pagination.component";
 
 export { AutofocusDirective } from "./infrastructure/ui/directives/autofocus.directive";
+export { RevealDirective, CountUpDirective, AutoAnimateDirective, celebrate, prefersReducedMotion } from "./infrastructure/ui/directives/motion";
 
 export { RadarChartComponent } from "./infrastructure/ui/components/radar-chart/radar-chart.component";
 export type { IRadarSeries } from "./infrastructure/ui/components/radar-chart/radar-chart.component";

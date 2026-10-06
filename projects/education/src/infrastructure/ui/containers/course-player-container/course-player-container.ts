@@ -2,7 +2,7 @@ import {
   Component, inject, OnInit, OnDestroy, signal, computed,
   ChangeDetectionStrategy, HostListener, effect
 } from '@angular/core';
-import { NgStyle } from '@angular/common';
+import { celebrate } from 'shared';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, Observable } from 'rxjs';
 import { CoursePlayerUseCase } from '../../../../application/course-player.usecase';
@@ -23,7 +23,6 @@ const INACTIVITY_THRESHOLD_MS = 5 * 60 * 1000; // 5 min
   selector: 'edu-course-player-container',
   standalone: true,
   imports: [
-    NgStyle,
     LoadingSkeletonComponent, EmptyStateComponent,
     PlayerTopbar, PlayerSidebar, PlayerContentBlock, CourseCertificate
   ],
@@ -39,7 +38,6 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
 
   protected readonly sidebarWidthPx     = signal<number | null>(null);
   protected readonly showCertificate    = signal(false);
-  protected readonly showConfetti       = signal(false);
   protected readonly forceSubmitTrigger = signal(0);
   private readonly _quizActive          = signal(false);
   private readonly _pendingNav          = signal<(() => void) | null>(null);
@@ -47,21 +45,6 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
   private _deactivateSubject: Subject<boolean> | null = null;
   private _celebrationDone  = false;
   private _prevProgress     = -1; // tracks last seen progress to detect transition to 100%
-  protected readonly confettiPieces = Array.from({ length: 80 }, (_, i) => i);
-  protected readonly confettiColors = ['#7B6FF0','#3DD6C8','#FFB800','#FF6B6B','#A8E6CF','#FFC3A0'];
-
-  protected confettiStyle(i: number): Record<string, string> {
-    const seed = (i * 7919) % 100;
-    return {
-      '--x':     `${(i * 1.3 + seed * 0.7) % 100}vw`,
-      '--delay': `${(i * 0.06) % 3}s`,
-      '--dur':   `${3 + (i % 4) * 0.5}s`,
-      '--color': this.confettiColors[i % this.confettiColors.length],
-      '--rot':   `${(seed * 3.6)}deg`,
-      '--size':  `${6 + (i % 5) * 2}px`,
-    };
-  }
-
   // ── Time tracking (per block) ──────────────────────────────────────────────
   private _timePerBlock  = new Map<string, number>(); // blockId → elapsed seconds
   private _tickInterval: ReturnType<typeof setInterval> | null = null;
@@ -94,9 +77,8 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
       this._prevProgress = progress;
       if (progress === 100 && wasBelow && !this._celebrationDone) {
         this._celebrationDone = true;
-        this.showConfetti.set(true);
+        void celebrate();
         this.showCertificate.set(true);
-        setTimeout(() => this.showConfetti.set(false), 5000);
       }
     });
 

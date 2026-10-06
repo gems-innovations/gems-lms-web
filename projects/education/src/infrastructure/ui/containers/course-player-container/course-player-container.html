@@ -100,15 +100,6 @@
     </div>
   </div>
 
-  <!-- Confeti (primera completación) -->
-  @if (showConfetti()) {
-    <div class="confetti-container" aria-hidden="true">
-      @for (i of confettiPieces; track i) {
-        <div class="confetti-piece" [ngStyle]="confettiStyle(i)"></div>
-      }
-    </div>
-  }
-
   <!-- Certificado (modal) -->
   @if (showCertificate() && certificate(); as cert) {
     <edu-course-certificate [certificate]="cert" (close)="closeCertificate()" />

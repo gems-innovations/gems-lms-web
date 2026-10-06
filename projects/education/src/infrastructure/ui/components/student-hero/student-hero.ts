@@ -1,7 +1,9 @@
 ﻿import { Component, computed, input, output } from '@angular/core'; // r
+import { CountUpDirective, RevealDirective } from 'shared';
 
 @Component({
   selector: 'edu-student-hero',
+  imports: [CountUpDirective, RevealDirective],
   templateUrl: './student-hero.html',
   styleUrl: './student-hero.scss',
 })

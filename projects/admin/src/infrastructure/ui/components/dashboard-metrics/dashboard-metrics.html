@@ -14,7 +14,7 @@
   } @else if (metrics()) {
     <div class="metrics-grid">
 
-      <article class="metric-card" aria-labelledby="metric-institutions">
+      <article class="metric-card lib-lift" libReveal [revealIndex]="0" aria-labelledby="metric-institutions">
         <figure class="metric-icon" data-color="primary" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
             <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-3"/>
@@ -23,11 +23,11 @@
         </figure>
         <div class="metric-content">
           <h3 id="metric-institutions" class="metric-label">Total Instituciones</h3>
-          <p class="metric-value">{{ metrics()!.totalInstitutions }}</p>
+          <p class="metric-value" [libCountUp]="metrics()!.totalInstitutions"></p>
         </div>
       </article>
 
-      <article class="metric-card" aria-labelledby="metric-students">
+      <article class="metric-card lib-lift" libReveal [revealIndex]="1" aria-labelledby="metric-students">
         <figure class="metric-icon" data-color="success" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
@@ -37,11 +37,11 @@
         </figure>
         <div class="metric-content">
           <h3 id="metric-students" class="metric-label">Estudiantes Activos</h3>
-          <p class="metric-value">{{ metrics()!.totalActiveStudents | number }}</p>
+          <p class="metric-value" [libCountUp]="metrics()!.totalActiveStudents"></p>
         </div>
       </article>
 
-      <article class="metric-card" aria-labelledby="metric-completion">
+      <article class="metric-card lib-lift" libReveal [revealIndex]="2" aria-labelledby="metric-completion">
         <figure class="metric-icon" data-color="accent" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
             <line x1="12" y1="20" x2="12" y2="10"/>
@@ -51,11 +51,11 @@
         </figure>
         <div class="metric-content">
           <h3 id="metric-completion" class="metric-label">Tasa de Actividad</h3>
-          <p class="metric-value">{{ metrics()!.completionRate }}%</p>
+          <p class="metric-value" [libCountUp]="metrics()!.completionRate" suffix="%"></p>
         </div>
       </article>
 
-      <article class="metric-card" aria-labelledby="metric-usage">
+      <article class="metric-card lib-lift" libReveal [revealIndex]="3" aria-labelledby="metric-usage">
         <figure class="metric-icon" data-color="warning" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
@@ -64,7 +64,7 @@
         </figure>
         <div class="metric-content">
           <h3 id="metric-usage" class="metric-label">Uso del Sistema</h3>
-          <p class="metric-value">{{ metrics()!.peakSystemUsage }}%</p>
+          <p class="metric-value" [libCountUp]="metrics()!.peakSystemUsage" suffix="%"></p>
         </div>
       </article>
 

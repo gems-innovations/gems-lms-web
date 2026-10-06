@@ -4,12 +4,13 @@ import {
   PageComponent, PageHeaderComponent, StatGridComponent, StatCardComponent,
   LoadingSkeletonComponent, ProgressBarComponent, BadgeComponent,
 } from 'shared';
+import { RevealDirective } from 'shared';
 import { InstructorStatsUseCase } from '../../../../application/instructor-stats.usecase';
 
 @Component({
   selector: 'ins-stats-container',
   standalone: true,
-  imports: [
+  imports: [RevealDirective, 
     DecimalPipe, PageComponent, PageHeaderComponent, StatGridComponent, StatCardComponent,
     LoadingSkeletonComponent, ProgressBarComponent, BadgeComponent,
   ],

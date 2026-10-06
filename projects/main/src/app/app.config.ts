@@ -6,7 +6,7 @@ import {
   ErrorHandler,
   provideZonelessChangeDetection
 } from '@angular/core';
-import { provideRouter, TitleStrategy } from '@angular/router';
+import { provideRouter, TitleStrategy, withViewTransitions, withInMemoryScrolling } from '@angular/router';
 import { provideClientHydration, withEventReplay, withNoIncrementalHydration } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -23,7 +23,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     { provide: ErrorHandler, useClass: ClientErrorHandler },
     provideZonelessChangeDetection(),
-    provideRouter(routes),
+    // Cambio de página con fundido nativo del navegador (View Transitions) y scroll al inicio.
+    provideRouter(routes, withViewTransitions({ skipInitialTransition: true }), withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideClientHydration(withEventReplay(), withNoIncrementalHydration()),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),

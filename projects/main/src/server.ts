@@ -31,7 +31,7 @@ app.use((_req, res, next) => {
   const connectSources = ["'self'", apiOrigin].filter(Boolean).join(' ');
   res.set({
     'Cache-Control': 'no-cache',
-    'Content-Security-Policy': `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https: ${apiOrigin}; media-src 'self' blob: ${apiOrigin}; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; font-src 'self' data:; connect-src ${connectSources}`,
+    'Content-Security-Policy': `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https: ${apiOrigin}; media-src 'self' blob: ${apiOrigin}; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; font-src 'self' data:; connect-src ${connectSources}`,
     'Cross-Origin-Opener-Policy': 'same-origin',
     'Permissions-Policy': 'camera=(), geolocation=(), microphone=(), payment=(), usb=()',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
