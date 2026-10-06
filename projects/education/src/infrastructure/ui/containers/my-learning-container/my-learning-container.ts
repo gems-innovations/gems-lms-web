@@ -6,6 +6,7 @@ import { MyLearningUseCase, ICertification } from '../../../../application/my-le
 import { IEnrolledCourseEntry, IEnrolledPathEntry } from '../../../../domain/model/enrollment.model';
 import { ICourseCertificate } from '../../../../domain/model/player.model';
 import { CourseProgressCard } from '../../components/course-progress-card/course-progress-card';
+import { AchievementsCard } from '../../components/achievements-card/achievements-card';
 import { CourseCertificate } from '../../components/course-certificate/course-certificate';
 
 const PAGE_SIZE      = 4;
@@ -14,7 +15,7 @@ const PATH_PAGE_SIZE = 6;
 @Component({
   selector: 'edu-my-learning-container',
   standalone: true,
-  imports: [
+  imports: [AchievementsCard, 
     LoadingSkeletonComponent, PaginationComponent, CourseProgressCard,
     CourseCertificate, DecimalPipe, RouterLink,
   ],

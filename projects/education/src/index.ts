@@ -203,3 +203,5 @@ export const studentChildRoutes: Routes = [
 export const studentRoutes: Routes = [
   { path: '', component: StudentLayout, children: studentChildRoutes }
 ];
+export { AchievementsService } from './infrastructure/services/achievements.service';
+export type { IAchievements, IBadge } from './infrastructure/services/achievements.service';
