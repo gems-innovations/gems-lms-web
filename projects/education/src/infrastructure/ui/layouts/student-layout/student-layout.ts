@@ -3,6 +3,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } fro
 import { filter, Subscription } from 'rxjs';
 import { AuthSessionService, EUserRole, LogoutUseCase } from 'auth';
 import { BrandingService, AvatarComponent } from 'shared';
+import { TranslatePipe } from 'shared';
 import { NotificationBell } from '../../components/notification-bell/notification-bell';
 
 const COLLAPSED_KEY = 'gems-sl-collapsed';
@@ -10,7 +11,7 @@ const COLLAPSED_KEY = 'gems-sl-collapsed';
 @Component({
   selector: 'edu-student-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, AvatarComponent, NotificationBell],
+  imports: [TranslatePipe, RouterOutlet, RouterLink, RouterLinkActive, AvatarComponent, NotificationBell],
   templateUrl: './student-layout.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './student-layout.scss'

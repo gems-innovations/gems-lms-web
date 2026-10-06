@@ -4,6 +4,7 @@ import {
   LucideLibrary, LucideLock, LucideSend, LucideStar, LucideTrophy, LucideZap, type LucideIconInput,
 } from '@lucide/angular';
 import { CountUpDirective, RevealDirective } from 'shared';
+import { TranslatePipe } from 'shared';
 import { AchievementsService, IBadge } from '../../../services/achievements.service';
 
 const BADGE_ICONS: Record<string, LucideIconInput> = {
@@ -28,7 +29,7 @@ const WEEK_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
  */
 @Component({
   selector: 'edu-achievements-card',
-  imports: [LucideDynamicIcon, LucideFlame, LucideZap, LucideLock, CountUpDirective, RevealDirective],
+  imports: [TranslatePipe, LucideDynamicIcon, LucideFlame, LucideZap, LucideLock, CountUpDirective, RevealDirective],
   templateUrl: './achievements-card.html',
   styleUrl: './achievements-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

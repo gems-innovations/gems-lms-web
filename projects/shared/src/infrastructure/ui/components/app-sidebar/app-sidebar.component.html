@@ -1,14 +1,14 @@
 <aside class="app-sidebar" [class.app-sidebar--collapsed]="collapsed()">
 
   <!-- Brand -->
-  <a class="app-sidebar__brand" [routerLink]="brandRoute()" [attr.aria-label]="'Ir al inicio de ' + brandLabel()">
+  <a class="app-sidebar__brand" [routerLink]="brandRoute()" [attr.aria-label]="('Ir al inicio de' | t) + ' ' + brandLabel()">
     <div class="app-sidebar__brand-icon">
       <img src="/logo-144.png" width="30" height="30" alt="" aria-hidden="true" />
     </div>
     @if (institutionName(); as org) {
       <span class="app-sidebar__brand-text">
         <span class="app-sidebar__brand-name app-sidebar__brand-name--org" [title]="org">{{ org }}</span>
-        <span class="app-sidebar__brand-by">por {{ brandLabel() }}</span>
+        <span class="app-sidebar__brand-by">{{ 'por GEMS LMS' | t }}</span>
       </span>
     } @else {
       <span class="app-sidebar__brand-name">{{ brandLabel() }}</span>
@@ -23,7 +23,7 @@
         [class.app-sidebar__navlink--disabled]="item.disabled"
         [routerLink]="item.disabled ? null : item.route"
         routerLinkActive="app-sidebar__navlink--active"
-        [title]="item.label"
+        [title]="item.label | t"
       >
         <span class="app-sidebar__navicon">
           @switch (item.icon) {
@@ -85,7 +85,7 @@
             }
           }
         </span>
-        <span class="app-sidebar__navlink-label">{{ item.label }}</span>
+        <span class="app-sidebar__navlink-label">{{ item.label | t }}</span>
         @if (item.badge && item.badge > 0) {
           <span class="app-sidebar__navbadge">{{ item.badge }}</span>
         }
@@ -101,13 +101,13 @@
         <span class="app-sidebar__user-name">{{ u.name }}</span>
         <span class="app-sidebar__user-role">{{ u.role }}</span>
       </div>
-      <a class="app-sidebar__profile-btn" [routerLink]="profileRoute()" title="Mi perfil" aria-label="Abrir mi perfil">
+      <a class="app-sidebar__profile-btn" [routerLink]="profileRoute()" [title]="'Mi perfil' | t" [attr.aria-label]="'Abrir mi perfil' | t">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>
         </svg>
       </a>
       <ng-content select="[sidebar-notifications]" />
-      <button class="app-sidebar__signout-btn" (click)="handleLogout()" title="Cerrar sesión" type="button">
+      <button class="app-sidebar__signout-btn" (click)="handleLogout()" [title]="'Cerrar sesión' | t" type="button">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>

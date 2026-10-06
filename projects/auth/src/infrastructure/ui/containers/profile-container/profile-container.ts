@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { AuthSessionService } from 'auth/core';
 import { UserService } from '../../../services/user.service';
 import { DisplayPreferencesService, ThemePreference } from 'auth/core';
-import { ImageUploadComponent, PageComponent, PageHeaderComponent, ToastService } from 'shared';
+import { TranslatePipe } from 'shared';
+import { I18nService, ImageUploadComponent, PageComponent, PageHeaderComponent, ToastService } from 'shared';
 
 @Component({
   selector: 'auth-profile-container',
-  imports: [CommonModule, FormsModule, ImageUploadComponent, PageComponent, PageHeaderComponent],
+  imports: [TranslatePipe, CommonModule, FormsModule, ImageUploadComponent, PageComponent, PageHeaderComponent],
   templateUrl: './profile-container.html',
   styleUrl: './profile-container.scss'
 })
@@ -17,6 +18,7 @@ export class ProfileContainer implements OnInit {
   private readonly users = inject(UserService);
   private readonly toast = inject(ToastService);
   readonly display = inject(DisplayPreferencesService);
+  readonly i18n = inject(I18nService);
   readonly saving = signal(false);
   firstName = ''; lastName = ''; username = ''; avatarUrl = '';
   readonly user = this.session.user;
@@ -34,8 +36,8 @@ export class ProfileContainer implements OnInit {
     this.saving.set(true);
     this.users.updateProfile(user, { firstName: this.firstName.trim(), lastName: this.lastName.trim(),
       username: this.username.trim(), avatarUrl: this.avatarUrl || undefined }).subscribe({
-      next: updated => { this.session.updateUser(updated); this.saving.set(false); this.toast.success('Perfil actualizado.'); },
-      error: () => { this.saving.set(false); this.toast.error('No se pudo actualizar el perfil.'); }
+      next: updated => { this.session.updateUser(updated); this.saving.set(false); this.toast.success(this.i18n.t('Perfil actualizado.')); },
+      error: () => { this.saving.set(false); this.toast.error(this.i18n.t('No se pudo actualizar el perfil.')); }
     });
   }
 
@@ -43,6 +45,12 @@ export class ProfileContainer implements OnInit {
   avatarChanged(url: string): void {
     this.avatarUrl = url;
     this.save();
+  }
+
+  roleLabel(role: string): string {
+    const labels: Record<string, string> = { SUPER_ADMIN: 'Superadministrador', ADMIN: 'Administrador', INSTRUCTOR: 'Docente', STUDENT: 'Estudiante',
+      super_admin: 'Superadministrador', admin: 'Administrador', instructor: 'Docente', student: 'Estudiante' };
+    return labels[role] ?? role;
   }
 
   setTheme(theme: ThemePreference): void { this.display.update({ theme }); }

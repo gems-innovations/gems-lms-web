@@ -1,6 +1,6 @@
 @if (profile(); as p) {
   <section class="ach" [class.ach--full]="variant() === 'full'" libReveal aria-labelledby="ach-title">
-    <h2 id="ach-title" class="ach__title">Tu progreso</h2>
+    <h2 id="ach-title" class="ach__title">{{ 'Tu progreso' | t }}</h2>
 
     <div class="ach__top">
       <div class="ach__streak" [class.ach__streak--live]="p.activeToday && p.streak > 0"
@@ -28,7 +28,7 @@
 
     <div class="ach__week" aria-label="Días con actividad esta semana">
       <div class="ach__week-head">
-        <span>Esta semana</span>
+        <span>{{ 'Esta semana' | t }}</span>
         <span class="ach__goal" [class.ach__goal--done]="p.weekDays >= p.weeklyGoal">
           {{ p.weekDays }}/{{ p.weeklyGoal }} días {{ p.weekDays >= p.weeklyGoal ? '· ¡meta cumplida!' : '' }}
         </span>
@@ -49,7 +49,7 @@
         <div class="ach__next">
           <span class="ach__badge-icon ach__badge-icon--locked"><svg [lucideIcon]="icons[b.id]" [size]="18" aria-hidden="true"></svg></span>
           <div class="ach__next-text">
-            <span class="ach__next-label">Próxima insignia</span>
+            <span class="ach__next-label">{{ 'Próxima insignia' | t }}</span>
             <strong>{{ b.title }}</strong>
             <span class="ach__hint">{{ b.description }} · {{ b.progress }}/{{ b.target }}</span>
           </div>
@@ -64,7 +64,7 @@
         </ul>
       }
     } @else {
-      <h3 class="ach__subtitle">Insignias <span>{{ earned().length }}/{{ p.badges.length }}</span></h3>
+      <h3 class="ach__subtitle">{{ 'Insignias' | t }} <span>{{ earned().length }}/{{ p.badges.length }}</span></h3>
       <ul class="ach__grid">
         @for (b of p.badges; track b.id; let i = $index) {
           <li class="ach__card" [class.ach__card--earned]="b.earned" libReveal [revealIndex]="i">

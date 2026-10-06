@@ -1,4 +1,5 @@
 import { Directive, ElementRef, afterNextRender, effect, inject, input, DestroyRef } from '@angular/core';
+import { I18nService } from 'shared/core';
 
 /** True when the user asked the OS or the platform's display preferences for less motion. */
 export function prefersReducedMotion(): boolean {
@@ -55,6 +56,7 @@ export class CountUpDirective {
   readonly duration = input<number>(900);
 
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly i18n = inject(I18nService);
   private current = 0;
   private frame = 0;
 
@@ -84,7 +86,7 @@ export class CountUpDirective {
 
   private render(value: number, decimals: number, suffix: string): void {
     this.current = value;
-    this.el.nativeElement.textContent = value.toLocaleString('es-CO', {
+    this.el.nativeElement.textContent = value.toLocaleString(this.i18n.locale(), {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     }) + suffix;

@@ -1,4 +1,6 @@
-export { environment, BrandingService, ClientErrorJournal } from "shared/core";
+export { environment, BrandingService, ClientErrorJournal, I18nService, LANGUAGES } from "shared/core";
+export type { TLanguage } from "shared/core";
+export { TranslatePipe } from "./infrastructure/ui/pipes/translate.pipe";
 export type { IBrandingConfig } from "shared/core";
 export { ModalBaseComponent } from "./infrastructure/ui/components/modal-base/modal-base.component";
 export type { TModalSize } from "./infrastructure/ui/components/modal-base/modal-base.component";

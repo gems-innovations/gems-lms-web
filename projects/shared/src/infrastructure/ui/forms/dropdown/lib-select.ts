@@ -3,6 +3,7 @@ import {
   output, signal, viewChild, ChangeDetectionStrategy,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 export interface SelectOption {
   value: string;
@@ -32,6 +33,7 @@ const CREATE_HINT = '__create__';
   selector: 'lib-select',
   templateUrl: './lib-select.html',
   styleUrl: './lib-select.scss',
+  imports: [TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => LibSelectComponent), multi: true }],
 })

@@ -2,6 +2,7 @@ import { Component, computed, inject, input, output, signal, ChangeDetectionStra
 import { BrandingService } from 'shared/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AvatarComponent } from '../avatar/avatar.component';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import type { NavigationItem, UserProfile } from '../sidebar/sidebar.component';
 
 export type { NavigationItem, UserProfile };
@@ -14,7 +15,7 @@ export type { NavigationItem, UserProfile };
 @Component({
   selector: 'lib-app-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, AvatarComponent],
+  imports: [TranslatePipe, RouterLink, RouterLinkActive, AvatarComponent],
   templateUrl: './app-sidebar.component.html',
   styleUrl: './app-sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

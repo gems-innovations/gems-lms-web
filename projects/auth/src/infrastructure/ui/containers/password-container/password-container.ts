@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LibButtonComponent, LibInputComponent } from 'shared';
+import { TranslatePipe } from 'shared';
 import { PASSWORD_HINT, PASSWORD_RULE, PasswordUseCase } from '../../../../application/password.usecase';
 
 export type TPasswordMode = 'change' | 'forgot' | 'reset';
@@ -13,7 +14,7 @@ export type TPasswordMode = 'change' | 'forgot' | 'reset';
  */
 @Component({
   selector: 'auth-password-container',
-  imports: [RouterLink, LibInputComponent, LibButtonComponent],
+  imports: [TranslatePipe, RouterLink, LibInputComponent, LibButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './password-container.html',
   styleUrl: './password-container.scss'
