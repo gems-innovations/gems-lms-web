@@ -8,12 +8,11 @@ import { CourseProgressCard } from '../../components/course-progress-card/course
 import { CatalogCard } from '../../components/catalog-card/catalog-card';
 import { HomePathSidebarItem } from '../../components/home-path-sidebar-item/home-path-sidebar-item';
 import { RevealDirective, AutoAnimateDirective } from 'shared';
-import { AchievementsCard } from '../../components/achievements-card/achievements-card';
 import { ICatalogItem } from '../../../../domain/model/catalog.model';
 
 @Component({
   selector: 'edu-student-home-container',
-  imports: [AchievementsCard, RevealDirective, AutoAnimateDirective, 
+  imports: [RevealDirective, AutoAnimateDirective, 
     LoadingSkeletonComponent,
     EmptyStateComponent,
     StudentHero,

@@ -8,8 +8,6 @@
     <!-- ── Columna principal ─────────────────────────────────────────────── -->
     <div class="mlearning__main">
 
-      <edu-achievements-card variant="full" />
-
       <!-- Mis cursos -->
       <section class="mlearning__section">
         <div class="mlearning__section-header">
@@ -196,6 +194,10 @@
           <lib-pagination [page]="certPage()" [totalPages]="certTotalPages()" (pageChange)="certPage.set($event)" />
         }
       </section>
+
+      <div id="logros" class="mlearning__achievements">
+        <edu-achievements-card variant="full" />
+      </div>
 
     </div>
 

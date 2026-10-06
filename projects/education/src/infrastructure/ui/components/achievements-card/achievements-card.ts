@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit } from '@angular/core';
+import { afterRenderEffect, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   LucideCalendarCheck, LucideCircleCheck, LucideDynamicIcon, LucideFlame, LucideFootprints, LucideGraduationCap,
   LucideLibrary, LucideLock, LucideSend, LucideStar, LucideTrophy, LucideZap, type LucideIconInput,
@@ -29,7 +30,7 @@ const WEEK_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
  */
 @Component({
   selector: 'edu-achievements-card',
-  imports: [TranslatePipe, LucideDynamicIcon, LucideFlame, LucideZap, LucideLock, CountUpDirective, RevealDirective],
+  imports: [RouterLink, TranslatePipe, LucideDynamicIcon, LucideFlame, LucideZap, LucideLock, CountUpDirective, RevealDirective],
   templateUrl: './achievements-card.html',
   styleUrl: './achievements-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,7 +38,23 @@ const WEEK_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 export class AchievementsCard implements OnInit {
   private readonly service = inject(AchievementsService);
 
-  readonly variant = input<'compact' | 'full'>('compact');
+  /** inline: una línea en el resumen del inicio; full: el bloque completo de Mi aprendizaje. */
+  readonly variant = input<'inline' | 'compact' | 'full'>('compact');
+
+  protected readonly badgesOpen = signal(false);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private scrolled = false;
+
+  constructor() {
+    // Llegando desde «N insignias ›» (#logros): baja a los logros cuando ya cargaron.
+    afterRenderEffect(() => {
+      if (this.scrolled || this.variant() !== 'full' || !this.profile() || typeof location === 'undefined') return;
+      if (location.hash !== '#logros') return;
+      this.scrolled = true;
+      this.badgesOpen.set(true);
+      this.host.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
 
   protected readonly profile = this.service.profile;
   protected readonly icons = BADGE_ICONS;

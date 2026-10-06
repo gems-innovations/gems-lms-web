@@ -1,3 +1,4 @@
+// Aire con la sección siguiente (en el inicio va encima de las rutas de aprendizaje).
 :host { display: block; }
 
 .ach {
@@ -260,4 +261,64 @@
 
 @media (max-width: 720px) {
   .ach--full .ach__top { grid-template-columns: 1fr; }
+}
+
+// ── Variante inline (resumen del inicio) ─────────────────────────────────────
+.ach-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin-top: var(--spacing-md);
+  padding: 8px 12px;
+  font-size: var(--font-size-xs);
+  color: var(--color-texto-secundario);
+  text-decoration: none;
+  background: var(--color-fondo-sutil);
+  border: 1px solid var(--color-borde-principal);
+  border-radius: var(--border-radius-lg);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+
+  &:hover { border-color: var(--color-primario); background: var(--color-primario-trans-10); }
+  &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+
+  strong { color: var(--color-texto-principal); }
+}
+
+.ach-inline__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  svg { color: var(--color-texto-terciario); }
+  &--live svg { color: #F97316; }
+  &--done strong { color: var(--color-exito-texto); }
+}
+
+.ach-inline__more {
+  margin-left: auto;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-texto-acento);
+}
+
+.ach__subtitle--toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 0;
+  font: inherit;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  background: none;
+  border: none;
+  cursor: pointer;
+  &:hover { color: var(--color-texto-acento); }
+}
+
+.ach__chev {
+  display: inline-block;
+  font-size: 18px;
+  transition: transform var(--transition-base);
+  &--open { transform: rotate(90deg); }
 }

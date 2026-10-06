@@ -1,4 +1,17 @@
 @if (profile(); as p) {
+  @if (variant() === 'inline') {
+    <a class="ach-inline" routerLink="/learn/my-learning" fragment="logros"
+       [attr.aria-label]="'Racha de ' + p.streak + ' días, nivel ' + p.level + ', ' + p.weekDays + ' de ' + p.weeklyGoal + ' días esta semana. Ver logros'">
+      <span class="ach-inline__item" [class.ach-inline__item--live]="p.activeToday && p.streak > 0">
+        <svg lucideFlame [size]="15" aria-hidden="true"></svg> <strong>{{ p.streak }}</strong> {{ p.streak === 1 ? 'día' : 'días' }}
+      </span>
+      <span class="ach-inline__item"><svg lucideZap [size]="14" aria-hidden="true"></svg> Nivel <strong>{{ p.level }}</strong></span>
+      <span class="ach-inline__item" [class.ach-inline__item--done]="p.weekDays >= p.weeklyGoal">
+        Semana <strong>{{ p.weekDays }}/{{ p.weeklyGoal }}</strong>
+      </span>
+      <span class="ach-inline__more">{{ earned().length }} insignias ›</span>
+    </a>
+  } @else {
   <section class="ach" [class.ach--full]="variant() === 'full'" libReveal aria-labelledby="ach-title">
     <h2 id="ach-title" class="ach__title">{{ 'Tu progreso' | t }}</h2>
 
@@ -64,7 +77,12 @@
         </ul>
       }
     } @else {
-      <h3 class="ach__subtitle">{{ 'Insignias' | t }} <span>{{ earned().length }}/{{ p.badges.length }}</span></h3>
+      <button type="button" class="ach__subtitle ach__subtitle--toggle" [attr.aria-expanded]="badgesOpen()"
+              (click)="badgesOpen.set(!badgesOpen())">
+        {{ 'Insignias' | t }} <span>{{ earned().length }}/{{ p.badges.length }}</span>
+        <span class="ach__chev" [class.ach__chev--open]="badgesOpen()" aria-hidden="true">›</span>
+      </button>
+      @if (badgesOpen()) {
       <ul class="ach__grid">
         @for (b of p.badges; track b.id; let i = $index) {
           <li class="ach__card" [class.ach__card--earned]="b.earned" libReveal [revealIndex]="i">
@@ -83,6 +101,8 @@
           </li>
         }
       </ul>
+      }
     }
   </section>
+  }
 }

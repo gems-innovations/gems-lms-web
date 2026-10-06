@@ -1,9 +1,10 @@
 ﻿import { Component, computed, input, output } from '@angular/core'; // r
 import { CountUpDirective, RevealDirective } from 'shared';
+import { AchievementsCard } from '../achievements-card/achievements-card';
 
 @Component({
   selector: 'edu-student-hero',
-  imports: [CountUpDirective, RevealDirective],
+  imports: [CountUpDirective, RevealDirective, AchievementsCard],
   templateUrl: './student-hero.html',
   styleUrl: './student-hero.scss',
 })

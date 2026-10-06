@@ -24,7 +24,7 @@ export const appConfig: ApplicationConfig = {
     { provide: ErrorHandler, useClass: ClientErrorHandler },
     provideZonelessChangeDetection(),
     // Cambio de página con fundido nativo del navegador (View Transitions) y scroll al inicio.
-    provideRouter(routes, withViewTransitions({ skipInitialTransition: true }), withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
+    provideRouter(routes, withViewTransitions({ skipInitialTransition: true }), withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideClientHydration(withEventReplay(), withNoIncrementalHydration()),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
