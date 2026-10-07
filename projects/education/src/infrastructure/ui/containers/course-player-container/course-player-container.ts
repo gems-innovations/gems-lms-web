@@ -11,6 +11,7 @@ import { PlayerTopbar } from '../../components/player-topbar/player-topbar';
 import { PlayerSidebar } from '../../components/player-sidebar/player-sidebar';
 import { PlayerContentBlock } from '../../components/player-content-block/player-content-block';
 import { CourseCertificate } from '../../components/course-certificate/course-certificate';
+import { CourseResult } from '../../components/course-result/course-result';
 import { CanDeactivateQuiz } from '../../guards/quiz-deactivate.guard';
 import {
   IQuizSubmitPayload, IAssignmentSubmitPayload,
@@ -24,7 +25,8 @@ const INACTIVITY_THRESHOLD_MS = 5 * 60 * 1000; // 5 min
   standalone: true,
   imports: [
     LoadingSkeletonComponent, EmptyStateComponent,
-    PlayerTopbar, PlayerSidebar, PlayerContentBlock, CourseCertificate
+    PlayerTopbar, PlayerSidebar, PlayerContentBlock, CourseCertificate,
+    CourseResult
   ],
   templateUrl: './course-player-container.html',
   styleUrl: './course-player-container.scss',

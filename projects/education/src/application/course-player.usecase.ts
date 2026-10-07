@@ -1,10 +1,13 @@
 import { inject, Injectable, signal, computed, effect, DestroyRef } from '@angular/core';
 import { CourseUseCase } from './course.usecase';
 import { EnrollmentUseCase } from './enrollment.usecase';
-import { ILesson } from '../domain/model/course.model';
+import { EContentType, ILesson } from '../domain/model/course.model';
 import { ICourseCertificate } from '../domain/model/player.model';
 import { AuthSessionService } from 'auth';
 import { SurveyService } from '../infrastructure/services/survey.service';
+
+/** Institución de los cursos gratis y abiertos (sin certificado: muestran el resultado final). */
+export const OPEN_INSTITUTION_ID = 'gems-abierto';
 
 @Injectable({ providedIn: 'root' })
 export class CoursePlayerUseCase {
@@ -167,6 +170,36 @@ export class CoursePlayerUseCase {
     const block = this.selectedBlock();
     if (!block) return 0;
     return this.enrollmentUc.quizAttempts().filter(a => a.blockId === block.id).length;
+  });
+
+  /** Cursos gratis de «GEMS Abierto»: no emiten certificado, muestran el resultado final. */
+  readonly isOpenCourse = computed(() => this.course()?.institutionId === OPEN_INSTITUTION_ID);
+
+  /**
+   * Resultado de un curso gratis terminado: el último quiz del curso es el simulacro (su mejor intento
+   * define si aprobó) y las demás prácticas dan un promedio de referencia.
+   */
+  readonly openResult = computed(() => {
+    const c = this.course();
+    if (!c || !this.isOpenCourse() || this.courseProgress() < 100) return null;
+    const quizzes = c.modules.flatMap(m => m.lessons).flatMap(l => l.contentBlocks)
+      .filter(b => b.type === EContentType.QUIZ);
+    if (!quizzes.length) return null;
+    const attempts = this.enrollmentUc.quizAttempts().filter(a => a.courseId === c.id);
+    const best = (blockId: string) => attempts.filter(a => a.blockId === blockId)
+      .reduce<number | null>((max, a) => (max === null || a.score > max ? a.score : max), null);
+    const finalQuiz = quizzes[quizzes.length - 1];
+    const finalScore = best(finalQuiz.id) ?? 0;
+    const passingScore = finalQuiz.passingScore ?? 60;
+    const practices = quizzes.slice(0, -1).map(q => best(q.id)).filter((s): s is number => s !== null);
+    return {
+      finalTitle: finalQuiz.title,
+      finalScore: Math.round(finalScore),
+      passingScore,
+      passed: finalScore >= passingScore,
+      practiceAverage: practices.length ? Math.round(practices.reduce((a, b) => a + b, 0) / practices.length) : null,
+      practicesDone: practices.length,
+    };
   });
 
   readonly certificate = computed((): ICourseCertificate | null => {

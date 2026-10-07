@@ -16,6 +16,8 @@ export class AdminSidebarUseCase {
     if (role === EUserRole.SUPER_ADMIN) {
       return [
         { id: 'institutions', label: 'Instituciones', icon: 'institutions', route: '/admin/institutions' },
+        // Solicitudes de espacio que llegan desde «Enseña en GEMS».
+        { id: 'requests', label: 'Solicitudes', icon: 'users', route: '/solicitudes' },
         { id: 'audit', label: 'Auditoría', icon: 'stats', route: '/admin/audit' }
       ];
     }

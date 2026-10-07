@@ -28,6 +28,8 @@ export class StudentLayout implements OnInit, OnDestroy {
   readonly sidebarCollapsed  = signal(this.initCollapsed(this.router.url));
 
   readonly user = this.authSession.user;
+  /** Invitado (sin cuenta): Inicio y Catálogo piden crear la cuenta, así que llevan un candado. */
+  readonly isGuest = computed(() => this.user()?.email?.endsWith('@invitado.gems.lat') ?? false);
   readonly role = this.authSession.role;
 
   readonly initials = computed(() => {

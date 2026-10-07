@@ -21,8 +21,8 @@ import { isGuestUser } from './guest-access.service';
         @if (signedIn()) {
           <a class="ph__btn ph__btn--primary" [routerLink]="home()">{{ guest() ? 'Mis cursos' : 'Ir a mi panel' }}</a>
         } @else {
-          <a class="ph__btn ph__btn--ghost" routerLink="/auth/signin">Iniciar sesión</a>
-          <a class="ph__btn ph__btn--primary" routerLink="/instituciones">Crear mi espacio</a>
+          <a class="ph__btn ph__btn--ghost" routerLink="/auth/signin"><span class="ph__long">Iniciar sesión</span><span class="ph__short">Entrar</span></a>
+          <a class="ph__btn ph__btn--primary" routerLink="/instituciones"><span class="ph__long">Crear mi espacio</span><span class="ph__short">Enseñar</span></a>
         }
       </div>
     </header>
@@ -49,10 +49,17 @@ import { isGuestUser } from './guest-access.service';
     .ph__btn--primary { color: var(--color-sobre-primario); background: var(--color-primario-accion); }
     .ph__btn--primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px var(--color-primario-trans-20); }
     a:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; border-radius: 8px; }
+    .ph__short { display: none; }
+    /* Celular: una sola línea. «Cursos gratis» es esta misma página y «Enseñar» lleva a /instituciones. */
     @media (max-width: 760px) {
-      .ph { flex-wrap: wrap; gap: 10px; padding: 12px 16px; }
-      .ph__nav { order: 3; width: 100%; margin: 0; }
+      .ph { gap: 8px; padding: 10px 14px; }
+      .ph__nav { display: none; }
       .ph__btn { padding: 8px 12px; }
+    }
+    @media (max-width: 420px) {
+      .ph__long { display: none; }
+      .ph__short { display: inline; }
+      .ph__brand img { width: 30px; height: 30px; }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,

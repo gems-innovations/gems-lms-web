@@ -33,6 +33,7 @@ $nav-closed:  60px;
       .slayout__brand-text    { display: none; }
       .slayout__navlink       { justify-content: center; padding: 10px 0; }
       .slayout__navlink-label { display: none; }
+      .slayout__lock          { position: absolute; top: 4px; right: 10px; margin: 0; }
       .slayout__user          { justify-content: center; padding: 10px 0; }
       .slayout__user-info     { display: none; }
       .slayout__profile-btn,
@@ -120,6 +121,7 @@ $nav-closed:  60px;
     display: flex;
     align-items: center;
     gap: 10px;
+    position: relative;
     padding: 9px 12px;
     border-radius: 7px;
     font-size: 13.5px;
@@ -158,6 +160,9 @@ $nav-closed:  60px;
   }
 
   &__navlink-label { /* visible by default, hidden via collapsed modifier */ }
+  &__lock { flex-shrink: 0; margin-left: auto; opacity: .55; }
+  &__profile-btn { position: relative; }
+  &__lock--badge { position: absolute; top: 0; right: 0; margin: 0; }
 
   &__divider {
     height: 1px;
@@ -330,7 +335,8 @@ $nav-closed:  60px;
   .slayout__navlink-label,
   .slayout__user-info,
   .slayout__toggle-btn { display: none; }
-  .slayout__navlink { justify-content: center; padding: 10px 0; }
+  .slayout__navlink { justify-content: center; padding: 10px 0; position: relative; }
+  .slayout__lock { position: absolute; top: 4px; right: 10px; margin: 0; }
   .slayout__user { flex-direction: column; padding: 10px 0; }
   .slayout__profile-btn,
   .slayout__signout-btn { display: grid; width: 36px; height: 36px; }
