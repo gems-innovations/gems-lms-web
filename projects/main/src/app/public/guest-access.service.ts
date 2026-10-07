@@ -21,7 +21,10 @@ function toUser(r: any): IUser {
   };
 }
 
-export interface IClaimAccount { firstName: string; lastName: string; email: string; password: string; }
+/** `acceptDataPolicy` es obligatorio (Ley 1581 de 2012); `acceptTips`, opcional y desmarcado por defecto. */
+export interface IClaimAccount {
+  firstName: string; lastName: string; email: string; password: string; acceptDataPolicy: boolean; acceptTips: boolean;
+}
 
 /**
  * Acceso sin registro: «Empezar gratis» crea un estudiante invitado y abre su sesión al instante.

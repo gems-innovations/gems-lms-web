@@ -106,6 +106,11 @@ for (const device of [
       await page.locator('.gsm input[name="em"]').fill(`e2e-${stamp}@ejemplo.test`);
       await page.locator('#gsm-pw').fill(`Gems${stamp}!a`);
       await expect(page.locator('.gsm__rules li.ok')).toHaveCount(5);
+      // Sin la autorización de datos (Ley 1581) no se crea la cuenta; los recordatorios vienen desmarcados.
+      await expect(page.locator('.gsm input[name="tips"]')).not.toBeChecked();
+      await page.locator('.gsm__submit').click();
+      await expect(page.locator('.gsm__error')).toContainText('política de privacidad');
+      await page.locator('.gsm input[name="policy"]').check();
       await page.locator('.gsm__submit').click();
 
       await expect(page.locator('.gsb--ok')).toBeVisible({ timeout: 15_000 });
