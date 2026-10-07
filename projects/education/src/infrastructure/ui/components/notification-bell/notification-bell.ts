@@ -49,7 +49,26 @@ export class NotificationBell {
     }
   }
 
+  /** Short label so each notice is recognisable at a glance. */
+  protected kind(type: string): { label: string; tone: 'info' | 'good' | 'nudge' } | null {
+    switch (type) {
+      case 'graded': return { label: 'Calificación', tone: 'good' };
+      case 'certificate': return { label: 'Certificado', tone: 'good' };
+      case 'enrolled': return { label: 'Nuevo curso', tone: 'good' };
+      case 'announcement': return { label: 'Anuncio', tone: 'info' };
+      case 'forum': return { label: 'Foro', tone: 'info' };
+      case 'submission': return { label: 'Entrega', tone: 'info' };
+      case 'reminder': return { label: 'Recordatorio', tone: 'nudge' };
+      case 'motivation': return { label: 'Tu meta', tone: 'nudge' };
+      default: return null;
+    }
+  }
+
   private target(n: IInstructorNotification): { path: string[]; query?: Record<string, string> } | null {
+    if (n.type === 'certificate') {
+      const code = /código\s+([A-Za-z0-9-]+)/.exec(n.message)?.[1];
+      return code ? { path: ['/certificates/verify', code] } : null;
+    }
     if (!n.courseId) return null;
     const staffArea = this.router.url.startsWith('/instructor');
     if (staffArea) return { path: ['/instructor/courses', n.courseId] };

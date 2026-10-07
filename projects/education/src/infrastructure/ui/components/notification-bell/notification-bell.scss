@@ -144,6 +144,19 @@
     &--unread { background: var(--color-primario-trans-10); }
   }
 
+  &__item-kind {
+    align-self: flex-start;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primario);
+    background: var(--color-primario-trans-10);
+
+    &--good { color: var(--color-exito, #16a34a); background: color-mix(in srgb, var(--color-exito, #16a34a) 14%, transparent); }
+    &--nudge { color: var(--color-advertencia, #d97706); background: color-mix(in srgb, var(--color-advertencia, #d97706) 14%, transparent); }
+  }
+
   &__item-title {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);

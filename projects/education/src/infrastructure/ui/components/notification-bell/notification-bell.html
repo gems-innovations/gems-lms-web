@@ -26,6 +26,10 @@
           @for (n of service.notifications(); track n.id) {
             <li>
               <button type="button" class="nbell__item" [class.nbell__item--unread]="!n.read" (click)="select(n)">
+                @if (kind(n.type); as k) {
+                  <span class="nbell__item-kind" [class.nbell__item-kind--good]="k.tone === 'good'"
+                        [class.nbell__item-kind--nudge]="k.tone === 'nudge'">{{ k.label }}</span>
+                }
                 <span class="nbell__item-title">{{ n.title }}</span>
                 <span class="nbell__item-message">{{ n.message }}</span>
                 <span class="nbell__item-date">{{ n.createdAt | date:'d MMM, HH:mm' }}</span>

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map, tap, catchError, of } from 'rxjs';
 import { environment } from 'shared';
 
-export type TNotificationType = 'submission' | 'graded' | 'announcement' | 'forum' | 'reminder';
+export type TNotificationType = 'submission' | 'graded' | 'announcement' | 'forum' | 'reminder' | 'enrolled' | 'certificate' | 'motivation';
 
 export interface IInstructorNotification {
   id: string;
