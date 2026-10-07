@@ -1,24 +1,29 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PublicHeaderComponent } from './public-header.component';
+import { PublicFooterComponent } from './public-footer.component';
 import { DIFFICULTY_LABEL, IPublicCourse, PublicCatalogService } from './public-catalog.service';
+import { CourseStarterService } from './course-starter.service';
 
 /**
  * Página de entrada pública: cursos gratis para prepararse para la universidad, sin registro.
- * Las instituciones encuentran arriba el acceso para tener su propio espacio.
+ * Cada tarjeta abre el curso con un toque; las instituciones encuentran arriba su acceso.
  */
 @Component({
   selector: 'gems-landing',
-  imports: [RouterLink, PublicHeaderComponent],
+  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent],
   templateUrl: './landing.component.html',
-  styleUrl: './public.scss',
+  styleUrls: ['./public.scss', './landing-extra.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LandingComponent {
   private readonly catalog = inject(PublicCatalogService);
+  protected readonly starter = inject(CourseStarterService);
 
   protected readonly state = signal<'loading' | 'ready' | 'error'>('loading');
   protected readonly courses = signal<IPublicCourse[]>([]);
+  protected readonly error = signal<string | null>(null);
+  protected readonly errorFor = signal<number | null>(null);
   protected readonly difficulty = DIFFICULTY_LABEL;
 
   constructor() {
@@ -26,5 +31,12 @@ export class LandingComponent {
       next: list => { this.courses.set(list); this.state.set('ready'); },
       error: () => this.state.set('error'),
     });
+  }
+
+  protected async start(id: number): Promise<void> {
+    this.errorFor.set(null);
+    const e = await this.starter.start(id);
+    this.error.set(e);
+    this.errorFor.set(e ? id : null);
   }
 }

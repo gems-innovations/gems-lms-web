@@ -15,6 +15,8 @@ export const serverRoutes: ServerRoute[] = [
   { path: '',                     renderMode: RenderMode.Server },
   { path: 'cursos/:id',           renderMode: RenderMode.Server },
   { path: 'instituciones',        renderMode: RenderMode.Server },
+  { path: 'terminos',             renderMode: RenderMode.Server },
+  { path: 'privacidad',           renderMode: RenderMode.Server },
   { path: 'solicitudes',          renderMode: RenderMode.Client },
 
   // Public / pre-renderable routes

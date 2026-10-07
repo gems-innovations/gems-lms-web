@@ -1,21 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { firstValueFrom } from 'rxjs';
 import { AuthSessionService, EUserRole } from 'auth/core';
-import { environment } from 'shared/core';
 import { PublicHeaderComponent } from './public-header.component';
+import { PublicFooterComponent } from './public-footer.component';
 import { DIFFICULTY_LABEL, IPublicCourse, PublicCatalogService } from './public-catalog.service';
-import { GuestAccessService } from './guest-access.service';
+import { CourseStarterService } from './course-starter.service';
 
 /**
  * Ficha pública de un curso gratis. «Empezar ahora» abre una sesión de invitado (si no hay sesión),
- * inscribe y lleva directo al curso.
+ * inscribe y lleva directo al curso. En el celular el botón queda fijo abajo.
  */
 @Component({
   selector: 'gems-public-course',
-  imports: [RouterLink, FormsModule, PublicHeaderComponent],
+  imports: [RouterLink, FormsModule, PublicHeaderComponent, PublicFooterComponent],
   template: `
     <gems-public-header />
     <main class="pub">
@@ -26,7 +24,7 @@ import { GuestAccessService } from './guest-access.service';
         @default {
           @if (course(); as c) {
             <div class="detail">
-              <section>
+              <section class="detail__main">
                 <span class="eyebrow">Curso gratis</span>
                 <h1>{{ c.title }}</h1>
                 <p class="lead">{{ c.description }}</p>
@@ -50,39 +48,48 @@ import { GuestAccessService } from './guest-access.service';
                 @if (staff()) {
                   <p>Estás con una cuenta de {{ roleLabel() }}. Los cursos gratis son para estudiantes: abre esta página en una ventana privada para verlo como ellos.</p>
                 } @else {
-                  <p>Sin correo ni contraseña. Tu avance se guarda en este dispositivo y, si quieres, después creas tu cuenta para no perderlo.</p>
+                  <p>Sin correo ni contraseña. Tu avance se guarda y, si quieres, después creas tu cuenta para no perderlo.</p>
                   @if (!signedIn()) {
                     <label for="nick">¿Cómo te llamamos? (opcional)</label>
-                    <input id="nick" class="field" maxlength="40" placeholder="Tu nombre o apodo" [(ngModel)]="nickname" (keydown.enter)="start()" />
+                    <input id="nick" class="field" maxlength="40" placeholder="Tu nombre o apodo" autocomplete="nickname"
+                           [(ngModel)]="nickname" (keydown.enter)="start()" />
                   }
                   @if (error(); as e) { <p class="error" role="alert">{{ e }}</p> }
                   <button type="button" class="btn btn--primary btn--block" [disabled]="busy()" (click)="start()">
                     {{ busy() ? 'Entrando…' : signedIn() ? 'Ir al curso' : 'Empezar ahora' }}
                   </button>
-                  <span class="note">Al empezar aceptas que guardemos tu progreso para mostrarte tu avance. No pedimos datos personales.</span>
+                  <span class="note">Material de práctica: no garantiza la admisión. No pedimos datos personales.
+                    <a routerLink="/terminos">Términos</a> · <a routerLink="/privacidad">Privacidad</a></span>
                 }
               </aside>
             </div>
+
+            @if (!staff()) {
+              <div class="mobile-cta">
+                <button type="button" class="btn btn--primary btn--block" [disabled]="busy()" (click)="start()">
+                  {{ busy() ? 'Entrando…' : signedIn() ? 'Ir al curso' : 'Empezar gratis ahora' }}
+                </button>
+              </div>
+            }
           }
         }
       }
     </main>
+    <gems-public-footer />
   `,
   styleUrls: ['./public.scss', './public-detail.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PublicCourseComponent {
   private readonly catalog = inject(PublicCatalogService);
-  private readonly guests = inject(GuestAccessService);
+  private readonly starter = inject(CourseStarterService);
   private readonly session = inject(AuthSessionService);
-  private readonly http = inject(HttpClient);
-  private readonly router = inject(Router);
   private readonly id = inject(ActivatedRoute).snapshot.paramMap.get('id') ?? '';
 
   protected readonly state = signal<'loading' | 'ready' | 'error'>('loading');
   protected readonly course = signal<IPublicCourse | null>(null);
-  protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly busy = computed(() => this.starter.starting() !== null);
   protected readonly difficulty = DIFFICULTY_LABEL;
   protected nickname = '';
 
@@ -98,29 +105,7 @@ export class PublicCourseComponent {
   }
 
   protected async start(): Promise<void> {
-    if (this.busy()) return;
-    this.busy.set(true);
     this.error.set(null);
-    try {
-      const user = await this.guests.ensureSession(this.nickname);
-      try {
-        await firstValueFrom(this.http.post(`${environment.apiUrls.education.enrollments}`,
-          { studentId: Number(user.id), courseId: Number(this.id) }));
-      } catch (e) {
-        // Ya inscrito: se sigue directo al curso.
-        if (!(e instanceof HttpErrorResponse && e.status === 409)) throw e;
-      }
-      const target = `/learn/courses/${encodeURIComponent(this.id)}`;
-      // Respaldo: si la transición animada no puede completarse (pestaña sin pintar), carga directa.
-      const fallback = setTimeout(() => { if (typeof location !== 'undefined') location.assign(target); }, 3000);
-      await this.router.navigateByUrl(target);
-      clearTimeout(fallback);
-    } catch (e) {
-      this.error.set(e instanceof HttpErrorResponse && e.status === 429
-        ? 'Hay demasiadas personas entrando desde esta red. Intenta en unos minutos.'
-        : 'No pudimos abrir el curso. Revisa tu conexión e inténtalo de nuevo.');
-    } finally {
-      this.busy.set(false);
-    }
+    this.error.set(await this.starter.start(Number(this.id), this.nickname));
   }
 }

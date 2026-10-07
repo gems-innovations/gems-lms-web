@@ -27,10 +27,19 @@
 .perks { display: grid; gap: 10px; margin: 20px 0 0; padding: 0; list-style: none;
   li { padding: 14px 16px; border-radius: 12px; background: var(--color-superficie); border: 1px solid var(--color-borde-principal); font-size: var(--font-size-sm); }
   strong { display: block; color: var(--color-texto-principal); font-size: var(--font-size-base); } }
-
+.start a { color: var(--color-primario-texto, var(--color-primario)); }
+.mobile-cta { display: none; }
 
 @media (max-width: 860px) {
-  .detail { grid-template-columns: 1fr; gap: 28px; }
+  .detail { grid-template-columns: 1fr; gap: 28px; padding-block: 20px 96px; }
   .start { position: static; }
+  // En el celular el formulario de empezar va antes del temario.
+  .detail__main { display: contents; }
+  .detail__main .outline { order: 3; }
+  .start { order: 2; }
+  .mobile-cta { display: block; position: fixed; inset: auto 0 0 0; z-index: 40;
+    padding: 12px 16px calc(env(safe-area-inset-bottom, 0px) + 12px);
+    background: color-mix(in srgb, var(--color-fondo-principal) 90%, transparent); backdrop-filter: blur(10px);
+    border-top: 1px solid var(--color-borde-principal); }
   .form__row { grid-template-columns: 1fr; }
 }

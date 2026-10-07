@@ -102,15 +102,12 @@ h2 { margin: 0; font: 800 clamp(24px, 3vw, 32px)/1.15 var(--font-titulo); text-w
   p { margin: 8px 0 0; max-width: 60ch; color: var(--color-texto-secundario); }
 }
 
-.pub-foot { padding: 28px 20px 40px; text-align: center; border-top: 1px solid var(--color-borde-principal);
-  p { margin: 0 auto; max-width: 70ch; font-size: var(--font-size-xs); color: var(--color-texto-terciario); } }
-
 @keyframes pub-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 
 @media (max-width: 860px) {
   .hero { grid-template-columns: 1fr; gap: 28px; }
   .hero { padding-block: 36px 24px; }
-  .hero__card { max-width: 420px; }
+  .hero__card { display: none; }
   .steps ol { grid-template-columns: 1fr; }
 }
 

@@ -2,12 +2,13 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PublicHeaderComponent } from './public-header.component';
+import { PublicFooterComponent } from './public-footer.component';
 import { IInstitutionRequest, PublicCatalogService } from './public-catalog.service';
 
 /** Para colegios, preuniversitarios y universidades: qué obtienen y solicitud de su propio espacio. */
 @Component({
   selector: 'gems-institutions',
-  imports: [FormsModule, RouterLink, PublicHeaderComponent],
+  imports: [FormsModule, RouterLink, PublicHeaderComponent, PublicFooterComponent],
   template: `
     <gems-public-header />
     <main class="pub">
@@ -47,12 +48,13 @@ import { IInstitutionRequest, PublicCatalogService } from './public-catalog.serv
               <label>¿Qué te gustaría lograr?<textarea class="field" name="msg" rows="3" maxlength="2000" [(ngModel)]="form.message"></textarea></label>
               @if (error(); as e) { <p class="error" role="alert">{{ e }}</p> }
               <button type="submit" class="btn btn--primary btn--block" [disabled]="busy()">{{ busy() ? 'Enviando…' : 'Enviar solicitud' }}</button>
-              <span class="note">Solo usamos estos datos para contactarte sobre GEMS.</span>
+              <span class="note">Solo usamos estos datos para contactarte sobre GEMS. Ver <a routerLink="/privacidad">privacidad</a>.</span>
             </form>
           }
         </aside>
       </div>
     </main>
+    <gems-public-footer />
   `,
   styleUrls: ['./public.scss', './public-detail.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -24,6 +24,18 @@ export const routes: Routes = [
     loadComponent: () => import('./public/institutions.component').then(m => m.InstitutionsComponent)
   },
   {
+    path: 'terminos',
+    title: 'Términos de uso',
+    data: { doc: 'terminos' },
+    loadComponent: () => import('./public/legal-page.component').then(m => m.LegalPageComponent)
+  },
+  {
+    path: 'privacidad',
+    title: 'Privacidad y datos personales',
+    data: { doc: 'privacidad' },
+    loadComponent: () => import('./public/legal-page.component').then(m => m.LegalPageComponent)
+  },
+  {
     path: 'solicitudes',
     title: 'Solicitudes de instituciones',
     canActivate: [authGuard, roleGuard([EUserRole.SUPER_ADMIN])],
