@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DOCUMENT, computed, effect, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NavigationEnd, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -72,6 +72,7 @@ import { GuestGateService } from './guest-gate';
     .gsb__btn:disabled { opacity: .6; cursor: progress; }
     .gsb__close { flex-shrink: 0; width: 30px; height: 30px; border: 0; border-radius: 8px; background: none; color: var(--color-texto-terciario); font-size: 18px; cursor: pointer; }
     .gsb__close:hover { background: var(--color-fondo-hover); }
+    ::ng-deep body.gems-guest-bar edu-player-content-block { display: block; padding-bottom: 104px; }
     .gsm__backdrop { position: fixed; inset: 0; z-index: 1000; background: var(--color-fondo-overlay); }
     .gsm { position: fixed; z-index: 1001; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(460px, calc(100vw - 32px));
       max-height: calc(100vh - 32px); overflow: auto; padding: 24px; border-radius: 18px; background: var(--color-superficie);
@@ -129,6 +130,9 @@ export class GuestSaveBarComponent {
   constructor() {
     // Si el invitado intentó abrir una sección bloqueada, se le muestra la invitación a crear su cuenta.
     effect(() => { if (this.gate.blocked()) { this.error.set(null); this.open.set(true); } });
+    // Mientras la barra está a la vista, el reproductor deja espacio abajo para que no tape ningún botón.
+    const body = inject(DOCUMENT).body;
+    effect(() => body?.classList.toggle('gems-guest-bar', this.visible()));
   }
 
   protected close(): void {

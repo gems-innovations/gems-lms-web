@@ -60,7 +60,7 @@ for (const phone of PHONES) {
 
       // Reproductor: la lección ocupa el ancho y el menú pasa a ser una barra inferior.
       const content = page.locator('.course-player-container__content');
-      await expect(content).toBeVisible();
+      await expect(content).toBeVisible({ timeout: 15_000 });
       const box = (await content.boundingBox())!;
       expect(box.width, 'la lección debe usar casi todo el ancho').toBeGreaterThan(phone.width - 40);
       const nav = (await page.locator('.slayout__leftnav').boundingBox())!;

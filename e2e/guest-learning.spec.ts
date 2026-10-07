@@ -15,7 +15,7 @@ async function startAsGuest(page: Page) {
   const card = page.locator('article.card', { hasText: COURSE });
   await card.locator('.card__actions button').click();
   await expect(page).toHaveURL(/\/learn\/courses\/\d+/, { timeout: 15_000 });
-  await expect(page.locator('edu-player-content-block')).toBeVisible();
+  await expect(page.locator('edu-player-content-block')).toBeVisible({ timeout: 15_000 });
   // La app exige un tiempo de lectura antes de habilitar el quiz; lo adelantamos.
   await page.clock.runFor(120_000);
 }
@@ -54,6 +54,8 @@ for (const device of [
 ]) {
   test.describe(`Estudio como invitado · ${device.name}`, () => {
     test.use({ viewport: device.viewport });
+    // Responden quizzes completos (5 o 6 preguntas, dos intentos): necesitan más que los 30 s por defecto.
+    test.setTimeout(60_000);
 
     test('quiz: entregar, ver resultado y reintentar', async ({ page }) => {
       await startAsGuest(page);
