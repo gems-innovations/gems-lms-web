@@ -103,6 +103,11 @@
               "extractLicenses": false,
               "sourceMap": true
             },
+            "static": {
+              "server": false,
+              "ssr": false,
+              "outputMode": "static"
+            },
             "storybook": {
               "tsConfig": ".storybook/tsconfig.json",
               "optimization": false,
