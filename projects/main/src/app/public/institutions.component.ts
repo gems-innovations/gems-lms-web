@@ -47,7 +47,17 @@ import { IInstitutionRequest, PublicCatalogService } from './public-catalog.serv
                 <label>Correo *<input class="field" name="email" type="email" required maxlength="160" [(ngModel)]="form.email" /></label>
                 <label>Teléfono<input class="field" name="phone" type="tel" maxlength="40" [(ngModel)]="form.phone" /></label>
               </div>
-              <label>¿Cuántas personas aprenderían?<input class="field" name="students" type="number" min="0" [(ngModel)]="form.students" /></label>
+              <fieldset class="pick">
+                <legend>¿Cuántas personas aprenderían?</legend>
+                <div class="pick__opts">
+                  @for (o of sizes; track o.value) {
+                    <label class="pick__opt" [class.is-on]="form.students === o.value">
+                      <input type="radio" name="students" [value]="o.value" [checked]="form.students === o.value" (change)="form.students = o.value" />
+                      <span>{{ o.label }}</span>
+                    </label>
+                  }
+                </div>
+              </fieldset>
               <label>¿Qué te gustaría lograr?<textarea class="field" name="msg" rows="3" maxlength="2000" [(ngModel)]="form.message"></textarea></label>
               @if (error(); as e) { <p class="error" role="alert">{{ e }}</p> }
               <button type="submit" class="btn btn--primary btn--block" [disabled]="busy()">{{ busy() ? 'Enviando…' : 'Enviar solicitud' }}</button>
@@ -66,6 +76,11 @@ export class InstitutionsComponent {
   private readonly catalog = inject(PublicCatalogService);
 
   protected form: IInstitutionRequest = { institutionName: '', contactName: '', email: '', phone: '', role: '', students: null, message: '' };
+  /** Rangos en vez de un número exacto: se guarda el tope de cada rango. */
+  protected readonly sizes = [
+    { label: 'Hasta 10', value: 10 }, { label: '11 a 50', value: 50 }, { label: '51 a 200', value: 200 },
+    { label: '201 a 1.000', value: 1000 }, { label: 'Más de 1.000', value: 1001 },
+  ];
   protected readonly busy = signal(false);
   protected readonly sent = signal(false);
   protected readonly error = signal<string | null>(null);
