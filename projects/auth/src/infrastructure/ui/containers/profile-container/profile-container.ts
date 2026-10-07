@@ -6,10 +6,11 @@ import { UserService } from '../../../services/user.service';
 import { DisplayPreferencesService, ThemePreference } from 'auth/core';
 import { TranslatePipe } from 'shared';
 import { I18nService, ImageUploadComponent, PageComponent, PageHeaderComponent, ToastService } from 'shared';
+import { EmailPreferencesComponent } from '../../components/email-preferences/email-preferences';
 
 @Component({
   selector: 'auth-profile-container',
-  imports: [TranslatePipe, CommonModule, FormsModule, ImageUploadComponent, PageComponent, PageHeaderComponent],
+  imports: [TranslatePipe, CommonModule, FormsModule, ImageUploadComponent, PageComponent, PageHeaderComponent, EmailPreferencesComponent],
   templateUrl: './profile-container.html',
   styleUrl: './profile-container.scss'
 })

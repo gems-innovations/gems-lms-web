@@ -11,6 +11,8 @@ export const serverRoutes: ServerRoute[] = [
   // The reset link carries its token in the query string, read in the browser.
   { path: 'auth/reset-password',   renderMode: RenderMode.Client },
   { path: 'auth/verify-email',     renderMode: RenderMode.Client },
+  // The e-mail link carries a signed token in the query string, read in the browser.
+  { path: 'correo/preferencias',   renderMode: RenderMode.Client },
 
   // Páginas públicas del gancho: se renderizan en el servidor en cada visita (catálogo vivo y buscadores).
   { path: '',                     renderMode: RenderMode.Server },

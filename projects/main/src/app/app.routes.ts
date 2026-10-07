@@ -31,6 +31,11 @@ export const routes: Routes = [
     loadComponent: () => import('./public/legal-page.component').then(m => m.LegalPageComponent)
   },
   {
+    path: 'correo/preferencias',
+    title: 'Tus correos de GEMS',
+    loadComponent: () => import('./public/email-preferences-page.component').then(m => m.EmailPreferencesPageComponent)
+  },
+  {
     path: 'privacidad',
     title: 'Privacidad y datos personales',
     data: { doc: 'privacidad' },

@@ -27,6 +27,13 @@ interface ILoginResponse extends IUserResponse {
   mustChangePassword?: boolean;
 }
 
+/** E-mail choices of the signed-in user and whether the address is confirmed. */
+export interface IEmailPreferences {
+  courseNotices: boolean;
+  tips: boolean;
+  emailVerified: boolean;
+}
+
 export interface ILoginResult {
   user: IUser;
   token: string;
@@ -102,6 +109,14 @@ export class UserService {
   /** Asks for a new verification link (the API limits it to one per minute). */
   resendEmailVerification(): Observable<void> {
     return this.http.post<void>(`${this.urls.auth.base}/verify-email/resend`, {});
+  }
+
+  getEmailPreferences(): Observable<IEmailPreferences> {
+    return this.http.get<IEmailPreferences>(`${this.urls.auth.base}/email-preferences`);
+  }
+
+  updateEmailPreferences(prefs: { courseNotices: boolean; tips: boolean }): Observable<IEmailPreferences> {
+    return this.http.put<IEmailPreferences>(`${this.urls.auth.base}/email-preferences`, prefs);
   }
 
   isEmailVerified(): Observable<boolean> {
