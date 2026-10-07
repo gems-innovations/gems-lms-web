@@ -12,8 +12,8 @@
       </div>
       <p class="trust">Sin correo, sin contraseña y sin tarjeta. Entras en un toque.</p>
       <ul class="hero__facts">
-        <li><strong>0 $</strong> siempre gratis</li>
-        <li><strong>0</strong> formularios para empezar</li>
+        <li><strong>$0</strong> para empezar</li>
+        <li><strong>0</strong> formularios</li>
         <li><strong>10 min</strong> al día</li>
       </ul>
     </div>
@@ -45,7 +45,7 @@
             @for (c of courses(); track c.id) {
               <article class="card">
                 <div class="card__img">
-                  @if (c.thumbnailUrl) { <img [src]="c.thumbnailUrl" alt="" loading="lazy" /> }
+                  @if (c.thumbnailUrl) { <img [src]="c.thumbnailUrl" alt="" loading="lazy" (error)="$any($event.target).remove()" /> }
                   <span class="card__free">Gratis</span>
                 </div>
                 <div class="card__body">
@@ -135,7 +135,7 @@
   <section id="preguntas" class="block faq reveal" aria-labelledby="faq-title">
     <h2 id="faq-title">Preguntas frecuentes</h2>
     <div class="faq__list">
-      <details><summary>¿De verdad es gratis?</summary><p>Sí. Los cursos de preparación son gratis y no pedimos tarjeta. Las instituciones que quieren su propio espacio son las que pagan.</p></details>
+      <details><summary>¿De verdad es gratis?</summary><p>Sí. Los cursos marcados como «Gratis» no tienen costo ni piden tarjeta. Si algún día lanzamos cursos o funciones de pago, te lo diremos claramente antes: nunca te cobraremos sin que lo aceptes.</p></details>
       <details><summary>¿Tengo que registrarme?</summary><p>No. Tocas «Empezar gratis» y entras como invitado. Si quieres guardar tu avance para otro dispositivo, creas tu cuenta cuando quieras y no pierdes nada.</p></details>
       <details><summary>¿Las preguntas son las del examen real?</summary><p>No copiamos exámenes. Creamos preguntas originales con el mismo estilo, temas y nivel de los exámenes de admisión y del Saber 11 publicados.</p></details>
       <details><summary>¿Esto me garantiza entrar a la universidad?</summary><p>Ningún curso puede garantizarlo. Practicar con constancia sí te ayuda a llegar mejor preparado. Consulta siempre las fechas y requisitos oficiales de cada universidad.</p></details>
