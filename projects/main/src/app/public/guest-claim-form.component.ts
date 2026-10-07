@@ -18,10 +18,10 @@ import { GuestGateService } from './guest-gate';
       @if (gate.blocked(); as what) {
         <span class="gsm__lock">Necesitas una cuenta</span>
         <h2 id="gsm-title">Crea tu cuenta para ver {{ what }}</h2>
-        <p>Tu curso sigue abierto como invitado. Con una cuenta gratis desbloqueas el resto de la plataforma y conservas todo lo que llevas.</p>
+        <p>Es gratis, y conservas todo lo que llevas.</p>
       } @else {
         <h2 id="gsm-title">Guarda tu avance</h2>
-        <p>Tus lecciones, intentos y racha pasan a tu cuenta. Después entras con tu correo desde cualquier dispositivo.</p>
+        <p>Tu avance y tu racha pasan a tu cuenta.</p>
       }
       <form (submit)="$event.preventDefault(); save()">
         <div class="gsm__row">
@@ -35,16 +35,18 @@ import { GuestGateService } from './guest-gate';
                  (input)="password.set($any($event.target).value)" autocomplete="new-password" aria-describedby="gsm-rules" />
           <button type="button" class="gsm__eye" (click)="showPw.set(!showPw())" [attr.aria-pressed]="showPw()">{{ showPw() ? 'Ocultar' : 'Mostrar' }}</button>
         </div>
-        <ul class="gsm__rules" id="gsm-rules" aria-label="Requisitos de la contraseña">
-          @for (r of rules(); track r.label) { <li [class.ok]="r.ok">{{ r.label }}</li> }
-        </ul>
+        @if (password().length > 0 && !rulesOk()) {
+          <ul class="gsm__rules" id="gsm-rules" aria-label="Requisitos de la contraseña">
+            @for (r of rules(); track r.label) { <li [class.ok]="r.ok">{{ r.label }}</li> }
+          </ul>
+        }
         <label class="gsm__check">
           <input type="checkbox" name="policy" [checked]="acceptPolicy()" (change)="acceptPolicy.set($any($event.target).checked)" />
-          <span>Autorizo el tratamiento de mis datos según la <a href="/privacidad" target="_blank" rel="noopener">política de privacidad</a> y acepto los <a href="/terminos" target="_blank" rel="noopener">términos de uso</a>. Si soy menor de edad, lo hago con autorización de mi madre, padre o acudiente.</span>
+          <span>Acepto la <a href="/privacidad" target="_blank" rel="noopener">política de privacidad</a> y los <a href="/terminos" target="_blank" rel="noopener">términos</a>. Si soy menor, cuento con permiso de mi acudiente.</span>
         </label>
         <label class="gsm__check">
           <input type="checkbox" name="tips" [checked]="acceptTips()" (change)="acceptTips.set($any($event.target).checked)" />
-          <span>Quiero recibir recordatorios e ideas para seguir estudiando (como mucho uno por semana). <em>Opcional; puedes cambiarlo cuando quieras.</em></span>
+          <span>Quiero recordatorios para seguir estudiando <em>(opcional, máx. 1 por semana)</em></span>
         </label>
         @if (error(); as e) { <p class="gsm__error" role="alert">{{ e }}</p> }
         <button type="submit" class="gsm__submit" [disabled]="busy()">{{ busy() ? 'Creando tu cuenta…' : 'Crear mi cuenta gratis' }}</button>
@@ -56,16 +58,16 @@ import { GuestGateService } from './guest-gate';
   styles: [`
     .gsm__backdrop { position: fixed; inset: 0; z-index: 1000; background: var(--color-fondo-overlay); }
     .gsm { position: fixed; z-index: 1001; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(460px, calc(100vw - 32px));
-      max-height: calc(100vh - 32px); overflow: auto; padding: 24px; border-radius: 18px; background: var(--color-superficie);
+      max-height: calc(100vh - 32px); overflow: auto; padding: 20px 22px; border-radius: 18px; background: var(--color-superficie);
       border: 1px solid var(--color-borde-secundario); box-shadow: var(--sombra-xl); }
     .gsm__lock { display: inline-block; margin-bottom: 8px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-texto-acento); }
-    .gsm__alt { margin: 14px 0 0 !important; padding-top: 14px; border-top: 1px solid var(--color-borde-principal); text-align: center; font-size: 13px; color: var(--color-texto-terciario); }
+    .gsm__alt { margin: 8px 0 0 !important; padding-top: 10px; border-top: 1px solid var(--color-borde-principal); text-align: center; font-size: 13px; color: var(--color-texto-terciario); }
     .gsm a { color: var(--color-texto-acento); font-weight: 700; }
-    .gsm h2 { margin: 0 0 6px; font: 800 22px/1.2 var(--font-titulo); color: var(--color-texto-principal); }
-    .gsm p { margin: 0 0 16px; font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
-    .gsm form { display: grid; gap: 12px; }
-    .gsm label { display: grid; gap: 6px; font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
-    .gsm input:not([type=checkbox]) { padding: 11px 13px; border-radius: 10px; border: 1px solid var(--color-borde-secundario); background: var(--color-fondo-sutil);
+    .gsm h2 { margin: 0 0 4px; font: 800 20px/1.2 var(--font-titulo); color: var(--color-texto-principal); }
+    .gsm p { margin: 0 0 12px; font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
+    .gsm form { display: grid; gap: 10px; }
+    .gsm label { display: grid; gap: 4px; font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
+    .gsm input:not([type=checkbox]) { padding: 9px 12px; border-radius: 10px; border: 1px solid var(--color-borde-secundario); background: var(--color-fondo-sutil);
       color: var(--color-texto-principal); font: inherit; }
     .gsm input:focus { outline: none; border-color: var(--color-primario); box-shadow: 0 0 0 3px var(--color-primario-trans-20); }
     .gsm .gsm__check { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; line-height: 1.45; cursor: pointer; }
@@ -82,10 +84,10 @@ import { GuestGateService } from './guest-gate';
     .gsm__rules li.ok { color: var(--color-exito-texto); border-color: color-mix(in srgb, var(--color-exito) 45%, transparent);
       background: color-mix(in srgb, var(--color-exito) 12%, transparent); }
     .gsm__rules li.ok::before { content: '✓ '; }
-    .gsm__submit { width: 100%; padding: 14px 16px; margin-top: 6px; border: 0; border-radius: 10px; font: 700 var(--font-size-base)/1 var(--font-texto);
+    .gsm__submit { width: 100%; padding: 12px 16px; margin-top: 2px; border: 0; border-radius: 10px; font: 700 var(--font-size-base)/1 var(--font-texto);
       background: var(--color-primario-accion); color: var(--color-sobre-primario); cursor: pointer; }
     .gsm__submit:disabled { opacity: .6; cursor: progress; }
-    .gsm__skip { justify-self: center; padding: 8px; border: 0; background: none; color: var(--color-texto-secundario);
+    .gsm__skip { justify-self: center; padding: 4px; border: 0; background: none; color: var(--color-texto-secundario);
       font: 600 var(--font-size-sm)/1 var(--font-texto); cursor: pointer; }
     .gsm__skip:hover { color: var(--color-texto-principal); text-decoration: underline; }
     .gsm__row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -122,6 +124,8 @@ export class GuestClaimFormComponent {
       { label: 'Un símbolo: @ $ ! % * ? &', ok: /[@$!%*?&]/.test(p) },
     ];
   });
+
+  protected readonly rulesOk = computed(() => this.rules().every(r => r.ok));
 
   protected async save(): Promise<void> {
     if (this.busy()) return;

@@ -105,7 +105,8 @@ for (const device of [
       await page.locator('.gsm input[name="ln"]').fill('Automática');
       await page.locator('.gsm input[name="em"]').fill(`e2e-${stamp}@ejemplo.test`);
       await page.locator('#gsm-pw').fill(`Gems${stamp}!a`);
-      await expect(page.locator('.gsm__rules li.ok')).toHaveCount(5);
+      // Con todos los requisitos cumplidos, la lista desaparece para no estorbar.
+      await expect(page.locator('.gsm__rules')).toHaveCount(0);
       // Sin la autorización de datos (Ley 1581) no se crea la cuenta; los recordatorios vienen desmarcados.
       await expect(page.locator('.gsm input[name="tips"]')).not.toBeChecked();
       await page.locator('.gsm__submit').click();
