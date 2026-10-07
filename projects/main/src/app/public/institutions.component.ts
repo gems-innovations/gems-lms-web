@@ -14,13 +14,16 @@ import { IInstitutionRequest, PublicCatalogService } from './public-catalog.serv
     <main class="pub">
       <div class="detail">
         <section>
-          <span class="eyebrow">Para instituciones</span>
-          <h1>Tus cursos, tus estudiantes y sus resultados, en un solo lugar</h1>
-          <p class="lead">La misma plataforma de nuestros cursos gratis, con el espacio propio de tu colegio, preuniversitario o universidad.</p>
+          <span class="eyebrow">Enseña en GEMS</span>
+          <h1>Tu propio espacio para enseñar, del tamaño que necesites</h1>
+          <p class="lead">La misma plataforma de nuestros cursos gratis, para tu gente: tus cursos, tus integrantes y su avance.</p>
+          <ul class="who" aria-label="Para quién es">
+            <li>Colegios</li><li>Universidades</li><li>Preuniversitarios y academias</li><li>Empresas</li><li>Profesores independientes</li><li>Comunidades y grupos de estudio</li>
+          </ul>
           <ul class="perks">
             <li><strong>Tus propios cursos</strong>Crea cursos, evaluaciones con banco de preguntas, tareas con rúbrica y certificados verificables.</li>
             <li><strong>Seguimiento de cada estudiante</strong>Libro de calificaciones, racha, alertas de quién se está quedando atrás y recordatorios con un clic.</li>
-            <li><strong>Preparación para la universidad</strong>Tus estudiantes usan nuestros cursos de admisión y tú ves el nivel de cada grupo.</li>
+            <li><strong>Para cualquier tema</strong>Admisión, idiomas, programación, finanzas, música, tu club de lectura: tú decides qué se aprende.</li>
             <li><strong>Gestión académica</strong>Períodos con cierre y actas, carga de estudiantes por CSV, reportes, tu marca y varios idiomas.</li>
           </ul>
         </section>
@@ -33,18 +36,18 @@ import { IInstitutionRequest, PublicCatalogService } from './public-catalog.serv
             </div>
             <a class="btn btn--ghost btn--block" routerLink="/">Volver al inicio</a>
           } @else {
-            <h2 id="req-title">Quiero GEMS para mi institución</h2>
+            <h2 id="req-title">Quiero mi espacio en GEMS</h2>
             <form class="form" (submit)="$event.preventDefault(); submit()">
-              <label>Nombre de la institución *<input class="field" name="inst" required maxlength="160" [(ngModel)]="form.institutionName" /></label>
+              <label>Nombre de tu institución, empresa o grupo *<input class="field" name="inst" required maxlength="160" [(ngModel)]="form.institutionName" /></label>
               <div class="form__row">
                 <label>Tu nombre *<input class="field" name="contact" required maxlength="120" [(ngModel)]="form.contactName" /></label>
-                <label>Tu cargo<input class="field" name="role" maxlength="60" placeholder="Rector, docente…" [(ngModel)]="form.role" /></label>
+                <label>Tu cargo<input class="field" name="role" maxlength="60" placeholder="Docente, líder del grupo…" [(ngModel)]="form.role" /></label>
               </div>
               <div class="form__row">
                 <label>Correo *<input class="field" name="email" type="email" required maxlength="160" [(ngModel)]="form.email" /></label>
                 <label>Teléfono<input class="field" name="phone" type="tel" maxlength="40" [(ngModel)]="form.phone" /></label>
               </div>
-              <label>¿Cuántos estudiantes tienen?<input class="field" name="students" type="number" min="0" [(ngModel)]="form.students" /></label>
+              <label>¿Cuántas personas aprenderían?<input class="field" name="students" type="number" min="0" [(ngModel)]="form.students" /></label>
               <label>¿Qué te gustaría lograr?<textarea class="field" name="msg" rows="3" maxlength="2000" [(ngModel)]="form.message"></textarea></label>
               @if (error(); as e) { <p class="error" role="alert">{{ e }}</p> }
               <button type="submit" class="btn btn--primary btn--block" [disabled]="busy()">{{ busy() ? 'Enviando…' : 'Enviar solicitud' }}</button>
@@ -70,7 +73,7 @@ export class InstitutionsComponent {
   protected submit(): void {
     const f = this.form;
     if (!f.institutionName.trim() || !f.contactName.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.trim())) {
-      this.error.set('Escribe el nombre de la institución, tu nombre y un correo válido.');
+      this.error.set('Escribe el nombre del espacio, tu nombre y un correo válido.');
       return;
     }
     this.busy.set(true);

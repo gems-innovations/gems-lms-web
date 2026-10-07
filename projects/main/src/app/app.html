@@ -21,7 +21,7 @@
 <app-command-palette />
 <gems-guest-save-bar />
 
-@if (session.user() && !publicPage()) {
+@if (session.user() && !publicPage() && !isGuest()) {
   <button class="app-tour-button" type="button" (click)="onboarding.start()"
     title="Ver guía de la plataforma" aria-label="Ver guía de la plataforma">?</button>
 }

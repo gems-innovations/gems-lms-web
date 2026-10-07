@@ -94,6 +94,8 @@
 @media (max-width: 40rem) {
   .connection-notice { top: .5rem; width: calc(100% - 1rem); }
   .update-notice { right: .5rem; bottom: 4.25rem; left: .5rem; max-width: none; }
+  // En la zona de estudiante hay barra inferior de pestañas: el botón de guía va por encima.
+  .app-tour-button { bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {

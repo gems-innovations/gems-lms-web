@@ -58,7 +58,7 @@ import { CourseStarterService } from './course-starter.service';
                   <button type="button" class="btn btn--primary btn--block" [disabled]="busy()" (click)="start()">
                     {{ busy() ? 'Entrando…' : signedIn() ? 'Ir al curso' : 'Empezar ahora' }}
                   </button>
-                  <span class="note">Material de práctica: no garantiza la admisión. No pedimos datos personales.
+                  <span class="note">Material educativo de práctica. No pedimos datos personales.
                     <a routerLink="/terminos">Términos</a> · <a routerLink="/privacidad">Privacidad</a></span>
                 }
               </aside>

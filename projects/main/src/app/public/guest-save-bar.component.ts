@@ -16,7 +16,7 @@ import { GuestGateService } from './guest-gate';
   template: `
     @if (visible()) {
       <aside class="gsb" role="complementary" aria-label="Guardar tu avance">
-        <span class="gsb__text"><strong>Estás estudiando como invitado.</strong> Crea tu cuenta para no perder tu avance ni tu racha.</span>
+        <span class="gsb__text"><strong>Estás como invitado.</strong><span class="gsb__more"> Crea tu cuenta para no perder tu avance ni tu racha.</span></span>
         <button type="button" class="gsb__btn" (click)="open.set(true)">Guardar mi avance</button>
         <button type="button" class="gsb__close" aria-label="Ocultar por ahora" (click)="hidden.set(true)">×</button>
       </aside>
@@ -108,7 +108,14 @@ import { GuestGateService } from './guest-gate';
       color: var(--color-texto-principal); font: 600 var(--font-size-sm)/1 var(--font-texto); cursor: pointer; }
     button:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
     @keyframes gsb-in { from { opacity: 0; transform: translate(-50%, 16px); } }
-    @media (max-width: 560px) { .gsb { flex-wrap: wrap; } .gsb__text { flex-basis: 100%; } .gsm__row { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) {
+      .gsb { left: 10px; right: 10px; transform: none; max-width: none; gap: 8px; padding: 8px 8px 8px 14px;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 66px); animation: none; }
+      .gsb__text { flex: 1; min-width: 0; }
+      .gsb__more { display: none; }
+      .gsb__btn { padding: 10px 12px; }
+      .gsm__row { grid-template-columns: 1fr; }
+    }
     @media (prefers-reduced-motion: reduce) { .gsb { animation: none; } }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,

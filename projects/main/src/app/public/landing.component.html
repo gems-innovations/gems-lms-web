@@ -3,9 +3,9 @@
 <main class="pub">
   <section class="hero">
     <div class="hero__copy">
-      <span class="eyebrow">Para ti, que quieres entrar a la universidad</span>
-      <h1>Prepárate para <span class="hl">entrar a la universidad</span></h1>
-      <p class="lead">Cursos cortos para el examen de admisión y el ICFES: lecciones de 10 minutos, ejercicios con explicación y simulacros. Eliges un curso y empiezas ya, sin crear cuenta.</p>
+      <span class="eyebrow">Cursos gratis · sin registro</span>
+      <h1>Aprende lo que necesitas, <span class="hl">a tu ritmo</span></h1>
+      <p class="lead">Para entrar a la universidad, manejar mejor tu plata, escribir mejor y lo que venga. Lecciones de 10 minutos, ejercicios explicados y simulacros. Eliges un curso y empiezas ya, sin crear cuenta.</p>
       <div class="hero__cta">
         <button type="button" class="btn btn--primary" [disabled]="starter.starting() !== null" (click)="startFirst()">{{ starter.starting() !== null ? 'Entrando…' : 'Empezar gratis ahora' }}</button>
         <a class="btn btn--ghost" routerLink="/" fragment="cursos">Ver todos los cursos</a>
@@ -145,18 +145,18 @@
       <details><summary>¿De verdad es gratis?</summary><p>Sí. Los cursos marcados como «Gratis» no tienen costo ni piden tarjeta. Si algún día lanzamos cursos o funciones de pago, te lo diremos claramente antes: nunca te cobraremos sin que lo aceptes.</p></details>
       <details><summary>¿Tengo que registrarme?</summary><p>No. Tocas «Empezar gratis» y entras como invitado. Si quieres guardar tu avance para otro dispositivo, creas tu cuenta cuando quieras y no pierdes nada.</p></details>
       <details><summary>¿Las preguntas son las del examen real?</summary><p>No copiamos exámenes. Creamos preguntas originales con el mismo estilo, temas y nivel de los exámenes de admisión y del Saber 11 publicados.</p></details>
-      <details><summary>¿Esto me garantiza entrar a la universidad?</summary><p>Ningún curso puede garantizarlo. Practicar con constancia sí te ayuda a llegar mejor preparado. Consulta siempre las fechas y requisitos oficiales de cada universidad.</p></details>
+      <details><summary>¿Los cursos de admisión me garantizan entrar?</summary><p>Ningún curso puede garantizarlo. Practicar con constancia sí te ayuda a llegar mejor preparado. Consulta siempre las fechas y requisitos oficiales de cada universidad.</p></details>
       <details><summary>¿Cada cuánto hay cursos nuevos?</summary><p>Publicamos contenido nuevo constantemente. Vuelve seguido o crea tu cuenta para no perderte nada.</p></details>
-      <details><summary>Soy profesor o tengo un colegio, ¿cómo lo uso con mis estudiantes?</summary><p>Con <a routerLink="/instituciones">GEMS para instituciones</a> tienes tus propios cursos, grupos y reportes de avance de cada estudiante.</p></details>
+      <details><summary>Quiero enseñar a mi grupo, ¿puedo usar GEMS?</summary><p>Sí. Profesores, colegios, academias, empresas o cualquier persona que quiera armar su grupo de aprendizaje pueden <a routerLink="/instituciones">crear su propio espacio</a> con sus cursos, sus integrantes y el avance de cada uno.</p></details>
     </div>
   </section>
 
   <section class="band" aria-labelledby="inst-title">
     <div>
-      <h2 id="inst-title">¿Tienes un colegio, preuniversitario o universidad?</h2>
-      <p>Tus propios cursos, tus estudiantes y tus reportes: ve quién va al día, quién necesita ayuda y cómo avanza cada grupo.</p>
+      <h2 id="inst-title">¿Quieres enseñar lo que sabes?</h2>
+      <p>Crea tu propio espacio con tus cursos y tu gente: un colegio o una universidad, una academia, tu empresa, un club de lectura o tu grupo de estudio. Ves quién va al día y quién necesita ayuda.</p>
     </div>
-    <a class="btn btn--primary" routerLink="/instituciones">Quiero GEMS para mi institución</a>
+    <a class="btn btn--primary" routerLink="/instituciones">Crear mi espacio</a>
   </section>
 </main>
 

@@ -15,14 +15,14 @@ import { isGuestUser } from './guest-access.service';
       </a>
       <nav class="ph__nav" aria-label="Principal">
         <a routerLink="/" fragment="cursos">Cursos gratis</a>
-        <a routerLink="/instituciones">Para instituciones</a>
+        <a routerLink="/instituciones">Enseña en GEMS</a>
       </nav>
       <div class="ph__actions">
         @if (signedIn()) {
           <a class="ph__btn ph__btn--primary" [routerLink]="home()">{{ guest() ? 'Mis cursos' : 'Ir a mi panel' }}</a>
         } @else {
           <a class="ph__btn ph__btn--ghost" routerLink="/auth/signin">Iniciar sesión</a>
-          <a class="ph__btn ph__btn--primary" routerLink="/instituciones">Registrar mi institución</a>
+          <a class="ph__btn ph__btn--primary" routerLink="/instituciones">Crear mi espacio</a>
         }
       </div>
     </header>

@@ -11,7 +11,7 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    title: 'Prepárate gratis para entrar a la universidad',
+    title: 'Cursos gratis, sin registro',
     loadComponent: () => import('./public/landing.component').then(m => m.LandingComponent)
   },
   {
@@ -21,7 +21,7 @@ export const routes: Routes = [
   },
   {
     path: 'instituciones',
-    title: 'GEMS para instituciones',
+    title: 'Enseña en GEMS',
     loadComponent: () => import('./public/institutions.component').then(m => m.InstitutionsComponent)
   },
   {

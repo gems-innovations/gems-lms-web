@@ -336,3 +336,20 @@ $nav-closed:  60px;
   .slayout__signout-btn { display: grid; width: 36px; height: 36px; }
   .slayout__inner { padding: 0 1rem 2rem; }
 }
+
+// ── Celular: el menú lateral pasa a ser una barra inferior de pestañas ─────────
+@media (max-width: 640px) {
+  .slayout { flex-direction: column; }
+  .slayout__leftnav {
+    order: 2; width: 100% !important; height: calc(58px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    flex-direction: row; align-items: center; justify-content: space-around;
+    border-right: 0; border-top: 1px solid var(--color-borde-principal);
+  }
+  .slayout__brand, .slayout__divider, .slayout__toggle-btn, .slayout__user lib-avatar { display: none !important; }
+  .slayout__navlinks { display: contents; }
+  .slayout__navlink { flex: 1; justify-content: center; min-height: 48px; padding: 0 !important; }
+  .slayout__user { display: contents; }
+  .slayout__profile-btn, .slayout__signout-btn { flex: 1; display: grid; place-items: center; width: auto; height: 48px; }
+  .slayout__main { order: 1; flex: 1; min-height: 0; }
+}
