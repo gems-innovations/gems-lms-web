@@ -18,7 +18,7 @@ import { PublicFooterComponent } from './public-footer.component';
         <h1>Términos de uso</h1>
         <p class="upd">Versión 2026-10 · Vigente desde el 7 de octubre de 2026</p>
         <h2>1. Quién ofrece el servicio</h2>
-        <p>GEMS es una plataforma educativa de {{ responsable.nombre }}{{ responsable.nit ? ', NIT ' + responsable.nit : '' }}. Ofrece cursos gratuitos abiertos y un servicio para que instituciones, empresas, profesores y grupos gestionen sus propios cursos. Contacto: <a [href]="'mailto:' + responsable.correo">{{ responsable.correo }}</a>.</p>
+        <p>GEMS es una plataforma educativa{{ responsable.nit ? ' operada por ' + responsable.nombre + ', NIT ' + responsable.nit : '' }}. Ofrece cursos gratuitos abiertos y un servicio para que instituciones, empresas, profesores y grupos gestionen sus propios cursos. Contacto: <a [href]="'mailto:' + responsable.correo">{{ responsable.correo }}</a>.</p>
         <h2>2. Sin afiliación oficial</h2>
         <p>GEMS no está afiliado, patrocinado ni avalado por ninguna universidad, por el ICFES ni por el Ministerio de Educación Nacional. Los nombres de exámenes e instituciones se usan únicamente de forma descriptiva.</p>
         <h2>3. Material de práctica, sin garantías</h2>
@@ -41,7 +41,7 @@ import { PublicFooterComponent } from './public-footer.component';
         <h1>Política de tratamiento de datos personales</h1>
         <p class="upd">Versión 2026-10 · Vigente desde el 7 de octubre de 2026</p>
         <h2>1. Responsable</h2>
-        <p>{{ responsable.nombre }}{{ responsable.nit ? ', NIT ' + responsable.nit : '' }}{{ responsable.direccion ? ', ' + responsable.direccion : '' }}. Correo para todo lo relacionado con tus datos: <a [href]="'mailto:' + responsable.correo">{{ responsable.correo }}</a>. Esta política sigue la Ley 1581 de 2012 y el Decreto 1377 de 2013 (compilado en el Decreto 1074 de 2015).</p>
+        <p>{{ responsable.nit ? responsable.nombre + ', NIT ' + responsable.nit + (responsable.direccion ? ', ' + responsable.direccion : '') : 'El equipo de GEMS (gemsinnovations.com)' }}. Correo para todo lo relacionado con tus datos: <a [href]="'mailto:' + responsable.correo">{{ responsable.correo }}</a>. Esta política sigue la Ley 1581 de 2012 y el Decreto 1377 de 2013 (compilado en el Decreto 1074 de 2015).</p>
         <h2>2. Qué datos tratamos</h2>
         <p><strong>Como invitado:</strong> solo un apodo opcional y tu avance (lecciones vistas, respuestas y puntajes), asociado a un identificador anónimo. <strong>Con cuenta:</strong> nombre, apellido, correo, contraseña cifrada, tu avance y tus preferencias de correo. <strong>Instituciones:</strong> los datos de contacto del formulario de solicitud. No tratamos datos sensibles.</p>
         <h2>3. Para qué los usamos</h2>
@@ -84,6 +84,9 @@ import { PublicFooterComponent } from './public-footer.component';
 export class LegalPageComponent {
   private readonly data = inject(ActivatedRoute).snapshot.data;
   protected readonly doc = computed(() => this.data['doc'] as string);
-  /** Responsable del tratamiento. Completa razón social, NIT y dirección cuando estén confirmados. */
-  protected readonly responsable = { nombre: 'GEMS Innovations', nit: '', direccion: '', correo: 'info@gemsinnovations.com' };
+  /**
+   * Responsable del tratamiento. Mientras no haya razón social ni NIT confirmados, los textos hablan del «equipo de GEMS»
+   * y no afirman ninguna entidad. Al completar `nombre` y `nit` aparecen solos en términos y privacidad.
+   */
+  protected readonly responsable = { nombre: '', nit: '', direccion: '', correo: 'info@gemsinnovations.com' };
 }
