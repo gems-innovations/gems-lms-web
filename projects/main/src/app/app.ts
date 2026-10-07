@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthSessionService } from 'auth/core';
@@ -21,7 +21,13 @@ export class App {
   readonly onboarding = inject(OnboardingService);
   readonly appStatus = inject(AppStatusService);
 
+  /** Páginas públicas (landing, cursos gratis, legales): sin botón de guía, que tapa el CTA fijo del celular. */
+  readonly publicPage = signal(true);
+
   constructor() {
-    inject(Router).events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => this.onboarding.maybeStart());
+    inject(Router).events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(e => {
+      this.publicPage.set(/^\/($|[#?]|cursos\/|instituciones|terminos|privacidad)/.test(e.urlAfterRedirects));
+      this.onboarding.maybeStart();
+    });
   }
 }

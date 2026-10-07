@@ -14,7 +14,7 @@ import { HeroQuizComponent } from './hero-quiz.component';
   selector: 'gems-landing',
   imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, HeroQuizComponent],
   templateUrl: './landing.component.html',
-  styleUrls: ['./public.scss', './landing-extra.scss'],
+  styleUrls: ['./public.scss', './landing-extra.scss', './landing-bento.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LandingComponent {
