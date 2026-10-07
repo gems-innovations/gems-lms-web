@@ -47,17 +47,6 @@
   }
 }
 
-.mock {
-  display: grid; gap: 10px; padding: 24px; border-radius: 20px;
-  background: var(--color-superficie); border: 1px solid var(--color-borde-secundario);
-  box-shadow: var(--sombra-xl);
-  transform: rotate(-1.5deg);
-  &__tag { font-size: var(--font-size-xs); font-weight: 700; color: var(--color-texto-acento); text-transform: uppercase; letter-spacing: .08em; }
-  &__q { font: 700 var(--font-size-lg)/1.35 var(--font-titulo); }
-  &__opt { padding: 11px 14px; border-radius: 10px; border: 1px solid var(--color-borde-principal); background: var(--color-fondo-sutil); font-size: var(--font-size-sm); }
-  &__opt--ok { border-color: var(--color-exito); color: var(--color-exito-texto); font-weight: 700; background: color-mix(in srgb, var(--color-exito) 10%, transparent); }
-  &__foot { display: flex; justify-content: space-between; margin-top: 4px; font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
-}
 
 // ── Bloques ───────────────────────────────────────────────────────────────────
 .block { padding-block: 36px; }
@@ -107,7 +96,6 @@ h2 { margin: 0; font: 800 clamp(24px, 3vw, 32px)/1.15 var(--font-titulo); text-w
 @media (max-width: 860px) {
   .hero { grid-template-columns: 1fr; gap: 28px; }
   .hero { padding-block: 36px 24px; }
-  .hero__card { display: none; }
   .steps ol { grid-template-columns: 1fr; }
 }
 
@@ -115,5 +103,4 @@ h2 { margin: 0; font: 800 clamp(24px, 3vw, 32px)/1.15 var(--font-titulo); text-w
   .card, .btn { transition: none; }
   .card:hover, .btn--primary:hover { transform: none; }
   .card--skeleton { animation: none; }
-  .mock { transform: none; }
 }

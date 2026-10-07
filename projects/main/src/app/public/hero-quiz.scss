@@ -1,0 +1,26 @@
+// Mini simulacro del hero.
+:host { display: block; }
+.mock {
+  display: grid; gap: 10px; padding: 24px; border-radius: 20px;
+  background: var(--color-superficie); border: 1px solid var(--color-borde-secundario); box-shadow: var(--sombra-xl);
+  &__top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  &__tag { font-size: var(--font-size-xs); font-weight: 700; color: var(--color-texto-acento); text-transform: uppercase; letter-spacing: .08em; }
+  &__n { font-size: var(--font-size-xs); color: var(--color-texto-terciario); }
+  &__q { font: 700 var(--font-size-lg)/1.35 var(--font-titulo); color: var(--color-texto-principal); }
+  &__opts { display: grid; gap: 8px; }
+  &__opt { text-align: left; padding: 12px 14px; min-height: 44px; border-radius: 10px; cursor: pointer; font: inherit; font-size: var(--font-size-sm);
+    color: var(--color-texto-principal); border: 1px solid var(--color-borde-principal); background: var(--color-fondo-sutil);
+    transition: border-color .15s, background .15s, transform .15s;
+    &:hover:not(:disabled) { border-color: var(--color-primario); transform: translateX(2px); }
+    &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+    &:disabled { cursor: default; } }
+  &__opt--ok { border-color: var(--color-exito); color: var(--color-exito-texto); font-weight: 700; background: color-mix(in srgb, var(--color-exito) 12%, transparent); }
+  &__opt--bad { border-color: var(--color-error); color: var(--color-error-texto); background: color-mix(in srgb, var(--color-error) 10%, transparent); }
+  &__why { margin: 0; font-size: var(--font-size-sm); line-height: 1.55; color: var(--color-texto-secundario); animation: hq-in .25s ease; }
+  &__again { justify-self: center; background: none; border: 0; padding: 6px; cursor: pointer; font: inherit; font-size: var(--font-size-sm); color: var(--color-texto-secundario); text-decoration: underline; }
+}
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 18px; border-radius: 12px; border: 0; cursor: pointer;
+  font: inherit; font-weight: 700; color: var(--color-sobre-primario); background: var(--color-primario-accion); width: 100%;
+  &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; } }
+@keyframes hq-in { from { opacity: 0; transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) { .mock__why { animation: none; } .mock__opt { transition: none; } }

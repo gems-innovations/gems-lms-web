@@ -4,6 +4,7 @@ import { PublicHeaderComponent } from './public-header.component';
 import { PublicFooterComponent } from './public-footer.component';
 import { DIFFICULTY_LABEL, IPublicCourse, PublicCatalogService } from './public-catalog.service';
 import { CourseStarterService } from './course-starter.service';
+import { HeroQuizComponent } from './hero-quiz.component';
 
 /**
  * Página de entrada pública: cursos gratis para prepararse para la universidad, sin registro.
@@ -11,7 +12,7 @@ import { CourseStarterService } from './course-starter.service';
  */
 @Component({
   selector: 'gems-landing',
-  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent],
+  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, HeroQuizComponent],
   templateUrl: './landing.component.html',
   styleUrls: ['./public.scss', './landing-extra.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,6 +32,13 @@ export class LandingComponent {
       next: list => { this.courses.set(list); this.state.set('ready'); },
       error: () => this.state.set('error'),
     });
+  }
+
+  /** CTA principal: abre el primer curso (o lleva a la lista si aún no cargan). */
+  protected startFirst(): void {
+    const first = this.courses()[0];
+    if (first) void this.start(first.id);
+    else document.getElementById('cursos')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   protected async start(id: number): Promise<void> {
