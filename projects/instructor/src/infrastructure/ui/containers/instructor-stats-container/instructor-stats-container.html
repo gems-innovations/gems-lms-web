@@ -22,7 +22,7 @@
       <h2 class="ins-stats__title">Rendimiento por curso</h2>
       <div class="ins-stats__courses">
         @for (row of uc.courseRows(); track row.course.id) {
-          <div class="ins-stats__course">
+          <div class="ins-stats__course" libReveal [revealIndex]="$index">
             <div class="ins-stats__course-head">
               <span class="ins-stats__course-name">{{ row.course.title }}</span>
               <div class="ins-stats__course-rating">
@@ -33,7 +33,7 @@
               </div>
             </div>
             <div class="ins-stats__course-bar">
-              <lib-progress-bar [value]="row.avgProgress" size="sm" variant="primary" [showLabel]="true" />
+              <lib-progress-bar [value]="row.avgProgress" size="sm" variant="primary" [showLabel]="true" [label]="'Avance promedio en ' + row.course.title" />
             </div>
             <div class="ins-stats__course-meta">
               <span>{{ row.studentCount }} estudiantes</span>

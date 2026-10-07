@@ -1,3 +1,4 @@
+import type { IRubricScore } from './gradebook.model';
 // ============================================================================
 // GEMS LMS — Enrollment & Student Progress Domain Model
 // ============================================================================
@@ -98,6 +99,8 @@ export interface IAssignmentSubmission {
   grade?: number;        // 0-maxScore
   feedback?: string;
   status: 'pending' | 'graded' | 'returned';
+  /** Scores per rubric criterion when it was graded with the rubric. */
+  rubricScores?: IRubricScore[];
 }
 
 // ── Request types ─────────────────────────────────────────────────────────────
@@ -107,6 +110,8 @@ export interface ISubmitQuizRequest {
   lessonId: string;
   courseId: string;
   answers: IQuizAnswer[];
+  /** Attempt started on the server (timed, shuffled or bank quizzes). */
+  sessionId?: string;
 }
 
 export interface ISubmitAssignmentRequest {
@@ -115,6 +120,8 @@ export interface ISubmitAssignmentRequest {
   courseId: string;
   textContent?: string;
   fileUrls?: string[];
+  /** Uploaded (privately) before the submission is sent. */
+  attachedFile?: File;
 }
 
 export interface IEnrolledCourseEntry {

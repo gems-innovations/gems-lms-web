@@ -1,0 +1,60 @@
+// Landing estilo bento: bloques con piezas reales del producto y aparición al hacer scroll.
+.bento { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.tile {
+  display: grid; align-content: start; gap: 8px; padding: 20px; border-radius: 18px;
+  background: var(--color-superficie); border: 1px solid var(--color-borde-principal);
+  strong { font: 700 var(--font-size-base)/1.3 var(--font-titulo); color: var(--color-texto-principal); }
+  > span:last-child:not(.tile__num) { font-size: var(--font-size-sm); line-height: 1.5; color: var(--color-texto-secundario); }
+  &__kicker { font-size: var(--font-size-xs); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-texto-terciario); }
+  &__num { font: 800 44px/1 var(--font-titulo); letter-spacing: -.03em; color: var(--color-texto-principal);
+    small { font-size: 16px; font-weight: 700; letter-spacing: 0; color: var(--color-texto-secundario); } }
+  &--wide { grid-column: span 2; }
+  &--tall { grid-row: span 2; }
+  &--full { grid-column: 1 / -1; }
+  &--streak { align-content: space-between; .week { grid-template-columns: repeat(7, 1fr); } }
+  &--quote { background: color-mix(in srgb, var(--color-primario) 10%, var(--color-superficie));
+    p { margin: 0; font: 600 var(--font-size-lg)/1.45 var(--font-titulo); color: var(--color-texto-principal); text-wrap: pretty; } }
+}
+
+// Progreso del curso
+.prog { display: grid; gap: 10px; }
+.prog__row { display: flex; justify-content: space-between; gap: 12px; font-size: var(--font-size-sm); font-weight: 700; color: var(--color-texto-principal);
+  span:last-child { color: var(--color-texto-secundario); font-weight: 600; } }
+.prog__bar { height: 6px; border-radius: 99px; background: var(--color-fondo-sutil); overflow: hidden;
+  i { display: block; height: 100%; border-radius: inherit; background: var(--color-primario-accion); } }
+.prog__list { display: grid; gap: 2px; margin: 4px 0 0; padding: 0; list-style: none; font-size: var(--font-size-sm);
+  li { display: flex; align-items: center; gap: 10px; padding: 7px 0; color: var(--color-texto-secundario); border-top: 1px solid var(--color-borde-principal);
+    &::before { content: ''; flex: none; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--color-borde-secundario); } }
+  .is-done { color: var(--color-texto-terciario); text-decoration: line-through; text-decoration-color: var(--color-borde-secundario);
+    &::before { border-color: var(--color-exito); background: var(--color-exito); } }
+  .is-next { color: var(--color-texto-principal); font-weight: 700;
+    &::before { border-color: var(--color-primario); }
+    em { margin-left: auto; font-style: normal; font-weight: 600; font-size: var(--font-size-xs); color: var(--color-texto-acento); } } }
+
+// Racha semanal
+.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 4px; }
+.week__d { display: grid; place-items: center; aspect-ratio: 1; border-radius: 8px; font-size: 11px; font-weight: 700;
+  color: var(--color-sobre-primario); background: var(--color-primario-accion); }
+
+// Explicación
+.explain__q { margin: 0; font-weight: 700; color: var(--color-texto-principal); }
+.explain__a { margin: 0; padding: 12px; border-radius: 10px; font-size: var(--font-size-sm); line-height: 1.55; color: var(--color-texto-secundario);
+  background: color-mix(in srgb, var(--color-exito) 9%, transparent); border: 1px solid color-mix(in srgb, var(--color-exito) 35%, transparent);
+  b { color: var(--color-exito-texto); } }
+.explain__tip { margin: 0; font-size: var(--font-size-sm); line-height: 1.55; color: var(--color-texto-secundario); padding-left: 12px; border-left: 2px solid var(--color-primario); }
+
+// Aparición suave al entrar en pantalla (solo navegadores con scroll-driven animations).
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { animation: bento-in linear both; animation-timeline: view(); animation-range: entry 0% entry 35%; }
+  }
+}
+@keyframes bento-in { from { opacity: 0; transform: translateY(24px); } }
+
+@media (max-width: 860px) {
+  .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: dense; gap: 10px; }
+  .tile { padding: 16px; border-radius: 16px; }
+  .tile--wide, .tile--tall:not(.tile--streak) { grid-column: 1 / -1; grid-row: auto; }
+  .tile--streak { grid-row: auto; }
+  .tile__num { font-size: 36px; }
+}

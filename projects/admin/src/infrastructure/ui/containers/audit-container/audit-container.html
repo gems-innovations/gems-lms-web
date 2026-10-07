@@ -1,0 +1,69 @@
+<lib-page width="full">
+  <lib-page-header title="Historial de auditoría" subtitle="Consulta las operaciones realizadas en la plataforma" />
+
+  <section class="audit__filters" aria-label="Filtros de auditoría">
+    <label><span>Buscar</span><input [(ngModel)]="search" (keyup.enter)="applyFilters()" placeholder="Ruta o id de usuario" /></label>
+    <label><span>Acción</span><lib-select size="sm" ariaLabel="Acción" placeholder="Todas" [options]="actionOptions" [(ngModel)]="action" /></label>
+    <label><span>Desde</span><input type="date" [(ngModel)]="from" /></label>
+    <label><span>Hasta</span><input type="date" [(ngModel)]="to" /></label>
+    <div class="audit__filter-actions"><button class="audit__primary" (click)="applyFilters()">Aplicar</button><button (click)="clearFilters()">Limpiar</button></div>
+  </section>
+
+  <section class="audit__card">
+    <div class="audit__summary"><strong>{{ total() }}</strong> operaciones registradas</div>
+    @if (loading()) {
+      <lib-loading-skeleton [rows]="5" />
+    } @else if (error()) {
+      <lib-empty-state title="No pudimos cargar la auditoría" description="Comprueba tu conexión y vuelve a intentarlo." actionLabel="Reintentar" (action)="load()" />
+    } @else if (events().length === 0) {
+      <lib-empty-state title="Sin operaciones" description="No hay registros para los filtros seleccionados." />
+    } @else {
+      <div class="audit__table-wrap" tabindex="0" role="region" aria-label="Historial de auditoría">
+        <table>
+          <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Recurso</th><th>Resultado</th><th>IP</th></tr></thead>
+          <tbody>
+            @for (event of events(); track event.id) {
+              <tr>
+                <td><time [attr.datetime]="event.occurredAt">{{ event.occurredAt | date:'dd/MM/yyyy HH:mm' }}</time></td>
+                <td><strong>#{{ event.actorUserId }}</strong><small>{{ event.actorRole }} · {{ event.institutionId || 'Global' }}</small></td>
+                <td><span class="audit__action" [class]="'audit__action audit__action--' + event.action.toLowerCase()">{{ label(event.action) }}</span></td>
+                <td><strong>{{ resource(event.resourcePath) }}</strong><small>{{ event.httpMethod }} {{ event.resourcePath }}</small></td>
+                <td><span [class.audit__status-ok]="event.responseStatus < 400" [class.audit__status-error]="event.responseStatus >= 400">{{ event.responseStatus }}</span></td>
+                <td>{{ event.clientIp || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <nav class="audit__pagination" aria-label="Paginación">
+        <button [disabled]="page === 1" (click)="load(page - 1)">Anterior</button>
+        <span>Página {{ page }} de {{ pages }}</span>
+        <button [disabled]="page >= pages" (click)="load(page + 1)">Siguiente</button>
+      </nav>
+    }
+  </section>
+  <section class="audit__card audit__client" aria-labelledby="client-errors-title">
+    <header class="audit__client-header">
+      <div>
+        <h2 id="client-errors-title">Errores de esta sesión</h2>
+        <p>Fallos detectados en este navegador. Solo se guarda la pantalla y la hora; no se registran datos privados.</p>
+      </div>
+      @if (clientErrors.recent().length) {
+        <button type="button" (click)="clientErrors.clear()">Limpiar</button>
+      }
+    </header>
+    @if (clientErrors.recent().length) {
+      <ul class="audit__client-list">
+        @for (entry of clientErrors.recent(); track entry.id) {
+          <li>
+            <span>{{ entry.category === 'unexpected' ? 'Error inesperado' : 'Operación fallida' }}</span>
+            <code>{{ entry.path }}</code>
+            <time [attr.datetime]="entry.occurredAt">{{ entry.occurredAt | date:'dd/MM/yyyy HH:mm' }}</time>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="audit__client-empty">No se han detectado errores en esta sesión.</p>
+    }
+  </section>
+</lib-page>

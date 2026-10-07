@@ -1,6 +1,6 @@
 <div class="search-bar">
   <div class="search-icon">
-    🔍
+    <svg lucideSearch [size]="18" aria-hidden="true"></svg>
   </div>
   <input
     type="text"
@@ -17,7 +17,7 @@
       (click)="onClear()"
       aria-label="Limpiar búsqueda"
     >
-      ✕
+      <svg lucideX [size]="16" aria-hidden="true"></svg>
     </button>
   }
 </div>

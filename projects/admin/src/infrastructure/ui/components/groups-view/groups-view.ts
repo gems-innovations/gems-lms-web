@@ -7,7 +7,7 @@ import {
 } from 'shared';
 import type { SelectOption } from 'shared';
 import { EnrollStudentSearch } from 'education';
-import type { IStudentProfile, INewStudentRow } from 'education';
+import type { IGroup, IStudentProfile, INewStudentRow } from 'education';
 import { AdminGroupsUseCase } from '../../../../application/admin-groups.usecase';
 import { parseUsersXlsx } from '../user-import-panel/user-xlsx.parser';
 
@@ -99,7 +99,7 @@ export class GroupsView implements OnInit {
     if (!file) return;
     this.fileName.set(file.name);
     const buffer = await file.arrayBuffer();
-    const result = parseUsersXlsx(buffer);
+    const result = await parseUsersXlsx(buffer);
     if (result.error) { this.excelError.set(result.error); this.excelRows.set([]); return; }
     this.excelError.set(null);
     this.excelRows.set(result.rows.map(r => ({ firstName: r.firstName, lastName: r.lastName, email: r.email })));
@@ -150,6 +150,11 @@ export class GroupsView implements OnInit {
 
   protected closeEdit(): void { this.uc.closeEdit(); }
 
+  protected onDeleteGroup(group: IGroup): void {
+    if (!confirm(`¿Eliminar el grupo "${group.name}"? Las matrículas de sus estudiantes se conservan.`)) return;
+    this.uc.deleteGroup(group.id);
+  }
+
   protected commitName(): void {
     const group = this.uc.editingGroup();
     if (group && this.editName().trim() && this.editName().trim() !== group.name) {
@@ -197,7 +202,7 @@ export class GroupsView implements OnInit {
     if (!file || !group) return;
     this.editFileName.set(file.name);
     const buffer = await file.arrayBuffer();
-    const result = parseUsersXlsx(buffer);
+    const result = await parseUsersXlsx(buffer);
     if (result.error) { this.editExcelError.set(result.error); input.value = ''; return; }
     this.editExcelError.set(null);
     this.uc.importStudentsToGroup(

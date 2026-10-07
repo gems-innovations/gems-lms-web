@@ -1,0 +1,79 @@
+@switch (state()) {
+  @case ('loading') { <lib-loading-skeleton [rows]="4" /> }
+  @case ('error') { <lib-empty-state title="Sin datos" description="No se pudo calcular el riesgo de los estudiantes." /> }
+  @default {
+    @if (data(); as d) {
+      <section class="risk" aria-labelledby="risk-title">
+        <header class="risk__head">
+          <div>
+            <h2 id="risk-title" class="risk__title">Estudiantes en riesgo</h2>
+            <p class="risk__subtitle">
+              Señales de alerta temprana: inactividad, notas bajas, entregas que la mayoría ya hizo y avance frente al grupo.
+            </p>
+          </div>
+          <div class="risk__filters" role="group" aria-label="Filtrar por nivel">
+            <button type="button" [class.risk__filter--on]="filter() === 'all'" class="risk__filter" (click)="filter.set('all')">
+              Todos <strong>{{ d.high + d.medium }}</strong>
+            </button>
+            <button type="button" [class.risk__filter--on]="filter() === 'high'" class="risk__filter risk__filter--high" (click)="filter.set('high')">
+              Alto <strong>{{ d.high }}</strong>
+            </button>
+            <button type="button" [class.risk__filter--on]="filter() === 'medium'" class="risk__filter risk__filter--medium" (click)="filter.set('medium')">
+              Medio <strong>{{ d.medium }}</strong>
+            </button>
+          </div>
+        </header>
+
+        @if (rows().length === 0) {
+          <lib-empty-state title="Nadie en riesgo"
+            [description]="'Los ' + d.students + ' estudiantes activos del curso van al día. ¡Buen trabajo!'" />
+        } @else {
+          <ul class="risk__list">
+            @for (r of rows(); track r.studentId; let i = $index) {
+              <li class="risk__card" [attr.data-level]="r.level" libReveal [revealIndex]="i">
+                <div class="risk__who">
+                  <lib-avatar [name]="r.name" size="md" />
+                  <div class="risk__name">
+                    <strong>{{ r.name }}</strong>
+                    <span>{{ r.email }}</span>
+                  </div>
+                  <span class="risk__level">{{ r.level === 'high' ? 'Riesgo alto' : 'Riesgo medio' }}</span>
+                </div>
+
+                <ul class="risk__reasons">
+                  @for (reason of r.reasons; track reason) { <li>{{ reason }}</li> }
+                </ul>
+
+                <dl class="risk__metrics">
+                  <div><dt>Avance</dt><dd>{{ r.progress }}%</dd></div>
+                  <div><dt>Nota actual</dt><dd>{{ r.currentGrade != null ? r.currentGrade : '—' }}</dd></div>
+                  <div><dt>Inactivo</dt><dd>{{ r.daysInactive != null ? r.daysInactive + ' días' : 'sin actividad' }}</dd></div>
+                </dl>
+
+                <div class="risk__actions">
+                  @if (sent().has(r.studentId)) {
+                    <span class="risk__sent">✓ Recordatorio enviado</span>
+                  } @else {
+                    <lib-button size="sm" variant="secondary" (clicked)="compose(r.studentId)">
+                      {{ composing() === r.studentId ? 'Cancelar' : 'Enviar recordatorio' }}
+                    </lib-button>
+                  }
+                </div>
+
+                @if (composing() === r.studentId) {
+                  <div class="risk__compose">
+                    <label [for]="'msg-' + r.studentId">Mensaje (opcional)</label>
+                    <textarea [id]="'msg-' + r.studentId" rows="3" maxlength="500"
+                              placeholder="Si lo dejas vacío enviamos un mensaje amable invitándole a retomar el curso."
+                              [ngModel]="message()" (ngModelChange)="message.set($event)"></textarea>
+                    <lib-button size="sm" [loading]="sending() === r.studentId" (clicked)="remind(r.studentId)">Enviar</lib-button>
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+  }
+}

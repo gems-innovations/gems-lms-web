@@ -3,9 +3,27 @@ import { MainLayout } from './infrastructure/ui/layouts/main-layout/main-layout'
 
 export const routes: Routes = [
 
+  {
+    path: 'profile',
+    title: 'Mi perfil',
+    component: MainLayout,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/sidebar-container/sidebar-container').then(m => m.SidebarContainer),
+        outlet: 'sidebar'
+      },
+      {
+        path: '',
+        loadComponent: () => import('auth').then(m => m.ProfileContainer)
+      }
+    ]
+  },
+
   // ── Super-admin: institution list ──────────────────────────────────────────
   {
     path: 'institutions',
+    title: 'Instituciones',
     component: MainLayout,
     children: [
       {
@@ -23,6 +41,7 @@ export const routes: Routes = [
   // ── Admin: own institution dashboard ──────────────────────────────────────
   {
     path: 'dashboard',
+    title: 'Panel institucional',
     component: MainLayout,
     children: [
       {
@@ -40,6 +59,7 @@ export const routes: Routes = [
   // ── Admin: personas (usuarios + grupos, unificado) ──────────────────────────
   {
     path: 'people',
+    title: 'Personas y grupos',
     component: MainLayout,
     children: [
       {
@@ -57,6 +77,7 @@ export const routes: Routes = [
   // ── Admin: enrollment manager ──────────────────────────────────────────────
   {
     path: 'enrollments',
+    title: 'Inscripciones',
     component: MainLayout,
     children: [
       {
@@ -67,6 +88,54 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./infrastructure/ui/containers/enrollment-manager-container/enrollment-manager-container').then(m => m.EnrollmentManagerContainer)
+      }
+    ]
+  },
+  {
+    path: 'audit',
+    title: 'Auditoría',
+    component: MainLayout,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/sidebar-container/sidebar-container').then(m => m.SidebarContainer),
+        outlet: 'sidebar'
+      },
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/audit-container/audit-container').then(m => m.AuditContainer)
+      }
+    ]
+  },
+  {
+    path: 'periods',
+    title: 'Períodos académicos',
+    component: MainLayout,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/sidebar-container/sidebar-container').then(m => m.SidebarContainer),
+        outlet: 'sidebar'
+      },
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/academic-periods-container/academic-periods-container').then(m => m.AcademicPeriodsContainer)
+      }
+    ]
+  },
+  {
+    path: 'reports',
+    title: 'Reportes',
+    component: MainLayout,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/sidebar-container/sidebar-container').then(m => m.SidebarContainer),
+        outlet: 'sidebar'
+      },
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/institution-reports-container/institution-reports-container').then(m => m.InstitutionReportsContainer)
       }
     ]
   }

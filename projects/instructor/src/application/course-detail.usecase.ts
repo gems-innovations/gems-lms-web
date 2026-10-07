@@ -1,18 +1,22 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { forkJoin } from 'rxjs';
-import { CourseService, EnrollmentService, GroupService, EContentType } from 'education';
-import type { ICourse, IGroup } from 'education';
+import { ToastService } from 'shared';
+import { forkJoin, catchError, of } from 'rxjs';
+import { CourseService, EnrollmentService, GroupService, ReviewService, GradebookService, EContentType } from 'education';
+import type { ICourse, IGroup, IGradebook } from 'education';
 import type {
   ICourseStats, IEnrollmentRow, ISubmissionRow, IAssignmentEntry,
-  IGradeSubmitEvent, TCourseDetailTab, IStudentGradeRow,
+  IGradeSubmitEvent, TCourseDetailTab, IStudentGradeRow, IGradebookStudentRow,
 } from '../domain/model/instructor.model';
-import { MOCK_REVIEWS } from '../domain/model/review.model';
+import type { IStudentReview } from '../domain/model/review.model';
 
 @Injectable()
 export class CourseDetailUseCase {
   private readonly courseService     = inject(CourseService);
   private readonly enrollmentService = inject(EnrollmentService);
   private readonly groupService      = inject(GroupService);
+  private readonly reviewService     = inject(ReviewService);
+  private readonly gradebookService  = inject(GradebookService);
+  private readonly toast             = inject(ToastService);
 
   private readonly _course      = signal<ICourse | null>(null);
   private readonly _courseId    = signal<string>('');
@@ -23,10 +27,28 @@ export class CourseDetailUseCase {
 
   readonly group = this._group.asReadonly();
 
+  // Libro de calificaciones: se pide al abrir la pestaña y se recalcula al calificar.
+  private readonly _gradebook        = signal<IGradebook | null>(null);
+  private readonly _gradebookLoading = signal(false);
+  private readonly _gradebookError   = signal<string | null>(null);
+  readonly gradebook        = this._gradebook.asReadonly();
+  readonly gradebookLoading = this._gradebookLoading.asReadonly();
+  readonly gradebookError   = this._gradebookError.asReadonly();
+
+  /** Filas de los estudiantes visibles (el grupo actual), con su perfil. */
+  readonly gradebookRows = computed<IGradebookStudentRow[]>(() => {
+    const book = this._gradebook();
+    if (!book) return [];
+    const students = new Map(this._enrollments().map(e => [e.student.id, e.student]));
+    return book.rows
+      .filter(r => students.has(r.studentId))
+      .map(r => ({ ...r, student: students.get(r.studentId)! }))
+      .sort((a, b) => `${a.student.lastName} ${a.student.firstName}`.localeCompare(`${b.student.lastName} ${b.student.firstName}`));
+  });
+
   // Reseñas de estudiantes de ESTE curso (feedback independiente por curso).
-  readonly reviews = computed(() =>
-    MOCK_REVIEWS.filter(r => r.courseId === this._courseId())
-  );
+  private readonly _reviews = signal<IStudentReview[]>([]);
+  readonly reviews = this._reviews.asReadonly();
 
   private readonly _activeTab        = signal<TCourseDetailTab>('overview');
   private readonly _selectedBlockId  = signal<string | null>(null);
@@ -138,7 +160,8 @@ export class CourseDetailUseCase {
       group:       this.groupService.getGroup(groupId ?? ''),
       enrollments: this.enrollmentService.getEnrollmentsByCourse(courseId),
       submissions: this.enrollmentService.getAllSubmissions(),
-    }).subscribe(({ course, group, enrollments, submissions }) => {
+      reviews:     this.reviewService.getReviews(courseId).pipe(catchError(() => of([]))),
+    }).subscribe(({ course, group, enrollments, submissions, reviews }) => {
       this._course.set(course ?? null);
       this._group.set(group);
       // Filtra a los estudiantes del grupo/cohorte (si aplica).
@@ -151,12 +174,24 @@ export class CourseDetailUseCase {
           s.courseId === courseId && (!studentSet || studentSet.has(s.student.id))
         )
       );
+      const names = new Map((enrollments as IEnrollmentRow[])
+        .map(e => [e.student.id, `${e.student.firstName} ${e.student.lastName}`]));
+      this._reviews.set(reviews.map(r => ({
+        id: r.id,
+        courseId: r.courseId,
+        courseTitle: course?.title ?? '',
+        studentName: names.get(r.studentId) ?? 'Estudiante',
+        rating: r.rating,
+        comment: r.comment,
+        createdAt: r.updatedAt,
+      })));
       this._isLoading.set(false);
     });
   }
 
   setActiveTab(tab: TCourseDetailTab): void {
     this._activeTab.set(tab);
+    if (tab === 'gradebook') this.loadGradebook();
     this._selectedBlockId.set(null);
     this._selectedSubId.set(null);
     this._selectedStudentId.set(null);
@@ -175,16 +210,75 @@ export class CourseDetailUseCase {
     this._selectedSubId.set(null);
   }
 
+  /** Desde el libro de calificaciones: abre la entrega del estudiante en la pestaña Entregas. */
+  openStudentSubmission(blockId: string, studentId: string): void {
+    const sub = this._submissions().find(s => s.blockId === blockId && s.student.id === studentId);
+    this._activeTab.set('submissions');
+    this._selectedBlockId.set(blockId);
+    this._selectedSubId.set(sub?.id ?? null);
+  }
+
   openSubmission(sub: ISubmissionRow): void { this._selectedSubId.set(sub.id); }
   backToSubmissionList(): void { this._selectedSubId.set(null); }
 
+  /** Moves to the previous or next submission of the assignment (wraps around). */
+  openAdjacentSubmission(step: 1 | -1): void {
+    const list = this.blockSubmissions();
+    if (!list.length) return;
+    const i = list.findIndex(s => s.id === this._selectedSubId());
+    this._selectedSubId.set(list[(i + step + list.length) % list.length].id);
+  }
+
+  /** After grading: the next submission still pending, or back to the list when none is left. */
+  private openNextPending(afterId: string): void {
+    const list = this.blockSubmissions();
+    const start = list.findIndex(s => s.id === afterId);
+    const ordered = [...list.slice(start + 1), ...list.slice(0, Math.max(start, 0))];
+    const next = ordered.find(s => s.id !== afterId && s.grade == null);
+    if (next) {
+      this._selectedSubId.set(next.id);
+      this.toast.success('Calificación guardada. Siguiente entrega pendiente.');
+    } else {
+      this.backToSubmissionList();
+      this.toast.success('Calificación guardada. ¡No quedan entregas pendientes!');
+    }
+  }
+
   grade(event: IGradeSubmitEvent): void {
-    this.enrollmentService.gradeSubmission(event.submissionId, event.grade, event.feedback)
-      .subscribe(updated => {
-        this._submissions.update(list =>
-          list.map(s => s.id === updated.id ? { ...s, ...updated } : s)
-        );
-        this.backToSubmissionList();
+    this.enrollmentService.gradeSubmission(event.submissionId, event.grade, event.feedback, event.rubricScores)
+      .subscribe({
+        next: updated => {
+          this._submissions.update(list =>
+            list.map(s => s.id === updated.id ? { ...s, ...updated } : s)
+          );
+          if (event.next) this.openNextPending(updated.id); else this.backToSubmissionList();
+          if (this._gradebook()) this.loadGradebook();
+        },
+        error: err => this.toast.error(err?.error?.code === 'PERIOD_CLOSED'
+          ? 'El período académico de este curso está cerrado: las notas ya quedaron en el acta.'
+          : 'No se pudo guardar la calificación. Intenta de nuevo.'),
       });
+  }
+
+  loadGradebook(): void {
+    const courseId = this._courseId();
+    if (!courseId) return;
+    this._gradebookLoading.set(true);
+    this._gradebookError.set(null);
+    this.gradebookService.course(courseId).subscribe({
+      next: book => { this._gradebook.set(book); this._gradebookLoading.set(false); },
+      error: () => { this._gradebookError.set('No se pudo cargar el libro de calificaciones'); this._gradebookLoading.set(false); },
+    });
+  }
+
+  /** Guarda los pesos (blockId → 0-100) y muestra las notas recalculadas. */
+  saveWeights(weights: Record<string, number>): void {
+    this._gradebookError.set(null);
+    this.gradebookService.saveWeights(this._courseId(), weights).subscribe({
+      next: book => this._gradebook.set(book),
+      error: err => this._gradebookError.set(err?.error?.code === 'PERIOD_CLOSED'
+        ? 'El período está cerrado: las ponderaciones ya no se pueden cambiar.'
+        : 'No se pudieron guardar los pesos'),
+    });
   }
 }

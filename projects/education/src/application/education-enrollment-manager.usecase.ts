@@ -2,6 +2,7 @@ import { inject, Injectable, signal, computed, DestroyRef } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, EMPTY, forkJoin } from 'rxjs';
 import { tap, switchMap, catchError } from 'rxjs/operators';
+import { ToastService } from 'shared';
 import { CourseService } from '../infrastructure/services/course.service';
 import { EnrollmentService, IStudentProfile } from '../infrastructure/services/enrollment.service';
 import { ICourse } from '../domain/model/course.model';
@@ -12,6 +13,7 @@ export class EducationEnrollmentManagerUseCase {
   private readonly destroyRef        = inject(DestroyRef);
   private readonly courseService     = inject(CourseService);
   private readonly enrollmentService = inject(EnrollmentService);
+  private readonly toast             = inject(ToastService);
 
   private readonly _courses          = signal<ICourse[]>([]);
   private readonly _students         = signal<IStudentProfile[]>([]);
@@ -58,7 +60,7 @@ export class EducationEnrollmentManagerUseCase {
           this._students.set(students);
           this._isLoading.set(false);
         }),
-        catchError(() => { this._isLoading.set(false); return EMPTY; })
+        catchError(() => { this._isLoading.set(false); this.toast.error('No se pudieron cargar las matrículas. Reintenta.'); return EMPTY; })
       )),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe();
@@ -75,7 +77,7 @@ export class EducationEnrollmentManagerUseCase {
             this._selectedCourse.set('');
             setTimeout(() => this._bulkResult.set(null), 4000);
           }),
-          catchError(() => EMPTY)
+          catchError(() => { this.toast.error('No se pudo matricular al estudiante. Revisa el curso y vuelve a intentarlo.'); return EMPTY; })
         );
       }),
       takeUntilDestroyed(this.destroyRef)
@@ -87,7 +89,7 @@ export class EducationEnrollmentManagerUseCase {
         if (!entries.length || !this._bulkCourseId()) return EMPTY;
         return this.enrollmentService.bulkEnroll(entries).pipe(
           tap(result => this._bulkResult.set(result)),
-          catchError(() => EMPTY)
+          catchError(() => { this.toast.error('No se pudo completar la matrícula masiva. Revisa los datos y vuelve a intentarlo.'); return EMPTY; })
         );
       }),
       takeUntilDestroyed(this.destroyRef)

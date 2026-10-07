@@ -1,9 +1,10 @@
 import { computed, inject, Injectable, DestroyRef, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, EMPTY } from 'rxjs';
-import { switchMap, tap, catchError } from 'rxjs/operators';
+import { switchMap, mergeMap, tap, catchError } from 'rxjs/operators';
+import { ToastService } from 'shared';
 import { UserService } from '../infrastructure/services/user.service';
-import { IUser, EUserRole } from '../domain/model/user.model';
+import { IUser, EUserRole } from 'auth/core';
 
 export type TUserModalMode = 'create' | 'delete' | null;
 
@@ -19,6 +20,7 @@ export interface ICreateUserPayload {
 @Injectable({ providedIn: 'root' })
 export class UserManagementUseCase {
   private readonly userService = inject(UserService);
+  private readonly toast       = inject(ToastService);
   private readonly destroyRef  = inject(DestroyRef);
 
   // ── State ────────────────────────────────────────────────────────────────
@@ -61,16 +63,28 @@ export class UserManagementUseCase {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe();
 
+    // mergeMap (not switchMap): bulk imports emit several payloads in a row and each one must be sent.
     this.create$.pipe(
       tap(() => this._isCreating.set(true)),
-      switchMap(payload =>
+      mergeMap(payload =>
         this.userService.createUser({ ...payload, isActive: true }).pipe(
-          tap(user => {
+          tap(({ user, temporaryPassword }) => {
             this._users.update(us => [...us, user]);
             this._isCreating.set(false);
             this.closeModal();
+            if (temporaryPassword) {
+              this.toast.info(`Usuario ${user.email} creado. Contraseña temporal: ${temporaryPassword}`, 15000);
+            } else {
+              this.toast.success(`Usuario ${user.email} creado`);
+            }
           }),
-          catchError(() => { this._isCreating.set(false); return EMPTY; })
+          catchError(err => {
+            this._isCreating.set(false);
+            const msg = err?.status === 409 ? `Ya existe un usuario con el correo ${payload.email}` : `No se pudo crear ${payload.email}`;
+            this._error.set(msg);
+            this.toast.error(msg);
+            return EMPTY;
+          })
         )
       ),
       takeUntilDestroyed(this.destroyRef)
@@ -85,7 +99,15 @@ export class UserManagementUseCase {
             this._isDeleting.set(false);
             this.closeModal();
           }),
-          catchError(() => { this._isDeleting.set(false); return EMPTY; })
+          catchError(error => {
+            this._isDeleting.set(false);
+            const message = error?.status === 503
+              ? 'No se pudieron limpiar los datos de aprendizaje. La cuenta se conserva; reintenta eliminarla.'
+              : 'No se pudo eliminar el usuario. Reintenta.';
+            this._error.set(message);
+            this.toast.error(message);
+            return EMPTY;
+          })
         )
       ),
       takeUntilDestroyed(this.destroyRef)
@@ -95,7 +117,7 @@ export class UserManagementUseCase {
       switchMap(id =>
         this.userService.toggleUserStatus(id).pipe(
           tap(updated => this._users.update(us => us.map(u => u.id === updated.id ? updated : u))),
-          catchError(() => EMPTY)
+          catchError(() => { this.toast.error('No se pudo cambiar el estado del usuario. Reintenta.'); return EMPTY; })
         )
       ),
       takeUntilDestroyed(this.destroyRef)

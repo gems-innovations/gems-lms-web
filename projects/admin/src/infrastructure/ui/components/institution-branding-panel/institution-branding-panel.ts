@@ -1,8 +1,10 @@
 import { Component, input } from '@angular/core';
 import { IBranding } from '../../../../domain/model/institution.model';
+import { LucideMoon, LucideSun } from '@lucide/angular';
 
 @Component({
   selector: 'adm-institution-branding-panel',
+  imports: [LucideMoon, LucideSun],
   template: `
     <section class="ibrand">
       <h3 class="ibrand__title">Marca &amp; Personalización</h3>
@@ -32,7 +34,8 @@ import { IBranding } from '../../../../domain/model/institution.model';
           </div>
         }
         <div class="ibrand__mode-badge" [class.ibrand__mode-badge--dark]="branding().darkMode">
-          {{ branding().darkMode ? '🌙 Modo oscuro' : '☀️ Modo claro' }}
+          @if (branding().darkMode) { <svg lucideMoon [size]="16" aria-hidden="true"></svg> Modo oscuro }
+          @else { <svg lucideSun [size]="16" aria-hidden="true"></svg> Modo claro }
         </div>
       </div>
     </section>

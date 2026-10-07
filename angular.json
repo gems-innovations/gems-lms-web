@@ -66,6 +66,7 @@
               }
             ],
             "styles": [
+              "node_modules/driver.js/dist/driver.css",
               "projects/main/src/styles.scss"
             ],
             "server": "projects/main/src/main.server.ts",
@@ -76,11 +77,12 @@
           },
           "configurations": {
             "production": {
+              "serviceWorker": "ngsw-config.json",
               "budgets": [
                 {
                   "type": "initial",
                   "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumError": "800kB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -91,8 +93,8 @@
               "outputHashing": "all",
               "fileReplacements": [
                 {
-                  "replace": "projects/shared/src/infrastructure/ui/environments/environment.ts",
-                  "with": "projects/shared/src/infrastructure/ui/environments/environment.prod.ts"
+                  "replace": "projects/shared/core/src/environments/environment.ts",
+                  "with": "projects/shared/core/src/environments/environment.prod.ts"
                 }
               ]
             },
@@ -100,6 +102,17 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "static": {
+              "server": false,
+              "ssr": false,
+              "outputMode": "static"
+            },
+            "storybook": {
+              "tsConfig": ".storybook/tsconfig.json",
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": false
             }
           },
           "defaultConfiguration": "production"
@@ -134,8 +147,29 @@
               }
             ],
             "styles": [
+              "node_modules/driver.js/dist/driver.css",
               "projects/main/src/styles.scss"
             ]
+          }
+        },
+        "storybook": {
+          "builder": "@storybook/angular:start-storybook",
+          "options": {
+            "configDir": ".storybook",
+            "browserTarget": "main:build:storybook",
+            "tsConfig": ".storybook/tsconfig.json",
+            "compodoc": false,
+            "port": 6006
+          }
+        },
+        "build-storybook": {
+          "builder": "@storybook/angular:build-storybook",
+          "options": {
+            "configDir": ".storybook",
+            "browserTarget": "main:build:storybook",
+            "tsConfig": ".storybook/tsconfig.json",
+            "compodoc": false,
+            "outputDir": "storybook-static"
           }
         }
       }
@@ -233,6 +267,15 @@
             }
           },
           "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "tsConfig": "projects/instructor/tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/shared/src/infrastructure/ui/styles"]
+            }
+          }
         }
       }
     },

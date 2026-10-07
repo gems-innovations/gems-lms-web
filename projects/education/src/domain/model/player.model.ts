@@ -6,6 +6,7 @@ export interface IQuizSubmitPayload {
   lessonId: string;
   courseId: string;
   answers: IQuizAnswer[];
+  sessionId?: string;
 }
 
 export interface IAssignmentSubmitPayload {

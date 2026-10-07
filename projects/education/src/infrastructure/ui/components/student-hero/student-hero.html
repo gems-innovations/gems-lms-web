@@ -29,7 +29,7 @@
     </div>
 
     <!-- right: stats glass card -->
-    <div class="shero__card">
+    <div class="shero__card" libReveal>
       <div class="shero__card-header">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
@@ -58,7 +58,7 @@
           </defs>
         </svg>
         <div class="shero__ring-label">
-          <span class="shero__ring-pct">{{ progressPct() }}%</span>
+          <span class="shero__ring-pct" [libCountUp]="progressPct()" suffix="%"></span>
         </div>
       </div>
 
@@ -71,7 +71,7 @@
             </svg>
           </span>
           <span class="shero__stat-text">
-            <strong>{{ enrolledCount() }}</strong> matriculados
+            <strong [libCountUp]="enrolledCount()"></strong> matriculados
           </span>
         </div>
         <div class="shero__stat">
@@ -81,7 +81,7 @@
             </svg>
           </span>
           <span class="shero__stat-text">
-            <strong>{{ completedCount() }}</strong> completados
+            <strong [libCountUp]="completedCount()"></strong> completados
           </span>
         </div>
         <div class="shero__stat">
@@ -91,10 +91,11 @@
             </svg>
           </span>
           <span class="shero__stat-text">
-            <strong>{{ activePathsCount() }}</strong> rutas activas
+            <strong [libCountUp]="activePathsCount()"></strong> rutas activas
           </span>
         </div>
       </div>
+      <edu-achievements-card variant="inline" />
     </div>
   </div>
 </section>

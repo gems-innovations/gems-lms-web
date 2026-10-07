@@ -11,6 +11,18 @@ export { CourseEditorContainer } from './infrastructure/ui/containers/course-edi
 export { PlayerContentBlock } from './infrastructure/ui/components/player-content-block/player-content-block';
 export { EnrollStudentSearch } from './infrastructure/ui/components/enroll-student-search/enroll-student-search';
 export { EnrollResultBanner } from './infrastructure/ui/components/enroll-result-banner/enroll-result-banner';
+export { QuestionBankService } from './infrastructure/services/question-bank.service';
+export type { IBankQuestion, IBankCategory, IBankQuestionPage, TBankQuestionType } from './infrastructure/services/question-bank.service';
+export { QuizSessionService } from './infrastructure/services/quiz-session.service';
+export { CourseCommunityService } from './infrastructure/services/course-community.service';
+export type { IAnnouncement, IForumThread, IForumPost } from './infrastructure/services/course-community.service';
+export { CourseCommunity } from './infrastructure/ui/components/course-community/course-community';
+export { EnrollmentRulesService, enrollmentBlockText } from './infrastructure/services/enrollment-rules.service';
+export type { IAcademicPeriod, IEnrollmentRules, IEligibility , IPeriodRecord, IPeriodCloseSummary } from './infrastructure/services/enrollment-rules.service';
+export { GradebookService } from './infrastructure/services/gradebook.service';
+export type {
+  IGradebook, IGradebookItem, IGradebookRow, IGradebookCell, IRubricScore, TGradebookCellState,
+} from './domain/model/gradebook.model';
 export { EnrollmentService } from './infrastructure/services/enrollment.service';
 export type { IStudentProfile } from './infrastructure/services/enrollment.service';
 export { CourseService } from './infrastructure/services/course.service';
@@ -20,11 +32,15 @@ export type { IInstructorNotification } from './infrastructure/services/notifica
 export { GroupService } from './infrastructure/services/group.service';
 export type { IGroup, INewStudentRow } from './domain/model/group.model';
 export { SurveyService } from './infrastructure/services/survey.service';
+export { ReviewService } from './infrastructure/services/review.service';
+export type { ICourseReview } from './infrastructure/services/review.service';
+export { NotificationBell } from './infrastructure/ui/components/notification-bell/notification-bell';
+export { CertificateVerificationContainer } from './infrastructure/ui/containers/certificate-verification-container/certificate-verification-container';
 export type {
   ICourseSurvey, ISurveySection, ISurveyQuestion, ISurveyResponse, ISurveyAnswer,
   TSurveyQuestionType,
 } from './domain/model/survey.model';
-export type { ICourse, IContentBlock } from './domain/model/course.model';
+export type { ICourse, IContentBlock, IRubricItem, IQuestion, IQuestionPool } from './domain/model/course.model';
 export { EContentType, EDifficulty, ECourseStatus } from './domain/model/course.model';
 export type { ILearningPath, ELearningPathStatus } from './domain/model/learning-path.model';
 export type { IEnrollment, IAssignmentSubmission } from './domain/model/enrollment.model';
@@ -36,6 +52,7 @@ export const educationChildRoutes: Routes = [
 
   {
     path: 'courses',
+    title: 'Cursos',
     loadComponent: () =>
       import('./infrastructure/ui/containers/course-list-container/course-list-container').then(
         m => m.CourseListContainer
@@ -43,6 +60,7 @@ export const educationChildRoutes: Routes = [
   },
   {
     path: 'courses/:id/edit',
+    title: 'Editar curso',
     loadComponent: () =>
       import('./infrastructure/ui/containers/course-editor-container/course-editor-container').then(
         m => m.CourseEditorContainer
@@ -50,6 +68,7 @@ export const educationChildRoutes: Routes = [
   },
   {
     path: 'learning-paths',
+    title: 'Rutas de aprendizaje',
     loadComponent: () =>
       import('./infrastructure/ui/containers/learning-path-list-container/learning-path-list-container').then(
         m => m.LearningPathListContainer
@@ -57,6 +76,7 @@ export const educationChildRoutes: Routes = [
   },
   {
     path: 'learning-paths/:id/edit',
+    title: 'Editar ruta de aprendizaje',
     loadComponent: () =>
       import('./infrastructure/ui/containers/learning-path-editor-container/learning-path-editor-container').then(
         m => m.LearningPathEditorContainer
@@ -64,6 +84,7 @@ export const educationChildRoutes: Routes = [
   },
   {
     path: 'enrollments',
+    title: 'Gestionar inscripciones',
     loadComponent: () =>
       import('./infrastructure/ui/containers/enrollment-manager-container/enrollment-manager-container').then(
         m => m.EnrollmentManagerContainer
@@ -96,14 +117,38 @@ export const studentChildRoutes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 
   {
+    path: 'profile',
+    title: 'Mi perfil',
+    loadComponent: () => import('auth').then(m => m.ProfileContainer)
+  },
+
+  {
     path: 'home',
+    title: 'Inicio',
     loadComponent: () =>
       import('./infrastructure/ui/containers/student-home-container/student-home-container').then(
         m => m.StudentHomeContainer
       )
   },
   {
+    path: 'courses/:id/community',
+    title: 'Comunidad del curso',
+    loadComponent: () =>
+      import('./infrastructure/ui/containers/course-community-container/course-community-container').then(
+        m => m.CourseCommunityContainer
+      )
+  },
+  {
+    path: 'courses/:id/grades',
+    title: 'Mis calificaciones',
+    loadComponent: () =>
+      import('./infrastructure/ui/containers/student-grades-container/student-grades-container').then(
+        m => m.StudentGradesContainer
+      )
+  },
+  {
     path: 'courses/:id/survey',
+    title: 'Encuesta del curso',
     loadComponent: () =>
       import('./infrastructure/ui/containers/course-survey-container/course-survey-container').then(
         m => m.CourseSurveyContainer
@@ -111,6 +156,7 @@ export const studentChildRoutes: Routes = [
   },
   {
     path: 'courses/:id',
+    title: 'Aprender',
     canDeactivate: [quizDeactivateGuard],
     loadComponent: () =>
       import('./infrastructure/ui/containers/course-player-container/course-player-container').then(
@@ -119,6 +165,7 @@ export const studentChildRoutes: Routes = [
   },
   {
     path: 'catalog',
+    title: 'Catálogo',
     loadComponent: () =>
       import('./infrastructure/ui/containers/course-catalog-container/course-catalog-container').then(
         m => m.CourseCatalogContainer
@@ -126,6 +173,7 @@ export const studentChildRoutes: Routes = [
   },
   {
     path: 'my-learning',
+    title: 'Mi aprendizaje',
     loadComponent: () =>
       import('./infrastructure/ui/containers/my-learning-container/my-learning-container').then(
         m => m.MyLearningContainer
@@ -133,6 +181,7 @@ export const studentChildRoutes: Routes = [
   },
   {
     path: 'preview/courses/:id',
+    title: 'Vista previa del curso',
     data: { previewType: 'course' },
     loadComponent: () =>
       import('./infrastructure/ui/containers/content-preview-container/content-preview-container').then(
@@ -141,6 +190,7 @@ export const studentChildRoutes: Routes = [
   },
   {
     path: 'preview/paths/:id',
+    title: 'Vista previa de la ruta',
     data: { previewType: 'path' },
     loadComponent: () =>
       import('./infrastructure/ui/containers/content-preview-container/content-preview-container').then(
@@ -153,3 +203,8 @@ export const studentChildRoutes: Routes = [
 export const studentRoutes: Routes = [
   { path: '', component: StudentLayout, children: studentChildRoutes }
 ];
+export { AchievementsService } from './infrastructure/services/achievements.service';
+export type { IAchievements, IBadge } from './infrastructure/services/achievements.service';
+export { AccessibilityReport } from './infrastructure/ui/components/accessibility-report/accessibility-report';
+export { auditCourseAccessibility } from './application/content-accessibility';
+export type { IA11yIssue, IA11yReport } from './application/content-accessibility';

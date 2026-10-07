@@ -51,6 +51,14 @@ export class EnrollmentState {
     }));
   }
 
+  setQuizAttempts(quizAttempts: IQuizAttempt[]): void {
+    this._state.update(s => ({ ...s, quizAttempts }));
+  }
+
+  setSubmissions(submissions: IAssignmentSubmission[]): void {
+    this._state.update(s => ({ ...s, submissions }));
+  }
+
   addQuizAttempt(attempt: IQuizAttempt): void {
     this._state.update(s => ({ ...s, quizAttempts: [...s.quizAttempts, attempt] }));
   }

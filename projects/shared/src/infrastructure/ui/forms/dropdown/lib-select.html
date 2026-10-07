@@ -1,86 +1,123 @@
 <div
   #rootEl
   class="lib-select"
-  [class.lib-select--disabled]="disabled()"
+  [class.lib-select--disabled]="isDisabled()"
+  [class.lib-select--sm]="size() === 'sm'"
 >
   @if (label()) {
     <label [for]="selectId()" class="lib-select__label">
       {{ label() }}
       @if (required()) {
-        <span class="lib-select__required">*</span>
+        <span class="lib-select__required" aria-hidden="true">*</span>
       }
     </label>
   }
 
-  <div class="lib-select__wrapper">
-    <button
-      [id]="selectId()"
-      type="button"
-      class="lib-select__trigger"
-      [class.lib-select__trigger--open]="open()"
-      [class.lib-select__trigger--placeholder]="!selectedOption()"
-      [disabled]="disabled()"
-      (click)="toggle()"
-    >
-      @if (icon()) {
-        <span class="lib-select__icon">{{ icon() }}</span>
-      }
-      <span class="lib-select__trigger-label">
-        {{ selectedOption()?.label ?? placeholder() }}
-      </span>
-      <svg class="lib-select__chevron" [class.lib-select__chevron--open]="open()"
-           width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polyline points="6 9 12 15 18 9"/>
-      </svg>
-    </button>
-
-    @if (open()) {
-      <div class="lib-select__backdrop" (click)="close()"></div>
-
-      <div class="lib-select__panel">
-        @if (showSearch()) {
-          <div class="lib-select__search-wrap">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input
-              #searchInput
-              class="lib-select__search"
-              type="text"
-              [placeholder]="'Buscar…'"
-              [value]="search()"
-              (input)="search.set($any($event.target).value)"
-              (keydown)="onSearchKeydown($event)"
-            />
-          </div>
-        }
-
-        <div class="lib-select__options" [style.maxHeight.px]="maxHeight()">
-          @if (filteredOptions().length === 0) {
-            <div class="lib-select__empty">Sin resultados</div>
-          } @else {
-            @for (opt of filteredOptions(); track opt.value) {
-              <button
-                type="button"
-                class="lib-select__option"
-                [class.lib-select__option--active]="opt.value === value()"
-                [class.lib-select__option--disabled]="opt.disabled"
-                [disabled]="opt.disabled"
-                (click)="selectOption(opt)"
-              >
-                <span class="lib-select__option-label">{{ opt.label }}</span>
-                @if (opt.value === value()) {
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                }
-              </button>
-            }
-          }
-        </div>
-      </div>
+  <button
+    #trigger
+    [id]="selectId()"
+    type="button"
+    class="lib-select__trigger"
+    role="combobox"
+    aria-haspopup="listbox"
+    [attr.aria-label]="ariaLabel() || null"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="open() ? listId : null"
+    [attr.aria-activedescendant]="open() && activeIdx() >= 0 ? optionId(activeIdx()) : null"
+    [attr.aria-required]="required() || null"
+    [class.lib-select__trigger--open]="open()"
+    [class.lib-select__trigger--placeholder]="!selectedOption()"
+    [disabled]="isDisabled()"
+    (click)="toggle()"
+    (keydown)="onTriggerKeydown($event)"
+  >
+    @if (icon()) {
+      <span class="lib-select__icon" aria-hidden="true">{{ icon() }}</span>
     }
-  </div>
+    <span class="lib-select__trigger-label">
+      {{ selectedOption()?.label ?? (placeholder() | t) }}
+    </span>
+    <svg class="lib-select__chevron" [class.lib-select__chevron--open]="open()" aria-hidden="true"
+         width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+         stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  </button>
+
+  @if (open() && panelBox(); as box) {
+    <div
+      #panel
+      class="lib-select__panel"
+      [class.lib-select__panel--up]="placement() === 'up'"
+      [style.left.px]="box.left"
+      [style.width.px]="box.width"
+      [style.top.px]="placement() === 'down' ? box.top : null"
+      [style.bottom]="placement() === 'up' ? 'calc(100vh - ' + box.top + 'px)' : null"
+      [style.maxHeight.px]="box.maxHeight"
+    >
+      @if (showSearch()) {
+        <div class="lib-select__search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            #searchInput
+            class="lib-select__search"
+            type="text"
+            [placeholder]="creatable() ? 'Buscar o escribir una nueva…' : ('Buscar…' | t)"
+            aria-label="Buscar opción"
+            [attr.aria-controls]="listId"
+            [attr.aria-activedescendant]="activeIdx() >= 0 ? optionId(activeIdx()) : null"
+            [value]="search()"
+            (input)="onSearchInput($any($event.target).value)"
+            (keydown)="onSearchKeydown($event)"
+          />
+        </div>
+      }
+
+      <ul class="lib-select__options" role="listbox" [id]="listId"
+          [attr.aria-label]="label() || ariaLabel() || placeholder()">
+        @for (opt of filteredOptions(); track opt.value; let i = $index) {
+          <li
+            [id]="optionId(i)"
+            role="option"
+            class="lib-select__option"
+            [attr.aria-selected]="opt.value === selectedOption()?.value"
+            [attr.aria-disabled]="opt.disabled || null"
+            [class.lib-select__option--selected]="opt.value === selectedOption()?.value"
+            [class.lib-select__option--active]="i === activeIdx()"
+            [class.lib-select__option--disabled]="opt.disabled"
+            (mousedown)="$event.preventDefault()"
+            (mousemove)="!opt.disabled && activeIdx.set(i)"
+            (click)="selectOption(opt)"
+          >
+            <span class="lib-select__option-text">
+              @if (opt.hint === createHint) {
+                <span class="lib-select__option-label lib-select__option-label--create">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                       stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  {{ createLabel() }} «{{ opt.label }}»
+                </span>
+              } @else {
+                <span class="lib-select__option-label">{{ opt.label }}</span>
+              }
+              @if (opt.hint && opt.hint !== createHint) {
+                <span class="lib-select__option-hint">{{ opt.hint }}</span>
+              }
+            </span>
+            @if (opt.value === selectedOption()?.value) {
+              <svg class="lib-select__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            }
+          </li>
+        } @empty {
+          <li class="lib-select__empty" role="presentation">{{ creatable() ? 'Escribe para crear la primera' : ('Sin resultados' | t) }}</li>
+        }
+      </ul>
+    </div>
+  }
 
   @if (helpText()) {
     <span class="lib-select__help">{{ helpText() }}</span>

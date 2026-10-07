@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { forkJoin, switchMap } from 'rxjs';
 import {
   GroupService, EnrollmentService, CourseService, LearningPathService,
   IGroup, INewStudentRow, IStudentProfile, ICourse, ILearningPath,
@@ -67,17 +67,29 @@ export class AdminGroupsUseCase {
       students: this.enrollmentService.getStudents(),
       courses:  this.courseService.getCourses(),
       paths:    this.pathService.getLearningPaths(),
-    }).subscribe(({ groups, students, courses, paths }) => {
-      this._groups.set(groups);
-      this._students.set(students);
-      this._courses.set(courses.courses);
-      this._paths.set(paths.learningPaths);
-      this._isLoading.set(false);
+    }).subscribe({
+      next: ({ groups, students, courses, paths }) => {
+        this._groups.set(groups);
+        this._students.set(students);
+        this._courses.set(courses.courses);
+        this._paths.set(paths.learningPaths);
+        this._isLoading.set(false);
+      },
+      error: () => {
+        this._isLoading.set(false);
+        this.flash('No se pudieron cargar los grupos. Intenta de nuevo.');
+      },
     });
   }
 
   private refreshGroups(): void {
-    this.groupService.getGroups().subscribe(g => this._groups.set(g));
+    this.groupService.getGroups().subscribe({ next: g => this._groups.set(g), error: () => this.fail() });
+  }
+
+  /** Re-syncs with the server after a failed change, so the screen never shows unsaved data. */
+  private fail(): void {
+    this.flash('No se pudo guardar el cambio del grupo.');
+    this.groupService.getGroups().subscribe({ next: g => this._groups.set(g), error: () => {} });
   }
 
   private flash(msg: string): void {
@@ -86,29 +98,38 @@ export class AdminGroupsUseCase {
   }
 
   createGroup(name: string, studentIds: string[], instructorId: string | null): void {
-    this.groupService.createGroup(name, studentIds, instructorId).subscribe(() => {
-      this.refreshGroups();
-      this.flash(`Grupo "${name}" creado con ${studentIds.length} estudiante(s).`);
+    this.groupService.createGroup(name, studentIds, instructorId).subscribe({
+      next: () => {
+        this.refreshGroups();
+        this.flash(`Grupo "${name}" creado con ${studentIds.length} estudiante(s).`);
+      },
+      error: () => this.fail(),
     });
   }
 
   createGroupFromExcel(name: string, instructorId: string | null, rows: INewStudentRow[]): void {
-    this.groupService.createGroup(name, [], instructorId).subscribe(group => {
-      this.groupService.addStudentsFromRows(group.id, rows).subscribe(() => {
+    this.groupService.createGroup(name, [], instructorId).pipe(
+      switchMap(group => this.groupService.addStudentsFromRows(group.id, rows))
+    ).subscribe({
+      next: () => {
         this.enrollmentService.getStudents().subscribe(s => this._students.set(s));
         this.refreshGroups();
         this.flash(`Grupo "${name}" creado con ${rows.length} estudiante(s) importado(s).`);
-      });
+      },
+      error: () => this.fail(),
     });
   }
 
   enrollGroup(groupId: string, targetId: string, type: 'course' | 'path'): void {
-    this.groupService.enrollGroup(groupId, targetId, type).subscribe(r => {
-      this.refreshGroups();
-      const target = type === 'course'
-        ? this._courses().find(c => c.id === targetId)?.title
-        : this._paths().find(p => p.id === targetId)?.title;
-      this.flash(`Grupo inscrito en "${target}" (${r.success} matriculado(s), ${r.skipped} ya existían).`);
+    this.groupService.enrollGroup(groupId, targetId, type).subscribe({
+      next: r => {
+        this.refreshGroups();
+        const target = type === 'course'
+          ? this._courses().find(c => c.id === targetId)?.title
+          : this._paths().find(p => p.id === targetId)?.title;
+        this.flash(`Grupo inscrito en "${target}" (${r.success} matriculado(s), ${r.skipped} ya existían).`);
+      },
+      error: () => this.fail(),
     });
   }
 
@@ -116,40 +137,56 @@ export class AdminGroupsUseCase {
   openEdit(groupId: string): void { this._editingGroupId.set(groupId); }
   closeEdit(): void { this._editingGroupId.set(null); }
 
+  /** Borra el grupo; las matrículas de sus estudiantes se conservan. */
+  deleteGroup(groupId: string): void {
+    const name = this._groups().find(g => g.id === groupId)?.name ?? '';
+    this.groupService.deleteGroup(groupId).subscribe({
+      next: () => {
+        this._editingGroupId.set(null);
+        this.refreshGroups();
+        this.flash(`Grupo "${name}" eliminado.`);
+      },
+      error: () => this.fail(),
+    });
+  }
+
   renameGroup(groupId: string, name: string): void {
     if (!name.trim()) return;
-    this.groupService.updateGroup(groupId, { name: name.trim() }).subscribe(() => this.refreshGroups());
+    this.groupService.updateGroup(groupId, { name: name.trim() }).subscribe({ next: () => this.refreshGroups(), error: () => this.fail() });
   }
 
   setInstructor(groupId: string, instructorId: string | null): void {
-    this.groupService.updateGroup(groupId, { instructorId }).subscribe(() => this.refreshGroups());
+    this.groupService.updateGroup(groupId, { instructorId }).subscribe({ next: () => this.refreshGroups(), error: () => this.fail() });
   }
 
   addStudentsToGroup(groupId: string, studentIds: string[]): void {
     if (studentIds.length === 0) return;
-    this.groupService.addStudentsToGroup(groupId, studentIds).subscribe(() => this.refreshGroups());
+    this.groupService.addStudentsToGroup(groupId, studentIds).subscribe({ next: () => this.refreshGroups(), error: () => this.fail() });
   }
 
   /** Importa estudiantes desde Excel al grupo: reutiliza los que ya existen (por correo) y crea el resto. */
   importStudentsToGroup(groupId: string, rows: INewStudentRow[]): void {
     if (rows.length === 0) return;
-    this.groupService.addStudentsFromRows(groupId, rows).subscribe(() => {
-      this.enrollmentService.getStudents().subscribe(s => this._students.set(s));
-      this.refreshGroups();
-      this.flash(`${rows.length} estudiante(s) importado(s) y agregado(s) al grupo.`);
+    this.groupService.addStudentsFromRows(groupId, rows).subscribe({
+      next: () => {
+        this.enrollmentService.getStudents().subscribe(s => this._students.set(s));
+        this.refreshGroups();
+        this.flash(`${rows.length} estudiante(s) importado(s) y agregado(s) al grupo.`);
+      },
+      error: () => this.fail(),
     });
   }
 
   removeStudentFromGroup(groupId: string, studentId: string): void {
-    this.groupService.removeStudentFromGroup(groupId, studentId).subscribe(() => this.refreshGroups());
+    this.groupService.removeStudentFromGroup(groupId, studentId).subscribe({ next: () => this.refreshGroups(), error: () => this.fail() });
   }
 
   addCourseToGroup(groupId: string, courseId: string): void {
     if (!courseId) return;
-    this.groupService.enrollGroup(groupId, courseId, 'course').subscribe(() => this.refreshGroups());
+    this.groupService.enrollGroup(groupId, courseId, 'course').subscribe({ next: () => this.refreshGroups(), error: () => this.fail() });
   }
 
   removeCourseFromGroup(groupId: string, courseId: string): void {
-    this.groupService.removeCourseFromGroup(groupId, courseId).subscribe(() => this.refreshGroups());
+    this.groupService.removeCourseFromGroup(groupId, courseId).subscribe({ next: () => this.refreshGroups(), error: () => this.fail() });
   }
 }

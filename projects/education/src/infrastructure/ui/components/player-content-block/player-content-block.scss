@@ -1289,3 +1289,38 @@
     color: #fff;
   }
 }
+
+.quiz-confirm__error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #F87171;
+}
+
+// ── Transcripción del video ─────────────────────────────────────────────────
+.pcb-transcript {
+  margin-top: var(--spacing-md);
+  border: 1px solid var(--color-borde-principal);
+  border-radius: var(--border-radius-lg);
+  background: var(--color-tarjeta);
+
+  summary {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-texto-principal);
+    cursor: pointer;
+    list-style-position: inside;
+    &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; border-radius: var(--border-radius-lg); }
+  }
+
+  p {
+    margin: 0;
+    padding: 0 var(--spacing-lg) var(--spacing-lg);
+    max-height: 320px;
+    overflow-y: auto;
+    white-space: pre-line;
+    line-height: 1.7;
+    font-size: var(--font-size-sm);
+    color: var(--color-texto-secundario);
+  }
+}

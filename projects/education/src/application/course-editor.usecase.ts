@@ -32,15 +32,6 @@ export class CourseEditorUseCase {
     [EContentType.SCORM]:        'SCORM'
   };
 
-  readonly contentTypeIcons: Record<EContentType, string> = {
-    [EContentType.VIDEO]:        '▶',
-    [EContentType.DOCUMENT]:     '📄',
-    [EContentType.QUIZ]:         '✏️',
-    [EContentType.ASSIGNMENT]:   '📝',
-    [EContentType.LIVE_SESSION]: '🎙',
-    [EContentType.SCORM]:        '📦'
-  };
-
   readonly difficultyLabels: Record<EDifficulty, string> = {
     [EDifficulty.BEGINNER]:     'Principiante',
     [EDifficulty.INTERMEDIATE]: 'Intermedio',
@@ -52,6 +43,7 @@ export class CourseEditorUseCase {
   private readonly _selectedItem = signal<ISelectedItem>({ type: 'course' });
 
   readonly isLoading    = computed(() => this.courseUc.isLoading());
+  readonly loadError    = computed(() => this.courseUc.error());
   readonly courseId     = computed(() => this._courseId());
   readonly selectedItem = computed(() => this._selectedItem());
 
@@ -89,6 +81,8 @@ export class CourseEditorUseCase {
     if (this.courseUc.courses().length === 0) this.courseUc.load();
   }
 
+  retry(): void { this.courseUc.load(); }
+
   selectCoursePanel(): void { this._selectedItem.set({ type: 'course' }); }
   selectModule(moduleId: string): void { this._selectedItem.set({ type: 'module', moduleId }); }
   selectLesson(moduleId: string, lessonId: string): void { this._selectedItem.set({ type: 'lesson', moduleId, lessonId }); }
@@ -105,6 +99,7 @@ export class CourseEditorUseCase {
   }
 
   saveBlock(req: ICreateContentBlockRequest): void { this.courseUc.addContentBlock(req); }
+  setThumbnail(url: string): void { const id = this._courseId(); if (id) this.courseUc.update(id, { thumbnailUrl: url }); }
   publishCourse(): void { const id = this._courseId(); if (id) this.courseUc.publishCourse(id); }
   archiveCourse(): void { const id = this._courseId(); if (id) this.courseUc.archiveCourse(id); }
 

@@ -29,7 +29,7 @@
           </div>
           <div class="s-home__progress-list">
             @for (entry of uc.inProgress().slice(0, 3); track entry.enrollment.id) {
-              <edu-course-progress-card [entry]="entry" (open)="continueCourse($event)" />
+              <edu-course-progress-card libReveal [revealIndex]="$index" [entry]="entry" (open)="continueCourse($event)" />
             }
           </div>
           @if (uc.inProgress().length > 3) {
@@ -55,9 +55,9 @@
               Cursos populares
             </h2>
           </div>
-          <div class="s-home__popular-grid">
+          <div class="s-home__popular-grid" libAutoAnimate>
             @for (item of uc.popularCourses(); track item.id) {
-              <edu-catalog-card [item]="item" (previewItem)="openCatalogItem($event)" (enrollItem)="enrollCatalogItem($event)" (openItem)="openCatalogItem($event)" />
+              <edu-catalog-card libReveal [revealIndex]="$index" [item]="item" (previewItem)="openCatalogItem($event)" (enrollItem)="enrollCatalogItem($event)" (openItem)="openCatalogItem($event)" />
             }
             <button type="button" class="s-home__catalog-more-card" (click)="openCatalog()">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -95,7 +95,7 @@
         </div>
         <div class="s-home__path-list">
           @for (entry of uc.enrolledPathEntries().slice(0, 3); track entry.enrollment.id) {
-            <edu-home-path-sidebar-item [entry]="entry" (open)="openPath($event)" />
+            <edu-home-path-sidebar-item libReveal [revealIndex]="$index" [entry]="entry" (open)="openPath($event)" />
           }
         </div>
         @if (uc.enrolledPathEntries().length > 3) {

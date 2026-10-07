@@ -24,7 +24,7 @@
     } @else {
       <lib-card-grid minWidth="300px">
         @for (summary of pagedCourses(); track summary.course.id) {
-          <ins-course-summary-card [summary]="summary" (open)="openCourse($event)" />
+          <ins-course-summary-card libReveal [revealIndex]="$index" [summary]="summary" (open)="openCourse($event)" />
         }
       </lib-card-grid>
 

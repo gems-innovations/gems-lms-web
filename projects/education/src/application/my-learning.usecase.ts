@@ -1,42 +1,30 @@
-import { inject, Injectable, computed } from '@angular/core';
+import { inject, Injectable, computed, signal } from '@angular/core';
 import { EnrollmentUseCase } from './enrollment.usecase';
 import { CourseUseCase } from './course.usecase';
 import { LearningPathUseCase } from './learning-path.usecase';
-import { AuthSessionService } from 'auth';
 import { IEnrolledCourseEntry, IEnrolledPathEntry } from '../domain/model/enrollment.model';
 import { ICourseCertificate } from '../domain/model/player.model';
-import { MOCK_STUDENTS, MOCK_USER_ID } from '../infrastructure/services/enrollment.service';
-
-export interface ICertification {
-  id: string;
-  courseId: string;
-  courseTitle: string;
-  issuedAt: Date;
-  expiresAt?: Date;
-}
+import { EContentType } from '../domain/model/course.model';
+import { ICertification } from '../domain/model/certificate.model';
+import { CertificateService } from '../infrastructure/services/certificate.service';
+export type { ICertification } from '../domain/model/certificate.model';
 
 export interface IPendingTask {
   id: string;
   title: string;
   courseTitle: string;
-  dueDate: Date;
+  /** Not set until content blocks carry due dates. */
+  dueDate?: Date;
   type: 'assignment' | 'quiz' | 'live-session';
 }
-
-const MOCK_PENDING_TASKS: IPendingTask[] = [
-  { id: 'task1', title: 'Análisis exploratorio de datos',   courseTitle: 'Python para Ciencia de Datos', dueDate: new Date('2026-06-20'), type: 'assignment' },
-  { id: 'task2', title: 'Quiz: Fundamentos de Node.js',     courseTitle: 'Node.js Backend Avanzado',     dueDate: new Date('2026-06-18'), type: 'quiz' },
-  { id: 'task3', title: 'Sesión en vivo: Code Review',      courseTitle: 'React con Next.js',            dueDate: new Date('2026-06-22'), type: 'live-session' },
-  { id: 'task4', title: 'Proyecto final: API REST',         courseTitle: 'Node.js Backend Avanzado',     dueDate: new Date('2026-07-01'), type: 'assignment' },
-  { id: 'task5', title: 'Tarea: Diseño de componentes',     courseTitle: 'UX/UI con Figma',              dueDate: new Date('2026-06-25'), type: 'assignment' },
-];
 
 @Injectable({ providedIn: 'root' })
 export class MyLearningUseCase {
   private readonly enrollmentUc = inject(EnrollmentUseCase);
   private readonly courseUc     = inject(CourseUseCase);
   private readonly pathUc       = inject(LearningPathUseCase);
-  private readonly authSession  = inject(AuthSessionService);
+  private readonly certificateService = inject(CertificateService);
+  private readonly _certifications = signal<ICertification[]>([]);
 
   readonly isLoading = computed(() => this.enrollmentUc.isLoading() || this.courseUc.isLoading());
 
@@ -69,42 +57,47 @@ export class MyLearningUseCase {
       .filter(x => !!x.path);
   });
 
-  readonly certifications = computed((): ICertification[] =>
-    this.completed().map(x => ({
-      id: x.enrollment.id,
-      courseId: x.course.id,
-      courseTitle: x.course.title,
-      issuedAt: x.enrollment.completedAt ?? x.enrollment.enrolledAt,
-    }))
-  );
+  readonly certifications = this._certifications.asReadonly();
 
   /** Construye el certificado (mismo formato que se ve al completar el curso) para una certificación dada. */
   buildCertificate(cert: ICertification): ICourseCertificate | null {
-    const entry = this.completed().find(x => x.course.id === cert.courseId);
-    if (!entry) return null;
-
-    const user = this.authSession.user();
-    let studentName = 'Estudiante';
-    if (user) {
-      studentName = `${user.firstName} ${user.lastName}`.trim();
-    } else {
-      const student = MOCK_STUDENTS.find(s => s.id === MOCK_USER_ID);
-      if (student) studentName = `${student.firstName} ${student.lastName}`;
-    }
-
     return {
-      courseId:        entry.course.id,
-      courseTitle:     entry.course.title,
-      studentName,
-      completedAt:     cert.issuedAt,
-      certificateId:   `CERT-${entry.course.id.slice(0, 8).toUpperCase()}`,
-      instructorName:  entry.course.instructorName,
+      courseId:        cert.resourceId,
+      courseTitle:     cert.resourceTitle,
+      studentName:     cert.studentName,
+      completedAt:     cert.completedAt,
+      certificateId:   cert.id,
+      instructorName:  cert.instructorName,
       institutionName: 'GEMS LMS',
     };
   }
 
-  readonly pendingTasks = computed((): IPendingTask[] =>
-    MOCK_PENDING_TASKS.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())
+  /**
+   * Quizzes and assignments of the courses in progress that the student has not completed
+   * (assignments already submitted are waiting for the instructor, so they are left out).
+   * Content blocks have no due date yet, so tasks are listed in course order.
+   */
+  readonly pendingTasks = computed((): IPendingTask[] => {
+    const submitted = new Set(this.enrollmentUc.submissions().map(s => s.blockId));
+    return this.inProgress().flatMap(({ enrollment, course }) => {
+      const done = new Set(enrollment.progress.completedBlockIds ?? []);
+      return course.modules.flatMap(m => m.lessons).flatMap(l => l.contentBlocks)
+        .filter(b => (b.type === EContentType.QUIZ || b.type === EContentType.ASSIGNMENT)
+          && !done.has(b.id) && !submitted.has(b.id))
+        .map(b => ({
+          id: `${course.id}-${b.id}`,
+          title: b.title,
+          courseTitle: course.title,
+          type: b.type === EContentType.QUIZ ? 'quiz' as const : 'assignment' as const
+        }));
+    });
+  });
+
+  /** Pending tasks that have a due date, soonest first (for the delivery calendar). */
+  readonly datedTasks = computed(() =>
+    this.pendingTasks()
+      .filter((t): t is IPendingTask & { dueDate: Date } => !!t.dueDate)
+      .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())
   );
 
   load(): void {
@@ -112,5 +105,9 @@ export class MyLearningUseCase {
     if (this.enrollmentUc.pathEnrollments().length === 0) this.enrollmentUc.loadPathEnrollments();
     if (this.courseUc.courses().length === 0)             this.courseUc.load();
     if (this.pathUc.learningPaths().length === 0)         this.pathUc.load();
+    this.certificateService.mine().subscribe({
+      next: items => this._certifications.set(items),
+      error: () => this._certifications.set([]),
+    });
   }
 }

@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthSessionService, EUserRole } from 'auth';
+import { AuthSessionService, EUserRole } from 'auth/core';
 
 /**
  * Factory that returns a guard allowing only users whose role is in `allowedRoles`.

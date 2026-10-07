@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, EMPTY } from 'rxjs';
+import { Subject, EMPTY, forkJoin } from 'rxjs';
 import { tap, switchMap, catchError } from 'rxjs/operators';
 import { EnrollmentState } from '../domain/state/enrollment.state';
 import { EnrollmentService } from '../infrastructure/services/enrollment.service';
@@ -62,7 +62,7 @@ export class EnrollmentUseCase {
   //#endregion
 
   constructor() {
-    // React to async instructor grading from the mock service
+    // React to grading done in this session (the instructor view emits it)
     this.service.gradedSubmission$.pipe(
       tap(graded => {
         this.state.updateSubmission(graded);
@@ -73,9 +73,15 @@ export class EnrollmentUseCase {
 
     this.loadEnrollments$.pipe(
       tap(() => this._isLoading.set(true)),
-      switchMap(() => this.service.getMyEnrollments().pipe(
-        tap(enrollments => {
+      switchMap(() => forkJoin({
+        enrollments: this.service.getMyEnrollments(),
+        attempts: this.service.getMyQuizAttempts(),
+        submissions: this.service.getMySubmissions()
+      }).pipe(
+        tap(({ enrollments, attempts, submissions }) => {
           this.state.setEnrollments(enrollments);
+          this.state.setQuizAttempts(attempts);
+          this.state.setSubmissions(submissions);
           this._isLoading.set(false);
         }),
         catchError(() => { this._isLoading.set(false); return EMPTY; })
@@ -180,6 +186,17 @@ export class EnrollmentUseCase {
 
   updateProgress(enrollmentId: string, lessonId: string, blockId: string): void {
     this.updateProgress$.next({ enrollmentId, lessonId, blockId });
+  }
+
+  /** Persists the completed blocks and the resulting course percentage. */
+  saveCompletedBlocks(enrollmentId: string, completedBlockIds: string[], overallPercentage: number): void {
+    this.service.updateProgress(enrollmentId, { completedBlockIds, overallPercentage }).pipe(
+      tap(updated => this.state.updateEnrollment(updated)),
+      catchError(() => {
+        this.toastService.error('No se pudo guardar tu progreso. Revisa tu conexión.');
+        return EMPTY;
+      })
+    ).subscribe();
   }
 
   getEnrollmentByCourse(courseId: string): IEnrollment | null {

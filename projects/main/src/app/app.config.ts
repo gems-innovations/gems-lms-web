@@ -3,24 +3,36 @@ import {
   inject,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
+  ErrorHandler,
   provideZonelessChangeDetection
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, TitleStrategy, withViewTransitions, withInMemoryScrolling } from '@angular/router';
 import { provideClientHydration, withEventReplay, withNoIncrementalHydration } from '@angular/platform-browser';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideServiceWorker } from '@angular/service-worker';
+import { isDevMode } from '@angular/core';
 
 import { provideMarkdown } from 'ngx-markdown';
 import { routes } from './app.routes';
-import { AuthSessionService } from 'auth';
+import { AuthSessionService, authInterceptor } from 'auth/core';
+import { AppTitleStrategy } from './app-title.strategy';
+import { ClientErrorHandler } from './client-error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    { provide: ErrorHandler, useClass: ClientErrorHandler },
     provideZonelessChangeDetection(),
-    provideRouter(routes),
+    // Cambio de página con fundido nativo del navegador (View Transitions) y scroll al inicio.
+    provideRouter(routes, withViewTransitions({ skipInitialTransition: true }), withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })),
+    { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideClientHydration(withEventReplay(), withNoIncrementalHydration()),
-    provideHttpClient(),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideMarkdown(),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000'
+    }),
     // Restore persisted session before route guards run
     provideAppInitializer(() => inject(AuthSessionService).restoreSession()),
   ]

@@ -11,6 +11,7 @@ export class LearningPathEditorUseCase {
 
   readonly ELearningPathStatus = ELearningPathStatus;
   readonly isLoading = computed(() => this.lpUc.isLoading() || this.courseUc.isLoading());
+  readonly loadError = computed(() => this.lpUc.error() || this.courseUc.error());
 
   private readonly _pathId            = signal<string | null>(null);
   private readonly _coursePickerSearch = signal('');
@@ -34,6 +35,8 @@ export class LearningPathEditorUseCase {
     if (this.lpUc.learningPaths().length === 0)  this.lpUc.load();
     if (this.courseUc.courses().length === 0)     this.courseUc.load();
   }
+
+  retry(): void { this.lpUc.load(); this.courseUc.load(); }
 
   setCoursePickerSearch(term: string): void { this._coursePickerSearch.set(term); }
 
@@ -82,6 +85,7 @@ export class LearningPathEditorUseCase {
     });
   }
 
+  setThumbnail(url: string): void { const p = this.path(); if (p) this.lpUc.update(p.id, { thumbnailUrl: url }); }
   publishPath(): void { const id = this._pathId(); if (id) this.lpUc.publishPath(id); }
   archivePath():  void { const id = this._pathId(); if (id) this.lpUc.archivePath(id); }
 

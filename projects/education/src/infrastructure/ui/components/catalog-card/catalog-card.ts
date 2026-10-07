@@ -10,6 +10,10 @@ import { DIFFICULTY_LABELS } from '../../utils/course-labels';
 export class CatalogCard {
   readonly item = input.required<ICatalogItem>();
   readonly enrolled = input<boolean>(false);
+  /** Why the student cannot enroll now (window, seats, prerequisites…); null when they can. */
+  readonly blockedReason = input<string | null>(null);
+  /** Seats left when the course has a capacity. */
+  readonly seatsLeft = input<number | null>(null);
 
   readonly enrollItem = output<ICatalogItem>();
   readonly openItem = output<ICatalogItem>();

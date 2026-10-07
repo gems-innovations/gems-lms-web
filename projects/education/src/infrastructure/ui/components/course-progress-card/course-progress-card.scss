@@ -178,8 +178,8 @@
   padding: 0.3rem 0.875rem;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #fff;
-  background: var(--color-primario);
+  color: var(--color-sobre-primario, #fff);
+  background: var(--color-primario-accion, var(--color-primario));
   border: none;
   border-radius: 8px;
   cursor: pointer;

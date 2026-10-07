@@ -3,13 +3,15 @@ import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } fro
 import { filter, Subscription } from 'rxjs';
 import { AuthSessionService, EUserRole, LogoutUseCase } from 'auth';
 import { BrandingService, AvatarComponent } from 'shared';
+import { TranslatePipe } from 'shared';
+import { NotificationBell } from '../../components/notification-bell/notification-bell';
 
 const COLLAPSED_KEY = 'gems-sl-collapsed';
 
 @Component({
   selector: 'edu-student-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, AvatarComponent],
+  imports: [TranslatePipe, RouterOutlet, RouterLink, RouterLinkActive, AvatarComponent, NotificationBell],
   templateUrl: './student-layout.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './student-layout.scss'
@@ -17,6 +19,7 @@ const COLLAPSED_KEY = 'gems-sl-collapsed';
 export class StudentLayout implements OnInit, OnDestroy {
   private readonly authSession     = inject(AuthSessionService);
   private readonly brandingService = inject(BrandingService);
+  protected readonly institutionName = this.brandingService.institutionName;
   private readonly logoutUseCase   = inject(LogoutUseCase);
   private readonly router          = inject(Router);
   private routerSub?: Subscription;
@@ -25,6 +28,8 @@ export class StudentLayout implements OnInit, OnDestroy {
   readonly sidebarCollapsed  = signal(this.initCollapsed(this.router.url));
 
   readonly user = this.authSession.user;
+  /** Invitado (sin cuenta): Inicio y Catálogo piden crear la cuenta, así que llevan un candado. */
+  readonly isGuest = computed(() => this.user()?.email?.endsWith('@invitado.gems.lat') ?? false);
   readonly role = this.authSession.role;
 
   readonly initials = computed(() => {
@@ -48,8 +53,8 @@ export class StudentLayout implements OnInit, OnDestroy {
   private initCollapsed(url: string): boolean {
     const stored = localStorage.getItem(COLLAPSED_KEY);
     if (stored !== null) return stored === '1';
-    // Sin preferencia guardada: home abierto, resto colapsado
-    return !url.includes('/learn/home');
+    // Mantener la navegación visible por defecto en todas las pantallas.
+    return false;
   }
 
   toggleSidebar(): void {
@@ -69,7 +74,6 @@ export class StudentLayout implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routerSub?.unsubscribe();
-    this.brandingService.reset();
   }
 
   goToAdmin(): void {

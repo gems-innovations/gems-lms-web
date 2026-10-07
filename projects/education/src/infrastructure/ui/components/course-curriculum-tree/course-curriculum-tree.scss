@@ -17,7 +17,7 @@
   border-right: 1px solid var(--color-borde-sutil);
   overflow-y: auto;
   padding: 1rem 0 2rem;
-  background: rgba(var(--color-fondo), 0.5);
+  background: color-mix(in srgb, var(--color-fondo-principal) 50%, transparent);
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
@@ -43,7 +43,7 @@
 
 .ctree__count {
   font-size: 0.7rem;
-  color: rgba(var(--color-texto-terciario), 0.7);
+  color: color-mix(in srgb, var(--color-texto-terciario) 70%, transparent);
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0;
@@ -137,7 +137,7 @@
   flex-shrink: 0;
 
   .ctree__module-row:hover & { opacity: 1; }
-  &:hover { color: var(--color-primario); border-color: rgba(var(--color-primario), 0.4); background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
+  &:hover { color: var(--color-primario); border-color: color-mix(in srgb, var(--color-primario) 40%, transparent); background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
 }
 
 .ctree__lessons {
@@ -182,7 +182,7 @@
 
 .ctree__free-tag {
   padding: 0.1rem 0.4rem;
-  background: rgba(var(--color-exito), 0.12);
+  background: color-mix(in srgb, var(--color-exito) 12%, transparent);
   color: var(--color-exito);
   border-radius: 3px;
   font-size: 0.65rem;
@@ -201,7 +201,7 @@
 .ctree__inline-form {
   padding: 0.5rem;
   background: var(--color-superficie);
-  border: 1px solid rgba(var(--color-primario), 0.25);
+  border: 1px solid color-mix(in srgb, var(--color-primario) 25%, transparent);
   border-radius: 7px;
   margin: 0.25rem 0;
 
@@ -221,17 +221,17 @@
   box-sizing: border-box;
 
   &::placeholder { color: var(--color-texto-terciario); }
-  &:focus { border-color: rgba(var(--color-primario), 0.5); }
+  &:focus { border-color: color-mix(in srgb, var(--color-primario) 50%, transparent); }
 }
 
 .ctree__inline-actions { display: flex; gap: 0.375rem; }
 
 .ctree__inline-confirm {
   padding: 0.35rem 0.75rem;
-  background: var(--color-primario);
+  background: var(--color-primario-accion);
   border: none;
   border-radius: 5px;
-  color: #fff;
+  color: var(--color-sobre-primario);
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
@@ -267,5 +267,5 @@
   margin-top: 0.5rem;
   transition: all 0.15s;
 
-  &:hover { color: var(--color-primario); border-color: rgba(var(--color-primario), 0.3); background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
+  &:hover { color: var(--color-primario); border-color: color-mix(in srgb, var(--color-primario) 30%, transparent); background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
 }

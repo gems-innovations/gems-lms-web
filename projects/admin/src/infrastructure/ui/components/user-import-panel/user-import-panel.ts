@@ -26,8 +26,8 @@ export class UserImportPanel {
     this.error.set(null);
 
     const reader = new FileReader();
-    reader.onload = e => {
-      const { rows, error } = parseUsersXlsx(e.target!.result as ArrayBuffer);
+    reader.onload = async e => {
+      const { rows, error } = await parseUsersXlsx(e.target!.result as ArrayBuffer);
       this.error.set(error);
       this.preview.set(rows);
     };

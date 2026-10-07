@@ -1,11 +1,12 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IDashboardMetrics } from '../../../../application/institution.usecase';
+import { RevealDirective, CountUpDirective } from 'shared';
 
 @Component({
   selector: 'adm-dashboard-metrics',
   standalone: true,
-  imports: [CommonModule],
+  imports: [RevealDirective, CountUpDirective, CommonModule],
   templateUrl: './dashboard-metrics.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './dashboard-metrics.scss'

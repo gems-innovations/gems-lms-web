@@ -1,59 +1,112 @@
-# GemsLmsWeb
+# GEMS LMS Web
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.5.
+Frontend Angular 22 del LMS: estudiantes, panel docente y administración por institución. Consume la API a través del gateway.
 
-## Development server
+## Desarrollo local
 
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Requisitos: Node.js 24, npm y el backend en ejecución. Desde gems-lms-api ejecutar `./dev-up.sh --seed` en Git Bash (Windows) o Bash, después de configurar su `.env`.
 
 ```bash
-ng generate component component-name
+npm ci
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Abrir http://localhost:4200. API predeterminada: http://localhost:8080/api/v1. Las cuentas están en `../gems-lms-api/docs/integracion-front-back.md`; la contraseña es `DEV_PASSWORD` del `.env` local del backend.
+
+Las librerías shared, auth, education, instructor y admin se consumen desde dist. Después de editar una librería, compilarla y reiniciar el servidor:
 
 ```bash
-ng generate --help
+npx ng build education
+npx ng serve main --port 4200
 ```
 
-## Building
+Si cambiaron dependencias entre librerías, usar `npm run build:all`.
 
-To build the project run:
+## Pruebas
+
+Las suites verifican contratos HTTP, sesión, permisos de navegación, contraseñas, grupos, rutas, reseñas y archivos. Requieren Chrome instalado.
 
 ```bash
-ng build
+npm run test:ci
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+La validación de GitHub ejecuta automáticamente instalación reproducible, auditoría de
+dependencias de producción, compilación de librerías, todas las pruebas unitarias y build PWA/SSR
+en cada cambio dirigido a `develop`, `qa` o `main`.
 
-## Running unit tests
+Si Chrome no se detecta, definir CHROME_BIN. Ejemplo en PowerShell:
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+```powershell
+$env:CHROME_BIN = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
+npm run test:ci
+```
+
+Para iterar ejecutar solo el proyecto afectado:
 
 ```bash
-ng test
+npx ng test auth --watch=false --browsers=ChromeHeadless
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+Las pruebas de navegador cubren reportes, perfil, navegación rápida, preferencias,
+onboarding y accesibilidad para administrador, docente y estudiante. Las pruebas públicas
+funcionan sin credenciales; para los recorridos autenticados definir `E2E_ADMIN_EMAIL`,
+`E2E_INSTRUCTOR_EMAIL`, `E2E_STUDENT_EMAIL` y `E2E_ADMIN_PASSWORD`:
 
 ```bash
-ng e2e
+npm run test:e2e
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Catálogo visual
 
-## Additional Resources
+Storybook documenta los componentes compartidos y ejecuta revisiones de accesibilidad
+durante el desarrollo:
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```bash
+npm run storybook
+npm run build:storybook
+```
+
+## Producción
+
+```bash
+npm run build:all
+npx ng build main --configuration production
+```
+
+Salida: dist/main/browser y dist/main/server. Ejemplo de ejecución SSR en PowerShell:
+
+La carga inicial se controla con un presupuesto de 650 kB sin comprimir y 800 kB como
+límite de error. La medición actual es cercana a 642 kB (164 kB estimados por red). Excel,
+PDF, gráficas y las pantallas de cada rol permanecen en fragmentos diferidos; revisar este
+presupuesto cuando una dependencia pase al paquete inicial.
+
+```powershell
+$env:API_BASE_URL = 'https://api.example.com/api/v1'
+$env:NG_ALLOWED_HOSTS = 'lms.example.com,localhost'
+$env:PORT = '4000'
+npm run serve:ssr:main
+```
+
+NG_ALLOWED_HOSTS admite nombres separados por comas, sin protocolo ni puerto. Configurar el proxy para conservar un host admitido. El backend debe permitir el origen público del frontend en CORS_ALLOWED_ORIGINS y usarlo como FRONTEND_URL para los correos.
+
+El servidor entrega /config.js desde API_BASE_URL, antes de iniciar la aplicación. Esta URL es pública; el archivo no debe contener secretos. Para servir únicamente la salida estática, editar dist/main/browser/config.js:
+
+```javascript
+globalThis.API_BASE_URL = 'https://api.example.com/api/v1';
+```
+
+Servir config.js sin caché y las rutas de la aplicación con retorno a index.html. Cambiar la URL no requiere recompilar las librerías. Sin configuración se conserva la API local.
+
+La compilación de producción también genera una PWA instalable. El service worker guarda el
+cascarón visual y recursos estáticos, pero nunca respuestas de `/api`, para evitar conservar
+datos privados en caché. La aplicación avisa cuando no hay conexión y cuando una versión nueva
+está lista. Servir `ngsw-worker.js`, `ngsw.json` y `manifest.webmanifest` desde el mismo origen y
+con HTTPS (localhost funciona durante pruebas). El servidor SSR ya aplica caché inmutable solo a
+archivos versionados, fuerza revalidación del service worker y añade CSP, protección contra marcos,
+política de permisos y otras cabeceras de seguridad.
+
+## Acceso y servicios externos
+
+Las cuentas las crea el administrador de la institución; el registro público está cerrado. El cambio de contraseña temporal y la recuperación están conectados a la API. En desarrollo, el backend entrega los correos a Mailpit; en producción se configura un proveedor SMTP real. Los tokens nunca se escriben en registros.
+
+El backend guarda archivos en FILES_DIR, que necesita almacenamiento persistente en producción. Consultar `../gems-lms-api/docs/integracion-front-back.md` para el estado de integración y las revisiones pendientes.

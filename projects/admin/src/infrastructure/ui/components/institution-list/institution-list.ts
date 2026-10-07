@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { LoadingSkeletonComponent } from '@gems-lms-web/shared';
 import { SearchBarComponent } from '@gems-lms-web/shared';
 import { IInstitution } from '../../../../domain/model/institution.model';
+import { LucideTriangleAlert, LucideSchool } from '@lucide/angular';
 
 @Component({
   selector: 'adm-institution-list',
   standalone: true,
-  imports: [CommonModule, LoadingSkeletonComponent, SearchBarComponent],
+  imports: [CommonModule, LoadingSkeletonComponent, SearchBarComponent, LucideTriangleAlert, LucideSchool],
   templateUrl: './institution-list.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './institution-list.scss'

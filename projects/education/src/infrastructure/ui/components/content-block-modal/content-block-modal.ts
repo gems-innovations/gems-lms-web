@@ -10,8 +10,13 @@ import {
   IMultipleChoiceQuestion,
   ITrueFalseQuestion,
   IOpenQuestion,
-  IRubricItem
+  IRubricItem,
+  IQuestionPool
 } from '../../../../domain/model/course.model';
+import { QuestionBankService } from '../../../services/question-bank.service';
+import type { IBankCategory } from '../../../services/question-bank.service';
+import { FileUploadService } from 'shared';
+import { LibSelectComponent, SelectOption } from 'shared';
 
 type TStep = 'type-select' | 'form';
 
@@ -52,13 +57,26 @@ const newQuestion = (order: number): IQuestionDraft => ({
 @Component({
   selector: 'edu-content-block-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, MarkdownEditorComponent],
+  imports: [LibSelectComponent, CommonModule, FormsModule, MarkdownEditorComponent],
   templateUrl: './content-block-modal.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './content-block-modal.scss'
 })
 export class ContentBlockModal {
+  private readonly fileUpload = inject(FileUploadService);
+  protected readonly scormOptions: SelectOption[] = [
+    { value: '1.2', label: 'SCORM 1.2' },
+    { value: '2004', label: 'SCORM 2004' },
+  ];
+  protected readonly questionTypeOptions: SelectOption[] = [
+    { value: 'multiple-choice', label: 'Opción múltiple' },
+    { value: 'true-false', label: 'Verdadero / falso' },
+    { value: 'open', label: 'Respuesta abierta' },
+  ];
+  protected readonly bankCategoryOptions = computed<SelectOption[]>(() =>
+    this.bankCategories().map(c => ({ value: c.category, label: c.category, hint: `${c.count} preguntas` })));
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly bank = inject(QuestionBankService);
 
   readonly lessonId = input.required<string>();
   readonly onClose  = output<void>();
@@ -78,6 +96,9 @@ export class ContentBlockModal {
   readonly videoUrl          = signal('');
   readonly videoThumbnailUrl = signal('');
   readonly videoTranscript   = signal('');
+  readonly captionsUrl       = signal('');
+  readonly captionsBusy      = signal(false);
+  readonly captionsError     = signal<string | null>(null);
 
   readonly markdownContent = signal('');
   readonly markdownPreview = signal(false);
@@ -91,9 +112,14 @@ export class ContentBlockModal {
   readonly quizMaxAttempts  = signal(3);
   readonly quizShuffle      = signal(false);
   readonly quizQuestions    = signal<IQuestionDraft[]>([newQuestion(1)]);
+  /** Random questions per attempt from the question bank. */
+  readonly quizPools        = signal<IQuestionPool[]>([]);
+  readonly bankCategories   = signal<IBankCategory[]>([]);
+  readonly bankError        = signal<string | null>(null);
 
   readonly assignmentInstructions = signal('');
   readonly maxScore               = signal(100);
+  readonly dueDate                = signal('');
   readonly allowedFileTypes       = signal<string[]>(['pdf', 'docx']);
   readonly rubric                 = signal<IRubricDraft[]>([{ id: 'r1', criterion: '', maxPoints: 100 }]);
   readonly newFileType            = signal('');
@@ -113,10 +139,17 @@ export class ContentBlockModal {
     const type = this.selectedType();
     if (type === EContentType.VIDEO)      return !!this.videoUrl().trim();
     if (type === EContentType.SCORM)      return !!this.scormUrl().trim();
-    if (type === EContentType.QUIZ)       return this.quizQuestions().length > 0 && this.quizQuestions().every(q => q.question.trim().length > 0);
+    if (type === EContentType.QUIZ) {
+      const pools = this.validPools();
+      return (this.quizQuestions().length > 0 || pools.length > 0)
+        && this.quizQuestions().every(q => q.question.trim().length > 0);
+    }
     if (type === EContentType.ASSIGNMENT) return !!this.assignmentInstructions().trim();
     return true;
   });
+
+  readonly validPools = computed(() => this.quizPools().filter(p => p.category && p.count > 0));
+  readonly pooledQuestionCount = computed(() => this.validPools().reduce((a, p) => a + p.count, 0));
 
   readonly totalQuizPoints = computed(() => this.quizQuestions().reduce((s, q) => s + q.points, 0));
 
@@ -132,7 +165,31 @@ export class ContentBlockModal {
     return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${id}`);
   });
 
-  selectType(type: EContentType): void { this.selectedType.set(type); this.step.set('form'); }
+  selectType(type: EContentType): void {
+    this.selectedType.set(type);
+    this.step.set('form');
+    if (type === EContentType.QUIZ) this.loadBankCategories();
+  }
+
+  private loadBankCategories(): void {
+    this.bankError.set(null);
+    this.bank.categories().subscribe({
+      next: list => this.bankCategories.set(list),
+      error: () => this.bankError.set('No se pudo cargar el banco de preguntas'),
+    });
+  }
+
+  addPool(): void {
+    const first = this.bankCategories()[0]?.category ?? '';
+    this.quizPools.update(p => [...p, { category: first, count: 1 }]);
+  }
+  removePool(index: number): void { this.quizPools.update(p => p.filter((_, i) => i !== index)); }
+  updatePool(index: number, patch: Partial<IQuestionPool>): void {
+    this.quizPools.update(p => p.map((pool, i) => i === index ? { ...pool, ...patch } : pool));
+  }
+  poolAvailable(category: string): number {
+    return this.bankCategories().find(c => c.category === category)?.count ?? 0;
+  }
   back():  void { this.step.set('type-select'); this.selectedType.set(null); }
   close(): void { this.onClose.emit(); }
 
@@ -153,6 +210,7 @@ export class ContentBlockModal {
       req.videoProvider = this.videoProvider();
       req.videoThumbnailUrl = this.videoThumbnailUrl().trim() || undefined;
       req.videoTranscript   = this.videoTranscript().trim() || undefined;
+      req.captionsUrl       = this.captionsUrl().trim() || undefined;
     }
     if (type === EContentType.DOCUMENT) { req.markdownContent = this.markdownContent(); }
     if (type === EContentType.SCORM) {
@@ -166,10 +224,13 @@ export class ContentBlockModal {
       req.maxAttempts      = this.quizMaxAttempts();
       req.shuffleQuestions = this.quizShuffle();
       req.questions        = this.quizQuestions().map(q => this.draftToQuestion(q));
+      const pools = this.validPools();
+      if (pools.length) req.questionPools = pools.map(p => ({ category: p.category, count: Math.floor(p.count) }));
     }
     if (type === EContentType.ASSIGNMENT) {
       req.assignmentInstructions = this.assignmentInstructions();
       req.maxScore               = this.maxScore();
+      req.dueDate                = this.dueDate() || undefined;
       req.allowedFileTypes       = [...this.allowedFileTypes()];
       req.rubric                 = this.rubric().filter(r => r.criterion.trim()).map(r => ({ id: r.id, criterion: r.criterion, maxPoints: r.maxPoints }));
     }
@@ -225,4 +286,20 @@ export class ContentBlockModal {
   removeFileType(ft: string): void { this.allowedFileTypes.update(list => list.filter(t => t !== ft)); }
 
   trackById(_: number, item: { id: string }): string { return item.id; }
+
+  /** Subtítulos WebVTT: se guardan como archivo público para que el reproductor los cargue. */
+  protected onCaptionsFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    if (!/\.vtt$/i.test(file.name)) { this.captionsError.set('Usa un archivo de subtítulos .vtt (WebVTT).'); return; }
+    this.captionsBusy.set(true);
+    this.captionsError.set(null);
+    const vtt = new File([file], file.name, { type: 'text/vtt' });
+    this.fileUpload.upload(vtt, 'public').subscribe({
+      next: f => { this.captionsBusy.set(false); this.captionsUrl.set(f.url); },
+      error: () => { this.captionsBusy.set(false); this.captionsError.set('No se pudieron subir los subtítulos.'); },
+    });
+  }
 }

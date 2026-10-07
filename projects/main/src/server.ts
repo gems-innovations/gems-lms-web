@@ -5,12 +5,52 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
+
+/**
+ * API (api-gateway) URL from the environment: used while rendering on the server and handed to
+ * the browser through /config.js (read by index.html before the app starts).
+ */
+const apiBaseUrl = process.env['API_BASE_URL'];
+if (apiBaseUrl) {
+  (globalThis as any).API_BASE_URL = apiBaseUrl;
+}
 const angularApp = new AngularNodeAppEngine();
+const apiOrigin = (() => {
+  try { return new URL(apiBaseUrl || 'http://localhost:8080/api/v1').origin; }
+  catch { return ''; }
+})();
+
+app.disable('x-powered-by');
+app.use((_req, res, next) => {
+  // Uploaded images, videos and files are served by the API origin; course videos embed YouTube or Vimeo.
+  const connectSources = ["'self'", apiOrigin].filter(Boolean).join(' ');
+  res.set({
+    'Cache-Control': 'no-cache',
+    'Content-Security-Policy': `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https: ${apiOrigin}; media-src 'self' blob: ${apiOrigin}; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; font-src 'self' data:; connect-src ${connectSources}`,
+    'Cross-Origin-Opener-Policy': 'same-origin',
+    'Permissions-Policy': 'camera=(), geolocation=(), microphone=(), payment=(), usb=()',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY'
+  });
+  next();
+});
+
+app.get('/config.js', (_req, res) => {
+  res.set('Cache-Control', 'no-store');
+  if (!apiBaseUrl) {
+    res.sendFile(join(browserDistFolder, 'config.js'), { maxAge: 0 });
+    return;
+  }
+  res.type('application/javascript').set('Cache-Control', 'no-store')
+    .send(`globalThis.API_BASE_URL = ${JSON.stringify(apiBaseUrl)};\n`);
+});
 
 /**
  * Example Express Rest API endpoints can be defined here.
@@ -29,9 +69,19 @@ const angularApp = new AngularNodeAppEngine();
  */
 app.use(
   express.static(browserDistFolder, {
-    maxAge: '1y',
+    maxAge: 0,
     index: false,
     redirect: false,
+    setHeaders: (res, path) => {
+      const file = basename(path);
+      if (/[-.][A-Z0-9_-]{8,}\.(?:css|js)$/i.test(file)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (['ngsw.json', 'ngsw-worker.js', 'manifest.webmanifest'].includes(file)) {
+        res.setHeader('Cache-Control', 'no-cache');
+      } else {
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+      }
+    }
   }),
 );
 

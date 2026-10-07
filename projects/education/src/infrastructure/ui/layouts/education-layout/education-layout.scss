@@ -35,15 +35,13 @@
   }
 
   @media (max-width: 768px) {
-    flex-direction: column;
-
     &__sidebar {
-      width: 100%;
-      height: auto;
+      width: 60px;
+      height: 100vh;
     }
 
     &__content {
-      padding: 0 1.25rem 2rem;
+      padding: 0 1rem 2rem;
     }
   }
 }

@@ -1,11 +1,13 @@
 import { inject, Injectable, signal, computed, effect, DestroyRef } from '@angular/core';
 import { CourseUseCase } from './course.usecase';
 import { EnrollmentUseCase } from './enrollment.usecase';
-import { ILesson } from '../domain/model/course.model';
+import { EContentType, ILesson } from '../domain/model/course.model';
 import { ICourseCertificate } from '../domain/model/player.model';
 import { AuthSessionService } from 'auth';
-import { MOCK_STUDENTS, MOCK_USER_ID } from '../infrastructure/services/enrollment.service';
 import { SurveyService } from '../infrastructure/services/survey.service';
+
+/** Institución de los cursos gratis y abiertos (sin certificado: muestran el resultado final). */
+export const OPEN_INSTITUTION_ID = 'gems-abierto';
 
 @Injectable({ providedIn: 'root' })
 export class CoursePlayerUseCase {
@@ -103,7 +105,8 @@ export class CoursePlayerUseCase {
   });
 
   // La encuesta solo se habilita cuando el estudiante culmina el curso (100% de avance).
-  readonly surveyEnabled = computed(() => this.hasSurvey() && this.courseProgress() === 100);
+  /** Feedback (review, and the survey if the course has one) opens when the course is completed. */
+  readonly surveyEnabled = computed(() => this.courseProgress() === 100);
 
   readonly isBlockComplete = computed(() => {
     const b = this.selectedBlock();
@@ -169,17 +172,41 @@ export class CoursePlayerUseCase {
     return this.enrollmentUc.quizAttempts().filter(a => a.blockId === block.id).length;
   });
 
+  /** Cursos gratis de «GEMS Abierto»: no emiten certificado, muestran el resultado final. */
+  readonly isOpenCourse = computed(() => this.course()?.institutionId === OPEN_INSTITUTION_ID);
+
+  /**
+   * Resultado de un curso gratis terminado: el último quiz del curso es el simulacro (su mejor intento
+   * define si aprobó) y las demás prácticas dan un promedio de referencia.
+   */
+  readonly openResult = computed(() => {
+    const c = this.course();
+    if (!c || !this.isOpenCourse() || this.courseProgress() < 100) return null;
+    const quizzes = c.modules.flatMap(m => m.lessons).flatMap(l => l.contentBlocks)
+      .filter(b => b.type === EContentType.QUIZ);
+    if (!quizzes.length) return null;
+    const attempts = this.enrollmentUc.quizAttempts().filter(a => a.courseId === c.id);
+    const best = (blockId: string) => attempts.filter(a => a.blockId === blockId)
+      .reduce<number | null>((max, a) => (max === null || a.score > max ? a.score : max), null);
+    const finalQuiz = quizzes[quizzes.length - 1];
+    const finalScore = best(finalQuiz.id) ?? 0;
+    const passingScore = finalQuiz.passingScore ?? 60;
+    const practices = quizzes.slice(0, -1).map(q => best(q.id)).filter((s): s is number => s !== null);
+    return {
+      finalTitle: finalQuiz.title,
+      finalScore: Math.round(finalScore),
+      passingScore,
+      passed: finalScore >= passingScore,
+      practiceAverage: practices.length ? Math.round(practices.reduce((a, b) => a + b, 0) / practices.length) : null,
+      practicesDone: practices.length,
+    };
+  });
+
   readonly certificate = computed((): ICourseCertificate | null => {
     const c = this.course();
     if (!c || this.courseProgress() < 100) return null;
     const user = this.authSession.user();
-    let studentName = 'Estudiante';
-    if (user) {
-      studentName = `${user.firstName} ${user.lastName}`.trim();
-    } else {
-      const student = MOCK_STUDENTS.find(s => s.id === MOCK_USER_ID);
-      if (student) studentName = `${student.firstName} ${student.lastName}`;
-    }
+    const studentName = user ? `${user.firstName} ${user.lastName}`.trim() : 'Estudiante';
     return {
       courseId:        c.id,
       courseTitle:     c.title,
@@ -206,7 +233,7 @@ export class CoursePlayerUseCase {
           return next;
         });
       }
-    }, { allowSignalWrites: true });
+    });
 
     // Mark quiz blocks complete only when the student has a passing attempt
     effect(() => {
@@ -217,7 +244,7 @@ export class CoursePlayerUseCase {
           this._completedBlockIds.update(s => new Set([...s, attempt.blockId]));
         }
       }
-    }, { allowSignalWrites: true });
+    });
 
     // Mark assignment blocks complete when instructor grades them
     effect(() => {
@@ -228,7 +255,7 @@ export class CoursePlayerUseCase {
           this._completedBlockIds.update(s => new Set([...s, sub.blockId]));
         }
       }
-    }, { allowSignalWrites: true });
+    });
 
     // Mark quiz blocks complete only when the best attempt is passing
     effect(() => {
@@ -247,7 +274,17 @@ export class CoursePlayerUseCase {
           this._completedBlockIds.update(s => new Set([...s, blockId]));
         }
       }
-    }, { allowSignalWrites: true });
+    });
+
+    // Persist newly completed blocks (and the course percentage) to the enrollment.
+    effect(() => {
+      const enrollment = this.enrollment();
+      const done = this._completedBlockIds();
+      if (!enrollment || !this.course()) return;
+      const saved = new Set(enrollment.progress.completedBlockIds ?? []);
+      if ([...done].every(id => saved.has(id))) return;
+      this.enrollmentUc.saveCompletedBlocks(enrollment.id, [...new Set([...saved, ...done])], this.courseProgress());
+    });
 
     effect(() => {
       if (this._selectedLessonId() || !this.course()) return;
@@ -330,12 +367,12 @@ export class CoursePlayerUseCase {
     this._completedBlockIds.update(s => new Set([...s, blockId]));
   }
 
-  handleQuizSubmit(payload: { blockId: string; lessonId: string; courseId: string; answers: any[] }): void {
+  handleQuizSubmit(payload: { blockId: string; lessonId: string; courseId: string; answers: any[]; sessionId?: string }): void {
     this.enrollmentUc.submitQuiz(payload);
     // Block completion is handled reactively by the quiz-attempts effect (only if passed)
   }
 
-  handleAssignmentSubmit(payload: { blockId: string; lessonId: string; courseId: string; textContent: string }): void {
+  handleAssignmentSubmit(payload: { blockId: string; lessonId: string; courseId: string; textContent: string; attachedFile?: File }): void {
     this.enrollmentUc.submitAssignment(payload);
     // Block is NOT marked complete here — only when the instructor grades it
   }

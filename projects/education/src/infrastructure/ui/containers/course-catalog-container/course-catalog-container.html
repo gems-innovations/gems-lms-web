@@ -11,7 +11,14 @@
   />
 
   @if (uc.isLoading()) {
-    <lib-loading-skeleton [rows]="6" />
+    <lib-loading-skeleton type="card" [rows]="6" />
+  } @else if (uc.loadError()) {
+    <lib-empty-state
+      title="No pudimos cargar el catálogo"
+      description="Comprueba tu conexión e inténtalo de nuevo. Tus filtros se conservarán."
+      actionLabel="Reintentar"
+      (action)="uc.load()"
+    />
   } @else if (uc.filtered().length === 0) {
     <lib-empty-state
       title="Sin resultados"
@@ -23,6 +30,8 @@
         <edu-catalog-card
           [item]="item"
           [enrolled]="uc.isEnrolled(item)"
+          [blockedReason]="uc.blockedReason(item)"
+          [seatsLeft]="uc.seatsLeft(item)"
           (enrollItem)="enroll($event)"
           (openItem)="open($event)"
           (previewItem)="preview($event)"
@@ -30,18 +39,20 @@
       }
     </lib-card-grid>
 
-    <div class="catalog-pagination" [class.catalog-pagination--hidden]="uc.totalPages() <= 1">
-      <button class="catalog-page-btn" [disabled]="uc.page() === 1" (click)="uc.prevPage()">
+    <nav class="catalog-pagination" aria-label="Páginas del catálogo" [class.catalog-pagination--hidden]="uc.totalPages() <= 1">
+      <button class="catalog-page-btn" aria-label="Página anterior" [disabled]="uc.page() === 1" (click)="uc.prevPage()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       @for (p of [].constructor(uc.totalPages()); track $index) {
-        <button class="catalog-page-btn" [class.catalog-page-btn--active]="uc.page() === $index + 1" (click)="uc.setPage($index + 1)">
+        <button class="catalog-page-btn" [attr.aria-label]="'Ir a la página ' + ($index + 1)"
+                [attr.aria-current]="uc.page() === $index + 1 ? 'page' : null"
+                [class.catalog-page-btn--active]="uc.page() === $index + 1" (click)="uc.setPage($index + 1)">
           {{ $index + 1 }}
         </button>
       }
-      <button class="catalog-page-btn" [disabled]="uc.page() === uc.totalPages()" (click)="uc.nextPage()">
+      <button class="catalog-page-btn" aria-label="Página siguiente" [disabled]="uc.page() === uc.totalPages()" (click)="uc.nextPage()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
-    </div>
+    </nav>
   }
 </lib-page>

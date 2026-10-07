@@ -79,8 +79,8 @@
   letter-spacing: 0.05em;
   white-space: nowrap;
 
-  &--draft     { background: rgba(var(--color-advertencia), 0.15); color: var(--color-advertencia); }
-  &--published { background: rgba(var(--color-exito), 0.15); color: var(--color-exito); }
+  &--draft     { background: color-mix(in srgb, var(--color-advertencia) 15%, transparent); color: var(--color-advertencia); }
+  &--published { background: color-mix(in srgb, var(--color-exito) 15%, transparent); color: var(--color-exito); }
   &--archived  { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
   &--lg        { font-size: 0.75rem; padding: 0.3rem 0.8rem; }
 }
@@ -101,7 +101,7 @@
   grid-template-columns: 120px 1fr;
   gap: 1rem;
   padding: 0.875rem 1rem;
-  background: var(--color-fondo);
+  background: var(--color-fondo-principal);
 
   dt { font-size: 0.8rem; color: var(--color-texto-terciario); font-weight: 500; padding-top: 1px; }
   dd { font-size: 0.875rem; color: var(--color-texto-principal); margin: 0; line-height: 1.55; }
@@ -113,10 +113,10 @@
   font-size: 0.75rem;
   font-weight: 600;
 
-  &--beginner     { background: rgba(var(--color-exito), 0.12); color: var(--color-exito); }
-  &--intermediate { background: rgba(var(--color-advertencia), 0.12); color: var(--color-advertencia); }
-  &--advanced     { background: rgba(var(--color-error), 0.12); color: var(--color-error); }
-  &--expert       { background: rgba(var(--color-primario), 0.15); color: var(--color-primario); }
+  &--beginner     { background: color-mix(in srgb, var(--color-exito) 12%, transparent); color: var(--color-exito); }
+  &--intermediate { background: color-mix(in srgb, var(--color-advertencia) 12%, transparent); color: var(--color-advertencia); }
+  &--advanced     { background: color-mix(in srgb, var(--color-error) 12%, transparent); color: var(--color-error); }
+  &--expert       { background: color-mix(in srgb, var(--color-primario) 15%, transparent); color: var(--color-primario); }
 }
 
 .cpanel__tags { display: flex; flex-wrap: wrap; gap: 0.375rem; }
@@ -133,7 +133,7 @@
 .cpanel__course-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  background: var(--color-fondo);
+  background: var(--color-fondo-principal);
   border: 1px solid var(--color-borde-sutil);
   border-radius: 10px;
   overflow: hidden;
@@ -154,7 +154,7 @@
 .cpanel__stat-l { font-size: 0.7rem; color: var(--color-texto-terciario); text-transform: uppercase; letter-spacing: 0.05em; }
 
 .cpanel__lesson-list {
-  background: var(--color-fondo);
+  background: var(--color-fondo-principal);
   border: 1px solid var(--color-borde-sutil);
   border-radius: 10px;
   overflow: hidden;
@@ -243,7 +243,7 @@
 
 .cpanel__free-tag {
   padding: 0.1rem 0.4rem;
-  background: rgba(var(--color-exito), 0.12);
+  background: color-mix(in srgb, var(--color-exito) 12%, transparent);
   color: var(--color-exito);
   border-radius: 3px;
   font-size: 0.65rem;
@@ -254,7 +254,7 @@
 }
 
 .cpanel__blocks {
-  background: var(--color-fondo);
+  background: var(--color-fondo-principal);
   border: 1px solid var(--color-borde-sutil);
   border-radius: 10px;
   overflow: hidden;
@@ -277,7 +277,7 @@
   gap: 0.375rem;
   padding: 0.35rem 0.75rem;
   background: transparent;
-  border: 1px solid rgba(var(--color-primario), 0.3);
+  border: 1px solid color-mix(in srgb, var(--color-primario) 30%, transparent);
   border-radius: 6px;
   color: var(--color-primario);
   font-size: 0.75rem;
@@ -317,10 +317,10 @@
 
   &--video        { background: rgba(#60a5fa, 0.12); color: #60a5fa; }
   &--document     { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
-  &--quiz         { background: rgba(var(--color-advertencia), 0.12); color: var(--color-advertencia); }
-  &--assignment   { background: rgba(var(--color-exito), 0.12); color: var(--color-exito); }
-  &--live-session { background: rgba(var(--color-error), 0.12); color: var(--color-error); }
-  &--embed        { background: rgba(var(--color-primario), 0.12); color: var(--color-primario); }
+  &--quiz         { background: color-mix(in srgb, var(--color-advertencia) 12%, transparent); color: var(--color-advertencia); }
+  &--assignment   { background: color-mix(in srgb, var(--color-exito) 12%, transparent); color: var(--color-exito); }
+  &--live-session { background: color-mix(in srgb, var(--color-error) 12%, transparent); color: var(--color-error); }
+  &--embed        { background: color-mix(in srgb, var(--color-primario) 12%, transparent); color: var(--color-primario); }
 }
 
 .cpanel__block-type-icon { display: flex; align-items: center; }
@@ -358,7 +358,7 @@
 
 .cpanel__required-tag {
   padding: 0.1rem 0.4rem;
-  background: rgba(var(--color-primario), 0.12);
+  background: color-mix(in srgb, var(--color-primario) 12%, transparent);
   color: var(--color-primario);
   border-radius: 3px;
   font-size: 0.65rem;

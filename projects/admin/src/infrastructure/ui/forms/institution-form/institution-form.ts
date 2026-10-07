@@ -8,7 +8,8 @@ import {
   pattern,
   required
 } from '@angular/forms/signals';
-import { ColorPickerComponent } from '@gems-lms-web/shared';
+import { ColorPickerComponent, ImageUploadComponent } from '@gems-lms-web/shared';
+import { LucideDynamicIcon, LucideGraduationCap, LucideSchool, LucideBookOpen, LucideUniversity, LucideZap, LucideBuilding2, LucideMoon, LucideSun } from '@lucide/angular';
 import {
   ICreateInstitutionRequest,
   EInstitutionType,
@@ -50,7 +51,7 @@ const DEFAULTS: InstitutionFormValue = {
 
 @Component({
   selector: 'adm-institution-form',
-  imports: [FormField, ColorPickerComponent],
+  imports: [FormField, ColorPickerComponent, ImageUploadComponent, LucideDynamicIcon, LucideMoon, LucideSun],
   templateUrl: './institution-form.html',
   styleUrl: './institution-form.scss'
 })
@@ -62,13 +63,13 @@ export class InstitutionForm {
   readonly onSubmit = output<ICreateInstitutionRequest>();
   readonly onCancel = output<void>();
 
-  readonly institutionTypes: { value: EInstitutionType; label: string; icon: string }[] = [
-    { value: EInstitutionType.UNIVERSITY, label: 'Universidad', icon: '🎓' },
-    { value: EInstitutionType.COLLEGE, label: 'Colegio', icon: '🏫' },
-    { value: EInstitutionType.SCHOOL, label: 'Escuela', icon: '📚' },
-    { value: EInstitutionType.INSTITUTE, label: 'Instituto', icon: '🏛️' },
-    { value: EInstitutionType.ACADEMY, label: 'Academia', icon: '⚡' },
-    { value: EInstitutionType.CENTER, label: 'Centro', icon: '🏢' }
+  readonly institutionTypes = [
+    { value: EInstitutionType.UNIVERSITY, label: 'Universidad', icon: LucideGraduationCap },
+    { value: EInstitutionType.COLLEGE, label: 'Colegio', icon: LucideSchool },
+    { value: EInstitutionType.SCHOOL, label: 'Escuela', icon: LucideBookOpen },
+    { value: EInstitutionType.INSTITUTE, label: 'Instituto', icon: LucideUniversity },
+    { value: EInstitutionType.ACADEMY, label: 'Academia', icon: LucideZap },
+    { value: EInstitutionType.CENTER, label: 'Centro', icon: LucideBuilding2 }
   ];
 
   readonly subscriptionTypes: { value: ESubscriptionType; label: string; description: string }[] = [
@@ -78,6 +79,11 @@ export class InstitutionForm {
   ];
 
   private readonly formModel = signal<InstitutionFormValue>({ ...DEFAULTS });
+
+  /** Uses an uploaded image as the logo. */
+  protected setLogo(url: string): void {
+    this.formModel.update(v => ({ ...v, logoUrl: url }));
+  }
 
   readonly iform = form(this.formModel, p => {
     required(p.name);

@@ -14,10 +14,12 @@
   // --color-primario y --color-secundario los sobrescribe BrandingService en
   // runtime (estilo inline en <html>) cuando una institución define su marca.
   --color-primario: #7B6FF0;
+  --color-primario-accion: #5B4EC1;
   --color-primario-claro: #9B8FF8;
   --color-primario-profundo: #4F46E5;
   --color-primario-trans-10: rgba(123, 111, 240, 0.1);
   --color-primario-trans-20: rgba(123, 111, 240, 0.2);
+  --color-primario-trans-15: rgba(123, 111, 240, 0.15);
   --color-secundario: #1E1B4B;
   --color-acento: #4DE1FF;
   --color-teal: #3DD6C8;
@@ -31,13 +33,17 @@
   --color-advertencia: #FBBF24;
   --color-error: #F87171;
   --color-error-intenso: #EF4444;
+  --color-exito-texto: var(--color-exito);
+  --color-advertencia-texto: var(--color-advertencia);
+  --color-error-texto: var(--color-error);
+  --color-teal-texto: var(--color-teal);
   --color-info: #38BDF8;
 
   // =========================================================================
   // ROLES DE USUARIO
   // =========================================================================
   --color-rol-super: #F59E0B;
-  --color-rol-admin: #8B5CF6;
+  --color-rol-admin: #A78BFA;
   --color-rol-instructor: #0EA5E9;
   --color-rol-estudiante: #10B981;
 
@@ -48,6 +54,10 @@
   --color-fondo-secundario: #111119;
   --color-superficie: #12111A;
   --color-superficie-alta: #1C1B27;
+  --color-superficie-elevada: var(--color-superficie-alta);
+  --color-fondo-sutil: #181722;
+  --color-fondo-hover: #252333;
+  --color-superficie-hover: var(--color-fondo-hover);
   --color-tarjeta: rgba(255, 255, 255, 0.03);
   --color-tarjeta-hover: rgba(255, 255, 255, 0.055);
   --color-fondo-overlay: rgba(0, 0, 0, 0.6);
@@ -57,9 +67,12 @@
   // =========================================================================
   --color-texto-principal: #EDEAF8;
   --color-texto-secundario: #A1A8C3;
-  --color-texto-terciario: rgba(161, 168, 195, 0.55);
+  // Texto auxiliar legible sobre las superficies oscuras (WCAG AA en 12 px).
+  --color-texto-terciario: #8B91AA;
+  --color-texto-acento: #B8AEFF;
   --color-texto-invertido: #FFFFFF;
   --color-texto-contraste: #0F1021;
+  --color-sobre-primario: #FFFFFF;
 
   // =========================================================================
   // BORDES
@@ -104,6 +117,7 @@
   --font-size-xs: 0.75rem;    // 12px
   --font-size-sm: 0.875rem;   // 14px
   --font-size-base: 1rem;     // 16px
+  --font-size-md: var(--font-size-base);
   --font-size-lg: 1.125rem;   // 18px
   --font-size-xl: 1.25rem;    // 20px
   --font-size-2xl: 1.5rem;    // 24px
@@ -165,18 +179,39 @@
   --color-fondo-secundario: #FFFFFF;
   --color-superficie: #FFFFFF;
   --color-superficie-alta: #F0F2F8;
+  --color-fondo-sutil: #F8FAFC;
+  --color-fondo-hover: #EAEFF5;
   --color-tarjeta: #FFFFFF;
   --color-tarjeta-hover: #F8FAFC;
   --color-fondo-overlay: rgba(15, 16, 33, 0.4);
 
   --color-texto-principal: #1A202C;
   --color-texto-secundario: #475569;
-  --color-texto-terciario: #64748B;
+  --color-texto-terciario: #566276;
+  --color-texto-acento: #5848B8;
   --color-texto-contraste: #1A202C;
 
   --color-borde-sutil: #EAEFF5;
   --color-borde-principal: #E2E8F0;
   --color-borde-secundario: #CBD5E1;
+
+  --color-exito-texto: #047857;
+  --color-advertencia-texto: #92400E;
+  --color-error-texto: #B91C1C;
+  --color-teal-texto: #0F766E;
+
+  // Acentos: en fondos claros los tonos del tema oscuro no alcanzan 4.5:1 como texto.
+  --color-primario-claro: #5848B8;
+  --color-teal: #0F766E;
+  --color-acento: #0E7490;
+  --color-info: #0369A1;
+  --color-exito: #065F46;
+  --color-advertencia: #92400E;
+  --color-error: #B91C1C;
+  --color-rol-super: #92400E;
+  --color-rol-admin: #6D28D9;
+  --color-rol-instructor: #0369A1;
+  --color-rol-estudiante: #065F46;
 
   --color-scrollbar: rgba(0, 0, 0, 0.12);
   --color-scrollbar-hover: rgba(0, 0, 0, 0.2);

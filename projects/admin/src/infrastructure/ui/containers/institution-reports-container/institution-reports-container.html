@@ -1,0 +1,25 @@
+<lib-page width="full">
+  <lib-page-header title="Reportes" subtitle="Indicadores actualizados de la actividad de tu institución" />
+  @if (loading()) { <section class="reports__state">Generando reporte…</section> }
+  @else if (error()) { <section class="reports__state reports__state--error">{{ error() }} <button (click)="load()">Reintentar</button></section> }
+  @else if (report(); as data) {
+    <section class="reports__actions"><p>Actualizado {{ data.generatedAt | date:'dd/MM/yyyy HH:mm' }}</p><button (click)="exportCsv()" [disabled]="exporting()">{{ exporting() ? 'Exportando…' : 'Exportar CSV para Excel' }}</button></section>
+    <section class="reports__metrics" aria-label="Resumen institucional">
+      <article><strong>{{ data.totalCourses }}</strong><span>Cursos</span></article><article><strong>{{ data.activeStudents }}</strong><span>Estudiantes activos</span></article><article><strong>{{ data.totalEnrollments }}</strong><span>Matrículas</span></article><article><strong>{{ data.completionRate }}%</strong><span>Finalización</span></article><article><strong>{{ data.averageProgress }}%</strong><span>Progreso promedio</span></article><article><strong>{{ data.pendingSubmissions }}</strong><span>Entregas pendientes</span></article>
+    </section>
+    <section class="reports__insights" aria-label="Lectura visual de actividad">
+      <article class="reports__progress-card">
+        <div><p class="reports__eyebrow">Pulso de aprendizaje</p><h2>Progreso por curso</h2><p class="reports__hint">Los seis cursos con mayor actividad registrada.</p></div>
+        <div class="reports__bars">
+          @for (course of courseProgress(); track course.courseId) {
+            <div class="reports__bar-row"><div><span>{{ course.title }}</span><strong>{{ course.averageProgress }}%</strong></div><div class="reports__track"><i [style.width]="barWidth(course.averageProgress)"></i></div></div>
+          } @empty { <p class="reports__empty">Aún no hay actividad para visualizar.</p> }
+        </div>
+      </article>
+      <article class="reports__completion-card">
+        <p class="reports__eyebrow">Finalización global</p><div class="reports__ring" [style.--progress]="data.completionRate"><strong>{{ data.completionRate }}%</strong><span>completado</span></div><p>{{ data.completedEnrollments }} de {{ data.totalEnrollments }} matrículas terminaron su recorrido.</p>
+      </article>
+    </section>
+    <section class="reports__table-card"><h2>Resultados por curso</h2><div class="reports__table-wrap" tabindex="0" role="region" aria-label="Tabla de resultados por curso"><table><thead><tr><th>Curso</th><th>Matrículas</th><th>Activas</th><th>Completadas</th><th>Finalización</th><th>Progreso</th><th>Pendientes</th></tr></thead><tbody>@for (course of data.courses; track course.courseId) { <tr><td><strong>{{ course.title }}</strong><small>{{ course.status }}</small></td><td>{{ course.enrollments }}</td><td>{{ course.activeEnrollments }}</td><td>{{ course.completedEnrollments }}</td><td>{{ course.completionRate }}%</td><td>{{ course.averageProgress }}%</td><td>{{ course.pendingSubmissions }}</td></tr> } @empty { <tr><td colspan="7">No hay cursos todavía.</td></tr> }</tbody></table></div></section>
+  }
+</lib-page>

@@ -140,7 +140,20 @@
                 [ngModel]="videoThumbnailUrl()" (ngModelChange)="videoThumbnailUrl.set($event)" />
             </div>
             <div class="cbm__field">
-              <label class="cbm__label">Transcripción (opcional)</label>
+              <label class="cbm__label" for="cbm-captions">Subtítulos (.vtt)</label>
+              <div class="cbm__captions">
+                <input id="cbm-captions" class="cbm__input" type="url" placeholder="URL del archivo .vtt o súbelo"
+                  [ngModel]="captionsUrl()" (ngModelChange)="captionsUrl.set($event)" />
+                <label class="cbm__captions-upload" [class.cbm__captions-upload--busy]="captionsBusy()">
+                  <input type="file" accept=".vtt,text/vtt" hidden (change)="onCaptionsFile($event)" />
+                  {{ captionsBusy() ? 'Subiendo…' : 'Subir .vtt' }}
+                </label>
+              </div>
+              @if (captionsError(); as e) { <p class="cbm__error" role="alert">{{ e }}</p> }
+              <p class="cbm__hint">Se muestran en videos subidos o enlazados como archivo. En YouTube se activan los subtítulos del propio video.</p>
+            </div>
+            <div class="cbm__field">
+              <label class="cbm__label">Transcripción (recomendada)</label>
               <textarea class="cbm__textarea cbm__textarea--sm" placeholder="Texto de la transcripción…"
                 [ngModel]="videoTranscript()" (ngModelChange)="videoTranscript.set($event)"></textarea>
             </div>
@@ -172,10 +185,7 @@
             <div class="cbm__row">
               <div class="cbm__field cbm__field--sm">
                 <label class="cbm__label">Versión SCORM</label>
-                <select class="cbm__select" [ngModel]="scormVersion()" (ngModelChange)="scormVersion.set($event)">
-                  <option value="1.2">SCORM 1.2</option>
-                  <option value="2004">SCORM 2004</option>
-                </select>
+                <lib-select ariaLabel="Versión SCORM" [options]="scormOptions" [ngModel]="scormVersion()" (ngModelChange)="scormVersion.set($event)" />
               </div>
               <div class="cbm__field cbm__field--sm">
                 <label class="cbm__label">Umbral de finalización (%)</label>
@@ -215,6 +225,40 @@
             </div>
           </div>
 
+          <!-- Question bank pools -->
+          <div class="cbm__section">
+            <div class="cbm__questions-header">
+              <h3 class="cbm__section-title">Preguntas del banco <span class="cbm__badge">{{ pooledQuestionCount() }}</span></h3>
+              <button type="button" class="cbm__add-rubric-btn" [disabled]="bankCategories().length === 0" (click)="addPool()">+ Agregar categoría</button>
+            </div>
+            <p class="cbm__hint">En cada intento se eligen al azar preguntas distintas de la categoría.</p>
+            @if (bankError()) {
+              <p class="cbm__hint cbm__hint--error" role="alert">{{ bankError() }}</p>
+            } @else if (bankCategories().length === 0) {
+              <p class="cbm__hint">El banco de tu institución aún no tiene preguntas. Créalas en el Banco de preguntas.</p>
+            }
+            @for (pool of quizPools(); track $index; let pi = $index) {
+              <div class="cbm__row cbm__row--3">
+                <div class="cbm__field">
+                  <label class="cbm__label" [for]="'pool-cat-' + pi">Categoría</label>
+                  <lib-select [inputId]="'pool-cat-' + pi" placeholder="Elige una categoría" [options]="bankCategoryOptions()"
+                    [ngModel]="pool.category" (ngModelChange)="updatePool(pi, { category: $event })" />
+                </div>
+                <div class="cbm__field cbm__field--sm">
+                  <label class="cbm__label" [for]="'pool-count-' + pi">Preguntas por intento</label>
+                  <input class="cbm__input" type="number" min="1" [max]="poolAvailable(pool.category)" [id]="'pool-count-' + pi"
+                    [ngModel]="pool.count" (ngModelChange)="updatePool(pi, { count: +$event })" />
+                  @if (pool.count > poolAvailable(pool.category)) {
+                    <span class="cbm__hint cbm__hint--error">Solo hay {{ poolAvailable(pool.category) }}; se usarán todas.</span>
+                  }
+                </div>
+                <div class="cbm__field cbm__field--sm">
+                  <button type="button" class="cbm__remove-btn" (click)="removePool(pi)" aria-label="Quitar categoría">Quitar</button>
+                </div>
+              </div>
+            }
+          </div>
+
           <!-- Questions -->
           <div class="cbm__section">
             <div class="cbm__questions-header">
@@ -226,13 +270,8 @@
               <div class="cbm__question">
                 <div class="cbm__question-header">
                   <span class="cbm__question-num">P{{ qi + 1 }}</span>
-                  <select class="cbm__select cbm__select--sm"
-                    [ngModel]="q.type"
-                    (ngModelChange)="updateQuestion(q.id, { type: $event })">
-                    <option value="multiple-choice">Opción múltiple</option>
-                    <option value="true-false">Verdadero / Falso</option>
-                    <option value="open">Respuesta abierta</option>
-                  </select>
+                  <lib-select size="sm" ariaLabel="Tipo de pregunta" [options]="questionTypeOptions"
+                    [ngModel]="q.type" (ngModelChange)="updateQuestion(q.id, { type: $event })" />
                   <input class="cbm__input cbm__input--sm" type="number" min="1" style="width:70px"
                     [ngModel]="q.points"
                     (ngModelChange)="updateQuestion(q.id, { points: +$event })"
@@ -346,6 +385,10 @@
               <label class="cbm__label">Puntaje máximo</label>
               <input class="cbm__input" type="number" min="1"
                 [ngModel]="maxScore()" (ngModelChange)="maxScore.set(+$event)" />
+            </div>
+            <div class="cbm__field cbm__field--sm">
+              <label class="cbm__label">Fecha de entrega (opcional)</label>
+              <input class="cbm__input" type="date" [ngModel]="dueDate()" (ngModelChange)="dueDate.set($event)" />
             </div>
 
             <!-- File types -->

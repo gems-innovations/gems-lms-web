@@ -32,7 +32,7 @@
     transition: background var(--transition-fast), color var(--transition-fast);
 
     &:hover { color: var(--color-texto-principal); }
-    &--active { color: var(--color-texto-invertido); background: var(--color-primario); }
+    &--active { color: var(--color-sobre-primario); background: var(--color-primario-accion); }
   }
 
   &__mode-count {
@@ -103,6 +103,10 @@
 
   &__icon-btn {
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
     background: none;
     border: none;
     color: var(--color-texto-terciario);

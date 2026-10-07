@@ -1,11 +1,12 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
-import { LoadingSkeletonComponent, EmptyStateComponent, PaginationComponent } from 'shared';
+import { LoadingSkeletonComponent, PaginationComponent } from 'shared';
 import { MyLearningUseCase, ICertification } from '../../../../application/my-learning.usecase';
 import { IEnrolledCourseEntry, IEnrolledPathEntry } from '../../../../domain/model/enrollment.model';
 import { ICourseCertificate } from '../../../../domain/model/player.model';
 import { CourseProgressCard } from '../../components/course-progress-card/course-progress-card';
+import { AchievementsCard } from '../../components/achievements-card/achievements-card';
 import { CourseCertificate } from '../../components/course-certificate/course-certificate';
 
 const PAGE_SIZE      = 4;
@@ -14,8 +15,8 @@ const PATH_PAGE_SIZE = 6;
 @Component({
   selector: 'edu-my-learning-container',
   standalone: true,
-  imports: [
-    LoadingSkeletonComponent, EmptyStateComponent, PaginationComponent, CourseProgressCard,
+  imports: [AchievementsCard, 
+    LoadingSkeletonComponent, PaginationComponent, CourseProgressCard,
     CourseCertificate, DecimalPipe, RouterLink,
   ],
   templateUrl: './my-learning-container.html',
@@ -84,7 +85,7 @@ export class MyLearningContainer implements OnInit {
     const q = this.certSearch().toLowerCase().trim();
     if (!q) return this.uc.certifications();
     return this.uc.certifications().filter(c =>
-      c.courseTitle.toLowerCase().includes(q)
+      c.resourceTitle.toLowerCase().includes(q)
     );
   });
 

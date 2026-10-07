@@ -25,10 +25,9 @@
   max-width: 500px;
   padding: vars.$spacing-md vars.$spacing-lg;
   
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
+  background: var(--color-superficie-alta);
   border-radius: vars.$border-radius-lg;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--color-borde-secundario);
   
   box-shadow: vars.$shadow-lg;
   
@@ -62,7 +61,7 @@
   margin: 0;
   
   font-size: vars.$font-size-sm;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-texto-principal);
   line-height: 1.5;
 }
 
@@ -79,15 +78,15 @@
   border-radius: vars.$border-radius-sm;
   
   font-size: 16px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-texto-secundario);
   
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.9);
+    background: var(--color-tarjeta-hover);
+    color: var(--color-texto-principal);
   }
 }
 
@@ -96,7 +95,7 @@
   border-left: 4px solid #10b981;
   
   .toast__icon {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: #047857;
     color: white;
   }
 }
@@ -105,7 +104,7 @@
   border-left: 4px solid #ef4444;
   
   .toast__icon {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
+    background: #b91c1c;
     color: white;
   }
 }
@@ -114,7 +113,7 @@
   border-left: 4px solid #f59e0b;
   
   .toast__icon {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
+    background: #92400e;
     color: white;
   }
 }
@@ -123,7 +122,7 @@
   border-left: 4px solid #3b82f6;
   
   .toast__icon {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    background: #1d4ed8;
     color: white;
   }
 }

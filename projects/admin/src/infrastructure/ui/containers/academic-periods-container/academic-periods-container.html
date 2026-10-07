@@ -1,0 +1,109 @@
+<lib-page>
+  <lib-page-header
+    title="Períodos académicos"
+    subtitle="Semestres o cortes de la institución. Cada curso puede asociarse a un período y, si no define su propio cierre, la inscripción cierra al terminar el período."
+  >
+    <lib-button variant="primary" (clicked)="create()">Nuevo período</lib-button>
+  </lib-page-header>
+
+  @if (draft(); as d) {
+    <form class="periods__form gems-enter" (submit)="$event.preventDefault(); save()" aria-label="Período académico">
+      <div class="periods__field">
+        <label for="per-name">Nombre</label>
+        <input id="per-name" class="periods__input" maxlength="120" placeholder="Ej. 2026-2" name="name"
+               [ngModel]="d.name" (ngModelChange)="patch({ name: $event })" />
+      </div>
+      <div class="periods__field">
+        <label for="per-start">Inicio</label>
+        <input id="per-start" class="periods__input" type="date" name="start" [ngModel]="d.startsOn" (ngModelChange)="patch({ startsOn: $event })" />
+      </div>
+      <div class="periods__field">
+        <label for="per-end">Fin</label>
+        <input id="per-end" class="periods__input" type="date" name="end" [ngModel]="d.endsOn" (ngModelChange)="patch({ endsOn: $event })" />
+      </div>
+      <div class="periods__actions">
+        @if (problem(); as p) { <span class="periods__error">{{ p }}</span> }
+        <lib-button variant="ghost" (clicked)="draft.set(null)">Cancelar</lib-button>
+        <lib-button variant="primary" type="submit" [loading]="saving()" [disabled]="!!problem()">Guardar</lib-button>
+      </div>
+    </form>
+  }
+
+  @switch (state()) {
+    @case ('loading') { <lib-loading-skeleton [rows]="4" /> }
+    @case ('error') { <lib-empty-state title="Sin datos" description="No se pudieron cargar los períodos." /> }
+    @default {
+      @if (periods().length === 0) {
+        <lib-empty-state title="Sin períodos" description="Crea el primer período para organizar las inscripciones." />
+      } @else {
+        <table class="periods__table gems-enter">
+          <caption class="periods__sr">Períodos académicos</caption>
+          <thead><tr><th scope="col">Nombre</th><th scope="col">Inicio</th><th scope="col">Fin</th><th scope="col">Estado</th><th scope="col"><span class="periods__sr">Acciones</span></th></tr></thead>
+          <tbody>
+            @for (p of periods(); track p.id) {
+              <tr>
+                <th scope="row">{{ p.name }} @if (isCurrent(p)) { <span class="periods__badge">Actual</span> }</th>
+                <td>{{ p.startsOn }}</td>
+                <td>{{ p.endsOn }}</td>
+                <td>
+                  @if (p.closedAt) {
+                    <span class="periods__status periods__status--closed">Cerrado {{ closedOn(p) }}</span>
+                  } @else {
+                    <span class="periods__status">Abierto</span>
+                  }
+                </td>
+                <td class="periods__row-actions">
+                  @if (p.closedAt) {
+                    <button type="button" class="periods__link" [disabled]="busyId() === p.id" (click)="downloadActas(p, 'pdf')">Actas PDF</button>
+                    <button type="button" class="periods__link" [disabled]="busyId() === p.id" (click)="downloadActas(p, 'csv')">CSV</button>
+                    <button type="button" class="periods__link" (click)="pendingReopen.set(p)">Reabrir</button>
+                  } @else {
+                    <button type="button" class="periods__link periods__link--strong" (click)="pendingClose.set(p)">Cerrar período</button>
+                    <button type="button" class="periods__link" (click)="edit(p)">Editar</button>
+                    <button type="button" class="periods__link periods__link--danger" (click)="pendingDelete.set(p)">Eliminar</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    }
+  }
+</lib-page>
+
+@if (pendingDelete(); as p) {
+  <lib-confirmation-dialog
+    type="danger"
+    [title]="'¿Eliminar ' + p.name + '?'"
+    message="Los cursos de este período quedarán sin período (conservan sus demás reglas)."
+    confirmText="Eliminar"
+    cancelText="Cancelar"
+    (confirmed)="confirmDelete()"
+    (cancelled)="pendingDelete.set(null)"
+  />
+}
+
+@if (pendingClose(); as p) {
+  <lib-confirmation-dialog
+    type="warning"
+    [title]="'¿Cerrar ' + p.name + '?'"
+    message="Se calculará la nota final de cada estudiante en los cursos de este período y quedará guardada en el acta. Mientras esté cerrado no se aceptan intentos, entregas, calificaciones ni cambios de ponderación en esos cursos. Puedes reabrirlo si necesitas corregir algo."
+    confirmText="Cerrar y generar actas"
+    cancelText="Cancelar"
+    (confirmed)="confirmClose()"
+    (cancelled)="pendingClose.set(null)"
+  />
+}
+
+@if (pendingReopen(); as p) {
+  <lib-confirmation-dialog
+    type="warning"
+    [title]="'¿Reabrir ' + p.name + '?'"
+    message="Los cursos volverán a aceptar actividad y se descartarán las actas actuales; se generarán de nuevo al volver a cerrarlo."
+    confirmText="Reabrir"
+    cancelText="Cancelar"
+    (confirmed)="confirmReopen()"
+    (cancelled)="pendingReopen.set(null)"
+  />
+}

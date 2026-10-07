@@ -7,11 +7,12 @@ import { StudentHero } from '../../components/student-hero/student-hero';
 import { CourseProgressCard } from '../../components/course-progress-card/course-progress-card';
 import { CatalogCard } from '../../components/catalog-card/catalog-card';
 import { HomePathSidebarItem } from '../../components/home-path-sidebar-item/home-path-sidebar-item';
+import { RevealDirective, AutoAnimateDirective } from 'shared';
 import { ICatalogItem } from '../../../../domain/model/catalog.model';
 
 @Component({
   selector: 'edu-student-home-container',
-  imports: [
+  imports: [RevealDirective, AutoAnimateDirective, 
     LoadingSkeletonComponent,
     EmptyStateComponent,
     StudentHero,

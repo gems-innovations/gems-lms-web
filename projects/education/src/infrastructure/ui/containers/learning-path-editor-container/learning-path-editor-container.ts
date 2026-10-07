@@ -4,11 +4,12 @@ import { LearningPathEditorUseCase } from '../../../../application/learning-path
 import { LpEditorTopbar } from '../../components/lp-editor-topbar/lp-editor-topbar';
 import { LpEditorSidebar } from '../../components/lp-editor-sidebar/lp-editor-sidebar';
 import { LpEditorSequencer } from '../../components/lp-editor-sequencer/lp-editor-sequencer';
+import { LoadingSkeletonComponent, EmptyStateComponent } from 'shared';
 
 @Component({
   selector: 'edu-learning-path-editor-container',
   standalone: true,
-  imports: [LpEditorTopbar, LpEditorSidebar, LpEditorSequencer],
+  imports: [LpEditorTopbar, LpEditorSidebar, LpEditorSequencer, LoadingSkeletonComponent, EmptyStateComponent],
   templateUrl: './learning-path-editor-container.html',
   host: { class: 'lpeditor' },
   changeDetection: ChangeDetectionStrategy.OnPush,

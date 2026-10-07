@@ -1,0 +1,107 @@
+@if (loading() && rows().length === 0) {
+  <lib-loading-skeleton />
+} @else if (items().length === 0) {
+  <lib-empty-state
+    title="Sin evaluaciones"
+    description="El curso no tiene quizzes ni tareas que calificar."
+  />
+} @else {
+  <div class="gbook">
+    <div class="gbook__toolbar">
+      <p class="gbook__hint">
+        La nota del curso es el promedio ponderado de las evaluaciones. Un quiz cuenta su mejor intento.
+      </p>
+      <div class="gbook__actions">
+        @if (editingWeights()) {
+          <lib-button variant="ghost" size="sm" (clicked)="cancelEditing()">Cancelar</lib-button>
+          <lib-button variant="primary" size="sm" [disabled]="!weightsValid()" (clicked)="submitWeights()">Guardar pesos</lib-button>
+        } @else {
+          <lib-button variant="secondary" size="sm" (clicked)="startEditing()">Editar pesos</lib-button>
+          <lib-button variant="secondary" size="sm" [disabled]="rows().length === 0" (clicked)="exportExcel.emit()">Exportar Excel</lib-button>
+        }
+      </div>
+    </div>
+
+    @if (error()) {
+      <p class="gbook__error" role="alert">{{ error() }}</p>
+    }
+    @if (editingWeights() && !weightsValid()) {
+      <p class="gbook__error">Cada peso debe ser un entero entre 0 y 100, y al menos uno mayor que 0.</p>
+    }
+
+    <div class="gbook__wrap">
+      <table class="gbook__table">
+        <caption class="gbook__caption">Libro de calificaciones</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="gbook__sticky">Estudiante</th>
+            @for (item of items(); track item.blockId) {
+              <th scope="col" class="gbook__item">
+                <span class="gbook__item-type">{{ item.type === 'quiz' ? 'Quiz' : 'Tarea' }}</span>
+                <span class="gbook__item-title" [title]="item.title">{{ item.title || 'Sin título' }}</span>
+                @if (editingWeights()) {
+                  <input class="gbook__weight-input" type="number" min="0" max="100" step="1"
+                         [attr.aria-label]="'Peso de ' + (item.title || 'la evaluación')"
+                         [ngModel]="weightDraft()[item.blockId]" (ngModelChange)="setWeight(item.blockId, +$event)" />
+                } @else {
+                  <span class="gbook__weight">Peso {{ item.weight }} · {{ share(item) }}%</span>
+                }
+              </th>
+            }
+            <th scope="col">Nota actual</th>
+            <th scope="col">Nota final</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.studentId) {
+            <tr>
+              <th scope="row" class="gbook__sticky">
+                <div class="gbook__student">
+                  <lib-avatar [name]="row.student.firstName + ' ' + row.student.lastName" size="sm" />
+                  <div>
+                    <div class="gbook__sname">{{ row.student.firstName }} {{ row.student.lastName }}</div>
+                    <div class="gbook__semail">{{ row.student.email }}</div>
+                  </div>
+                </div>
+              </th>
+              @for (item of items(); track item.blockId) {
+                @let c = cell(row, item.blockId);
+                <td>
+                  @if (c?.state === 'graded') {
+                    @if (item.type === 'assignment') {
+                      <button type="button" class="gbook__score gbook__link {{ gradeClass(c?.score) }}" (click)="open(row, item)">
+                        {{ c?.score }}
+                      </button>
+                    } @else {
+                      <span class="gbook__score {{ gradeClass(c?.score) }}" [title]="c?.attempts + ' intento(s)'">{{ c?.score }}</span>
+                    }
+                  } @else if (c?.state === 'pending') {
+                    <button type="button" class="gbook__pending gbook__link" (click)="open(row, item)">Por calificar</button>
+                  } @else {
+                    <span class="gbook__missing" aria-label="Sin entregar">—</span>
+                  }
+                </td>
+              }
+              <td><strong class="gbook__score {{ gradeClass(row.currentGrade) }}">{{ row.currentGrade != null ? (row.currentGrade | number:'1.0-1') : '—' }}</strong></td>
+              <td><strong class="gbook__score {{ gradeClass(row.finalGrade) }}">{{ row.finalGrade != null ? (row.finalGrade | number:'1.0-1') : '—' }}</strong></td>
+            </tr>
+          } @empty {
+            <tr><td [attr.colspan]="items().length + 3" class="gbook__empty">No hay estudiantes inscritos.</td></tr>
+          }
+        </tbody>
+        @if (rows().length) {
+          <tfoot>
+            <tr>
+              <th scope="row" class="gbook__sticky">Promedio del grupo</th>
+              @for (avg of columnAverages(); track $index) {
+                <td>{{ avg != null ? (avg | number:'1.0-1') : '—' }}</td>
+              }
+              <td></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        }
+      </table>
+    </div>
+  </div>
+}

@@ -16,15 +16,21 @@ import { GradingPanel } from '../../components/grading-panel/grading-panel';
 import { ReviewCard } from '../../components/review-card/review-card';
 import { StudentDetail } from '../../components/student-detail/student-detail';
 import { SurveyPanel } from '../../components/survey-panel/survey-panel';
+import { GradebookPanel } from '../../components/gradebook-panel/gradebook-panel';
+import { CourseCommunity } from 'education';
+import { EnrollmentRulesPanel } from '../../components/enrollment-rules-panel/enrollment-rules-panel';
+import { RiskPanel } from '../../components/risk-panel/risk-panel';
+import { AccessibilityReport } from 'education';
 import type { ISubmissionRow, IGradeSubmitEvent, TCourseDetailTab } from '../../../../domain/model/instructor.model';
 
 @Component({
   selector: 'ins-course-detail-container',
   standalone: true,
-  imports: [
+  imports: [AccessibilityReport, RiskPanel, 
     DecimalPipe, PageComponent, PageHeaderComponent, StatGridComponent, StatCardComponent,
     LoadingSkeletonComponent, BackButtonComponent, TabsComponent, LibButtonComponent,
     EmptyStateComponent, LibSelectComponent, StudentsTable, GradingPanel, ReviewCard, StudentDetail, SurveyPanel,
+    GradebookPanel, CourseCommunity, EnrollmentRulesPanel,
   ],
   providers: [CourseDetailUseCase, SurveyEditorUseCase],
   templateUrl: './course-detail-container.html',
@@ -39,7 +45,7 @@ export class CourseDetailContainer implements OnInit {
   protected readonly uc         = inject(CourseDetailUseCase);
   protected readonly surveyUc   = inject(SurveyEditorUseCase);
 
-  private courseId = '';
+  protected courseId = '';
   protected readonly groupId = signal('');
 
   protected readonly groupOptions = computed<SelectOption[]>(() =>
@@ -62,6 +68,17 @@ export class CourseDetailContainer implements OnInit {
   }
   protected openSubmission(sub: ISubmissionRow): void { this.uc.openSubmission(sub); }
   protected grade(event: IGradeSubmitEvent): void { this.uc.grade(event); }
+
+  protected openFromGradebook(event: { blockId: string; studentId: string }): void {
+    this.uc.openStudentSubmission(event.blockId, event.studentId);
+  }
+
+  protected exportGradebook(): void {
+    const course = this.uc.course();
+    const book = this.uc.gradebook();
+    if (!course || !book) return;
+    void this.exportUc.gradebookExcel(course.title, book.items, this.uc.gradebookRows());
+  }
 
   protected changeGroup(groupId: string): void {
     if (!groupId || groupId === this.groupId()) return;

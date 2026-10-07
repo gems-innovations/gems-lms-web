@@ -16,6 +16,9 @@
           </div>
         }
 
+        <lib-image-upload [label]="c.thumbnailUrl ? 'Cambiar imagen del curso' : 'Subir imagen del curso'"
+                          (uploaded)="uc.setThumbnail($event)" />
+
         <dl class="cpanel__info-grid">
           <div class="cpanel__info-row"><dt>Título</dt><dd>{{ c.title }}</dd></div>
           <div class="cpanel__info-row"><dt>Descripción</dt><dd>{{ c.description }}</dd></div>

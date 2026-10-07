@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingSkeletonComponent } from 'shared';
 import { PreviewHero } from '../../components/preview-hero/preview-hero';
@@ -16,6 +16,18 @@ import { TPreviewType } from '../../../../domain/model/catalog.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContentPreviewContainer implements OnInit {
+  /** "Período 2026-2 · Inscripción hasta 30/11/2026 · 12 cupos" for courses with rules. */
+  protected readonly enrollmentInfo = computed(() => {
+    const e = this.uc.eligibility();
+    if (!e) return null;
+    const parts: string[] = [];
+    if (e.periodName) parts.push(`Período ${e.periodName}`);
+    if (e.opensAt && e.opensAt.getTime() > Date.now()) parts.push(`Inscripción desde ${e.opensAt.toLocaleDateString('es-CO')}`);
+    if (e.closesAt) parts.push(`Inscripción hasta ${e.closesAt.toLocaleDateString('es-CO')}`);
+    if (e.seatsLeft !== null) parts.push(`${e.seatsLeft} cupo(s) disponibles`);
+    return parts.length ? parts.join(' · ') : null;
+  });
+
   private readonly route  = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly uc   = inject(ContentPreviewUseCase);

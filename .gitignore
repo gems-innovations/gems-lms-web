@@ -33,10 +33,14 @@ yarn-error.log
 .sass-cache/
 /connect.lock
 /coverage
+/logs
 /libpeerconnection.log
 testem.log
 /typings
 __screenshots__/
+/playwright-report/
+/test-results/
+/storybook-static/
 
 # System files
 .DS_Store

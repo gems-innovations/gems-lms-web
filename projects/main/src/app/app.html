@@ -1,0 +1,27 @@
+<a class="skip-link" href="#main-content">Ir al contenido principal</a>
+
+@if (!appStatus.online()) {
+  <div class="connection-notice" role="status" aria-live="polite">
+    <span class="connection-notice__dot" aria-hidden="true"></span>
+    Sin conexión. Puedes consultar lo ya cargado; los cambios se enviarán cuando recuperes internet.
+  </div>
+}
+
+@if (appStatus.updateReady()) {
+  <aside class="update-notice" role="status" aria-live="polite">
+    <div>
+      <strong>Nueva versión disponible</strong>
+      <span>Actualiza para recibir las últimas mejoras.</span>
+    </div>
+    <button type="button" (click)="appStatus.applyUpdate()">Actualizar</button>
+  </aside>
+}
+
+<div id="main-content" tabindex="-1"><router-outlet /></div>
+<app-command-palette />
+<gems-guest-save-bar />
+
+@if (session.user() && !publicPage() && !isGuest()) {
+  <button class="app-tour-button" type="button" (click)="onboarding.start()"
+    title="Ver guía de la plataforma" aria-label="Ver guía de la plataforma">?</button>
+}

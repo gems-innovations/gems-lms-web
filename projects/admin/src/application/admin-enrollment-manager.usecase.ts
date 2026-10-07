@@ -2,6 +2,7 @@ import { inject, Injectable, signal, computed, DestroyRef } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, EMPTY, forkJoin } from 'rxjs';
 import { tap, switchMap, catchError } from 'rxjs/operators';
+import { ToastService } from 'shared';
 import {
   EnrollmentService,
   CourseService,
@@ -20,6 +21,7 @@ export class AdminEnrollmentManagerUseCase {
   private readonly enrollmentService = inject(EnrollmentService);
   private readonly courseService     = inject(CourseService);
   private readonly pathService       = inject(LearningPathService);
+  private readonly toast             = inject(ToastService);
 
   private readonly _courses     = signal<ICourse[]>([]);
   private readonly _paths       = signal<ILearningPath[]>([]);
@@ -61,7 +63,7 @@ export class AdminEnrollmentManagerUseCase {
           this._students.set(students);
           this._isLoading.set(false);
         }),
-        catchError(() => { this._isLoading.set(false); return EMPTY; })
+        catchError(() => { this._isLoading.set(false); this.toast.error('No se pudieron cargar los datos de matrículas. Reintenta.'); return EMPTY; })
       )),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe();
@@ -77,7 +79,7 @@ export class AdminEnrollmentManagerUseCase {
               this._targetId.set('');
               setTimeout(() => this._result.set(null), 5000);
             }),
-            catchError(() => EMPTY)
+            catchError(() => { this.toast.error('No se pudo completar la matrícula. Revisa los estudiantes seleccionados e inténtalo de nuevo.'); return EMPTY; })
           )
       ),
       takeUntilDestroyed(this.destroyRef)

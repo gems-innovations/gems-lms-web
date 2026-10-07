@@ -5,7 +5,7 @@
   padding: 0 2rem;
   height: 56px;
   border-bottom: 1px solid var(--color-borde-sutil);
-  background: rgba(var(--color-fondo), 0.95);
+  background: color-mix(in srgb, var(--color-fondo-principal) 95%, transparent);
   backdrop-filter: blur(8px);
   flex-shrink: 0;
   z-index: 10;
@@ -53,8 +53,8 @@
   letter-spacing: 0.05em;
   white-space: nowrap;
 
-  &--draft     { background: rgba(var(--color-advertencia), 0.15); color: var(--color-advertencia); }
-  &--published { background: rgba(var(--color-exito), 0.15); color: var(--color-exito); }
+  &--draft     { background: color-mix(in srgb, var(--color-advertencia) 15%, transparent); color: var(--color-advertencia); }
+  &--published { background: color-mix(in srgb, var(--color-exito) 15%, transparent); color: var(--color-exito); }
   &--archived  { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
 }
 

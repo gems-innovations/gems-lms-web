@@ -1,15 +1,14 @@
 <edu-lp-editor-topbar (back)="goBack()" />
 
-@if (!uc.path()) {
+@if (uc.isLoading()) {
   <div class="lpeditor__loading">
-    <div class="lpeditor__spinner"></div>
-    <p>Cargando ruta…</p>
+    <lib-loading-skeleton type="card" [rows]="3" />
   </div>
-}
-
-@if (uc.path()) {
+} @else if (uc.path()) {
   <div class="lpeditor__main">
     <edu-lp-editor-sidebar />
     <edu-lp-editor-sequencer />
   </div>
+} @else {
+  <lib-empty-state title="No pudimos abrir la ruta" description="La ruta no está disponible o hubo un problema de conexión." actionLabel="Reintentar" (action)="uc.retry()" />
 }

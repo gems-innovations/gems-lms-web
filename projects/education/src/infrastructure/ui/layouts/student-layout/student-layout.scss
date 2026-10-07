@@ -29,11 +29,14 @@ $nav-closed:  60px;
       width: $nav-closed;
 
       .slayout__brand         { justify-content: center; padding: 0; height: 60px; }
-      .slayout__brand-name    { display: none; }
+      .slayout__brand-name,
+      .slayout__brand-text    { display: none; }
       .slayout__navlink       { justify-content: center; padding: 10px 0; }
       .slayout__navlink-label { display: none; }
+      .slayout__lock          { position: absolute; top: 4px; right: 10px; margin: 0; }
       .slayout__user          { justify-content: center; padding: 10px 0; }
       .slayout__user-info     { display: none; }
+      .slayout__profile-btn,
       .slayout__signout-btn   { display: none; }
     }
   }
@@ -43,8 +46,8 @@ $nav-closed:  60px;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 0 16px;
-    height: 60px;
+    padding: 14px 16px 12px;
+    min-height: 68px;
     text-decoration: none;
     flex-shrink: 0;
     border-bottom: 1px solid var(--color-borde-principal);
@@ -56,13 +59,42 @@ $nav-closed:  60px;
   &__brand-icon {
     width: 30px;
     height: 30px;
-    background: var(--color-primario);
-    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
     flex-shrink: 0;
+
+    img { width: 100%; height: 100%; object-fit: contain; }
+  }
+
+  &__brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  &__brand-by {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--color-texto-terciario);
+  }
+
+  // Nombres largos pasan a una segunda línea en vez de cortarse.
+  .slayout__brand-name.slayout__brand-name--org {
+    letter-spacing: .01em;
+    text-transform: none;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    line-height: 1.25;
   }
 
   &__brand-name {
@@ -89,6 +121,7 @@ $nav-closed:  60px;
     display: flex;
     align-items: center;
     gap: 10px;
+    position: relative;
     padding: 9px 12px;
     border-radius: 7px;
     font-size: 13.5px;
@@ -127,6 +160,9 @@ $nav-closed:  60px;
   }
 
   &__navlink-label { /* visible by default, hidden via collapsed modifier */ }
+  &__lock { flex-shrink: 0; margin-left: auto; opacity: .55; }
+  &__profile-btn { position: relative; }
+  &__lock--badge { position: absolute; top: 0; right: 0; margin: 0; }
 
   &__divider {
     height: 1px;
@@ -137,7 +173,7 @@ $nav-closed:  60px;
 
   &__toggle-btn {
     position: absolute;
-    top: 18px;
+    top: 22px;
     left: calc(#{$nav-open} - 12px);
     z-index: 200;
     width: 24px;
@@ -237,6 +273,19 @@ $nav-closed:  60px;
     &:hover { background: rgba(239,68,68,.08); color: rgba(248,113,113,.8); }
   }
 
+  &__profile-btn {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    color: var(--color-texto-terciario);
+    flex-shrink: 0;
+    transition: background .12s, color .12s;
+
+    &:hover, &:focus-visible { color: var(--color-primario); background: var(--color-fondo-hover); outline: none; }
+  }
+
   // ── Main content ───────────────────────────────────────────────────────────
   &__main {
     flex: 1;
@@ -276,4 +325,37 @@ $nav-closed:  60px;
       flex-direction: column;
     }
   }
+}
+
+@media (max-width: 768px) {
+  .slayout__leftnav { width: 60px; }
+  .slayout__brand { justify-content: center; padding: 0; }
+  .slayout__brand-name,
+  .slayout__brand-text,
+  .slayout__navlink-label,
+  .slayout__user-info,
+  .slayout__toggle-btn { display: none; }
+  .slayout__navlink { justify-content: center; padding: 10px 0; position: relative; }
+  .slayout__lock { position: absolute; top: 4px; right: 10px; margin: 0; }
+  .slayout__user { flex-direction: column; padding: 10px 0; }
+  .slayout__profile-btn,
+  .slayout__signout-btn { display: grid; width: 36px; height: 36px; }
+  .slayout__inner { padding: 0 1rem 2rem; }
+}
+
+// ── Celular: el menú lateral pasa a ser una barra inferior de pestañas ─────────
+@media (max-width: 640px) {
+  .slayout { flex-direction: column; }
+  .slayout__leftnav {
+    order: 2; width: 100% !important; height: calc(58px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    flex-direction: row; align-items: center; justify-content: space-around;
+    border-right: 0; border-top: 1px solid var(--color-borde-principal);
+  }
+  .slayout__brand, .slayout__divider, .slayout__toggle-btn, .slayout__user lib-avatar { display: none !important; }
+  .slayout__navlinks { display: contents; }
+  .slayout__navlink { flex: 1; justify-content: center; min-height: 48px; padding: 0 !important; }
+  .slayout__user { display: contents; }
+  .slayout__profile-btn, .slayout__signout-btn { flex: 1; display: grid; place-items: center; width: auto; height: 48px; }
+  .slayout__main { order: 1; flex: 1; min-height: 0; }
 }

@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { ClientErrorJournal } from 'shared/core';
 
 export interface Toast {
   id: string;
@@ -11,6 +12,7 @@ export interface Toast {
   providedIn: 'root'
 })
 export class ToastService {
+  private readonly errors = inject(ClientErrorJournal);
   private toasts = signal<Toast[]>([]);
   public readonly toasts$ = this.toasts.asReadonly();
 
@@ -32,6 +34,7 @@ export class ToastService {
   }
 
   error(message: string, duration = 5000): void {
+    this.errors.record('operation');
     this.show(message, 'error', duration);
   }
 

@@ -169,3 +169,31 @@
   background: #7B6FF0;
   transition: width 0.4s ease;
 }
+
+.player-topbar__grades {
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover,
+  &:focus-visible { background: rgba(255, 255, 255, 0.08); color: #fff; }
+}
+
+// ── Celular: dos filas (título arriba, acciones abajo) sin desbordar ─────────
+@media (max-width: 768px) {
+  .player-topbar { flex-wrap: wrap; row-gap: 8px; height: auto; padding-block: 10px; }
+  .player-topbar__left { flex: 1 1 100%; min-width: 0; }
+  .player-topbar__course-name { display: none; }
+  .player-topbar__lesson-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .player-topbar__right { flex: 1 1 100%; justify-content: space-between; gap: 6px; }
+  .player-topbar__grades { padding-inline: 10px; }
+  // «Anterior» queda solo con la flecha; «Siguiente» conserva el texto (es la acción principal).
+  .player-topbar__nav-btn:not(.player-topbar__nav-btn--next) { font-size: 0; padding-inline: 10px; }
+  .player-topbar__nav-btn { min-height: 40px; }
+}

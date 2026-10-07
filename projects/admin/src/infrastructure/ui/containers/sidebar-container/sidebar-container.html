@@ -1,7 +1,10 @@
 <lib-app-sidebar
   [brandRoute]="uc.homeRoute()"
   storageKey="gems-admin-sidebar-collapsed"
+  profileRoute="/admin/profile"
   [menuItems]="uc.menuItems()"
   [userProfile]="uc.userProfile()"
   (onLogout)="uc.logout()"
-/>
+>
+  <edu-notification-bell sidebar-notifications [footer]="true" />
+</lib-app-sidebar>

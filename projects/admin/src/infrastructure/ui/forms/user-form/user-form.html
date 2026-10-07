@@ -22,7 +22,7 @@
               [checked]="uform.role().value() === r.value"
               (change)="setRole(r.value)"
             />
-            <span class="uform__role-icon">{{ r.icon }}</span>
+            <span class="uform__role-icon"><svg [lucideIcon]="r.icon" [size]="20" aria-hidden="true"></svg></span>
             <span class="uform__role-label">{{ r.label }}</span>
           </label>
         }

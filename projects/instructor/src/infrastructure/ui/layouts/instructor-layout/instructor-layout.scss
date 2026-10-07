@@ -8,6 +8,13 @@
   position: relative;
 
   // ── Main content ───────────────────────────────────────────────────────────
+  &__bell {
+    position: fixed;
+    top: 14px;
+    right: 20px;
+    z-index: 30;
+  }
+
   &__main {
     flex: 1;
     overflow-y: auto;

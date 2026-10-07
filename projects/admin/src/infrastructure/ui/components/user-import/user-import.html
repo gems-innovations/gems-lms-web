@@ -1,0 +1,81 @@
+<section class="uimport" aria-labelledby="uimport-title">
+  <header class="uimport__head">
+    <div>
+      <h2 id="uimport-title" class="uimport__title">Importar usuarios desde CSV</h2>
+      <p class="uimport__subtitle">
+        Crea cuentas de estudiantes, docentes y administradores en bloque e inscribe a los estudiantes en sus cursos.
+        Cada cuenta recibe una contraseña temporal que deberá cambiar al entrar.
+      </p>
+    </div>
+    <lib-button variant="secondary" (clicked)="downloadTemplate()">Descargar plantilla</lib-button>
+  </header>
+
+  @if (isSuperAdmin()) {
+    <div class="uimport__institution">
+      <lib-select label="Institución" placeholder="Elige la institución" [options]="institutionOptions()"
+                  [value]="institutionId()" (valueChange)="setInstitution($event)" />
+    </div>
+  }
+
+  @if (step() === 'upload') {
+    <label class="uimport__drop" [class.uimport__drop--over]="dragging()"
+           (dragover)="$event.preventDefault(); dragging.set(true)" (dragleave)="dragging.set(false)" (drop)="onDrop($event)">
+      <input type="file" accept=".csv,text/csv,.txt" class="uimport__file" (change)="onFile($event)" />
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      <strong>Arrastra tu archivo CSV o haz clic para elegirlo</strong>
+      <span>Columnas: Nombre, Apellido, Correo, Rol (estudiante, docente o administrador) y Cursos (opcional, separados por «|»).</span>
+    </label>
+    @if (fileError(); as error) { <p class="uimport__error" role="alert">{{ error }}</p> }
+  } @else {
+    <div class="uimport__summary" aria-live="polite">
+      <span class="uimport__file-name">{{ fileName() }}</span>
+      <span class="uimport__chip">{{ counts().total }} filas</span>
+      <span class="uimport__chip uimport__chip--ok">{{ counts().ok }} {{ step() === 'done' ? 'creadas' : 'listas' }}</span>
+      @if (counts().exists) { <span class="uimport__chip uimport__chip--info">{{ counts().exists }} ya existían</span> }
+      @if (counts().errors) { <span class="uimport__chip uimport__chip--error">{{ counts().errors }} con errores</span> }
+      @if (counts().enrolled) { <span class="uimport__chip uimport__chip--info">{{ counts().enrolled }} inscripciones</span> }
+      <span class="uimport__spacer"></span>
+      @if (step() === 'preview') {
+        <lib-button variant="ghost" (clicked)="reset()">Cambiar archivo</lib-button>
+        <lib-button [disabled]="!canImport()" [loading]="busy()" (clicked)="import()">
+          Importar {{ counts().ok }} {{ counts().ok === 1 ? 'cuenta' : 'cuentas' }}
+        </lib-button>
+      } @else {
+        <lib-button variant="ghost" (clicked)="reset()">Importar otro archivo</lib-button>
+        <lib-button (clicked)="downloadResults()">Descargar resultado</lib-button>
+      }
+    </div>
+
+    @if (step() === 'done' && counts().ok) {
+      <p class="uimport__notice" role="note">
+        El archivo de resultado incluye las contraseñas temporales. Compártelo solo por un canal seguro y elimínalo después.
+      </p>
+    }
+
+    <div class="uimport__table-wrap" tabindex="0" role="region" aria-label="Filas del archivo">
+      <table class="uimport__table">
+        <thead>
+          <tr><th>#</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Cursos</th><th>Estado</th></tr>
+        </thead>
+        <tbody libAutoAnimate>
+          @for (r of rows(); track r.row) {
+            <tr [class.uimport__row--error]="r.status === 'invalid' || r.status === 'duplicate' || r.status === 'forbidden'">
+              <td>{{ r.row }}</td>
+              <td>{{ r.firstName }} {{ r.lastName }}</td>
+              <td>{{ r.email }}</td>
+              <td>{{ roleLabel(r.role) }}</td>
+              <td>{{ r.courses.length ? r.courses.join(', ') : '—' }}</td>
+              <td>
+                <span class="uimport__status" [attr.data-status]="r.status">{{ statusLabel[r.status] }}</span>
+                @if (r.message) { <small class="uimport__message">{{ r.message }}</small> }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

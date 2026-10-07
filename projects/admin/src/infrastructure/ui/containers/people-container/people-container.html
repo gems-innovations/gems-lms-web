@@ -10,7 +10,9 @@
 
   @if (activeTab() === 'users') {
     <adm-user-management-container />
-  } @else {
+  } @else if (activeTab() === 'groups') {
     <adm-groups-view />
+  } @else {
+    <adm-user-import />
   }
 </lib-page>

@@ -47,10 +47,10 @@
 
   // Variants (fill colour + label colour)
   &--primary  &__fill { background: #4F46E5; }
-  &--primary  &__label { color: #4F46E5; }
+  &--primary  &__label { color: var(--color-texto-acento); }
 
   &--success  &__fill { background: #10b981; }
-  &--success  &__label { color: #059669; }
+  &--success  &__label { color: var(--color-exito-texto); }
 
   &--warning  &__fill { background: #f59e0b; }
   &--warning  &__label { color: #d97706; }

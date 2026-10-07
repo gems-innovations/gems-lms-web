@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ImageUploadComponent } from 'shared';
 import { CourseEditorUseCase } from '../../../../application/course-editor.usecase';
 import { ContentBlockModal } from '../content-block-modal/content-block-modal';
 import { CoursePlayerPreview } from '../course-player-preview/course-player-preview';
@@ -8,7 +9,7 @@ import { ICreateContentBlockRequest, IContentBlock } from '../../../../domain/mo
 @Component({
   selector: 'edu-course-editor-panel',
   standalone: true,
-  imports: [CommonModule, ContentBlockModal, CoursePlayerPreview],
+  imports: [CommonModule, ContentBlockModal, CoursePlayerPreview, ImageUploadComponent],
   templateUrl: './course-editor-panel.html',
   styleUrl: './course-editor-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

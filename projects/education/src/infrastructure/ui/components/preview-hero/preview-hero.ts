@@ -16,6 +16,10 @@ export class PreviewHero {
   readonly course     = input<ICourse | null>(null);
   readonly path       = input<ILearningPath | null>(null);
   readonly isEnrolled = input<boolean>(false);
+  /** Why the student cannot enroll now; null when they can. */
+  readonly blockedReason = input<string | null>(null);
+  /** Enrollment period, closing date and seats, shown under the button. */
+  readonly enrollmentInfo = input<string | null>(null);
 
   readonly enroll = output<void>();
   readonly play   = output<void>();

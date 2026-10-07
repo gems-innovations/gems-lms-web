@@ -2,4 +2,6 @@
   [menuItems]="uc.menuItems()"
   [userProfile]="uc.userProfile()"
   (onLogout)="uc.logout()"
-/>
+>
+  <edu-notification-bell sidebar-notifications [footer]="true" />
+</lib-sidebar>

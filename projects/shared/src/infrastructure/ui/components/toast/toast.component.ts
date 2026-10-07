@@ -1,11 +1,12 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { LucideDynamicIcon, LucideCircleCheck, LucideCircleX, LucideTriangleAlert, LucideInfo, LucideX } from '@lucide/angular';
 
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 @Component({
   selector: 'lib-toast',
-  imports: [],
+  imports: [LucideDynamicIcon, LucideX],
   templateUrl: './toast.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './toast.component.scss'
@@ -18,12 +19,12 @@ export class ToastComponent {
   
   close = output<void>();
 
-  getIcon(): string {
-    const icons: Record<ToastType, string> = {
-      success: '✓',
-      error: '✕',
-      warning: '⚠',
-      info: 'ℹ'
+  getIcon() {
+    const icons = {
+      success: LucideCircleCheck,
+      error: LucideCircleX,
+      warning: LucideTriangleAlert,
+      info: LucideInfo
     };
     return icons[this.type()];
   }

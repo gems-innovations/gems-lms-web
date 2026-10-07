@@ -17,7 +17,7 @@
 
   <div class="institution-list__search">
     <lib-search-bar
-      [placeholder]="'Search institutions...'"
+      [placeholder]="'Buscar instituciones...'"
       [debounceTime]="300"
       [value]="searchTerm()"
       (search)="handleSearch($event)"
@@ -30,30 +30,30 @@
 
   @if (error() && !isLoading()) {
     <div class="institution-list__error">
-      <div class="institution-list__error-icon">⚠️</div>
-      <h3 class="institution-list__error-title">Error loading data</h3>
+      <div class="institution-list__error-icon"><svg lucideTriangleAlert [size]="24" aria-hidden="true"></svg></div>
+      <h3 class="institution-list__error-title">No pudimos cargar la información</h3>
       <p class="institution-list__error-message">{{ error() }}</p>
       <button 
         type="button" 
         class="institution-list__button institution-list__button--primary" 
         (click)="loadInstitutions()"
       >
-        Retry
+        Reintentar
       </button>
     </div>
   }
 
   @if (!isLoading() && !error() && institutions().length === 0) {
     <div class="institution-list__empty">
-      <div class="institution-list__empty-icon">🏫</div>
-      <h3 class="institution-list__empty-title">No institutions found</h3>
-      <p class="institution-list__empty-message">Get started by creating your first institution</p>
+      <div class="institution-list__empty-icon"><svg lucideSchool [size]="28" aria-hidden="true"></svg></div>
+      <h3 class="institution-list__empty-title">No hay instituciones todavía</h3>
+      <p class="institution-list__empty-message">Crea la primera institución para empezar a organizar la plataforma.</p>
       <button 
         type="button" 
         class="institution-list__button institution-list__button--primary" 
         (click)="handleCreateNew()"
       >
-        Create first institution
+        Crear primera institución
       </button>
     </div>
   }
@@ -121,8 +121,8 @@
                     type="button" 
                     class="institution-list__action-button" 
                     (click)="handleView(institution)"
-                    title="View details"
-                    aria-label="View institution details"
+                    title="Ver detalles"
+                    aria-label="Ver detalles de la institución"
                   >
                     <svg class="institution-list__action-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
@@ -133,8 +133,8 @@
                     type="button" 
                     class="institution-list__action-button" 
                     (click)="handleEdit(institution)"
-                    title="Edit"
-                    aria-label="Edit institution"
+                    title="Editar"
+                    aria-label="Editar institución"
                   >
                     <svg class="institution-list__action-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
@@ -145,8 +145,8 @@
                     type="button" 
                     class="institution-list__action-button institution-list__action-button--danger" 
                     (click)="handleDelete(institution)"
-                    title="Delete"
-                    aria-label="Delete institution"
+                    title="Eliminar"
+                    aria-label="Eliminar institución"
                   >
                     <svg class="institution-list__action-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                       <polyline points="3,6 5,6 21,6" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2"/>
@@ -170,21 +170,21 @@
           class="institution-list__pagination-button institution-list__pagination-button--previous"
           [disabled]="pagination().page === 1"
           (click)="handlePageChange(pagination().page - 1)"
-          aria-label="Previous page"
+          aria-label="Página anterior"
         >
-          ← Previous
+          ← Anterior
         </button>
         <span class="institution-list__pagination-info">
-          Page {{ pagination().page }} of {{ Math.ceil(pagination().total / pagination().limit) }}
+          Página {{ pagination().page }} de {{ Math.ceil(pagination().total / pagination().limit) }}
         </span>
         <button 
           type="button"
           class="institution-list__pagination-button institution-list__pagination-button--next"
           [disabled]="pagination().page >= Math.ceil(pagination().total / pagination().limit)"
           (click)="handlePageChange(pagination().page + 1)"
-          aria-label="Next page"
+          aria-label="Página siguiente"
         >
-          Next →
+          Siguiente →
         </button>
       </footer>
     }

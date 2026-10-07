@@ -1,6 +1,32 @@
 <lib-page>
   <lib-back-button label="Mi aprendizaje" (back)="goBack()" />
 
+  @if (!uc.isLoading()) {
+    <section class="csv-review" aria-label="Califica el curso">
+      <div class="csv-review__head">
+        <h2 class="csv-review__title">Califica este curso</h2>
+        @if (uc.reviewSaved()) { <span class="csv-review__saved">Calificación guardada</span> }
+      </div>
+      <div class="csv-review__stars" role="radiogroup" aria-label="Calificación de 1 a 5">
+        @for (star of [1, 2, 3, 4, 5]; track star) {
+          <button type="button" class="csv-review__star" [class.csv-review__star--on]="star <= uc.rating()"
+                  role="radio" [attr.aria-checked]="star === uc.rating()" [attr.aria-label]="star + ' de 5'"
+                  (click)="uc.rating.set(star); uc.reviewSaved.set(false)">★</button>
+        }
+      </div>
+      <textarea class="csv-review__comment" rows="2" placeholder="¿Qué te pareció el curso? (opcional)"
+                [value]="uc.reviewComment()"
+                (input)="uc.reviewComment.set($any($event.target).value); uc.reviewSaved.set(false)"></textarea>
+      @if (uc.reviewError(); as message) { <p class="csv-review__error">{{ message }}</p> }
+      <div class="csv-review__actions">
+        <button type="button" class="csv-review__save" [disabled]="uc.rating() < 1 || uc.reviewSaving() || uc.reviewSaved()"
+                (click)="uc.saveReview()">
+          {{ uc.reviewSaving() ? 'Guardando…' : 'Guardar calificación' }}
+        </button>
+      </div>
+    </section>
+  }
+
   @if (uc.isLoading()) {
     <lib-loading-skeleton [rows]="4" />
   } @else if (uc.submitted()) {

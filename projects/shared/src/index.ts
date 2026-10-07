@@ -1,4 +1,7 @@
-export { environment } from "./infrastructure/ui/environments/environment";
+export { environment, BrandingService, ClientErrorJournal, I18nService, LANGUAGES } from "shared/core";
+export type { TLanguage } from "shared/core";
+export { TranslatePipe } from "./infrastructure/ui/pipes/translate.pipe";
+export type { IBrandingConfig } from "shared/core";
 export { ModalBaseComponent } from "./infrastructure/ui/components/modal-base/modal-base.component";
 export type { TModalSize } from "./infrastructure/ui/components/modal-base/modal-base.component";
 export { ToastComponent } from "./infrastructure/ui/components/toast/toast.component";
@@ -30,7 +33,9 @@ export { BackButtonComponent } from "./infrastructure/ui/components/back-button/
 
 export { PaginationComponent } from "./infrastructure/ui/components/pagination/pagination.component";
 
+export { parseCsv, parseCsvObjects, normalizeHeader, toCsv, downloadCsv, detectDelimiter } from "./infrastructure/utils/csv";
 export { AutofocusDirective } from "./infrastructure/ui/directives/autofocus.directive";
+export { RevealDirective, CountUpDirective, AutoAnimateDirective, celebrate, prefersReducedMotion } from "./infrastructure/ui/directives/motion";
 
 export { RadarChartComponent } from "./infrastructure/ui/components/radar-chart/radar-chart.component";
 export type { IRadarSeries } from "./infrastructure/ui/components/radar-chart/radar-chart.component";
@@ -51,8 +56,6 @@ export { EmptyStateComponent } from "./infrastructure/ui/components/empty-state/
 export { ColorPickerComponent } from "./infrastructure/ui/components/color-picker/color-picker.component";
 
 // ── Services ─────────────────────────────────────────────────────────────────
-export { BrandingService } from "./infrastructure/ui/services/branding.service";
-export type { IBrandingConfig } from "./infrastructure/ui/services/branding.service";
 
 export { LoadingSkeletonComponent } from "./infrastructure/ui/components/loading-skeleton/loading-skeleton";
 
@@ -64,3 +67,6 @@ export { StatGridComponent } from "./infrastructure/ui/components/layout/stat-gr
 export { CardGridComponent } from "./infrastructure/ui/components/layout/card-grid.component";
 
 export { MarkdownEditorComponent } from "./infrastructure/ui/components/markdown-editor/markdown-editor";
+export { FileUploadService, MAX_UPLOAD_BYTES } from "./infrastructure/services/file-upload.service";
+export type { IUploadedFile, TFileScope } from "./infrastructure/services/file-upload.service";
+export { ImageUploadComponent } from "./infrastructure/ui/components/image-upload/image-upload.component";

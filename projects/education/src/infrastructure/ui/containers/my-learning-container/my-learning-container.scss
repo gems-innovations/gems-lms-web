@@ -253,9 +253,9 @@ $red:     var(--color-error);
 .mlearning__path-tag {
   font-size: 10px;
   font-weight: 600;
-  color: rgba(61,214,200,.8);
-  background: rgba(61,214,200,.08);
-  border: 1px solid rgba(61,214,200,.15);
+  color: var(--color-teal);
+  background: color-mix(in srgb, var(--color-teal) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-teal) 20%, transparent);
   border-radius: 100px;
   padding: 2px 8px;
 }

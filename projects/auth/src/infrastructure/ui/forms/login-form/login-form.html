@@ -2,13 +2,13 @@
   <form class="login-form" (submit)="$event.preventDefault(); submit()">
 
     <header class="login-form__header">
-      <img src="/logo.png" alt="GEMS LMS" class="login-form__logo" />
+      <img src="/logo-144.png" width="144" height="144" alt="GEMS LMS" class="login-form__logo" />
       <span class="login-form__badge">Learning Management</span>
     </header>
 
     <div class="login-form__intro">
-      <h1 class="login-form__title">Bienvenido de vuelta</h1>
-      <p class="login-form__subtitle">Accede a tu espacio de aprendizaje personalizado</p>
+      <h1 class="login-form__title">{{ 'Bienvenido de vuelta' | t }}</h1>
+      <p class="login-form__subtitle">{{ 'Accede a tu espacio de aprendizaje personalizado' | t }}</p>
     </div>
 
     @if (errorMessage()) {
@@ -18,26 +18,26 @@
           <line x1="12" y1="8" x2="12" y2="12"/>
           <line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
-        {{ errorMessage() }}
+        {{ errorMessage() | t }}
       </div>
     }
 
     <fieldset class="login-form__fields" [disabled]="disabled()">
       <lib-input
         [formField]="loginForm.email"
-        label="Correo electrónico"
+        [label]="'Correo electrónico' | t"
         placeholder="tu@correo.com"
         type="email"
       />
       <lib-input
         [formField]="loginForm.password"
-        label="Contraseña"
+        [label]="'Contraseña' | t"
         placeholder="••••••••"
         type="password"
       />
     </fieldset>
 
-    <a href="#" class="login-form__forgot">¿Olvidaste tu contraseña?</a>
+    <a routerLink="/auth/forgot-password" class="login-form__forgot">{{ '¿Olvidaste tu contraseña?' | t }}</a>
 
     <lib-button
       type="submit"
@@ -55,8 +55,7 @@
     </lib-button>
 
     <p class="login-form__signup">
-      ¿No tienes cuenta?&nbsp;
-      <a href="#" class="login-form__signup-link">Regístrate</a>
+      {{ '¿No tienes cuenta? Pídela al administrador de tu institución.' | t }}
     </p>
 
   </form>

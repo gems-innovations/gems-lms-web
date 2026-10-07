@@ -185,8 +185,8 @@
   padding: 0.65rem 1.5rem;
   border-radius: 8px;
   border: none;
-  background: var(--color-primario);
-  color: #fff;
+  background: var(--color-primario-accion);
+  color: var(--color-sobre-primario);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -246,4 +246,23 @@
   align-items: center;
   justify-content: center;
   color: rgba(255,255,255,0.55);
+}
+
+.preview-hero__blocked,
+.preview-hero__enroll-info {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+}
+
+.preview-hero__blocked {
+  color: var(--color-advertencia);
+}
+
+.preview-hero__enroll-info {
+  color: var(--color-texto-terciario);
+}
+
+.preview-hero__cta:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

@@ -9,6 +9,8 @@
       [hasNext]="uc.hasNextBlock() || uc.hasNextLesson()"
       [progress]="uc.courseProgress()"
       (goHome)="goHome()"
+      (openGrades)="openGrades()"
+      (openCommunity)="openCommunity()"
       (prev)="_guardedNav(uc.prevBlock.bind(uc))"
       (next)="_guardedNav(uc.nextBlock.bind(uc))"
     />
@@ -29,7 +31,7 @@
             <circle cx="12" cy="12" r="6"/>
             <polyline points="20 6 9 17 4 12"/>
           </svg>
-          Ver certificado
+          {{ uc.isOpenCourse() ? 'Ver mi resultado' : 'Ver certificado' }}
         </button>
       </div>
     }
@@ -98,18 +100,14 @@
     </div>
   </div>
 
-  <!-- Confeti (primera completación) -->
-  @if (showConfetti()) {
-    <div class="confetti-container" aria-hidden="true">
-      @for (i of confettiPieces; track i) {
-        <div class="confetti-piece" [ngStyle]="confettiStyle(i)"></div>
-      }
-    </div>
-  }
-
   <!-- Certificado (modal) -->
-  @if (showCertificate() && certificate(); as cert) {
-    <edu-course-certificate [certificate]="cert" (close)="closeCertificate()" />
+  @if (showCertificate()) {
+    <!-- Cursos gratis: resultado final (sin certificado). Los demás: certificado. -->
+    @if (uc.openResult(); as result) {
+      <edu-course-result [result]="result" [courseTitle]="uc.course()?.title ?? ''" (close)="closeCertificate()" />
+    } @else if (!uc.isOpenCourse() && certificate(); as cert) {
+      <edu-course-certificate [certificate]="cert" (close)="closeCertificate()" />
+    }
   }
 
   <!-- Modal: advertencia de quiz activo -->

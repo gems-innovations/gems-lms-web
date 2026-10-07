@@ -2,6 +2,7 @@ import { Component, inject, input, output, signal, computed, ChangeDetectionStra
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { LibSelectComponent, SelectOption } from 'shared';
 import {
   EContentType,
   ICreateContentBlockRequest,
@@ -57,11 +58,20 @@ const newQuestion = (order: number): IQuestionDraft => ({
 @Component({
   selector: 'edu-content-block-modal-container',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [LibSelectComponent, CommonModule, FormsModule],
   templateUrl: './content-block-modal-container.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ContentBlockModalContainer {
+  protected readonly scormOptions: SelectOption[] = [
+    { value: '1.2', label: 'SCORM 1.2' },
+    { value: '2004', label: 'SCORM 2004' },
+  ];
+  protected readonly questionTypeOptions: SelectOption[] = [
+    { value: 'multiple-choice', label: 'Opción múltiple' },
+    { value: 'true-false', label: 'Verdadero / falso' },
+    { value: 'open', label: 'Respuesta abierta' },
+  ];
   private readonly sanitizer = inject(DomSanitizer);
 
   readonly lessonId = input.required<string>();

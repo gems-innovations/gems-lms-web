@@ -1,78 +1,79 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map, tap, catchError, of } from 'rxjs';
+import { environment } from 'shared';
+
+export type TNotificationType = 'submission' | 'graded' | 'announcement' | 'forum' | 'reminder' | 'enrolled' | 'certificate' | 'motivation';
 
 export interface IInstructorNotification {
   id: string;
-  type: 'submission';
+  type: TNotificationType;
   title: string;
   message: string;
   courseId: string;
+  /** The submission, announcement or forum thread the notification is about. */
   submissionId?: string;
   createdAt: Date;
   read: boolean;
 }
 
+interface INotificationApi {
+  id: number;
+  type: TNotificationType;
+  title: string;
+  message: string;
+  courseId: number | null;
+  referenceId: number | null;
+  createdAt: string;
+  read: boolean;
+}
+
+function mapNotification(n: INotificationApi): IInstructorNotification {
+  return {
+    id: String(n.id),
+    type: n.type,
+    title: n.title,
+    message: n.message,
+    courseId: n.courseId == null ? '' : String(n.courseId),
+    submissionId: n.referenceId == null ? undefined : String(n.referenceId),
+    createdAt: new Date(n.createdAt),
+    read: n.read,
+  };
+}
+
 /**
- * In-memory notification center for the instructor.
- * EnrollmentService pushes a notification every time a student
- * submits an assignment; the instructor panel consumes the signals.
+ * The signed-in user's notifications, created by the API (an assignment delivered → the
+ * institution's staff; an assignment graded → the student). Call {@link refresh} to update.
  */
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private readonly _notifications = signal<IInstructorNotification[]>([
-    {
-      id: 'n1', type: 'submission',
-      title: 'Nueva entrega de tarea',
-      message: 'Sofia Torres entregó "Implementa un CRUD" en Desarrollo Full Stack con Angular y Node.js',
-      courseId: 'c2', submissionId: 'sub2',
-      createdAt: new Date('2025-05-21T10:30:00'), read: false
-    },
-    {
-      id: 'n2', type: 'submission',
-      title: 'Nueva entrega de tarea',
-      message: 'Diego Ramírez entregó "Análisis exploratorio" en Introducción a la Inteligencia Artificial',
-      courseId: 'c1', submissionId: 'sub6',
-      createdAt: new Date('2025-05-23T15:12:00'), read: false
-    },
-    {
-      id: 'n3', type: 'submission',
-      title: 'Nueva entrega de tarea',
-      message: 'Carlos López entregó "Integra PostgreSQL en tu API" en Desarrollo Full Stack con Angular y Node.js',
-      courseId: 'c2', submissionId: 'sub4',
-      createdAt: new Date('2025-05-22T09:05:00'), read: true
-    }
-  ]);
+  private readonly http = inject(HttpClient);
+  private readonly url = environment.apiUrls.education.notifications;
+
+  private readonly _notifications = signal<IInstructorNotification[]>([]);
 
   readonly notifications = computed(() =>
     [...this._notifications()].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
   );
 
-  readonly unreadCount = computed(() =>
-    this._notifications().filter(n => !n.read).length
-  );
+  readonly unreadCount = computed(() => this._notifications().filter(n => !n.read).length);
 
-  notifySubmission(studentName: string, assignmentTitle: string, courseTitle: string, courseId: string, submissionId: string): void {
-    this._notifications.update(list => [
-      {
-        id: `n${Date.now()}`,
-        type: 'submission',
-        title: 'Nueva entrega de tarea',
-        message: `${studentName} entregó "${assignmentTitle}" en ${courseTitle}`,
-        courseId,
-        submissionId,
-        createdAt: new Date(),
-        read: false
-      },
-      ...list
-    ]);
+  /** Reloads the list; failures keep the current one (the bell is never critical). */
+  refresh(): Observable<IInstructorNotification[]> {
+    return this.http.get<INotificationApi[]>(this.url).pipe(
+      map(list => list.map(mapNotification)),
+      tap(list => this._notifications.set(list)),
+      catchError(() => of(this._notifications()))
+    );
   }
 
   markRead(id: string): void {
-    this._notifications.update(list =>
-      list.map(n => n.id === id ? { ...n, read: true } : n)
-    );
+    this._notifications.update(list => list.map(n => n.id === id ? { ...n, read: true } : n));
+    this.http.put(`${this.url}/${id}/read`, null).pipe(catchError(() => of(null))).subscribe();
   }
 
   markAllRead(): void {
     this._notifications.update(list => list.map(n => ({ ...n, read: true })));
+    this.http.put(`${this.url}/read-all`, null).pipe(catchError(() => of(null))).subscribe();
   }
 }

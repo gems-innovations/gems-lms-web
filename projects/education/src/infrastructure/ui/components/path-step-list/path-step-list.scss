@@ -142,16 +142,16 @@
   padding: 6px 16px;
   border-radius: var(--border-radius-md);
   border: none;
-  background: var(--color-primario);
-  color: #fff;
+  background: var(--color-primario-accion);
+  color: var(--color-sobre-primario);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
   font-family: inherit;
   transition: background var(--transition-fast);
 
-  &:hover { background: var(--color-primario-claro); }
-  &--continue { background: var(--color-primario); }
+  &:hover { background: color-mix(in srgb, var(--color-primario-accion) 88%, #000); }
+  &--continue { background: var(--color-primario-accion); }
   &--review   { background: transparent; color: var(--color-texto-secundario); border: 1px solid var(--color-borde-principal); &:hover { background: var(--color-tarjeta); } }
 }
 

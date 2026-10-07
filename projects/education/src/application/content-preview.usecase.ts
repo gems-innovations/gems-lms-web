@@ -5,6 +5,9 @@ import { switchMap, catchError } from 'rxjs/operators';
 import { CourseService } from '../infrastructure/services/course.service';
 import { LearningPathService } from '../infrastructure/services/learning-path.service';
 import { EnrollmentService } from '../infrastructure/services/enrollment.service';
+import { EnrollmentRulesService, enrollmentBlockText } from '../infrastructure/services/enrollment-rules.service';
+import type { IEligibility } from '../infrastructure/services/enrollment-rules.service';
+import { ToastService } from 'shared';
 import { ICourse } from '../domain/model/course.model';
 import { ILearningPath } from '../domain/model/learning-path.model';
 import { TPreviewType } from '../domain/model/catalog.model';
@@ -15,6 +18,15 @@ export class ContentPreviewUseCase {
   private readonly courseService = inject(CourseService);
   private readonly pathService = inject(LearningPathService);
   private readonly enrollmentService = inject(EnrollmentService);
+  private readonly rulesService = inject(EnrollmentRulesService);
+  private readonly toast = inject(ToastService);
+  private readonly _eligibility = signal<IEligibility | null>(null);
+  /** Enrollment window, seats and why the student cannot enroll (courses only). */
+  readonly eligibility = this._eligibility.asReadonly();
+  readonly blockedReason = computed(() => {
+    const e = this._eligibility();
+    return e && !e.allowed ? e.reasons.map(enrollmentBlockText).join('. ') : null;
+  });
 
   private readonly _previewType = signal<TPreviewType>('course');
   private readonly _course = signal<ICourse | null>(null);
@@ -81,7 +93,11 @@ export class ContentPreviewUseCase {
           : this.enrollmentService.enrollInPath(id);
         return obs$.pipe(
           tap(_result => { this._isEnrolled.set(true); }),
-          catchError(() => EMPTY)
+          catchError(err => {
+            this.toast.error(err?.message || 'No se pudo completar la inscripción');
+            if (type === 'course') this.loadEligibility(id);
+            return EMPTY;
+          })
         );
       }),
       takeUntilDestroyed(this.destroyRef)
@@ -90,8 +106,17 @@ export class ContentPreviewUseCase {
 
   init(type: TPreviewType, id: string): void {
     this._previewType.set(type);
+    this._eligibility.set(null);
+    if (type === 'course') this.loadEligibility(id);
     this.init$.next({ type, id });
   }
 
   enroll(): void { this.enroll$.next(); }
+
+  private loadEligibility(courseId: string): void {
+    this.rulesService.eligibility([courseId]).subscribe({
+      next: list => this._eligibility.set(list[0] ?? null),
+      error: () => this._eligibility.set(null),
+    });
+  }
 }

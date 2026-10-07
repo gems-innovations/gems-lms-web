@@ -1,0 +1,189 @@
+.nbell {
+  position: fixed;
+  left: 13px;
+  bottom: 84px;
+  z-index: 1100;
+  display: inline-flex;
+
+  &--footer {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    flex: 0 0 auto;
+    z-index: auto;
+
+    .nbell__button {
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--color-texto-terciario);
+
+      &:hover, &:focus-visible {
+        background: var(--color-fondo-hover);
+        color: var(--color-primario);
+      }
+    }
+
+    .nbell__panel {
+      position: fixed;
+      left: 12px;
+      bottom: 68px;
+      max-height: min(420px, calc(100vh - 88px));
+    }
+  }
+
+  &__button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--border-radius-full, 999px);
+    border: 1px solid var(--color-borde-principal);
+    background: var(--color-fondo-secundario, transparent);
+    color: var(--color-texto-secundario);
+    cursor: pointer;
+
+    &:hover { color: var(--color-texto-principal); }
+  }
+
+  &__badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 9px;
+    background: var(--color-error);
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: var(--font-weight-semibold);
+    line-height: 18px;
+    text-align: center;
+  }
+
+  &__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+  }
+
+  &__panel {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    z-index: 41;
+    width: min(340px, calc(100vw - 32px));
+    max-height: min(420px, calc(100vh - 140px));
+    display: flex;
+    flex-direction: column;
+    background: var(--color-fondo-principal);
+    border: 1px solid var(--color-borde-principal);
+    border-radius: var(--border-radius-md, 10px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+  }
+
+  &--left &__panel { left: 0; }
+  &--up &__panel { bottom: calc(100% + 8px); }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-borde-principal);
+  }
+
+  &__title {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-texto-principal);
+  }
+
+  &__link {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: var(--font-size-xs);
+    color: var(--color-primario-claro);
+    cursor: pointer;
+  }
+
+  &__empty {
+    margin: 0;
+    padding: var(--spacing-lg) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    color: var(--color-texto-secundario);
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-bottom: 1px solid var(--color-borde-principal);
+    background: none;
+    text-align: left;
+    cursor: pointer;
+
+    &--unread { background: var(--color-primario-trans-10); }
+  }
+
+  &__item-kind {
+    align-self: flex-start;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primario);
+    background: var(--color-primario-trans-10);
+
+    &--good { color: var(--color-exito, #16a34a); background: color-mix(in srgb, var(--color-exito, #16a34a) 14%, transparent); }
+    &--nudge { color: var(--color-advertencia, #d97706); background: color-mix(in srgb, var(--color-advertencia, #d97706) 14%, transparent); }
+  }
+
+  &__item-title {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-texto-principal);
+  }
+
+  &__item-message {
+    font-size: var(--font-size-xs);
+    color: var(--color-texto-secundario);
+  }
+
+  &__item-date {
+    font-size: 0.6875rem;
+    color: var(--color-texto-terciario, var(--color-texto-secundario));
+  }
+}
+
+@media (max-width: 768px) {
+  .nbell {
+    bottom: 172px;
+
+    &__panel { max-height: min(420px, calc(100vh - 220px)); }
+  }
+
+  .nbell--footer {
+    bottom: auto;
+    .nbell__button { width: 34px; height: 34px; }
+    .nbell__panel { bottom: 64px; max-height: min(420px, calc(100vh - 84px)); }
+  }
+}

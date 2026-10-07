@@ -30,7 +30,7 @@
 
   &:hover {
     background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.12);
+    border-color: var(--color-borde-secundario);
   }
 
   &.skeleton {
@@ -50,22 +50,22 @@
 
   &[data-color="primary"] {
     background: rgba(108, 99, 255, 0.12);
-    color: #6c63ff;
+    color: var(--color-texto-acento);
   }
 
   &[data-color="success"] {
     background: rgba(16, 185, 129, 0.12);
-    color: #10b981;
+    color: var(--color-exito);
   }
 
   &[data-color="accent"] {
     background: rgba(77, 225, 255, 0.12);
-    color: #4de1ff;
+    color: var(--color-acento);
   }
 
   &[data-color="warning"] {
     background: rgba(245, 158, 11, 0.12);
-    color: #f59e0b;
+    color: var(--color-advertencia);
   }
 
   svg {
@@ -90,7 +90,7 @@
   margin: 0;
   font-size: 0.6875rem;
   font-weight: 500;
-  color: rgba(161, 168, 195, 0.6);
+  color: var(--color-texto-terciario);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   white-space: nowrap;
@@ -100,7 +100,7 @@
   margin: 0;
   font-size: 1.625rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-texto-principal);
   letter-spacing: -0.02em;
   line-height: 1.15;
 }

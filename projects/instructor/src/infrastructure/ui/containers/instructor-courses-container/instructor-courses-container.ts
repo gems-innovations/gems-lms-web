@@ -7,6 +7,7 @@ import {
 } from 'shared';
 import { InstructorCoursesUseCase } from '../../../../application/instructor-courses.usecase';
 import { InstructorCourseSummaryCard } from '../../components/instructor-course-summary-card/instructor-course-summary-card';
+import { RevealDirective } from 'shared';
 import type { ICourseSummary } from '../../components/instructor-course-summary-card/instructor-course-summary-card';
 
 const PAGE_SIZE = 6;
@@ -14,7 +15,7 @@ const PAGE_SIZE = 6;
 @Component({
   selector: 'ins-courses-container',
   standalone: true,
-  imports: [
+  imports: [RevealDirective, 
     PageComponent, PageHeaderComponent, CardGridComponent,
     LoadingSkeletonComponent, EmptyStateComponent, PaginationComponent,
     SearchBarComponent, InstructorCourseSummaryCard,

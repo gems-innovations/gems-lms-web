@@ -1,126 +1,102 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, of, map, catchError, throwError, forkJoin, switchMap } from 'rxjs';
+import { environment } from 'shared';
 import {
-  ICourseSurvey, ISurveyResponse, ISurveySection,
+  ICourseSurvey, ISurveyAnswer, ISurveyResponse, ISurveySection,
 } from '../../domain/model/survey.model';
+import { EnrollmentService } from './enrollment.service';
 
-const section = (id: string, title: string, description: string, qs: [string, string, 'scale' | 'text'][]): ISurveySection => ({
-  id, title, description,
-  questions: qs.map(([qid, label, type]) => ({ id: qid, label, type })),
-});
+// ── API contract (ms-education) ───────────────────────────────────────────────
 
-// ── Encuestas sembradas (mock) ───────────────────────────────────────────────
-const SURVEYS: ICourseSurvey[] = [
-  {
-    id: 'sv-c1',
-    courseId: 'c1',
-    title: 'Encuesta de retroalimentación del curso',
-    description: 'Tu opinión nos ayuda a mejorar el curso. Responde con sinceridad.',
-    isPublished: true,
-    sections: [
-      section('sec1', 'Contenido del curso', 'Sobre los materiales y temas tratados.', [
-        ['q1', '¿Qué tan claro fue el contenido?', 'scale'],
-        ['q2', '¿Qué tan útiles fueron los ejemplos y ejercicios?', 'scale'],
-        ['q3', '¿Qué tan adecuado fue el nivel de dificultad?', 'scale'],
-      ]),
-      section('sec2', 'Acompañamiento del instructor', 'Sobre la guía y retroalimentación recibida.', [
-        ['q4', '¿Qué tan oportuna fue la retroalimentación?', 'scale'],
-        ['q5', '¿Qué tan claras fueron las explicaciones?', 'scale'],
-      ]),
-      section('sec3', 'Comentarios', 'Cuéntanos lo que quieras.', [
-        ['q6', '¿Tienes alguna recomendación para mejorar el curso?', 'text'],
-      ]),
-    ],
-  },
-  {
-    id: 'sv-c2',
-    courseId: 'c2',
-    title: 'Encuesta de retroalimentación del curso',
-    description: 'Tu opinión nos ayuda a mejorar el curso. Responde con sinceridad.',
-    isPublished: true,
-    sections: [
-      section('s1', 'Contenido', 'Sobre el material del curso.', [
-        ['c2q1', '¿Qué tan claro fue el contenido?', 'scale'],
-        ['c2q2', '¿Qué tan prácticos fueron los proyectos?', 'scale'],
-      ]),
-      section('s2', 'Comentarios', '', [
-        ['c2q3', '¿Qué mejorarías del curso?', 'text'],
-      ]),
-    ],
-  },
-  {
-    id: 'sv-cdone',
-    courseId: 'c-done',
-    title: 'Encuesta de retroalimentación del curso',
-    description: 'Completaste el curso. Cuéntanos tu experiencia.',
-    isPublished: true,
-    sections: [
-      section('d1', 'Tu experiencia', 'Sobre el curso en general.', [
-        ['dq1', '¿Qué tan satisfecho quedaste con el curso?', 'scale'],
-        ['dq2', '¿Recomendarías este curso a otros?', 'scale'],
-      ]),
-      section('d2', 'Comentarios', '', [
-        ['dq3', '¿Algún comentario o sugerencia?', 'text'],
-      ]),
-    ],
-  },
-];
+interface ISurveyApi {
+  id: number;
+  courseId: number;
+  title: string;
+  description: string | null;
+  sections: ISurveySection[];
+  isPublished: boolean;
+}
 
-const RESPONSES: ISurveyResponse[] = [
-  {
-    id: 'r1', surveyId: 'sv-c1', courseId: 'c1', studentId: 'u1', studentName: 'Ana García',
-    submittedAt: new Date('2025-05-20'),
-    answers: [
-      { questionId: 'q1', value: 9 }, { questionId: 'q2', value: 10 }, { questionId: 'q3', value: 8 },
-      { questionId: 'q4', value: 9 }, { questionId: 'q5', value: 9 },
-      { questionId: 'q6', value: 'Me encantaría más ejercicios prácticos al final de cada módulo.' },
-    ],
-  },
-  {
-    id: 'r2', surveyId: 'sv-c1', courseId: 'c1', studentId: 'u8', studentName: 'Diego Ramírez',
-    submittedAt: new Date('2025-05-21'),
-    answers: [
-      { questionId: 'q1', value: 7 }, { questionId: 'q2', value: 8 }, { questionId: 'q3', value: 6 },
-      { questionId: 'q4', value: 8 }, { questionId: 'q5', value: 7 },
-      { questionId: 'q6', value: 'Algunos videos van un poco rápido, pero en general muy bueno.' },
-    ],
-  },
-  {
-    id: 'r3', surveyId: 'sv-c1', courseId: 'c1', studentId: 'u3', studentName: 'María Martínez',
-    submittedAt: new Date('2025-05-22'),
-    answers: [
-      { questionId: 'q1', value: 10 }, { questionId: 'q2', value: 9 }, { questionId: 'q3', value: 9 },
-      { questionId: 'q4', value: 10 }, { questionId: 'q5', value: 10 },
-      { questionId: 'q6', value: '' },
-    ],
-  },
-];
+interface ISurveyResponseApi {
+  id: number;
+  surveyId: number;
+  courseId: number;
+  studentId: number;
+  answers: ISurveyAnswer[];
+  submittedAt: string;
+}
 
+function mapSurvey(r: ISurveyApi): ICourseSurvey {
+  return {
+    id: String(r.id),
+    courseId: String(r.courseId),
+    title: r.title,
+    description: r.description ?? undefined,
+    sections: r.sections ?? [],
+    isPublished: r.isPublished,
+  };
+}
+
+/** A course survey that does not exist yet (or is not visible) comes back as 404: that is "no survey". */
+function noneOn404<T>(err: unknown): Observable<T | null> {
+  return err instanceof HttpErrorResponse && err.status === 404 ? of(null) : throwError(() => err);
+}
+
+/** Course feedback surveys: one per course, edited by staff and answered by enrolled students. */
 @Injectable({ providedIn: 'root' })
 export class SurveyService {
+  private readonly http = inject(HttpClient);
+  private readonly enrollmentService = inject(EnrollmentService);
+  private readonly coursesUrl = environment.apiUrls.education.courses;
+
   getSurvey(courseId: string): Observable<ICourseSurvey | null> {
-    return of(SURVEYS.find(s => s.courseId === courseId) ?? null).pipe(delay(200));
+    return this.http.get<ISurveyApi>(`${this.coursesUrl}/${courseId}/survey`).pipe(
+      map(mapSurvey),
+      catchError(err => noneOn404<ICourseSurvey>(err))
+    );
   }
 
   saveSurvey(survey: ICourseSurvey): Observable<ICourseSurvey> {
-    const idx = SURVEYS.findIndex(s => s.id === survey.id);
-    if (idx >= 0) SURVEYS[idx] = { ...survey };
-    else SURVEYS.push({ ...survey });
-    return of({ ...survey }).pipe(delay(300));
+    return this.http.put<ISurveyApi>(`${this.coursesUrl}/${survey.courseId}/survey`, {
+      title: survey.title,
+      description: survey.description ?? null,
+      sections: survey.sections,
+      isPublished: survey.isPublished,
+    }).pipe(map(mapSurvey));
   }
 
   publishSurvey(courseId: string, isPublished: boolean): Observable<ICourseSurvey | null> {
-    const s = SURVEYS.find(x => x.courseId === courseId);
-    if (s) s.isPublished = isPublished;
-    return of(s ?? null).pipe(delay(200));
+    return this.getSurvey(courseId).pipe(
+      switchMap(current => current ? this.saveSurvey({ ...current, isPublished }) : of(null))
+    );
   }
 
+  /** Every response of the course, with the student's name from the institution's people. */
   getResponses(courseId: string): Observable<ISurveyResponse[]> {
-    return of(RESPONSES.filter(r => r.courseId === courseId)).pipe(delay(250));
+    return forkJoin({
+      responses: this.http.get<ISurveyResponseApi[]>(`${this.coursesUrl}/${courseId}/survey/responses`),
+      students: this.enrollmentService.getStudents().pipe(catchError(() => of([]))),
+    }).pipe(
+      map(({ responses, students }) => {
+        const names = new Map(students.map(s => [s.id, `${s.firstName} ${s.lastName}`]));
+        return responses.map(r => ({
+          id: String(r.id),
+          surveyId: String(r.surveyId),
+          courseId: String(r.courseId),
+          studentId: String(r.studentId),
+          studentName: names.get(String(r.studentId)) ?? 'Estudiante',
+          answers: r.answers ?? [],
+          submittedAt: new Date(r.submittedAt),
+        }));
+      })
+    );
   }
 
+  /** Sends the signed-in student's answers (answering again replaces them). */
   submitResponse(response: ISurveyResponse): Observable<ISurveyResponse> {
-    RESPONSES.push(response);
-    return of(response).pipe(delay(400));
+    return this.http.post<ISurveyResponseApi>(`${this.coursesUrl}/${response.courseId}/survey/responses`, {
+      answers: response.answers,
+    }).pipe(map(r => ({ ...response, id: String(r.id), submittedAt: new Date(r.submittedAt) })));
   }
 }

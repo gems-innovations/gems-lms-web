@@ -1,5 +1,8 @@
 <div class="umc__toolbar">
   <adm-user-stats-chips [users]="uc.users()" />
+  <div class="umc__search">
+    <lib-search-bar placeholder="Buscar por nombre, usuario o correo…" (search)="onSearch($event)" (clear)="onSearch('')" />
+  </div>
   <div class="umc__toolbar-actions">
     <lib-button variant="secondary" size="sm" (clicked)="uc.showImportPanel.set(true)">
       Importar Excel
@@ -19,10 +22,16 @@
   />
 } @else {
   <adm-user-list
-    [users]="uc.users()"
+    [users]="pagedUsers()"
     (toggleStatus)="toggleStatus($event)"
     (deleteUser)="uc.requestDelete($event)"
   />
+  @if (filteredUsers().length === 0) {
+    <p class="umc__no-results">Ningún usuario coincide con la búsqueda.</p>
+  }
+  @if (totalPages() > 1) {
+    <lib-pagination [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)" />
+  }
 }
 
 <lib-modal-base

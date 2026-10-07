@@ -5,12 +5,13 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AuthSessionService, LogoutUseCase } from 'auth';
 import { BrandingService, AppSidebarComponent } from 'shared';
+import { NotificationBell } from 'education';
 import type { NavigationItem, UserProfile } from 'shared';
 
 @Component({
   selector: 'ins-instructor-layout',
   standalone: true,
-  imports: [RouterOutlet, AppSidebarComponent],
+  imports: [RouterOutlet, AppSidebarComponent, NotificationBell],
   templateUrl: './instructor-layout.html',
   styleUrl: './instructor-layout.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -29,6 +30,7 @@ export class InstructorLayout implements OnInit, OnDestroy {
   readonly menuItems: NavigationItem[] = [
     { id: 'courses', label: 'Mis cursos',    icon: 'courses', route: '/instructor/courses' },
     { id: 'stats',   label: 'Estadísticas',  icon: 'stats',   route: '/instructor/stats' },
+    { id: 'question-bank', label: 'Banco de preguntas', icon: 'bank', route: '/instructor/question-bank' },
   ];
 
   readonly userProfile = computed<UserProfile | null>(() => {
@@ -58,7 +60,6 @@ export class InstructorLayout implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routerSub?.unsubscribe();
-    this.brandingService.reset();
   }
 
   logout(): void { this.logoutUseCase.logout(); }

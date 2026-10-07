@@ -1,0 +1,169 @@
+<gems-public-header />
+
+<main class="pub">
+  <section class="hero">
+    <div class="hero__copy">
+      <span class="eyebrow">Cursos gratis · sin registro</span>
+      <h1>Aprende lo que necesitas, <span class="hl">a tu ritmo</span></h1>
+      <p class="lead">Para entrar a la universidad, manejar mejor tu plata, escribir mejor y lo que venga. Lecciones de 10 minutos, ejercicios explicados y simulacros. Eliges un curso y empiezas ya, sin crear cuenta.</p>
+      <div class="hero__cta">
+        <button type="button" class="btn btn--primary" [disabled]="starter.starting() !== null" (click)="startFirst()">{{ starter.starting() !== null ? 'Entrando…' : 'Empezar gratis ahora' }}</button>
+        <a class="btn btn--ghost" routerLink="/" fragment="cursos">Ver todos los cursos</a>
+      </div>
+      <p class="trust">Sin correo, sin contraseña y sin tarjeta. Entras en un toque.</p>
+      <ul class="hero__facts">
+        <li><strong>$0</strong> para empezar</li>
+        <li><strong>0</strong> formularios</li>
+        <li><strong>10 min</strong> al día</li>
+      </ul>
+    </div>
+    <div class="hero__card">
+      <gems-hero-quiz (startCourse)="startFirst()" />
+    </div>
+  </section>
+
+  <section id="cursos" class="block reveal" aria-labelledby="cursos-title">
+    <div class="block__head">
+      <h2 id="cursos-title">Cursos gratis</h2>
+      <p>Toca «Empezar gratis» y entras directo. Si quieres guardar tu avance, después creas tu cuenta y no pierdes nada.</p>
+    </div>
+
+    @switch (state()) {
+      @case ('loading') {
+        <div class="grid">
+          @for (i of [1, 2, 3]; track i) { <div class="card card--skeleton"></div> }
+        </div>
+      }
+      @case ('error') {
+        <p class="empty">No pudimos cargar los cursos. Revisa tu conexión y recarga la página.</p>
+      }
+      @default {
+        @if (courses().length === 0) {
+          <p class="empty">Muy pronto publicamos los primeros cursos.</p>
+        } @else {
+          <div class="grid">
+            @for (c of courses(); track c.id) {
+              <article class="card" gemsTilt>
+                <div class="card__img">
+                  @if (c.thumbnailUrl) { <img [src]="c.thumbnailUrl" alt="" loading="lazy" (error)="$any($event.target).remove()" /> }
+                  <span class="card__free">Gratis</span>
+                </div>
+                <div class="card__body">
+                  <h3><a [routerLink]="['/cursos', c.id]">{{ c.title }}</a></h3>
+                  <p>{{ c.description }}</p>
+                  <div class="card__meta">
+                    <span>{{ c.lessons }} lecciones</span>
+                    @if (c.difficulty) { <span>{{ difficulty[c.difficulty] ?? c.difficulty }}</span> }
+                    @if (c.enrolled) { <span>{{ c.enrolled }} estudiando</span> }
+                  </div>
+                  @if (errorFor() === c.id) { <p class="card__error" role="alert">{{ error() }}</p> }
+                  <div class="card__actions">
+                    <button type="button" class="btn btn--primary" [disabled]="starter.starting() !== null" (click)="start(c.id)">
+                      {{ starter.starting() === c.id ? 'Entrando…' : 'Empezar gratis' }}
+                    </button>
+                    <a [routerLink]="['/cursos', c.id]" [attr.aria-label]="'Ver temario de ' + c.title">Ver temario</a>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      }
+    }
+  </section>
+
+  <section id="por-que" class="block reveal" aria-labelledby="pq-title">
+    <div class="block__head">
+      <h2 id="pq-title">Así se ve estudiar en GEMS</h2>
+      <p>Una lección dura lo que un viaje en bus. Lo demás lo ves aquí.</p>
+    </div>
+    <div class="bento">
+      <article class="tile tile--wide">
+        <span class="tile__kicker">Tu curso</span>
+        <div class="prog">
+          <div class="prog__row"><span>Unidad 1 · Razonamiento lógico</span><span>3 de 5</span></div>
+          <div class="prog__bar"><i style="width:60%"></i></div>
+          <ol class="prog__list">
+            <li class="is-done">Secuencias y patrones</li>
+            <li class="is-done">Proporciones y porcentajes</li>
+            <li class="is-done">Problemas con días y calendarios</li>
+            <li class="is-next">Lectura de tablas y gráficas <em>Sigue aquí · 9 min</em></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="tile tile--tall tile--streak">
+        <span class="tile__kicker">Racha</span>
+        <span class="tile__num">7 <small>días</small></span>
+        <div class="week" aria-label="Estudiaste 7 días seguidos">
+          @for (d of ['L', 'M', 'M', 'J', 'V', 'S', 'D']; track $index) { <span class="week__d">{{ d }}</span> }
+        </div>
+      </article>
+
+      <article class="tile tile--tall">
+        <span class="tile__kicker">Después de cada respuesta</span>
+        <p class="explain__q">Un pantalón de $80.000 tiene 25 % de descuento.</p>
+        <p class="explain__a"><b>$60.000.</b> El 25 % de 80.000 es 20.000, y 80.000 − 20.000 = 60.000.</p>
+        <p class="explain__tip">Atajo: pagar con 25 % de descuento es pagar el 75 %. 0,75 × 80.000.</p>
+      </article>
+
+      <article class="tile">
+        <span class="tile__num">10 <small>min</small></span>
+        <strong>por lección</strong>
+        <span>Cortas a propósito, para hacer una al día sin dejar de hacer lo demás.</span>
+      </article>
+
+      <article class="tile">
+        <span class="tile__num">0 <small>datos</small></span>
+        <strong>para empezar</strong>
+        <span>Ni correo ni contraseña. La cuenta es opcional, para guardar tu avance.</span>
+      </article>
+
+      <article class="tile tile--full tile--quote">
+        <span class="tile__kicker">De dónde salen las preguntas</span>
+        <p>Las escribe nuestro equipo a partir de los temas y formatos que publican las universidades y el ICFES. Mismo estilo y nivel; ninguna copiada.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="importante" class="legal reveal" aria-labelledby="imp-title">
+    <h2 id="imp-title">Información importante</h2>
+    <ul>
+      <li><strong>No somos una entidad oficial.</strong> GEMS no está afiliado a ninguna universidad, al ICFES ni al Ministerio de Educación, ni cuenta con su aval. Sus nombres se mencionan solo para describir los exámenes.</li>
+      <li><strong>Es material de práctica.</strong> Te ayuda a prepararte, pero no garantiza ningún puntaje ni la admisión. Consulta siempre la información oficial de cada institución.</li>
+      <li><strong>Preguntas originales.</strong> No copiamos exámenes: creamos preguntas propias a partir del análisis de los temas y formatos publicados.</li>
+      <li><strong>Datos de referencia.</strong> Los puntajes, fechas o cupos que mencionemos son orientativos y pueden cambiar; verifícalos en las fuentes oficiales.</li>
+      <li><strong>Tus datos.</strong> Como invitado no pedimos tu nombre real, correo ni teléfono. Si creas una cuenta, tratamos tus datos según la Ley 1581 de 2012 y puedes pedir conocerlos, corregirlos o eliminarlos.</li>
+      <li><strong>Menores de edad.</strong> Si tienes menos de 18 años, crea tu cuenta con el acompañamiento de tu madre, tu padre o tu acudiente.</li>
+    </ul>
+    <p>Lee los <a routerLink="/terminos">términos de uso</a> y la <a routerLink="/privacidad">política de privacidad</a>.</p>
+  </section>
+
+  <section id="preguntas" class="block faq reveal" aria-labelledby="faq-title">
+    <h2 id="faq-title">Preguntas frecuentes</h2>
+    <div class="faq__list">
+      <details><summary>¿De verdad es gratis?</summary><p>Sí. Los cursos marcados como «Gratis» no tienen costo ni piden tarjeta. Si algún día lanzamos cursos o funciones de pago, te lo diremos claramente antes: nunca te cobraremos sin que lo aceptes.</p></details>
+      <details><summary>¿Tengo que registrarme?</summary><p>No. Tocas «Empezar gratis» y entras como invitado. Si quieres guardar tu avance para otro dispositivo, creas tu cuenta cuando quieras y no pierdes nada.</p></details>
+      <details><summary>¿Las preguntas son las del examen real?</summary><p>No copiamos exámenes. Creamos preguntas originales con el mismo estilo, temas y nivel de los exámenes de admisión y del Saber 11 publicados.</p></details>
+      <details><summary>¿Los cursos de admisión me garantizan entrar?</summary><p>Ningún curso puede garantizarlo. Practicar con constancia sí te ayuda a llegar mejor preparado. Consulta siempre las fechas y requisitos oficiales de cada universidad.</p></details>
+      <details><summary>¿Cada cuánto hay cursos nuevos?</summary><p>Publicamos contenido nuevo constantemente. Vuelve seguido o crea tu cuenta para no perderte nada.</p></details>
+      <details><summary>Quiero enseñar a mi grupo, ¿puedo usar GEMS?</summary><p>Sí. Profesores, colegios, academias, empresas o cualquier persona que quiera armar su grupo de aprendizaje pueden <a routerLink="/instituciones">crear su propio espacio</a> con sus cursos, sus integrantes y el avance de cada uno.</p></details>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="inst-title">
+    <div>
+      <h2 id="inst-title">¿Quieres enseñar lo que sabes?</h2>
+      <p>Crea tu propio espacio con tus cursos y tu gente: un colegio o una universidad, una academia, tu empresa, un club de lectura o tu grupo de estudio. Ves quién va al día y quién necesita ayuda.</p>
+    </div>
+    <a class="btn btn--primary" routerLink="/instituciones">Crear mi espacio</a>
+  </section>
+</main>
+
+<gems-public-footer />
+
+@if (courses().length) {
+  <div class="land-cta">
+    <button type="button" class="btn btn--primary btn--block" [disabled]="starter.starting() !== null" (click)="startFirst()">{{ starter.starting() !== null ? 'Entrando…' : 'Empezar gratis ahora' }}</button>
+  </div>
+}

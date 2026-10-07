@@ -1,0 +1,207 @@
+<div class="ccom">
+  <div class="ccom__tabs" role="tablist" aria-label="Comunidad del curso">
+    <button type="button" role="tab" class="ccom__tab" [class.ccom__tab--active]="tab() === 'announcements'"
+            [attr.aria-selected]="tab() === 'announcements'" (click)="setTab('announcements')">
+      Anuncios
+    </button>
+    <button type="button" role="tab" class="ccom__tab" [class.ccom__tab--active]="tab() === 'forum'"
+            [attr.aria-selected]="tab() === 'forum'" (click)="setTab('forum')">
+      Foro
+    </button>
+  </div>
+
+  <!-- ── Anuncios ───────────────────────────────────────────────────────── -->
+  @if (tab() === 'announcements') {
+    <section role="tabpanel" aria-label="Anuncios" class="ccom__panel">
+      @if (staff() && !announcementDraft()) {
+        <div class="ccom__toolbar">
+          <lib-button variant="primary" size="sm" (clicked)="newAnnouncement()">Nuevo anuncio</lib-button>
+        </div>
+      }
+
+      @if (announcementDraft(); as d) {
+        <form class="ccom__form" (submit)="$event.preventDefault(); saveAnnouncement()" aria-label="Anuncio">
+          <label class="ccom__label" for="ann-title">Título</label>
+          <input id="ann-title" class="ccom__input" maxlength="200" name="title"
+                 [ngModel]="d.title" (ngModelChange)="patchAnnouncement({ title: $event })" />
+          <lib-markdown-editor label="Mensaje" [rows]="6" name="body"
+                               [ngModel]="d.body" (ngModelChange)="patchAnnouncement({ body: $event })" />
+          <label class="ccom__check">
+            <input type="checkbox" name="pinned" [ngModel]="d.pinned" (ngModelChange)="patchAnnouncement({ pinned: $event })" />
+            Fijar arriba
+          </label>
+          <div class="ccom__actions">
+            <lib-button variant="ghost" (clicked)="announcementDraft.set(null)">Cancelar</lib-button>
+            <lib-button variant="primary" type="submit" [loading]="busy()" [disabled]="!d.title.trim() || !d.body.trim()">
+              {{ d.id ? 'Guardar' : 'Publicar' }}
+            </lib-button>
+          </div>
+        </form>
+      }
+
+      @switch (announcementsState()) {
+        @case ('loading') { <lib-loading-skeleton [rows]="3" /> }
+        @case ('error') { <lib-empty-state title="Sin datos" description="No se pudieron cargar los anuncios." /> }
+        @default {
+          @for (a of announcements(); track a.id) {
+            <article class="ccom__card" [class.ccom__card--pinned]="a.pinned">
+              <header class="ccom__card-head">
+                <div>
+                  @if (a.pinned) { <span class="ccom__badge">Fijado</span> }
+                  <h3 class="ccom__title">{{ a.title }}</h3>
+                  <p class="ccom__meta">{{ a.authorName }} · {{ a.createdAt | date:'d MMM y, HH:mm' }}</p>
+                </div>
+                @if (staff()) {
+                  <div class="ccom__links">
+                    <button type="button" class="ccom__link" (click)="editAnnouncement(a)">Editar</button>
+                    <button type="button" class="ccom__link ccom__link--danger" (click)="askDelete('announcement', a.id)">Eliminar</button>
+                  </div>
+                }
+              </header>
+              <div class="ccom__body markdown-body"><markdown [data]="a.body" /></div>
+            </article>
+          } @empty {
+            <lib-empty-state title="Sin anuncios" description="Aquí aparecerán los avisos del curso." />
+          }
+        }
+      }
+    </section>
+  }
+
+  <!-- ── Foro ───────────────────────────────────────────────────────────── -->
+  @if (tab() === 'forum') {
+    <section role="tabpanel" aria-label="Foro" class="ccom__panel">
+      @if (threadDraft(); as d) {
+        <form class="ccom__form" (submit)="$event.preventDefault(); saveThread()" aria-label="Tema del foro">
+          <label class="ccom__label" for="thread-title">Título</label>
+          <input id="thread-title" class="ccom__input" maxlength="200" name="title"
+                 [ngModel]="d.title" (ngModelChange)="patchThread({ title: $event })" />
+          <lib-markdown-editor label="Mensaje" [rows]="6" name="body"
+                               [ngModel]="d.body" (ngModelChange)="patchThread({ body: $event })" />
+          <div class="ccom__actions">
+            <lib-button variant="ghost" (clicked)="threadDraft.set(null)">Cancelar</lib-button>
+            <lib-button variant="primary" type="submit" [loading]="busy()" [disabled]="!d.title.trim() || !d.body.trim()">
+              {{ d.id ? 'Guardar' : 'Publicar' }}
+            </lib-button>
+          </div>
+        </form>
+      } @else if (openThread(); as t) {
+        <button type="button" class="ccom__link" (click)="backToThreads()">← Todos los temas</button>
+        <article class="ccom__card">
+          <header class="ccom__card-head">
+            <div>
+              @if (t.pinned) { <span class="ccom__badge">Fijado</span> }
+              @if (t.locked) { <span class="ccom__badge ccom__badge--muted">Cerrado</span> }
+              <h3 class="ccom__title">{{ t.title }}</h3>
+              <p class="ccom__meta">
+                {{ t.authorName }}@if (roleLabel(t.authorRole)) { · <strong>{{ roleLabel(t.authorRole) }}</strong> }
+                · {{ t.createdAt | date:'d MMM y, HH:mm' }}
+              </p>
+            </div>
+            <div class="ccom__links">
+              @if (isMine(t.authorId)) { <button type="button" class="ccom__link" (click)="editThread(t)">Editar</button> }
+              @if (staff()) {
+                <button type="button" class="ccom__link" (click)="moderate({ pinned: !t.pinned })">{{ t.pinned ? 'Desfijar' : 'Fijar' }}</button>
+                <button type="button" class="ccom__link" (click)="moderate({ locked: !t.locked })">{{ t.locked ? 'Reabrir' : 'Cerrar' }}</button>
+              }
+              @if (isMine(t.authorId) || staff()) {
+                <button type="button" class="ccom__link ccom__link--danger" (click)="askDelete('thread', t.id)">Eliminar</button>
+              }
+            </div>
+          </header>
+          <div class="ccom__body markdown-body"><markdown [data]="t.body" /></div>
+        </article>
+
+        <h4 class="ccom__subtitle">{{ t.replyCount }} respuesta(s)</h4>
+        <ol class="ccom__posts">
+          @for (p of posts(); track p.id) {
+            <li class="ccom__post" [class.ccom__post--staff]="p.authorRole !== 'STUDENT'">
+              <p class="ccom__meta">
+                <strong>{{ p.authorName }}</strong>@if (roleLabel(p.authorRole)) { · {{ roleLabel(p.authorRole) }} }
+                · {{ p.createdAt | date:'d MMM y, HH:mm' }}
+                @if (p.updatedAt.getTime() - p.createdAt.getTime() > 1000) { · editado }
+              </p>
+              @if (editingPost()?.id === p.id) {
+                <textarea class="ccom__input" rows="4" [attr.aria-label]="'Editar respuesta'"
+                          [ngModel]="editingPost()!.body" (ngModelChange)="editingPost.set({ id: p.id, body: $event })"></textarea>
+                <div class="ccom__actions">
+                  <lib-button variant="ghost" size="sm" (clicked)="editingPost.set(null)">Cancelar</lib-button>
+                  <lib-button variant="primary" size="sm" (clicked)="saveEditPost()">Guardar</lib-button>
+                </div>
+              } @else {
+                <div class="ccom__body markdown-body"><markdown [data]="p.body" /></div>
+                <div class="ccom__links">
+                  @if (isMine(p.authorId)) { <button type="button" class="ccom__link" (click)="startEditPost(p)">Editar</button> }
+                  @if (isMine(p.authorId) || staff()) {
+                    <button type="button" class="ccom__link ccom__link--danger" (click)="askDelete('post', p.id)">Eliminar</button>
+                  }
+                </div>
+              }
+            </li>
+          }
+        </ol>
+
+        @if (canReply()) {
+          <form class="ccom__form" (submit)="$event.preventDefault(); sendReply()" aria-label="Responder">
+            <lib-markdown-editor label="Tu respuesta" [rows]="4" name="reply"
+                                 [ngModel]="replyText()" (ngModelChange)="replyText.set($event)" />
+            <div class="ccom__actions">
+              <lib-button variant="primary" type="submit" [loading]="busy()" [disabled]="!replyText().trim()">Responder</lib-button>
+            </div>
+          </form>
+        } @else {
+          <p class="ccom__meta">Este tema está cerrado a nuevas respuestas.</p>
+        }
+      } @else {
+        <div class="ccom__toolbar">
+          <form class="ccom__search" role="search" (submit)="$event.preventDefault(); applySearch()">
+            <label class="ccom__sr" for="forum-search">Buscar en el foro</label>
+            <input id="forum-search" class="ccom__input" type="search" placeholder="Buscar en el foro…" name="search"
+                   [ngModel]="search()" (ngModelChange)="search.set($event)" />
+            <lib-button variant="secondary" size="sm" type="submit">Buscar</lib-button>
+          </form>
+          <lib-button variant="primary" size="sm" (clicked)="newThread()">Nueva pregunta</lib-button>
+        </div>
+
+        @switch (threadsState()) {
+          @case ('loading') { <lib-loading-skeleton [rows]="4" /> }
+          @case ('error') { <lib-empty-state title="Sin datos" description="No se pudo cargar el foro." /> }
+          @default {
+            <ul class="ccom__threads">
+              @for (t of threads(); track t.id) {
+                <li>
+                  <button type="button" class="ccom__thread" (click)="showThread(t.id)">
+                    <span class="ccom__thread-title">
+                      @if (t.pinned) { <span class="ccom__badge">Fijado</span> }
+                      @if (t.locked) { <span class="ccom__badge ccom__badge--muted">Cerrado</span> }
+                      {{ t.title }}
+                    </span>
+                    <span class="ccom__meta">{{ t.authorName }} · {{ t.replyCount }} respuesta(s) · {{ t.lastActivityAt | date:'d MMM, HH:mm' }}</span>
+                  </button>
+                </li>
+              } @empty {
+                <li><lib-empty-state title="Sin temas" description="Abre el primer tema para hacer una pregunta al grupo." /></li>
+              }
+            </ul>
+            @if (totalPages() > 1) {
+              <lib-pagination [page]="page()" [totalPages]="totalPages()" (pageChange)="goToPage($event)" />
+            }
+          }
+        }
+      }
+    </section>
+  }
+</div>
+
+@if (pendingDelete()) {
+  <lib-confirmation-dialog
+    type="danger"
+    title="¿Eliminar?"
+    [message]="pendingDelete()!.kind === 'thread' ? 'Se eliminará el tema con todas sus respuestas.' : 'Esta acción no se puede deshacer.'"
+    confirmText="Eliminar"
+    cancelText="Cancelar"
+    [isLoading]="busy()"
+    (confirmed)="confirmDelete()"
+    (cancelled)="pendingDelete.set(null)"
+  />
+}

@@ -4,7 +4,10 @@
   "peerDependencies": {
     "@angular/common": "^22.0.0",
     "@angular/core": "^22.0.0",
-    "@angular/forms": "^22.0.0"
+    "@angular/forms": "^22.0.0",
+    "@lucide/angular": "^1.52.0",
+    "@formkit/auto-animate": "^0.10.0",
+    "canvas-confetti": "^1.9.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

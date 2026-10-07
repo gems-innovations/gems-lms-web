@@ -1,14 +1,14 @@
 @if (isVisible()) {
   <div class="toast toast--{{ type() }}" [@slideIn]>
-    <div class="toast__icon">{{ getIcon() }}</div>
+    <div class="toast__icon"><svg [lucideIcon]="getIcon()" [size]="20" aria-hidden="true"></svg></div>
     <p class="toast__message">{{ message() }}</p>
     <button 
       type="button" 
       class="toast__close" 
       (click)="handleClose()"
-      aria-label="Close notification"
+      aria-label="Cerrar notificación"
     >
-      ✕
+      <svg lucideX [size]="16" aria-hidden="true"></svg>
     </button>
   </div>
 }
