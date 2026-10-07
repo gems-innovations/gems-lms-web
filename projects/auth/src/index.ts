@@ -21,6 +21,23 @@ const passwordPage = (mode: 'forgot' | 'reset') => ({
 });
 
 export const routes: Routes = [
+  {
+    path: 'verify-email',
+    title: 'Confirmar correo',
+    component: LoginLayout,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/login-aside-container/login-aside-container').then(m => m.LoginAsideContainer),
+        outlet: 'right'
+      },
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/verify-email-container/verify-email-container').then(m => m.VerifyEmailContainer),
+        outlet: 'left'
+      }
+    ]
+  },
   passwordPage('forgot'),
   passwordPage('reset'),
   {

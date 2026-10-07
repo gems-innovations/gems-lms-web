@@ -94,6 +94,20 @@ export class UserService {
     return this.http.post<void>(`${this.urls.auth.base}/forgot-password`, { email });
   }
 
+  /** Confirms the e-mail with the one-time token from the verification link. */
+  verifyEmail(token: string): Observable<void> {
+    return this.http.post<void>(`${this.urls.auth.base}/verify-email`, { token });
+  }
+
+  /** Asks for a new verification link (the API limits it to one per minute). */
+  resendEmailVerification(): Observable<void> {
+    return this.http.post<void>(`${this.urls.auth.base}/verify-email/resend`, {});
+  }
+
+  isEmailVerified(): Observable<boolean> {
+    return this.http.get<{ verified: boolean }>(`${this.urls.auth.base}/verify-email/status`).pipe(map(r => r.verified));
+  }
+
   resetPassword(token: string, newPassword: string): Observable<void> {
     return this.http.post<void>(`${this.urls.auth.base}/reset-password`, { token, newPassword });
   }
