@@ -44,6 +44,11 @@ describe('route guards', () => {
     expect(path(run(loginRedirectGuard, '/auth/signin'))).toBe('/account/password');
   });
 
+  it('keeps the reset-password page open for signed-in users', () => {
+    session.saveSession(student, 'token');
+    expect(run(loginRedirectGuard, '/auth/reset-password?token=abc')).toBeTrue();
+  });
+
   it('sends signed-in users away from the login page to their home', () => {
     expect(run(loginRedirectGuard, '/auth/signin')).toBeTrue();
     session.saveSession(student, 'token');
