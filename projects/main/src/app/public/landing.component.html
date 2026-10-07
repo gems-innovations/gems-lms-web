@@ -43,7 +43,7 @@
         } @else {
           <div class="grid">
             @for (c of courses(); track c.id) {
-              <article class="card">
+              <article class="card" gemsTilt>
                 <div class="card__img">
                   @if (c.thumbnailUrl) { <img [src]="c.thumbnailUrl" alt="" loading="lazy" (error)="$any($event.target).remove()" /> }
                   <span class="card__free">Gratis</span>

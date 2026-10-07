@@ -4,6 +4,7 @@ import { PublicHeaderComponent } from './public-header.component';
 import { PublicFooterComponent } from './public-footer.component';
 import { DIFFICULTY_LABEL, IPublicCourse, PublicCatalogService } from './public-catalog.service';
 import { CourseStarterService } from './course-starter.service';
+import { TiltDirective } from './micro-effects';
 import { HeroQuizComponent } from './hero-quiz.component';
 
 /**
@@ -12,7 +13,7 @@ import { HeroQuizComponent } from './hero-quiz.component';
  */
 @Component({
   selector: 'gems-landing',
-  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, HeroQuizComponent],
+  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, HeroQuizComponent, TiltDirective],
   templateUrl: './landing.component.html',
   styleUrls: ['./public.scss', './landing-extra.scss', './landing-bento.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

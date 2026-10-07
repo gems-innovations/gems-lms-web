@@ -54,6 +54,7 @@
     "katex": "^0.16.47",
     "marked": "^18.0.5",
     "marked-katex-extension": "^5.1.13",
+    "motion": "^14.0.0",
     "ngx-markdown": "22.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

@@ -24,3 +24,12 @@
   &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; } }
 @keyframes hq-in { from { opacity: 0; transform: translateY(4px); } }
 @media (prefers-reduced-motion: reduce) { .mock__why { animation: none; } .mock__opt { transition: none; } }
+
+.mock__bar { height: 4px; margin: 10px 0 2px; border-radius: 99px; overflow: hidden; background: var(--color-fondo-sutil); }
+.mock__bar > span { display: block; height: 100%; width: 0; border-radius: inherit; transform-origin: left center;
+  background: linear-gradient(90deg, var(--color-primario), var(--color-texto-acento)); transition: width .45s ease; }
+.mock__streak { margin-right: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 700;
+  color: var(--color-advertencia, #d97706); background: color-mix(in srgb, var(--color-advertencia, #d97706) 14%, transparent); }
+.mock__streak b { font-variant-numeric: tabular-nums; }
+.mock__score { font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .mock__bar > span { transition: none; } }
