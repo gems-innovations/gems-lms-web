@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NavigationEnd, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import { AuthSessionService } from 'auth/core';
 import { GuestAccessService, isGuestUser } from './guest-access.service';
+import { GuestGateService } from './guest-gate';
 
 /**
  * Para quien estudia como invitado: una barra discreta «Guarda tu avance» y el formulario para
@@ -26,10 +27,16 @@ import { GuestAccessService, isGuestUser } from './guest-access.service';
     }
 
     @if (open()) {
-      <div class="gsm__backdrop" (click)="open.set(false)"></div>
+      <div class="gsm__backdrop" (click)="close()"></div>
       <div class="gsm" role="dialog" aria-modal="true" aria-labelledby="gsm-title">
-        <h2 id="gsm-title">Guarda tu avance</h2>
-        <p>Tus lecciones, intentos y racha pasan a tu cuenta. Después entras con tu correo desde cualquier dispositivo.</p>
+        @if (gate.blocked(); as what) {
+          <span class="gsm__lock">Necesitas una cuenta</span>
+          <h2 id="gsm-title">Crea tu cuenta para ver {{ what }}</h2>
+          <p>Tu curso sigue abierto como invitado. Con una cuenta gratis desbloqueas el resto de la plataforma y conservas todo lo que llevas.</p>
+        } @else {
+          <h2 id="gsm-title">Guarda tu avance</h2>
+          <p>Tus lecciones, intentos y racha pasan a tu cuenta. Después entras con tu correo desde cualquier dispositivo.</p>
+        }
         <form (submit)="$event.preventDefault(); save()">
           <div class="gsm__row">
             <label>Nombre<input name="fn" required maxlength="50" [value]="firstName" (input)="firstName = $any($event.target).value" /></label>
@@ -40,10 +47,11 @@ import { GuestAccessService, isGuestUser } from './guest-access.service';
           <small>Mínimo 8 caracteres, con mayúscula, minúscula, número y un símbolo (&#64;$!%*?&amp;).</small>
           @if (error(); as e) { <p class="gsm__error" role="alert">{{ e }}</p> }
           <div class="gsm__actions">
-            <button type="button" class="gsm__ghost" (click)="open.set(false)">Ahora no</button>
+            <button type="button" class="gsm__ghost" (click)="close()">{{ gate.blocked() ? 'Seguir con mi curso' : 'Ahora no' }}</button>
             <button type="submit" class="gsb__btn" [disabled]="busy()">{{ busy() ? 'Guardando…' : 'Crear mi cuenta' }}</button>
           </div>
         </form>
+        <p class="gsm__alt">¿Ya tienes cuenta? <a href="/auth/signin">Inicia sesión</a> (el avance de invitado se queda en este dispositivo).</p>
       </div>
     }
   `,
@@ -63,6 +71,9 @@ import { GuestAccessService, isGuestUser } from './guest-access.service';
     .gsm { position: fixed; z-index: 1001; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(460px, calc(100vw - 32px));
       max-height: calc(100vh - 32px); overflow: auto; padding: 24px; border-radius: 18px; background: var(--color-superficie);
       border: 1px solid var(--color-borde-secundario); box-shadow: var(--sombra-xl); }
+    .gsm__lock { display: inline-block; margin-bottom: 8px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-texto-acento); }
+    .gsm__alt { margin: 14px 0 0; font-size: 13px; color: var(--color-texto-terciario); }
+    .gsm__alt a { color: var(--color-texto-acento); font-weight: 700; }
     .gsm h2 { margin: 0 0 6px; font: 800 22px/1.2 var(--font-titulo); color: var(--color-texto-principal); }
     .gsm p { margin: 0 0 16px; font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
     .gsm form { display: grid; gap: 12px; }
@@ -87,6 +98,17 @@ export class GuestSaveBarComponent {
   private readonly session = inject(AuthSessionService);
   private readonly guests = inject(GuestAccessService);
   private readonly router = inject(Router);
+  protected readonly gate = inject(GuestGateService);
+
+  constructor() {
+    // Si el invitado intentó abrir una sección bloqueada, se le muestra la invitación a crear su cuenta.
+    effect(() => { if (this.gate.blocked()) { this.error.set(null); this.open.set(true); } });
+  }
+
+  protected close(): void {
+    this.open.set(false);
+    this.gate.blocked.set(null);
+  }
 
   private readonly url = toSignal(this.router.events.pipe(
     filter(e => e instanceof NavigationEnd), map(e => (e as NavigationEnd).urlAfterRedirects)), { initialValue: this.router.url });
@@ -116,7 +138,7 @@ export class GuestSaveBarComponent {
     this.busy.set(true);
     try {
       await this.guests.claim({ firstName: this.firstName.trim(), lastName: this.lastName.trim(), email: this.email.trim(), password: this.password });
-      this.open.set(false);
+      this.close();
       this.password = '';
       this.saved.set(true);
       setTimeout(() => this.saved.set(false), 5000);

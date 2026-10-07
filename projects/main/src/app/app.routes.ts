@@ -4,6 +4,7 @@ import { AuthSessionService, EUserRole } from 'auth/core';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 import { loginRedirectGuard } from './guards/login-redirect.guard';
+import { guestGateGuard } from './public/guest-gate';
 
 export const routes: Routes = [
   // ── Público: cursos gratis sin registro (gancho) e instituciones ──────────
@@ -108,6 +109,7 @@ export const routes: Routes = [
   {
     path: 'learn',
     canActivate: [authGuard],
+    canActivateChild: [guestGateGuard],
     loadComponent: () => import('education').then(m => m.StudentLayout),
     children: [
       {
