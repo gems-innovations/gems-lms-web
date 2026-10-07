@@ -65,15 +65,27 @@ jobs:
     needs: image
     runs-on: ubuntu-latest
     environment: ${{ github.ref == 'refs/heads/main' && 'pdn' || github.ref == 'refs/heads/qa' && 'qa' || 'dev' }}
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: appleboy/ssh-action@v1.0.3
+        env:
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
+          envs: GHCR_USER,GHCR_TOKEN
           script: |
             set -eu
             cd "$HOME/app"
+            # Sesión de ghcr propia del despliegue (token temporal del workflow), aparte de la del sistema.
+            export DOCKER_CONFIG="$HOME/app/.docker-ci"
+            mkdir -p "$DOCKER_CONFIG"
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
             docker compose --env-file .env pull web
             docker compose --env-file .env up -d web
+            docker logout ghcr.io
             docker image prune -f
