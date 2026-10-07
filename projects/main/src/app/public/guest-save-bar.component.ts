@@ -43,15 +43,20 @@ import { GuestGateService } from './guest-gate';
             <label>Apellido<input name="ln" required maxlength="50" [value]="lastName" (input)="lastName = $any($event.target).value" /></label>
           </div>
           <label>Correo<input name="em" type="email" required maxlength="160" [value]="email" (input)="email = $any($event.target).value" autocomplete="email" /></label>
-          <label>Contraseña<input name="pw" type="password" required minlength="8" [value]="password" (input)="password = $any($event.target).value" autocomplete="new-password" /></label>
-          <small>Mínimo 8 caracteres, con mayúscula, minúscula, número y un símbolo (&#64;$!%*?&amp;).</small>
-          @if (error(); as e) { <p class="gsm__error" role="alert">{{ e }}</p> }
-          <div class="gsm__actions">
-            <button type="button" class="gsm__ghost" (click)="close()">{{ gate.blocked() ? 'Seguir con mi curso' : 'Ahora no' }}</button>
-            <button type="submit" class="gsb__btn" [disabled]="busy()">{{ busy() ? 'Guardando…' : 'Crear mi cuenta' }}</button>
+          <label for="gsm-pw">Contraseña</label>
+          <div class="gsm__pw">
+            <input id="gsm-pw" name="pw" [type]="showPw() ? 'text' : 'password'" required minlength="8" [value]="password()"
+                   (input)="password.set($any($event.target).value)" autocomplete="new-password" aria-describedby="gsm-rules" />
+            <button type="button" class="gsm__eye" (click)="showPw.set(!showPw())" [attr.aria-pressed]="showPw()">{{ showPw() ? 'Ocultar' : 'Mostrar' }}</button>
           </div>
+          <ul class="gsm__rules" id="gsm-rules" aria-label="Requisitos de la contraseña">
+            @for (r of rules(); track r.label) { <li [class.ok]="r.ok">{{ r.label }}</li> }
+          </ul>
+          @if (error(); as e) { <p class="gsm__error" role="alert">{{ e }}</p> }
+          <button type="submit" class="gsb__btn gsm__submit" [disabled]="busy()">{{ busy() ? 'Creando tu cuenta…' : 'Crear mi cuenta gratis' }}</button>
+          <button type="button" class="gsm__skip" (click)="close()">{{ gate.blocked() ? 'Ahora no, seguir con mi curso' : 'Ahora no' }}</button>
         </form>
-        <p class="gsm__alt">¿Ya tienes cuenta? <a href="/auth/signin">Inicia sesión</a> (el avance de invitado se queda en este dispositivo).</p>
+        <p class="gsm__alt">¿Ya tienes cuenta? <a href="/auth/signin">Inicia sesión</a></p>
       </div>
     }
   `,
@@ -72,7 +77,7 @@ import { GuestGateService } from './guest-gate';
       max-height: calc(100vh - 32px); overflow: auto; padding: 24px; border-radius: 18px; background: var(--color-superficie);
       border: 1px solid var(--color-borde-secundario); box-shadow: var(--sombra-xl); }
     .gsm__lock { display: inline-block; margin-bottom: 8px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-texto-acento); }
-    .gsm__alt { margin: 14px 0 0; font-size: 13px; color: var(--color-texto-terciario); }
+    .gsm__alt { margin: 14px 0 0 !important; padding-top: 14px; border-top: 1px solid var(--color-borde-principal); text-align: center; font-size: 13px; color: var(--color-texto-terciario); }
     .gsm__alt a { color: var(--color-texto-acento); font-weight: 700; }
     .gsm h2 { margin: 0 0 6px; font: 800 22px/1.2 var(--font-titulo); color: var(--color-texto-principal); }
     .gsm p { margin: 0 0 16px; font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
@@ -81,7 +86,21 @@ import { GuestGateService } from './guest-gate';
     .gsm input { padding: 11px 13px; border-radius: 10px; border: 1px solid var(--color-borde-secundario); background: var(--color-fondo-sutil);
       color: var(--color-texto-principal); font: inherit; }
     .gsm input:focus { outline: none; border-color: var(--color-primario); box-shadow: 0 0 0 3px var(--color-primario-trans-20); }
-    .gsm small { color: var(--color-texto-terciario); font-size: 12px; }
+    .gsm__pw { position: relative; display: flex; }
+    .gsm__pw input { flex: 1; padding-right: 84px; }
+    .gsm__eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); padding: 6px 10px; border: 0; border-radius: 8px;
+      background: none; color: var(--color-texto-secundario); font: 600 12px/1 var(--font-texto); cursor: pointer; }
+    .gsm__eye:hover { color: var(--color-texto-principal); background: var(--color-fondo-hover); }
+    .gsm__rules { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 0; padding: 0; list-style: none; }
+    .gsm__rules li { padding: 4px 9px; border-radius: 99px; font-size: 12px; color: var(--color-texto-terciario); background: var(--color-fondo-sutil);
+      border: 1px solid var(--color-borde-principal); transition: color .15s, background .15s, border-color .15s; }
+    .gsm__rules li.ok { color: var(--color-exito-texto); border-color: color-mix(in srgb, var(--color-exito) 45%, transparent);
+      background: color-mix(in srgb, var(--color-exito) 12%, transparent); }
+    .gsm__rules li.ok::before { content: '✓ '; }
+    .gsm__submit { width: 100%; padding: 14px 16px; margin-top: 6px; font-size: var(--font-size-base); }
+    .gsm__skip { justify-self: center; padding: 8px; border: 0; background: none; color: var(--color-texto-secundario);
+      font: 600 var(--font-size-sm)/1 var(--font-texto); cursor: pointer; }
+    .gsm__skip:hover { color: var(--color-texto-principal); text-decoration: underline; }
     .gsm__row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .gsm__error { margin: 0 !important; color: var(--color-error-texto) !important; }
     .gsm__actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
@@ -124,22 +143,34 @@ export class GuestSaveBarComponent {
   protected firstName = '';
   protected lastName = '';
   protected email = '';
-  protected password = '';
+  protected readonly password = signal('');
+  protected readonly showPw = signal(false);
+  /** Requisitos que pide el registro, marcados en vivo mientras se escribe. */
+  protected readonly rules = computed(() => {
+    const p = this.password();
+    return [
+      { label: '8 caracteres', ok: p.length >= 8 },
+      { label: 'Una mayúscula', ok: /[A-Z]/.test(p) },
+      { label: 'Una minúscula', ok: /[a-z]/.test(p) },
+      { label: 'Un número', ok: /\d/.test(p) },
+      { label: 'Un símbolo: @ $ ! % * ? &', ok: /[@$!%*?&]/.test(p) },
+    ];
+  });
 
   protected async save(): Promise<void> {
     if (this.busy()) return;
     this.error.set(null);
     if (this.firstName.trim().length < 2 || this.lastName.trim().length < 2) { this.error.set('Escribe tu nombre y apellido.'); return; }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(this.email.trim())) { this.error.set('Escribe un correo válido.'); return; }
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(this.password)) {
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(this.password())) {
       this.error.set('La contraseña necesita 8 caracteres, con mayúscula, minúscula, número y un símbolo (@$!%*?&).');
       return;
     }
     this.busy.set(true);
     try {
-      await this.guests.claim({ firstName: this.firstName.trim(), lastName: this.lastName.trim(), email: this.email.trim(), password: this.password });
+      await this.guests.claim({ firstName: this.firstName.trim(), lastName: this.lastName.trim(), email: this.email.trim(), password: this.password() });
       this.close();
-      this.password = '';
+      this.password.set('');
       this.saved.set(true);
       setTimeout(() => this.saved.set(false), 5000);
       // Confeti solo en el navegador y cargado bajo demanda (no pesa en la carga inicial).
