@@ -74,47 +74,54 @@
 
   <section id="por-que" class="block reveal" aria-labelledby="pq-title">
     <div class="block__head">
-      <h2 id="pq-title">Estudiar aquí es distinto</h2>
-      <p>Todo lo que necesitas para llegar mejor preparado, en 10 minutos al día.</p>
+      <h2 id="pq-title">Así se ve estudiar en GEMS</h2>
+      <p>Una lección dura lo que un viaje en bus. Lo demás lo ves aquí.</p>
     </div>
     <div class="bento">
-      <article class="tile tile--steps tile--violet">
-        <span class="tile__kicker">Así funciona</span>
-        <ol>
-          <li><strong>Elige un curso</strong><span>Para el examen o la carrera que quieres.</span></li>
-          <li><strong>Practica 10 minutos</strong><span>Lecciones cortas y ejercicios con explicación.</span></li>
-          <li><strong>Guarda tu avance</strong><span>Si quieres, creas tu cuenta y conservas todo.</span></li>
-        </ol>
+      <article class="tile tile--wide">
+        <span class="tile__kicker">Tu curso</span>
+        <div class="prog">
+          <div class="prog__row"><span>Unidad 1 · Razonamiento lógico</span><span>3 de 5</span></div>
+          <div class="prog__bar"><i style="width:60%"></i></div>
+          <ol class="prog__list">
+            <li class="is-done">Secuencias y patrones</li>
+            <li class="is-done">Proporciones y porcentajes</li>
+            <li class="is-done">Problemas con días y calendarios</li>
+            <li class="is-next">Lectura de tablas y gráficas <em>Sigue aquí · 9 min</em></li>
+          </ol>
+        </div>
       </article>
-      <article class="tile tile--streak tile--amber">
-        <span class="tile__big" aria-hidden="true">🔥 7</span>
-        <strong>Tu racha diaria</strong>
-        <span>Logros y constancia que se notan.</span>
+
+      <article class="tile tile--tall tile--streak">
+        <span class="tile__kicker">Racha</span>
+        <span class="tile__num">7 <small>días</small></span>
+        <div class="week" aria-label="Estudiaste 7 días seguidos">
+          @for (d of ['L', 'M', 'M', 'J', 'V', 'S', 'D']; track $index) { <span class="week__d">{{ d }}</span> }
+        </div>
       </article>
-      <article class="tile tile--teal">
-        <span class="tile__ico" aria-hidden="true">⚡</span>
-        <strong>Entras en un toque</strong>
-        <span>Sin formularios ni contraseñas.</span>
+
+      <article class="tile tile--tall">
+        <span class="tile__kicker">Después de cada respuesta</span>
+        <p class="explain__q">Un pantalón de $80.000 tiene 25 % de descuento.</p>
+        <p class="explain__a"><b>$60.000.</b> El 25 % de 80.000 es 20.000, y 80.000 − 20.000 = 60.000.</p>
+        <p class="explain__tip">Atajo: pagar con 25 % de descuento es pagar el 75 %. 0,75 × 80.000.</p>
       </article>
-      <article class="tile tile--coral">
-        <span class="tile__ico" aria-hidden="true">🧠</span>
-        <strong>Siempre con explicación</strong>
-        <span>Entiendes el porqué de cada respuesta.</span>
-      </article>
+
       <article class="tile">
-        <span class="tile__ico" aria-hidden="true">🎯</span>
-        <strong>Preguntas originales</strong>
-        <span>Con el estilo y nivel de los exámenes reales.</span>
+        <span class="tile__num">10 <small>min</small></span>
+        <strong>por lección</strong>
+        <span>Cortas a propósito, para hacer una al día sin dejar de hacer lo demás.</span>
       </article>
+
       <article class="tile">
-        <span class="tile__ico" aria-hidden="true">📱</span>
-        <strong>Hecho para el celular</strong>
-        <span>Estudia en el bus o en el descanso.</span>
+        <span class="tile__num">0 <small>datos</small></span>
+        <strong>para empezar</strong>
+        <span>Ni correo ni contraseña. La cuenta es opcional, para guardar tu avance.</span>
       </article>
-      <article class="tile tile--violet">
-        <span class="tile__ico" aria-hidden="true">🔒</span>
-        <strong>Sin pedirte datos</strong>
-        <span>Tu cuenta solo si tú quieres.</span>
+
+      <article class="tile tile--full tile--quote">
+        <span class="tile__kicker">De dónde salen las preguntas</span>
+        <p>Las escribe nuestro equipo a partir de los temas y formatos que publican las universidades y el ICFES. Mismo estilo y nivel; ninguna copiada.</p>
       </article>
     </div>
   </section>

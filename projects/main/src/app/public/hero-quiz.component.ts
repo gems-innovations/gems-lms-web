@@ -32,13 +32,13 @@ const ITEMS: IQuizItem[] = [
           }
         </div>
         @if (picked() !== null) {
-          <p class="mock__why"><strong>{{ picked() === item().answer ? '¡Bien!' : 'Casi.' }}</strong> {{ item().why }}</p>
+          <p class="mock__why"><strong>{{ picked() === item().answer ? 'Correcto.' : 'No exactamente.' }}</strong> {{ item().why }}</p>
           <button type="button" class="btn btn--primary btn--block" (click)="next()">{{ index() + 1 < total ? 'Siguiente pregunta' : 'Ver mi resultado' }}</button>
         }
       } @else {
         <span class="mock__tag">Tu resultado</span>
-        <strong class="mock__q">{{ score() }} de {{ total }} {{ score() === total ? '🔥 ¡Vas muy bien!' : '— con práctica sube rápido' }}</strong>
-        <p class="mock__why">Así se estudia en GEMS: preguntas cortas y siempre con explicación. Sigue con un curso completo, gratis.</p>
+        <strong class="mock__q">{{ score() }} de {{ total }} {{ score() === total ? 'correctas' : 'correctas. Las que fallaste son las que más enseñan.' }}</strong>
+        <p class="mock__why">El curso completo sigue este mismo formato: 5 lecciones cortas y un simulacro final.</p>
         <button type="button" class="btn btn--primary btn--block" (click)="startCourse.emit()">Seguir practicando gratis</button>
         <button type="button" class="mock__again" (click)="restart()">Repetir</button>
       }
