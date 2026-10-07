@@ -1,5 +1,5 @@
 import {
-  Component, inject, input, output, signal, computed, effect,
+  Component, inject, input, output, signal, computed, effect, untracked,
   OnChanges, SimpleChanges, ChangeDetectionStrategy, OnDestroy, HostListener
 } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
@@ -217,12 +217,18 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
       this.quizPhaseChange.emit(this.quizPhase());
     });
 
-    // Force-submit quiz when container requests it (e.g. student navigates away)
+    // Force-submit quiz when container requests it (e.g. student navigates away).
+    // Each trigger value is handled once: otherwise a later retry would be auto-submitted
+    // the moment it starts, because the counter stays above 0.
+    let handledTrigger = 0;
     effect(() => {
       const trigger = this.forceSubmitTrigger();
-      if (trigger > 0 && this.quizPhase() === 'taking') {
+      if (trigger > handledTrigger && untracked(() => this.quizPhase()) === 'taking') {
+        handledTrigger = trigger;
         this.submitQuiz();
         this.quizForceSubmitted.emit();
+      } else if (trigger > handledTrigger) {
+        handledTrigger = trigger;
       }
     });
   }
