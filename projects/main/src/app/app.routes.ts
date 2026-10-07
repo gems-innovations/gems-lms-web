@@ -6,8 +6,29 @@ import { roleGuard } from './guards/role.guard';
 import { loginRedirectGuard } from './guards/login-redirect.guard';
 
 export const routes: Routes = [
-  // ── Root redirect ──────────────────────────────────────────────────────
-  { path: '', redirectTo: 'auth/signin', pathMatch: 'full' },
+  // ── Público: cursos gratis sin registro (gancho) e instituciones ──────────
+  {
+    path: '',
+    pathMatch: 'full',
+    title: 'Prepárate gratis para entrar a la universidad',
+    loadComponent: () => import('./public/landing.component').then(m => m.LandingComponent)
+  },
+  {
+    path: 'cursos/:id',
+    title: 'Curso gratis',
+    loadComponent: () => import('./public/public-course.component').then(m => m.PublicCourseComponent)
+  },
+  {
+    path: 'instituciones',
+    title: 'GEMS para instituciones',
+    loadComponent: () => import('./public/institutions.component').then(m => m.InstitutionsComponent)
+  },
+  {
+    path: 'solicitudes',
+    title: 'Solicitudes de instituciones',
+    canActivate: [authGuard, roleGuard([EUserRole.SUPER_ADMIN])],
+    loadComponent: () => import('./public/institution-requests.component').then(m => m.InstitutionRequestsComponent)
+  },
 
   {
     path: 'certificates/verify/:code',

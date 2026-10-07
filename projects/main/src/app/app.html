@@ -19,6 +19,7 @@
 
 <div id="main-content" tabindex="-1"><router-outlet /></div>
 <app-command-palette />
+<gems-guest-save-bar />
 
 @if (session.user()) {
   <button class="app-tour-button" type="button" (click)="onboarding.start()"

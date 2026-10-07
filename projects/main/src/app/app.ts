@@ -5,11 +5,12 @@ import { AuthSessionService } from 'auth/core';
 import { DisplayPreferencesService } from 'auth/core';
 import { CommandPaletteComponent } from './command-palette/command-palette.component';
 import { OnboardingService } from './onboarding.service';
+import { GuestSaveBarComponent } from './public/guest-save-bar.component';
 import { AppStatusService } from './app-status.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommandPaletteComponent],
+  imports: [RouterOutlet, CommandPaletteComponent, GuestSaveBarComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './app.html',
   styleUrl: './app.scss',

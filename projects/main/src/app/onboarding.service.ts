@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { isGuestUser } from './public/guest-access.service';
 import { AuthSessionService, EUserRole } from 'auth/core';
 
 interface TourStep { element: string; title: string; description: string; }
@@ -10,7 +11,8 @@ export class OnboardingService {
 
   maybeStart(): void {
     const user = this.session.user();
-    if (!user || this.shownInSession || typeof window === 'undefined') return;
+    // Quien llega como invitado a un curso gratis va directo a estudiar, sin guía de la plataforma.
+    if (!user || isGuestUser(user) || this.shownInSession || typeof window === 'undefined') return;
     const key = `gems-onboarding-${user.id}-${user.role}`;
     if (localStorage.getItem(key)) return;
     this.shownInSession = true;

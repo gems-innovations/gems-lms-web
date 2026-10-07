@@ -133,7 +133,8 @@ for (const role of roles) {
             if (req.url().includes('/api/') && !req.failure()?.errorText.includes('ABORTED')) problems.push(`${current} sin respuesta: ${new URL(req.url()).pathname}`);
           });
 
-          await page.goto('/');
+          // «/» es la landing pública; la navegación de cada rol se lee desde su inicio.
+          await page.goto(role.start);
           await page.waitForLoadState('networkidle');
           const routes = await navigationRoutes(page);
           expect(routes.length, 'la navegación del rol no tiene enlaces').toBeGreaterThan(0);

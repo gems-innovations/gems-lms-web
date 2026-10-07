@@ -1,0 +1,95 @@
+<gems-public-header />
+
+<main class="pub">
+  <section class="hero">
+    <div class="hero__copy">
+      <span class="eyebrow">Gratis · sin registro</span>
+      <h1>Prepárate para <span class="hl">entrar a la universidad</span></h1>
+      <p class="lead">Cursos cortos para el examen de admisión y el ICFES: lecciones de 10 minutos, ejercicios con explicación y simulacros. Eliges un curso y empiezas ya, sin crear cuenta.</p>
+      <div class="hero__cta">
+        <a class="btn btn--primary" href="#cursos">Ver cursos gratis</a>
+        <a class="btn btn--ghost" routerLink="/instituciones">¿Eres colegio o universidad?</a>
+      </div>
+      <ul class="hero__facts">
+        <li><strong>0 $</strong> siempre gratis</li>
+        <li><strong>0</strong> formularios para empezar</li>
+        <li><strong>10 min</strong> al día</li>
+      </ul>
+    </div>
+    <div class="hero__card" aria-hidden="true">
+      <div class="mock">
+        <span class="mock__tag">Simulacro de práctica</span>
+        <strong class="mock__q">Si hoy es martes, ¿qué día será dentro de 10 días?</strong>
+        <span class="mock__opt">Jueves</span>
+        <span class="mock__opt mock__opt--ok">Viernes ✓</span>
+        <span class="mock__opt">Sábado</span>
+        <div class="mock__foot"><span>🔥 3 días de racha</span><span>4/5</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cursos" class="block" aria-labelledby="cursos-title">
+    <div class="block__head">
+      <h2 id="cursos-title">Cursos gratis</h2>
+      <p>Toca uno y empieza. Si quieres guardar tu avance, después creas tu cuenta y no pierdes nada.</p>
+    </div>
+
+    @switch (state()) {
+      @case ('loading') {
+        <div class="grid">
+          @for (i of [1, 2, 3]; track i) { <div class="card card--skeleton"></div> }
+        </div>
+      }
+      @case ('error') {
+        <p class="empty">No pudimos cargar los cursos. Revisa tu conexión y recarga la página.</p>
+      }
+      @default {
+        @if (courses().length === 0) {
+          <p class="empty">Muy pronto publicamos los primeros cursos.</p>
+        } @else {
+          <div class="grid">
+            @for (c of courses(); track c.id) {
+              <a class="card" [routerLink]="['/cursos', c.id]">
+                <div class="card__img">
+                  @if (c.thumbnailUrl) { <img [src]="c.thumbnailUrl" [alt]="''" loading="lazy" /> }
+                  <span class="card__free">Gratis</span>
+                </div>
+                <div class="card__body">
+                  <h3>{{ c.title }}</h3>
+                  <p>{{ c.description }}</p>
+                  <div class="card__meta">
+                    <span>{{ c.lessons }} lecciones</span>
+                    @if (c.difficulty) { <span>{{ difficulty[c.difficulty] ?? c.difficulty }}</span> }
+                    @if (c.enrolled) { <span>{{ c.enrolled }} estudiando</span> }
+                  </div>
+                  <span class="card__go">Empezar gratis →</span>
+                </div>
+              </a>
+            }
+          </div>
+        }
+      }
+    }
+  </section>
+
+  <section class="block steps" aria-labelledby="como-title">
+    <h2 id="como-title">Así funciona</h2>
+    <ol>
+      <li><strong>Elige un curso</strong><span>Para el examen o la carrera que quieres.</span></li>
+      <li><strong>Estudia 10 minutos al día</strong><span>Lecciones cortas, ejercicios y tu racha diaria.</span></li>
+      <li><strong>Guarda tu avance cuando quieras</strong><span>Creas tu cuenta y conservas todo lo que hiciste.</span></li>
+    </ol>
+  </section>
+
+  <section class="band" aria-labelledby="inst-title">
+    <div>
+      <h2 id="inst-title">¿Tienes un colegio, preuniversitario o universidad?</h2>
+      <p>Tus propios cursos, tus estudiantes y tus reportes: ve quién va al día, quién necesita ayuda y cómo avanza cada grupo.</p>
+    </div>
+    <a class="btn btn--primary" routerLink="/instituciones">Quiero GEMS para mi institución</a>
+  </section>
+</main>
+
+<footer class="pub-foot">
+  <p>GEMS · Preguntas originales construidas a partir del análisis de exámenes oficiales publicados. No estamos afiliados a ninguna universidad ni al ICFES.</p>
+</footer>
