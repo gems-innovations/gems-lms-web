@@ -18,7 +18,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-image: radial-gradient(circle, color-mix(in srgb, var(--color-texto-principal) 4%, transparent) 1px, transparent 1px);
     background-size: 28px 28px;
     mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,0.5) 25%, rgba(0,0,0,0.5) 75%, transparent);
     pointer-events: none;
@@ -118,7 +118,7 @@
 }
 
 .shero__gradient {
-  background: linear-gradient(115deg, var(--color-primario-claro) 0%, #a78bfa 40%, var(--color-teal) 100%);
+  background: linear-gradient(115deg, var(--color-primario-claro) 0%, var(--color-rol-admin) 40%, var(--color-teal) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

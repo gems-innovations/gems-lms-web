@@ -5,7 +5,7 @@ import { RouterOutlet } from '@angular/router';
   selector: 'auth-login-layout',
   imports: [RouterOutlet],
   templateUrl: './login-layout.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './login-layout.scss'
 })
 export class LoginLayout { }

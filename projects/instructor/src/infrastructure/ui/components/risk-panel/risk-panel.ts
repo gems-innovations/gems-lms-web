@@ -1,24 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import type { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import {
   AvatarComponent, EmptyStateComponent, LibButtonComponent, LoadingSkeletonComponent, RevealDirective, ToastService,
-  environment,
 } from 'shared';
+import { AtRiskService } from '../../../services/at-risk.service';
+import type { ICourseRisk } from '../../../services/at-risk.service';
 import type { IEnrollmentRow } from '../../../../domain/model/instructor.model';
-
-interface IRisk {
-  studentId: string;
-  score: number;
-  level: 'high' | 'medium';
-  reasons: string[];
-  daysInactive: number | null;
-  progress: number;
-  currentGrade: number | null;
-  missingItems: number;
-}
-
-interface ICourseRisk { students: number; high: number; medium: number; atRisk: IRisk[]; }
 
 /**
  * Alerta temprana: estudiantes del curso que se están quedando atrás, con las razones y un
@@ -32,8 +21,10 @@ interface ICourseRisk { students: number; high: number; medium: number; atRisk: 
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RiskPanel {
-  private readonly http = inject(HttpClient);
+  private readonly risks = inject(AtRiskService);
   private readonly toast = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
+  private loading?: Subscription;
 
   readonly courseId = input.required<string>();
   readonly enrollments = input<IEnrollmentRow[]>([]);
@@ -65,12 +56,9 @@ export class RiskPanel {
 
   private load(id: string): void {
     this.state.set('loading');
-    this.http.get<any>(`${environment.apiBaseUrl}/courses/${id}/at-risk`).subscribe({
-      next: r => {
-        this.data.set({ students: r.students, high: r.high, medium: r.medium,
-          atRisk: r.atRisk.map((x: any) => ({ ...x, studentId: String(x.studentId) })) });
-        this.state.set('ready');
-      },
+    this.loading?.unsubscribe();
+    this.loading = this.risks.forCourse(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: r => { this.data.set(r); this.state.set('ready'); },
       error: () => this.state.set('error'),
     });
   }
@@ -82,8 +70,7 @@ export class RiskPanel {
 
   protected remind(studentId: string): void {
     this.sending.set(studentId);
-    this.http.post(`${environment.apiBaseUrl}/courses/${this.courseId()}/at-risk/${studentId}/remind`,
-      { message: this.message().trim() || null }).subscribe({
+    this.risks.remind(this.courseId(), studentId, this.message()).subscribe({
       next: () => {
         this.sending.set(null);
         this.composing.set(null);

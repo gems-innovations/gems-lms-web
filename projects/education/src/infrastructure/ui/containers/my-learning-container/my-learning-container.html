@@ -256,6 +256,8 @@
                 <span class="mlearning__cal-course">{{ task.courseTitle }}</span>
               </div>
             </div>
+          } @empty {
+            <p class="mlearning__widget-empty">No tienes entregas con fecha próxima.</p>
           }
         </div>
       </section>

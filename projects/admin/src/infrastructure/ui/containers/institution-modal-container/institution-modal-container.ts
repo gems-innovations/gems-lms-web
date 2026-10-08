@@ -1,4 +1,4 @@
-import { Component, inject, computed, ViewChild, effect, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, computed, viewChild, effect, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { ModalBaseComponent, LibButtonComponent, ConfirmationDialogComponent } from 'shared';
 import { InstitutionForm } from '../../forms/institution-form/institution-form';
 import { InstitutionDetailsComponent } from '../../components/institution-details/institution-details';
@@ -15,11 +15,11 @@ import type { ICreateInstitutionRequest, IUpdateInstitutionRequest } from '../..
     InstitutionForm,
     InstitutionDetailsComponent
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './institution-modal-container.html'
 })
 export class InstitutionModalContainer {
-  @ViewChild(InstitutionForm) private institutionForm?: InstitutionForm;
+  private readonly institutionForm = viewChild(InstitutionForm);
 
   protected readonly uc = inject(InstitutionUseCase);
 
@@ -28,7 +28,7 @@ export class InstitutionModalContainer {
   constructor() {
     effect(() => {
       if (!this.uc.modal().isOpen) {
-        this.institutionForm?.resetForm();
+        untracked(() => this.institutionForm()?.resetForm());
       }
     });
   }

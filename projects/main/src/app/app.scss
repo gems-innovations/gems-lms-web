@@ -5,8 +5,8 @@
   z-index: 2000;
   padding: .65rem 1rem;
   border-radius: .5rem;
-  background: #fff;
-  color: #111827;
+  background: var(--color-sobre-primario);
+  color: var(--color-texto-contraste);
   font-weight: 700;
   box-shadow: 0 4px 18px rgba(0, 0, 0, .25);
   transform: translateY(-160%);
@@ -26,10 +26,10 @@
   align-items: center;
   max-width: min(92vw, 48rem);
   padding: .65rem 1rem;
-  border: 1px solid #f59e0b;
+  border: 1px solid var(--color-advertencia);
   border-radius: .75rem;
-  background: #fffbeb;
-  color: #78350f;
+  background: color-mix(in srgb, var(--color-advertencia) 14%, var(--color-superficie));
+  color: var(--color-advertencia-texto);
   font-size: .875rem;
   font-weight: 600;
   box-shadow: 0 8px 30px rgba(0, 0, 0, .2);
@@ -41,7 +41,7 @@
   width: .6rem;
   height: .6rem;
   border-radius: 50%;
-  background: #d97706;
+  background: var(--color-advertencia);
 }
 
 .update-notice {
@@ -68,7 +68,7 @@
   border: 0;
   border-radius: .55rem;
   background: var(--color-primario, #6d5ee8);
-  color: #fff;
+  color: var(--color-sobre-primario);
   font-weight: 700;
 }
 
@@ -76,13 +76,14 @@
   position: fixed;
   right: 1rem;
   bottom: 1rem;
-  z-index: 1000;
+  // Debajo de las barras de navegación (200) y de sus paneles (notificaciones), encima del contenido.
+  z-index: 150;
   width: 2.5rem;
   height: 2.5rem;
   border: 0;
   border-radius: 50%;
   background: var(--color-primario, #2563eb);
-  color: #fff;
+  color: var(--color-sobre-primario);
   font-size: 1.2rem;
   font-weight: 700;
   box-shadow: 0 5px 16px rgba(37, 99, 235, .35);

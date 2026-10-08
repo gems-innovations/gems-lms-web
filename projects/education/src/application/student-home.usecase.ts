@@ -3,7 +3,6 @@ import { EnrollmentUseCase } from './enrollment.usecase';
 import { CourseUseCase } from './course.usecase';
 import { LearningPathUseCase } from './learning-path.usecase';
 import { IEnrolledCourseEntry, IEnrolledPathEntry } from '../domain/model/enrollment.model';
-import { ICourse } from '../domain/model/course.model';
 import { ICatalogItem } from '../domain/model/catalog.model';
 
 @Injectable({ providedIn: 'root' })

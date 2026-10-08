@@ -4,12 +4,12 @@ import {
   PageComponent, PageHeaderComponent, LibButtonComponent, LoadingSkeletonComponent, EmptyStateComponent,
   ConfirmationDialogComponent, ToastService,
 } from 'shared';
-import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { EnrollmentRulesService } from 'education';
 import type { IAcademicPeriod } from 'education';
 import { AuthSessionService } from 'auth';
-import { BrandingService, environment } from 'shared';
+import { BrandingService } from 'shared';
+import { UserDirectoryService } from '../../../services/user-directory.service';
 import { downloadActaCsv, downloadActaPdf, IActaPerson } from '../../../../application/period-acta';
 
 /** Academic periods of the institution. Courses use them for their enrollment window. */
@@ -25,7 +25,7 @@ import { downloadActaCsv, downloadActaPdf, IActaPerson } from '../../../../appli
 export class AcademicPeriodsContainer implements OnInit {
   private readonly service = inject(EnrollmentRulesService);
   private readonly toast = inject(ToastService);
-  private readonly http = inject(HttpClient);
+  private readonly directory = inject(UserDirectoryService);
   private readonly session = inject(AuthSessionService);
   private readonly branding = inject(BrandingService);
 
@@ -123,8 +123,7 @@ export class AcademicPeriodsContainer implements OnInit {
       const institution = p.institutionId ?? this.session.institutionId() ?? '';
       const [records, users] = await Promise.all([
         firstValueFrom(this.service.periodRecords(p.id)),
-        firstValueFrom(this.http.get<{ userId?: number; id?: number; firstName: string; lastName: string; email: string }[]>(
-          `${environment.apiUrls.users}/institution/${encodeURIComponent(institution)}`)).catch(() => []),
+        firstValueFrom(this.directory.institutionUsers(institution)).catch(() => []),
       ]);
       const people = new Map<string, IActaPerson>(users.map(u => [String(u.userId ?? u.id),
         { name: `${u.firstName} ${u.lastName}`.trim(), email: u.email }]));

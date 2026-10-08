@@ -79,16 +79,17 @@
   backdrop-filter: blur(8px);
   z-index: 1;
 
+  // Sobre la miniatura el fondo es siempre oscuro: el texto va claro en ambos temas.
   &--active {
-    background: color-mix(in srgb, var(--color-primario) 25%, rgba(0,0,0,0.4));
-    color: var(--color-primario-claro);
-    border: 1px solid color-mix(in srgb, var(--color-primario) 35%, transparent);
+    background: color-mix(in srgb, var(--color-primario) 35%, rgba(0,0,0,0.62));
+    color: var(--color-sobre-primario);
+    border: 1px solid color-mix(in srgb, var(--color-primario) 55%, transparent);
   }
 
   &--done {
-    background: color-mix(in srgb, var(--color-exito) 25%, rgba(0,0,0,0.4));
-    color: var(--color-exito);
-    border: 1px solid color-mix(in srgb, var(--color-exito) 35%, transparent);
+    background: color-mix(in srgb, var(--color-exito-intenso) 30%, rgba(0,0,0,0.66));
+    color: var(--color-sobre-primario);
+    border: 1px solid color-mix(in srgb, var(--color-exito-intenso) 55%, transparent);
   }
 }
 
@@ -187,4 +188,13 @@
   transition: opacity 0.15s, transform 0.15s;
 
   &:hover { opacity: 0.88; transform: translateX(1px); }
+}
+
+// Celular: miniatura más angosta y pie en dos líneas para que «Último acceso» no se corte en «7…».
+@media (max-width: 480px) {
+  .cpcard__thumb { width: 112px; }
+  .cpcard__body { padding: 0.875rem 0.875rem 0.875rem 0.75rem; }
+  .cpcard__footer { flex-wrap: wrap; row-gap: 0.5rem; }
+  .cpcard__last-access { flex: 1 1 100%; }
+  .cpcard__continue-btn { margin-left: auto; }
 }

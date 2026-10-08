@@ -20,7 +20,7 @@
   background: color-mix(in srgb, var(--color-fondo-principal) 50%, transparent);
 
   &::-webkit-scrollbar { width: 4px; }
-  &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+  &::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--color-texto-principal) 6%, transparent); border-radius: 2px; }
 }
 
 .ctree__section {
@@ -66,7 +66,7 @@
   margin-bottom: 0.25rem;
 
   svg { flex-shrink: 0; }
-  &:hover { background: rgba(255,255,255,0.04); color: var(--color-texto-principal); }
+  &:hover { background: color-mix(in srgb, var(--color-texto-principal) 4%, transparent); color: var(--color-texto-principal); }
   &--active { background: color-mix(in srgb, var(--color-primario) 15%, transparent); color: var(--color-primario); }
 }
 
@@ -81,7 +81,7 @@
   cursor: pointer;
   transition: background 0.12s;
 
-  &:hover { background: rgba(255,255,255,0.04); }
+  &:hover { background: color-mix(in srgb, var(--color-texto-principal) 4%, transparent); }
   &--active { background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
   &--active .ctree__module-title { color: var(--color-primario); }
 }
@@ -160,7 +160,7 @@
   text-align: left;
   transition: all 0.12s;
 
-  &:hover { background: rgba(255,255,255,0.03); color: var(--color-texto-principal); }
+  &:hover { background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent); color: var(--color-texto-principal); }
   &--active { background: color-mix(in srgb, var(--color-primario) 15%, transparent); color: var(--color-primario); }
   &--active .ctree__lesson-dot { background: var(--color-primario); }
 }
@@ -169,7 +169,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.2);
+  background: color-mix(in srgb, var(--color-texto-principal) 20%, transparent);
   flex-shrink: 0;
 }
 
@@ -259,7 +259,7 @@
   gap: 0.5rem;
   padding: 0.625rem 1rem;
   background: transparent;
-  border: 1px dashed rgba(255,255,255,0.12);
+  border: 1px dashed color-mix(in srgb, var(--color-texto-principal) 12%, transparent);
   border-radius: 7px;
   color: var(--color-texto-terciario);
   font-size: 0.8125rem;
@@ -268,4 +268,17 @@
   transition: all 0.15s;
 
   &:hover { color: var(--color-primario); border-color: color-mix(in srgb, var(--color-primario) 30%, transparent); background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
+}
+
+// Celular: el árbol se apila sobre el panel, a todo el ancho y con scroll propio acotado.
+@media (max-width: 768px) {
+  :host { flex: none; overflow: visible; }
+
+  .ctree {
+    width: 100%;
+    flex: none;
+    max-height: 40vh;
+    border-right: none;
+    border-bottom: 1px solid var(--color-borde-sutil);
+  }
 }

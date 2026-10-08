@@ -35,8 +35,8 @@
     > svg { flex-shrink: 0; margin-top: 4px; transition: color var(--transition-base); }
 
     &--live > svg {
-      color: #F97316;
-      filter: drop-shadow(0 0 8px rgba(249, 115, 22, .45));
+      color: var(--color-rol-super);
+      filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-rol-super) 45%, transparent));
       animation: ach-flicker 2.4s ease-in-out infinite;
     }
   }
@@ -168,7 +168,7 @@
     flex-shrink: 0;
     width: 34px;
     height: 34px;
-    color: #fff;
+    color: var(--color-sobre-primario);
     background: var(--gradiente-nebula);
     border-radius: 50%;
     box-shadow: 0 4px 12px var(--color-primario-trans-20);
@@ -291,7 +291,7 @@
   gap: 4px;
 
   svg { color: var(--color-texto-terciario); }
-  &--live svg { color: #F97316; }
+  &--live svg { color: var(--color-rol-super); }
   &--done strong { color: var(--color-exito-texto); }
 }
 

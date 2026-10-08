@@ -13,6 +13,14 @@ export interface ISimilarityMatch {
 
 export interface IFeedbackSnippet { id: string; text: string; }
 
+interface ISimilarityMatchDto {
+  submissionId: string | number; otherSubmissionId: string | number; score: number; sharedExcerpt?: string | null;
+}
+
+interface IFeedbackSnippetDto { id: string | number; text: string; }
+
+const toSnippet = (s: IFeedbackSnippetDto): IFeedbackSnippet => ({ id: String(s.id), text: s.text });
+
 /** Similarity between submissions and the teacher's reusable feedback comments. */
 @Injectable({ providedIn: 'root' })
 export class GradingToolsService {
@@ -20,7 +28,7 @@ export class GradingToolsService {
   private readonly api = environment.apiBaseUrl;
 
   similarity(courseId: string, blockId: string): Observable<ISimilarityMatch[]> {
-    return this.http.get<{ matches: any[] }>(`${this.api}/courses/${courseId}/blocks/${blockId}/similarity`).pipe(
+    return this.http.get<{ matches: ISimilarityMatchDto[] }>(`${this.api}/courses/${courseId}/blocks/${blockId}/similarity`).pipe(
       map(r => r.matches.map(m => ({
         submissionId: String(m.submissionId), otherSubmissionId: String(m.otherSubmissionId),
         score: m.score, sharedExcerpt: m.sharedExcerpt ?? '',
@@ -28,12 +36,12 @@ export class GradingToolsService {
   }
 
   snippets(): Observable<IFeedbackSnippet[]> {
-    return this.http.get<any[]>(`${this.api}/activity/feedback-snippets`).pipe(
-      map(list => list.map(s => ({ id: String(s.id), text: s.text }))));
+    return this.http.get<IFeedbackSnippetDto[]>(`${this.api}/activity/feedback-snippets`).pipe(
+      map(list => list.map(toSnippet)));
   }
 
   saveSnippet(text: string): Observable<IFeedbackSnippet> {
-    return this.http.post<any>(`${this.api}/activity/feedback-snippets`, { text }).pipe(map(s => ({ id: String(s.id), text: s.text })));
+    return this.http.post<IFeedbackSnippetDto>(`${this.api}/activity/feedback-snippets`, { text }).pipe(map(toSnippet));
   }
 
   useSnippet(id: string): Observable<void> {

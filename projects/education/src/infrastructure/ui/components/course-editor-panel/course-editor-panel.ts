@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImageUploadComponent } from 'shared';
 import { CourseEditorUseCase } from '../../../../application/course-editor.usecase';

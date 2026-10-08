@@ -43,8 +43,8 @@
   border-radius: var(--border-radius-full);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
-  background: #134e4a;
-  color: #99f6e4;
+  background: color-mix(in srgb, var(--color-teal) 22%, var(--color-superficie));
+  color: var(--color-teal-texto);
   border: none;
 }
 
@@ -58,26 +58,26 @@
   font-weight: var(--font-weight-semibold);
 
   &--beginner {
-    background: #166534;
-    color: #bbf7d0;
+    background: color-mix(in srgb, var(--color-exito) 22%, var(--color-superficie));
+    color: var(--color-exito-texto);
     border: none;
   }
 
   &--intermediate {
-    background: #854d0e;
-    color: #fef08a;
+    background: color-mix(in srgb, var(--color-advertencia) 22%, var(--color-superficie));
+    color: var(--color-advertencia-texto);
     border: none;
   }
 
   &--advanced {
-    background: #7f1d1d;
-    color: #fecaca;
+    background: color-mix(in srgb, var(--color-error) 22%, var(--color-superficie));
+    color: var(--color-error-texto);
     border: none;
   }
 
   &--expert {
-    background: #3b1f6e;
-    color: #ddd6fe;
+    background: color-mix(in srgb, var(--color-rol-admin) 22%, var(--color-superficie));
+    color: var(--color-texto-acento);
     border: none;
   }
 }

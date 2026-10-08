@@ -56,7 +56,7 @@
 
   &--draft     { background: color-mix(in srgb, var(--color-advertencia) 15%, transparent); color: var(--color-advertencia); }
   &--published { background: color-mix(in srgb, var(--color-exito) 15%, transparent); color: var(--color-exito); }
-  &--archived  { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
+  &--archived  { background: color-mix(in srgb, var(--color-texto-principal) 7%, transparent); color: var(--color-texto-terciario); }
 }
 
 .ceditor-topbar__actions {
@@ -96,4 +96,11 @@
   transition: all 0.15s;
 
   &:hover { color: var(--color-texto-principal); border-color: var(--color-borde-principal); }
+}
+
+// Celular: fila 1 = volver + acciones; fila 2 = nombre del curso y estado (antes se encimaban).
+@media (max-width: 768px) {
+  .ceditor-topbar { height: auto; flex-wrap: wrap; padding: 0.5rem 0.75rem; row-gap: 0.5rem; }
+  .ceditor-topbar__center { order: 3; flex: 1 1 100%; }
+  .ceditor-topbar__actions { margin-left: auto; }
 }

@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { EducationLayout } from './infrastructure/ui/layouts/education-layout/education-layout';
-import { StudentLayout } from './infrastructure/ui/layouts/student-layout/student-layout';
 import { quizDeactivateGuard } from './infrastructure/ui/guards/quiz-deactivate.guard';
 
 // ── Public API for cross-library use ────────────────────────────────────────
@@ -199,10 +198,6 @@ export const studentChildRoutes: Routes = [
   }
 ];
 
-// ── Student / consumption routes ────────────────────────────────────────────
-export const studentRoutes: Routes = [
-  { path: '', component: StudentLayout, children: studentChildRoutes }
-];
 export { AchievementsService } from './infrastructure/services/achievements.service';
 export type { IAchievements, IBadge } from './infrastructure/services/achievements.service';
 export { AccessibilityReport } from './infrastructure/ui/components/accessibility-report/accessibility-report';

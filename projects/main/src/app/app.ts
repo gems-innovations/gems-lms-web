@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { AuthSessionService } from 'auth/core';
-import { DisplayPreferencesService } from 'auth/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AuthSessionService, DisplayPreferencesService } from 'auth/core';
 import { CommandPaletteComponent } from './command-palette/command-palette.component';
 import { OnboardingService } from './onboarding.service';
 import { GuestSaveBarComponent } from './public/guest-save-bar.component';
@@ -12,13 +12,12 @@ import { AppStatusService } from './app-status.service';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, CommandPaletteComponent, GuestSaveBarComponent],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App {
   readonly session = inject(AuthSessionService);
-  private readonly display = inject(DisplayPreferencesService);
   readonly onboarding = inject(OnboardingService);
   readonly appStatus = inject(AppStatusService);
 
@@ -28,7 +27,11 @@ export class App {
   readonly isGuest = computed(() => isGuestUser(this.session.user()));
 
   constructor() {
-    inject(Router).events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(e => {
+    inject(DisplayPreferencesService);
+    inject(Router).events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      takeUntilDestroyed(),
+    ).subscribe(e => {
       this.publicPage.set(/^\/($|[#?]|cursos\/|instituciones|terminos|privacidad)/.test(e.urlAfterRedirects));
       this.onboarding.maybeStart();
     });

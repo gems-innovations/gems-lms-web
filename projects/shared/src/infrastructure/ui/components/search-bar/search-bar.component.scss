@@ -1,24 +1,23 @@
-@use 'variables' as vars;
 
 .search-bar {
   position: relative;
   display: flex;
   align-items: center;
-  gap: vars.$spacing-xs;
+  gap: var(--spacing-xs);
   
-  padding: vars.$spacing-xs vars.$spacing-sm;
+  padding: var(--spacing-xs) var(--spacing-sm);
   
   background: var(--color-superficie-alta);
   backdrop-filter: blur(12px);
   border: 1px solid var(--color-borde-secundario);
-  border-radius: vars.$border-radius-sm;
+  border-radius: var(--border-radius-md);
   
   transition: all 0.3s ease;
   
   &:focus-within {
     border-color: rgba(108, 99, 255, 0.5);
     box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1),
-                vars.$shadow-glow;
+                var(--sombra-glow);
   }
 }
 
@@ -66,7 +65,7 @@
   
   background: var(--color-tarjeta-hover);
   border: none;
-  border-radius: vars.$border-radius-sm;
+  border-radius: var(--border-radius-md);
   
   font-size: 12px;
   color: var(--color-texto-secundario);
@@ -87,7 +86,7 @@
 // Responsive
 @media (max-width: 767px) {
   .search-bar {
-    padding: vars.$spacing-xs;
+    padding: var(--spacing-xs);
   }
   
   .search-input {

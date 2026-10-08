@@ -42,7 +42,7 @@
   .psteps__step--done & {
     background: var(--color-teal);
     border-color: var(--color-teal);
-    color: #000;
+    color: var(--color-sobre-acento);
   }
 
   .psteps__step--current & {

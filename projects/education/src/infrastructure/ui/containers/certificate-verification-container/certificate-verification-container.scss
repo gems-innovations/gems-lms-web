@@ -1,9 +1,113 @@
-.verify { min-height: 100vh; display: grid; place-items: center; padding: 2rem; background: linear-gradient(135deg,#eff6ff,#f8fafc); color: #172033; }
-.verify__card { width: min(620px,100%); padding: 2.5rem; border-radius: 20px; background: #fff; box-shadow: 0 24px 70px #0f172a1a; text-align: center; }
-.verify__brand { color: #2563eb; font-weight: 800; text-decoration: none; letter-spacing: .08em; }
-.verify__seal { display: grid; place-items: center; width: 64px; height: 64px; margin: 1.75rem auto 1rem; border-radius: 50%; background: #dcfce7; color: #15803d; font-size: 2rem; font-weight: 800; }
-.verify__seal--invalid { background: #fee2e2; color: #b91c1c; }
-h1 { margin: .5rem 0; } h2 { margin: .5rem 0 1.5rem; color: #1d4ed8; } .verify__name { margin: 1.5rem 0 .25rem; font-size: 1.35rem; font-weight: 700; }
-dl { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin: 1.5rem 0 0; text-align: left; }
-dl div { padding: .85rem; border-radius: 10px; background: #f8fafc; } dt { color: #64748b; font-size: .75rem; } dd { margin: .25rem 0 0; font-weight: 650; overflow-wrap: anywhere; }
-@media(max-width:520px){ .verify__card{padding:1.5rem} dl{grid-template-columns:1fr} }
+// Página pública de verificación de credenciales: usa los tokens del sistema de diseño
+// para respetar el tema (oscuro por defecto, claro con .light-mode) y la marca de la institución.
+.verify {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--spacing-2xl);
+  background: var(--color-fondo-principal);
+  color: var(--color-texto-principal);
+  font-family: var(--font-texto);
+}
+
+.verify__card {
+  width: min(620px, 100%);
+  padding: var(--spacing-3xl) var(--spacing-2xl);
+  border-radius: var(--border-radius-2xl);
+  border: 1px solid var(--color-borde-principal);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-xl);
+  text-align: center;
+}
+
+.verify__brand {
+  color: var(--color-texto-acento);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; border-radius: var(--border-radius-sm); }
+}
+
+.verify__seal {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: var(--spacing-xl) auto var(--spacing-lg);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-exito) 15%, transparent);
+  border: 2px solid color-mix(in srgb, var(--color-exito) 30%, transparent);
+  color: var(--color-exito-texto);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.verify__seal--invalid {
+  background: color-mix(in srgb, var(--color-error) 15%, transparent);
+  border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
+  color: var(--color-error-texto);
+}
+
+h1 {
+  margin: var(--spacing-sm) 0;
+  font-family: var(--font-titulo);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-texto-principal);
+}
+
+p {
+  margin: var(--spacing-xs) 0;
+  color: var(--color-texto-secundario);
+  line-height: 1.6;
+}
+
+h2 {
+  margin: var(--spacing-sm) 0 var(--spacing-xl);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-texto-acento);
+}
+
+.verify__name {
+  margin: var(--spacing-xl) 0 var(--spacing-xs);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-texto-principal);
+}
+
+dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  margin: var(--spacing-xl) 0 0;
+  text-align: left;
+}
+
+dl div {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-borde-sutil);
+  background: var(--color-fondo-sutil);
+}
+
+dt {
+  color: var(--color-texto-terciario);
+  font-size: var(--font-size-xs);
+}
+
+dd {
+  margin: var(--spacing-xs) 0 0;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-texto-principal);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 520px) {
+  .verify { padding: var(--spacing-lg); }
+  .verify__card { padding: var(--spacing-xl) var(--spacing-lg); }
+  dl { grid-template-columns: 1fr; }
+}

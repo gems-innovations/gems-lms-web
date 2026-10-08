@@ -111,7 +111,8 @@ export class QuestionBankContainer implements OnInit {
   protected newQuestion(): void { this.draft.set(emptyDraft(this.category())); }
 
   protected edit(item: IBankQuestion): void {
-    const q = item.question as IQuestion & Record<string, any>;
+    const q = item.question;
+    const choice = q.type === 'multiple-choice' ? q : null;
     this.draft.set({
       ...emptyDraft(item.category),
       id: item.id,
@@ -119,11 +120,11 @@ export class QuestionBankContainer implements OnInit {
       question: q.question ?? '',
       points: q.points ?? 10,
       explanation: q.explanation ?? '',
-      options: q.options?.length ? q.options.map((o: { id: string; text: string }) => ({ ...o })) : emptyDraft().options,
-      correctAnswers: [...(q.correctAnswers ?? [])],
-      allowMultiple: !!q.allowMultiple,
-      correctBoolean: q.correctAnswer ?? true,
-      sampleAnswer: q.sampleAnswer ?? '',
+      options: choice?.options?.length ? choice.options.map(o => ({ ...o })) : emptyDraft().options,
+      correctAnswers: [...(choice?.correctAnswers ?? [])],
+      allowMultiple: !!choice?.allowMultiple,
+      correctBoolean: q.type === 'true-false' ? q.correctAnswer : true,
+      sampleAnswer: q.type === 'open' ? q.sampleAnswer ?? '' : '',
     });
   }
 
@@ -198,13 +199,14 @@ export class QuestionBankContainer implements OnInit {
   }
 
   protected optionText(item: IBankQuestion, id: string): string {
-    return (item.question as any).options?.find((o: { id: string }) => o.id === id)?.text ?? id;
+    const q = item.question;
+    return (q.type === 'multiple-choice' ? q.options.find(o => o.id === id)?.text : undefined) ?? id;
   }
 
   protected answerSummary(item: IBankQuestion): string {
-    const q = item.question as any;
-    if (item.type === 'true-false') return q.correctAnswer ? 'Verdadero' : 'Falso';
-    if (item.type === 'multiple-choice') return (q.correctAnswers ?? []).map((id: string) => this.optionText(item, id)).join(', ');
+    const q = item.question;
+    if (q.type === 'true-false') return q.correctAnswer ? 'Verdadero' : 'Falso';
+    if (q.type === 'multiple-choice') return (q.correctAnswers ?? []).map(id => this.optionText(item, id)).join(', ');
     return 'Respuesta abierta (no se califica automáticamente)';
   }
 }

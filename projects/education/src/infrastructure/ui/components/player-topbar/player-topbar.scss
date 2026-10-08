@@ -10,8 +10,8 @@
   gap: var(--spacing-md);
   padding: 0 1.5rem;
   height: 58px;
-  background: rgba(14, 14, 22, 0.97);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: color-mix(in srgb, var(--color-fondo-principal) 97%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-texto-principal) 6%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
@@ -34,23 +34,23 @@
   height: 34px;
   flex-shrink: 0;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
+  background: color-mix(in srgb, var(--color-texto-principal) 4%, transparent);
+  color: color-mix(in srgb, var(--color-texto-principal) 50%, transparent);
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.09);
-    border-color: rgba(255, 255, 255, 0.14);
-    color: #EDEAF8;
+    background: color-mix(in srgb, var(--color-texto-principal) 9%, transparent);
+    border-color: color-mix(in srgb, var(--color-texto-principal) 14%, transparent);
+    color: var(--color-texto-principal);
   }
 }
 
 .player-topbar__divider {
   width: 1px;
   height: 24px;
-  background: rgba(255, 255, 255, 0.07);
+  background: color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
   flex-shrink: 0;
 }
 
@@ -65,7 +65,7 @@
 .player-topbar__course-name {
   font-size: 13px;
   font-weight: 600;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -77,7 +77,7 @@
   align-items: center;
   gap: 3px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.38);
+  color: color-mix(in srgb, var(--color-texto-principal) 38%, transparent);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -100,9 +100,9 @@
   gap: 4px;
   padding: 3px 10px;
   border-radius: 20px;
-  background: rgba(61, 214, 200, 0.1);
-  border: 1px solid rgba(61, 214, 200, 0.2);
-  color: #3DD6C8;
+  background: color-mix(in srgb, var(--color-teal) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-teal) 20%, transparent);
+  color: var(--color-teal);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -114,9 +114,9 @@
   gap: 5px;
   padding: 7px 14px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.55);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
+  background: color-mix(in srgb, var(--color-texto-principal) 4%, transparent);
+  color: color-mix(in srgb, var(--color-texto-principal) 55%, transparent);
   font-size: 13px;
   font-weight: 500;
   font-family: inherit;
@@ -124,9 +124,9 @@
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 
   &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.09);
-    border-color: rgba(255, 255, 255, 0.14);
-    color: #EDEAF8;
+    background: color-mix(in srgb, var(--color-texto-principal) 9%, transparent);
+    border-color: color-mix(in srgb, var(--color-texto-principal) 14%, transparent);
+    color: var(--color-texto-principal);
   }
 
   &:disabled {
@@ -135,17 +135,17 @@
   }
 
   &--next {
-    background: #7B6FF0;
-    border-color: #7B6FF0;
-    color: #fff;
+    background: var(--color-primario);
+    border-color: var(--color-primario);
+    color: var(--color-sobre-primario);
 
     &:hover:not(:disabled) {
-      background: #9B8FF8;
-      border-color: #9B8FF8;
+      background: var(--color-texto-acento);
+      border-color: var(--color-texto-acento);
     }
 
     &:disabled {
-      background: rgba(123, 111, 240, 0.35);
+      background: color-mix(in srgb, var(--color-primario) 35%, transparent);
       border-color: transparent;
       opacity: 1;
     }
@@ -160,29 +160,29 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--color-texto-principal) 4%, transparent);
   pointer-events: none;
 }
 
 .player-topbar__progress-fill {
   height: 100%;
-  background: #7B6FF0;
+  background: var(--color-primario);
   transition: width 0.4s ease;
 }
 
 .player-topbar__grades {
   padding: 5px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
+  background: color-mix(in srgb, var(--color-texto-principal) 4%, transparent);
+  color: color-mix(in srgb, var(--color-texto-principal) 75%, transparent);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
 
   &:hover,
-  &:focus-visible { background: rgba(255, 255, 255, 0.08); color: #fff; }
+  &:focus-visible { background: color-mix(in srgb, var(--color-texto-principal) 8%, transparent); color: var(--color-sobre-primario); }
 }
 
 // ── Celular: dos filas (título arriba, acciones abajo) sin desbordar ─────────
@@ -191,9 +191,16 @@
   .player-topbar__left { flex: 1 1 100%; min-width: 0; }
   .player-topbar__course-name { display: none; }
   .player-topbar__lesson-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .player-topbar__right { flex: 1 1 100%; justify-content: space-between; gap: 6px; }
-  .player-topbar__grades { padding-inline: 10px; }
+  .player-topbar__right { flex: 1 1 100%; flex-wrap: wrap; justify-content: space-between; gap: 6px; }
+  .player-topbar__nav-btn--next { margin-left: auto; }
+  .player-topbar__grades { padding-inline: 8px; min-height: 36px; }
+  .player-topbar__nav-btn { padding-inline: 10px; }
   // «Anterior» queda solo con la flecha; «Siguiente» conserva el texto (es la acción principal).
   .player-topbar__nav-btn:not(.player-topbar__nav-btn--next) { font-size: 0; padding-inline: 10px; }
   .player-topbar__nav-btn { min-height: 40px; }
+}
+
+// En pantallas muy angostas el porcentaje ya se ve en la barra fina inferior: se oculta el chip para que quepan las acciones en una fila.
+@media (max-width: 480px) {
+  .player-topbar__progress-chip { display: none; }
 }

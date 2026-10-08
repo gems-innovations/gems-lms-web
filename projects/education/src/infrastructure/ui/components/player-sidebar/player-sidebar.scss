@@ -9,8 +9,8 @@
   /* Llena el host que ya tiene el sizing (flex aplicado desde el container) */
   width: 100%;
   height: 100%;
-  background: #111119;
-  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--color-fondo-secundario);
+  border-left: 1px solid color-mix(in srgb, var(--color-texto-principal) 6%, transparent);
   overflow: hidden;
 }
 
@@ -24,7 +24,7 @@
   z-index: 2;
   transition: background 0.15s;
 
-  &:hover { background: rgba(123, 111, 240, 0.45); }
+  &:hover { background: color-mix(in srgb, var(--color-primario) 45%, transparent); }
 }
 
 /* ── Toggle ────────────────────────────────────────────────────────────────── */
@@ -40,13 +40,13 @@
   width: 26px;
   height: 26px;
   border-radius: 7px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.38);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
+  background: color-mix(in srgb, var(--color-texto-principal) 4%, transparent);
+  color: color-mix(in srgb, var(--color-texto-principal) 38%, transparent);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 
-  &:hover { background: rgba(255,255,255,0.09); color: #EDEAF8; }
+  &:hover { background: color-mix(in srgb, var(--color-texto-principal) 9%, transparent); color: var(--color-texto-principal); }
 }
 
 /* ── Header ────────────────────────────────────────────────────────────────── */
@@ -61,7 +61,7 @@
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
+  &::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--color-texto-principal) 7%, transparent); border-radius: 2px; }
 }
 
 /* ── Timeline ──────────────────────────────────────────────────────────────── */
@@ -91,8 +91,8 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(123, 111, 240, 0.08);
-  border: 1.5px solid rgba(123, 111, 240, 0.25);
+  background: color-mix(in srgb, var(--color-primario) 8%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--color-primario) 25%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,26 +101,26 @@
   transition: background 0.2s, border-color 0.2s;
 
   &--open {
-    background: rgba(123, 111, 240, 0.18);
-    border-color: rgba(123, 111, 240, 0.5);
+    background: color-mix(in srgb, var(--color-primario) 18%, transparent);
+    border-color: color-mix(in srgb, var(--color-primario) 50%, transparent);
   }
 }
 
 .psidebar__node-num {
   font-size: 9px;
   font-weight: 700;
-  color: #9B8FF8;
+  color: var(--color-texto-acento);
 }
 
 .psidebar__line {
   flex: 1;
   width: 1.5px;
-  background: rgba(123, 111, 240, 0.1);
+  background: color-mix(in srgb, var(--color-primario) 10%, transparent);
   margin: 3px 0 0;
   min-height: 10px;
   transition: background 0.2s;
 
-  &--active { background: rgba(123, 111, 240, 0.25); }
+  &--active { background: color-mix(in srgb, var(--color-primario) 25%, transparent); }
 }
 
 /* ── Módulo body ───────────────────────────────────────────────────────────── */
@@ -144,7 +144,7 @@
   text-align: left;
   margin-bottom: 0;
 
-  &:hover .psidebar__module-title { color: #EDEAF8; }
+  &:hover .psidebar__module-title { color: var(--color-texto-principal); }
 }
 
 .psidebar__module-title-group {
@@ -158,7 +158,7 @@
 .psidebar__module-title {
   font-size: 12px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
+  color: color-mix(in srgb, var(--color-texto-principal) 50%, transparent);
   transition: color 0.15s;
   white-space: nowrap;
   overflow: hidden;
@@ -167,20 +167,20 @@
 
 .psidebar__module-badge {
   font-size: 9px;
-  color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: color-mix(in srgb, var(--color-texto-principal) 25%, transparent);
+  background: color-mix(in srgb, var(--color-texto-principal) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
   border-radius: 100px;
   padding: 1px 5px;
   flex-shrink: 0;
 }
 
 .psidebar__chevron {
-  color: rgba(255, 255, 255, 0.25);
+  color: color-mix(in srgb, var(--color-texto-principal) 25%, transparent);
   flex-shrink: 0;
   transition: transform 0.18s ease, color 0.15s;
 
-  &--open { transform: rotate(180deg); color: #9B8FF8; }
+  &--open { transform: rotate(180deg); color: var(--color-texto-acento); }
 }
 
 /* ── Lessons list ──────────────────────────────────────────────────────────── */
@@ -200,31 +200,31 @@
   width: 100%;
   padding: 7px 8px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--color-texto-principal) 2%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 4%, transparent);
   cursor: pointer;
   text-align: left;
   font-family: inherit;
   transition: background 0.12s, border-color 0.12s;
 
-  &:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.07); }
+  &:hover { background: color-mix(in srgb, var(--color-texto-principal) 5%, transparent); border-color: color-mix(in srgb, var(--color-texto-principal) 7%, transparent); }
 
   &--active {
-    background: rgba(123, 111, 240, 0.1);
-    border-color: rgba(123, 111, 240, 0.25);
+    background: color-mix(in srgb, var(--color-primario) 10%, transparent);
+    border-color: color-mix(in srgb, var(--color-primario) 25%, transparent);
 
-    .psidebar__lesson-title { color: #EDEAF8; }
-    .psidebar__lesson-num   { color: #9B8FF8; }
+    .psidebar__lesson-title { color: var(--color-texto-principal); }
+    .psidebar__lesson-num   { color: var(--color-texto-acento); }
   }
 
   &--done {
-    .psidebar__lesson-title { color: rgba(255,255,255,0.65); }
+    .psidebar__lesson-title { color: color-mix(in srgb, var(--color-texto-principal) 65%, transparent); }
   }
 
   &--locked {
     opacity: 0.7;
     cursor: not-allowed;
-    &:hover { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.04); }
+    &:hover { background: color-mix(in srgb, var(--color-texto-principal) 2%, transparent); border-color: color-mix(in srgb, var(--color-texto-principal) 4%, transparent); }
   }
 }
 
@@ -237,8 +237,8 @@
   height: 42px;
   border-radius: 5px;
   overflow: hidden;
-  background: rgba(123, 111, 240, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: color-mix(in srgb, var(--color-primario) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
 }
 
 .psidebar__thumb-img {
@@ -254,23 +254,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9B8FF8;
+  color: var(--color-texto-acento);
   opacity: 0.7;
 
-  &[data-type="quiz"]        { color: #fbbf24; }
-  &[data-type="assignment"]  { color: #34d399; }
-  &[data-type="live-session"]{ color: #f87171; }
-  &[data-type="scorm"]       { color: #3DD6C8; }
+  &[data-type="quiz"]        { color: var(--color-advertencia); }
+  &[data-type="assignment"]  { color: var(--color-exito); }
+  &[data-type="live-session"]{ color: var(--color-error); }
+  &[data-type="scorm"]       { color: var(--color-teal); }
 }
 
 .psidebar__thumb-done {
   position: absolute;
   inset: 0;
-  background: #1a590ca6;
+  background: color-mix(in srgb, var(--color-exito-intenso) 65%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--color-sobre-primario);
 }
 
 .psidebar__thumb-lock {
@@ -280,7 +280,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.45);
+  color: color-mix(in srgb, var(--color-texto-principal) 45%, transparent);
 }
 
 /* ── Detalle ───────────────────────────────────────────────────────────────── */
@@ -303,7 +303,7 @@
 
 .psidebar__lesson-num {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.28);
+  color: color-mix(in srgb, var(--color-texto-principal) 28%, transparent);
   flex-shrink: 0;
   transition: color 0.15s;
 }
@@ -312,7 +312,7 @@
   flex: 1;
   font-size: 11.5px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.5);
+  color: color-mix(in srgb, var(--color-texto-principal) 50%, transparent);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -322,7 +322,7 @@
 
 .psidebar__lesson-dur {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.25);
+  color: color-mix(in srgb, var(--color-texto-principal) 25%, transparent);
   flex-shrink: 0;
 }
 
@@ -351,12 +351,12 @@
 
   &:hover { opacity: 0.75; }
 
-  &--video      { background: rgba(123,111,240,0.1); color: #9B8FF8; border-color: rgba(123,111,240,0.2); }
-  &--quiz       { background: rgba(251,191,36,0.08); color: #fbbf24; border-color: rgba(251,191,36,0.18); }
-  &--assignment { background: rgba(61,214,200,0.08); color: #3DD6C8; border-color: rgba(61,214,200,0.18); }
+  &--video      { background: color-mix(in srgb, var(--color-primario) 10%, transparent); color: var(--color-texto-acento); border-color: color-mix(in srgb, var(--color-primario) 20%, transparent); }
+  &--quiz       { background: color-mix(in srgb, var(--color-advertencia) 8%, transparent); color: var(--color-advertencia); border-color: color-mix(in srgb, var(--color-advertencia) 18%, transparent); }
+  &--assignment { background: color-mix(in srgb, var(--color-teal) 8%, transparent); color: var(--color-teal); border-color: color-mix(in srgb, var(--color-teal) 18%, transparent); }
   &--document,
-  &--scorm      { background: rgba(255,255,255,0.05); color: rgba(237,234,248,0.4); border-color: rgba(255,255,255,0.08); }
-  &--live-session { background: rgba(52,211,153,0.08); color: #34d399; border-color: rgba(52,211,153,0.18); }
+  &--scorm      { background: color-mix(in srgb, var(--color-texto-principal) 5%, transparent); color: color-mix(in srgb, var(--color-texto-principal) 40%, transparent); border-color: color-mix(in srgb, var(--color-texto-principal) 8%, transparent); }
+  &--live-session { background: color-mix(in srgb, var(--color-exito) 8%, transparent); color: var(--color-exito); border-color: color-mix(in srgb, var(--color-exito) 18%, transparent); }
 
   &--active {
     outline-color: currentColor;
@@ -364,9 +364,9 @@
   }
 
   &--locked {
-    background: rgba(255,255,255,0.03) !important;
-    color: rgba(255,255,255,0.2) !important;
-    border-color: rgba(255,255,255,0.06) !important;
+    background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent) !important;
+    color: color-mix(in srgb, var(--color-texto-principal) 20%, transparent) !important;
+    border-color: color-mix(in srgb, var(--color-texto-principal) 6%, transparent) !important;
     cursor: not-allowed;
     opacity: 0.6;
     &:hover { opacity: 0.6; }
@@ -396,16 +396,16 @@
   }
 
   &--locked {
-    background: rgba(255,255,255,0.03);
-    border-color: rgba(255,255,255,0.06);
+    background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent);
+    border-color: color-mix(in srgb, var(--color-texto-principal) 6%, transparent);
     cursor: not-allowed;
     opacity: 0.6;
 
-    &:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); transform: none; }
+    &:hover { background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent); border-color: color-mix(in srgb, var(--color-texto-principal) 6%, transparent); transform: none; }
 
-    .psidebar__survey-icon { background: rgba(255,255,255,0.08); color: rgba(237,234,248,0.4); }
+    .psidebar__survey-icon { background: color-mix(in srgb, var(--color-texto-principal) 8%, transparent); color: color-mix(in srgb, var(--color-texto-principal) 40%, transparent); }
     .psidebar__survey-title,
-    .psidebar__survey-sub { color: rgba(237,234,248,0.4); }
+    .psidebar__survey-sub { color: color-mix(in srgb, var(--color-texto-principal) 40%, transparent); }
   }
 }
 
@@ -418,7 +418,7 @@
   flex-shrink: 0;
   border-radius: 8px;
   background: var(--color-primario);
-  color: #fff;
+  color: var(--color-sobre-primario);
 }
 
 .psidebar__survey-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }

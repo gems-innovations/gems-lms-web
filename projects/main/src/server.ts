@@ -17,7 +17,7 @@ const app = express();
  */
 const apiBaseUrl = process.env['API_BASE_URL'];
 if (apiBaseUrl) {
-  (globalThis as any).API_BASE_URL = apiBaseUrl;
+  (globalThis as { API_BASE_URL?: string }).API_BASE_URL = apiBaseUrl;
 }
 const angularApp = new AngularNodeAppEngine();
 const apiOrigin = (() => {

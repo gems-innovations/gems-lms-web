@@ -35,7 +35,7 @@
     width: 320px;
     height: 320px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(123,111,240,0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, color-mix(in srgb, var(--color-primario) 8%, transparent) 0%, transparent 70%);
     pointer-events: none;
   }
 }
@@ -74,6 +74,8 @@
 
 .preview-hero__info {
   max-width: 560px;
+
+  @media (min-width: 1200px) and (max-width: 1499px) { max-width: 460px; }
 }
 
 // ── Badge tipo ────────────────────────────────────────────────────────────────
@@ -90,15 +92,15 @@
   margin-bottom: 0.875rem;
 
   &--course {
-    background: rgba(123,111,240,0.12);
+    background: color-mix(in srgb, var(--color-primario) 12%, transparent);
     color: var(--color-primario-claro);
-    border: 1px solid rgba(123,111,240,0.25);
+    border: 1px solid color-mix(in srgb, var(--color-primario) 25%, transparent);
   }
 
   &--path {
-    background: rgba(61,214,200,0.1);
+    background: color-mix(in srgb, var(--color-teal) 10%, transparent);
     color: var(--color-teal);
-    border: 1px solid rgba(61,214,200,0.2);
+    border: 1px solid color-mix(in srgb, var(--color-teal) 20%, transparent);
   }
 }
 
@@ -212,20 +214,35 @@
 
 // ── Thumbnail ─────────────────────────────────────────────────────────────────
 .preview-hero__thumb-wrap {
-  position: absolute;
-  right: -20px;
-  top: 3.5rem;
-  bottom: -100px;
-  width: 580px;
-  border-radius: 16px 0 0 16px;
+  // Por defecto la miniatura va en el flujo, bajo el texto: así nunca tapa el título en pantallas medianas ni móviles.
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 16 / 9;
+  margin-top: 1.25rem;
+  border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--color-borde-principal);
-  border-right: none;
   box-shadow: var(--sombra-xl);
   z-index: 0;
 
-  @media (min-width: 1368px) {
+  // Hay sitio al lado del texto: miniatura flotante que sobresale del hero.
+  @media (min-width: 1200px) {
+    position: absolute;
+    right: -20px;
+    top: 3.5rem;
+    bottom: -100px;
+    width: 400px;
+    max-width: none;
+    margin-top: 0;
+    aspect-ratio: auto;
+    border-radius: 16px 0 0 16px;
+    border-right: none;
+  }
+
+  @media (min-width: 1500px) {
     right: calc(3rem + var(--slayout-centering-gap, 0px));
+    width: 580px;
     border-radius: 16px;
     border-right: 1px solid var(--color-borde-principal);
   }
@@ -245,7 +262,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255,255,255,0.55);
+  color: color-mix(in srgb, var(--color-texto-principal) 55%, transparent);
 }
 
 .preview-hero__blocked,

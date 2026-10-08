@@ -1,5 +1,9 @@
+:host { display: block; max-width: 100%; }
+
 .tabs {
   display: inline-flex;
+  max-width: 100%;
+  flex-wrap: wrap; // con muchas pestañas pasan a otra fila en lugar de salirse de la pantalla
   align-items: center;
   gap: var(--spacing-xs);
   padding: var(--spacing-xs);
@@ -9,6 +13,8 @@
 
   &__tab {
     display: inline-flex;
+    flex-shrink: 0;
+    white-space: nowrap;
     align-items: center;
     gap: var(--spacing-sm);
     padding: var(--spacing-sm) var(--spacing-lg);
@@ -38,5 +44,16 @@
     font-weight: var(--font-weight-semibold);
     border-radius: var(--border-radius-full);
     background: var(--color-primario-trans-20);
+  }
+}
+
+// Celular: una sola fila que se desplaza con el dedo.
+@media (max-width: 640px) {
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar { display: none; }
   }
 }

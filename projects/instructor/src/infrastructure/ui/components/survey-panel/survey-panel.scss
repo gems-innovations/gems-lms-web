@@ -258,3 +258,19 @@
   &__comment-author { font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--color-primario-claro); }
   &__comment-text { font-size: var(--font-size-sm); color: var(--color-texto-secundario); line-height: 1.55; margin: 4px 0 0; }
 }
+
+// ── Celular ──────────────────────────────────────────────────────────────────
+@media (max-width: 640px) {
+  .svp {
+    &__toolbar { flex-wrap: wrap; margin-bottom: var(--spacing-lg); }
+    &__modes { max-width: 100%; }
+    &__section { padding: var(--spacing-md); }
+    // Pregunta: número + texto en la primera fila; tipo y borrar debajo, sin apretar el campo.
+    &__question { flex-wrap: wrap; row-gap: var(--spacing-sm); }
+    &__input--q { flex: 1 1 calc(100% - 40px); }
+    &__q-type { margin-left: 30px; }
+    &__add-q { flex-wrap: wrap; }
+    &__actions { flex-wrap: wrap; justify-content: stretch; > * { flex: 1 1 auto; } }
+    &__stat-head { flex-wrap: wrap; }
+  }
+}

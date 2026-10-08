@@ -1,4 +1,4 @@
-export { environment, BrandingService, ClientErrorJournal, I18nService, LANGUAGES } from "shared/core";
+export { environment, browserStorage, BrandingService, ClientErrorJournal, I18nService, LANGUAGES } from "shared/core";
 export type { TLanguage } from "shared/core";
 export { TranslatePipe } from "./infrastructure/ui/pipes/translate.pipe";
 export type { IBrandingConfig } from "shared/core";

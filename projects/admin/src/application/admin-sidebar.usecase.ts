@@ -18,7 +18,7 @@ export class AdminSidebarUseCase {
         { id: 'institutions', label: 'Instituciones', icon: 'institutions', route: '/admin/institutions' },
         // Solicitudes de espacio que llegan desde «Enseña en GEMS».
         { id: 'requests', label: 'Solicitudes', icon: 'users', route: '/solicitudes' },
-        { id: 'audit', label: 'Auditoría', icon: 'stats', route: '/admin/audit' }
+        { id: 'audit', label: 'Auditoría', icon: 'audit', route: '/admin/audit' }
       ];
     }
     if (role === EUserRole.ADMIN) {
@@ -28,7 +28,7 @@ export class AdminSidebarUseCase {
         { id: 'enrollments', label: 'Matrículas',      icon: 'courses',   route: '/admin/enrollments' },
         { id: 'periods',     label: 'Períodos',        icon: 'learning-paths', route: '/admin/periods' },
         { id: 'reports',     label: 'Reportes',         icon: 'stats',     route: '/admin/reports' },
-        { id: 'audit',       label: 'Auditoría',       icon: 'stats',     route: '/admin/audit' }
+        { id: 'audit',       label: 'Auditoría',       icon: 'audit',     route: '/admin/audit' }
       ];
     }
     if (role === EUserRole.INSTRUCTOR) {

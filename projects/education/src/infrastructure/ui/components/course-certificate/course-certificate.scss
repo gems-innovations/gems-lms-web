@@ -89,7 +89,7 @@ $cream-bg: #fcfbfa;
   &--download {
     border: 1px solid $gold-primary;
     background: linear-gradient(135deg, rgba($gold-dark, 0.3), rgba($navy-light, 0.6));
-    color: #ffffff;
+    color: var(--color-sobre-primario);
     
     svg { color: $gold-primary; }
 
@@ -115,13 +115,13 @@ $cream-bg: #fcfbfa;
     &:hover {
       background: rgba(255, 255, 255, 0.15);
       border-color: rgba(255, 255, 255, 0.55);
-      color: #ffffff;
+      color: var(--color-sobre-primario);
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
       
       svg {
         transform: rotate(90deg);
-        color: #ffffff;
+        color: var(--color-sobre-primario);
       }
     }
   }
@@ -483,7 +483,7 @@ $cream-bg: #fcfbfa;
   ::ng-deep body {
     margin: 0 !important;
     padding: 0 !important;
-    background: #fff !important;
+    background: var(--color-sobre-primario) !important;
   }
 
   @page {

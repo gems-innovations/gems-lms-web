@@ -8,7 +8,7 @@ export type ToastType = 'success' | 'error' | 'warning' | 'info';
   selector: 'lib-toast',
   imports: [LucideDynamicIcon, LucideX],
   templateUrl: './toast.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './toast.component.scss'
 })
 export class ToastComponent {

@@ -1,8 +1,8 @@
-import { inject, Injectable, signal, computed, effect, DestroyRef } from '@angular/core';
+import { inject, Injectable, signal, computed, effect } from '@angular/core';
 import { CourseUseCase } from './course.usecase';
 import { EnrollmentUseCase } from './enrollment.usecase';
 import { EContentType, ILesson } from '../domain/model/course.model';
-import { ICourseCertificate } from '../domain/model/player.model';
+import { IAssignmentSubmitPayload, ICourseCertificate, IQuizSubmitPayload } from '../domain/model/player.model';
 import { AuthSessionService } from 'auth';
 import { SurveyService } from '../infrastructure/services/survey.service';
 
@@ -367,12 +367,12 @@ export class CoursePlayerUseCase {
     this._completedBlockIds.update(s => new Set([...s, blockId]));
   }
 
-  handleQuizSubmit(payload: { blockId: string; lessonId: string; courseId: string; answers: any[]; sessionId?: string }): void {
+  handleQuizSubmit(payload: IQuizSubmitPayload): void {
     this.enrollmentUc.submitQuiz(payload);
     // Block completion is handled reactively by the quiz-attempts effect (only if passed)
   }
 
-  handleAssignmentSubmit(payload: { blockId: string; lessonId: string; courseId: string; textContent: string; attachedFile?: File }): void {
+  handleAssignmentSubmit(payload: IAssignmentSubmitPayload): void {
     this.enrollmentUc.submitAssignment(payload);
     // Block is NOT marked complete here — only when the instructor grades it
   }

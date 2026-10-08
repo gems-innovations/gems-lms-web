@@ -1,13 +1,11 @@
-@use 'variables' as vars;
-@use 'sass:map';
 
 .confirmation-dialog {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: vars.$spacing-lg;
+  gap: var(--spacing-xl);
   text-align: center;
-  padding: vars.$spacing-md 0;
+  padding: var(--spacing-lg) 0;
 
   &__icon {
     display: flex;
@@ -20,26 +18,26 @@
 
     &--warning {
       background: color-mix(in srgb, var(--color-advertencia) 12%, transparent);
-      border: 2px solid rgba(251, 191, 36, 0.3);
-      color: map.get(vars.$colors, 'warning');
+      border: 2px solid color-mix(in srgb, var(--color-advertencia) 30%, transparent);
+      color: var(--color-advertencia);
     }
 
     &--danger {
       background: color-mix(in srgb, var(--color-error) 12%, transparent);
-      border: 2px solid rgba(239, 68, 68, 0.3);
-      color: map.get(vars.$colors, 'error');
+      border: 2px solid color-mix(in srgb, var(--color-error) 30%, transparent);
+      color: var(--color-error);
     }
 
     &--info {
       background: color-mix(in srgb, var(--color-info) 12%, transparent);
-      border: 2px solid rgba(59, 130, 246, 0.3);
-      color: #3B82F6;
+      border: 2px solid color-mix(in srgb, var(--color-info) 30%, transparent);
+      color: var(--color-info);
     }
 
     &--success {
       background: color-mix(in srgb, var(--color-exito) 12%, transparent);
-      border: 2px solid rgba(16, 185, 129, 0.3);
-      color: map.get(vars.$colors, 'success');
+      border: 2px solid color-mix(in srgb, var(--color-exito) 30%, transparent);
+      color: var(--color-exito);
     }
 
     svg {
@@ -50,15 +48,15 @@
 
   &__title {
     margin: 0;
-    font-size: vars.$font-size-lg;
-    font-weight: vars.$font-weight-bold;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
     color: var(--color-texto-principal);
     line-height: 1.3;
   }
 
   &__message {
     margin: 0;
-    font-size: vars.$font-size-base;
+    font-size: var(--font-size-base);
     color: var(--color-texto-secundario);
     line-height: 1.6;
     max-width: 400px;
@@ -66,9 +64,9 @@
 
   &__actions {
     display: flex;
-    gap: vars.$spacing-md;
+    gap: var(--spacing-lg);
     width: 100%;
-    margin-top: vars.$spacing-sm;
+    margin-top: var(--spacing-sm);
   }
 }
 
@@ -86,11 +84,11 @@
     }
 
     &__title {
-      font-size: vars.$font-size-base;
+      font-size: var(--font-size-base);
     }
 
     &__message {
-      font-size: vars.$font-size-sm;
+      font-size: var(--font-size-sm);
     }
 
     &__actions {

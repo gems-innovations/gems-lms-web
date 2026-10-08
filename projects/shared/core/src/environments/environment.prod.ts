@@ -1,6 +1,6 @@
 // Base del api-gateway (gems-lms-api). Se puede sobreescribir en tiempo de ejecución
 // definiendo globalThis.API_BASE_URL antes de arrancar la app.
-const API_BASE_URL = (globalThis as any).API_BASE_URL || 'http://localhost:8080/api/v1';
+const API_BASE_URL = (globalThis as { API_BASE_URL?: string }).API_BASE_URL || 'http://localhost:8080/api/v1';
 
 export const environment = {
   production: true,

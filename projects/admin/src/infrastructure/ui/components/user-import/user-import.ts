@@ -1,14 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { AuthSessionService } from 'auth';
 import {
-  environment, LibButtonComponent, LibSelectComponent, SelectOption, ToastService,
+  LibButtonComponent, LibSelectComponent, SelectOption, ToastService,
   AutoAnimateDirective, downloadCsv, parseCsvObjects,
 } from 'shared';
+import { UserDirectoryService } from '../../../services/user-directory.service';
+import type { IBulkResponse, TBulkStatus } from '../../../services/user-directory.service';
 
 type TRole = 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
-type TStatus = 'valid' | 'created' | 'exists' | 'invalid' | 'duplicate' | 'forbidden';
+type TStatus = TBulkStatus;
 
 interface IImportRow {
   row: number;
@@ -22,14 +23,6 @@ interface IImportRow {
   userId?: number;
   temporaryPassword?: string;
   enrolled?: number;
-}
-
-interface IBulkResponse {
-  total: number;
-  created: number;
-  failed: number;
-  dryRun: boolean;
-  rows: { row: number; email: string; status: TStatus; message: string | null; userId: number | null; temporaryPassword: string | null }[];
 }
 
 const MAX_ROWS = 2000;
@@ -62,10 +55,9 @@ const STATUS_LABEL: Record<IImportRow['status'], string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserImport implements OnInit {
-  private readonly http = inject(HttpClient);
+  private readonly directory = inject(UserDirectoryService);
   private readonly session = inject(AuthSessionService);
   private readonly toast = inject(ToastService);
-  private readonly urls = environment.apiUrls;
 
   protected readonly step = signal<'upload' | 'preview' | 'done'>('upload');
   protected readonly busy = signal(false);
@@ -95,12 +87,10 @@ export class UserImport implements OnInit {
 
   ngOnInit(): void {
     if (this.isSuperAdmin()) {
-      this.http.get<{ id: string; name: string }[] | { institutions: { id: string; name: string }[] }>(this.urls.admin.institutions)
-        .subscribe({
-          next: res => this.institutionOptions.set((Array.isArray(res) ? res : res.institutions ?? [])
-            .map(i => ({ value: i.id, label: i.name }))),
-          error: () => this.institutionOptions.set([]),
-        });
+      this.directory.institutions().subscribe({
+        next: list => this.institutionOptions.set(list.map(i => ({ value: i.id, label: i.name }))),
+        error: () => this.institutionOptions.set([]),
+      });
     }
   }
 
@@ -228,8 +218,7 @@ export class UserImport implements OnInit {
     const students = this.rows().filter(r => r.role === 'STUDENT' && r.courses.length && (r.status === 'created' || r.status === 'exists'));
     if (!students.length) return;
     const existing = students.some(r => r.status === 'exists')
-      ? await firstValueFrom(this.http.get<{ id?: number; userId?: number; email: string }[]>(
-        `${this.urls.users}/institution/${encodeURIComponent(this.institutionId())}`))
+      ? await firstValueFrom(this.directory.institutionUsers(this.institutionId()))
       : [];
     const idByEmail = new Map(existing.map(u => [u.email.toLowerCase(), u.userId ?? u.id]));
     const byCourse = new Map<number, IImportRow[]>();
@@ -244,8 +233,7 @@ export class UserImport implements OnInit {
     }
     const enrolled = new Map<number, number>();
     for (const [courseId, rows] of byCourse) {
-      const result = await firstValueFrom(this.http.post<{ studentId: number }[]>(`${this.urls.education.enrollments}/bulk`,
-        { courseId, studentIds: rows.map(r => r.userId) }));
+      const result = await firstValueFrom(this.directory.bulkEnroll(courseId, rows.flatMap(r => r.userId ? [r.userId] : [])));
       for (const e of result ?? []) enrolled.set(e.studentId, (enrolled.get(e.studentId) ?? 0) + 1);
     }
     this.rows.update(rows => rows.map(r => r.userId && enrolled.has(r.userId) ? { ...r, enrolled: enrolled.get(r.userId) } : r));
@@ -269,14 +257,12 @@ export class UserImport implements OnInit {
     }));
     // Las filas descartadas en el navegador no viajan; se reconstruye su número de fila original.
     const rowNumbers = this.rows().filter(r => !(r.status === 'invalid' && r.message.startsWith('Rol'))).map(r => r.row);
-    return firstValueFrom(this.http.post<IBulkResponse>(`${this.urls.auth.register}/bulk`, { users, dryRun }))
+    return firstValueFrom(this.directory.bulkRegister(users, dryRun))
       .then(res => ({ ...res, rows: res.rows.map(r => ({ ...r, row: rowNumbers[r.row - 1] })) }));
   }
 
   private async loadCourses(): Promise<void> {
-    const res = await firstValueFrom(this.http.get<{ courses: { id: number; title: string }[] }>(
-      `${this.urls.education.courses}?page=1&limit=500&institutionId=${encodeURIComponent(this.institutionId())}`));
-    this.courses.set(res.courses ?? []);
+    this.courses.set(await firstValueFrom(this.directory.courses(this.institutionId())));
   }
 
   private translate(message: string): string {

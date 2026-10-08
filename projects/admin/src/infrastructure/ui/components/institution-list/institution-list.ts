@@ -10,7 +10,7 @@ import { LucideTriangleAlert, LucideSchool } from '@lucide/angular';
   standalone: true,
   imports: [CommonModule, LoadingSkeletonComponent, SearchBarComponent, LucideTriangleAlert, LucideSchool],
   templateUrl: './institution-list.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './institution-list.scss'
 })
 export class InstitutionList {

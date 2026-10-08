@@ -18,7 +18,7 @@ import { ToastService } from '../toast/toast.service';
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     .toast-container {
       position: fixed;

@@ -7,7 +7,7 @@ import { IInstitution, EInstitutionStatus, EBrandingType } from '../../../../dom
   standalone: true,
   imports: [CommonModule],
   templateUrl: './institution-details.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './institution-details.scss'
 })
 export class InstitutionDetailsComponent {

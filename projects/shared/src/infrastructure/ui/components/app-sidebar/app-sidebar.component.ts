@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
-import { BrandingService } from 'shared/core';
+import { BrandingService, browserStorage } from 'shared/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { TranslatePipe } from '../../pipes/translate.pipe';
@@ -38,8 +38,7 @@ export class AppSidebarComponent {
 
   constructor() {
     // Lee la preferencia guardada apenas se conoce la storageKey.
-    const stored = () => localStorage.getItem(this.storageKey());
-    this.collapsed.set(stored() === '1');
+    this.collapsed.set(browserStorage.get(this.storageKey()) === '1');
   }
 
   protected readonly initials = computed(() => {
@@ -55,7 +54,7 @@ export class AppSidebarComponent {
   protected toggle(): void {
     const next = !this.collapsed();
     this.collapsed.set(next);
-    localStorage.setItem(this.storageKey(), next ? '1' : '0');
+    browserStorage.set(this.storageKey(), next ? '1' : '0');
   }
 
   protected handleLogout(): void { this.onLogout.emit(); }

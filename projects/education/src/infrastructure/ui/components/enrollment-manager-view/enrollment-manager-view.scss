@@ -13,6 +13,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-lg);
+  flex-wrap: wrap;
 }
 
 .enrollment-manager-view__title {
@@ -233,4 +234,11 @@
 
   &:hover:not(:disabled) { background: var(--color-primario-claro); }
   &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+// Celular: sin relleno extra (el layout ya da margen) y la fila de estadísticas puede bajar de línea.
+@media (max-width: 768px) {
+  .enrollment-manager-view { padding: var(--spacing-md) 0; }
+  .enrollment-manager-view__stats { flex-shrink: 1; }
+  .enrollment-manager-view__tabs { overflow-x: auto; }
 }

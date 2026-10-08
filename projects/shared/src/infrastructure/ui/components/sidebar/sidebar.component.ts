@@ -1,5 +1,6 @@
-import { Component, Input, output, signal, HostBinding, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { browserStorage } from 'shared/core';
 
 const COLLAPSED_KEY = 'gems-sidebar-collapsed';
 
@@ -24,34 +25,29 @@ export interface UserProfile {
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './sidebar.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[class.sidebar--collapsed]': 'collapsed()' },
   styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent {
-  @Input() menuItems: NavigationItem[] = [];
-  @Input() userProfile: UserProfile | null = null;
+  readonly menuItems = input<NavigationItem[]>([]);
+  readonly userProfile = input<UserProfile | null>(null);
 
   public readonly onLogout = output<void>();
 
-  readonly collapsed = signal(localStorage.getItem(COLLAPSED_KEY) === '1');
-
-  @HostBinding('class.sidebar--collapsed')
-  get isCollapsed() { return this.collapsed(); }
+  readonly collapsed = signal(browserStorage.get(COLLAPSED_KEY) === '1');
 
   toggle(): void {
     const next = !this.collapsed();
     this.collapsed.set(next);
-    localStorage.setItem(COLLAPSED_KEY, next ? '1' : '0');
+    browserStorage.set(COLLAPSED_KEY, next ? '1' : '0');
   }
 
-  getUserInitials(): string {
-    if (!this.userProfile) return '';
-    return this.userProfile.name
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase())
-      .slice(0, 2)
-      .join('');
-  }
+  protected readonly initials = computed(() => (this.userProfile()?.name ?? '')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase())
+    .slice(0, 2)
+    .join(''));
 
   handleLogout(): void {
     this.onLogout.emit();

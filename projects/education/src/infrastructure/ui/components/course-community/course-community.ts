@@ -1,5 +1,6 @@
 import { Component, inject, input, signal, computed, effect, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MarkdownComponent } from 'ngx-markdown';
 import { AuthSessionService } from 'auth';
@@ -248,8 +249,8 @@ export class CourseCommunity {
     });
   }
 
-  private fail(err: any, fallback: string): void {
+  private fail(err: unknown, fallback: string): void {
     this.busy.set(false);
-    this.toast.error(err?.status === 403 ? 'No tienes permiso para hacer esto' : fallback);
+    this.toast.error(err instanceof HttpErrorResponse && err.status === 403 ? 'No tienes permiso para hacer esto' : fallback);
   }
 }

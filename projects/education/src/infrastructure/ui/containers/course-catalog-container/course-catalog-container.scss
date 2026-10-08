@@ -26,14 +26,14 @@
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 
   &:hover:not(:disabled) {
-    background: rgba(123, 111, 240, 0.12);
-    border-color: rgba(123, 111, 240, 0.35);
+    background: color-mix(in srgb, var(--color-primario) 12%, transparent);
+    border-color: color-mix(in srgb, var(--color-primario) 35%, transparent);
     color: var(--color-texto-principal);
   }
 
   &--active {
-    background: rgba(123, 111, 240, 0.18);
-    border-color: rgba(123, 111, 240, 0.5);
+    background: color-mix(in srgb, var(--color-primario) 18%, transparent);
+    border-color: color-mix(in srgb, var(--color-primario) 50%, transparent);
     color: var(--color-primario-claro);
     font-weight: 600;
   }

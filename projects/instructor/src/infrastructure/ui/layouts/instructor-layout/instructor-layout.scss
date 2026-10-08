@@ -53,4 +53,10 @@
       flex-direction: column;
     }
   }
+
+  // Celular: la barra lateral queda en riel de 60 px; el contenido recupera el ancho con márgenes más chicos.
+  @media (max-width: 768px) {
+    &__inner:not(.ilayout__inner--full) { padding: 1.25rem 1rem 2rem; }
+    &__bell { right: 12px; }
+  }
 }

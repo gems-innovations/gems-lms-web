@@ -12,12 +12,16 @@ import {
 } from '../../../../domain/model/course.model';
 import { IQuizAnswer } from '../../../../domain/model/enrollment.model';
 import { QuizSessionService } from '../../../services/quiz-session.service';
+import { toVideoEmbedUrl } from '../../../../application/video-embed';
 import {
   IQuizSubmitPayload, IAssignmentSubmitPayload, IQuizResult,
   IAssignmentSubmission
 } from '../../../../domain/model/player.model';
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
+
+/** Only the embedded players may tell us that a video ended. */
+const VIDEO_PLAYER_ORIGINS = new Set(['https://www.youtube.com', 'https://www.youtube-nocookie.com', 'https://player.vimeo.com']);
 
 const ALLOWED_TYPES: Record<string, string> = {
   'application/pdf': 'PDF',
@@ -92,7 +96,8 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   protected readonly videoEmbedUrl = computed((): SafeResourceUrl | null => {
     const block = this.block();
     if (!block || block.type !== EContentType.VIDEO || !block.url || this.directVideo()) return null;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(this.resolveVideoUrl(block));
+    const embed = toVideoEmbedUrl(block.url);
+    return embed ? this.sanitizer.bypassSecurityTrustResourceUrl(embed) : null;
   });
 
   /** Uploaded or external video files play in <video>, with subtitles and keyboard controls. */
@@ -260,7 +265,7 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   onWindowMessage(event: MessageEvent): void {
     if (this.isComplete() || this.isLocked()) return;
     const block = this.block();
-    if (!block || block.type !== EContentType.VIDEO) return;
+    if (!block || block.type !== EContentType.VIDEO || !VIDEO_PLAYER_ORIGINS.has(event.origin)) return;
     try {
       const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
       if (!data || typeof data !== 'object') return;
@@ -513,22 +518,5 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
 
   private _stopReadingTimer(): void {
     if (this._readingTimer) { clearInterval(this._readingTimer); this._readingTimer = null; }
-  }
-
-  private resolveVideoUrl(block: IContentBlock): string {
-    const url = block.url!;
-    if (url.includes('/embed/') || url.includes('player.vimeo')) return url;
-    if (url.includes('youtube') || url.includes('youtu.be') || block.videoProvider === 'youtube') {
-      const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^?&]+)/);
-      const id = match?.[1] ?? '';
-      // Subtítulos de YouTube activados y en español cuando existen.
-      return id ? `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1&enablejsapi=1&cc_load_policy=1&cc_lang_pref=es&hl=es` : url;
-    }
-    if (url.includes('vimeo') || block.videoProvider === 'vimeo') {
-      const match = url.match(/vimeo\.com\/(\d+)/);
-      const id = match?.[1] ?? '';
-      return id ? `https://player.vimeo.com/video/${id}?title=0&byline=0&api=1&texttrack=es` : url;
-    }
-    return url;
   }
 }

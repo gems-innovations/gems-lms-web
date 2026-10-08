@@ -53,7 +53,7 @@
     .csv__step-dot {
       border-color: var(--color-primario);
       background: var(--color-primario);
-      color: #fff;
+      color: var(--color-sobre-primario);
       box-shadow: 0 0 0 3px var(--color-primario-trans-10);
     }
     .csv__step-label { color: var(--color-texto-principal); }
@@ -145,12 +145,12 @@
     &:hover { border-color: var(--color-primario); color: var(--color-texto-principal); }
 
     &--active {
-      color: #fff;
+      color: var(--color-sobre-primario);
       transform: translateY(-2px);
       box-shadow: var(--sombra-md);
     }
     &--low  { background: var(--color-error);       border-color: var(--color-error); }
-    &--mid  { background: var(--color-advertencia);  border-color: var(--color-advertencia); color: #1a1a1a; }
+    &--mid  { background: var(--color-advertencia);  border-color: var(--color-advertencia); color: var(--color-sobre-acento); }
     &--high { background: var(--color-exito);        border-color: var(--color-exito); }
   }
 
@@ -226,7 +226,7 @@
     cursor: pointer;
     color: var(--color-borde-principal);
 
-    &--on { color: #f5b301; }
+    &--on { color: var(--color-advertencia); }
   }
 
   &__comment {

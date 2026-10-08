@@ -18,7 +18,7 @@
   min-width: 0;
 
   &::-webkit-scrollbar { width: 4px; }
-  &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+  &::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--color-texto-principal) 6%, transparent); border-radius: 2px; }
 }
 
 .cpanel__detail { max-width: 680px; margin: 0 auto; }
@@ -70,6 +70,17 @@
 
 .cpanel__thumbnail-info { position: absolute; bottom: 1rem; left: 1rem; }
 
+// Sobre la portada el fondo siempre es oscuro: la etiqueta de estado va con texto claro en ambos temas.
+.cpanel__thumbnail-info .cpanel__status-pill {
+  color: var(--color-sobre-primario);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  &--draft     { background: color-mix(in srgb, var(--color-advertencia) 35%, rgba(0,0,0,0.62)); }
+  &--published { background: color-mix(in srgb, var(--color-exito-intenso) 35%, rgba(0,0,0,0.62)); }
+  &--archived  { background: rgba(0,0,0,0.62); }
+}
+
 .cpanel__status-pill {
   padding: 0.2rem 0.6rem;
   border-radius: 20px;
@@ -81,7 +92,7 @@
 
   &--draft     { background: color-mix(in srgb, var(--color-advertencia) 15%, transparent); color: var(--color-advertencia); }
   &--published { background: color-mix(in srgb, var(--color-exito) 15%, transparent); color: var(--color-exito); }
-  &--archived  { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
+  &--archived  { background: color-mix(in srgb, var(--color-texto-principal) 7%, transparent); color: var(--color-texto-terciario); }
   &--lg        { font-size: 0.75rem; padding: 0.3rem 0.8rem; }
 }
 
@@ -189,7 +200,7 @@
   transition: background 0.15s;
 
   &:last-child { border-bottom: none; }
-  &:hover { background: rgba(255,255,255,0.03); }
+  &:hover { background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent); }
 }
 
 .cpanel__lesson-order {
@@ -297,7 +308,7 @@
   transition: background 0.12s;
 
   &:last-child { border-bottom: none; }
-  &:hover { background: rgba(255,255,255,0.02); }
+  &:hover { background: color-mix(in srgb, var(--color-texto-principal) 2%, transparent); }
 }
 
 .cpanel__block-type {
@@ -315,8 +326,8 @@
   min-width: 90px;
   justify-content: center;
 
-  &--video        { background: rgba(#60a5fa, 0.12); color: #60a5fa; }
-  &--document     { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
+  &--video        { background: color-mix(in srgb, var(--color-info) 12%, transparent); color: var(--color-info); }
+  &--document     { background: color-mix(in srgb, var(--color-texto-principal) 7%, transparent); color: var(--color-texto-terciario); }
   &--quiz         { background: color-mix(in srgb, var(--color-advertencia) 12%, transparent); color: var(--color-advertencia); }
   &--assignment   { background: color-mix(in srgb, var(--color-exito) 12%, transparent); color: var(--color-exito); }
   &--live-session { background: color-mix(in srgb, var(--color-error) 12%, transparent); color: var(--color-error); }
@@ -400,4 +411,20 @@
     border-color: var(--color-primario, var(--color-primary));
     background: rgba(99,102,241,0.06);
   }
+}
+
+// Celular: el panel va bajo el árbol y el scroll lo maneja el contenedor del editor.
+@media (max-width: 768px) {
+  :host { flex: none; overflow: visible; }
+  .cpanel { flex: none; overflow: visible; padding: 1rem; }
+  .cpanel__info-row { grid-template-columns: 1fr; gap: 0.25rem; }
+  .cpanel__blocks-header { gap: 0.5rem; }
+  .cpanel__add-block-btn { white-space: nowrap; flex-shrink: 0; }
+  // Bloque de contenido: tipo, duración y vista previa en la primera fila; el título abajo, completo.
+  .cpanel__block-card { flex-wrap: wrap; row-gap: 0.5rem; gap: 0.5rem; }
+  .cpanel__block-type { min-width: 0; }
+  .cpanel__block-meta { flex-direction: row; align-items: center; margin-left: auto; gap: 0.5rem; }
+  .cpanel__block-body { order: 3; flex: 1 1 100%; }
+  .cpanel__block-title, .cpanel__block-desc { white-space: normal; }
+  .cpanel__preview-btn { font-size: 0; gap: 0; padding-inline: 0.6rem; flex-shrink: 0; }
 }
