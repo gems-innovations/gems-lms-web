@@ -19,6 +19,9 @@
   overflow: hidden;
 }
 
+.course-player-container__progress { display: contents; }
+.course-player-container__progress-header { display: none; }
+
 /* ── Banner curso completado ───────────────────────────────────────────────── */
 
 .course-complete-banner {
@@ -249,9 +252,67 @@
 @media (max-width: 768px) {
   .course-player-container__body { flex-direction: column; overflow-y: auto; }
   .course-player-container__content { flex: none; overflow: visible; }
+  .course-player-container__progress { display: none; }
+
+  .course-player-container__progress--open {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    display: flex;
+    flex-direction: column;
+    background: #0e0e16;
+  }
+
+  .course-player-container__progress-header {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 8px 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(14, 14, 22, 0.97);
+  }
+
+  .course-player-container__progress-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #EDEAF8;
+  }
+
+  .course-player-container__progress-value {
+    flex: 0 0 auto;
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: #9B8FF8;
+  }
+
+  .course-player-container__progress-close {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.75);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  }
+
   .course-player-container__body edu-player-sidebar {
-    flex: none !important; min-width: 0 !important; max-width: none !important; width: 100%;
-    border-top: 1px solid var(--color-borde-principal);
+    flex: 1 1 auto !important; min-width: 0 !important; max-width: none !important; width: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
   .course-complete-banner { flex-direction: column; align-items: stretch; padding: 12px 16px; }
 }

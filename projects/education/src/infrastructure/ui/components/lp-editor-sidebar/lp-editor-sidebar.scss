@@ -73,3 +73,16 @@
 
   svg { color: color-mix(in srgb, var(--color-texto-principal) 25%, transparent); flex-shrink: 0; }
 }
+
+// Celular: el panel de metadatos ocupa todo el ancho, encima de la secuencia.
+@media (max-width: 768px) {
+  .lp-sidebar {
+    width: 100%;
+    flex-shrink: 0;
+    overflow-y: visible;
+    border-right: 0;
+    border-bottom: 1px solid var(--color-borde-sutil);
+  }
+
+  .lp-sidebar__thumbnail { height: 120px; }
+}

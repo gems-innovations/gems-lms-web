@@ -270,15 +270,29 @@
   &:hover { color: var(--color-primario); border-color: color-mix(in srgb, var(--color-primario) 30%, transparent); background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
 }
 
-// Celular: el árbol se apila sobre el panel, a todo el ancho y con scroll propio acotado.
+// Celular: el árbol ocupa todo el ancho (maestro) y los controles son táctiles.
 @media (max-width: 768px) {
-  :host { flex: none; overflow: visible; }
+  :host { flex: 1; min-width: 0; flex-shrink: 1; }
 
-  .ctree {
-    width: 100%;
-    flex: none;
-    max-height: 40vh;
-    border-right: none;
-    border-bottom: 1px solid var(--color-borde-sutil);
-  }
+  .ctree { width: 100%; border-right: 0; }
+
+  .ctree__expand-btn,
+  .ctree__add-lesson-btn { width: 44px; height: 44px; }
+
+  // Sin hover en táctil: el botón de agregar lección debe verse siempre.
+  .ctree__add-lesson-btn { opacity: 1; }
+
+  .ctree__module-row,
+  .ctree__lesson-row,
+  .ctree__course-btn { min-height: 44px; }
+}
+
+// Celular: piso de 12px para texto informativo.
+@media (max-width: 768px) {
+  .ctree__count, .ctree__module-meta { font-size: 0.75rem; }
+}
+
+// Celular: objetivos táctiles de 44px.
+@media (max-width: 768px) {
+  .ctree__add-module-btn { min-height: 44px; }
 }

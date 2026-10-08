@@ -318,3 +318,8 @@
 
   &::before { content: '·'; margin-right: 2px; }
 }
+
+// Celular: piso de 12px para texto informativo.
+@media (max-width: 768px) {
+  .outline__node-num, .outline__module-badge, .outline__lesson-num, .outline__lesson-dur { font-size: 0.75rem; }
+}

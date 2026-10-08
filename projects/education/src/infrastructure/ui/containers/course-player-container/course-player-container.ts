@@ -2,6 +2,7 @@ import {
   Component, inject, OnInit, OnDestroy, signal, computed,
   ChangeDetectionStrategy, HostListener, effect
 } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { celebrate } from 'shared';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, Observable } from 'rxjs';
@@ -26,7 +27,7 @@ const INACTIVITY_THRESHOLD_MS = 5 * 60 * 1000; // 5 min
   imports: [
     LoadingSkeletonComponent, EmptyStateComponent,
     PlayerTopbar, PlayerSidebar, PlayerContentBlock, CourseCertificate,
-    CourseResult
+    CourseResult, DecimalPipe
   ],
   templateUrl: './course-player-container.html',
   styleUrl: './course-player-container.scss',
@@ -40,6 +41,7 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
 
   protected readonly sidebarWidthPx     = signal<number | null>(null);
   protected readonly showCertificate    = signal(false);
+  protected readonly showProgress       = signal(false);
   protected readonly forceSubmitTrigger = signal(0);
   private readonly _quizActive          = signal(false);
   private readonly _pendingNav          = signal<(() => void) | null>(null);
@@ -262,6 +264,12 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
       this._deactivateSubject = null;
     }
   }
+
+  protected openProgress(): void { this.showProgress.set(true); }
+  protected closeProgress(): void { this.showProgress.set(false); }
+
+  @HostListener('document:keydown.escape')
+  protected onEscape(): void { this.closeProgress(); }
 
   protected goHome(): void { this._guardedNav(() => this.router.navigate(['/learn/home'])); }
   protected openCommunity(): void {

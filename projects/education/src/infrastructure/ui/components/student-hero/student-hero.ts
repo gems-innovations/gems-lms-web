@@ -17,7 +17,7 @@ export class StudentHero {
 
   protected readonly greeting = computed(() => {
     const h = new Date().getHours();
-    if (h < 12) return 'Buenos dÃ­as';
+    if (h < 12) return 'Buenos días';
     if (h < 18) return 'Buenas tardes';
     return 'Buenas noches';
   });

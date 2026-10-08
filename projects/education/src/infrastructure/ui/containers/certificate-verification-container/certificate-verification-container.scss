@@ -2,6 +2,7 @@
 // para respetar el tema (oscuro por defecto, claro con .light-mode) y la marca de la institución.
 .verify {
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: var(--spacing-2xl);

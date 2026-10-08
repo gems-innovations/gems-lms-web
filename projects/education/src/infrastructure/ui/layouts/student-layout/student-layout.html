@@ -106,7 +106,7 @@
 
   <!-- ── Main content ─────────────────────────────────────────────────────── -->
   <main class="slayout__main" [class.slayout__main--full]="isFullWidthRoute()">
-    <div class="slayout__inner" [class.slayout__inner--full]="isFullWidthRoute()">
+    <div class="slayout__inner" [class.slayout__inner--full]="isFullWidthRoute()" [class.slayout__inner--bleed]="isPlayerRoute()">
       <router-outlet />
     </div>
   </main>

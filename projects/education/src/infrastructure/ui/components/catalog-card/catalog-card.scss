@@ -241,3 +241,12 @@
 .catalog-card__blocked {
   color: var(--color-advertencia);
 }
+
+@media (max-width: 768px) {
+  .catalog-card__btn { height: 44px; min-width: 44px; }
+}
+
+// Celular: piso de 12px para texto informativo.
+@media (max-width: 768px) {
+  .catalog-card__tag { font-size: 0.75rem; }
+}

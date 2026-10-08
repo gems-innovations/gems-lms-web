@@ -441,3 +441,37 @@
 }
 
 .psidebar__survey:hover .psidebar__survey-arrow { transform: translateX(2px); }
+
+/* ── Celular: objetivos táctiles >=44px y tipografía legible ───────────────── */
+@media (max-width: 768px) {
+  :host { height: auto; }
+  .psidebar { height: auto; border-left: 0; }
+
+  .psidebar__node-num,
+  .psidebar__module-badge { font-size: 11px; }
+  .psidebar__module-header { min-height: 44px; padding: 6px 0; }
+  .psidebar__module-title { font-size: 13px; }
+
+  .psidebar__lesson { min-height: 56px; padding: 9px 10px; }
+  .psidebar__lesson-num,
+  .psidebar__lesson-dur { font-size: 12px; }
+  .psidebar__lesson-title { font-size: 13px; }
+
+  .psidebar__blocks { gap: 6px; }
+  .psidebar__block {
+    position: relative;
+    min-height: 26px;
+    justify-content: center;
+    padding: 3px 10px;
+    font-size: 12px;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -9px -3px;
+    }
+  }
+
+  .psidebar__survey-title { font-size: 13px; }
+  .psidebar__survey-sub { font-size: 12px; }
+}

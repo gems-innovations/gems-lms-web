@@ -11,7 +11,7 @@ $red:     var(--color-error);
 
 .mlearning__layout {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: minmax(0, 1fr) 300px;
   gap: 28px;
   align-items: start;
 }
@@ -533,18 +533,27 @@ $red:     var(--color-error);
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 
-@media (max-width: 960px) {
-  :host { padding: 24px 20px; }
+@media (max-width: 900px) {
+  // El layout del estudiante ya aporta el padding horizontal en móvil.
+  :host { padding: 16px 0 24px; }
 
-  .mlearning__layout { grid-template-columns: minmax(0, 1fr); }
+  .mlearning__layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .mlearning__sidebar { position: static; }
-  // Una sola columna: reservar altura de dos filas solo dejaría un hueco bajo la tarjeta.
-  .mlearning__course-grid { min-height: 0; }
+  .mlearning__main { min-width: 0; }
+
+  .mlearning__course-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); min-height: 0; }
+  .mlearning__path-grid   { grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); }
 }
 
 @media (max-width: 480px) {
-  :host { padding: 16px 12px; }
+  .mlearning__course-grid,
+  .mlearning__path-grid { grid-template-columns: minmax(0, 1fr); }
 
   .mlearning__cert-card { flex-wrap: wrap; }
   .mlearning__cert-btn { margin-left: auto; }
+}
+
+// Celular: objetivos táctiles de 44px.
+@media (max-width: 768px) {
+  .mlearning__link { display: inline-flex; align-items: center; min-height: 44px; }
 }

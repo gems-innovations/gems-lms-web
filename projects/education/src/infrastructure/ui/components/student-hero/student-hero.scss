@@ -7,8 +7,8 @@
   // Cancel slayout__inner's 3rem padding + the centering gap on wide screens.
   // --slayout-centering-gap is set by student-layout on slayout__inner and
   // inherits down; Sass passes CSS custom property values through unprocessed.
-  margin-left:   calc(-3rem - var(--slayout-centering-gap, 0px));
-  margin-right:  calc(-3rem - var(--slayout-centering-gap, 0px));
+  margin-left:   calc(-1 * var(--slayout-pad, 3rem) - var(--slayout-centering-gap, 0px));
+  margin-right:  calc(-1 * var(--slayout-pad, 3rem) - var(--slayout-centering-gap, 0px));
   margin-bottom: 3rem;
   padding: 0;
   min-height: 360px;
@@ -267,4 +267,23 @@
     background: color-mix(in srgb, var(--color-teal) 20%, transparent);
     color: var(--color-teal);
   }
+}
+
+// ── mobile ─────────────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .shero { margin-bottom: 1.5rem; min-height: 0; }
+
+  .shero__inner {
+    gap: 1.5rem;
+    padding: 2rem var(--slayout-pad, 1rem) 2rem;
+  }
+
+  .shero__copy { min-width: 0; max-width: none; flex-basis: 100%; }
+
+  .shero__card { width: 100%; max-width: 100%; }
+}
+
+// Celular: piso de 12px para texto informativo.
+@media (max-width: 768px) {
+  .shero__card-header { font-size: 0.75rem; }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, output, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImageUploadComponent } from 'shared';
 import { CourseEditorUseCase } from '../../../../application/course-editor.usecase';
@@ -16,6 +16,9 @@ import { ICreateContentBlockRequest, IContentBlock } from '../../../../domain/mo
 })
 export class CourseEditorPanel {
   protected readonly uc = inject(CourseEditorUseCase);
+
+  /** Celular (maestro-detalle): vuelve al árbol de currículo. */
+  readonly backToTree = output<void>();
 
   protected readonly showBlockModal      = signal(false);
   protected readonly blockModalLessonId  = signal<string | null>(null);

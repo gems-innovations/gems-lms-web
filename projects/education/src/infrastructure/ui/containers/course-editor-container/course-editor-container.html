@@ -5,9 +5,9 @@
     <lib-loading-skeleton type="card" [rows]="3" />
   </div>
 } @else if (uc.course()) {
-  <div class="ceditor__main">
-    <edu-course-curriculum-tree />
-    <edu-course-editor-panel />
+  <div class="ceditor__main" [class.ceditor__main--panel]="showPanel()">
+    <edu-course-curriculum-tree (click)="onTreeClick($event)" />
+    <edu-course-editor-panel (backToTree)="showPanel.set(false)" />
   </div>
 } @else {
   <lib-empty-state title="No pudimos abrir el curso" description="El curso no está disponible o hubo un problema de conexión." actionLabel="Reintentar" (action)="uc.retry()" />

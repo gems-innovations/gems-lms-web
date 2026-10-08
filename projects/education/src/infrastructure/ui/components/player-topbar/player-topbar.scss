@@ -16,6 +16,10 @@
   -webkit-backdrop-filter: blur(16px);
 }
 
+.player-topbar__head { display: contents; }
+.player-topbar__percent,
+.player-topbar__more { display: none; }
+
 /* ── Left ──────────────────────────────────────────────────────────────────── */
 
 .player-topbar__left {
@@ -185,19 +189,111 @@
   &:focus-visible { background: color-mix(in srgb, var(--color-texto-principal) 8%, transparent); color: var(--color-sobre-primario); }
 }
 
-// ── Celular: dos filas (título arriba, acciones abajo) sin desbordar ─────────
 @media (max-width: 768px) {
-  .player-topbar { flex-wrap: wrap; row-gap: 8px; height: auto; padding-block: 10px; }
-  .player-topbar__left { flex: 1 1 100%; min-width: 0; }
+  .player-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    height: auto;
+    padding: 0;
+  }
+
+  .player-topbar__head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 8px 0.75rem 11px;
+  }
+
+  .player-topbar__left { flex: 1 1 auto; min-width: 0; }
+  .player-topbar__back { width: 44px; height: 44px; }
   .player-topbar__course-name { display: none; }
-  .player-topbar__lesson-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .player-topbar__right { flex: 1 1 100%; flex-wrap: wrap; justify-content: space-between; gap: 6px; }
-  .player-topbar__nav-btn--next { margin-left: auto; }
-  .player-topbar__grades { padding-inline: 8px; min-height: 36px; }
-  .player-topbar__nav-btn { padding-inline: 10px; }
-  // «Anterior» queda solo con la flecha; «Siguiente» conserva el texto (es la acción principal).
-  .player-topbar__nav-btn:not(.player-topbar__nav-btn--next) { font-size: 0; padding-inline: 10px; }
-  .player-topbar__nav-btn { min-height: 40px; }
+  .player-topbar__lesson-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+
+  .player-topbar__percent {
+    display: block;
+    flex: 0 0 auto;
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: #9B8FF8;
+  }
+
+  .player-topbar__progress-track { height: 3px; }
+
+  .player-topbar__right {
+    width: 100%;
+    flex-shrink: 1;
+    gap: 8px;
+    padding: 4px 0.75rem 10px;
+  }
+
+  .player-topbar__grades,
+  .player-topbar__progress-chip { display: none; }
+
+  .player-topbar__nav-btn {
+    flex: 1 1 0;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 0;
+  }
+
+  .player-topbar__more { position: relative; display: block; flex: 0 0 auto; }
+
+  .player-topbar__more-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.75);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible,
+    &[aria-expanded=true] { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  }
+
+  .player-topbar__menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 11rem;
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(20, 20, 32, 0.99);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  .player-topbar__menu-item {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #EDEAF8;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible { background: rgba(255, 255, 255, 0.08); }
+  }
 }
 
 // En pantallas muy angostas el porcentaje ya se ve en la barra fina inferior: se oculta el chip para que quepan las acciones en una fila.
