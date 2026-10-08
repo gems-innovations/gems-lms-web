@@ -78,6 +78,10 @@ app.use(
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
       } else if (['ngsw.json', 'ngsw-worker.js', 'manifest.webmanifest'].includes(file)) {
         res.setHeader('Cache-Control', 'no-cache');
+        // El service worker re-pide las imágenes externas con el connect-src de su propia respuesta.
+        if (file === 'ngsw-worker.js') {
+          res.setHeader('Content-Security-Policy', "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; connect-src 'self' https:");
+        }
       } else {
         res.setHeader('Cache-Control', 'public, max-age=86400');
       }
