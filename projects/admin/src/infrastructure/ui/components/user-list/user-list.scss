@@ -159,3 +159,15 @@
     }
   }
 }
+
+@media (max-width: 768px) {
+  .user-list__action-btn { width: 44px; height: 44px; }
+  .user-list { overflow-wrap: anywhere; }
+}
+
+// Celular: la fila pasa a flex con envoltura (identidad arriba; rol, estado y acciones debajo).
+@media (max-width: 560px) {
+  .user-list__row { display: flex; flex-wrap: wrap; gap: var(--spacing-sm) var(--spacing-md); }
+  .user-list__info { flex: 1 1 calc(100% - 56px); min-width: 0; overflow-wrap: anywhere; }
+  .user-list__actions { margin-left: auto; }
+}

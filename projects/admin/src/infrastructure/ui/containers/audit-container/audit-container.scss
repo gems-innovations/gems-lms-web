@@ -144,4 +144,22 @@ td small { display: block; margin-top: .27rem; color: var(--color-texto-terciari
 .audit__pagination { display: flex; align-items: center; justify-content: flex-end; gap: .85rem; padding: 1rem 1.35rem; border-top: 1px solid var(--color-borde-principal); color: var(--color-texto-terciario); font-size: .8rem; }
 
 @media (max-width: 1050px) { .audit__filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .audit__filter-actions { justify-content: flex-start; } }
-@media (max-width: 600px) { .audit__filters { grid-template-columns: 1fr; padding: .9rem; } .audit__filter-actions button { flex: 1; } .audit__pagination { justify-content: space-between; padding: .9rem; } th, td { padding: .85rem .9rem; } th:nth-child(6), td:nth-child(6) { display: none; } }
+@media (max-width: 600px) { .audit__filters { grid-template-columns: 1fr; padding: .9rem; } .audit__filter-actions button { flex: 1; } .audit__pagination { justify-content: space-between; padding: .9rem; } }
+
+// Celular: cada evento se muestra como una tarjeta apilada (etiqueta: valor).
+@media (max-width: 640px) {
+  .audit__table-wrap { overflow-x: visible; }
+  table, tbody, tr, td { display: block; min-width: 0; width: 100%; }
+  thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  tbody tr { padding: .5rem 0; border-bottom: 1px solid var(--color-borde-principal); }
+  tbody tr:last-child { border-bottom: 0; }
+  td { display: flex; justify-content: space-between; gap: 1rem; padding: .45rem .9rem; border-bottom: 0; text-align: right; font-size: .875rem; }
+  td::before { content: attr(data-label); flex: 0 0 auto; color: var(--color-texto-terciario); font-size: .75rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; text-align: left; }
+  td > * { min-width: 0; overflow-wrap: anywhere; }
+  td small { white-space: normal; }
+}
+
+// Celular: piso de 12px para texto informativo.
+@media (max-width: 768px) {
+  .audit__filters label, th { font-size: 0.75rem; }
+}

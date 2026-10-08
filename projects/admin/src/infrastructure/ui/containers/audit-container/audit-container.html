@@ -24,12 +24,12 @@
           <tbody>
             @for (event of events(); track event.id) {
               <tr>
-                <td><time [attr.datetime]="event.occurredAt">{{ event.occurredAt | date:'dd/MM/yyyy HH:mm' }}</time></td>
-                <td><strong>#{{ event.actorUserId }}</strong><small>{{ event.actorRole }} · {{ event.institutionId || 'Global' }}</small></td>
-                <td><span class="audit__action" [class]="'audit__action audit__action--' + event.action.toLowerCase()">{{ label(event.action) }}</span></td>
-                <td><strong>{{ resource(event.resourcePath) }}</strong><small>{{ event.httpMethod }} {{ event.resourcePath }}</small></td>
-                <td><span [class.audit__status-ok]="event.responseStatus < 400" [class.audit__status-error]="event.responseStatus >= 400">{{ event.responseStatus }}</span></td>
-                <td>{{ event.clientIp || '—' }}</td>
+                <td data-label="Fecha"><time [attr.datetime]="event.occurredAt">{{ event.occurredAt | date:'dd/MM/yyyy HH:mm' }}</time></td>
+                <td data-label="Usuario"><strong>#{{ event.actorUserId }}</strong><small>{{ event.actorRole }} · {{ event.institutionId || 'Global' }}</small></td>
+                <td data-label="Acción"><span class="audit__action" [class]="'audit__action audit__action--' + event.action.toLowerCase()">{{ label(event.action) }}</span></td>
+                <td data-label="Recurso"><strong>{{ resource(event.resourcePath) }}</strong><small>{{ event.httpMethod }} {{ event.resourcePath }}</small></td>
+                <td data-label="Resultado"><span [class.audit__status-ok]="event.responseStatus < 400" [class.audit__status-error]="event.responseStatus >= 400">{{ event.responseStatus }}</span></td>
+                <td data-label="IP">{{ event.clientIp || '—' }}</td>
               </tr>
             }
           </tbody>

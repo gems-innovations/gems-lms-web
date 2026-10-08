@@ -124,3 +124,8 @@
     }
   }
 }
+
+// Celular: objetivos táctiles de 44px.
+@media (max-width: 768px) {
+  .uform__btn { min-height: 44px; }
+}
