@@ -97,3 +97,8 @@
   &__where { font-size: var(--font-size-xs); color: var(--color-texto-terciario); }
   &__fix { color: var(--color-texto-secundario); }
 }
+
+// Celular: objetivos táctiles de 44px.
+@media (max-width: 768px) {
+  .a11y__toggle { min-height: 44px; }
+}

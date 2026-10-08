@@ -46,3 +46,22 @@
     }
   }
 }
+
+@media (max-width: 640px) {
+  .page-header {
+    align-items: stretch;
+    gap: var(--spacing-md);
+
+    &__title { font-size: var(--font-size-xl); }
+
+    // Las acciones (selects/botones) pasan a su propia fila a todo el ancho.
+    &__actions {
+      flex-shrink: 1;
+      flex-wrap: wrap;
+      width: 100%;
+      min-width: 0;
+
+      > * { flex: 1 1 auto; min-width: 0; max-width: 100%; }
+    }
+  }
+}

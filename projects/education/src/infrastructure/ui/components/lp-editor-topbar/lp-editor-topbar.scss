@@ -89,3 +89,13 @@
 
   &:hover { color: var(--color-texto-principal); border-color: var(--color-borde-principal); }
 }
+
+// Celular: topbar compacto con objetivos táctiles de 44px.
+@media (max-width: 768px) {
+  .lpeditor-topbar {
+    gap: 0.5rem;
+    padding: 0 0.75rem;
+  }
+
+  .lpeditor-topbar button { min-height: 44px; }
+}

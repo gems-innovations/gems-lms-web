@@ -43,3 +43,7 @@
     cursor: not-allowed;
   }
 }
+
+@media (max-width: 768px) {
+  .catalog-page-btn { min-width: 44px; height: 44px; }
+}

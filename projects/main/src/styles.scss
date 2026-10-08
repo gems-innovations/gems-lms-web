@@ -118,6 +118,7 @@ html {
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--color-fondo-principal);
   color: var(--color-texto-principal);
 }
@@ -384,6 +385,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   margin: 0 -2.5rem 0 -2rem;
 
@@ -525,7 +527,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .s-home__popular-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
   gap: 1rem;
 }
 
@@ -643,7 +645,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 960px) {
-  .s-home { flex-direction: column; }
+  .s-home { flex-direction: column; align-items: stretch; }
   .s-home__sidebar { width: 100%; position: static; }
 }
 
@@ -652,6 +654,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   margin: 0 -2.5rem 0 -2rem;
 
@@ -726,3 +729,80 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
 .driver-popover.gems-tour .driver-popover-arrow-side-bottom { border-top-color: #28243a; }
 .driver-popover.gems-tour .driver-popover-arrow-side-left { border-right-color: #28243a; }
 .driver-popover.gems-tour .driver-popover-arrow-side-right { border-left-color: #28243a; }
+
+// ── Markdown en celular: títulos más pequeños y tablas/código sin desbordar ──
+@media (max-width: 640px) {
+  .markdown-body {
+    overflow-wrap: anywhere;
+
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+    h3 { font-size: 1.125rem; }
+
+    table { display: block; max-width: 100%; overflow-x: auto; }
+    pre { max-width: 100%; overflow-x: auto; }
+    img { max-width: 100%; height: auto; }
+  }
+}
+
+// ── Editor de cursos en celular: maestro-detalle (árbol o panel) ─────────────
+@media (max-width: 768px) {
+  // Layout education: su contenido tiene padding lateral de 1rem y arranca bajo la barra superior.
+  .ceditor {
+    margin: 0 -1rem;
+    height: calc(100dvh - var(--mobile-topbar-h, 56px));
+  }
+
+  .ceditor__main edu-course-editor-panel { display: none; }
+  .ceditor__main--panel edu-course-editor-panel { display: flex; }
+  .ceditor__main--panel edu-course-curriculum-tree { display: none; }
+}
+
+// ── Editor de rutas en celular: panel de metadatos arriba y secuencia debajo ──
+@media (max-width: 768px) {
+  .lpeditor {
+    margin: 0 -1rem;
+    height: calc(100dvh - var(--mobile-topbar-h, 56px));
+  }
+
+  .ilayout__inner--full .lpeditor {
+    margin: 0;
+    flex: 1;
+    min-height: 0;
+    height: auto;
+  }
+
+  .lpeditor__main {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+}
+
+// ── iOS Safari: un campo con fuente < 16px hace zoom automático al enfocar ───
+// !important: los componentes fijan su propio font-size con selectores encapsulados.
+@media (max-width: 768px) {
+  input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='color'], [type='hidden']),
+  select,
+  textarea {
+    font-size: max(16px, 1em) !important;
+  }
+
+  textarea { min-height: 44px; }
+}
+
+// ── Celular: checkboxes/radios con área táctil ampliada (la casilla visual no cambia) ──
+@media (max-width: 768px) {
+  label:has(> input[type='checkbox']),
+  label:has(> input[type='radio']) {
+    min-height: 44px;
+    align-items: center;
+  }
+}
+
+// El botón flotante de guía (?) no debe pintarse sobre modales ni drawers abiertos.
+// Va en estilos globales: en app.scss la encapsulación impide que `body:has(...)` coincida.
+body:has([aria-modal='true'], .cbm__overlay, .modal-overlay) .app-tour-button { visibility: hidden; }
+
+@media (max-width: 768px) {
+  body:has(.course-player-container__progress--open) .slayout__leftnav { display: none; }
+}

@@ -43,3 +43,7 @@
     &:disabled { opacity: 0.35; cursor: not-allowed; }
   }
 }
+
+@media (max-width: 768px) {
+  .pagination__btn { min-width: 44px; height: 44px; }
+}

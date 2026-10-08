@@ -187,3 +187,15 @@
     .nbell__panel { bottom: 64px; max-height: min(420px, calc(100vh - 84px)); }
   }
 }
+
+// Celular: la campana del drawer de navegación necesita un objetivo táctil de 44px.
+@media (max-width: 768px) {
+  .nbell--footer {
+    .nbell__button { width: 44px; height: 44px; }
+    .nbell__panel { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+  }
+}
+
+@media (max-width: 768px) {
+  .nbell__button { min-width: 44px; min-height: 44px; }
+}

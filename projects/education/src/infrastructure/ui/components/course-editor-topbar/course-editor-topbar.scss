@@ -98,9 +98,23 @@
   &:hover { color: var(--color-texto-principal); border-color: var(--color-borde-principal); }
 }
 
-// Celular: fila 1 = volver + acciones; fila 2 = nombre del curso y estado (antes se encimaban).
+// Celular: topbar compacto; el nombre del curso cede espacio a las acciones.
 @media (max-width: 768px) {
-  .ceditor-topbar { height: auto; flex-wrap: wrap; padding: 0.5rem 0.75rem; row-gap: 0.5rem; }
-  .ceditor-topbar__center { order: 3; flex: 1 1 100%; }
-  .ceditor-topbar__actions { margin-left: auto; }
+  .ceditor-topbar {
+    gap: 0.5rem;
+    padding: 0 0.75rem;
+  }
+
+  .ceditor-topbar__back,
+  .ceditor-topbar__btn-publish,
+  .ceditor-topbar__btn-archive { min-height: 44px; }
+
+  .ceditor-topbar__center { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .ceditor-topbar__name { max-width: 100%; font-size: 0.875rem; }
+  .ceditor-topbar__status { font-size: 0.6875rem; padding: 0.1rem 0.5rem; }
+}
+
+// Celular: piso de 12px para texto informativo.
+@media (max-width: 768px) {
+  .ceditor-topbar__status { font-size: 0.75rem; }
 }

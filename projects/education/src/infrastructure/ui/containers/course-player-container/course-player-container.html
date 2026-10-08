@@ -11,6 +11,7 @@
       (goHome)="goHome()"
       (openGrades)="openGrades()"
       (openCommunity)="openCommunity()"
+      (openProgress)="openProgress()"
       (prev)="_guardedNav(uc.prevBlock.bind(uc))"
       (next)="_guardedNav(uc.nextBlock.bind(uc))"
     />
@@ -78,25 +79,43 @@
         }
       </main>
 
-      <edu-player-sidebar
-        [style.flex]="sidebarWidthPx() !== null ? '0 0 ' + sidebarWidthPx() + 'px' : '0 0 30%'"
-        [style.minWidth]="'320px'"
-        [style.maxWidth]="'60%'"
-        [course]="c"
-        [selectedLessonId]="uc.selectedLessonId()"
-        [selectedBlockId]="uc.selectedBlock()?.id ?? null"
-        [completedBlockIds]="uc.completedBlockIds()"
-        [lockedLessonIds]="uc.lockedLessonIds()"
-        [lockedBlockIds]="uc.lockedBlockIds()"
-        [courseProgress]="uc.courseProgress()"
-        [sidebarWidthPx]="sidebarWidthPx()"
-        [hasSurvey]="uc.hasSurvey()"
-        [surveyUnlocked]="uc.surveyEnabled()"
-        (selectLesson)="_guardedNav(uc.selectLesson.bind(uc, $event))"
-        (selectBlock)="_guardedNav(uc.selectBlock.bind(uc, $event))"
-        (surveyClick)="openSurvey()"
-        (resizeStart)="startSidebarResize($event)"
-      />
+      <div
+        class="course-player-container__progress"
+        [class.course-player-container__progress--open]="showProgress()"
+        [attr.role]="showProgress() ? 'dialog' : null"
+        [attr.aria-modal]="showProgress() ? 'true' : null"
+        [attr.aria-label]="showProgress() ? 'Avance del curso' : null"
+      >
+        <header class="course-player-container__progress-header">
+          <h2 class="course-player-container__progress-title">Avance del curso</h2>
+          <span class="course-player-container__progress-value">{{ uc.courseProgress() | number:'1.0-0' }}%</span>
+          <button type="button" class="course-player-container__progress-close" aria-label="Cerrar avance" (click)="closeProgress()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </header>
+        <edu-player-sidebar
+          [style.flex]="sidebarWidthPx() !== null ? '0 0 ' + sidebarWidthPx() + 'px' : '0 0 30%'"
+          [style.minWidth]="'320px'"
+          [style.maxWidth]="'60%'"
+          [course]="c"
+          [selectedLessonId]="uc.selectedLessonId()"
+          [selectedBlockId]="uc.selectedBlock()?.id ?? null"
+          [completedBlockIds]="uc.completedBlockIds()"
+          [lockedLessonIds]="uc.lockedLessonIds()"
+          [lockedBlockIds]="uc.lockedBlockIds()"
+          [courseProgress]="uc.courseProgress()"
+          [sidebarWidthPx]="sidebarWidthPx()"
+          [hasSurvey]="uc.hasSurvey()"
+          [surveyUnlocked]="uc.surveyEnabled()"
+          (selectLesson)="closeProgress(); _guardedNav(uc.selectLesson.bind(uc, $event))"
+          (selectBlock)="closeProgress(); _guardedNav(uc.selectBlock.bind(uc, $event))"
+          (surveyClick)="closeProgress(); openSurvey()"
+          (resizeStart)="startSidebarResize($event)"
+        />
+      </div>
     </div>
   </div>
 

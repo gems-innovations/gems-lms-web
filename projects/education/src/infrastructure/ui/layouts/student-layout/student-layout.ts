@@ -26,6 +26,7 @@ export class StudentLayout implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly isFullWidthRoute  = signal(this.checkFullWidth(this.router.url));
+  readonly isPlayerRoute     = signal(this.checkPlayer(this.router.url));
   readonly sidebarCollapsed  = signal(this.initCollapsed());
 
   readonly user = this.authSession.user;
@@ -44,6 +45,10 @@ export class StudentLayout implements OnInit {
     this.role() === EUserRole.SUPER_ADMIN ||
     this.role() === EUserRole.INSTRUCTOR
   );
+
+  private checkPlayer(url: string): boolean {
+    return this.checkFullWidth(url) && !url.includes('/community') && !url.includes('/grades');
+  }
 
   private checkFullWidth(url: string): boolean {
     // Solo el player real (/courses/:id) es full-width y maneja su propio scroll interno;
@@ -71,7 +76,10 @@ export class StudentLayout implements OnInit {
 
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd), takeUntilDestroyed(this.destroyRef))
-      .subscribe(e => this.isFullWidthRoute.set(this.checkFullWidth(e.urlAfterRedirects)));
+      .subscribe(e => {
+        this.isFullWidthRoute.set(this.checkFullWidth(e.urlAfterRedirects));
+        this.isPlayerRoute.set(this.checkPlayer(e.urlAfterRedirects));
+      });
   }
 
   goToAdmin(): void {

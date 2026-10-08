@@ -152,3 +152,16 @@
     color: var(--color-texto-terciario);
   }
 }
+
+// Celular: la columna del estudiante queda fija (ya era sticky) y se indica que hay más a la derecha.
+@media (max-width: 768px) {
+  .gbook__wrap {
+    background:
+      linear-gradient(to right, var(--color-superficie) 30%, transparent) left center / 24px 100% no-repeat local,
+      linear-gradient(to left, var(--color-superficie) 30%, transparent) right center / 24px 100% no-repeat local,
+      radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, .35), transparent) left center / 10px 100% no-repeat scroll,
+      radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, .35), transparent) right center / 10px 100% no-repeat scroll;
+  }
+
+  .gbook__table thead th { font-size: 12px; }
+}

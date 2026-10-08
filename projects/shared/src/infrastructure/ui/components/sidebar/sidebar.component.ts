@@ -1,6 +1,8 @@
-import { Component, computed, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, ElementRef, input, inject, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { browserStorage } from 'shared/core';
+import { MobileDrawer } from '../mobile-nav/mobile-drawer';
+import { MobileTopbarComponent } from '../mobile-nav/mobile-topbar.component';
 
 const COLLAPSED_KEY = 'gems-sidebar-collapsed';
 
@@ -23,10 +25,13 @@ export interface UserProfile {
 @Component({
   selector: 'lib-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, MobileTopbarComponent],
   templateUrl: './sidebar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class.sidebar--collapsed]': 'collapsed()' },
+  host: {
+    '[class.sidebar--collapsed]': 'collapsed()',
+    '(document:keydown)': 'drawer.onKeydown($event)',
+  },
   styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent {
@@ -34,6 +39,9 @@ export class SidebarComponent {
   readonly userProfile = input<UserProfile | null>(null);
 
   public readonly onLogout = output<void>();
+
+  private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef);
+  readonly drawer = new MobileDrawer(() => this.hostEl.nativeElement, '.sidebar');
 
   readonly collapsed = signal(browserStorage.get(COLLAPSED_KEY) === '1');
 

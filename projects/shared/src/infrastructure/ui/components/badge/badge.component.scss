@@ -56,3 +56,8 @@
     background: currentColor;
   }
 }
+
+// Celular: piso de 12px para texto informativo.
+@media (max-width: 768px) {
+  .badge--sm { font-size: 0.75rem; }
+}

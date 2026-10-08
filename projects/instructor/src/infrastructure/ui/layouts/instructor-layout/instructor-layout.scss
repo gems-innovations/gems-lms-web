@@ -1,9 +1,10 @@
-:host { display: block; height: 100vh; }
+:host { display: block; height: 100vh; height: 100dvh; }
 
 .ilayout {
   display: flex;
   flex-direction: row;
   height: 100vh;
+  height: 100dvh;
   background: var(--color-fondo-principal);
   position: relative;
 
@@ -59,4 +60,19 @@
     &__inner:not(.ilayout__inner--full) { padding: 1.25rem 1rem 2rem; }
     &__bell { right: 12px; }
   }
+}
+
+// ── Tablet / celular ───────────────────────────────────────────────────────────
+@media (max-width: 1024px) {
+  .ilayout__inner:not(.ilayout__inner--full) { padding: 1.5rem 1.5rem 2.5rem; }
+}
+
+@media (max-width: 768px) {
+  // La barra superior de lib-app-sidebar es `position: fixed`: el contenido arranca debajo de ella.
+  // z-index:auto (no 0): un contexto de apilamiento propio dejaria los modales de dentro bajo la barra fija.
+  .ilayout__main { margin-top: var(--mobile-topbar-h, 56px); z-index: auto; }
+}
+
+@media (max-width: 640px) {
+  .ilayout__inner:not(.ilayout__inner--full) { padding: 1rem 1rem 2rem; }
 }

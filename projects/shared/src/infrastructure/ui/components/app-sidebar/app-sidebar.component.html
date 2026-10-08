@@ -1,4 +1,23 @@
-<aside class="app-sidebar" [class.app-sidebar--collapsed]="collapsed()">
+<lib-mobile-topbar
+  [title]="institutionName() || brandLabel()"
+  [expanded]="drawer.open()"
+  controls="app-sidebar-drawer"
+  (menuToggle)="drawer.toggle()"
+/>
+<div class="app-sidebar__backdrop" [class.app-sidebar__backdrop--open]="drawer.open()" (click)="drawer.close()" aria-hidden="true"></div>
+
+<aside
+  id="app-sidebar-drawer"
+  class="app-sidebar"
+  [class.app-sidebar--collapsed]="collapsed()"
+  [class.app-sidebar--drawer-open]="drawer.open()"
+  (click)="drawer.onDrawerClick($event)"
+>
+  <button type="button" class="app-sidebar__close" [attr.aria-label]="'Cerrar menú' | t" (click)="drawer.close(true)">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>
+    </svg>
+  </button>
 
   <!-- Brand -->
   <a class="app-sidebar__brand" [routerLink]="brandRoute()" [attr.aria-label]="('Ir al inicio de' | t) + ' ' + brandLabel()">
@@ -112,7 +131,7 @@
         </svg>
       </a>
       <span class="app-sidebar__notifications"><ng-content select="[sidebar-notifications]" /></span>
-      <button class="app-sidebar__signout-btn" (click)="handleLogout()" [title]="'Cerrar sesión' | t" type="button">
+      <button class="app-sidebar__signout-btn" (click)="handleLogout()" [title]="'Cerrar sesión' | t" [attr.aria-label]="'Cerrar sesión' | t" type="button">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>

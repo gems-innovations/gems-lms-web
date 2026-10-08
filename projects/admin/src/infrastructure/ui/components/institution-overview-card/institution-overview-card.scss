@@ -162,3 +162,20 @@
     }
   }
 }
+
+// Celular: métricas en cuadrícula de 2 columnas y accesos rápidos a ancho completo.
+@media (max-width: 640px) {
+  .iovw {
+    &__stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    &__stat { min-width: 0; }
+    &__stat-value { overflow-wrap: anywhere; }
+    &__meta-item { min-width: 0; overflow-wrap: anywhere; }
+
+    &__quick-btn { flex: 1 1 100%; justify-content: center; min-height: 44px; }
+  }
+}

@@ -6,8 +6,8 @@
   overflow: hidden;
   background: var(--color-fondo-secundario);
   border-bottom: 1px solid var(--color-borde-principal);
-  margin-left:   calc(-3rem - var(--slayout-centering-gap, 0px));
-  margin-right:  calc(-3rem - var(--slayout-centering-gap, 0px));
+  margin-left:   calc(-1 * var(--slayout-pad, 3rem) - var(--slayout-centering-gap, 0px));
+  margin-right:  calc(-1 * var(--slayout-pad, 3rem) - var(--slayout-centering-gap, 0px));
   margin-bottom: 0;
 
   // Líneas diagonales — patrón diferenciador del preview
@@ -44,7 +44,7 @@
 .preview-hero__inner {
   position: relative;
   z-index: 1;
-  padding: 1.5rem calc(3rem + var(--slayout-centering-gap, 0px)) 1.75rem;
+  padding: 1.5rem calc(var(--slayout-pad, 3rem) + var(--slayout-centering-gap, 0px)) 1.75rem;
 }
 
 // ── Botón volver ──────────────────────────────────────────────────────────────
@@ -282,4 +282,35 @@
 .preview-hero__cta:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+// Contenedor angosto (celular/tablet/escritorio con menú): la miniatura deja de flotar
+// sobre el texto y pasa a ser un bloque en el flujo, debajo de la información.
+@container (max-width: 1180px) {
+  .preview-hero__thumb-wrap {
+    position: relative;
+    right: auto;
+    top: auto;
+    bottom: auto;
+    width: 100%;
+    max-width: 560px;
+    height: 220px;
+    margin-top: 1.25rem;
+    border: 1px solid var(--color-borde-principal);
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .preview-hero__back { min-height: 44px; }
+}
+
+// Celular: piso de 12px para texto informativo.
+@media (max-width: 768px) {
+  .preview-hero__type-badge { font-size: 0.75rem; }
+}
+
+// Celular: objetivos táctiles de 44px.
+@media (max-width: 768px) {
+  .preview-hero__back { min-height: 44px; }
 }

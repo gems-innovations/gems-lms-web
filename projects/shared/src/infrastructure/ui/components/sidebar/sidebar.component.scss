@@ -9,7 +9,7 @@
   transition: width 0.22s ease;
 }
 
-:host(.sidebar--collapsed) {
+@media (min-width: 769px) { :host(.sidebar--collapsed) {
   width: 60px;
 
   .sidebar__logo-text,
@@ -28,11 +28,13 @@
   .sidebar__user      { justify-content: center; flex-direction: column; gap: 0.5rem; padding: 0.5rem 0; }
   .sidebar__user-avatar { margin: 0; }
   .sidebar__toggle-icon { transform: rotate(180deg); }
+} // fin @media desktop
 }
 
 .sidebar {
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   background: var(--color-fondo-secundario);
   border-right: 1px solid var(--color-borde-principal);
   display: flex;
@@ -335,42 +337,73 @@
       transform: scale(0.94);
     }
   }
-
-  @media (max-width: 768px) {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1100;
-    width: 260px;
-    height: 100vh;
-    transform: translateX(-100%);
-    transition: transform 0.25s ease;
-    box-shadow: var(--sombra-sidebar);
-  }
 }
 
+// Controles que solo existen en el drawer de celular.
+.sidebar__close,
+.sidebar__backdrop { display: none; }
+
+// ── Celular: el menú es un drawer off-canvas abierto desde la barra superior ──
 @media (max-width: 768px) {
-  :host { width: 60px; }
-  .sidebar {
-    position: relative;
-    transform: none;
-    width: 60px;
-    z-index: auto;
-    box-shadow: none;
+  // El host ya no ocupa ancho en el layout: la barra y el drawer son `position: fixed`.
+  :host { width: 0; }
+
+  .sidebar__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1190;
+    background: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.22s ease, visibility 0s linear 0.22s;
+
+    &--open { opacity: 1; visibility: visible; transition-delay: 0s; }
   }
-  .sidebar__logo-text,
-  .sidebar__nav-label,
-  .sidebar__nav-badge,
-  .sidebar__user-info,
-  .sidebar__user-email,
-  .sidebar__notifications,
-  .sidebar__logout-btn,
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: calc(-1 * (min(280px, 85vw) + 24px));
+    z-index: 1200;
+    width: min(280px, 85vw);
+    height: 100%;
+    visibility: hidden;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    transition: left 0.22s ease, visibility 0s linear 0.22s;
+
+    &--drawer-open {
+      left: 0;
+      visibility: visible;
+      transition-delay: 0s;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+    }
+  }
+
   .sidebar__toggle { display: none; }
-  .sidebar__header,
-  .sidebar__logo,
-  .sidebar__user { justify-content: center; }
-  .sidebar__nav-link { justify-content: center; padding: .625rem; }
-  .sidebar__nav-icon { margin: 0; }
-  // En el riel de 60 px avatar, campana y salir se apilan: en fila el avatar quedaba fuera de la pantalla.
-  .sidebar__user { flex-direction: column; gap: .5rem; padding: .5rem 0; }
+
+  .sidebar__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible { background: rgba(255, 255, 255, 0.08); color: #fff; outline: none; }
+  }
+
+  .sidebar__header { padding-right: 60px; }
+  .sidebar__nav-link { min-height: 44px; }
+  .sidebar__logout-btn { width: 44px; height: 44px; }
 }

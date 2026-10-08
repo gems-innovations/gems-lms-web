@@ -19,7 +19,7 @@ $nav-closed:  60px;
   transition: width .22s ease;
   overflow: hidden;
 
-  &--collapsed {
+  @media (min-width: 769px) { &--collapsed {
     width: $nav-closed;
 
     .app-sidebar__brand         { justify-content: center; padding: 0; height: 60px; }
@@ -33,7 +33,7 @@ $nav-closed:  60px;
     .app-sidebar__profile-btn,
     .app-sidebar__notifications,
     .app-sidebar__signout-btn   { display: none; }
-  }
+  } }
 }
 
 // Brand
@@ -290,19 +290,77 @@ $nav-closed:  60px;
   &:hover { background: color-mix(in srgb, var(--color-error-intenso) 8%, transparent); color: color-mix(in srgb, var(--color-error) 80%, transparent); }
 }
 
+// Controles que solo existen en el drawer de celular.
+.app-sidebar__close,
+.app-sidebar__backdrop { display: none; }
+
+// ── Celular: el riel se convierte en un drawer off-canvas abierto desde la barra superior ──
 @media (max-width: 768px) {
-  :host { width: 60px; }
-  .app-sidebar { width: 60px; }
-  .app-sidebar__brand { justify-content: center; padding: 0; }
-  .app-sidebar__brand-name,
-  .app-sidebar__brand-text,
-  .app-sidebar__navlink-label,
-  .app-sidebar__navbadge,
-  .app-sidebar__user-info,
-  .app-sidebar__notifications,
+  // El host ya no ocupa ancho en el layout: la barra y el drawer son `position: fixed`.
+  :host { width: 0; }
+
+  .app-sidebar__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1190;
+    background: rgba(0, 0, 0, .55);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .22s ease, visibility 0s linear .22s;
+
+    &--open { opacity: 1; visibility: visible; transition-delay: 0s; }
+  }
+
+  .app-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: calc(-1 * (min(280px, 85vw) + 24px));
+    z-index: 1200;
+    width: min(280px, 85vw);
+    height: 100%;
+    visibility: hidden;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    transition: left .22s ease, visibility 0s linear .22s;
+
+    &--drawer-open {
+      left: 0;
+      visibility: visible;
+      transition-delay: 0s;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, .4);
+    }
+  }
+
   .app-sidebar__toggle-btn { display: none; }
-  .app-sidebar__navlink { justify-content: center; padding: 10px 0; }
-  .app-sidebar__user { flex-direction: column; padding: 10px 0; }
+
+  .app-sidebar__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--color-texto-secundario);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible { background: var(--color-fondo-hover); color: var(--color-texto-principal); outline: none; }
+  }
+
+  .app-sidebar__brand { padding-right: 60px; }
+
+  .app-sidebar__navlink { min-height: 44px; font-size: 15px; }
+  .app-sidebar__navbadge { font-size: 11px; }
+
+  .app-sidebar__user-name { font-size: 14px; }
+  .app-sidebar__user-role { font-size: 12px; }
   .app-sidebar__profile-btn,
-  .app-sidebar__signout-btn { display: grid; width: 36px; height: 36px; }
+  .app-sidebar__signout-btn { width: 44px; height: 44px; }
 }

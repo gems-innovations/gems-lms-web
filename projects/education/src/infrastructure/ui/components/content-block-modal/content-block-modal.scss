@@ -19,7 +19,9 @@
   width: 540px;
   max-width: 92vw;
   height: 100vh;
+  height: 100dvh;
   max-height: 100vh;
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -723,3 +725,47 @@
 
 .cbm__hint { margin: 4px 0 0; font-size: var(--font-size-xs); color: var(--color-texto-terciario); }
 .cbm__error { margin: 4px 0 0; font-size: var(--font-size-xs); color: var(--color-error-texto); }
+
+// ─── Celular: panel a pantalla completa, filas apiladas y objetivos táctiles ───
+@media (max-width: 640px) {
+  .cbm__modal {
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-left: 0;
+  }
+
+  .cbm__header { padding: 0.75rem 1rem; }
+  .cbm__form-body { padding: 1rem; }
+  .cbm__type-grid { padding: 1rem; gap: 0.75rem; }
+
+  .cbm__back-btn,
+  .cbm__close-btn { width: 44px; height: 44px; }
+
+  .cbm__row { flex-wrap: wrap; }
+  .cbm__field--sm,
+  .cbm__input--sm { max-width: none; }
+
+  .cbm__input,
+  .cbm__select,
+  .cbm__textarea { min-height: 44px; }
+
+  .cbm__toggle,
+  .cbm__tf-btn,
+  .cbm__provider-tab,
+  .cbm__preview-btn,
+  .cbm__add-option-btn,
+  .cbm__add-question-btn { min-height: 44px; }
+
+
+  .cbm__remove-btn,
+  .cbm__opt-remove { min-width: 44px; min-height: 44px; }
+
+  .cbm__question { padding: 0.75rem; }
+}
+
+// Celular: objetivos táctiles de 44px.
+@media (max-width: 768px) {
+  .cbm__save-btn { min-height: 44px; }
+}

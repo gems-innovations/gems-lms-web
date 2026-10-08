@@ -105,7 +105,7 @@
 
   &__metrics {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--spacing-sm);
     margin: 0;
 
@@ -138,4 +138,9 @@
 
     lib-button { align-self: flex-end; }
   }
+}
+
+// Celular: objetivos táctiles de 44px.
+@media (max-width: 768px) {
+  .risk__filter { min-height: 44px; }
 }

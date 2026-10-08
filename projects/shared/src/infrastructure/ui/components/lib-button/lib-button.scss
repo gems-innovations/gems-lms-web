@@ -128,3 +128,8 @@
     transform: rotate(360deg);
   }
 }
+
+// Celular: objetivo táctil mínimo de 44px también en el tamaño compacto.
+@media (max-width: 768px) {
+  .lib-button--sm { min-height: 44px; }
+}

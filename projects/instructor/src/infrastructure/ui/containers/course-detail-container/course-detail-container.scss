@@ -5,6 +5,8 @@
 .ins-detail__group-select {
   width: 220px;
   max-width: 100%;
+
+  @media (max-width: 640px) { width: 100%; }
 }
 
 .ins-detail__reviews {
@@ -15,7 +17,7 @@
 
 .ins-detail__meta {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: var(--spacing-lg);
   margin-top: var(--spacing-xl);
   padding: var(--spacing-lg) var(--spacing-xl);

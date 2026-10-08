@@ -332,3 +332,14 @@
   font-size: 0.75rem;
   color: var(--color-texto-terciario);
 }
+
+// Celular: el contenedor padre hace el scroll; menos padding lateral.
+@media (max-width: 768px) {
+  .lp-sequencer {
+    flex: none;
+    overflow-y: visible;
+    padding: 1rem 1rem 2rem;
+  }
+
+  .lp-sequencer__picker { max-height: 90dvh; }
+}

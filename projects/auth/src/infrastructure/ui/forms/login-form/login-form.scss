@@ -124,3 +124,8 @@
     }
   }
 }
+
+// Celular: objetivos táctiles de 44px.
+@media (max-width: 768px) {
+  .login-form__forgot { display: inline-flex; align-items: center; justify-content: flex-end; min-height: 44px; }
+}

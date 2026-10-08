@@ -149,3 +149,8 @@
   width: 56px;
   height: 22px;
 }
+
+// Celular: piso de 12px para texto informativo.
+@media (max-width: 768px) {
+  .metric-label { font-size: 0.75rem; }
+}

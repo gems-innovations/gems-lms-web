@@ -220,3 +220,9 @@
     }
   }
 }
+
+// Celular: acciones envuelven y alcanzan el objetivo táctil de 44px.
+@media (max-width: 640px) {
+  .path-card__footer { flex-wrap: wrap; }
+  .path-card__action { min-height: 44px; min-width: 44px; }
+}

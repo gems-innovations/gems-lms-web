@@ -322,3 +322,7 @@
   transition: transform var(--transition-base);
   &--open { transform: rotate(90deg); }
 }
+
+@media (max-width: 768px) {
+  .ach__subtitle--toggle { min-height: 44px; }
+}

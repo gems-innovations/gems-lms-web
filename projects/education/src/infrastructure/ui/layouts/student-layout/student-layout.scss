@@ -1,12 +1,13 @@
 $nav-open:   252px;
 $nav-closed:  60px;
 
-:host { display: block; height: 100vh; }
+:host { display: block; height: 100vh; height: 100dvh; }
 
 .slayout {
   display: flex;
   flex-direction: row;
   height: 100vh;
+  height: 100dvh;
   background: var(--color-fondo-principal);
   position: relative;
 
@@ -38,6 +39,10 @@ $nav-closed:  60px;
       .slayout__user-info     { display: none; }
       .slayout__profile-btn,
       .slayout__signout-btn   { display: none; }
+
+      @media (min-width: 641px) {
+        .slayout__user edu-notification-bell { display: none; }
+      }
     }
   }
 
@@ -290,6 +295,7 @@ $nav-closed:  60px;
   &__main {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden; // safety net: full-bleed heroes must never create horizontal pan
     min-height: 0;
     min-width: 0;
     background: var(--color-fondo-principal);
@@ -314,6 +320,7 @@ $nav-closed:  60px;
     margin: 0 auto;
     padding: 0 2.75rem 3rem 2.75rem;
     --slayout-centering-gap: max(0px, calc((100cqi - 1280px) / 2));
+    --slayout-pad: 3rem;
 
     &--full {
       max-width: none;
@@ -339,8 +346,11 @@ $nav-closed:  60px;
   .slayout__lock { position: absolute; top: 4px; right: 10px; margin: 0; }
   .slayout__user { flex-direction: column; padding: 10px 0; }
   .slayout__profile-btn,
-  .slayout__signout-btn { display: grid; width: 36px; height: 36px; }
-  .slayout__inner { padding: 0 1rem 2rem; }
+  .slayout__signout-btn { display: grid; width: 44px; height: 44px; }
+  .slayout__navlink { min-height: 44px; }
+  .slayout__inner { padding: 0 1rem 2rem; --slayout-pad: 1rem; }
+  // Solo el reproductor maneja su propio padding: no heredar el del layout.
+  .slayout__inner--bleed { padding: 0; }
 }
 
 // ── Celular: el menú lateral pasa a ser una barra inferior de pestañas ─────────

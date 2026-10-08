@@ -256,3 +256,8 @@
     &:disabled { opacity: 0.5; cursor: default; }
   }
 }
+
+// Celular: objetivos táctiles de 44px.
+@media (max-width: 768px) {
+  .csv-review__star { min-width: 44px; min-height: 44px; }
+}

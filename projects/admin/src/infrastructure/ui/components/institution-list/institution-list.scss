@@ -398,3 +398,59 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+@media (max-width: 768px) {
+  .institution-list__action-button { width: 44px; height: 44px; }
+}
+
+// Celular: sin ancho mínimo (las columnas secundarias ya se ocultan) y acciones que envuelven.
+@media (max-width: 768px) {
+  .institution-list__table { min-width: 0; }
+  .institution-list__column--actions { width: auto; }
+  .institution-list__cell { padding: 0.75rem 0.625rem; }
+  .institution-list__actions { flex-wrap: wrap; }
+  .institution-list__institution-info { min-width: 0; overflow-wrap: anywhere; }
+}
+
+// Celular (<=640): cada institución es una tarjeta (identidad arriba; estado y acciones debajo).
+@media (max-width: 640px) {
+  .institution-list__table-container { overflow-x: visible; background: transparent; border: 0; }
+  .institution-list__table,
+  .institution-list__table-body { display: block; }
+
+  .institution-list__table-head {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .institution-list__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'inst inst' 'status actions';
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
+    padding: 0.875rem;
+    background: var(--color-tarjeta);
+    border: 1px solid var(--color-borde-principal);
+    border-radius: 0.875rem;
+  }
+
+  .institution-list__cell--institution,
+  .institution-list__cell--status,
+  .institution-list__cell--actions { display: block; padding: 0; border: 0; }
+
+  .institution-list__cell--institution { grid-area: inst; }
+  .institution-list__cell--status { grid-area: status; }
+  .institution-list__cell--actions { grid-area: actions; }
+
+  .institution-list__id { font-size: 0.75rem; }
+}
+
+// Celular: piso de 12px para texto informativo.
+@media (max-width: 768px) {
+  .institution-list__column, .institution-list__id { font-size: 0.75rem; }
+}

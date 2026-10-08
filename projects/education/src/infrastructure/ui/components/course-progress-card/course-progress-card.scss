@@ -190,11 +190,19 @@
   &:hover { opacity: 0.88; transform: translateX(1px); }
 }
 
-// Celular: miniatura más angosta y pie en dos líneas para que «Último acceso» no se corte en «7…».
+// ── mobile: miniatura más angosta y pie que puede envolver ─────────────────────
 @media (max-width: 480px) {
-  .cpcard__thumb { width: 112px; }
+  .cpcard__thumb { width: 104px; }
   .cpcard__body { padding: 0.875rem 0.875rem 0.875rem 0.75rem; }
-  .cpcard__footer { flex-wrap: wrap; row-gap: 0.5rem; }
-  .cpcard__last-access { flex: 1 1 100%; }
-  .cpcard__continue-btn { margin-left: auto; }
+  .cpcard__footer { flex-wrap: wrap; row-gap: 0.375rem; }
+  .cpcard__last-access { white-space: normal; overflow: visible; text-overflow: clip; }
+}
+
+@media (max-width: 768px) {
+  .cpcard__continue-btn { min-height: 44px; }
+}
+
+// Celular: piso de 12px para texto informativo.
+@media (max-width: 768px) {
+  .cpcard__badge { font-size: 0.75rem; }
 }

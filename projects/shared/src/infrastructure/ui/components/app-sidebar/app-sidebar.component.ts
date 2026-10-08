@@ -1,8 +1,10 @@
-import { Component, computed, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, ElementRef, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { BrandingService, browserStorage } from 'shared/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { MobileDrawer } from '../mobile-nav/mobile-drawer';
+import { MobileTopbarComponent } from '../mobile-nav/mobile-topbar.component';
 import type { NavigationItem, UserProfile } from '../sidebar/sidebar.component';
 
 export type { NavigationItem, UserProfile };
@@ -15,7 +17,8 @@ export type { NavigationItem, UserProfile };
 @Component({
   selector: 'lib-app-sidebar',
   standalone: true,
-  imports: [TranslatePipe, RouterLink, RouterLinkActive, AvatarComponent],
+  imports: [TranslatePipe, RouterLink, RouterLinkActive, AvatarComponent, MobileTopbarComponent],
+  host: { '(document:keydown)': 'drawer.onKeydown($event)' },
   templateUrl: './app-sidebar.component.html',
   styleUrl: './app-sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +38,10 @@ export class AppSidebarComponent {
   readonly onLogout = output<void>();
 
   protected readonly collapsed = signal(false);
+
+  /** En celular el menú es un drawer abierto desde la barra superior. */
+  protected readonly drawer = new MobileDrawer(() => this.hostEl.nativeElement, '.app-sidebar');
+  private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef);
 
   constructor() {
     // Lee la preferencia guardada apenas se conoce la storageKey.
