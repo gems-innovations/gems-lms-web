@@ -166,3 +166,8 @@
   &:hover &__link svg,
   &:focus-visible &__link svg { transform: translateX(3px); }
 }
+
+// Celular: piso de 12px para texto informativo.
+@media (max-width: 768px) {
+  .icard__stat-label, .icard__group { font-size: 0.75rem; }
+}

@@ -65,9 +65,11 @@
               </label>
               @for (o of d.options; track o.id) {
                 <div class="qbank__option">
-                  <input [type]="d.allowMultiple ? 'checkbox' : 'radio'" name="correct"
-                         [checked]="d.correctAnswers.includes(o.id)" (change)="toggleCorrect(o.id)"
-                         [attr.aria-label]="'Opción ' + o.id + ' correcta'" />
+                  <label class="qbank__correct">
+                    <input [type]="d.allowMultiple ? 'checkbox' : 'radio'" name="correct"
+                           [checked]="d.correctAnswers.includes(o.id)" (change)="toggleCorrect(o.id)"
+                           [attr.aria-label]="'Opción ' + o.id + ' correcta'" />
+                  </label>
                   <input class="qbank__input" [attr.aria-label]="'Texto de la opción ' + o.id" [name]="'opt-' + o.id"
                          [ngModel]="o.text" (ngModelChange)="setOption(o.id, $event)" />
                   @if (d.options.length > 2) {

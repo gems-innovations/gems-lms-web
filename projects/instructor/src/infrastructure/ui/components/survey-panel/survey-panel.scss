@@ -272,5 +272,6 @@
     &__add-q { flex-wrap: wrap; }
     &__actions { flex-wrap: wrap; justify-content: stretch; > * { flex: 1 1 auto; } }
     &__stat-head { flex-wrap: wrap; }
+    &__mode { min-height: 44px; }
   }
 }

@@ -198,3 +198,16 @@
       &--danger { color: var(--color-error); &:hover { border-color: var(--color-error); background: color-mix(in srgb, var(--color-error) 10%, transparent); color: var(--color-error); } }
   }
 }
+
+// Celular: objetivos táctiles de 44px.
+@media (max-width: 768px) {
+  .qbank__category, .qbank__input { min-height: 44px; }
+  .qbank__link { display: inline-flex; align-items: center; min-height: 44px; }
+}
+
+// El selector de "opción correcta" se envuelve en un label: el input queda igual y el área táctil crece en móvil.
+.qbank__correct { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; cursor: pointer; }
+
+@media (max-width: 768px) {
+  .qbank__correct { min-width: 44px; min-height: 44px; }
+}
