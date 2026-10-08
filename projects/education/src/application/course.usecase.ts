@@ -7,8 +7,6 @@ import { CourseService } from '../infrastructure/services/course.service';
 import { ToastService } from '@gems-lms-web/shared';
 import {
   ICourse,
-  ICourseModule,
-  ILesson,
   ICreateCourseRequest,
   IUpdateCourseRequest,
   ICreateModuleRequest,

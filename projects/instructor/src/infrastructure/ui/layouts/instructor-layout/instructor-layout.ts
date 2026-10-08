@@ -1,8 +1,9 @@
 import {
-  Component, computed, inject, OnInit, OnDestroy, signal, ChangeDetectionStrategy,
+  Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy,
 } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
-import { filter, Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import { AuthSessionService, LogoutUseCase } from 'auth';
 import { BrandingService, AppSidebarComponent } from 'shared';
 import { NotificationBell } from 'education';
@@ -14,14 +15,14 @@ import type { NavigationItem, UserProfile } from 'shared';
   imports: [RouterOutlet, AppSidebarComponent, NotificationBell],
   templateUrl: './instructor-layout.html',
   styleUrl: './instructor-layout.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InstructorLayout implements OnInit, OnDestroy {
+export class InstructorLayout implements OnInit {
   private readonly authSession     = inject(AuthSessionService);
   private readonly brandingService = inject(BrandingService);
   private readonly logoutUseCase   = inject(LogoutUseCase);
   private readonly router          = inject(Router);
-  private routerSub?: Subscription;
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly isFullWidthRoute = signal(this.checkFullWidth(this.router.url));
 
@@ -53,13 +54,9 @@ export class InstructorLayout implements OnInit, OnDestroy {
     const branding = this.authSession.getInstitutionBranding();
     if (branding) this.brandingService.apply(branding);
 
-    this.routerSub = this.router.events
-      .pipe(filter(e => e instanceof NavigationEnd))
-      .subscribe(e => this.isFullWidthRoute.set(this.checkFullWidth((e as NavigationEnd).urlAfterRedirects)));
-  }
-
-  ngOnDestroy(): void {
-    this.routerSub?.unsubscribe();
+    this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd), takeUntilDestroyed(this.destroyRef))
+      .subscribe(e => this.isFullWidthRoute.set(this.checkFullWidth(e.urlAfterRedirects)));
   }
 
   logout(): void { this.logoutUseCase.logout(); }

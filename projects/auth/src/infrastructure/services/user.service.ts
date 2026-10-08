@@ -1,26 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { IUser, EUserRole, AuthSessionService } from 'auth/core';
+import { IUser, AuthSessionService, IUserResponse, mapUser, toApiRole } from 'auth/core';
 import { ILoginCredentials } from '../../domain/model/login-credentials.model';
 import { environment } from 'shared';
 
 // ── API contracts (ms-auth) ───────────────────────────────────────────────────
-
-interface IUserResponse {
-  userId: number;
-  firstName: string;
-  lastName: string;
-  username: string;
-  email: string;
-  role: string;            // 'SUPER_ADMIN' | 'ADMIN' | 'INSTRUCTOR' | 'STUDENT'
-  institutionId: string | null;
-  avatarUrl: string | null;
-  active: boolean;
-  createdAt: string;
-  updatedAt: string;
-  temporaryPassword?: string | null;
-}
 
 interface ILoginResponse extends IUserResponse {
   token: string;
@@ -52,32 +37,6 @@ export interface IProfileUpdate {
   lastName: string;
   username: string;
   avatarUrl?: string;
-}
-
-// ── Mapping ───────────────────────────────────────────────────────────────────
-
-export function toUserRole(apiRole: string): EUserRole {
-  return apiRole.toLowerCase() as EUserRole;
-}
-
-export function toApiRole(role: EUserRole): string {
-  return role.toUpperCase();
-}
-
-export function mapUser(r: IUserResponse): IUser {
-  return {
-    id: String(r.userId),
-    email: r.email,
-    firstName: r.firstName,
-    lastName: r.lastName,
-    username: r.username,
-    role: toUserRole(r.role),
-    institutionId: r.institutionId ?? undefined,
-    isActive: r.active,
-    avatarUrl: r.avatarUrl ?? undefined,
-    createdAt: new Date(r.createdAt),
-    updatedAt: new Date(r.updatedAt)
-  };
 }
 
 @Injectable({ providedIn: 'root' })

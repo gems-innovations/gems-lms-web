@@ -8,7 +8,7 @@ export type TModalSize = 'small' | 'medium' | 'large' | 'full';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './modal-base.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './modal-base.component.scss'
 })
 export class ModalBaseComponent {

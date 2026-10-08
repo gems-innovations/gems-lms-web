@@ -8,7 +8,7 @@ import { RevealDirective, CountUpDirective } from 'shared';
   standalone: true,
   imports: [RevealDirective, CountUpDirective, CommonModule],
   templateUrl: './dashboard-metrics.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './dashboard-metrics.scss'
 })
 export class DashboardMetricsComponent {

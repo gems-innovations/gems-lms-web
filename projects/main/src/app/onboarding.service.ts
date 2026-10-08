@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { isGuestUser } from './public/guest-access.service';
 import { AuthSessionService, EUserRole } from 'auth/core';
+import { browserStorage } from 'shared/core';
 
 interface TourStep { element: string; title: string; description: string; }
 
@@ -14,7 +15,7 @@ export class OnboardingService {
     // Quien llega como invitado a un curso gratis va directo a estudiar, sin guía de la plataforma.
     if (!user || isGuestUser(user) || this.shownInSession || typeof window === 'undefined') return;
     const key = `gems-onboarding-${user.id}-${user.role}`;
-    if (localStorage.getItem(key)) return;
+    if (browserStorage.get(key)) return;
     this.shownInSession = true;
     setTimeout(() => this.start(true), 450);
   }
@@ -28,7 +29,7 @@ export class OnboardingService {
     // Record automatic tours before loading Driver.js. A hard navigation while
     // the popover is open must not schedule the same tour again and cover the
     // destination page.
-    if (markCompleted) localStorage.setItem(key, '1');
+    if (markCompleted) browserStorage.set(key, '1');
     void import('driver.js').then(({ driver }) => {
       const tour = driver({
         animate: true,

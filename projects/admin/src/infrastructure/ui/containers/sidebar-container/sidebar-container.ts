@@ -6,7 +6,7 @@ import { AdminSidebarUseCase } from '../../../../application/admin-sidebar.useca
 @Component({
   selector: 'adm-sidebar-container',
   imports: [AppSidebarComponent, NotificationBell],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './sidebar-container.html'
 })
 export class SidebarContainer {

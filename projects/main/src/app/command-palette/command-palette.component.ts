@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, ViewChild, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, computed, inject, signal, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthSessionService, EUserRole } from 'auth/core';
 
@@ -27,12 +27,13 @@ const COMMANDS: CommandItem[] = [
   selector: 'app-command-palette',
   standalone: true,
   templateUrl: './command-palette.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './command-palette.component.scss'
 })
 export class CommandPaletteComponent {
   private readonly router = inject(Router);
   private readonly session = inject(AuthSessionService);
-  @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
+  private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
 
   readonly open = signal(false);
   readonly query = signal('');
@@ -70,7 +71,7 @@ export class CommandPaletteComponent {
     if (!this.session.user()) return;
     this.query.set('');
     this.open.set(true);
-    setTimeout(() => this.searchInput?.nativeElement.focus());
+    setTimeout(() => this.searchInput()?.nativeElement.focus());
   }
 
   close(): void { this.open.set(false); }

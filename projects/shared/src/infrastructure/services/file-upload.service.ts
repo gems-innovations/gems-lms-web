@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from 'shared/core';
+import { ToastService } from '../ui/components/toast/toast.service';
 
 /** avatar: foto de perfil, la puede subir cualquier usuario (solo PNG/JPG/WebP/GIF, 2 MB). */
 export type TFileScope = 'public' | 'private' | 'avatar';
@@ -26,6 +27,7 @@ export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 @Injectable({ providedIn: 'root' })
 export class FileUploadService {
   private readonly http = inject(HttpClient);
+  private readonly toast = inject(ToastService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly origin = new URL(environment.apiBaseUrl).origin;
 
@@ -44,15 +46,18 @@ export class FileUploadService {
 
   /** Opens a file in a new tab; private API files are fetched with the token first. */
   open(url: string): void {
-    if (!this.isBrowser) return;
+    if (!this.isBrowser || !/^https?:\/\//i.test(url)) return;
     if (!this.isPrivateApiFile(url)) {
       window.open(url, '_blank', 'noopener');
       return;
     }
-    this.http.get(url, { responseType: 'blob' }).subscribe(blob => {
-      const objectUrl = URL.createObjectURL(blob);
-      window.open(objectUrl, '_blank', 'noopener');
-      setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: blob => {
+        const objectUrl = URL.createObjectURL(blob);
+        window.open(objectUrl, '_blank', 'noopener');
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+      },
+      error: () => this.toast.error('No se pudo abrir el archivo'),
     });
   }
 }

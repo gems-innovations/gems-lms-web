@@ -5,7 +5,7 @@ import { RouterOutlet } from '@angular/router';
   selector: 'adm-main-layout',
   imports: [RouterOutlet],
   templateUrl: './main-layout.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './main-layout.scss'
 })
 export class MainLayout { }

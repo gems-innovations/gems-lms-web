@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent, ClientErrorJournal } from 'shared';
 import { AuditService } from '../../../services/audit.service';
@@ -8,9 +8,10 @@ import { LibSelectComponent, SelectOption } from 'shared';
 
 @Component({
   selector: 'adm-audit-container',
-  imports: [LibSelectComponent, CommonModule, FormsModule, PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent],
+  imports: [LibSelectComponent, DatePipe, FormsModule, PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent],
   templateUrl: './audit-container.html',
   styleUrl: './audit-container.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditContainer implements OnInit {
   protected readonly actionOptions: SelectOption[] = [
@@ -19,6 +20,7 @@ export class AuditContainer implements OnInit {
     { value: 'UPDATE', label: 'Cambio' },
     { value: 'DELETE', label: 'Eliminación' },
   ];
+  private readonly actionLabels: Record<string, string> = { CREATE: 'Creación', UPDATE: 'Cambio', DELETE: 'Eliminación' };
   private readonly audit = inject(AuditService);
   readonly clientErrors = inject(ClientErrorJournal);
   readonly events = signal<IAuditEvent[]>([]);
@@ -48,7 +50,7 @@ export class AuditContainer implements OnInit {
   applyFilters(): void { this.load(1); }
   clearFilters(): void { this.search = ''; this.action = ''; this.from = ''; this.to = ''; this.load(1); }
   get pages(): number { return Math.max(1, Math.ceil(this.total() / this.pageSize)); }
-  label(action: string): string { return ({ CREATE: 'Creación', UPDATE: 'Cambio', DELETE: 'Eliminación' } as any)[action] ?? action; }
+  label(action: string): string { return this.actionLabels[action] ?? action; }
   resource(path: string): string {
     const names: Record<string, string> = { users: 'Usuarios', institutions: 'Instituciones', branding: 'Marca',
       courses: 'Cursos', enrollments: 'Matrículas', groups: 'Grupos', 'learning-paths': 'Rutas',

@@ -79,13 +79,6 @@ export class EnrollmentState {
       ...s,
       enrollments: s.enrollments.map(e => {
         if (e.id !== enrollmentId) return e;
-        const courseId = e.courseId;
-        const lessonProgress = e.progress.moduleProgress.length > 0
-          ? e.progress
-          : e.progress;
-
-        // Update block progress
-        const updatedModuleProgress = e.progress.moduleProgress.map(mp => mp);
         const updatedProgress = {
           ...e.progress,
           currentLessonId: lessonId,

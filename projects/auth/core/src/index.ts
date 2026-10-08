@@ -4,6 +4,8 @@
  */
 export { EUserRole, getFullName, getRoleLabel, getRoleHomePath } from './user.model';
 export type { IUser } from './user.model';
+export type { IUserResponse } from './user.mapper';
+export { mapUser, toApiRole, toUserRole } from './user.mapper';
 export type { IUserState } from './user.state';
 export { UserState } from './user.state';
 export { AuthSessionService } from './auth-session.service';

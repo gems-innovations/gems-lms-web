@@ -5,7 +5,7 @@ import { Component, input, computed, ChangeDetectionStrategy } from '@angular/co
   selector: 'lib-loading-skeleton',
   imports: [],
   templateUrl: './loading-skeleton.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './loading-skeleton.scss'
 })
 export class LoadingSkeletonComponent {

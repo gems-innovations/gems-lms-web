@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, map, catchError, tap } from 'rxjs';
 import { UserState } from './user.state';
 import { EUserRole, getRoleHomePath, IUser } from './user.model';
-import { environment, IBrandingConfig, BrandingService } from 'shared/core';
+import { environment, IBrandingConfig, BrandingService, browserStorage } from 'shared/core';
 
 const STORAGE_KEY = 'gems_session';
 
@@ -94,12 +94,12 @@ export class AuthSessionService {
     this._branding.set(null);
     this.brandingService.setInstitutionName(null);
     this._mustChangePassword.set(false);
-    if (this.isBrowser) localStorage.removeItem(STORAGE_KEY);
+    if (this.isBrowser) browserStorage.remove(STORAGE_KEY);
   }
 
   restoreSession(): void {
     if (!this.isBrowser) return;
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = browserStorage.get(STORAGE_KEY);
     if (!raw) return;
     try {
       const parsed = JSON.parse(raw) as IStoredSession;
@@ -114,7 +114,7 @@ export class AuthSessionService {
       this.brandingService.setInstitutionName(parsed.institutionName);
       this._mustChangePassword.set(parsed.mustChangePassword === true);
     } catch {
-      localStorage.removeItem(STORAGE_KEY);
+      browserStorage.remove(STORAGE_KEY);
     }
   }
 
@@ -163,6 +163,6 @@ export class AuthSessionService {
     const session: IStoredSession = {
       user, token, branding: this._branding(), institutionName: this.brandingService.institutionName(), mustChangePassword: this._mustChangePassword()
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+    browserStorage.set(STORAGE_KEY, JSON.stringify(session));
   }
 }

@@ -10,10 +10,10 @@ import {
   IMultipleChoiceQuestion,
   ITrueFalseQuestion,
   IOpenQuestion,
-  IRubricItem,
   IQuestionPool
 } from '../../../../domain/model/course.model';
 import { QuestionBankService } from '../../../services/question-bank.service';
+import { toVideoEmbedUrl } from '../../../../application/video-embed';
 import type { IBankCategory } from '../../../services/question-bank.service';
 import { FileUploadService } from 'shared';
 import { LibSelectComponent, SelectOption } from 'shared';
@@ -59,7 +59,7 @@ const newQuestion = (order: number): IQuestionDraft => ({
   standalone: true,
   imports: [LibSelectComponent, CommonModule, FormsModule, MarkdownEditorComponent],
   templateUrl: './content-block-modal.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './content-block-modal.scss'
 })
 export class ContentBlockModal {
@@ -153,16 +153,10 @@ export class ContentBlockModal {
 
   readonly totalQuizPoints = computed(() => this.quizQuestions().reduce((s, q) => s + q.points, 0));
 
-  readonly youtubePreviewId = computed(() => {
-    if (this.videoProvider() !== 'youtube') return '';
-    const match = this.videoUrl().match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^?&]+)/);
-    return match ? match[1] : '';
-  });
-
   readonly youtubeEmbedUrl = computed((): SafeResourceUrl | null => {
-    const id = this.youtubePreviewId();
-    if (!id) return null;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${id}`);
+    if (this.videoProvider() !== 'youtube') return null;
+    const embed = toVideoEmbedUrl(this.videoUrl());
+    return embed ? this.sanitizer.bypassSecurityTrustResourceUrl(embed) : null;
   });
 
   selectType(type: EContentType): void {

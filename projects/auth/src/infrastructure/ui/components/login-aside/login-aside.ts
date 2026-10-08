@@ -4,7 +4,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
   selector: 'auth-login-aside',
   imports: [],
   templateUrl: './login-aside.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './login-aside.scss'
 })
 export class LoginAside { }

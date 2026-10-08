@@ -5,7 +5,7 @@ import { RouterOutlet } from '@angular/router';
   selector: 'edu-main-layout',
   imports: [RouterOutlet],
   templateUrl: './education-layout.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './education-layout.scss'
 })
 export class EducationLayout { }

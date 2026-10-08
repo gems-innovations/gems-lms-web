@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { BrandingService } from 'shared/core';
+import { BrandingService, browserStorage } from 'shared/core';
 
 export type ThemePreference = 'institution' | 'dark' | 'light';
 export interface DisplayPreferences { theme: ThemePreference; compact: boolean; reducedMotion: boolean; }
@@ -16,13 +16,12 @@ export class DisplayPreferencesService {
 
   update(change: Partial<DisplayPreferences>): void {
     this.preferences.update(current => ({ ...current, ...change }));
-    if (typeof localStorage !== 'undefined') localStorage.setItem(KEY, JSON.stringify(this.preferences()));
+    browserStorage.set(KEY, JSON.stringify(this.preferences()));
     this.apply();
   }
 
   private read(): DisplayPreferences {
-    if (typeof localStorage === 'undefined') return DEFAULTS;
-    try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }; }
+    try { return { ...DEFAULTS, ...JSON.parse(browserStorage.get(KEY) ?? '{}') }; }
     catch { return DEFAULTS; }
   }
 

@@ -94,9 +94,8 @@ export class ExportUseCase {
     rows: IStudentGradeRow[],
     radarEl?: HTMLElement | null,
   ): Promise<void> {
-    const jspdfMod: any = await import('jspdf');
-    const JsPDF = jspdfMod.jsPDF ?? jspdfMod.default;
-    const doc = new JsPDF({ unit: 'pt', format: 'a4' });
+    const { jsPDF } = await import('jspdf');
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const W = doc.internal.pageSize.getWidth();
     let y = 56;
 
@@ -132,8 +131,7 @@ export class ExportUseCase {
     // Radar (best-effort)
     if (radarEl) {
       try {
-        const h2cMod: any = await import('html2canvas');
-        const html2canvas = h2cMod.default ?? h2cMod;
+        const { default: html2canvas } = await import('html2canvas');
         const canvas = await html2canvas(radarEl, { backgroundColor: '#ffffff', scale: 2 });
         const img = canvas.toDataURL('image/png');
         const imgW = 280;

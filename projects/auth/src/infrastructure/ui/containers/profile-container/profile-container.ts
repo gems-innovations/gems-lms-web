@@ -5,7 +5,7 @@ import { AuthSessionService } from 'auth/core';
 import { UserService } from '../../../services/user.service';
 import { DisplayPreferencesService, ThemePreference } from 'auth/core';
 import { TranslatePipe } from 'shared';
-import { I18nService, ImageUploadComponent, PageComponent, PageHeaderComponent, ToastService } from 'shared';
+import { BrandingService, I18nService, ImageUploadComponent, PageComponent, PageHeaderComponent, ToastService } from 'shared';
 import { EmailPreferencesComponent } from '../../components/email-preferences/email-preferences';
 
 @Component({
@@ -20,6 +20,8 @@ export class ProfileContainer implements OnInit {
   private readonly toast = inject(ToastService);
   readonly display = inject(DisplayPreferencesService);
   readonly i18n = inject(I18nService);
+  /** Nombre de la institución para mostrar en lugar de su identificador interno. */
+  readonly institutionName = inject(BrandingService).institutionName;
   readonly saving = signal(false);
   firstName = ''; lastName = ''; username = ''; avatarUrl = '';
   readonly user = this.session.user;

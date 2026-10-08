@@ -1,8 +1,9 @@
-﻿import { Component, computed, inject, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
-import { filter, Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import { AuthSessionService, EUserRole, LogoutUseCase } from 'auth';
-import { BrandingService, AvatarComponent } from 'shared';
+import { BrandingService, AvatarComponent, browserStorage } from 'shared';
 import { TranslatePipe } from 'shared';
 import { NotificationBell } from '../../components/notification-bell/notification-bell';
 
@@ -13,19 +14,19 @@ const COLLAPSED_KEY = 'gems-sl-collapsed';
   standalone: true,
   imports: [TranslatePipe, RouterOutlet, RouterLink, RouterLinkActive, AvatarComponent, NotificationBell],
   templateUrl: './student-layout.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './student-layout.scss'
 })
-export class StudentLayout implements OnInit, OnDestroy {
+export class StudentLayout implements OnInit {
   private readonly authSession     = inject(AuthSessionService);
   private readonly brandingService = inject(BrandingService);
   protected readonly institutionName = this.brandingService.institutionName;
   private readonly logoutUseCase   = inject(LogoutUseCase);
   private readonly router          = inject(Router);
-  private routerSub?: Subscription;
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly isFullWidthRoute  = signal(this.checkFullWidth(this.router.url));
-  readonly sidebarCollapsed  = signal(this.initCollapsed(this.router.url));
+  readonly sidebarCollapsed  = signal(this.initCollapsed());
 
   readonly user = this.authSession.user;
   /** Invitado (sin cuenta): Inicio y Catálogo piden crear la cuenta, así que llevan un candado. */
@@ -45,13 +46,14 @@ export class StudentLayout implements OnInit, OnDestroy {
   );
 
   private checkFullWidth(url: string): boolean {
-    // Solo el player real es full-width (maneja su propio scroll interno);
-    // preview y encuesta usan el layout normal con scroll de página.
-    return url.includes('/courses/') && !url.includes('/preview/') && !url.includes('/survey');
+    // Solo el player real (/courses/:id) es full-width y maneja su propio scroll interno;
+    // preview, encuesta, comunidad y calificaciones usan el layout normal con scroll de página.
+    const path = url.split(/[?#]/)[0];
+    return /\/courses\/[^/]+\/?$/.test(path) && !path.includes('/preview/');
   }
 
-  private initCollapsed(url: string): boolean {
-    const stored = localStorage.getItem(COLLAPSED_KEY);
+  private initCollapsed(): boolean {
+    const stored = browserStorage.get(COLLAPSED_KEY);
     if (stored !== null) return stored === '1';
     // Mantener la navegación visible por defecto en todas las pantallas.
     return false;
@@ -60,20 +62,16 @@ export class StudentLayout implements OnInit, OnDestroy {
   toggleSidebar(): void {
     const next = !this.sidebarCollapsed();
     this.sidebarCollapsed.set(next);
-    localStorage.setItem(COLLAPSED_KEY, next ? '1' : '0');
+    browserStorage.set(COLLAPSED_KEY, next ? '1' : '0');
   }
 
   ngOnInit(): void {
     const branding = this.authSession.getInstitutionBranding();
     if (branding) this.brandingService.apply(branding);
 
-    this.routerSub = this.router.events
-      .pipe(filter(e => e instanceof NavigationEnd))
-      .subscribe(e => this.isFullWidthRoute.set(this.checkFullWidth((e as NavigationEnd).urlAfterRedirects)));
-  }
-
-  ngOnDestroy(): void {
-    this.routerSub?.unsubscribe();
+    this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd), takeUntilDestroyed(this.destroyRef))
+      .subscribe(e => this.isFullWidthRoute.set(this.checkFullWidth(e.urlAfterRedirects)));
   }
 
   goToAdmin(): void {

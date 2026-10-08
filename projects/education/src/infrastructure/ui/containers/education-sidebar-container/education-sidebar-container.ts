@@ -6,7 +6,7 @@ import { EducationSidebarUseCase } from '../../../../application/education-sideb
 @Component({
   selector: 'edu-sidebar-container',
   imports: [SidebarComponent, NotificationBell],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './education-sidebar-container.html'
 })
 export class EducationSidebarContainer {

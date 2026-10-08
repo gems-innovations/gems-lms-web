@@ -41,7 +41,7 @@ import { IInstitutionRequest, PublicCatalogService } from './public-catalog.serv
               <label>Nombre de tu institución, empresa o grupo *<input class="field" name="inst" required maxlength="160" [(ngModel)]="form.institutionName" /></label>
               <div class="form__row">
                 <label>Tu nombre *<input class="field" name="contact" required maxlength="120" [(ngModel)]="form.contactName" /></label>
-                <label>Tu cargo<input class="field" name="role" maxlength="60" placeholder="Docente, líder del grupo…" [(ngModel)]="form.role" /></label>
+                <label>Tu cargo<input class="field" name="role" maxlength="60" placeholder="Ej.: docente, líder" [(ngModel)]="form.role" /></label>
               </div>
               <div class="form__row">
                 <label>Correo *<input class="field" name="email" type="email" required maxlength="160" [(ngModel)]="form.email" /></label>
