@@ -10,7 +10,7 @@ import { Component, input } from '@angular/core';
   styles: `
     .card-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(var(--card-min, 320px), 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(var(--card-min, 320px), 100%), 1fr));
       gap: var(--spacing-lg);
     }
   `

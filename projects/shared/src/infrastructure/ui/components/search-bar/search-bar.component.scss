@@ -93,3 +93,9 @@
     font-size: 0.75rem;
   }
 }
+
+// Celular: el buscador ocupa todo el ancho disponible.
+@media (max-width: 640px) {
+  :host { display: block; width: 100%; }
+  .search-bar { width: 100%; box-sizing: border-box; }
+}

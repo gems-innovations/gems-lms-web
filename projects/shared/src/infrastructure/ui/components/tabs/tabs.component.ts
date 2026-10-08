@@ -1,4 +1,4 @@
-import { Component, input, model } from '@angular/core';
+import { afterRenderEffect, Component, ElementRef, inject, input, model } from '@angular/core';
 
 export interface TabItem {
   id: string;
@@ -32,4 +32,15 @@ export interface TabItem {
 export class TabsComponent {
   readonly tabs = input.required<TabItem[]>();
   readonly activeId = model<string>('');
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  constructor() {
+    afterRenderEffect(() => {
+      this.activeId();
+      this.host.nativeElement
+        .querySelector('.tabs__tab--active')
+        ?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+    });
+  }
 }

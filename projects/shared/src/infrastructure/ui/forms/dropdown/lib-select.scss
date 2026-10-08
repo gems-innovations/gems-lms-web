@@ -253,3 +253,9 @@
 @media (prefers-reduced-motion: reduce) {
   .lib-select__panel, .lib-select__check { animation: none; }
 }
+
+// Celular: objetivos táctiles de 44px.
+@media (max-width: 768px) {
+  .lib-select__trigger,
+  .lib-select--sm .lib-select__trigger { min-height: 44px; }
+}

@@ -1,0 +1,51 @@
+// Solo existe en celular: en escritorio el menú lateral es un riel permanente.
+:host { display: none; }
+
+@media (max-width: 768px) {
+  :host { display: block; }
+
+  .mtopbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: var(--mobile-topbar-h, 56px);
+    padding: 0 8px;
+    background: var(--color-fondo-secundario);
+    border-bottom: 1px solid var(--color-borde-principal);
+
+    &__menu {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      flex: 0 0 auto;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--color-texto-principal);
+      cursor: pointer;
+
+      &:hover,
+      &:focus-visible { background: var(--color-fondo-hover); outline: none; }
+      &:focus-visible { box-shadow: 0 0 0 2px var(--color-primario); }
+    }
+
+    &__logo { flex: 0 0 auto; object-fit: contain; }
+
+    &__title {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-texto-principal);
+    }
+  }
+}

@@ -1,9 +1,17 @@
-:host { display: block; max-width: 100%; }
+:host {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+}
 
 .tabs {
-  display: inline-flex;
+  display: flex;
+  width: max-content;
   max-width: 100%;
-  flex-wrap: wrap; // con muchas pestañas pasan a otra fila en lugar de salirse de la pantalla
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
   align-items: center;
   gap: var(--spacing-xs);
   padding: var(--spacing-xs);
@@ -11,7 +19,12 @@
   border: 1px solid var(--color-borde-principal);
   border-radius: var(--border-radius-lg);
 
+  &::-webkit-scrollbar { display: none; }
+
   &__tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    scroll-snap-align: start;
     display: inline-flex;
     flex-shrink: 0;
     white-space: nowrap;
@@ -47,13 +60,6 @@
   }
 }
 
-// Celular: una sola fila que se desplaza con el dedo.
-@media (max-width: 640px) {
-  .tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar { display: none; }
-  }
+@media (max-width: 768px) {
+  .tabs__tab { min-height: 44px; }
 }
