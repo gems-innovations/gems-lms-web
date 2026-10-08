@@ -9,6 +9,8 @@
 @import 'github-markdown-css/github-markdown-dark.css';
 
 // ── Markdown body overrides — adapt GitHub Dark theme to GEMS design system ──
+// Todo se expresa con tokens del sistema para que también se lea en el tema claro
+// (la hoja base de GitHub es oscura: sus colores de texto y bloques de código no sirven sobre fondo blanco).
 .markdown-body {
   background-color: transparent !important;
   color: inherit;
@@ -16,16 +18,19 @@
 
   // Code blocks
   pre {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: var(--color-superficie-alta) !important;
+    border: 1px solid var(--color-borde-principal) !important;
     border-radius: 8px !important;
+    color: var(--color-texto-principal) !important;
+
+    code { color: inherit !important; }
   }
 
   // Inline code
   code:not(pre code) {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #c9a6f5 !important;
+    background: var(--color-superficie-alta) !important;
+    border: 1px solid var(--color-borde-principal) !important;
+    color: color-mix(in srgb, var(--color-magenta) 60%, var(--color-texto-principal)) !important;
     border-radius: 4px !important;
     padding: 0.15em 0.4em !important;
     font-size: 0.875em !important;
@@ -33,9 +38,9 @@
 
   // Blockquote — remove greenish left border, use subtle purple instead
   blockquote {
-    background: rgba(123, 111, 240, 0.06) !important;
-    border-left: 3px solid rgba(123, 111, 240, 0.4) !important;
-    color: rgba(255, 255, 255, 0.65) !important;
+    background: var(--color-primario-trans-10) !important;
+    border-left: 3px solid color-mix(in srgb, var(--color-primario) 55%, transparent) !important;
+    color: var(--color-texto-secundario) !important;
     border-radius: 0 6px 6px 0;
     padding: 0.5rem 1rem !important;
   }
@@ -43,21 +48,21 @@
   // Tables
   table tr {
     background-color: transparent !important;
-    &:nth-child(2n) { background-color: rgba(255, 255, 255, 0.03) !important; }
+    &:nth-child(2n) { background-color: var(--color-fondo-sutil) !important; }
   }
 
   th, td {
-    border-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--color-borde-secundario) !important;
   }
 
   // Horizontal rule
   hr {
-    border-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--color-borde-secundario) !important;
     background-color: transparent !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    border-bottom-color: var(--color-borde-principal) !important;
   }
 }
 
@@ -407,6 +412,14 @@ h1, h2, h3, h4, h5, h6 {
     flex: 1;
     overflow: hidden;
   }
+
+  // Celular: árbol de currículo arriba y panel debajo, en una sola columna que se desplaza.
+  @media (max-width: 768px) {
+    &__main {
+      flex-direction: column;
+      overflow-y: auto;
+    }
+  }
 }
 
 // El editor de cursos se reutiliza dentro del layout del instructor
@@ -488,7 +501,7 @@ h1, h2, h3, h4, h5, h6 {
   }
   &--yellow {
     background: rgba(251, 191, 36, 0.12);
-    color: #fbbf24;
+    color: var(--color-advertencia-texto);
   }
 }
 
@@ -675,6 +688,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
 // Driver.js lives outside Angular component encapsulation. These explicit
 // colors keep its controls above WCAG AA contrast in either application theme.
 .driver-popover.gems-tour {
+  font-family: var(--font-texto);
   min-width: min(21rem, calc(100vw - 2rem));
   padding: 1.35rem;
   border: 1px solid rgba(167, 139, 250, .32);

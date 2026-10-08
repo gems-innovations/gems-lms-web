@@ -13,8 +13,15 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
+  // Celular: 2 columnas con tarjetas compactas (icono arriba) en vez de 4 filas a todo el ancho.
   @media (max-width: 640px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+
+    .metric-card { flex-direction: column; gap: 0.625rem; padding: 1rem; }
+    .metric-icon { margin-top: 0; }
+    .metric-content { min-width: 0; width: 100%; }
+    .metric-label { white-space: normal; letter-spacing: 0.04em; }
   }
 }
 
@@ -23,13 +30,13 @@
   align-items: flex-start;
   gap: 1rem;
   padding: 1.25rem 1.375rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
   border-radius: 0.875rem;
   transition: border-color 0.2s ease, background 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: color-mix(in srgb, var(--color-texto-principal) 5%, transparent);
     border-color: var(--color-borde-secundario);
   }
 
@@ -54,7 +61,7 @@
   }
 
   &[data-color="success"] {
-    background: rgba(16, 185, 129, 0.12);
+    background: color-mix(in srgb, var(--color-exito-intenso) 12%, transparent);
     color: var(--color-exito);
   }
 
@@ -64,7 +71,7 @@
   }
 
   &[data-color="warning"] {
-    background: rgba(245, 158, 11, 0.12);
+    background: color-mix(in srgb, var(--color-rol-super) 12%, transparent);
     color: var(--color-advertencia);
   }
 
@@ -114,9 +121,9 @@
 %shimmer-base {
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.04) 0%,
-    rgba(255, 255, 255, 0.09) 50%,
-    rgba(255, 255, 255, 0.04) 100%
+    color-mix(in srgb, var(--color-texto-principal) 4%, transparent) 0%,
+    color-mix(in srgb, var(--color-texto-principal) 9%, transparent) 50%,
+    color-mix(in srgb, var(--color-texto-principal) 4%, transparent) 100%
   );
   background-size: 400% 100%;
   animation: shimmer 1.8s infinite linear;

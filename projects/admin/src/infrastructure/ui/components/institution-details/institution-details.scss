@@ -1,6 +1,6 @@
 @use 'variables' as vars;
 
-$border: rgba(255, 255, 255, 0.07);
+$border: color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
 
 .iview {
   display: flex;
@@ -41,7 +41,7 @@ $border: rgba(255, 255, 255, 0.07);
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.12);
+    border: 2px solid color-mix(in srgb, var(--color-texto-principal) 12%, transparent);
   }
 
   &__avatar-img {
@@ -53,7 +53,7 @@ $border: rgba(255, 255, 255, 0.07);
   &__avatar-text {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--color-sobre-primario);
   }
 
   &__header-info {
@@ -64,7 +64,7 @@ $border: rgba(255, 255, 255, 0.07);
   &__name {
     font-size: 1.125rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--color-texto-principal);
     margin: 0 0 0.5rem;
     line-height: 1.25;
   }
@@ -87,21 +87,21 @@ $border: rgba(255, 255, 255, 0.07);
     text-transform: uppercase;
 
     &--status {
-      &[data-status="active"]    { color: #10b981; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); }
-      &[data-status="suspended"] { color: #ef4444; background: rgba(239, 68, 68, 0.1);  border: 1px solid rgba(239, 68, 68, 0.2); }
-      &[data-status="pending"]   { color: #f59e0b; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); }
+      &[data-status="active"]    { color: var(--color-exito-texto); background: color-mix(in srgb, var(--color-exito-intenso) 10%, transparent); border: 1px solid color-mix(in srgb, var(--color-exito-intenso) 20%, transparent); }
+      &[data-status="suspended"] { color: var(--color-error-texto); background: color-mix(in srgb, var(--color-error-intenso) 10%, transparent);  border: 1px solid color-mix(in srgb, var(--color-error-intenso) 20%, transparent); }
+      &[data-status="pending"]   { color: var(--color-advertencia-texto); background: color-mix(in srgb, var(--color-rol-super) 10%, transparent); border: 1px solid color-mix(in srgb, var(--color-rol-super) 20%, transparent); }
     }
 
     &--type {
-      color: rgba(161, 168, 195, 0.7);
-      background: rgba(255, 255, 255, 0.05);
+      color: var(--color-texto-secundario);
+      background: color-mix(in srgb, var(--color-texto-principal) 5%, transparent);
       border: 1px solid $border;
     }
   }
 
   &__description {
     font-size: 0.8125rem;
-    color: rgba(161, 168, 195, 0.6);
+    color: var(--color-texto-terciario);
     margin: 0;
     line-height: 1.5;
     display: -webkit-box;
@@ -129,14 +129,14 @@ $border: rgba(255, 255, 255, 0.07);
   &__stat-value {
     font-size: 0.9375rem;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.9);
+    color: color-mix(in srgb, var(--color-texto-principal) 90%, transparent);
     text-transform: capitalize;
     font-variant-numeric: tabular-nums;
   }
 
   &__stat-label {
     font-size: 0.625rem;
-    color: rgba(161, 168, 195, 0.4);
+    color: var(--color-texto-terciario);
     text-transform: uppercase;
     letter-spacing: 0.07em;
   }
@@ -159,7 +159,7 @@ $border: rgba(255, 255, 255, 0.07);
   &__section-title {
     font-size: 0.6875rem;
     font-weight: 600;
-    color: rgba(161, 168, 195, 0.45);
+    color: var(--color-texto-terciario);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin: 0;
@@ -177,7 +177,7 @@ $border: rgba(255, 255, 255, 0.07);
     align-items: center;
     gap: 0.625rem;
     padding: 0.625rem 0.875rem;
-    background: rgba(255, 255, 255, 0.03);
+    background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent);
     border: 1px solid $border;
     border-radius: 0.625rem;
     flex-shrink: 0;
@@ -187,7 +187,7 @@ $border: rgba(255, 255, 255, 0.07);
     width: 32px;
     height: 32px;
     border-radius: 0.375rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid color-mix(in srgb, var(--color-texto-principal) 10%, transparent);
     flex-shrink: 0;
   }
 
@@ -197,7 +197,7 @@ $border: rgba(255, 255, 255, 0.07);
     border-radius: 0.375rem;
     overflow: hidden;
     border: 1px solid $border;
-    background: rgba(255, 255, 255, 0.05);
+    background: color-mix(in srgb, var(--color-texto-principal) 5%, transparent);
     flex-shrink: 0;
   }
 
@@ -215,7 +215,7 @@ $border: rgba(255, 255, 255, 0.07);
 
   &__color-name {
     font-size: 0.6875rem;
-    color: rgba(161, 168, 195, 0.45);
+    color: var(--color-texto-terciario);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -223,7 +223,7 @@ $border: rgba(255, 255, 255, 0.07);
 
   &__color-hex {
     font-size: 0.8125rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: color-mix(in srgb, var(--color-texto-principal) 70%, transparent);
     font-family: 'Courier New', monospace;
     text-transform: uppercase;
   }
@@ -244,7 +244,7 @@ $border: rgba(255, 255, 255, 0.07);
     align-items: flex-start;
     gap: 0.75rem;
     padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.02);
+    background: color-mix(in srgb, var(--color-texto-principal) 2%, transparent);
     border: 1px solid $border;
     border-radius: 0.5rem;
 
@@ -264,13 +264,13 @@ $border: rgba(255, 255, 255, 0.07);
     flex-shrink: 0;
     width: 14px;
     height: 14px;
-    color: rgba(161, 168, 195, 0.3);
+    color: var(--color-texto-terciario);
     margin-top: 2px;
   }
 
   &__info-label {
     font-size: 0.6875rem;
-    color: rgba(161, 168, 195, 0.4);
+    color: var(--color-texto-terciario);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     font-weight: 500;
@@ -278,23 +278,23 @@ $border: rgba(255, 255, 255, 0.07);
 
   &__info-value {
     font-size: 0.8125rem;
-    color: rgba(255, 255, 255, 0.75);
+    color: color-mix(in srgb, var(--color-texto-principal) 75%, transparent);
     font-variant-numeric: tabular-nums;
     word-break: break-all;
 
     &--mono {
       font-family: 'Courier New', monospace;
       font-size: 0.75rem;
-      color: rgba(161, 168, 195, 0.5);
+      color: var(--color-texto-terciario);
     }
   }
 
   &__link {
     font-size: 0.8125rem;
-    color: rgba(108, 99, 255, 0.8);
+    color: var(--color-texto-acento);
     word-break: break-all;
     transition: color 0.15s ease;
 
-    &:hover { color: rgba(108, 99, 255, 1); }
+    &:hover { color: var(--color-primario-claro); }
   }
 }

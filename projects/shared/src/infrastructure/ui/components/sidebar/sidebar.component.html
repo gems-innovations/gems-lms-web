@@ -20,7 +20,7 @@
 
   <nav class="sidebar__nav">
     <ul class="sidebar__nav-list" role="menu">
-      @for (item of menuItems; track item.id) {
+      @for (item of menuItems(); track item.id) {
         <li class="sidebar__nav-item" role="none">
           <a 
             [routerLink]="item.route"
@@ -82,27 +82,27 @@
     </ul>
   </nav>
 
-  @if (userProfile) {
+  @if (userProfile(); as profile) {
     <div class="sidebar__footer">
       <div class="sidebar__user">
         <div class="sidebar__user-avatar">
-          @if (userProfile.avatar) {
+          @if (profile.avatar) {
             <img 
-              [src]="userProfile.avatar" 
-              [alt]="userProfile.name"
+              [src]="profile.avatar" 
+              [alt]="profile.name"
               class="sidebar__user-avatar-img">
           } @else {
             <div class="sidebar__user-avatar-initials">
-              {{ getUserInitials() }}
+              {{ initials() }}
             </div>
           }
         </div>
         <div class="sidebar__user-info">
-          <div class="sidebar__user-name">{{ userProfile.name }}</div>
-          <div class="sidebar__user-email">{{ userProfile.email }}</div>
-          <div class="sidebar__user-role">{{ userProfile.role }}</div>
+          <div class="sidebar__user-name">{{ profile.name }}</div>
+          <div class="sidebar__user-email">{{ profile.email }}</div>
+          <div class="sidebar__user-role">{{ profile.role }}</div>
         </div>
-        <ng-content select="[sidebar-notifications]" />
+        <span class="sidebar__notifications"><ng-content select="[sidebar-notifications]" /></span>
         <button 
           class="sidebar__logout-btn"
           (click)="handleLogout()"

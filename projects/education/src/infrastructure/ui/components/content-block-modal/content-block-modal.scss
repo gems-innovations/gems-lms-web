@@ -61,7 +61,7 @@
   transition: all 0.15s;
   flex-shrink: 0;
 
-  &:hover { color: var(--color-texto-principal); border-color: rgba(255,255,255,0.2); }
+  &:hover { color: var(--color-texto-principal); border-color: color-mix(in srgb, var(--color-texto-principal) 20%, transparent); }
 }
 
 .cbm__close-btn { margin-left: auto; }
@@ -88,8 +88,8 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 
-  &--video      { background: rgba(#60a5fa,0.15); color: #60a5fa; }
-  &--document   { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
+  &--video      { background: color-mix(in srgb, var(--color-info) 15%, transparent); color: var(--color-info); }
+  &--document   { background: color-mix(in srgb, var(--color-texto-principal) 7%, transparent); color: var(--color-texto-terciario); }
   &--quiz       { background: color-mix(in srgb, var(--color-advertencia) 15%, transparent); color: var(--color-advertencia); }
   &--assignment { background: color-mix(in srgb, var(--color-exito) 15%, transparent); color: var(--color-exito); }
   &--scorm      { background: color-mix(in srgb, var(--color-primario) 15%, transparent); color: var(--color-primario); }
@@ -128,8 +128,8 @@
   align-items: center;
   justify-content: center;
 
-  &--video      { background: rgba(#60a5fa,0.12); color: #60a5fa; }
-  &--doc        { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
+  &--video      { background: color-mix(in srgb, var(--color-info) 12%, transparent); color: var(--color-info); }
+  &--doc        { background: color-mix(in srgb, var(--color-texto-principal) 7%, transparent); color: var(--color-texto-terciario); }
   &--quiz       { background: color-mix(in srgb, var(--color-advertencia) 12%, transparent); color: var(--color-advertencia); }
   &--task       { background: color-mix(in srgb, var(--color-exito) 12%, transparent); color: var(--color-exito); }
   &--scorm      { background: color-mix(in srgb, var(--color-primario) 12%, transparent); color: var(--color-primario); }
@@ -158,7 +158,7 @@
   gap: 1.5rem;
 
   &::-webkit-scrollbar { width: 4px; }
-  &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
+  &::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--color-texto-principal) 7%, transparent); border-radius: 2px; }
 }
 
 .cbm__section {
@@ -315,7 +315,7 @@
   cursor: pointer;
   transition: all 0.12s;
 
-  &:hover { color: var(--color-texto-principal); background: rgba(255,255,255,0.04); }
+  &:hover { color: var(--color-texto-principal); background: color-mix(in srgb, var(--color-texto-principal) 4%, transparent); }
   &--active { background: color-mix(in srgb, var(--color-primario) 15%, transparent); color: var(--color-primario); }
 }
 
@@ -516,7 +516,7 @@
   gap: 0.375rem;
   padding: 0.3rem 0.75rem;
   background: transparent;
-  border: 1px dashed rgba(255,255,255,0.1);
+  border: 1px dashed color-mix(in srgb, var(--color-texto-principal) 10%, transparent);
   border-radius: 6px;
   color: var(--color-texto-terciario);
   font-size: 0.78rem;
@@ -678,7 +678,7 @@
   cursor: pointer;
   transition: all 0.15s;
 
-  &:hover { color: var(--color-texto-principal); border-color: rgba(255,255,255,0.2); }
+  &:hover { color: var(--color-texto-principal); border-color: color-mix(in srgb, var(--color-texto-principal) 20%, transparent); }
 }
 
 .cbm__save-btn {
@@ -697,7 +697,7 @@
 }
 
 .cbm__hint--error {
-  color: #F87171;
+  color: var(--color-error);
 }
 
 .cbm__captions {

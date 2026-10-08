@@ -94,8 +94,8 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: rgba(123,111,240,0.1);
-  border: 1.5px solid rgba(123,111,240,0.3);
+  background: color-mix(in srgb, var(--color-primario) 10%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--color-primario) 30%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,8 +104,8 @@
   z-index: 1;
 
   &--open {
-    background: rgba(123,111,240,0.2);
-    border-color: rgba(123,111,240,0.55);
+    background: color-mix(in srgb, var(--color-primario) 20%, transparent);
+    border-color: color-mix(in srgb, var(--color-primario) 55%, transparent);
   }
 }
 
@@ -118,12 +118,12 @@
 .outline__line {
   flex: 1;
   width: 1.5px;
-  background: rgba(123,111,240,0.12);
+  background: color-mix(in srgb, var(--color-primario) 12%, transparent);
   margin: 4px 0 0;
   min-height: 12px;
   transition: background 0.2s;
 
-  &--active { background: rgba(123,111,240,0.3); }
+  &--active { background: color-mix(in srgb, var(--color-primario) 30%, transparent); }
 }
 
 // ── Módulo body ───────────────────────────────────────────────────────────────
@@ -211,7 +211,7 @@
   height: 48px;
   border-radius: 6px;
   overflow: hidden;
-  background: rgba(123,111,240,0.12);
+  background: color-mix(in srgb, var(--color-primario) 12%, transparent);
   border: 1px solid var(--color-borde-principal);
 }
 
@@ -304,12 +304,12 @@
   border-radius: 100px;
   border: 1px solid transparent;
 
-  &--video      { background: rgba(123,111,240,0.1); color: #9B8FF8; border-color: rgba(123,111,240,0.2); }
-  &--quiz       { background: rgba(251,191,36,0.08); color: #fbbf24; border-color: rgba(251,191,36,0.18); }
-  &--assignment { background: rgba(61,214,200,0.08); color: #3DD6C8; border-color: rgba(61,214,200,0.18); }
+  &--video      { background: color-mix(in srgb, var(--color-primario) 10%, transparent); color: var(--color-texto-acento); border-color: color-mix(in srgb, var(--color-primario) 20%, transparent); }
+  &--quiz       { background: color-mix(in srgb, var(--color-advertencia) 8%, transparent); color: var(--color-advertencia); border-color: color-mix(in srgb, var(--color-advertencia) 18%, transparent); }
+  &--assignment { background: color-mix(in srgb, var(--color-teal) 8%, transparent); color: var(--color-teal); border-color: color-mix(in srgb, var(--color-teal) 18%, transparent); }
   &--document,
   &--scorm      { background: var(--color-superficie-alta); color: var(--color-texto-terciario); border-color: var(--color-borde-principal); }
-  &--live-session { background: rgba(52,211,153,0.08); color: #34d399; border-color: rgba(52,211,153,0.18); }
+  &--live-session { background: color-mix(in srgb, var(--color-exito) 8%, transparent); color: var(--color-exito); border-color: color-mix(in srgb, var(--color-exito) 18%, transparent); }
 }
 
 .outline__block-dur {

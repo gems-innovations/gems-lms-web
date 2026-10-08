@@ -55,7 +55,7 @@
 
   &--draft     { background: color-mix(in srgb, var(--color-advertencia) 15%, transparent); color: var(--color-advertencia); }
   &--published { background: color-mix(in srgb, var(--color-exito) 15%, transparent); color: var(--color-exito); }
-  &--archived  { background: rgba(255,255,255,0.07); color: var(--color-texto-terciario); }
+  &--archived  { background: color-mix(in srgb, var(--color-texto-principal) 7%, transparent); color: var(--color-texto-terciario); }
 }
 
 .lpeditor-topbar__actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
@@ -68,7 +68,7 @@
   background: var(--color-teal);
   border: none;
   border-radius: 7px;
-  color: #0a1a18;
+  color: var(--color-sobre-acento);
   font-size: 0.8125rem;
   font-weight: 700;
   cursor: pointer;

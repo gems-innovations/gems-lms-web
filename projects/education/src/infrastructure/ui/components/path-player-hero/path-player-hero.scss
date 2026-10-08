@@ -19,7 +19,7 @@
   gap: var(--spacing-sm);
   background: none;
   border: none;
-  color: rgba(255,255,255,.5);
+  color: color-mix(in srgb, var(--color-texto-principal) 50%, transparent);
   font-size: var(--font-size-sm);
   cursor: pointer;
   font-family: inherit;
@@ -27,7 +27,7 @@
   padding: 0;
   transition: color var(--transition-fast);
 
-  &:hover { color: #fff; }
+  &:hover { color: var(--color-sobre-primario); }
 }
 
 .lphero__content {
@@ -63,14 +63,14 @@
 .lphero__title {
   font-size: clamp(1.3rem, 2.5vw, 1.8rem);
   font-weight: var(--font-weight-bold);
-  color: #fff;
+  color: var(--color-sobre-primario);
   margin: 0 0 var(--spacing-sm);
   line-height: 1.25;
 }
 
 .lphero__desc {
   font-size: var(--font-size-sm);
-  color: rgba(255,255,255,.6);
+  color: color-mix(in srgb, var(--color-texto-principal) 60%, transparent);
   margin: 0 0 var(--spacing-md);
   max-width: 500px;
   line-height: 1.6;
@@ -82,7 +82,7 @@
   flex-wrap: wrap;
   gap: var(--spacing-md);
   font-size: var(--font-size-xs);
-  color: rgba(255,255,255,.5);
+  color: color-mix(in srgb, var(--color-texto-principal) 50%, transparent);
 
   span { display: flex; align-items: center; gap: 4px; }
 }
@@ -90,9 +90,9 @@
 .lphero__tag {
   padding: 2px 8px;
   border-radius: var(--border-radius-full);
-  background: rgba(255,255,255,.1);
-  color: rgba(255,255,255,.6);
-  border: 1px solid rgba(255,255,255,.12);
+  background: color-mix(in srgb, var(--color-texto-principal) 10%, transparent);
+  color: color-mix(in srgb, var(--color-texto-principal) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 12%, transparent);
 }
 
 .lphero__progress-wrap {
@@ -123,21 +123,21 @@
 .lphero__ring-n {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
-  color: #fff;
+  color: var(--color-sobre-primario);
   line-height: 1;
 }
 
 .lphero__ring-pct {
   font-size: var(--font-size-xs);
-  color: rgba(255,255,255,.6);
+  color: color-mix(in srgb, var(--color-texto-principal) 60%, transparent);
   align-self: flex-end;
   margin-bottom: 2px;
 }
 
 .lphero__progress-label {
   font-size: var(--font-size-xs);
-  color: rgba(255,255,255,.55);
+  color: color-mix(in srgb, var(--color-texto-principal) 55%, transparent);
   text-align: center;
 
-  strong { color: rgba(255,255,255,.85); }
+  strong { color: color-mix(in srgb, var(--color-texto-principal) 85%, transparent); }
 }

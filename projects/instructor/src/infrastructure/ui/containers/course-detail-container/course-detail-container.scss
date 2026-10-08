@@ -4,11 +4,12 @@
 
 .ins-detail__group-select {
   width: 220px;
+  max-width: 100%;
 }
 
 .ins-detail__reviews {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
   gap: var(--spacing-lg);
 }
 

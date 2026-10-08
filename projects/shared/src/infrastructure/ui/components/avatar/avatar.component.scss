@@ -8,7 +8,7 @@
   // tono medio que no admite texto blanco ni oscuro con relación AA.
   background: color-mix(in srgb, var(--color-primario) 55%, #0f1021);
   border: 1px solid color-mix(in srgb, var(--color-primario) 70%, transparent);
-  color: #fff;
+  color: var(--color-sobre-primario);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.03em;
   overflow: hidden;

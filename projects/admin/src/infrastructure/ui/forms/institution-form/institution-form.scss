@@ -2,8 +2,8 @@
 @use 'variables' as vars;
 
 // Tokens locales
-$border: rgba(255, 255, 255, 0.07);
-$input-bg: rgba(255, 255, 255, 0.04);
+$border: color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
+$input-bg: color-mix(in srgb, var(--color-texto-principal) 4%, transparent);
 $focus-ring: rgba(108, 99, 255, 0.35);
 
 .iform {
@@ -30,11 +30,11 @@ $focus-ring: rgba(108, 99, 255, 0.35);
 
       .iform__preview-sidebar  { background: #1a1d27; }
       .iform__preview-content  { background: #0f1117; }
-      .iform__preview-topbar   { background: #1a1d27; border-bottom-color: rgba(255,255,255,0.06); }
-      .iform__preview-brand-name { color: rgba(255,255,255,0.8); }
-      .iform__preview-nav-item { background: rgba(255,255,255,0.08); }
+      .iform__preview-topbar   { background: #1a1d27; border-bottom-color: color-mix(in srgb, var(--color-texto-principal) 6%, transparent); }
+      .iform__preview-brand-name { color: color-mix(in srgb, var(--color-texto-principal) 80%, transparent); }
+      .iform__preview-nav-item { background: color-mix(in srgb, var(--color-texto-principal) 8%, transparent); }
       .iform__preview-nav-item--active { background: var(--preview-primary, #6C63FF); }
-      .iform__preview-card     { background: rgba(255,255,255,0.06); }
+      .iform__preview-card     { background: color-mix(in srgb, var(--color-texto-principal) 6%, transparent); }
       .iform__preview-card--accent { background: rgba(var(--preview-primary-rgb, 108,99,255), 0.25); }
     }
   }
@@ -76,7 +76,7 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     justify-content: center;
     font-size: 0.4375rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--color-sobre-primario);
     background: var(--preview-primary, #6C63FF);
     flex-shrink: 0;
   }
@@ -92,7 +92,7 @@ $focus-ring: rgba(108, 99, 255, 0.35);
   &__preview-nav-item {
     height: 6px;
     border-radius: 3px;
-    background: rgba(255,255,255,0.15);
+    background: color-mix(in srgb, var(--color-texto-principal) 15%, transparent);
     transition: background 0.3s ease;
 
     &--active {
@@ -104,7 +104,7 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: #fff;
+    background: var(--color-sobre-primario);
     transition: background 0.3s ease;
   }
 
@@ -115,7 +115,7 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     padding: 0 10px;
     height: 28px;
     flex-shrink: 0;
-    background: #fff;
+    background: var(--color-sobre-primario);
     border-bottom: 1px solid rgba(0,0,0,0.06);
     transition: background 0.3s ease, border-color 0.3s ease;
   }
@@ -164,7 +164,7 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     bottom: 6px;
     right: 8px;
     font-size: 0.5625rem;
-    color: rgba(161, 168, 195, 0.6);
+    color: var(--color-texto-terciario);
     pointer-events: none;
     user-select: none;
   }
@@ -210,8 +210,8 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     width: 36px;
     height: 20px;
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: color-mix(in srgb, var(--color-texto-principal) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
     transition: background 0.2s ease, border-color 0.2s ease;
     flex-shrink: 0;
 
@@ -228,24 +228,24 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.55);
+    background: color-mix(in srgb, var(--color-texto-principal) 55%, transparent);
     transition: transform 0.2s ease, background 0.2s ease;
 
     .iform__toggle--on & {
       transform: translateX(16px);
-      background: #fff;
+      background: var(--color-sobre-primario);
     }
   }
 
   &__toggle-label {
     font-size: 0.75rem;
     font-weight: 500;
-    color: rgba(161, 168, 195, 0.5);
+    color: var(--color-texto-terciario);
     min-width: 56px;
     transition: color 0.2s ease;
 
     .iform__toggle--on & {
-      color: rgba(255, 255, 255, 0.75);
+      color: color-mix(in srgb, var(--color-texto-principal) 75%, transparent);
     }
   }
 
@@ -255,7 +255,7 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     align-items: center;
     gap: 0.625rem;
     padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.03);
+    background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent);
     border: 1px solid $border;
     border-radius: 0.5rem;
     margin-top: 0.25rem;
@@ -266,7 +266,7 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     height: 32px;
     border-radius: 6px;
     object-fit: contain;
-    background: rgba(255, 255, 255, 0.05);
+    background: color-mix(in srgb, var(--color-texto-principal) 5%, transparent);
   }
 
   // ── Section ───────────────────────────────────────────────────────────
@@ -290,7 +290,7 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     gap: 0.625rem;
     font-size: 0.8125rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.7);
+    color: color-mix(in srgb, var(--color-texto-principal) 70%, transparent);
     text-transform: uppercase;
     letter-spacing: 0.07em;
     margin: 0 0 0.25rem;
@@ -330,23 +330,23 @@ $focus-ring: rgba(108, 99, 255, 0.35);
   &__label {
     font-size: 0.8125rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.65);
+    color: color-mix(in srgb, var(--color-texto-principal) 65%, transparent);
   }
 
   &__required {
-    color: rgba(239, 68, 68, 0.7);
+    color: color-mix(in srgb, var(--color-error-intenso) 70%, transparent);
     margin-left: 2px;
   }
 
   &__hint {
     font-size: 0.6875rem;
-    color: rgba(161, 168, 195, 0.4);
+    color: var(--color-texto-terciario);
     margin-top: 2px;
   }
 
   &__error {
     font-size: 0.6875rem;
-    color: #ef4444;
+    color: var(--color-error-texto);
     margin-top: 1px;
   }
 
@@ -358,11 +358,11 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     border: 1px solid $border;
     border-radius: 0.5rem;
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: color-mix(in srgb, var(--color-texto-principal) 90%, transparent);
     outline: none;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
-    &::placeholder { color: rgba(161, 168, 195, 0.3); }
+    &::placeholder { color: var(--color-texto-terciario); }
 
     &:focus {
       border-color: rgba(108, 99, 255, 0.5);
@@ -370,8 +370,8 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     }
 
     &--error {
-      border-color: rgba(239, 68, 68, 0.4);
-      &:focus { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2); }
+      border-color: color-mix(in srgb, var(--color-error-intenso) 40%, transparent);
+      &:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error-intenso) 20%, transparent); }
     }
 
     &--with-icon {
@@ -398,7 +398,7 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     transform: translateY(-50%);
     width: 14px;
     height: 14px;
-    color: rgba(161, 168, 195, 0.35);
+    color: var(--color-texto-terciario);
     pointer-events: none;
   }
 
@@ -441,7 +441,7 @@ $focus-ring: rgba(108, 99, 255, 0.35);
   &__color-hex {
     font-size: 0.8125rem;
     font-variant-numeric: tabular-nums;
-    color: rgba(255, 255, 255, 0.5);
+    color: color-mix(in srgb, var(--color-texto-principal) 50%, transparent);
     font-family: 'Courier New', monospace;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -472,8 +472,8 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     text-align: center;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.12);
+      background: color-mix(in srgb, var(--color-texto-principal) 6%, transparent);
+      border-color: color-mix(in srgb, var(--color-texto-principal) 12%, transparent);
     }
 
     &--selected {
@@ -498,11 +498,11 @@ $focus-ring: rgba(108, 99, 255, 0.35);
   &__type-label {
     font-size: 0.6875rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.6);
+    color: color-mix(in srgb, var(--color-texto-principal) 60%, transparent);
     letter-spacing: 0.02em;
 
     .iform__type-card--selected & {
-      color: rgba(255, 255, 255, 0.9);
+      color: color-mix(in srgb, var(--color-texto-principal) 90%, transparent);
     }
   }
 
@@ -529,7 +529,7 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     transition: all 0.15s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.06);
+      background: color-mix(in srgb, var(--color-texto-principal) 6%, transparent);
     }
 
     &--selected {
@@ -553,14 +553,14 @@ $focus-ring: rgba(108, 99, 255, 0.35);
   &__plan-name {
     font-size: 0.875rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
+    color: color-mix(in srgb, var(--color-texto-principal) 85%, transparent);
   }
 
   &__plan-check {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    border: 1.5px solid color-mix(in srgb, var(--color-texto-principal) 20%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -569,14 +569,14 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     svg {
       width: 10px;
       height: 10px;
-      color: #fff;
+      color: var(--color-sobre-primario);
       opacity: 0;
     }
   }
 
   &__plan-desc {
     font-size: 0.6875rem;
-    color: rgba(161, 168, 195, 0.45);
+    color: var(--color-texto-terciario);
   }
 
   // ── Actions ───────────────────────────────────────────────────────────
@@ -609,7 +609,7 @@ $focus-ring: rgba(108, 99, 255, 0.35);
 
     &--primary {
       background: rgba(108, 99, 255, 0.85);
-      color: #fff;
+      color: var(--color-sobre-primario);
       border-color: rgba(108, 99, 255, 0.3);
 
       &:hover:not(:disabled) {
@@ -623,13 +623,13 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     }
 
     &--secondary {
-      background: rgba(255, 255, 255, 0.05);
-      color: rgba(255, 255, 255, 0.7);
+      background: color-mix(in srgb, var(--color-texto-principal) 5%, transparent);
+      color: color-mix(in srgb, var(--color-texto-principal) 70%, transparent);
       border-color: $border;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.9);
+        background: color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
+        color: color-mix(in srgb, var(--color-texto-principal) 90%, transparent);
       }
     }
   }

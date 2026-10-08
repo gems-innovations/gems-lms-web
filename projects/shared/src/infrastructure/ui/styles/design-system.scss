@@ -73,6 +73,8 @@
   --color-texto-invertido: #FFFFFF;
   --color-texto-contraste: #0F1021;
   --color-sobre-primario: #FFFFFF;
+  // Texto sobre fondos de acento/estado (exito, advertencia, teal): oscuro en tema oscuro, blanco en claro.
+  --color-sobre-acento: #0A1A18;
 
   // =========================================================================
   // BORDES
@@ -190,6 +192,7 @@
   --color-texto-terciario: #566276;
   --color-texto-acento: #5848B8;
   --color-texto-contraste: #1A202C;
+  --color-sobre-acento: #FFFFFF;
 
   --color-borde-sutil: #EAEFF5;
   --color-borde-principal: #E2E8F0;

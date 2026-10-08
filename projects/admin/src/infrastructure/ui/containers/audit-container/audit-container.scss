@@ -17,7 +17,7 @@
   overflow: hidden;
   border: 1px solid var(--color-borde-principal);
   border-radius: 14px;
-  background: rgba(255, 255, 255, .018);
+  background: color-mix(in srgb, var(--color-texto-principal) 1.8%, transparent);
   box-shadow: 0 14px 38px rgba(0, 0, 0, .12);
 }
 
@@ -119,7 +119,7 @@ th, td { padding: 1rem 1.35rem; text-align: left; border-bottom: 1px solid var(-
 th { color: var(--color-texto-terciario); font-size: .69rem; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; }
 td { color: var(--color-texto-secundario); font-size: .875rem; }
 tbody tr { transition: background .15s ease; }
-tbody tr:hover { background: rgba(255, 255, 255, .025); }
+tbody tr:hover { background: color-mix(in srgb, var(--color-texto-principal) 2.5%, transparent); }
 tbody tr:last-child td { border-bottom: 0; }
 td strong { display: block; color: var(--color-texto-principal); font-weight: 650; }
 td small { display: block; margin-top: .27rem; color: var(--color-texto-terciario); font-size: .75rem; white-space: nowrap; }
@@ -129,15 +129,15 @@ td small { display: block; margin-top: .27rem; color: var(--color-texto-terciari
   align-items: center;
   min-height: 27px;
   padding: .24rem .62rem;
-  border: 1px solid color-mix(in srgb, #38bdf8 25%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-info) 25%, transparent);
   border-radius: 999px;
-  background: color-mix(in srgb, #38bdf8 12%, transparent);
+  background: color-mix(in srgb, var(--color-info) 12%, transparent);
   color: var(--color-info);
   font-size: .72rem;
   font-weight: 700;
 }
-.audit__action--update { border-color: color-mix(in srgb, #fbbf24 25%, transparent); background: color-mix(in srgb, #fbbf24 12%, transparent); color: var(--color-advertencia); }
-.audit__action--delete { border-color: color-mix(in srgb, #fb7185 25%, transparent); background: color-mix(in srgb, #fb7185 12%, transparent); color: var(--color-error); }
+.audit__action--update { border-color: color-mix(in srgb, var(--color-advertencia) 25%, transparent); background: color-mix(in srgb, var(--color-advertencia) 12%, transparent); color: var(--color-advertencia); }
+.audit__action--delete { border-color: color-mix(in srgb, var(--color-error) 25%, transparent); background: color-mix(in srgb, var(--color-error) 12%, transparent); color: var(--color-error); }
 .audit__status-ok { color: var(--color-exito); font-weight: 750; }
 .audit__status-error { color: var(--color-error); font-weight: 750; }
 

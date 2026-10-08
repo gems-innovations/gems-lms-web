@@ -25,9 +25,14 @@
       background: var(--color-fondo-sutil);
     }
 
+    // Celular: avatar + datos arriba; rol, estado y acciones en una segunda fila.
     @media (max-width: 560px) {
-      grid-template-columns: auto 1fr;
-      grid-template-rows: auto auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm) var(--spacing-md);
+
+      .user-list__info { flex: 1 1 calc(100% - 56px); }
+      .user-list__actions { margin-left: auto; }
     }
   }
 
@@ -71,6 +76,7 @@
   &__email {
     font-size: var(--font-size-xs);
     color: var(--color-texto-secundario);
+    overflow-wrap: anywhere;
   }
 
   &__username {

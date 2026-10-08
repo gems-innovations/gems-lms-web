@@ -6,7 +6,7 @@
   background: color-mix(in srgb, var(--color-fondo-principal) 40%, transparent);
 
   &::-webkit-scrollbar { width: 4px; }
-  &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+  &::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--color-texto-principal) 6%, transparent); border-radius: 2px; }
 }
 
 .lp-sidebar__thumbnail {
@@ -71,5 +71,5 @@
   font-size: 0.8rem;
   color: var(--color-texto-terciario);
 
-  svg { color: rgba(255,255,255,0.25); flex-shrink: 0; }
+  svg { color: color-mix(in srgb, var(--color-texto-principal) 25%, transparent); flex-shrink: 0; }
 }

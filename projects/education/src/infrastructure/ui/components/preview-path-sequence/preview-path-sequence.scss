@@ -80,8 +80,8 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(123, 111, 240, 0.15);
-  border: 1px solid rgba(123, 111, 240, 0.3);
+  background: color-mix(in srgb, var(--color-primario) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primario) 30%, transparent);
   color: var(--color-primario-claro);
   display: flex;
   align-items: center;
@@ -100,7 +100,7 @@
   left: 50%;
   transform: translateX(-50%);
   width: 2px;
-  background: linear-gradient(to bottom, rgba(123, 111, 240, 0.25), rgba(123, 111, 240, 0.05));
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--color-primario) 25%, transparent), color-mix(in srgb, var(--color-primario) 5%, transparent));
 }
 
 // ── Card ───────────────────────────────────────────────────────────────────────
@@ -199,9 +199,9 @@
   font-weight: 600;
 
   &--required {
-    background: rgba(251, 191, 36, 0.1);
+    background: color-mix(in srgb, var(--color-advertencia) 10%, transparent);
     color: var(--color-advertencia);
-    border: 1px solid rgba(251, 191, 36, 0.2);
+    border: 1px solid color-mix(in srgb, var(--color-advertencia) 20%, transparent);
   }
 
   &--optional {
@@ -211,9 +211,9 @@
   }
 
   &--score {
-    background: rgba(52, 211, 153, 0.08);
+    background: color-mix(in srgb, var(--color-exito) 8%, transparent);
     color: var(--color-exito);
-    border: 1px solid rgba(52, 211, 153, 0.18);
+    border: 1px solid color-mix(in srgb, var(--color-exito) 18%, transparent);
   }
 }
 

@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #0e0e16;
+  background: var(--color-fondo-principal);
   position: relative;
 }
 
@@ -27,8 +27,8 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 11px 24px;
-  background: linear-gradient(90deg, rgba(61,214,200,0.12), rgba(123,111,240,0.1));
-  border-bottom: 1px solid rgba(61,214,200,0.2);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-teal) 12%, transparent), color-mix(in srgb, var(--color-primario) 10%, transparent));
+  border-bottom: 1px solid color-mix(in srgb, var(--color-teal) 20%, transparent);
   flex-shrink: 0;
 }
 
@@ -37,9 +37,9 @@
   align-items: center;
   gap: 10px;
   font-size: 14px;
-  color: #3DD6C8;
+  color: var(--color-teal);
 
-  strong { color: #EDEAF8; font-weight: 600; }
+  strong { color: var(--color-texto-principal); font-weight: 600; }
 }
 
 .course-complete-banner__btn {
@@ -48,9 +48,9 @@
   gap: 6px;
   padding: 7px 16px;
   border-radius: 8px;
-  border: 1px solid rgba(61,214,200,0.35);
-  background: rgba(61,214,200,0.1);
-  color: #3DD6C8;
+  border: 1px solid color-mix(in srgb, var(--color-teal) 35%, transparent);
+  background: color-mix(in srgb, var(--color-teal) 10%, transparent);
+  color: var(--color-teal);
   font-size: 13px;
   font-weight: 600;
   font-family: inherit;
@@ -60,8 +60,8 @@
   flex-shrink: 0;
 
   &:hover {
-    background: rgba(61,214,200,0.18);
-    border-color: rgba(61,214,200,0.55);
+    background: color-mix(in srgb, var(--color-teal) 18%, transparent);
+    border-color: color-mix(in srgb, var(--color-teal) 55%, transparent);
   }
 }
 
@@ -147,8 +147,8 @@
 }
 
 .quiz-nav-warning {
-  background: #1a1a2e;
-  border: 1px solid rgba(255, 180, 0, 0.3);
+  background: var(--color-superficie-alta);
+  border: 1px solid color-mix(in srgb, var(--color-advertencia) 30%, transparent);
   border-radius: 14px;
   padding: 32px 28px 24px;
   max-width: 420px;
@@ -170,31 +170,31 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: rgba(255, 180, 0, 0.12);
-  border: 1.5px solid rgba(255, 180, 0, 0.35);
+  background: color-mix(in srgb, var(--color-advertencia) 12%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--color-advertencia) 35%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffb800;
+  color: var(--color-advertencia);
   flex-shrink: 0;
 }
 
 .quiz-nav-warning__title {
   font-size: 17px;
   font-weight: 700;
-  color: #edeaf8;
+  color: var(--color-texto-principal);
   margin: 4px 0 0;
   text-align: center;
 }
 
 .quiz-nav-warning__body {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
+  color: color-mix(in srgb, var(--color-texto-principal) 60%, transparent);
   text-align: center;
   line-height: 1.55;
   margin: 0;
 
-  strong { color: #ffb800; font-weight: 600; }
+  strong { color: var(--color-advertencia); font-weight: 600; }
 }
 
 .quiz-nav-warning__actions {
@@ -216,17 +216,17 @@
   white-space: nowrap;
 
   &--cancel {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: rgba(255, 255, 255, 0.75);
-    &:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+    background: color-mix(in srgb, var(--color-texto-principal) 6%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-texto-principal) 14%, transparent);
+    color: color-mix(in srgb, var(--color-texto-principal) 75%, transparent);
+    &:hover { background: color-mix(in srgb, var(--color-texto-principal) 10%, transparent); color: var(--color-sobre-primario); }
   }
 
   &--confirm {
-    background: rgba(255, 80, 80, 0.15);
-    border: 1px solid rgba(255, 80, 80, 0.4);
-    color: #ff6b6b;
-    &:hover { background: rgba(255, 80, 80, 0.25); border-color: rgba(255, 80, 80, 0.65); }
+    background: color-mix(in srgb, var(--color-error) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-error) 40%, transparent);
+    color: var(--color-error-texto);
+    &:hover { background: color-mix(in srgb, var(--color-error) 25%, transparent); border-color: color-mix(in srgb, var(--color-error) 65%, transparent); }
   }
 }
 
@@ -239,9 +239,9 @@
   &::-webkit-scrollbar { width: 5px; }
   &::-webkit-scrollbar-track { background: transparent; }
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.08);
+    background: color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
     border-radius: 3px;
-    &:hover { background: rgba(255, 255, 255, 0.14); }
+    &:hover { background: color-mix(in srgb, var(--color-texto-principal) 14%, transparent); }
   }
 }
 

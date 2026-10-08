@@ -14,7 +14,7 @@
     align-items: center;
     justify-content: center;
     min-height: 320px;
-    color: rgba(255,255,255,0.3);
+    color: color-mix(in srgb, var(--color-texto-principal) 30%, transparent);
     font-size: 14px;
   }
 
@@ -40,24 +40,24 @@
     width: 72px;
     height: 72px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: color-mix(in srgb, var(--color-texto-principal) 4%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255,255,255,0.25);
+    color: color-mix(in srgb, var(--color-texto-principal) 25%, transparent);
   }
 
   &__title {
     font-size: 1.1rem;
     font-weight: 700;
-    color: rgba(255,255,255,0.5);
+    color: color-mix(in srgb, var(--color-texto-principal) 50%, transparent);
     margin: 0;
   }
 
   &__desc {
     font-size: 13.5px;
-    color: rgba(255,255,255,0.3);
+    color: color-mix(in srgb, var(--color-texto-principal) 30%, transparent);
     margin: 0;
     line-height: 1.6;
   }
@@ -72,7 +72,7 @@
   background: #000;
   border-radius: 14px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
   box-shadow: 0 24px 64px rgba(0,0,0,0.55);
 }
 
@@ -92,7 +92,7 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: rgba(255,255,255,0.2);
+  color: color-mix(in srgb, var(--color-texto-principal) 20%, transparent);
   font-size: 13px;
 }
 
@@ -107,7 +107,7 @@
 .player-content-block__title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
   margin: 0;
   line-height: 1.3;
   letter-spacing: -0.01em;
@@ -115,14 +115,14 @@
 
 .player-content-block__desc {
   font-size: 15px;
-  color: rgba(255,255,255,0.5);
+  color: color-mix(in srgb, var(--color-texto-principal) 50%, transparent);
   margin: 0;
   line-height: 1.65;
 }
 
 .pcb-max-score {
   font-size: 13px;
-  color: rgba(255,255,255,0.35);
+  color: color-mix(in srgb, var(--color-texto-principal) 35%, transparent);
   margin: 0;
 }
 
@@ -134,17 +134,17 @@
   font-family: inherit !important;
   font-size: 15px !important;
 
-  a { color: #9B8FF8 !important; }
+  a { color: var(--color-texto-acento) !important; }
 
   blockquote {
-    border-left-color: rgba(123,111,240,0.6) !important;
-    background: rgba(123,111,240,0.05) !important;
+    border-left-color: color-mix(in srgb, var(--color-primario) 60%, transparent) !important;
+    background: color-mix(in srgb, var(--color-primario) 5%, transparent) !important;
   }
 
   :not(pre) > code {
-    background: rgba(110,100,220,0.18) !important;
-    color: #c9b8ff !important;
-    border: 1px solid rgba(110,100,220,0.22) !important;
+    background: color-mix(in srgb, var(--color-primario) 18%, transparent) !important;
+    color: var(--color-texto-acento) !important;
+    border: 1px solid color-mix(in srgb, var(--color-primario) 22%, transparent) !important;
     padding: 0.15em 0.45em !important;
   }
 }
@@ -157,9 +157,9 @@
   gap: 7px;
   padding: 9px 20px;
   border-radius: 9px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.05);
-  color: rgba(255,255,255,0.6);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 10%, transparent);
+  background: color-mix(in srgb, var(--color-texto-principal) 5%, transparent);
+  color: color-mix(in srgb, var(--color-texto-principal) 60%, transparent);
   font-size: 14px;
   font-weight: 600;
   font-family: inherit;
@@ -168,17 +168,17 @@
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 
   &:hover:not(:disabled) {
-    background: rgba(255,255,255,0.09);
-    border-color: rgba(255,255,255,0.16);
-    color: #EDEAF8;
+    background: color-mix(in srgb, var(--color-texto-principal) 9%, transparent);
+    border-color: color-mix(in srgb, var(--color-texto-principal) 16%, transparent);
+    color: var(--color-texto-principal);
   }
   &:disabled { opacity: 0.35; cursor: not-allowed; }
 
   &--primary {
-    background: #7B6FF0;
-    border-color: #7B6FF0;
-    color: #fff;
-    &:hover:not(:disabled) { background: #9B8FF8; border-color: #9B8FF8; }
+    background: var(--color-primario);
+    border-color: var(--color-primario);
+    color: var(--color-sobre-primario);
+    &:hover:not(:disabled) { background: var(--color-texto-acento); border-color: var(--color-texto-acento); }
   }
 
   &--lg { padding: 12px 28px; font-size: 15px; border-radius: 10px; }
@@ -189,10 +189,10 @@
 .pcb-textarea {
   width: 100%;
   padding: 14px 16px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
   border-radius: 10px;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
   font-size: 14px;
   font-family: inherit;
   line-height: 1.65;
@@ -200,8 +200,8 @@
   box-sizing: border-box;
   transition: border-color 0.15s;
 
-  &:focus { outline: none; border-color: rgba(123,111,240,0.5); background: rgba(123,111,240,0.04); }
-  &::placeholder { color: rgba(255,255,255,0.2); }
+  &:focus { outline: none; border-color: color-mix(in srgb, var(--color-primario) 50%, transparent); background: color-mix(in srgb, var(--color-primario) 4%, transparent); }
+  &::placeholder { color: color-mix(in srgb, var(--color-texto-principal) 20%, transparent); }
 }
 
 /* ── File upload ───────────────────────────────────────────────────────────── */
@@ -212,19 +212,19 @@
   gap: 8px;
   padding: 9px 16px;
   border-radius: 9px;
-  border: 1px dashed rgba(255,255,255,0.14);
-  background: rgba(255,255,255,0.02);
-  color: rgba(255,255,255,0.45);
+  border: 1px dashed color-mix(in srgb, var(--color-texto-principal) 14%, transparent);
+  background: color-mix(in srgb, var(--color-texto-principal) 2%, transparent);
+  color: color-mix(in srgb, var(--color-texto-principal) 45%, transparent);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   align-self: flex-start;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 
-  &:hover { border-color: rgba(123,111,240,0.4); background: rgba(123,111,240,0.05); color: #9B8FF8; }
+  &:hover { border-color: color-mix(in srgb, var(--color-primario) 40%, transparent); background: color-mix(in srgb, var(--color-primario) 5%, transparent); color: var(--color-texto-acento); }
 }
 .pcb-file-input { display: none; }
-.pcb-file-hint { font-size: 11px; color: rgba(255,255,255,0.22); font-weight: 400; margin-left: 4px; }
+.pcb-file-hint { font-size: 11px; color: color-mix(in srgb, var(--color-texto-principal) 22%, transparent); font-weight: 400; margin-left: 4px; }
 
 .pcb-file-preview {
   display: inline-flex;
@@ -232,21 +232,21 @@
   gap: 10px;
   padding: 10px 14px;
   border-radius: 9px;
-  border: 1px solid rgba(123,111,240,0.25);
-  background: rgba(123,111,240,0.07);
+  border: 1px solid color-mix(in srgb, var(--color-primario) 25%, transparent);
+  background: color-mix(in srgb, var(--color-primario) 7%, transparent);
   font-size: 13px;
   align-self: flex-start;
   max-width: 100%;
 }
 .pcb-file-preview__name {
   font-weight: 500;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 300px;
 }
-.pcb-file-preview__size { font-size: 11px; color: rgba(255,255,255,0.3); flex-shrink: 0; }
+.pcb-file-preview__size { font-size: 11px; color: color-mix(in srgb, var(--color-texto-principal) 30%, transparent); flex-shrink: 0; }
 .pcb-file-remove {
   display: flex;
   align-items: center;
@@ -255,14 +255,14 @@
   height: 20px;
   border-radius: 50%;
   border: none;
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.35);
+  background: color-mix(in srgb, var(--color-texto-principal) 6%, transparent);
+  color: color-mix(in srgb, var(--color-texto-principal) 35%, transparent);
   cursor: pointer;
   flex-shrink: 0;
   transition: background 0.12s, color 0.12s;
-  &:hover { background: rgba(248,113,113,0.15); color: #f87171; }
+  &:hover { background: color-mix(in srgb, var(--color-error) 15%, transparent); color: var(--color-error); }
 }
-.pcb-file-error { font-size: 12px; color: #f87171; margin: 0; }
+.pcb-file-error { font-size: 12px; color: var(--color-error); margin: 0; }
 
 /* ── Done badge ────────────────────────────────────────────────────────────── */
 
@@ -272,9 +272,9 @@
   gap: 8px;
   padding: 9px 18px;
   border-radius: 24px;
-  background: rgba(61,214,200,0.1);
-  border: 1px solid rgba(61,214,200,0.22);
-  color: #3DD6C8;
+  background: color-mix(in srgb, var(--color-teal) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-teal) 22%, transparent);
+  color: var(--color-teal);
   font-size: 13px;
   font-weight: 600;
   align-self: flex-start;
@@ -289,9 +289,9 @@
   justify-content: center;
   gap: 14px;
   min-height: 220px;
-  border: 1px dashed rgba(255,255,255,0.1);
+  border: 1px dashed color-mix(in srgb, var(--color-texto-principal) 10%, transparent);
   border-radius: 12px;
-  color: rgba(255,255,255,0.28);
+  color: color-mix(in srgb, var(--color-texto-principal) 28%, transparent);
   font-size: 14px;
   text-align: center;
 }
@@ -305,12 +305,12 @@
   align-items: center;
   gap: 7px;
   font-size: 12px;
-  color: rgba(255,255,255,0.28);
+  color: color-mix(in srgb, var(--color-texto-principal) 28%, transparent);
   margin: 0;
   padding: 8px 14px;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 6%, transparent);
   border-radius: 8px;
-  background: rgba(255,255,255,0.02);
+  background: color-mix(in srgb, var(--color-texto-principal) 2%, transparent);
   width: fit-content;
 }
 
@@ -324,7 +324,7 @@
   &__bar {
     flex: 1;
     height: 4px;
-    background: rgba(255,255,255,0.07);
+    background: color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
     border-radius: 100px;
     overflow: hidden;
   }
@@ -338,7 +338,7 @@
 
   &__label {
     font-size: 11px;
-    color: rgba(255,255,255,0.3);
+    color: color-mix(in srgb, var(--color-texto-principal) 30%, transparent);
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -357,27 +357,27 @@
   text-align: center;
   gap: 1.5rem;
   padding: 2.5rem;
-  border: 1px solid rgba(123,111,240,0.18);
+  border: 1px solid color-mix(in srgb, var(--color-primario) 18%, transparent);
   border-radius: 16px;
-  background: rgba(123,111,240,0.04);
+  background: color-mix(in srgb, var(--color-primario) 4%, transparent);
 }
 
 .quiz-confirm__icon {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: rgba(123,111,240,0.12);
-  border: 1px solid rgba(123,111,240,0.25);
+  background: color-mix(in srgb, var(--color-primario) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primario) 25%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9B8FF8;
+  color: var(--color-texto-acento);
 }
 
 .quiz-confirm__title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
   margin: 0;
 }
 
@@ -395,7 +395,7 @@
     align-items: center;
     gap: 6px;
     font-size: 14px;
-    color: rgba(255,255,255,0.55);
+    color: color-mix(in srgb, var(--color-texto-principal) 55%, transparent);
   }
 }
 
@@ -403,10 +403,14 @@
 
 .quiz-layout {
   display: grid;
-  grid-template-columns: 1fr 220px;
+  grid-template-columns: minmax(0, 1fr) 220px;
   gap: 1.5rem;
   align-items: start;
   position: relative;
+
+  @media (max-width: 720px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* ── Barra superior ────────────────────────────────────────────────────────── */
@@ -429,21 +433,21 @@
 .quiz-progress__bar {
   flex: 1;
   height: 5px;
-  background: rgba(255,255,255,0.08);
+  background: color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
   border-radius: 99px;
   overflow: hidden;
 }
 
 .quiz-progress__fill {
   height: 100%;
-  background: #7B6FF0;
+  background: var(--color-primario);
   border-radius: 99px;
   transition: width 0.3s ease;
 }
 
 .quiz-progress__label {
   font-size: 13px;
-  color: rgba(255,255,255,0.4);
+  color: color-mix(in srgb, var(--color-texto-principal) 40%, transparent);
   white-space: nowrap;
 }
 
@@ -453,18 +457,18 @@
   gap: 5px;
   font-size: 14px;
   font-weight: 700;
-  color: rgba(255,255,255,0.55);
+  color: color-mix(in srgb, var(--color-texto-principal) 55%, transparent);
   font-variant-numeric: tabular-nums;
   padding: 5px 12px;
   border-radius: 8px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: color-mix(in srgb, var(--color-texto-principal) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
   transition: color 0.3s, border-color 0.3s, background 0.3s;
 
   &--warning {
-    color: #f87171;
-    border-color: rgba(248,113,113,0.3);
-    background: rgba(248,113,113,0.06);
+    color: var(--color-error);
+    border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
+    background: color-mix(in srgb, var(--color-error) 6%, transparent);
   }
 }
 
@@ -481,9 +485,9 @@
   flex-direction: column;
   gap: 1.25rem;
   padding: 1.5rem;
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
   border-radius: 14px;
-  background: rgba(255,255,255,0.02);
+  background: color-mix(in srgb, var(--color-texto-principal) 2%, transparent);
   margin-bottom: 1.25rem;
   min-height: 220px;
 }
@@ -491,19 +495,19 @@
 .quiz-question__text {
   font-size: 16px;
   font-weight: 600;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
   margin: 0;
   line-height: 1.5;
 }
 
 .quiz-question__num {
-  color: #7B6FF0;
+  color: var(--color-primario);
   margin-right: 6px;
 }
 
 .quiz-question__hint {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.38);
+  color: color-mix(in srgb, var(--color-texto-principal) 38%, transparent);
   margin: -8px 0 4px;
   font-style: italic;
 }
@@ -525,26 +529,26 @@
   gap: 12px;
   padding: 11px 16px;
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.03);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
+  background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent);
   cursor: pointer;
   font-size: 14px;
-  color: rgba(255,255,255,0.65);
+  color: color-mix(in srgb, var(--color-texto-principal) 65%, transparent);
   transition: border-color 0.15s, background 0.15s, color 0.15s;
   user-select: none;
 
   input { display: none; }
 
   &:hover {
-    border-color: rgba(123,111,240,0.4);
-    background: rgba(123,111,240,0.06);
-    color: rgba(255,255,255,0.9);
+    border-color: color-mix(in srgb, var(--color-primario) 40%, transparent);
+    background: color-mix(in srgb, var(--color-primario) 6%, transparent);
+    color: color-mix(in srgb, var(--color-texto-principal) 90%, transparent);
   }
 
   &--checked {
-    border-color: rgba(123,111,240,0.6);
-    background: rgba(123,111,240,0.12);
-    color: #EDEAF8;
+    border-color: color-mix(in srgb, var(--color-primario) 60%, transparent);
+    background: color-mix(in srgb, var(--color-primario) 12%, transparent);
+    color: var(--color-texto-principal);
     font-weight: 500;
   }
 
@@ -560,14 +564,14 @@
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-  border: 2px solid rgba(255,255,255,0.2);
+  border: 2px solid color-mix(in srgb, var(--color-texto-principal) 20%, transparent);
   border-radius: 4px;
-  background: rgba(255,255,255,0.03);
+  background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent);
   transition: border-color 0.15s, background 0.15s;
 
   .quiz-option--checked & {
-    border-color: #7B6FF0;
-    background: #7B6FF0;
+    border-color: var(--color-primario);
+    background: var(--color-primario);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: center;
@@ -577,7 +581,7 @@
   &--circle {
     border-radius: 50%;
     .quiz-option--checked & {
-      background-image: radial-gradient(circle, #fff 4px, transparent 4px);
+      background-image: radial-gradient(circle, var(--color-sobre-primario) 4px, transparent 4px);
       background-size: 16px 16px;
     }
   }
@@ -601,15 +605,15 @@
   flex-direction: column;
   gap: 0.875rem;
   padding: 1.25rem;
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
   border-radius: 14px;
-  background: rgba(255,255,255,0.02);
+  background: color-mix(in srgb, var(--color-texto-principal) 2%, transparent);
 }
 
 .quiz-summary__title {
   font-size: 11px;
   font-weight: 700;
-  color: rgba(255,255,255,0.35);
+  color: color-mix(in srgb, var(--color-texto-principal) 35%, transparent);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin: 0;
@@ -617,14 +621,14 @@
 
 .quiz-summary__stat {
   font-size: 13px;
-  color: rgba(255,255,255,0.45);
+  color: color-mix(in srgb, var(--color-texto-principal) 45%, transparent);
   margin: 0;
 }
 
 .quiz-summary__answered {
   font-size: 20px;
   font-weight: 700;
-  color: #7B6FF0;
+  color: var(--color-primario);
 }
 
 .quiz-summary__grid {
@@ -637,9 +641,9 @@
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.03);
-  color: rgba(255,255,255,0.35);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 10%, transparent);
+  background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent);
+  color: color-mix(in srgb, var(--color-texto-principal) 35%, transparent);
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
@@ -649,15 +653,15 @@
   justify-content: center;
 
   &--answered {
-    border-color: rgba(123,111,240,0.5);
-    background: rgba(123,111,240,0.15);
-    color: #9B8FF8;
+    border-color: color-mix(in srgb, var(--color-primario) 50%, transparent);
+    background: color-mix(in srgb, var(--color-primario) 15%, transparent);
+    color: var(--color-texto-acento);
   }
 
   &--current {
-    border-color: #7B6FF0;
-    background: #7B6FF0;
-    color: #fff;
+    border-color: var(--color-primario);
+    background: var(--color-primario);
+    color: var(--color-sobre-primario);
   }
 
   &--sm { width: 14px; height: 14px; border-radius: 3px; cursor: default; font-size: 0; }
@@ -668,7 +672,7 @@
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  color: rgba(255,255,255,0.3);
+  color: color-mix(in srgb, var(--color-texto-principal) 30%, transparent);
   flex-wrap: wrap;
   row-gap: 4px;
 }
@@ -679,12 +683,12 @@
 
 .quiz-result {
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.07);
-  background: rgba(255,255,255,0.02);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
+  background: color-mix(in srgb, var(--color-texto-principal) 2%, transparent);
   overflow: hidden;
 
-  &--pass { border-color: rgba(52,211,153,0.25); background: rgba(52,211,153,0.04); }
-  &--fail { border-color: rgba(248,113,113,0.22); background: rgba(248,113,113,0.03); }
+  &--pass { border-color: color-mix(in srgb, var(--color-exito) 25%, transparent); background: color-mix(in srgb, var(--color-exito) 4%, transparent); }
+  &--fail { border-color: color-mix(in srgb, var(--color-error) 22%, transparent); background: color-mix(in srgb, var(--color-error) 3%, transparent); }
 }
 
 .quiz-result__header {
@@ -692,7 +696,7 @@
   align-items: center;
   gap: 1.25rem;
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-texto-principal) 6%, transparent);
 }
 
 .quiz-result__icon {
@@ -702,24 +706,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(248,113,113,0.1);
-  color: #f87171;
+  background: color-mix(in srgb, var(--color-error) 10%, transparent);
+  color: var(--color-error);
   flex-shrink: 0;
 
-  &--pass { background: rgba(52,211,153,0.1); color: #34d399; }
+  &--pass { background: color-mix(in srgb, var(--color-exito) 10%, transparent); color: var(--color-exito); }
 }
 
 .quiz-result__label {
   font-size: 18px;
   font-weight: 700;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
   margin: 0 0 4px;
 }
 
 .quiz-result__score {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
   letter-spacing: -0.02em;
   margin: 0;
   line-height: 1;
@@ -741,10 +745,10 @@
   font-size: 13px;
   padding: 8px 12px;
   border-radius: 8px;
-  background: rgba(255,255,255,0.02);
+  background: color-mix(in srgb, var(--color-texto-principal) 2%, transparent);
 
-  &--ok  { .quiz-fb-item__mark { background: rgba(52,211,153,0.1); color: #34d399; } }
-  &--err { .quiz-fb-item__mark { background: rgba(248,113,113,0.1); color: #f87171; } }
+  &--ok  { .quiz-fb-item__mark { background: color-mix(in srgb, var(--color-exito) 10%, transparent); color: var(--color-exito); } }
+  &--err { .quiz-fb-item__mark { background: color-mix(in srgb, var(--color-error) 10%, transparent); color: var(--color-error); } }
 }
 
 .quiz-fb-item__mark {
@@ -766,28 +770,28 @@
 .quiz-fb-item__q {
   font-weight: 600;
   font-size: 13px;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
   margin: 0 0 3px;
   line-height: 1.4;
 }
 
 .quiz-fb-item__answer {
   font-size: 12px;
-  color: rgba(255,255,255,0.55);
+  color: color-mix(in srgb, var(--color-texto-principal) 55%, transparent);
   margin: 0 0 3px;
-  em { font-style: normal; color: rgba(255,255,255,0.8); }
+  em { font-style: normal; color: color-mix(in srgb, var(--color-texto-principal) 80%, transparent); }
 }
 
 .quiz-fb-item__exp {
   font-size: 12px;
-  color: rgba(61,214,200,0.75);
+  color: color-mix(in srgb, var(--color-teal) 75%, transparent);
   margin: 0;
   line-height: 1.5;
 }
 
 .quiz-fb-item__incorrect {
   font-size: 12px;
-  color: rgba(248,113,113,0.7);
+  color: color-mix(in srgb, var(--color-error) 70%, transparent);
   margin: 0;
 }
 
@@ -806,8 +810,8 @@
 }
 
 .quiz-submit-modal {
-  background: #1a1a2e;
-  border: 1px solid rgba(123,111,240,0.3);
+  background: var(--color-superficie-alta);
+  border: 1px solid color-mix(in srgb, var(--color-primario) 30%, transparent);
   border-radius: 14px;
   padding: 28px 24px 22px;
   max-width: 400px;
@@ -828,35 +832,35 @@
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    background: rgba(123,111,240,0.12);
-    border: 1.5px solid rgba(123,111,240,0.3);
+    background: color-mix(in srgb, var(--color-primario) 12%, transparent);
+    border: 1.5px solid color-mix(in srgb, var(--color-primario) 30%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #7B6FF0;
+    color: var(--color-primario);
     flex-shrink: 0;
   }
 
   &__title {
     font-size: 16px;
     font-weight: 700;
-    color: #EDEAF8;
+    color: var(--color-texto-principal);
     margin: 4px 0 0;
     text-align: center;
   }
 
   &__body {
     font-size: 13px;
-    color: rgba(255,255,255,0.6);
+    color: color-mix(in srgb, var(--color-texto-principal) 60%, transparent);
     text-align: center;
     line-height: 1.55;
     margin: 0;
-    strong { color: #EDEAF8; font-weight: 600; }
+    strong { color: var(--color-texto-principal); font-weight: 600; }
   }
 
   &__time {
-    color: #3DD6C8;
-    &--warn { color: #ffb800; }
+    color: var(--color-teal);
+    &--warn { color: var(--color-advertencia); }
   }
 
   &__actions {
@@ -877,17 +881,17 @@
     transition: background 0.15s, border-color 0.15s;
 
     &--cancel {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.7);
-      &:hover { background: rgba(255,255,255,0.09); color: #fff; }
+      background: color-mix(in srgb, var(--color-texto-principal) 5%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-texto-principal) 12%, transparent);
+      color: color-mix(in srgb, var(--color-texto-principal) 70%, transparent);
+      &:hover { background: color-mix(in srgb, var(--color-texto-principal) 9%, transparent); color: var(--color-sobre-primario); }
     }
 
     &--submit {
-      background: rgba(123,111,240,0.18);
-      border: 1px solid rgba(123,111,240,0.45);
-      color: #a89ef5;
-      &:hover { background: rgba(123,111,240,0.28); border-color: rgba(123,111,240,0.7); }
+      background: color-mix(in srgb, var(--color-primario) 18%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-primario) 45%, transparent);
+      color: var(--color-texto-acento);
+      &:hover { background: color-mix(in srgb, var(--color-primario) 28%, transparent); border-color: color-mix(in srgb, var(--color-primario) 70%, transparent); }
       &:disabled { opacity: 0.5; cursor: not-allowed; }
     }
   }
@@ -901,12 +905,12 @@
 
 .assign-grade {
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.02);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
+  background: color-mix(in srgb, var(--color-texto-principal) 2%, transparent);
   overflow: hidden;
 
-  &--pass { border-color: rgba(52,211,153,0.25); }
-  &--fail { border-color: rgba(248,113,113,0.2); }
+  &--pass { border-color: color-mix(in srgb, var(--color-exito) 25%, transparent); }
+  &--fail { border-color: color-mix(in srgb, var(--color-error) 20%, transparent); }
 }
 
 .assign-grade__header {
@@ -926,14 +930,14 @@
 .assign-grade__score {
   font-size: 3rem;
   font-weight: 800;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
   letter-spacing: -0.03em;
   line-height: 1;
 }
 
 .assign-grade__max {
   font-size: 1.1rem;
-  color: rgba(255,255,255,0.35);
+  color: color-mix(in srgb, var(--color-texto-principal) 35%, transparent);
   font-weight: 500;
 }
 
@@ -946,19 +950,19 @@
 .assign-grade__label {
   font-size: 18px;
   font-weight: 700;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
   margin: 0;
 }
 
 .assign-grade__pct {
   font-size: 14px;
-  color: rgba(255,255,255,0.45);
+  color: color-mix(in srgb, var(--color-texto-principal) 45%, transparent);
   margin: 0;
 }
 
 .assign-grade__by {
   font-size: 12px;
-  color: rgba(255,255,255,0.3);
+  color: color-mix(in srgb, var(--color-texto-principal) 30%, transparent);
   margin: 0;
 }
 
@@ -968,14 +972,14 @@
 
 .assign-grade__bar {
   height: 6px;
-  background: rgba(255,255,255,0.07);
+  background: color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
   border-radius: 99px;
   overflow: hidden;
 }
 
 .assign-grade__bar-fill {
   height: 100%;
-  background: #3DD6C8;
+  background: var(--color-teal);
   border-radius: 99px;
   transition: width 0.6s ease;
 }
@@ -984,8 +988,8 @@
   margin: 0 1.5rem 1.25rem;
   padding: 1rem 1.25rem;
   border-radius: 10px;
-  background: rgba(123,111,240,0.06);
-  border: 1px solid rgba(123,111,240,0.15);
+  background: color-mix(in srgb, var(--color-primario) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primario) 15%, transparent);
 }
 
 .assign-grade__feedback-title {
@@ -994,7 +998,7 @@
   gap: 6px;
   font-size: 12px;
   font-weight: 700;
-  color: rgba(255,255,255,0.4);
+  color: color-mix(in srgb, var(--color-texto-principal) 40%, transparent);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin: 0 0 0.5rem;
@@ -1002,7 +1006,7 @@
 
 .assign-grade__feedback-text {
   font-size: 14px;
-  color: rgba(255,255,255,0.7);
+  color: color-mix(in srgb, var(--color-texto-principal) 70%, transparent);
   margin: 0;
   line-height: 1.65;
   white-space: pre-wrap;
@@ -1015,7 +1019,7 @@
 .assign-grade__rubric-title {
   font-size: 12px;
   font-weight: 700;
-  color: rgba(255,255,255,0.35);
+  color: color-mix(in srgb, var(--color-texto-principal) 35%, transparent);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin: 0 0 0.75rem;
@@ -1033,8 +1037,8 @@
 .assign-rubric-item {
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.06);
-  background: rgba(255,255,255,0.02);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 6%, transparent);
+  background: color-mix(in srgb, var(--color-texto-principal) 2%, transparent);
 }
 
 .assign-rubric-item__header {
@@ -1046,19 +1050,19 @@
 .assign-rubric-item__name {
   font-size: 13px;
   font-weight: 600;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
 }
 
 .assign-rubric-item__pts {
   font-size: 13px;
-  color: rgba(255,255,255,0.45);
+  color: color-mix(in srgb, var(--color-texto-principal) 45%, transparent);
   white-space: nowrap;
   font-weight: 600;
 }
 
 .assign-rubric-item__comment {
   font-size: 12px;
-  color: rgba(255,255,255,0.4);
+  color: color-mix(in srgb, var(--color-texto-principal) 40%, transparent);
   margin: 4px 0 0;
   line-height: 1.5;
 }
@@ -1067,13 +1071,13 @@
 
 .assign-submission {
   padding: 1rem 1.5rem;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  border-top: 1px solid color-mix(in srgb, var(--color-texto-principal) 5%, transparent);
 }
 
 .assign-submission__title {
   font-size: 11px;
   font-weight: 700;
-  color: rgba(255,255,255,0.3);
+  color: color-mix(in srgb, var(--color-texto-principal) 30%, transparent);
   text-transform: uppercase;
   letter-spacing: 0.07em;
   margin: 0 0 0.75rem;
@@ -1081,7 +1085,7 @@
 
 .assign-submission__text {
   font-size: 13px;
-  color: rgba(255,255,255,0.5);
+  color: color-mix(in srgb, var(--color-texto-principal) 50%, transparent);
   margin: 0 0 0.5rem;
   white-space: pre-wrap;
   line-height: 1.6;
@@ -1092,7 +1096,7 @@
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: rgba(255,255,255,0.35);
+  color: color-mix(in srgb, var(--color-texto-principal) 35%, transparent);
 }
 
 /* ── Pendiente de revisión ─────────────────────────────────────────────────── */
@@ -1104,34 +1108,34 @@
   text-align: center;
   gap: 0.75rem;
   padding: 2.5rem;
-  border: 1px dashed rgba(255,255,255,0.1);
+  border: 1px dashed color-mix(in srgb, var(--color-texto-principal) 10%, transparent);
   border-radius: 14px;
-  background: rgba(255,255,255,0.015);
+  background: color-mix(in srgb, var(--color-texto-principal) 1.5%, transparent);
 }
 
 .assign-pending__icon {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: rgba(251,191,36,0.1);
-  border: 1px solid rgba(251,191,36,0.2);
+  background: color-mix(in srgb, var(--color-advertencia) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-advertencia) 20%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fbbf24;
+  color: var(--color-advertencia);
   margin-bottom: 0.25rem;
 }
 
 .assign-pending__title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #EDEAF8;
+  color: var(--color-texto-principal);
   margin: 0;
 }
 
 .assign-pending__sub {
   font-size: 14px;
-  color: rgba(255,255,255,0.45);
+  color: color-mix(in srgb, var(--color-texto-principal) 45%, transparent);
   margin: 0;
   max-width: 400px;
   line-height: 1.6;
@@ -1139,13 +1143,13 @@
 
 .assign-pending__date {
   font-size: 12px;
-  color: rgba(255,255,255,0.25);
+  color: color-mix(in srgb, var(--color-texto-principal) 25%, transparent);
   margin: 0;
 }
 
 .assign-pending__preview {
   font-size: 13px;
-  color: rgba(255,255,255,0.45);
+  color: color-mix(in srgb, var(--color-texto-principal) 45%, transparent);
   margin: 8px 0 0;
   max-height: 60px;
   overflow: hidden;
@@ -1165,8 +1169,8 @@
 
 .assign-pending-v2 {
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
+  background: color-mix(in srgb, var(--color-texto-principal) 2%, transparent);
   overflow: hidden;
 }
 
@@ -1176,8 +1180,8 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 10px 16px;
-  background: rgba(251, 191, 36, 0.07);
-  border-bottom: 1px solid rgba(251, 191, 36, 0.12);
+  background: color-mix(in srgb, var(--color-advertencia) 7%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-advertencia) 12%, transparent);
 }
 
 .assign-pending-v2__bar-left {
@@ -1190,8 +1194,8 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #fbbf24;
-  box-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+  background: var(--color-advertencia);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-advertencia) 60%, transparent);
   flex-shrink: 0;
 }
 
@@ -1200,7 +1204,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: #fbbf24;
+  color: var(--color-advertencia);
 }
 
 .assign-pending-v2__bar-right {
@@ -1211,7 +1215,7 @@
 
 .assign-pending-v2__date {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.3);
+  color: color-mix(in srgb, var(--color-texto-principal) 30%, transparent);
 }
 
 .assign-pending-v2__edit-btn {
@@ -1220,9 +1224,9 @@
   gap: 5px;
   padding: 4px 10px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 12%, transparent);
   background: transparent;
-  color: rgba(255, 255, 255, 0.5);
+  color: color-mix(in srgb, var(--color-texto-principal) 50%, transparent);
   font-size: 11px;
   font-weight: 500;
   font-family: inherit;
@@ -1230,8 +1234,8 @@
   transition: border-color 0.15s, color 0.15s;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.25);
-    color: rgba(255, 255, 255, 0.8);
+    border-color: color-mix(in srgb, var(--color-texto-principal) 25%, transparent);
+    color: color-mix(in srgb, var(--color-texto-principal) 80%, transparent);
   }
 }
 
@@ -1244,17 +1248,17 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.25);
+  color: color-mix(in srgb, var(--color-texto-principal) 25%, transparent);
   margin: 0 0 0.875rem;
 }
 
 .assign-pending-v2__markdown {
   font-size: 14px;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.75);
+  color: color-mix(in srgb, var(--color-texto-principal) 75%, transparent);
 
   p { margin: 0 0 0.75rem; &:last-child { margin-bottom: 0; } }
-  h1, h2, h3, h4 { color: rgba(255,255,255,0.9); margin: 1rem 0 0.5rem; font-weight: 600; }
+  h1, h2, h3, h4 { color: color-mix(in srgb, var(--color-texto-principal) 90%, transparent); margin: 1rem 0 0.5rem; font-weight: 600; }
   ul, ol { padding-left: 1.5rem; margin: 0.5rem 0; }
   li { margin-bottom: 0.25rem; }
 }
@@ -1264,15 +1268,15 @@
   align-items: center;
   gap: 6px;
   padding: 10px 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid color-mix(in srgb, var(--color-texto-principal) 5%, transparent);
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.3);
+  color: color-mix(in srgb, var(--color-texto-principal) 30%, transparent);
 }
 
 .pcb-btn--outline {
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.7);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 20%, transparent);
+  color: color-mix(in srgb, var(--color-texto-principal) 70%, transparent);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1284,16 +1288,16 @@
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 
   &:hover {
-    background: rgba(255,255,255,0.06);
-    border-color: rgba(255,255,255,0.35);
-    color: #fff;
+    background: color-mix(in srgb, var(--color-texto-principal) 6%, transparent);
+    border-color: color-mix(in srgb, var(--color-texto-principal) 35%, transparent);
+    color: var(--color-sobre-primario);
   }
 }
 
 .quiz-confirm__error {
   margin: 0;
   font-size: 0.875rem;
-  color: #F87171;
+  color: var(--color-error);
 }
 
 // ── Transcripción del video ─────────────────────────────────────────────────

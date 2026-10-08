@@ -12,6 +12,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-lg);
+  flex-wrap: wrap;
 }
 
 .enrollment-manager-view__title {
@@ -58,7 +59,7 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-lg);
 
-  @media (max-width: 768px) { grid-template-columns: 1fr; }
+  @media (max-width: 768px) { grid-template-columns: minmax(0, 1fr); }
 }
 
 .enrollment-manager-view__panel {
@@ -69,6 +70,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  min-width: 0;
 }
 
 .enrollment-manager-view__panel-title {
@@ -275,4 +277,10 @@
 
   &:hover:not(:disabled) { background: var(--color-primario-claro); }
   &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+// Celular: la sección ya tiene el margen del layout; se quita el relleno extra para no estrechar los paneles.
+@media (max-width: 768px) {
+  .enrollment-manager-view { padding: var(--spacing-md) 0; }
+  .enrollment-manager-view__stats { flex-shrink: 1; }
 }

@@ -50,6 +50,7 @@
 
 .catalog-filter-bar__dropdown-wrap {
   flex: 1; // ~20%
+  min-width: 6.75rem; // en celular el 20 % no alcanza para «Filtros» + icono
   position: relative;
   display: flex;
 }
@@ -70,6 +71,7 @@
   transition: border-color var(--transition-fast), color var(--transition-fast);
   font-family: inherit;
   white-space: nowrap;
+  padding-inline: var(--spacing-md);
 
   &:hover {
     border-color: color-mix(in srgb, var(--color-primario) 35%, transparent);
@@ -90,7 +92,7 @@
   height: 18px;
   border-radius: var(--border-radius-full);
   background: var(--color-primario);
-  color: #fff;
+  color: var(--color-sobre-primario);
   font-size: 10px;
   font-weight: var(--font-weight-bold);
   line-height: 1;
