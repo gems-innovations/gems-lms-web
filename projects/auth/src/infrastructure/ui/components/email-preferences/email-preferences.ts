@@ -17,6 +17,7 @@ import { IEmailPreferences, UserService } from '../../../services/user.service';
     button { min-height: 38px; padding: 0 .9rem; border: 1px solid var(--color-borde-principal); border-radius: 10px; background: transparent; color: var(--color-texto-principal); font: inherit; font-weight: 600; cursor: pointer; }
     button:hover:not(:disabled) { background: var(--color-tarjeta-hover); }
     button:disabled { opacity: .7; cursor: default; }
+    @media (max-width: 768px) { button { min-height: 44px; } }
     label { display: flex; gap: .7rem; align-items: flex-start; cursor: pointer; color: var(--color-texto-principal); }
     label input { width: 1.05rem; height: 1.05rem; margin-top: .2rem; min-height: auto; accent-color: var(--color-primario); }
     small { display: block; color: var(--color-texto-secundario); }

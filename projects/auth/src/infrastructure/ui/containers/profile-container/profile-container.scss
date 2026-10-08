@@ -35,3 +35,9 @@ button:disabled { cursor: default; opacity: .58; }
 
 .profile__lang { display: flex; flex-direction: column; gap: var(--spacing-xs); }
 .profile__lang-label { font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
+
+// Celular: objetivos táctiles de 44px.
+@media (max-width: 768px) {
+  .profile__toggle { min-height: 44px; }
+  .profile button, .profile__btn { min-height: 44px; }
+}
