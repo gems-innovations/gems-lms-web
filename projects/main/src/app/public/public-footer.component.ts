@@ -24,6 +24,7 @@ import { RouterLink } from '@angular/router';
     .pf__links a { color: var(--color-texto-secundario); text-decoration: none; font-size: var(--font-size-sm); font-weight: 600; }
     .pf__links a:hover { color: var(--color-texto-principal); }
     .pf__links a:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; border-radius: 6px; }
+    @media (max-width: 768px) { .pf__links a { display: inline-flex; align-items: center; min-height: 44px; } }
     p { margin: 0; max-width: 72ch; font-size: var(--font-size-xs); line-height: 1.6; color: var(--color-texto-terciario); }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,

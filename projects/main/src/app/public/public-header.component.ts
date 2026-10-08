@@ -54,7 +54,8 @@ import { isGuestUser } from './guest-access.service';
     @media (max-width: 760px) {
       .ph { gap: 8px; padding: 10px 14px; }
       .ph__nav { display: none; }
-      .ph__btn { padding: 8px 12px; }
+      .ph__btn { padding: 8px 12px; min-height: 44px; }
+      .ph__brand { min-height: 44px; }
     }
     @media (max-width: 420px) {
       .ph__long { display: none; }

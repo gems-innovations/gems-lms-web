@@ -96,9 +96,13 @@
   .connection-notice { top: .5rem; width: calc(100% - 1rem); }
   .update-notice { right: .5rem; bottom: 4.25rem; left: .5rem; max-width: none; }
   // En la zona de estudiante hay barra inferior de pestañas: el botón de guía va por encima.
-  .app-tour-button { bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem); }
+  .app-tour-button { width: 2.75rem; height: 2.75rem; right: .75rem; bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .skip-link { transition: none; }
+}
+
+@media (max-width: 48rem) {
+  .app-tour-button { width: 2.75rem; height: 2.75rem; }
 }
