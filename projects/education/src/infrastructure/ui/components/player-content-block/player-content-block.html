@@ -14,6 +14,14 @@
 } @else if (block(); as blk) {
   <div class="player-content-block">
 
+    <!-- Tocó «Siguiente» sin terminar un video, quiz o tarea: se le dice qué falta (los documentos lo muestran en su propia tarjeta). -->
+    @if (nudged() && blk.type !== EContentType.DOCUMENT) {
+      <div class="pcb-nudge" role="status">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        {{ nudgeText() }}
+      </div>
+    }
+
     <!-- ═══════════════════════════ VIDEO ═══════════════════════════════════ -->
     @if (blk.type === EContentType.VIDEO) {
       <div class="player-content-block__video-wrap">
@@ -66,12 +74,40 @@
       <div class="player-content-block__meta">
         <h2 class="player-content-block__title">{{ blk.title }}</h2>
       </div>
+
+      <!-- Tiempo de lectura, explicado y a la vista: el siguiente paso se habilita cuando se cumple. -->
+      <div class="pcb-gate" [class.pcb-gate--done]="isComplete()" [class.pcb-gate--nudged]="nudged()" role="status" aria-live="polite">
+        @if (isComplete()) {
+          <svg class="pcb-gate__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <div class="pcb-gate__text">
+            <strong>Lectura completa.</strong>
+            <span>Cuando termines, toca «Siguiente paso».</span>
+          </div>
+        } @else {
+          <svg class="pcb-gate__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div class="pcb-gate__text">
+            @if (nudged()) {
+              <strong>{{ nudgeText() }}</strong>
+            } @else {
+              <strong>Lee con calma: el siguiente paso se habilita en {{ readingClock() }}.</strong>
+            }
+            <span>Es el tiempo mínimo de lectura de esta página. El contador sigue mientras tengas la pestaña abierta.</span>
+            <span class="pcb-gate__bar"><i [style.width.%]="readingPct()"></i></span>
+          </div>
+        }
+      </div>
+
       <markdown class="player-content-block__markdown markdown-body"
         [data]="blk.markdownContent ?? ''" ngPreserveWhitespaces></markdown>
+
       @if (isComplete()) {
-        <div class="player-content-block__done-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Completado
+        <div class="pcb-gate pcb-gate--done pcb-gate--foot">
+          <svg class="pcb-gate__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <div class="pcb-gate__text"><strong>Lectura completa.</strong></div>
+          <button type="button" class="pcb-gate__next" (click)="goNext.emit()">
+            Siguiente paso
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
         </div>
       } @else {
         <div class="pcb-reading-progress">
@@ -80,9 +116,9 @@
           </div>
           <span class="pcb-reading-progress__label">
             @if (readingRemaining() > 0) {
-              Leyendo… {{ readingRemaining() }}s restantes
+              El siguiente paso se habilita en {{ readingClock() }}
             } @else {
-              Completando…
+              Guardando tu lectura…
             }
           </span>
         </div>

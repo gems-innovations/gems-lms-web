@@ -316,6 +316,71 @@
 
 /* ── Reading progress bar ──────────────────────────────────────────────────── */
 
+/* ── Tiempo de lectura explicado (arriba y al pie del documento) ─────────── */
+
+.pcb-gate {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--color-primario) 30%, transparent);
+  background: color-mix(in srgb, var(--color-primario) 8%, transparent);
+  color: var(--color-texto-secundario);
+  font-size: 13px;
+  line-height: 1.45;
+  scroll-margin-top: 120px;
+  transition: border-color .2s, background .2s;
+
+  &__icon { flex: 0 0 auto; margin-top: 1px; color: var(--color-primario-claro, var(--color-primario)); }
+  &__text { display: grid; gap: 3px; flex: 1 1 auto; min-width: 0; }
+  &__text strong { color: var(--color-texto-principal); font-weight: 700; }
+  &__bar { display: block; height: 4px; margin-top: 6px; border-radius: 100px; overflow: hidden;
+    background: color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
+    i { display: block; height: 100%; border-radius: 100px; background: var(--color-primario); transition: width 1s linear; } }
+
+  &--done {
+    border-color: color-mix(in srgb, var(--color-exito) 40%, transparent);
+    background: color-mix(in srgb, var(--color-exito) 10%, transparent);
+    .pcb-gate__icon { color: var(--color-exito-texto, var(--color-exito)); }
+  }
+  &--foot { align-items: center; flex-wrap: wrap; }
+  &--nudged {
+    border-color: var(--color-advertencia);
+    background: color-mix(in srgb, var(--color-advertencia) 12%, transparent);
+    animation: pcb-shake .4s ease;
+    .pcb-gate__icon { color: var(--color-advertencia-texto, var(--color-advertencia)); }
+  }
+
+  &__next {
+    display: inline-flex; align-items: center; gap: 6px; margin-left: auto; min-height: 44px; padding: 10px 16px;
+    border: 0; border-radius: 10px; background: var(--color-primario-accion); color: var(--color-sobre-primario);
+    font: 700 14px/1 inherit; font-family: inherit; cursor: pointer;
+    &:hover { opacity: .9; }
+    &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+  }
+}
+
+.pcb-nudge {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 12px;
+  border: 1px solid var(--color-advertencia);
+  background: color-mix(in srgb, var(--color-advertencia) 12%, transparent);
+  color: var(--color-texto-principal); font-size: 13px; font-weight: 600;
+  animation: pcb-shake .4s ease;
+  svg { flex: 0 0 auto; color: var(--color-advertencia-texto, var(--color-advertencia)); }
+}
+
+@keyframes pcb-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+@media (prefers-reduced-motion: reduce) { .pcb-gate--nudged, .pcb-nudge { animation: none; } }
+@media (max-width: 640px) {
+  .pcb-gate--foot .pcb-gate__next { flex: 1 1 100%; justify-content: center; margin-left: 0; }
+}
+
 .pcb-reading-progress {
   display: flex;
   align-items: center;

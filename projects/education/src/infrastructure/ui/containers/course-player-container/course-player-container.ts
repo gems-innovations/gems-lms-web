@@ -43,6 +43,8 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
   protected readonly showCertificate    = signal(false);
   protected readonly showProgress       = signal(false);
   protected readonly forceSubmitTrigger = signal(0);
+  /** Cuenta los toques a «Siguiente» con el paso sin terminar: el bloque explica qué falta en vez de quedarse quieto. */
+  protected readonly nudge              = signal(0);
   private readonly _quizActive          = signal(false);
   private readonly _pendingNav          = signal<(() => void) | null>(null);
   protected readonly showQuizWarning    = signal(false);
@@ -263,6 +265,15 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
       this._deactivateSubject.complete();
       this._deactivateSubject = null;
     }
+  }
+
+  /** «Siguiente»: con el paso terminado avanza; si no, avisa por qué no (antes no pasaba nada y parecía un error). */
+  protected next(): void {
+    if (this._quizActive() || this.uc.isBlockComplete() || !this.uc.selectedBlock()) {
+      this._guardedNav(() => this.uc.nextBlock());
+      return;
+    }
+    this.nudge.update(n => n + 1);
   }
 
   protected openProgress(): void { this.showProgress.set(true); }
