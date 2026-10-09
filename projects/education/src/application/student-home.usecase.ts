@@ -3,7 +3,7 @@ import { EnrollmentUseCase } from './enrollment.usecase';
 import { CourseUseCase } from './course.usecase';
 import { LearningPathUseCase } from './learning-path.usecase';
 import { IEnrolledCourseEntry, IEnrolledPathEntry } from '../domain/model/enrollment.model';
-import { ICatalogItem } from '../domain/model/catalog.model';
+import { ICatalogItem, OPEN_INSTITUTION_ID } from '../domain/model/catalog.model';
 
 @Injectable({ providedIn: 'root' })
 export class StudentHomeUseCase {
@@ -58,6 +58,7 @@ export class StudentHomeUseCase {
         duration: c.totalDuration,
         meta: c.totalLessons ? `${c.totalLessons} lecciones` : '',
         difficulty: c.difficulty,
+        free: c.institutionId === OPEN_INSTITUTION_ID,
       }));
   });
 

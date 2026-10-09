@@ -5,9 +5,10 @@ import { EContentType, ILesson } from '../domain/model/course.model';
 import { IAssignmentSubmitPayload, ICourseCertificate, IQuizSubmitPayload } from '../domain/model/player.model';
 import { AuthSessionService } from 'auth';
 import { SurveyService } from '../infrastructure/services/survey.service';
+import { OPEN_INSTITUTION_ID } from '../domain/model/catalog.model';
 
 /** Institución de los cursos gratis y abiertos (sin certificado: muestran el resultado final). */
-export const OPEN_INSTITUTION_ID = 'gems-abierto';
+export { OPEN_INSTITUTION_ID };
 
 @Injectable({ providedIn: 'root' })
 export class CoursePlayerUseCase {

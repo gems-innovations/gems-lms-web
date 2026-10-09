@@ -10,8 +10,8 @@ import { RouterLink } from '@angular/router';
       <nav class="pf__links" aria-label="Información legal">
         <a routerLink="/terminos">Términos de uso</a>
         <a routerLink="/privacidad">Privacidad y datos</a>
-        <a routerLink="/instituciones">Enseña en GEMS</a>
-        <a routerLink="/auth/signin">Iniciar sesión</a>
+        <a routerLink="/instituciones">Para instituciones</a>
+        <a routerLink="/auth/signin">Ya tengo cuenta</a>
       </nav>
       <p>GEMS · Material de práctica con preguntas originales construidas a partir del análisis de exámenes oficiales publicados.
         No estamos afiliados a ninguna universidad, al ICFES ni al Ministerio de Educación. Los nombres de exámenes y universidades se usan solo para describir.</p>

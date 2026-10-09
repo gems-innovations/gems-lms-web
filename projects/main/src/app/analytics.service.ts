@@ -5,8 +5,11 @@ import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 
 interface IGoatCounter {
-  count?: (vars: { path: string; title?: string }) => void;
+  count?: (vars: { path: string; title?: string; event?: boolean }) => void;
 }
+
+/** Acciones clave del embudo, para medir conversión y no solo visitas. */
+export type TAnalyticsEvent = 'empezar-gratis' | 'cuenta-creada' | 'solicitud-institucion';
 
 const SCRIPT_ID = 'goatcounter-script';
 const NUMERIC_OR_UUID = /^(\d+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
@@ -38,6 +41,12 @@ export class AnalyticsService {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(event => this.track(toAnalyticsPath(event.urlAfterRedirects)));
+  }
+
+  /** Evento de conversión (GoatCounter lo lista aparte de las páginas). Nunca falla ni bloquea. */
+  event(name: TAnalyticsEvent): void {
+    if (!this.isBrowser) return;
+    try { this.counter()?.count?.({ path: name, title: name, event: true }); } catch { /* sin analítica no pasa nada */ }
   }
 
   private track(path: string): void {

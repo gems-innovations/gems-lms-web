@@ -11,21 +11,40 @@
         <span class="shero__eyebrow-dot"></span>
         {{ greeting() }}
       </p>
-      <h1 class="shero__title">
-        Tu próxima habilidad<br />
-        <span class="shero__gradient">te está esperando.</span>
-      </h1>
-      <p class="shero__sub">
-        Retoma donde lo dejaste, descubre nuevo contenido y convierte cada lección en una ventaja real.
-      </p>
-      <div class="shero__actions">
-        <button class="shero__btn-primary" type="button" (click)="explore.emit()">
-          Explorar catálogo
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </button>
-      </div>
+      @if (continueTitle(); as title) {
+        <h1 class="shero__title">
+          Sigue donde<br />
+          <span class="shero__gradient">lo dejaste.</span>
+        </h1>
+        <p class="shero__sub">
+          Vas en <strong>{{ title }}</strong>{{ continueProgress() > 0 ? ' (' + continueProgress() + ' %)' : '' }}. Una lección hoy y sigues avanzando.
+        </p>
+        <div class="shero__actions">
+          <button class="shero__btn-primary" type="button" (click)="resume.emit()">
+            Continuar
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+          <button class="shero__btn-ghost" type="button" (click)="explore.emit()">Ver más cursos</button>
+        </div>
+      } @else {
+        <h1 class="shero__title">
+          Tu próxima habilidad<br />
+          <span class="shero__gradient">te está esperando.</span>
+        </h1>
+        <p class="shero__sub">
+          Elige un curso y empieza hoy: lecciones cortas, ejercicios explicados y tu avance guardado.
+        </p>
+        <div class="shero__actions">
+          <button class="shero__btn-primary" type="button" (click)="explore.emit()">
+            Ver cursos
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+      }
     </div>
 
     <!-- right: stats glass card -->
@@ -71,7 +90,7 @@
             </svg>
           </span>
           <span class="shero__stat-text">
-            <strong [libCountUp]="enrolledCount()"></strong> matriculados
+            <strong [libCountUp]="enrolledCount()"></strong> {{ enrolledCount() === 1 ? 'curso inscrito' : 'cursos inscritos' }}
           </span>
         </div>
         <div class="shero__stat">
@@ -81,7 +100,7 @@
             </svg>
           </span>
           <span class="shero__stat-text">
-            <strong [libCountUp]="completedCount()"></strong> completados
+            <strong [libCountUp]="completedCount()"></strong> {{ completedCount() === 1 ? 'completado' : 'completados' }}
           </span>
         </div>
         <div class="shero__stat">
@@ -91,7 +110,7 @@
             </svg>
           </span>
           <span class="shero__stat-text">
-            <strong [libCountUp]="activePathsCount()"></strong> rutas activas
+            <strong [libCountUp]="activePathsCount()"></strong> {{ activePathsCount() === 1 ? 'ruta activa' : 'rutas activas' }}
           </span>
         </div>
       </div>
@@ -99,3 +118,15 @@
     </div>
   </div>
 </section>
+
+<!-- Celular: la acción principal queda fija abajo, igual que en la portada pública. -->
+@if (continueTitle(); as title) {
+  <div class="shero__mobile-cta">
+    <button class="shero__btn-primary shero__btn-primary--block" type="button" [attr.aria-label]="'Continuar ' + title" (click)="resume.emit()">
+      <span class="shero__mobile-cta-text">Continuar · {{ title }}</span>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
+}

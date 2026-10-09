@@ -32,6 +32,19 @@
   color: var(--color-texto-secundario);
 }
 
+// Mismo sello «Gratis» de la portada pública, para que el catálogo se sienta igual.
+.catalog-card__free-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 9px;
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  background: var(--color-exito);
+  color: var(--color-sobre-acento);
+}
+
 .catalog-card__kind-badge {
   position: absolute;
   top: 8px;
