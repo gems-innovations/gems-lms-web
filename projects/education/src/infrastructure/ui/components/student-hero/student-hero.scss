@@ -155,6 +155,59 @@
     transform: translateY(-1px);
   }
   &:active { transform: translateY(0); }
+
+  &--block { width: 100%; justify-content: center; min-height: 48px; }
+}
+
+.shero__btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-borde-secundario);
+  background: none;
+  color: var(--color-texto-principal);
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &:hover { border-color: var(--color-primario); }
+}
+
+.shero__sub strong { color: var(--color-texto-principal); font-weight: 700; }
+
+// Barra fija inferior: solo en el celular, encima de la barra de pestañas (58px + zona segura).
+.shero__mobile-cta { display: none; }
+.shero__mobile-cta-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .shero__mobile-cta {
+    display: block;
+    position: fixed;
+    left: 0; right: 0;
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+    z-index: 40;
+    padding: 10px 16px;
+    background: color-mix(in srgb, var(--color-fondo-principal) 90%, transparent);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--color-borde-principal);
+  }
+  // El hero deja de repetir el botón: la acción fija ya está a la vista.
+  .shero__actions .shero__btn-primary { display: none; }
+  .shero__actions .shero__btn-ghost { display: inline-flex; }
+  :host { display: block; padding-bottom: 72px; }
+  // Sin curso en progreso no hay barra fija: el botón del hero sí se muestra.
+  :host:not(:has(.shero__mobile-cta)) .shero__actions .shero__btn-primary { display: inline-flex; }
+  :host:not(:has(.shero__mobile-cta)) { padding-bottom: 0; }
+
+  // Tarjeta de resumen compacta: sin el anillo grande y con las cifras en una fila.
+  .shero__card { padding: 1rem 1rem 0.875rem; }
+  .shero__card-header { margin-bottom: 0.75rem; }
+  .shero__ring-wrap { display: none; }
+  .shero__stats { display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.5rem 1rem; }
 }
 
 // ── stats card (right) ─────────────────────────────────────────────────────────

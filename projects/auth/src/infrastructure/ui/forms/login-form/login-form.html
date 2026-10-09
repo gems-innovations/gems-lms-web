@@ -7,8 +7,8 @@
     </header>
 
     <div class="login-form__intro">
-      <h1 class="login-form__title">{{ 'Bienvenido de vuelta' | t }}</h1>
-      <p class="login-form__subtitle">{{ 'Accede a tu espacio de aprendizaje personalizado' | t }}</p>
+      <h1 class="login-form__title">{{ 'Entra con tu cuenta' | t }}</h1>
+      <p class="login-form__subtitle">{{ 'La que creaste al guardar tu avance en los cursos gratis, o la que te entregó tu institución.' | t }}</p>
     </div>
 
     @if (errorMessage()) {
@@ -54,9 +54,37 @@
       }
     </lib-button>
 
-    <p class="login-form__signup">
-      {{ '¿No tienes cuenta? Pídela al administrador de tu institución.' | t }}
-    </p>
+    <!-- Tres situaciones distintas que la gente confunde: cursos gratis (sin cuenta), cuenta de su
+         institución, o pedir un espacio para su institución. -->
+    <nav class="login-form__paths" [attr.aria-label]="'¿No tienes cuenta?' | t">
+      <p class="login-form__paths-title">{{ '¿No tienes cuenta?' | t }}</p>
+
+      <a class="login-form__path" routerLink="/" fragment="cursos">
+        <span class="login-form__path-icon" aria-hidden="true">🎓</span>
+        <span class="login-form__path-text">
+          <strong>{{ 'Vengo por los cursos gratis' | t }}</strong>
+          <span>{{ 'No necesitas cuenta: entras en un toque. La cuenta es opcional, para guardar tu avance.' | t }}</span>
+        </span>
+        <svg class="login-form__path-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+
+      <div class="login-form__path login-form__path--static">
+        <span class="login-form__path-icon" aria-hidden="true">🏫</span>
+        <span class="login-form__path-text">
+          <strong>{{ 'Mi colegio, universidad o empresa usa GEMS' | t }}</strong>
+          <span>{{ 'Entra con la cuenta que te entregó tu institución. Si no la tienes, pídesela a tu administrador.' | t }}</span>
+        </span>
+      </div>
+
+      <a class="login-form__path" routerLink="/instituciones">
+        <span class="login-form__path-icon" aria-hidden="true">🚀</span>
+        <span class="login-form__path-text">
+          <strong>{{ 'Quiero que mi institución use GEMS' | t }}</strong>
+          <span>{{ 'Pide tu propio espacio: tus cursos, tu gente y su avance.' | t }}</span>
+        </span>
+        <svg class="login-form__path-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+    </nav>
 
   </form>
 </div>

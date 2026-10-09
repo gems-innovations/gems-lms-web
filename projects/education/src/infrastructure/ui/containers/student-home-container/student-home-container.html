@@ -2,7 +2,10 @@
   [enrolledCount]="uc.enrolledCourses().length"
   [completedCount]="uc.completed().length"
   [activePathsCount]="uc.enrolledPathEntries().length"
+  [continueTitle]="uc.inProgress()[0]?.course?.title ?? null"
+  [continueProgress]="continueProgress()"
   (explore)="openCatalog()"
+  (resume)="continueCourse(uc.inProgress()[0])"
 />
 
 @if (uc.isLoading()) {

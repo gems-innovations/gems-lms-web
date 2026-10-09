@@ -13,6 +13,9 @@
         <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
       </svg>
     }
+    @if (item().free) {
+      <span class="catalog-card__free-badge">Gratis</span>
+    }
     @if (item().kind === 'path') {
       <span class="catalog-card__kind-badge">
         <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -73,7 +76,7 @@
           <span class="catalog-card__seats">{{ seatsLeft() }} cupo(s)</span>
         }
         <button type="button" class="catalog-card__btn catalog-card__btn--primary" (click)="enrollItem.emit(item())">
-          Inscribirme
+          {{ item().free ? 'Empezar gratis' : 'Inscribirme' }}
         </button>
       }
     }

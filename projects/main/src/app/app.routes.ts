@@ -21,7 +21,7 @@ export const routes: Routes = [
   },
   {
     path: 'instituciones',
-    title: 'Enseña en GEMS',
+    title: 'GEMS para tu institución',
     loadComponent: () => import('./public/institutions.component').then(m => m.InstitutionsComponent)
   },
   {

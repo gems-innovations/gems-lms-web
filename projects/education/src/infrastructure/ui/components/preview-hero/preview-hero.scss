@@ -305,6 +305,25 @@
   .preview-hero__back { min-height: 44px; }
 }
 
+// Barra fija inferior: solo en el celular, encima de la barra de pestañas (58px + zona segura).
+.preview-hero__mobile-cta { display: none; }
+.preview-hero__cta--block { width: 100%; justify-content: center; min-height: 48px; }
+
+@media (max-width: 640px) {
+  .preview-hero__mobile-cta {
+    display: block;
+    position: fixed;
+    left: 0; right: 0;
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+    z-index: 40;
+    padding: 10px 16px;
+    background: color-mix(in srgb, var(--color-fondo-principal) 90%, transparent);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--color-borde-principal);
+  }
+  :host { padding-bottom: 72px; }
+}
+
 // Celular: piso de 12px para texto informativo.
 @media (max-width: 768px) {
   .preview-hero__type-badge { font-size: 0.75rem; }

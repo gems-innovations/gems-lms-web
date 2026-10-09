@@ -10,7 +10,7 @@ import type { IEligibility } from '../infrastructure/services/enrollment-rules.s
 import { ToastService } from 'shared';
 import { ECourseStatus } from '../domain/model/course.model';
 import { ELearningPathStatus } from '../domain/model/learning-path.model';
-import { ICatalogItem, TCatalogKindFilter, TCatalogLevelFilter } from '../domain/model/catalog.model';
+import { ICatalogItem, OPEN_INSTITUTION_ID, TCatalogKindFilter, TCatalogLevelFilter } from '../domain/model/catalog.model';
 import { DIFFICULTY_LABELS } from '../infrastructure/ui/utils/course-labels';
 
 const CATALOG_PAGE_SIZE = 9;
@@ -98,6 +98,7 @@ export class CourseCatalogUseCase {
               duration: c.totalDuration,
               difficulty: c.difficulty,
               meta: `${c.totalLessons} lecciones · ${DIFFICULTY_LABELS[c.difficulty] ?? ''}`,
+              free: c.institutionId === OPEN_INSTITUTION_ID,
             }));
 
           const pathItems: ICatalogItem[] = paths.learningPaths

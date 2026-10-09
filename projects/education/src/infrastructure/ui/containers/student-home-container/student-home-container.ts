@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoadingSkeletonComponent, EmptyStateComponent } from 'shared';
 import { StudentHomeUseCase } from '../../../../application/student-home.usecase';
@@ -28,7 +28,12 @@ export class StudentHomeContainer implements OnInit {
 
   ngOnInit(): void { this.uc.load(); }
 
-  protected continueCourse(entry: IEnrolledCourseEntry): void {
+  /** Avance (0-100) del curso que se retoma desde el hero. */
+  protected readonly continueProgress = computed(() =>
+    Math.round(this.uc.inProgress()[0]?.enrollment.progress.overallPercentage ?? 0));
+
+  protected continueCourse(entry: IEnrolledCourseEntry | undefined): void {
+    if (!entry) return;
     const { courseId, currentLessonId, currentBlockId } = entry.enrollment.progress;
     const params: Record<string, string> = {};
     if (currentLessonId) params['lesson'] = currentLessonId;

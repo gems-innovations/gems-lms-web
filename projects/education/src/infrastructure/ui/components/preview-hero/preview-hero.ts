@@ -1,7 +1,7 @@
 import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ICourse, EDifficulty } from '../../../../domain/model/course.model';
 import { ILearningPath } from '../../../../domain/model/learning-path.model';
-import { TPreviewType } from '../../../../domain/model/catalog.model';
+import { OPEN_INSTITUTION_ID, TPreviewType } from '../../../../domain/model/catalog.model';
 import { DIFFICULTY_LABELS, formatDuration } from '../../utils/course-labels';
 
 @Component({
@@ -29,6 +29,11 @@ export class PreviewHero {
   protected readonly description = computed(() => this.type() === 'course' ? this.course()?.description : this.path()?.description);
   protected readonly thumbnail   = computed(() => this.type() === 'course' ? this.course()?.thumbnailUrl : this.path()?.thumbnailUrl);
   protected readonly tags        = computed(() => this.type() === 'course' ? (this.course()?.tags ?? []) : (this.path()?.tags ?? []));
+  /** Curso gratis de GEMS Abierto: mismo lenguaje que la portada pública («Empezar gratis»). */
+  protected readonly isFree      = computed(() => this.type() === 'course' && this.course()?.institutionId === OPEN_INSTITUTION_ID);
+  protected readonly ctaLabel    = computed(() => this.isEnrolled()
+    ? `Continuar ${this.type() === 'path' ? 'ruta' : 'curso'}`
+    : this.isFree() ? 'Empezar gratis' : `Inscribirme ${this.type() === 'path' ? 'a la ruta' : 'al curso'}`);
 
   protected difficultyLabel(d: EDifficulty): string { return DIFFICULTY_LABELS[d] ?? d; }
   protected formatDuration(m: number): string { return formatDuration(m); }

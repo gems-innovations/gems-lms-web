@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, output, signal } 
 import { HttpErrorResponse } from '@angular/common/http';
 import { GuestAccessService } from './guest-access.service';
 import { GuestGateService } from './guest-gate';
+import { AnalyticsService } from '../analytics.service';
 
 /**
  * Formulario para que el invitado cree su cuenta y conserve su avance. Se carga solo cuando se abre
@@ -99,6 +100,7 @@ import { GuestGateService } from './guest-gate';
 })
 export class GuestClaimFormComponent {
   private readonly guests = inject(GuestAccessService);
+  private readonly analytics = inject(AnalyticsService);
   protected readonly gate = inject(GuestGateService);
 
   readonly closed = output<void>();
@@ -142,6 +144,7 @@ export class GuestClaimFormComponent {
       await this.guests.claim({ firstName: this.firstName.trim(), lastName: this.lastName.trim(), email: this.email.trim(),
         password: this.password(), acceptDataPolicy: true, acceptTips: this.acceptTips() });
       this.password.set('');
+      this.analytics.event('cuenta-creada');
       this.saved.emit();
     } catch (e) {
       this.error.set(e instanceof HttpErrorResponse && e.status === 409

@@ -22,10 +22,20 @@ async function startAsGuest(page: Page) {
 
 const block = (page: Page) => page.locator('edu-player-content-block');
 
+/** En celular el temario vive en el panel «Avance» (menú ⋮); en escritorio ya está a la vista. */
+async function openOutline(page: Page) {
+  const sidebar = page.locator('edu-player-sidebar');
+  if (await sidebar.isVisible()) return;
+  await page.getByRole('button', { name: 'Más opciones' }).click();
+  await page.getByRole('menuitem', { name: 'Avance' }).click();
+  await expect(sidebar).toBeVisible();
+}
+
 /** Abre el quiz de la primera lección desde el temario. */
 async function openFirstQuiz(page: Page) {
   const ready = block(page).getByRole('button', { name: /Comenzar quiz|Reintentar/ });
   if (!(await ready.isVisible())) {
+    await openOutline(page);
     await page.locator('edu-player-sidebar').getByRole('button', { name: 'Quiz', exact: true }).first().click();
   }
   await expect(block(page).getByRole('button', { name: /Comenzar quiz|Reintentar/ })).toBeVisible();
@@ -79,6 +89,7 @@ for (const device of [
       await block(page).locator('.quiz-option').first().click();
 
       // Intentar irse a otro contenido: avisa y entrega lo que lleva.
+      await openOutline(page);
       await page.locator('edu-player-sidebar').getByRole('button', { name: 'Doc', exact: true }).first().click();
       await expect(page.locator('.quiz-nav-warning')).toBeVisible();
       await page.getByRole('button', { name: 'Enviar y salir' }).click();

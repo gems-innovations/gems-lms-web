@@ -799,10 +799,19 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   }
 }
 
+// Celular: cuando hay una acción fija abajo (Continuar / Empezar gratis), el botón de guía (?) sube para no taparla.
+@media (max-width: 640px) {
+  body:has(.shero__mobile-cta, .preview-hero__mobile-cta) .app-tour-button {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem + 70px);
+  }
+}
+
 // El botón flotante de guía (?) no debe pintarse sobre modales ni drawers abiertos.
 // Va en estilos globales: en app.scss la encapsulación impide que `body:has(...)` coincida.
 body:has([aria-modal='true'], .cbm__overlay, .modal-overlay) .app-tour-button { visibility: hidden; }
 
 @media (max-width: 768px) {
   body:has(.course-player-container__progress--open) .slayout__leftnav { display: none; }
+  // La barra «Guardar mi avance» del invitado tampoco debe tapar la lista de lecciones del panel de avance.
+  body:has(.course-player-container__progress--open) gems-guest-save-bar .gsb { display: none; }
 }

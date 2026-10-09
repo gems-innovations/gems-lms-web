@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'shared/core';
 import { GuestAccessService } from './guest-access.service';
+import { AnalyticsService } from '../analytics.service';
 
 /**
  * «Empezar gratis» en un solo paso: abre sesión de invitado si hace falta, inscribe y entra al curso.
@@ -14,6 +15,7 @@ export class CourseStarterService {
   private readonly guests = inject(GuestAccessService);
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly analytics = inject(AnalyticsService);
 
   /** Curso que se está abriendo (para mostrar «Entrando…» en su botón). */
   readonly starting = signal<number | null>(null);
@@ -31,6 +33,7 @@ export class CourseStarterService {
         // Ya inscrito: se sigue directo al curso.
         if (!(e instanceof HttpErrorResponse && e.status === 409)) throw e;
       }
+      this.analytics.event('empezar-gratis');
       const target = `/learn/courses/${courseId}`;
       // Respaldo: si la transición animada no puede completarse (pestaña sin pintar), carga directa.
       const fallback = setTimeout(() => { if (typeof location !== 'undefined') location.assign(target); }, 3000);

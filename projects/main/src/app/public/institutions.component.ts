@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { PublicHeaderComponent } from './public-header.component';
 import { PublicFooterComponent } from './public-footer.component';
 import { IInstitutionRequest, PublicCatalogService } from './public-catalog.service';
+import { AnalyticsService } from '../analytics.service';
 
 /** Para colegios, preuniversitarios y universidades: qué obtienen y solicitud de su propio espacio. */
 @Component({
@@ -12,11 +13,16 @@ import { IInstitutionRequest, PublicCatalogService } from './public-catalog.serv
   template: `
     <gems-public-header />
     <main class="pub">
+      <!-- Quien llega aquí buscando los cursos gratis o su cuenta de siempre, encuentra su salida de inmediato. -->
+      <nav class="switch" aria-label="¿Buscas otra cosa?">
+        <a routerLink="/" fragment="cursos"><strong>¿Buscas los cursos gratis?</strong> Son de GEMS y no piden cuenta.</a>
+        <a routerLink="/auth/signin"><strong>¿Tu institución ya está en GEMS?</strong> Entra con la cuenta que te dieron.</a>
+      </nav>
       <div class="detail">
         <section>
-          <span class="eyebrow">Enseña en GEMS</span>
+          <span class="eyebrow">GEMS para tu institución</span>
           <h1>Tu propio espacio para enseñar, del tamaño que necesites</h1>
-          <p class="lead">La misma plataforma de nuestros cursos gratis, para tu gente: tus cursos, tus integrantes y su avance.</p>
+          <p class="lead">Los cursos gratis son los de GEMS. Tu espacio es aparte y es tuyo: tus cursos, tus integrantes y el avance de cada uno, en la misma plataforma.</p>
           <ul class="who" aria-label="Para quién es">
             <li>Colegios</li><li>Universidades</li><li>Preuniversitarios y academias</li><li>Empresas</li><li>Profesores independientes</li><li>Comunidades y grupos de estudio</li>
           </ul>
@@ -74,6 +80,7 @@ import { IInstitutionRequest, PublicCatalogService } from './public-catalog.serv
 })
 export class InstitutionsComponent {
   private readonly catalog = inject(PublicCatalogService);
+  private readonly analytics = inject(AnalyticsService);
 
   protected form: IInstitutionRequest = { institutionName: '', contactName: '', email: '', phone: '', role: '', students: null, message: '' };
   /** Rangos en vez de un número exacto: se guarda el tope de cada rango. */
@@ -94,7 +101,7 @@ export class InstitutionsComponent {
     this.busy.set(true);
     this.error.set(null);
     this.catalog.requestInstitution(f).subscribe({
-      next: () => { this.busy.set(false); this.sent.set(true); },
+      next: () => { this.busy.set(false); this.sent.set(true); this.analytics.event('solicitud-institucion'); },
       error: () => { this.busy.set(false); this.error.set('No pudimos enviar la solicitud. Inténtalo de nuevo en unos minutos.'); },
     });
   }
