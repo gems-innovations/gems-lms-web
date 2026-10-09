@@ -13,7 +13,7 @@
       (openCommunity)="openCommunity()"
       (openProgress)="openProgress()"
       (prev)="_guardedNav(uc.prevBlock.bind(uc))"
-      (next)="_guardedNav(uc.nextBlock.bind(uc))"
+      (next)="next()"
     />
 
     <!-- Banner de curso completado -->
@@ -50,9 +50,12 @@
           [assignmentSubmission]="currentSubmission()"
           [quizAttemptCount]="uc.quizAttemptCount()"
           [forceSubmitTrigger]="forceSubmitTrigger()"
+          [nudge]="nudge()"
           (quizSubmit)="handleQuizSubmit($event)"
           (assignmentSubmit)="handleAssignmentSubmit($event)"
           (markComplete)="uc.markComplete()"
+          (readingDone)="uc.markBlockComplete(uc.selectedBlock()!.id)"
+          (goNext)="next()"
           (quizPhaseChange)="onQuizPhaseChange($event)"
           (quizForceSubmitted)="onQuizForceSubmitted()"
         />

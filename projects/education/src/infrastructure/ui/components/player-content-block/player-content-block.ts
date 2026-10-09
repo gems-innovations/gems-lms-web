@@ -63,13 +63,36 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   readonly assignmentSubmission = input<IAssignmentSubmission | null>(null);
   readonly quizAttemptCount     = input<number>(0);
   readonly forceSubmitTrigger   = input<number>(0);
+  /** Sube cada vez que el estudiante toca «Siguiente» sin haber terminado este paso: se le explica por qué no avanza. */
+  readonly nudge                = input<number>(0);
 
   // ── Outputs ───────────────────────────────────────────────────────────────
   readonly quizSubmit        = output<IQuizSubmitPayload>();
   readonly assignmentSubmit  = output<IAssignmentSubmitPayload>();
+  /** Completa el bloque y pasa al siguiente (videos terminados, botones explícitos). */
   readonly markComplete      = output<void>();
+  /** El tiempo de lectura se cumplió: el bloque queda completo, pero el estudiante sigue leyendo donde está. */
+  readonly readingDone       = output<void>();
+  /** Botón «Siguiente paso» al pie del contenido. */
+  readonly goNext            = output<void>();
   readonly quizPhaseChange   = output<QuizPhase>();
   readonly quizForceSubmitted = output<void>();
+
+  // ── Aviso al tocar «Siguiente» antes de tiempo ────────────────────────────
+  protected readonly nudged = signal(false);
+  private _nudgeTimeout: ReturnType<typeof setTimeout> | null = null;
+  protected readonly nudgeText = computed(() => {
+    const block = this.block();
+    switch (block?.type) {
+      case EContentType.DOCUMENT: return this.readingRemaining() > 0
+        ? `Todavía no: te faltan ${this.readingClock()} de lectura para habilitar el siguiente paso.`
+        : 'Un momento, estamos guardando tu lectura…';
+      case EContentType.QUIZ: return 'Para seguir, responde y entrega este quiz.';
+      case EContentType.VIDEO: return 'Para seguir, termina de ver el video.';
+      case EContentType.ASSIGNMENT: return 'Para seguir, envía la tarea.';
+      default: return 'Termina este paso para seguir.';
+    }
+  });
 
   protected readonly EContentType = EContentType;
 
@@ -91,6 +114,11 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   protected readonly readingRemaining = computed(() =>
     Math.max(0, this.readingRequired() - this.readingElapsed())
   );
+  /** Tiempo restante en formato legible: «45 s» o «1:20 min». */
+  protected readonly readingClock = computed(() => {
+    const s = this.readingRemaining();
+    return s < 60 ? `${s} s` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} min`;
+  });
 
   // ── Video ─────────────────────────────────────────────────────────────────
   protected readonly videoEmbedUrl = computed((): SafeResourceUrl | null => {
@@ -217,6 +245,15 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
       if (this.isComplete()) this._stopReadingTimer();
     });
 
+    // «Siguiente» antes de tiempo: se muestra el motivo unos segundos y se lleva la vista al aviso.
+    effect(() => {
+      if (this.nudge() <= 0) return;
+      this.nudged.set(true);
+      if (this._nudgeTimeout) clearTimeout(this._nudgeTimeout);
+      this._nudgeTimeout = setTimeout(() => this.nudged.set(false), 4000);
+      setTimeout(() => document.querySelector('.pcb-gate, .pcb-nudge')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+    });
+
     // Notify container when quiz phase changes
     effect(() => {
       this.quizPhaseChange.emit(this.quizPhase());
@@ -256,6 +293,7 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this._nudgeTimeout) clearTimeout(this._nudgeTimeout);
     this.stopTimer();
     this._stopReadingTimer();
   }
@@ -511,7 +549,8 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
       this.readingElapsed.update(s => s + 1);
       if (this.readingElapsed() >= this.readingRequired()) {
         this._stopReadingTimer();
-        this.markComplete.emit();
+        // Solo se marca completo: saltar de página mientras alguien lee parecía un error.
+        this.readingDone.emit();
       }
     }, 1000);
   }
