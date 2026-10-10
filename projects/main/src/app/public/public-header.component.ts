@@ -24,7 +24,7 @@ import { isGuestUser } from './guest-access.service';
           <!-- «Ya tengo cuenta» es para quien guardó su avance o recibió una cuenta de su institución;
                los cursos gratis no la necesitan. -->
           <a class="ph__btn ph__btn--ghost" routerLink="/auth/signin"><span class="ph__long">Ya tengo cuenta</span><span class="ph__short">Entrar</span></a>
-          <a class="ph__btn ph__btn--primary" routerLink="/instituciones"><span class="ph__long">Para instituciones</span><span class="ph__short">Instituciones</span></a>
+          <a class="ph__btn ph__btn--primary ph__btn--b2b" routerLink="/instituciones"><span class="ph__long">Para instituciones</span><span class="ph__short">Instituciones</span></a>
         }
       </div>
     </header>
@@ -38,13 +38,13 @@ import { isGuestUser } from './guest-access.service';
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--color-borde-principal);
     }
-    .ph__brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--color-texto-principal);
+    .ph__brand { flex: none; min-height: 44px; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--color-texto-principal);
       font: 800 20px/1 var(--font-titulo); letter-spacing: .02em; }
     .ph__nav { display: flex; gap: 18px; margin-left: 8px; }
-    .ph__nav a { color: var(--color-texto-secundario); text-decoration: none; font-size: var(--font-size-sm); font-weight: 600; }
+    .ph__nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-texto-secundario); text-decoration: none; font-size: var(--font-size-sm); font-weight: 600; }
     .ph__nav a:hover { color: var(--color-texto-principal); }
     .ph__actions { display: flex; gap: 8px; margin-left: auto; }
-    .ph__btn { display: inline-flex; align-items: center; padding: 9px 16px; border-radius: 10px; font-size: var(--font-size-sm);
+    .ph__btn { display: inline-flex; align-items: center; min-height: 44px; padding: 9px 16px; border-radius: 10px; font-size: var(--font-size-sm);
       font-weight: 700; text-decoration: none; white-space: nowrap; transition: transform .15s ease, box-shadow .15s ease, background .15s; }
     .ph__btn--ghost { color: var(--color-texto-principal); border: 1px solid var(--color-borde-secundario); }
     .ph__btn--ghost:hover { border-color: var(--color-primario); }
@@ -58,6 +58,12 @@ import { isGuestUser } from './guest-access.service';
       .ph__nav { display: none; }
       .ph__btn { padding: 8px 12px; min-height: 44px; }
       .ph__brand { min-height: 44px; }
+      .ph__btn--b2b { color: var(--color-texto-principal); background: transparent; border: 1px solid var(--color-borde-secundario); }
+      .ph__btn--b2b:hover { border-color: var(--color-primario); box-shadow: none; transform: none; }
+    }
+    @media (max-width: 360px) {
+      .ph__brand { min-width: 44px; justify-content: center; }
+      .ph__brand span { display: none; }
     }
     @media (max-width: 420px) {
       .ph__long { display: none; }

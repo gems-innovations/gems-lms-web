@@ -16,20 +16,27 @@ type TState = 'loading' | 'ready' | 'saved' | 'invalid' | 'error';
   selector: 'gems-email-preferences-page',
   imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: './public.scss',
   styles: [`
     .mail-prefs { max-width: 560px; }
-    .mail-prefs label { display: flex; gap: .75rem; align-items: flex-start; padding: 1rem 0; border-bottom: 1px solid var(--color-borde-secundario, #e5e7eb); cursor: pointer; }
-    .mail-prefs input { width: 1.15rem; height: 1.15rem; margin-top: .2rem; accent-color: var(--color-primario, #4f46e5); }
-    .mail-prefs small { display: block; color: var(--color-texto-secundario, #6b7280); }
+    .back { display: inline-flex; align-items: center; min-height: 44px; margin-top: 12px; color: var(--color-texto-secundario); text-decoration: none; font-size: var(--font-size-sm); }
+    h1 { margin: 12px 0 8px; font: 800 clamp(26px, 4vw, 38px)/1.15 var(--font-titulo); text-wrap: balance; }
+    p { margin: 10px 0 0; line-height: 1.6; color: var(--color-texto-secundario); }
+    strong { color: var(--color-texto-principal); }
+    .mail-prefs label { display: flex; gap: .75rem; align-items: flex-start; padding: 1rem 0; border-bottom: 1px solid var(--color-borde-secundario); cursor: pointer; }
+    .mail-prefs input { flex: none; width: 1.4rem; height: 1.4rem; margin-top: .1rem; accent-color: var(--color-primario); }
+    .mail-prefs small { display: block; color: var(--color-texto-secundario); }
     .mail-prefs .actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.25rem; }
-    .mail-prefs button { min-height: 44px; padding: 0 1.25rem; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .mail-prefs .primary { border: 0; background: var(--color-primario-accion, #4f46e5); color: #fff; }
-    .mail-prefs .ghost { border: 1px solid var(--color-borde-principal, #d1d5db); background: transparent; color: inherit; }
-    .mail-prefs .note { margin-top: 1rem; padding: .85rem 1rem; border-radius: 10px; background: var(--color-tarjeta-hover, #f3f4f6); }
+    .mail-prefs button, .mail-prefs .cta { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 1.25rem; border-radius: 10px; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; }
+    .mail-prefs button:focus-visible, .mail-prefs .cta:focus-visible, .mail-prefs input:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+    .mail-prefs .primary { border: 0; background: var(--color-primario-accion); color: var(--color-sobre-primario); }
+    .mail-prefs .ghost { border: 1px solid var(--color-borde-principal); background: transparent; color: inherit; }
+    .mail-prefs .note { margin-top: 1rem; padding: .85rem 1rem; border-radius: 10px; background: var(--color-fondo-sutil); border: 1px solid var(--color-borde-principal); }
+    @media (max-width: 480px) { .mail-prefs .actions button { flex: 1 1 100%; } }
   `],
   template: `
     <gems-public-header />
-    <main class="pub legal-doc mail-prefs">
+    <main class="pub mail-prefs">
       <a class="back" routerLink="/">← Volver al inicio</a>
       <h1>Tus correos de GEMS</h1>
 
@@ -37,6 +44,9 @@ type TState = 'loading' | 'ready' | 'saved' | 'invalid' | 'error';
         @case ('loading') { <p role="status">Cargando tus preferencias…</p> }
         @case ('invalid') {
           <p class="note" role="alert">Este enlace no es válido. Abre el enlace completo desde el último correo que te enviamos, o cambia tus preferencias en tu perfil.</p>
+          <div class="actions">
+            <a class="cta primary" routerLink="/auth/signin">Entrar a mi cuenta</a>
+          </div>
         }
         @default {
           <p>Elige qué correos quieres recibir. Los avisos siguen apareciendo en la campanita de la app.</p>

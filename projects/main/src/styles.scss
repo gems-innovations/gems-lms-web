@@ -705,15 +705,15 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
 .driver-popover.gems-tour .driver-popover-description { margin-top: .45rem; color: #c8c2dd; font-size: .92rem; line-height: 1.55; }
 .driver-popover.gems-tour .driver-popover-progress-text { color: #aaa3c6; font-size: .76rem; font-weight: 700; }
 .driver-popover.gems-tour .driver-popover-footer { align-items: center; margin-top: 1.25rem; }
-.driver-popover.gems-tour .driver-popover-close-btn { color: #b8b0cd !important; border-radius: 8px; }
+.driver-popover.gems-tour .driver-popover-close-btn { width: 44px; height: 44px; top: .25rem; right: .25rem; color: #b8b0cd !important; border-radius: 8px; font-size: 1.4rem; }
 .driver-popover.gems-tour .driver-popover-close-btn:hover { color: #fff !important; background: rgba(255, 255, 255, .08); }
 
 .driver-popover.gems-tour .driver-popover-next-btn,
 .driver-popover.gems-tour .driver-popover-prev-btn {
   border: 1px solid rgba(167, 139, 250, .5) !important;
   border-radius: 8px;
-  min-height: 38px;
-  padding: .42rem .72rem;
+  min-height: 44px;
+  padding: .42rem .9rem;
   color: #fff !important;
   font-weight: 700;
   text-shadow: none !important;
@@ -804,6 +804,11 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   body:has(.shero__mobile-cta, .preview-hero__mobile-cta) .app-tour-button {
     bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem + 70px);
   }
+}
+
+@media (max-width: 640px) {
+  .app-tour-button { display: none; }
+  body:has(auth-profile-container) .app-tour-button { display: block; }
 }
 
 // El botón flotante de guía (?) no debe pintarse sobre modales ni drawers abiertos.

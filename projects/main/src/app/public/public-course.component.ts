@@ -6,6 +6,7 @@ import { PublicHeaderComponent } from './public-header.component';
 import { PublicFooterComponent } from './public-footer.component';
 import { DIFFICULTY_LABEL, IPublicCourse, PublicCatalogService } from './public-catalog.service';
 import { CourseStarterService } from './course-starter.service';
+import { InViewDirective } from './in-view.directive';
 
 /**
  * Ficha pública de un curso gratis. «Empezar ahora» abre una sesión de invitado (si no hay sesión),
@@ -13,7 +14,7 @@ import { CourseStarterService } from './course-starter.service';
  */
 @Component({
   selector: 'gems-public-course',
-  imports: [RouterLink, FormsModule, PublicHeaderComponent, PublicFooterComponent],
+  imports: [RouterLink, FormsModule, PublicHeaderComponent, PublicFooterComponent, InViewDirective],
   template: `
     <gems-public-header />
     <main class="pub">
@@ -55,7 +56,7 @@ import { CourseStarterService } from './course-starter.service';
                            [(ngModel)]="nickname" (keydown.enter)="start()" />
                   }
                   @if (error(); as e) { <p class="error" role="alert">{{ e }}</p> }
-                  <button type="button" class="btn btn--primary btn--block" [disabled]="busy()" (click)="start()">
+                  <button type="button" class="btn btn--primary btn--block" gemsInView (inView)="startInView.set($event)" [disabled]="busy()" (click)="start()">
                     {{ busy() ? 'Entrando…' : signedIn() ? 'Ir al curso' : 'Empezar ahora' }}
                   </button>
                   <span class="note">Material educativo de práctica. No pedimos datos personales.
@@ -64,10 +65,10 @@ import { CourseStarterService } from './course-starter.service';
               </aside>
             </div>
 
-            @if (!staff()) {
+            @if (!staff() && !startInView()) {
               <div class="mobile-cta">
                 <button type="button" class="btn btn--primary btn--block" [disabled]="busy()" (click)="start()">
-                  {{ busy() ? 'Entrando…' : signedIn() ? 'Ir al curso' : 'Empezar gratis ahora' }}
+                  {{ busy() ? 'Entrando…' : signedIn() ? 'Ir al curso' : 'Empezar gratis' }}
                 </button>
               </div>
             }
@@ -92,6 +93,7 @@ export class PublicCourseComponent {
   protected readonly busy = computed(() => this.starter.starting() !== null);
   protected readonly difficulty = DIFFICULTY_LABEL;
   protected nickname = '';
+  protected readonly startInView = signal(false);
 
   protected readonly signedIn = this.session.isAuthenticated;
   protected readonly staff = computed(() => this.signedIn() && this.session.role() !== EUserRole.STUDENT);

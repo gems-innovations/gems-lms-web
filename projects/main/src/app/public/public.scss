@@ -91,6 +91,7 @@ h2 { margin: 0; font: 800 clamp(24px, 3vw, 32px)/1.15 var(--font-titulo); text-w
 @media (max-width: 860px) {
   .hero { grid-template-columns: 1fr; gap: 28px; }
   .hero { padding-block: 36px 24px; }
+  .hero__card { width: 100%; max-width: 560px; margin-inline: auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {

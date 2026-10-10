@@ -32,7 +32,7 @@
 
 @media (max-width: 860px) {
   .detail { grid-template-columns: 1fr; gap: 28px; padding-block: 20px 96px; }
-  .start { position: static; }
+  .start { position: static; width: 100%; max-width: 560px; margin-inline: auto; }
   // En el celular el formulario de empezar va antes del temario.
   .detail__main { display: contents; }
   .detail__main .outline { order: 3; }
@@ -50,7 +50,11 @@
     text-decoration: none; font-size: var(--font-size-sm); line-height: 1.4; transition: border-color .15s;
     &:hover { border-color: var(--color-primario); } &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; } }
   strong { color: var(--color-texto-principal); } }
-@media (max-width: 640px) { .switch { grid-template-columns: 1fr; margin-top: 16px; } }
+@media (max-width: 640px) { .switch { grid-template-columns: 1fr; gap: 6px; margin-top: 12px; a { padding-block: 6px; } &__hint { display: none; } } }
+.switch__hint { color: var(--color-texto-secundario); }
+.lead-cta { display: none; }
+#solicitud { scroll-margin-top: 80px; }
+@media (max-width: 860px) { .lead-cta { display: inline-flex; min-height: 44px; margin-top: 16px; } }
 
 .who { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; padding: 0; list-style: none;
   li { padding: 6px 12px; border-radius: 99px; font-size: var(--font-size-sm); font-weight: 600; color: var(--color-texto-principal);

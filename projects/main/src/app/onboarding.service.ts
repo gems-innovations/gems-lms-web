@@ -3,7 +3,16 @@ import { isGuestUser } from './public/guest-access.service';
 import { AuthSessionService, EUserRole } from 'auth/core';
 import { browserStorage } from 'shared/core';
 
-interface TourStep { element: string; title: string; description: string; }
+interface TourStep { element: string; title: string; description: string; mobileElement?: string; }
+
+const MOBILE_QUERY = '(max-width: 640px)';
+
+function visibleElement(selector: string): Element | null {
+  return Array.from(document.querySelectorAll(selector)).find(el => {
+    const box = el.getBoundingClientRect();
+    return box.width > 0 && box.height > 0;
+  }) ?? null;
+}
 
 @Injectable({ providedIn: 'root' })
 export class OnboardingService {
@@ -23,7 +32,10 @@ export class OnboardingService {
   start(markCompleted = false): void {
     const user = this.session.user();
     if (!user || typeof document === 'undefined') return;
-    const steps = this.stepsFor(user.role).filter(step => document.querySelector(step.element));
+    const mobile = window.matchMedia(MOBILE_QUERY).matches;
+    const steps = this.stepsFor(user.role)
+      .map(step => ({ ...step, element: mobile && step.mobileElement ? step.mobileElement : step.element }))
+      .filter(step => visibleElement(step.element));
     if (!steps.length) return;
     const key = `gems-onboarding-${user.id}-${user.role}`;
     // Record automatic tours before loading Driver.js. A hard navigation while
@@ -40,7 +52,7 @@ export class OnboardingService {
         nextBtnText: 'Siguiente',
         prevBtnText: 'Anterior',
         doneBtnText: 'Listo',
-        steps: steps.map(step => ({ element: step.element, popover: { title: step.title, description: step.description } }))
+        steps: steps.map(step => ({ element: step.element, popover: { title: step.title, description: step.description, ...(mobile ? { side: 'top' as const } : {}) } }))
       });
       tour.drive();
     });
@@ -49,8 +61,8 @@ export class OnboardingService {
   private stepsFor(role: EUserRole): TourStep[] {
     const common = [
       { element: '.app-sidebar__brand, .slayout__brand', title: 'Tu espacio de aprendizaje', description: 'Desde aquí vuelves al inicio de tu panel.' },
-      { element: '.app-sidebar__navlinks, .slayout__navlinks', title: 'Navegación', description: 'Accede a las secciones disponibles según tu rol.' },
-      { element: '.app-sidebar__user, .slayout__user', title: 'Tu cuenta', description: 'Actualiza tu perfil o cierra sesión desde esta zona.' }
+      { element: '.app-sidebar__navlinks, .slayout__navlinks', title: 'Navegación', description: 'Accede a las secciones disponibles según tu rol.', mobileElement: '.slayout__leftnav' },
+      { element: '.app-sidebar__user, .slayout__user', title: 'Tu cuenta', description: 'Actualiza tu perfil desde esta zona; en el celular, cerrar sesión está al final de Mi perfil.', mobileElement: '.slayout__profile-btn' }
     ];
     if (role === EUserRole.STUDENT) return common;
     return [

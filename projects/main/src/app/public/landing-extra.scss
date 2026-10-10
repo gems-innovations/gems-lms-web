@@ -3,7 +3,7 @@
 .card { position: relative; &:has(h3 a:focus-visible) { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; } }
 .card__actions { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; margin-top: auto; padding-top: 8px;
   .btn { flex: 1; }
-  a { font-size: var(--font-size-sm); font-weight: 700; color: var(--color-texto-acento); text-decoration: none; white-space: nowrap; } }
+  a { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--font-size-sm); font-weight: 700; color: var(--color-texto-acento); text-decoration: none; white-space: nowrap; } }
 .card__error { margin: 0; font-size: var(--font-size-sm); color: var(--color-error-texto); }
 #cursos, #por-que, #importante { scroll-margin-top: 110px; }
 
@@ -20,6 +20,21 @@
   .hero__facts { gap: 8px 14px; font-size: var(--font-size-sm); }
   .hero__cta .btn { flex: 1 1 100%; }
   .legal { padding: 20px; }
+}
+
+.legal__item { border-top: 1px solid var(--color-borde-principal);
+  summary { display: flex; justify-content: space-between; gap: 12px; min-height: 44px; padding-block: 10px; align-items: center; cursor: pointer;
+    list-style: none; font-weight: 700; color: var(--color-texto-principal);
+    &::-webkit-details-marker { display: none; }
+    &::after { content: '+'; font-size: 20px; line-height: 1; color: var(--color-texto-acento); transition: transform .2s; }
+    &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; border-radius: 6px; } }
+  &[open] summary::after { transform: rotate(45deg); }
+  p { margin: 0 0 12px; } }
+.empty { display: grid; justify-items: start; gap: 12px;
+  p { margin: 0; }
+  .btn { min-height: 44px; } }
+@media (max-width: 860px) {
+  .legal p a, .band__alt a { display: inline-block; padding-block: 13px; margin-block: -13px; }
 }
 
 .trust { margin: 14px 0 0; font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
