@@ -118,7 +118,9 @@
     &--static { cursor: default; }
   }
 
-  &__path-icon { flex: 0 0 auto; font-size: 20px; line-height: 1; }
+  &__path-icon { flex: 0 0 auto; color: var(--color-texto-secundario); transition: color var(--transition-fast) var(--transition-easing); }
+
+  &__path:hover:not(&__path--static) &__path-icon { color: var(--color-primario); }
 
   &__path-text {
     display: grid;
