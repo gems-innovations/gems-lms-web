@@ -36,6 +36,12 @@ function tokenClaim(token: string, claim: string): unknown {
   }
 }
 
+/** Vencido según su `exp` (con 30 s de margen). Sin `exp` legible se da por vigente: decide el API. */
+function isExpired(token: string): boolean {
+  const exp = tokenClaim(token, 'exp');
+  return typeof exp === 'number' && exp * 1000 < Date.now() + 30_000;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
   private readonly userState  = inject(UserState);
@@ -106,6 +112,8 @@ export class AuthSessionService {
       if (!parsed.token || !parsed.user) throw new Error('Invalid session');
       // Tokens issued before the API added the institutionId claim get 403 everywhere.
       if (parsed.user.institutionId && !tokenClaim(parsed.token, 'institutionId')) throw new Error('Outdated token');
+      // Un token vencido haría ver la sesión abierta hasta la primera llamada al API, que la cierra de golpe.
+      if (isExpired(parsed.token)) throw new Error('Expired token');
       parsed.user.createdAt = new Date(parsed.user.createdAt);
       parsed.user.updatedAt = new Date(parsed.user.updatedAt);
       this.userState.setCurrentUser(parsed.user);
