@@ -455,7 +455,14 @@
   .psidebar__lesson { min-height: 56px; padding: 9px 10px; }
   .psidebar__lesson-num,
   .psidebar__lesson-dur { font-size: 12px; }
-  .psidebar__lesson-title { font-size: 13px; }
+  .psidebar__lesson-title {
+    display: -webkit-box;
+    font-size: 13px;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
 
   .psidebar__blocks { gap: 6px; }
   .psidebar__block {

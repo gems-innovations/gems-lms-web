@@ -5,7 +5,7 @@
   [class.lib-input--disabled]="disabled()"
 >
   @if (label()) {
-    <label [for]="inputId()" class="lib-input__label">
+    <label [for]="inputId" class="lib-input__label">
       {{ label() }}
       @if (required()) {
         <span class="lib-input__required">*</span>
@@ -20,7 +20,7 @@
 
     @if (type() === 'color') {
       <input
-        [id]="inputId()"
+        [id]="inputId"
         type="color"
         class="lib-input__field lib-input__field--color"
         [value]="value()"
@@ -33,11 +33,20 @@
       <span class="lib-input__color-value">{{ value() }}</span>
     } @else {
       <input
-        [id]="inputId()"
-        [type]="type()"
+        [id]="inputId"
+        [type]="effectiveType()"
         class="lib-input__field"
         [class.lib-input__field--icon]="icon()"
+        [class.lib-input__field--action]="isPassword()"
         [value]="value()"
+        [attr.name]="name() || null"
+        [attr.autocomplete]="autocomplete() ?? null"
+        [attr.inputmode]="inputmode() ?? null"
+        [attr.enterkeyhint]="enterkeyhint() ?? null"
+        [attr.autocapitalize]="autocapitalize() ?? null"
+        [attr.spellcheck]="spellcheck() ?? null"
+        [attr.aria-invalid]="showError() ? 'true' : null"
+        [attr.aria-describedby]="describedBy()"
         [placeholder]="placeholder()"
         [disabled]="disabled()"
         [required]="required()"
@@ -50,14 +59,27 @@
         (focus)="onFocus()"
         (blur)="onBlur()"
       />
+      @if (isPassword()) {
+        <button
+          type="button"
+          class="lib-input__toggle"
+          [disabled]="disabled()"
+          [attr.aria-pressed]="passwordVisible()"
+          [attr.aria-controls]="inputId"
+          (click)="togglePassword()"
+        >
+          {{ passwordVisible() ? 'Ocultar' : 'Mostrar' }}
+          <span class="lib-input__sr-only">contraseña</span>
+        </button>
+      }
     }
   </div>
 
   @if (helpText() && !showError()) {
-    <span class="lib-input__help">{{ helpText() }}</span>
+    <span class="lib-input__help" [id]="helpId">{{ helpText() }}</span>
   }
 
   @if (showError()) {
-    <span class="lib-input__error">{{ errorMessage() }}</span>
+    <span class="lib-input__error" [id]="errorId" role="alert">{{ errorMessage() }}</span>
   }
 </div>

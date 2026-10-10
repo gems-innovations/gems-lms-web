@@ -55,6 +55,6 @@
   .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: dense; gap: 10px; }
   .tile { padding: 16px; border-radius: 16px; }
   .tile--wide, .tile--tall:not(.tile--streak) { grid-column: 1 / -1; grid-row: auto; }
-  .tile--streak { grid-row: auto; }
+  .tile--streak { grid-column: 1 / -1; grid-row: auto; align-content: start; }
   .tile__num { font-size: 36px; }
 }

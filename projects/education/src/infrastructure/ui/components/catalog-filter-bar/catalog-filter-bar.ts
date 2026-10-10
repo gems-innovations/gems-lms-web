@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, input, output, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { EDifficulty } from '../../../../domain/model/course.model';
 import { TCatalogKindFilter, TCatalogLevelFilter } from '../../../../domain/model/catalog.model';
 import { DIFFICULTY_LABELS } from '../../utils/course-labels';
@@ -20,6 +20,7 @@ export class CatalogFilterBar {
   readonly filterKindChange  = output<TCatalogKindFilter>();
   readonly filterLevelChange = output<TCatalogLevelFilter>();
 
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly filterOpen = signal(false);
 
   protected readonly EDifficulty = EDifficulty;
@@ -35,7 +36,13 @@ export class CatalogFilterBar {
     return DIFFICULTY_LABELS[d] ?? d;
   }
 
-  protected toggleFilter(): void { this.filterOpen.update(v => !v); }
+  protected toggleFilter(): void {
+    const opening = !this.filterOpen();
+    this.filterOpen.set(opening);
+    if (opening && typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches) {
+      this.host.nativeElement.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+  }
   protected closeFilter(): void  { this.filterOpen.set(false); }
 
   protected clearFilters(): void {

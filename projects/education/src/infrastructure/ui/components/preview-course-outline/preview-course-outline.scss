@@ -321,5 +321,18 @@
 
 // Celular: piso de 12px para texto informativo.
 @media (max-width: 768px) {
-  .outline__node-num, .outline__module-badge, .outline__lesson-num, .outline__lesson-dur { font-size: 0.75rem; }
+  .outline__node-num, .outline__module-badge, .outline__lesson-num, .outline__lesson-dur, .outline__block { font-size: 0.75rem; }
+  .outline__module-header { min-height: 44px; }
+  .outline__lesson-title {
+    display: -webkit-box;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}
+
+@media (max-width: 480px) {
+  .outline__lesson { gap: 0.5rem; padding: 0.625rem; }
+  .outline__lesson-thumb { width: 44px; height: 36px; }
 }

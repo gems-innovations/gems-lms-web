@@ -19,6 +19,7 @@
 
 <div id="main-content" tabindex="-1"><router-outlet /></div>
 <app-command-palette />
+<lib-toast-container />
 <gems-guest-save-bar />
 
 @if (session.user() && !publicPage() && !isGuest()) {

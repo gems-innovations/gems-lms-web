@@ -2,22 +2,23 @@
   @if (variant() === 'inline') {
     <a class="ach-inline" routerLink="/learn/my-learning" fragment="logros"
        [attr.aria-label]="'Racha de ' + p.streak + ' días, nivel ' + p.level + ', ' + p.weekDays + ' de ' + p.weeklyGoal + ' días esta semana. Ver logros'">
-      <span class="ach-inline__item" [class.ach-inline__item--live]="p.activeToday && p.streak > 0">
+      <span class="ach-inline__item ach-tip" [class.ach-inline__item--live]="p.activeToday && p.streak > 0" [attr.data-tip]="streakTip">
         <svg lucideFlame [size]="15" aria-hidden="true"></svg> <strong>{{ p.streak }}</strong> {{ p.streak === 1 ? 'día' : 'días' }}
       </span>
-      <span class="ach-inline__item"><svg lucideZap [size]="14" aria-hidden="true"></svg> Nivel <strong>{{ p.level }}</strong></span>
-      <span class="ach-inline__item" [class.ach-inline__item--done]="p.weekDays >= p.weeklyGoal">
+      <span class="ach-inline__item ach-tip" [attr.data-tip]="levelTip"><svg lucideZap [size]="14" aria-hidden="true"></svg> Nivel <strong>{{ p.level }}</strong></span>
+      <span class="ach-inline__item ach-tip ach-tip--end" [class.ach-inline__item--done]="p.weekDays >= p.weeklyGoal" [attr.data-tip]="weekTip(p.weeklyGoal)">
         Semana <strong>{{ p.weekDays }}/{{ p.weeklyGoal }}</strong>
       </span>
-      <span class="ach-inline__more">{{ earned().length }} insignias ›</span>
+      <span class="ach-inline__more ach-tip ach-tip--end" [attr.data-tip]="badgesTip">{{ earned().length }} insignias ›</span>
     </a>
   } @else {
   <section class="ach" [class.ach--full]="variant() === 'full'" libReveal aria-labelledby="ach-title">
     <h2 id="ach-title" class="ach__title">{{ 'Tu progreso' | t }}</h2>
 
     <div class="ach__top">
-      <div class="ach__streak" [class.ach__streak--live]="p.activeToday && p.streak > 0"
-           [attr.aria-label]="'Racha de ' + p.streak + ' días'">
+      <div class="ach__streak ach-tip" [class.ach__streak--live]="p.activeToday && p.streak > 0"
+           tabindex="0" [attr.data-tip]="streakTip"
+           [attr.aria-label]="'Racha de ' + p.streak + ' días. ' + streakTip">
         <svg lucideFlame [size]="26" aria-hidden="true"></svg>
         <div>
           <strong class="ach__big" [libCountUp]="p.streak"></strong>
@@ -28,8 +29,8 @@
 
       <div class="ach__level">
         <div class="ach__level-head">
-          <span class="ach__level-badge"><svg lucideZap [size]="14" aria-hidden="true"></svg> Nivel {{ p.level }}</span>
-          <span class="ach__xp"><span [libCountUp]="p.xp"></span> pts</span>
+          <span class="ach__level-badge ach-tip" tabindex="0" [attr.data-tip]="levelTip"><svg lucideZap [size]="14" aria-hidden="true"></svg> Nivel {{ p.level }}</span>
+          <span class="ach__xp ach-tip ach-tip--end" tabindex="0" [attr.data-tip]="xpTip"><span [libCountUp]="p.xp"></span> pts</span>
         </div>
         <div class="ach__bar" role="progressbar" aria-label="Avance al siguiente nivel"
              [attr.aria-valuenow]="levelPct()" aria-valuemin="0" aria-valuemax="100">
@@ -42,7 +43,7 @@
     <div class="ach__week" aria-label="Días con actividad esta semana">
       <div class="ach__week-head">
         <span>{{ 'Esta semana' | t }}</span>
-        <span class="ach__goal" [class.ach__goal--done]="p.weekDays >= p.weeklyGoal">
+        <span class="ach__goal ach-tip ach-tip--end" tabindex="0" [attr.data-tip]="weekTip(p.weeklyGoal)" [class.ach__goal--done]="p.weekDays >= p.weeklyGoal">
           {{ p.weekDays }}/{{ p.weeklyGoal }} días {{ p.weekDays >= p.weeklyGoal ? '· ¡meta cumplida!' : '' }}
         </span>
       </div>
@@ -62,7 +63,7 @@
         <div class="ach__next">
           <span class="ach__badge-icon ach__badge-icon--locked"><svg [lucideIcon]="icons[b.id]" [size]="18" aria-hidden="true"></svg></span>
           <div class="ach__next-text">
-            <span class="ach__next-label">{{ 'Próxima insignia' | t }}</span>
+            <span class="ach__next-label ach-tip" tabindex="0" [attr.data-tip]="badgesTip">{{ 'Próxima insignia' | t }}</span>
             <strong>{{ b.title }}</strong>
             <span class="ach__hint">{{ b.description }} · {{ b.progress }}/{{ b.target }}</span>
           </div>
@@ -79,7 +80,7 @@
     } @else {
       <button type="button" class="ach__subtitle ach__subtitle--toggle" [attr.aria-expanded]="badgesOpen()"
               (click)="badgesOpen.set(!badgesOpen())">
-        {{ 'Insignias' | t }} <span>{{ earned().length }}/{{ p.badges.length }}</span>
+        <span class="ach-tip" [attr.data-tip]="badgesTip">{{ 'Insignias' | t }}</span> <span>{{ earned().length }}/{{ p.badges.length }}</span>
         <span class="ach__chev" [class.ach__chev--open]="badgesOpen()" aria-hidden="true">›</span>
       </button>
       @if (badgesOpen()) {

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoadingSkeletonComponent } from 'shared';
+import { EmptyStateComponent, LoadingSkeletonComponent } from 'shared';
 import { PreviewHero } from '../../components/preview-hero/preview-hero';
 import { PreviewCourseOutline } from '../../components/preview-course-outline/preview-course-outline';
 import { PreviewPathSequence } from '../../components/preview-path-sequence/preview-path-sequence';
@@ -11,7 +11,7 @@ import { TPreviewType } from '../../../../domain/model/catalog.model';
   selector: 'edu-content-preview-container',
   standalone: true,
   host: { style: 'display:block' },
-  imports: [LoadingSkeletonComponent, PreviewHero, PreviewCourseOutline, PreviewPathSequence],
+  imports: [EmptyStateComponent, LoadingSkeletonComponent, PreviewHero, PreviewCourseOutline, PreviewPathSequence],
   templateUrl: './content-preview-container.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -15,14 +15,15 @@ import { AnalyticsService } from '../analytics.service';
     <main class="pub">
       <!-- Quien llega aquí buscando los cursos gratis o su cuenta de siempre, encuentra su salida de inmediato. -->
       <nav class="switch" aria-label="¿Buscas otra cosa?">
-        <a routerLink="/" fragment="cursos"><strong>¿Buscas los cursos gratis?</strong> Son de GEMS y no piden cuenta.</a>
-        <a routerLink="/auth/signin"><strong>¿Tu institución ya está en GEMS?</strong> Entra con la cuenta que te dieron.</a>
+        <a routerLink="/" fragment="cursos"><strong>¿Buscas los cursos gratis?</strong> <span class="switch__hint">Son de GEMS y no piden cuenta.</span></a>
+        <a routerLink="/auth/signin"><strong>¿Tu institución ya está en GEMS?</strong> <span class="switch__hint">Entra con la cuenta que te dieron.</span></a>
       </nav>
       <div class="detail">
         <section>
           <span class="eyebrow">GEMS para tu institución</span>
           <h1>Tu propio espacio para enseñar, del tamaño que necesites</h1>
           <p class="lead">Los cursos gratis son los de GEMS. Tu espacio es aparte y es tuyo: tus cursos, tus integrantes y el avance de cada uno, en la misma plataforma.</p>
+          <a class="btn btn--primary lead-cta" href="#solicitud">Pedir mi espacio</a>
           <ul class="who" aria-label="Para quién es">
             <li>Colegios</li><li>Universidades</li><li>Preuniversitarios y academias</li><li>Empresas</li><li>Profesores independientes</li><li>Comunidades y grupos de estudio</li>
           </ul>
@@ -34,7 +35,7 @@ import { AnalyticsService } from '../analytics.service';
           </ul>
         </section>
 
-        <aside class="start" aria-labelledby="req-title">
+        <aside class="start" id="solicitud" aria-labelledby="req-title">
           @if (sent()) {
             <div class="ok" role="status">
               <h2>¡Recibimos tu solicitud!</h2>
@@ -44,14 +45,14 @@ import { AnalyticsService } from '../analytics.service';
           } @else {
             <h2 id="req-title">Quiero mi espacio en GEMS</h2>
             <form class="form" (submit)="$event.preventDefault(); submit()">
-              <label>Nombre de tu institución, empresa o grupo *<input class="field" name="inst" required maxlength="160" [(ngModel)]="form.institutionName" /></label>
+              <label>Nombre de tu institución, empresa o grupo *<input class="field" name="inst" required maxlength="160" autocomplete="organization" enterkeyhint="next" [(ngModel)]="form.institutionName" /></label>
               <div class="form__row">
-                <label>Tu nombre *<input class="field" name="contact" required maxlength="120" [(ngModel)]="form.contactName" /></label>
-                <label>Tu cargo<input class="field" name="role" maxlength="60" placeholder="Ej.: docente, líder" [(ngModel)]="form.role" /></label>
+                <label>Tu nombre *<input class="field" name="contact" required maxlength="120" autocomplete="name" enterkeyhint="next" [(ngModel)]="form.contactName" /></label>
+                <label>Tu cargo<input class="field" name="role" maxlength="60" autocomplete="organization-title" enterkeyhint="next" placeholder="Ej.: docente, líder" [(ngModel)]="form.role" /></label>
               </div>
               <div class="form__row">
-                <label>Correo *<input class="field" name="email" type="email" required maxlength="160" [(ngModel)]="form.email" /></label>
-                <label>Teléfono<input class="field" name="phone" type="tel" maxlength="40" [(ngModel)]="form.phone" /></label>
+                <label>Correo *<input class="field" name="email" type="email" inputmode="email" autocomplete="email" enterkeyhint="next" required maxlength="160" [(ngModel)]="form.email" /></label>
+                <label>Teléfono<input class="field" name="phone" type="tel" autocomplete="tel" enterkeyhint="next" maxlength="40" [(ngModel)]="form.phone" /></label>
               </div>
               <fieldset class="pick">
                 <legend>¿Cuántas personas aprenderían?</legend>

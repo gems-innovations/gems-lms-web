@@ -11,7 +11,9 @@
       <input
         class="catalog-filter-bar__search"
         type="text"
-        placeholder="Buscar cursos, rutas, tecnologías…"
+        placeholder="Buscar cursos y rutas…"
+        aria-label="Buscar cursos y rutas"
+        enterkeyhint="search"
         [value]="search()"
         (input)="searchChange.emit($any($event.target).value)"
       >
@@ -23,12 +25,14 @@
         type="button"
         class="catalog-filter-bar__btn"
         [class.catalog-filter-bar__btn--active]="activeFilterCount() > 0"
+        [attr.aria-expanded]="filterOpen()"
+        aria-label="Filtros"
         (click)="toggleFilter()"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
         </svg>
-        Filtros
+        <span class="catalog-filter-bar__btn-label">Filtros</span>
         @if (activeFilterCount() > 0) {
           <span class="catalog-filter-bar__badge">{{ activeFilterCount() }}</span>
         }
@@ -94,6 +98,8 @@
               </div>
             </div>
           }
+
+          <button type="button" class="catalog-filter-bar__apply" (click)="closeFilter()">Ver resultados</button>
         </div>
       }
     </div>

@@ -148,3 +148,12 @@
   }
   .chero__stat-label { letter-spacing: 0.08em; text-align: left; }
 }
+
+@media (max-width: 640px) {
+  .chero__inner { gap: 0.5rem; padding: 1rem 0; }
+  .chero__copy { gap: 0.375rem; }
+  .chero__sub, .chero__title br { display: none; }
+  .chero__accent { margin-left: 0.25em; }
+  .chero__stat { padding: 0.375rem 0.75rem; }
+  .chero__stat-num { font-size: 1.25rem; }
+}

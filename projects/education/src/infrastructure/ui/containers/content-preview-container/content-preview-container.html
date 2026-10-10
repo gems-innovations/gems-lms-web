@@ -1,5 +1,12 @@
 @if (uc.isLoading()) {
   <lib-loading-skeleton [rows]="8" />
+} @else if ((uc.previewType() === 'course' ? uc.course() : uc.path()) === null) {
+  <lib-empty-state
+    title="Este contenido ya no está disponible"
+    description="Puede que haya sido retirado o que no tengas acceso a él."
+    actionLabel="Volver al catálogo"
+    (action)="back()"
+  />
 } @else {
   <edu-preview-hero
     [type]="uc.previewType()"

@@ -6,7 +6,7 @@
       <span class="eyebrow">Cursos gratis · sin registro</span>
       <h1>Aprende lo que necesitas, <span class="hl">a tu ritmo</span></h1>
       <p class="lead">Para entrar a la universidad, manejar mejor tu plata, escribir mejor y lo que venga. Lecciones de 10 minutos, ejercicios explicados y simulacros. Eliges un curso y empiezas ya, sin crear cuenta.</p>
-      <div class="hero__cta">
+      <div class="hero__cta" gemsInView (inView)="heroCtaInView.set($event)">
         <button type="button" class="btn btn--primary" [disabled]="starter.starting() !== null" (click)="startFirst()">{{ starter.starting() !== null ? 'Entrando…' : 'Empezar gratis ahora' }}</button>
         <a class="btn btn--ghost" routerLink="/" fragment="cursos">Ver todos los cursos</a>
       </div>
@@ -35,13 +35,16 @@
         </div>
       }
       @case ('error') {
-        <p class="empty">No pudimos cargar los cursos. Revisa tu conexión y recarga la página.</p>
+        <div class="empty" role="status">
+          <p>No pudimos cargar los cursos. Revisa tu conexión e inténtalo de nuevo.</p>
+          <button type="button" class="btn btn--ghost" (click)="load()">Reintentar</button>
+        </div>
       }
       @default {
         @if (courses().length === 0) {
           <p class="empty">Muy pronto publicamos los primeros cursos.</p>
         } @else {
-          <div class="grid">
+          <div class="grid" gemsInView (inView)="gridInView.set($event)">
             @for (c of courses(); track c.id) {
               <article class="card" gemsTilt>
                 <div class="card__img">
@@ -129,12 +132,12 @@
   <section id="importante" class="legal reveal" aria-labelledby="imp-title">
     <h2 id="imp-title">Información importante</h2>
     <ul>
-      <li><strong>No somos una entidad oficial.</strong> GEMS no está afiliado a ninguna universidad, al ICFES ni al Ministerio de Educación, ni cuenta con su aval. Sus nombres se mencionan solo para describir los exámenes.</li>
-      <li><strong>Es material de práctica.</strong> Te ayuda a prepararte, pero no garantiza ningún puntaje ni la admisión. Consulta siempre la información oficial de cada institución.</li>
-      <li><strong>Preguntas originales.</strong> No copiamos exámenes: creamos preguntas propias a partir del análisis de los temas y formatos publicados.</li>
-      <li><strong>Datos de referencia.</strong> Los puntajes, fechas o cupos que mencionemos son orientativos y pueden cambiar; verifícalos en las fuentes oficiales.</li>
-      <li><strong>Tus datos.</strong> Como invitado no pedimos tu nombre real, correo ni teléfono. Si creas una cuenta, tratamos tus datos según la Ley 1581 de 2012 y puedes pedir conocerlos, corregirlos o eliminarlos.</li>
-      <li><strong>Menores de edad.</strong> Si tienes menos de 18 años, crea tu cuenta con el acompañamiento de tu madre, tu padre o tu acudiente.</li>
+      <li><details class="legal__item" open><summary>No somos una entidad oficial.</summary><p>GEMS no está afiliado a ninguna universidad, al ICFES ni al Ministerio de Educación, ni cuenta con su aval. Sus nombres se mencionan solo para describir los exámenes.</p></details></li>
+      <li><details class="legal__item"><summary>Es material de práctica.</summary><p>Te ayuda a prepararte, pero no garantiza ningún puntaje ni la admisión. Consulta siempre la información oficial de cada institución.</p></details></li>
+      <li><details class="legal__item"><summary>Preguntas originales.</summary><p>No copiamos exámenes: creamos preguntas propias a partir del análisis de los temas y formatos publicados.</p></details></li>
+      <li><details class="legal__item"><summary>Datos de referencia.</summary><p>Los puntajes, fechas o cupos que mencionemos son orientativos y pueden cambiar; verifícalos en las fuentes oficiales.</p></details></li>
+      <li><details class="legal__item"><summary>Tus datos.</summary><p>Como invitado no pedimos tu nombre real, correo ni teléfono. Si creas una cuenta, tratamos tus datos según la Ley 1581 de 2012 y puedes pedir conocerlos, corregirlos o eliminarlos.</p></details></li>
+      <li><details class="legal__item"><summary>Menores de edad.</summary><p>Si tienes menos de 18 años, crea tu cuenta con el acompañamiento de tu madre, tu padre o tu acudiente.</p></details></li>
     </ul>
     <p>Lee los <a routerLink="/terminos">términos de uso</a> y la <a routerLink="/privacidad">política de privacidad</a>.</p>
   </section>
@@ -164,7 +167,7 @@
 
 <gems-public-footer />
 
-@if (courses().length) {
+@if (courses().length && !heroCtaInView() && !gridInView()) {
   <div class="land-cta">
     <button type="button" class="btn btn--primary btn--block" [disabled]="starter.starting() !== null" (click)="startFirst()">{{ starter.starting() !== null ? 'Entrando…' : 'Empezar gratis ahora' }}</button>
   </div>

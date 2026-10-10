@@ -81,7 +81,7 @@
           <svg class="pcb-gate__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
           <div class="pcb-gate__text">
             <strong>Lectura completa.</strong>
-            <span>Cuando termines, toca «Siguiente paso».</span>
+            <span>Cuando termines, toca «Siguiente».</span>
           </div>
         } @else {
           <svg class="pcb-gate__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -105,7 +105,7 @@
           <svg class="pcb-gate__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
           <div class="pcb-gate__text"><strong>Lectura completa.</strong></div>
           <button type="button" class="pcb-gate__next" (click)="goNext.emit()">
-            Siguiente paso
+            Siguiente
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </div>
@@ -362,6 +362,24 @@
             </style>
           </div>
         } @else if (lastQuizResult(); as result) {
+          @if (!result.passed) {
+            <p class="pcb-hint" role="status">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>{{ quizFailHint() }}</span>
+            </p>
+            <div class="player-content-block__actions pcb-retry">
+              @if (canRetryQuiz()) {
+                <button type="button" class="pcb-btn pcb-btn--primary" (click)="retryQuiz()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+                  Reintentar
+                </button>
+              } @else {
+                <span class="quiz-limit-msg" style="color: var(--color-texto-terciario); font-size: 13px;">
+                  Límite de intentos alcanzado ({{ quizAttempts() }} de {{ block()?.maxAttempts }} intentos)
+                </span>
+              }
+            </div>
+          }
           <div class="quiz-result" [class.quiz-result--pass]="result.passed" [class.quiz-result--fail]="!result.passed">
             <div class="quiz-result__header">
               <div class="quiz-result__icon" [class.quiz-result__icon--pass]="result.passed">
@@ -408,6 +426,7 @@
             }
           </div>
         }
+        @if (!lastQuizResult() || lastQuizResult()!.passed) {
         <div class="player-content-block__actions">
           @if (canRetryQuiz()) {
             <button type="button" class="pcb-btn" (click)="retryQuiz()">
@@ -420,6 +439,7 @@
             </span>
           }
         </div>
+        }
       }
     }
 

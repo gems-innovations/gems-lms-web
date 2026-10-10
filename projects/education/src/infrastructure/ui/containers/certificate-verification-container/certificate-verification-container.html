@@ -1,14 +1,20 @@
 <main class="verify">
   <section class="verify__card">
-    <a routerLink="/auth/signin" class="verify__brand">GEMS LMS</a>
+    <a routerLink="/" class="verify__brand">GEMS LMS</a>
     @if (loading()) {
-      <h1>Verificando credencial…</h1>
+      <p class="verify__status" role="status">Verificando credencial…</p>
     } @else if (invalid()) {
-      <div class="verify__seal verify__seal--invalid">×</div>
+      <div class="verify__seal verify__seal--invalid" aria-hidden="true">×</div>
       <h1>Credencial no válida</h1>
-      <p>El código no existe o la credencial fue revocada.</p>
+      <p role="alert">El código no existe o la credencial fue revocada.</p>
+      <a routerLink="/" class="verify__action">Ir a GEMS</a>
+    } @else if (failed()) {
+      <div class="verify__seal verify__seal--warning" aria-hidden="true">!</div>
+      <h1>No pudimos verificar ahora</h1>
+      <p role="alert">Esto no significa que la credencial sea falsa. Revisa tu conexión e inténtalo de nuevo.</p>
+      <button type="button" class="verify__action" (click)="verify()">Reintentar</button>
     } @else if (certificate(); as cert) {
-      <div class="verify__seal">✓</div>
+      <div class="verify__seal" aria-hidden="true">✓</div>
       <h1>Credencial verificada</h1>
       <p class="verify__name">{{ cert.studentName }}</p>
       <p>Completó {{ cert.resourceType === 'COURSE' ? 'el curso' : 'la ruta de aprendizaje' }}</p>
@@ -17,8 +23,11 @@
         <div><dt>Código</dt><dd>{{ cert.id }}</dd></div>
         <div><dt>Finalización</dt><dd>{{ cert.completedAt | date:'dd/MM/yyyy' }}</dd></div>
         <div><dt>Emisión</dt><dd>{{ cert.issuedAt | date:'dd/MM/yyyy' }}</dd></div>
-        <div><dt>Institución</dt><dd>{{ cert.institutionId }}</dd></div>
+        @if (cert.instructorName) {
+          <div><dt>Docente</dt><dd>{{ cert.instructorName }}</dd></div>
+        }
       </dl>
+      <a routerLink="/" class="verify__action verify__action--ghost">Conocer GEMS</a>
     }
   </section>
 </main>

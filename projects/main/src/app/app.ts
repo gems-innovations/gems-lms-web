@@ -8,10 +8,11 @@ import { OnboardingService } from './onboarding.service';
 import { GuestSaveBarComponent } from './public/guest-save-bar.component';
 import { isGuestUser } from './public/guest-access.service';
 import { AppStatusService } from './app-status.service';
+import { ToastContainerComponent } from 'shared';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommandPaletteComponent, GuestSaveBarComponent],
+  imports: [RouterOutlet, CommandPaletteComponent, GuestSaveBarComponent, ToastContainerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.html',
   styleUrl: './app.scss',

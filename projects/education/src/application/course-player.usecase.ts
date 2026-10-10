@@ -6,6 +6,7 @@ import { IAssignmentSubmitPayload, ICourseCertificate, IQuizSubmitPayload } from
 import { AuthSessionService } from 'auth';
 import { SurveyService } from '../infrastructure/services/survey.service';
 import { OPEN_INSTITUTION_ID } from '../domain/model/catalog.model';
+import { IQuizAttempt } from '../domain/model/enrollment.model';
 
 /** Institución de los cursos gratis y abiertos (sin certificado: muestran el resultado final). */
 export { OPEN_INSTITUTION_ID };
@@ -42,8 +43,7 @@ export class CoursePlayerUseCase {
     if (!block) return null;
     const attempts = this.enrollmentUc.quizAttempts().filter(a => a.blockId === block.id);
     if (!attempts.length) return null;
-    // Always show the best score, not the latest attempt
-    return attempts.reduce((best, current) => current.score > best.score ? current : best);
+    return attempts.reduce((latest, current) => this.isNewerAttempt(current, latest) ? current : latest);
   });
 
   readonly course = computed(() => {
@@ -378,4 +378,9 @@ export class CoursePlayerUseCase {
     // Block is NOT marked complete here — only when the instructor grades it
   }
   //#endregion
+
+  private isNewerAttempt(candidate: IQuizAttempt, current: IQuizAttempt): boolean {
+    if (candidate.attemptNumber !== current.attemptNumber) return candidate.attemptNumber > current.attemptNumber;
+    return new Date(candidate.completedAt).getTime() >= new Date(current.completedAt).getTime();
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, DestroyRef, PLATFORM_ID, inject, signal, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, ElementRef, PLATFORM_ID, inject, signal, input, viewChild } from '@angular/core';
 import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -12,6 +12,7 @@ const REFRESH_MS = 60_000;
   selector: 'edu-notification-bell',
   imports: [DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(document:keydown.escape)': 'closeOnEscape()' },
   templateUrl: './notification-bell.html',
   styleUrl: './notification-bell.scss',
 })
@@ -25,6 +26,7 @@ export class NotificationBell {
   readonly footer = input(false);
 
   protected readonly open = signal(false);
+  private readonly trigger = viewChild.required<ElementRef<HTMLButtonElement>>('trigger');
 
   constructor() {
     if (!isPlatformBrowser(inject(PLATFORM_ID))) return;
@@ -37,6 +39,15 @@ export class NotificationBell {
 
   protected toggle(): void {
     this.open.update(v => !v);
+  }
+
+  protected close(): void {
+    this.open.set(false);
+    this.trigger().nativeElement.focus();
+  }
+
+  protected closeOnEscape(): void {
+    if (this.open()) this.close();
   }
 
   /** Marks it read and opens what it is about. */

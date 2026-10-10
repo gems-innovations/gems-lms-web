@@ -33,6 +33,11 @@ button:disabled { cursor: default; opacity: .58; }
 .profile__toggle input { min-height: auto; width: 1.05rem; height: 1.05rem; accent-color: var(--color-primario); }
 @media (max-width: 600px) { .profile { border-radius: 14px; } .profile__fields { grid-template-columns: 1fr; } .profile__avatar { align-items: flex-start; flex-direction: column; } }
 
+.profile__session { display: none; }
+.profile__logout { width: 100%; border-color: var(--color-borde-secundario); background: transparent; color: var(--color-texto-principal); }
+.profile__logout:hover:not(:disabled) { background: var(--color-fondo-hover); border-color: var(--color-borde-secundario); }
+@media (max-width: 640px) { .profile__session { display: grid; } }
+
 .profile__lang { display: flex; flex-direction: column; gap: var(--spacing-xs); }
 .profile__lang-label { font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
 

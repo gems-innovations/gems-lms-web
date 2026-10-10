@@ -6,6 +6,7 @@ import { DIFFICULTY_LABEL, IPublicCourse, PublicCatalogService } from './public-
 import { CourseStarterService } from './course-starter.service';
 import { TiltDirective } from './micro-effects';
 import { HeroQuizComponent } from './hero-quiz.component';
+import { InViewDirective } from './in-view.directive';
 
 /**
  * Página de entrada pública: cursos gratis para prepararse para la universidad, sin registro.
@@ -13,7 +14,7 @@ import { HeroQuizComponent } from './hero-quiz.component';
  */
 @Component({
   selector: 'gems-landing',
-  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, HeroQuizComponent, TiltDirective],
+  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, HeroQuizComponent, TiltDirective, InViewDirective],
   templateUrl: './landing.component.html',
   styleUrls: ['./public.scss', './landing-extra.scss', './landing-bento.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,8 +28,15 @@ export class LandingComponent {
   protected readonly error = signal<string | null>(null);
   protected readonly errorFor = signal<number | null>(null);
   protected readonly difficulty = DIFFICULTY_LABEL;
+  protected readonly heroCtaInView = signal(false);
+  protected readonly gridInView = signal(false);
 
   constructor() {
+    this.load();
+  }
+
+  protected load(): void {
+    this.state.set('loading');
     this.catalog.courses().subscribe({
       next: list => { this.courses.set(list); this.state.set('ready'); },
       error: () => this.state.set('error'),

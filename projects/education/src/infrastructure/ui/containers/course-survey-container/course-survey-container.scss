@@ -224,7 +224,7 @@
     font-size: 1.75rem;
     line-height: 1;
     cursor: pointer;
-    color: var(--color-borde-principal);
+    color: var(--color-texto-terciario);
 
     &--on { color: var(--color-advertencia); }
   }
@@ -260,4 +260,5 @@
 // Celular: objetivos táctiles de 44px.
 @media (max-width: 768px) {
   .csv-review__star { min-width: 44px; min-height: 44px; }
+  .csv-review__save { min-height: 44px; }
 }

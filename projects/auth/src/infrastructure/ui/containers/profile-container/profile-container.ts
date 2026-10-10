@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthSessionService } from 'auth/core';
+import { LogoutUseCase } from '../../../../application/logout.usecase';
 import { UserService } from '../../../services/user.service';
 import { DisplayPreferencesService, ThemePreference } from 'auth/core';
 import { TranslatePipe } from 'shared';
@@ -18,6 +19,7 @@ export class ProfileContainer implements OnInit {
   private readonly session = inject(AuthSessionService);
   private readonly users = inject(UserService);
   private readonly toast = inject(ToastService);
+  private readonly logoutUseCase = inject(LogoutUseCase);
   readonly display = inject(DisplayPreferencesService);
   readonly i18n = inject(I18nService);
   /** Nombre de la institución para mostrar en lugar de su identificador interno. */
@@ -57,4 +59,6 @@ export class ProfileContainer implements OnInit {
   }
 
   setTheme(theme: ThemePreference): void { this.display.update({ theme }); }
+
+  logout(): void { this.logoutUseCase.logout(); }
 }

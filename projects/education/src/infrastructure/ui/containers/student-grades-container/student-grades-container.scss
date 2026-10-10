@@ -29,6 +29,12 @@
     color: var(--color-texto-principal);
   }
 
+  &__summary-scale {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-texto-terciario);
+  }
+
   &__summary-hint,
   &__meta {
     margin: 0;

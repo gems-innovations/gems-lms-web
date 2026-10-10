@@ -28,12 +28,19 @@
         [label]="'Correo electrónico' | t"
         placeholder="tu@correo.com"
         type="email"
+        autocomplete="username"
+        inputmode="email"
+        autocapitalize="none"
+        [spellcheck]="false"
+        enterkeyhint="next"
       />
       <lib-input
         [formField]="loginForm.password"
         [label]="'Contraseña' | t"
         placeholder="••••••••"
         type="password"
+        autocomplete="current-password"
+        enterkeyhint="go"
       />
     </fieldset>
 
@@ -60,7 +67,7 @@
       <p class="login-form__paths-title">{{ '¿No tienes cuenta?' | t }}</p>
 
       <a class="login-form__path" routerLink="/" fragment="cursos">
-        <span class="login-form__path-icon" aria-hidden="true">🎓</span>
+        <svg class="login-form__path-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
         <span class="login-form__path-text">
           <strong>{{ 'Vengo por los cursos gratis' | t }}</strong>
           <span>{{ 'No necesitas cuenta: entras en un toque. La cuenta es opcional, para guardar tu avance.' | t }}</span>
@@ -69,7 +76,7 @@
       </a>
 
       <div class="login-form__path login-form__path--static">
-        <span class="login-form__path-icon" aria-hidden="true">🏫</span>
+        <svg class="login-form__path-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 22v-4a2 2 0 1 0-4 0v4"/><path d="m18 10 3.447 1.724a1 1 0 0 1 .553.894V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-7.382a1 1 0 0 1 .553-.894L6 10"/><path d="M18 5v17"/><path d="m4 6 7.106-3.553a2 2 0 0 1 1.788 0L20 6"/><path d="M6 5v17"/><circle cx="12" cy="9" r="2"/></svg>
         <span class="login-form__path-text">
           <strong>{{ 'Mi colegio, universidad o empresa usa GEMS' | t }}</strong>
           <span>{{ 'Entra con la cuenta que te entregó tu institución. Si no la tienes, pídesela a tu administrador.' | t }}</span>
@@ -77,7 +84,7 @@
       </div>
 
       <a class="login-form__path" routerLink="/instituciones">
-        <span class="login-form__path-icon" aria-hidden="true">🚀</span>
+        <svg class="login-form__path-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
         <span class="login-form__path-text">
           <strong>{{ 'Quiero que mi institución use GEMS' | t }}</strong>
           <span>{{ 'Pide tu propio espacio: tus cursos, tu gente y su avance.' | t }}</span>

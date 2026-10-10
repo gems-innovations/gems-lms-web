@@ -1,4 +1,4 @@
-import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, computed, signal, effect, inject, viewChild, DestroyRef, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { ICourse, EDifficulty } from '../../../../domain/model/course.model';
 import { ILearningPath } from '../../../../domain/model/learning-path.model';
 import { OPEN_INSTITUTION_ID, TPreviewType } from '../../../../domain/model/catalog.model';
@@ -34,6 +34,22 @@ export class PreviewHero {
   protected readonly ctaLabel    = computed(() => this.isEnrolled()
     ? `Continuar ${this.type() === 'path' ? 'ruta' : 'curso'}`
     : this.isFree() ? 'Empezar gratis' : `Inscribirme ${this.type() === 'path' ? 'a la ruta' : 'al curso'}`);
+
+  private readonly heroCta = viewChild<ElementRef<HTMLElement>>('heroCta');
+  protected readonly ctaInView = signal(false);
+  protected readonly showMobileCta = computed(() => !!this.title() && !this.ctaInView() && (this.isEnrolled() || !this.blockedReason()));
+
+  constructor() {
+    if (typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(([entry]) => this.ctaInView.set(entry.isIntersecting));
+    inject(DestroyRef).onDestroy(() => observer.disconnect());
+    effect(() => {
+      const el = this.heroCta()?.nativeElement;
+      observer.disconnect();
+      if (el) observer.observe(el);
+      else this.ctaInView.set(false);
+    });
+  }
 
   protected difficultyLabel(d: EDifficulty): string { return DIFFICULTY_LABELS[d] ?? d; }
   protected formatDuration(m: number): string { return formatDuration(m); }
