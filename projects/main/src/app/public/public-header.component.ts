@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthSessionService } from 'auth/core';
 import { isGuestUser } from './guest-access.service';
@@ -18,7 +18,10 @@ import { isGuestUser } from './guest-access.service';
         <a routerLink="/instituciones">Para instituciones</a>
       </nav>
       <div class="ph__actions">
-        @if (signedIn()) {
+        <!-- En el servidor no hay sesión: los botones esperan al navegador para no mostrar «Ya tengo cuenta» a quien sí entró. -->
+        @if (!listo()) {
+          <span class="ph__wait" aria-hidden="true"></span>
+        } @else if (signedIn()) {
           <a class="ph__btn ph__btn--primary" [routerLink]="home()">{{ guest() ? 'Mis cursos' : 'Ir a mi panel' }}</a>
         } @else {
           <!-- «Ya tengo cuenta» es para quien guardó su avance o recibió una cuenta de su institución;
@@ -52,6 +55,7 @@ import { isGuestUser } from './guest-access.service';
     .ph__btn--primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px var(--color-primario-trans-20); }
     a:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; border-radius: 8px; }
     .ph__short { display: none; }
+    .ph__wait { display: block; width: 120px; min-height: 44px; }
     /* Celular: una sola línea. «Cursos gratis» es esta misma página e «Instituciones» lleva a /instituciones. */
     @media (max-width: 760px) {
       .ph { gap: 8px; padding: 10px 14px; }
@@ -75,6 +79,9 @@ import { isGuestUser } from './guest-access.service';
 })
 export class PublicHeaderComponent {
   private readonly session = inject(AuthSessionService);
+  /** true cuando ya corre en el navegador y la sesión guardada está leída. */
+  protected readonly listo = signal(false);
+  constructor() { afterNextRender(() => this.listo.set(true)); }
   protected readonly signedIn = this.session.isAuthenticated;
   protected readonly guest = computed(() => isGuestUser(this.session.user()));
   protected readonly home = computed(() => this.guest() ? '/learn/my-learning' : this.session.getHomeRoute());
