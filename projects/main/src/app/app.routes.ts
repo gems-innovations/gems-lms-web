@@ -20,6 +20,11 @@ export const routes: Routes = [
     loadComponent: () => import('./public/public-course.component').then(m => m.PublicCourseComponent)
   },
   {
+    path: 'retos',
+    title: 'Retos de lógica con su explicación',
+    loadComponent: () => import('./public/retos.component').then(m => m.RetosComponent)
+  },
+  {
     path: 'instituciones',
     title: 'GEMS para tu institución',
     loadComponent: () => import('./public/institutions.component').then(m => m.InstitutionsComponent)

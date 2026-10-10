@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { COURSE_CATEGORIES, categoryOf } from './course-categories';
 import { RouterLink } from '@angular/router';
 import { PublicHeaderComponent } from './public-header.component';
 import { PublicFooterComponent } from './public-footer.component';
@@ -31,6 +32,17 @@ export class LandingComponent {
   protected readonly heroCtaInView = signal(false);
   protected readonly gridInView = signal(false);
 
+  /** Categoría elegida en la portada («todos» muestra todo). Las fichas solo aparecen si hay cursos en ellas. */
+  protected readonly category = signal('todos');
+  protected readonly categories = computed(() => {
+    const list = this.courses();
+    const chips = COURSE_CATEGORIES.map(cat => ({ id: cat.id, label: cat.label, n: list.filter(c => categoryOf(c) === cat.id).length }))
+      .filter(c => c.n > 0);
+    return chips.length > 1 ? [{ id: 'todos', label: 'Todos', n: list.length }, ...chips] : [];
+  });
+  protected readonly visibleCourses = computed(() =>
+    this.category() === 'todos' ? this.courses() : this.courses().filter(c => categoryOf(c) === this.category()));
+
   constructor() {
     this.load();
   }
@@ -43,9 +55,9 @@ export class LandingComponent {
     });
   }
 
-  /** CTA principal: abre el primer curso (o lleva a la lista si aún no cargan). */
+  /** CTA principal: abre el curso de admisión (el del mini simulacro del hero); si no hay, el primero. */
   protected startFirst(): void {
-    const first = this.courses()[0];
+    const first = this.courses().find(c => categoryOf(c) === 'admision') ?? this.courses()[0];
     if (first) void this.start(first.id);
     else document.getElementById('cursos')?.scrollIntoView({ behavior: 'smooth' });
   }

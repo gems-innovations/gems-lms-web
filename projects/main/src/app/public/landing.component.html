@@ -44,8 +44,16 @@
         @if (courses().length === 0) {
           <p class="empty">Muy pronto publicamos los primeros cursos.</p>
         } @else {
+          @if (categories().length) {
+            <div class="cats" role="tablist" aria-label="Categorías de cursos">
+              @for (cat of categories(); track cat.id) {
+                <button type="button" class="cats__chip" role="tab" [attr.aria-selected]="category() === cat.id"
+                        (click)="category.set(cat.id)">{{ cat.label }} <span>{{ cat.n }}</span></button>
+              }
+            </div>
+          }
           <div class="grid" gemsInView (inView)="gridInView.set($event)">
-            @for (c of courses(); track c.id) {
+            @for (c of visibleCourses(); track c.id) {
               <article class="card" gemsTilt>
                 <div class="card__img">
                   @if (c.thumbnailUrl) { <img [src]="c.thumbnailUrl" alt="" loading="lazy" (error)="$any($event.target).remove()" /> }
@@ -140,6 +148,32 @@
       <li><details class="legal__item"><summary>Menores de edad.</summary><p>Si tienes menos de 18 años, crea tu cuenta con el acompañamiento de tu madre, tu padre o tu acudiente.</p></details></li>
     </ul>
     <p>Lee los <a routerLink="/terminos">términos de uso</a> y la <a routerLink="/privacidad">política de privacidad</a>.</p>
+  </section>
+
+  <!-- Invitación a crear: GEMS no es solo para estudiar, también para enseñar lo que uno sabe. -->
+  <section id="crea" class="block reveal" aria-labelledby="crea-title">
+    <div class="block__head">
+      <h2 id="crea-title">¿Sabes algo que otros quieren aprender?</h2>
+      <p>Arma tu propio curso en GEMS: el mismo formato de lecciones cortas, prácticas con explicación y avance de cada estudiante.</p>
+    </div>
+    <div class="crea">
+      <article class="crea__card">
+        <span class="crea__ico" aria-hidden="true">🎓</span>
+        <strong>Profesores y tutores</strong>
+        <p>Pasa tus clases a lecciones de 10 minutos y mira quién va al día y quién necesita ayuda.</p>
+      </article>
+      <article class="crea__card">
+        <span class="crea__ico" aria-hidden="true">🧩</span>
+        <strong>Creadores de contenido</strong>
+        <p>Retos, tests y mini cursos para tu comunidad, con un enlace que pueden abrir sin registrarse.</p>
+      </article>
+      <article class="crea__card">
+        <span class="crea__ico" aria-hidden="true">🏫</span>
+        <strong>Colegios, academias y empresas</strong>
+        <p>Un espacio propio con tus cursos, tu gente, períodos, notas y certificados.</p>
+      </article>
+    </div>
+    <a class="btn btn--primary crea__cta" routerLink="/instituciones">Quiero crear mi curso</a>
   </section>
 
   <section id="preguntas" class="block faq reveal" aria-labelledby="faq-title">
