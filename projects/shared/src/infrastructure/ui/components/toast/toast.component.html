@@ -1,5 +1,5 @@
 @if (isVisible()) {
-  <div class="toast toast--{{ type() }}" [@slideIn]>
+  <div class="toast toast--{{ type() }}" [attr.role]="type() === 'error' ? 'alert' : 'status'">
     <div class="toast__icon"><svg [lucideIcon]="getIcon()" [size]="20" aria-hidden="true"></svg></div>
     <p class="toast__message">{{ message() }}</p>
     <button 

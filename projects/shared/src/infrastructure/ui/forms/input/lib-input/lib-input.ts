@@ -1,6 +1,8 @@
 import { Component, computed, input, model, output, signal } from '@angular/core';
 import { FormValueControl, ValidationError } from '@angular/forms/signals';
 
+let nextInputUid = 0;
+
 export type InputType = 'text' | 'email' | 'url' | 'number' | 'tel' | 'password' | 'color';
 
 const ERROR_FALLBACKS: Record<string, string> = {
@@ -38,8 +40,16 @@ export class LibInputComponent implements FormValueControl<string> {
   readonly min = input<string | undefined>(undefined);
   readonly max = input<string | undefined>(undefined);
   readonly step = input<number | undefined>(undefined);
+  readonly name = input<string>('');
+  readonly autocomplete = input<string | undefined>(undefined);
+  readonly inputmode = input<string | undefined>(undefined);
+  readonly enterkeyhint = input<string | undefined>(undefined);
+  readonly autocapitalize = input<string | undefined>(undefined);
+  readonly spellcheck = input<boolean | undefined>(undefined);
 
   protected readonly focused = signal(false);
+  protected readonly passwordVisible = signal(false);
+  private readonly uid = ++nextInputUid;
 
   protected readonly showError = computed(() => this.touched() && this.errors().length > 0);
 
@@ -49,9 +59,20 @@ export class LibInputComponent implements FormValueControl<string> {
     return first.message ?? ERROR_FALLBACKS[first.kind] ?? 'El valor introducido no es válido.';
   });
 
-  protected readonly inputId = computed(
-    () => `lib-input-${this.label().toLowerCase().replace(/\s+/g, '-')}`
-  );
+  protected readonly inputId = `lib-input-${this.uid}`;
+  protected readonly helpId = `${this.inputId}-help`;
+  protected readonly errorId = `${this.inputId}-error`;
+
+  protected readonly isPassword = computed(() => this.type() === 'password');
+  protected readonly effectiveType = computed(() => (this.isPassword() && this.passwordVisible() ? 'text' : this.type()));
+  protected readonly describedBy = computed(() => {
+    if (this.showError()) return this.errorId;
+    return this.helpText() ? this.helpId : null;
+  });
+
+  protected togglePassword(): void {
+    this.passwordVisible.update(visible => !visible);
+  }
 
   protected onInput(value: string): void {
     this.value.set(value);

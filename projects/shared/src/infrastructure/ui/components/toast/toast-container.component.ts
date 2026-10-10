@@ -7,7 +7,7 @@ import { ToastService } from '../toast/toast.service';
   selector: 'lib-toast-container',
   imports: [ToastComponent],
   template: `
-    <div class="toast-container">
+    <div class="toast-container" aria-live="polite">
       @for (toast of toastService.toasts$(); track toast.id) {
         <lib-toast
           [message]="toast.message"
@@ -22,10 +22,20 @@ import { ToastService } from '../toast/toast.service';
   styles: [`
     .toast-container {
       position: fixed;
-      top: 0;
-      right: 0;
+      top: max(var(--spacing-xl), env(safe-area-inset-top));
+      right: var(--spacing-xl);
       z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      width: min(500px, calc(100vw - 2 * var(--spacing-xl)));
       pointer-events: none;
+
+      @media (max-width: 767px) {
+        right: var(--spacing-lg);
+        left: var(--spacing-lg);
+        width: auto;
+      }
       
       & > * {
         pointer-events: auto;

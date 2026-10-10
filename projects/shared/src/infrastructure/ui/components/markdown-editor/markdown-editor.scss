@@ -159,3 +159,14 @@
     font-size: 0.85rem;
   }
 }
+
+@media (max-width: 640px) {
+  .mde {
+    &__toolbar { flex-direction: column; align-items: stretch; }
+    &__tab { min-height: 44px; padding-inline: 14px; }
+    &__actions { flex-wrap: nowrap; overflow-x: auto; gap: 2px; padding-bottom: 2px; overscroll-behavior-x: contain; }
+    &__btn { flex: 0 0 auto; min-width: 44px; height: 44px; font-size: 0.875rem; }
+    &__divider { display: none; }
+    &__textarea { font-size: 1rem; }
+  }
+}
