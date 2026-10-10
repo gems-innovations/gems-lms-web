@@ -1,0 +1,24 @@
+// Página de retos (puente desde los videos): intro, reto actual e invitación al curso.
+.rintro { padding-block: 40px 20px; max-width: 760px;
+  h1 { margin: 12px 0 10px; font: 800 clamp(30px, 4.6vw, 48px)/1.08 var(--font-titulo); letter-spacing: -.02em; text-wrap: balance; } }
+.rgrid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 28px; align-items: start; padding-bottom: 40px; }
+.mock__q { font-size: var(--font-size-xl, 1.25rem); }
+.rinvita {
+  position: sticky; top: 90px; display: grid; gap: 12px; padding: 22px; border-radius: 18px;
+  background: var(--color-superficie); border: 1px solid var(--color-borde-secundario); box-shadow: var(--sombra-lg);
+  opacity: .55; transition: opacity .3s, border-color .3s, transform .3s;
+  h2 { font-size: 22px; }
+  p { margin: 0; font-size: var(--font-size-sm); color: var(--color-texto-secundario); line-height: 1.55; }
+  &--on { opacity: 1; border-color: var(--color-primario); transform: translateY(-2px); }
+  &__alt { justify-self: center; font-size: var(--font-size-sm); font-weight: 700; color: var(--color-texto-acento); text-decoration: none; }
+}
+.error { margin: 0; font-size: var(--font-size-sm); color: var(--color-error-texto); }
+
+@media (max-width: 860px) {
+  .rintro { padding-block: 24px 12px; }
+  .rgrid { grid-template-columns: 1fr; gap: 18px; }
+  // En el celular la invitación aparece debajo del reto solo cuando ya respondió unos cuantos.
+  .rinvita { position: static; display: none; }
+  .rinvita--on { display: grid; }
+}
+@media (prefers-reduced-motion: reduce) { .rinvita { transition: none; } }

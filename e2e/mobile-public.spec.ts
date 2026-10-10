@@ -33,7 +33,10 @@ for (const phone of PHONES) {
       await expect(page.locator('.card').first()).toBeVisible();
       expect(await page.locator('article.card').count(), 'debe haber al menos 4 cursos').toBeGreaterThanOrEqual(4);
       await expectNoHorizontalScroll(page);
+      // El botón fijo aparece solo cuando ni el botón del hero ni la lista de cursos están a la vista.
+      await page.locator('#por-que').scrollIntoViewIfNeeded();
       await expect(page.locator('.land-cta button')).toBeVisible();
+      await page.evaluate(() => window.scrollTo(0, 0));
 
       // Mini simulacro del hero: responder muestra la explicación.
       await page.locator('gems-hero-quiz .mock__opt').first().tap();
@@ -49,7 +52,11 @@ for (const phone of PHONES) {
       await page.goto('/');
       await page.locator('article.card h3 a').first().tap();
       await expect(page).toHaveURL(/\/cursos\/\d+/);
-      await expect(page.locator('.mobile-cta button')).toBeInViewport();
+      // El botón de empezar está a la vista sin desplazarse (en la ficha o, si queda abajo, fijo en la pantalla).
+      await page.waitForTimeout(800);
+      const fijo = page.locator('.mobile-cta button');
+      if (await fijo.count()) await expect(fijo).toBeInViewport();
+      else await expect(page.locator('.start .btn--primary')).toBeInViewport();
       await expectNoHorizontalScroll(page);
     });
 
