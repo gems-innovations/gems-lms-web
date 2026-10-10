@@ -30,7 +30,10 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay(), withNoIncrementalHydration()),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideMarkdown(),
-    provideServiceWorker('ngsw-worker.js', {
+    // El «?v=» cambia la URL del worker para que los navegadores que ya lo tenían instalado lo reemplacen:
+    // el archivo no cambia entre despliegues y el viejo conservaba un connect-src que bloqueaba las portadas.
+    // Súbelo si algún día cambian las cabeceras con que se sirve el worker.
+    provideServiceWorker('ngsw-worker.js?v=2', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'
     }),
