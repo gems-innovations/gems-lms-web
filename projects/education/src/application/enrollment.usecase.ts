@@ -119,11 +119,6 @@ export class EnrollmentUseCase {
           this.state.addQuizAttempt(attempt);
           this._lastQuizResult.set(attempt);
           this._isSubmitting.set(false);
-          if (attempt.passed) {
-            this.toastService.success(`¡Aprobado! Puntuación: ${attempt.score}%`);
-          } else {
-            this.toastService.error(`No aprobado (${attempt.score}%). Sigue intentando.`);
-          }
         }),
         catchError(err => {
           this._isSubmitting.set(false);

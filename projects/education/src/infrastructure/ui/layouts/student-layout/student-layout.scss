@@ -27,20 +27,20 @@ $nav-closed:  60px;
     }
 
     &--collapsed {
-      width: $nav-closed;
-
-      .slayout__brand         { justify-content: center; padding: 0; height: 60px; }
-      .slayout__brand-name,
-      .slayout__brand-text    { display: none; }
-      .slayout__navlink       { justify-content: center; padding: 10px 0; }
-      .slayout__navlink-label { display: none; }
-      .slayout__lock          { position: absolute; top: 4px; right: 10px; margin: 0; }
-      .slayout__user          { justify-content: center; padding: 10px 0; }
-      .slayout__user-info     { display: none; }
-      .slayout__profile-btn,
-      .slayout__signout-btn   { display: none; }
-
       @media (min-width: 641px) {
+        width: $nav-closed;
+
+        .slayout__brand         { justify-content: center; padding: 0; height: 60px; }
+        .slayout__brand-name,
+        .slayout__brand-text    { display: none; }
+        .slayout__navlink       { justify-content: center; padding: 10px 0; }
+        .slayout__navlink-label { display: none; }
+        .slayout__lock          { position: absolute; top: 4px; right: 10px; margin: 0; }
+        .slayout__user          { justify-content: center; padding: 10px 0; }
+        .slayout__user-info     { display: none; }
+        .slayout__profile-btn,
+        .slayout__signout-btn   { display: none; }
+
         .slayout__user edu-notification-bell { display: none; }
       }
     }
@@ -167,6 +167,7 @@ $nav-closed:  60px;
   &__navlink-label { /* visible by default, hidden via collapsed modifier */ }
   &__lock { flex-shrink: 0; margin-left: auto; opacity: .55; }
   &__profile-btn { position: relative; }
+  &__profile-label, &__navlink-short { display: none; }
   &__lock--badge { position: absolute; top: 0; right: 0; margin: 0; }
 
   &__divider {
@@ -342,8 +343,10 @@ $nav-closed:  60px;
   .slayout__navlink-label,
   .slayout__user-info,
   .slayout__toggle-btn { display: none; }
-  .slayout__navlink { justify-content: center; padding: 10px 0; position: relative; }
+  .slayout__navlink { justify-content: center; padding: 10px 0; position: relative; min-width: 44px; }
   .slayout__lock { position: absolute; top: 4px; right: 10px; margin: 0; }
+  .slayout__profile-btn svg:not(.slayout__lock) { width: 16px; height: 16px; }
+  .slayout__lock--badge { width: 16px; height: 16px; opacity: .7; }
   .slayout__user { flex-direction: column; padding: 10px 0; }
   .slayout__profile-btn,
   .slayout__signout-btn { display: grid; width: 44px; height: 44px; }
@@ -364,8 +367,18 @@ $nav-closed:  60px;
   }
   .slayout__brand, .slayout__divider, .slayout__toggle-btn, .slayout__user lib-avatar { display: none !important; }
   .slayout__navlinks { display: contents; }
-  .slayout__navlink { flex: 1; justify-content: center; min-height: 48px; padding: 0 !important; }
+  .slayout__navlink {
+    flex: 1; flex-direction: column; justify-content: center; gap: 3px; min-height: 48px; padding: 0 !important; min-width: 0;
+    &::before { content: ''; position: absolute; top: 0; left: 25%; right: 25%; height: 3px; border-radius: 0 0 3px 3px; background: transparent; }
+  }
+  .slayout__navlink--active { background: transparent; color: var(--color-primario); &::before { background: var(--color-primario); } }
+  .slayout__navlink-label, .slayout__profile-label { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; line-height: 1.1; }
+  .slayout__navlink-label--full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .slayout__lock { top: 3px; right: 6px; }
+  .slayout__navlink-short { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; line-height: 1.1; }
+  .slayout__signout-btn { display: none; }
   .slayout__user { display: contents; }
-  .slayout__profile-btn, .slayout__signout-btn { flex: 1; display: grid; place-items: center; width: auto; height: 48px; }
+  .slayout__profile-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: auto; height: 48px; min-width: 0; }
+  .slayout__user edu-notification-bell { flex: 1; display: flex; justify-content: center; min-width: 0; }
   .slayout__main { order: 1; flex: 1; min-height: 0; }
 }

@@ -1,6 +1,6 @@
 <div class="nbell" [class.nbell--left]="align() === 'left'" [class.nbell--up]="up()" [class.nbell--footer]="footer()">
-  <button type="button" class="nbell__button" (click)="toggle()"
-          [attr.aria-expanded]="open()" aria-label="Notificaciones" title="Notificaciones">
+  <button #trigger type="button" class="nbell__button" (click)="toggle()"
+          [attr.aria-expanded]="open()" aria-haspopup="dialog" aria-label="Notificaciones" title="Notificaciones">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
       <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
       <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -11,13 +11,14 @@
   </button>
 
   @if (open()) {
-    <div class="nbell__backdrop" (click)="toggle()"></div>
+    <div class="nbell__backdrop" (click)="close()"></div>
     <div class="nbell__panel" role="dialog" aria-label="Notificaciones">
       <header class="nbell__header">
         <span class="nbell__title">Notificaciones</span>
         @if (service.unreadCount() > 0) {
           <button type="button" class="nbell__link" (click)="service.markAllRead()">Marcar todo como leído</button>
         }
+        <button type="button" class="nbell__close" aria-label="Cerrar notificaciones" (click)="close()">×</button>
       </header>
       @if (service.notifications().length === 0) {
         <p class="nbell__empty">No tienes notificaciones.</p>

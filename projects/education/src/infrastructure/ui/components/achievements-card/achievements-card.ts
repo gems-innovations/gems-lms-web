@@ -56,6 +56,15 @@ export class AchievementsCard implements OnInit {
     });
   }
 
+  protected readonly streakTip = 'Racha: días seguidos en los que aprendiste algo. Mantenerla te ayuda a crear el hábito y desbloquea insignias a los 3, 7 y 30 días.';
+  protected readonly levelTip = 'Nivel: sube cada vez que acumulas más puntos. Muestra cuánto has avanzado aprendiendo.';
+  protected readonly xpTip = 'Puntos: ganas 5 por cada día que aprendes, 20 por aprobar un quiz (+10 si sacas 100), 15 por entregar una tarea y 100 por terminar un curso. Con ellos subes de nivel.';
+  protected readonly badgesTip = 'Insignias: reconocimientos por tus logros, como aprobar tu primer quiz, terminar un curso o aprender varios días seguidos. Quedan en tu perfil como muestra de tu constancia.';
+
+  protected weekTip(goal: number): string {
+    return `Meta semanal: aprende al menos ${goal} días en la semana para cumplirla y ganar su insignia.`;
+  }
+
   protected readonly profile = this.service.profile;
   protected readonly icons = BADGE_ICONS;
 

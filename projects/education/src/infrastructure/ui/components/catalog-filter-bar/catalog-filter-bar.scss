@@ -241,3 +241,35 @@
     &:hover { opacity: 1; }
   }
 }
+
+.catalog-filter-bar__apply { display: none; }
+.catalog-filter-bar__btn-label { display: inline; }
+
+// Celular: panel a todo el ancho de la barra, opciones de 48px y botón para cerrar; el botón de filtros queda solo con icono.
+@media (max-width: 640px) {
+  :host { position: relative; }
+  .catalog-filter-bar__dropdown-wrap { flex: 0 0 auto; min-width: 0; position: static; }
+  .catalog-filter-bar__btn { min-width: 48px; min-height: 48px; padding-inline: var(--spacing-md); position: relative; }
+  .catalog-filter-bar__btn-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .catalog-filter-bar__badge { position: absolute; top: 4px; right: 4px; }
+  .catalog-filter-bar__search { min-height: 48px; padding: 0; font-size: 1rem; }
+  .catalog-filter-bar__panel { left: 0; right: 0; min-width: 0; top: calc(100% + 6px); max-height: calc(100dvh - 58px - env(safe-area-inset-bottom, 0px) - 6rem); overflow-y: auto; overscroll-behavior: contain; }
+  .catalog-filter-bar__clear { min-height: 44px; padding: 0 var(--spacing-sm); font-size: var(--font-size-sm); }
+  .catalog-filter-bar__opt { min-height: 48px; padding: 0 var(--spacing-md); }
+  .catalog-filter-bar__apply {
+    display: block;
+    position: sticky;
+    bottom: 0;
+    flex-shrink: 0;
+    min-height: 44px;
+    border: 0;
+    border-radius: var(--border-radius-md);
+    background: var(--color-primario-accion);
+    color: var(--color-sobre-primario);
+    font: inherit;
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+  }
+  .catalog-filter-bar__chip { min-height: 32px; font-size: 0.75rem; }
+  .catalog-filter-bar__chip button { min-width: 32px; min-height: 32px; }
+}

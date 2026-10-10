@@ -87,12 +87,25 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
       case EContentType.DOCUMENT: return this.readingRemaining() > 0
         ? `Todavía no: te faltan ${this.readingClock()} de lectura para habilitar el siguiente paso.`
         : 'Un momento, estamos guardando tu lectura…';
-      case EContentType.QUIZ: return 'Para seguir, responde y entrega este quiz.';
+      case EContentType.QUIZ: return this.quizNudgeText();
       case EContentType.VIDEO: return 'Para seguir, termina de ver el video.';
       case EContentType.ASSIGNMENT: return 'Para seguir, envía la tarea.';
       default: return 'Termina este paso para seguir.';
     }
   });
+
+  private quizNudgeText(): string {
+    return `Para seguir, responde y entrega este quiz. ${this.quizPassAndAttempts()}`;
+  }
+
+  private quizPassAndAttempts(): string {
+    const passing = this.block()?.passingScore ?? 60;
+    const left = this.quizAttemptsLeft();
+    const attempts = left === Infinity ? '' : left === 0 ? ' Ya no te quedan intentos.' : left === 1 ? ' Te queda 1 intento.' : ` Te quedan ${left} intentos.`;
+    return `Necesitas al menos ${passing}% para aprobarlo.${attempts}`;
+  }
+
+  protected readonly quizFailHint = computed(() => this.quizPassAndAttempts());
 
   protected readonly EContentType = EContentType;
 
@@ -250,7 +263,7 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
       if (this.nudge() <= 0) return;
       this.nudged.set(true);
       if (this._nudgeTimeout) clearTimeout(this._nudgeTimeout);
-      this._nudgeTimeout = setTimeout(() => this.nudged.set(false), 4000);
+      this._nudgeTimeout = setTimeout(() => this.nudged.set(false), 8000);
       setTimeout(() => document.querySelector('.pcb-gate, .pcb-nudge')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
     });
 

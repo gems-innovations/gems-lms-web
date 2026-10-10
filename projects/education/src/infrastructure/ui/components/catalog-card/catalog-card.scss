@@ -259,6 +259,10 @@
   .catalog-card__btn { height: 44px; min-width: 44px; }
 }
 
+@media (max-width: 640px) {
+  .catalog-card__thumb--empty { height: 72px; }
+}
+
 // Celular: piso de 12px para texto informativo.
 @media (max-width: 768px) {
   .catalog-card__tag { font-size: 0.75rem; }

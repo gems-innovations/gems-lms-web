@@ -18,14 +18,14 @@
       <div class="sgrades__summary-card">
         <span class="sgrades__summary-label">Nota actual</span>
         <strong class="sgrades__summary-value {{ gradeClass(row()!.currentGrade) }}">
-          {{ row()!.currentGrade != null ? (row()!.currentGrade | number:'1.0-1') : '—' }}
+          {{ row()!.currentGrade != null ? (row()!.currentGrade | number:'1.0-1') : '—' }}@if (row()!.currentGrade != null) {<span class="sgrades__summary-scale"> / 100</span>}
         </strong>
         <span class="sgrades__summary-hint">Promedio ponderado de lo ya calificado</span>
       </div>
       <div class="sgrades__summary-card">
         <span class="sgrades__summary-label">Nota final proyectada</span>
         <strong class="sgrades__summary-value {{ gradeClass(row()!.finalGrade) }}">
-          {{ row()!.finalGrade != null ? (row()!.finalGrade | number:'1.0-1') : '—' }}
+          {{ row()!.finalGrade != null ? (row()!.finalGrade | number:'1.0-1') : '—' }}@if (row()!.finalGrade != null) {<span class="sgrades__summary-scale"> / 100</span>}
         </strong>
         <span class="sgrades__summary-hint">Lo pendiente cuenta como 0</span>
       </div>

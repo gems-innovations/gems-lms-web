@@ -72,12 +72,12 @@
               </svg>
               Ya estás inscrito
             </span>
-            <button type="button" class="preview-hero__cta preview-hero__cta--secondary" (click)="play.emit()">
+            <button #heroCta type="button" class="preview-hero__cta preview-hero__cta--secondary" (click)="play.emit()">
               {{ ctaLabel() }}
             </button>
           </div>
         } @else {
-          <button type="button" class="preview-hero__cta" [disabled]="!!blockedReason()" (click)="enroll.emit()">
+          <button #heroCta type="button" class="preview-hero__cta" [disabled]="!!blockedReason()" (click)="enroll.emit()">
             @if (!isFree()) {
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
@@ -113,7 +113,7 @@
 </div>
 
 <!-- Celular: la acción principal queda fija abajo, como en la ficha pública del curso. -->
-@if (isEnrolled() || !blockedReason()) {
+@if (showMobileCta()) {
   <div class="preview-hero__mobile-cta">
     <button type="button" class="preview-hero__cta preview-hero__cta--block" (click)="isEnrolled() ? play.emit() : enroll.emit()">
       {{ ctaLabel() }}

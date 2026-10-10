@@ -206,7 +206,7 @@
   // Tarjeta de resumen compacta: sin el anillo grande y con las cifras en una fila.
   .shero__card { padding: 1rem 1rem 0.875rem; }
   .shero__card-header { margin-bottom: 0.75rem; }
-  .shero__ring-wrap { display: none; }
+  .shero__ring-wrap, .shero__ring-caption { display: none; }
   .shero__stats { display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.5rem 1rem; }
 }
 
@@ -339,4 +339,11 @@
 // Celular: piso de 12px para texto informativo.
 @media (max-width: 768px) {
   .shero__card-header { font-size: 0.75rem; }
+}
+
+.shero__ring-caption {
+  margin: 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--color-texto-terciario);
 }

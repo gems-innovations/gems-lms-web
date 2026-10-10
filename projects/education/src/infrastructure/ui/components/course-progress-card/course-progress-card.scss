@@ -77,6 +77,8 @@
   letter-spacing: 0.06em;
   border-radius: 100px;
   backdrop-filter: blur(8px);
+  white-space: nowrap;
+  max-width: calc(100% - 1.25rem);
   z-index: 1;
 
   // Sobre la miniatura el fondo es siempre oscuro: el texto va claro en ambos temas.
@@ -194,6 +196,8 @@
 @media (max-width: 480px) {
   .cpcard__thumb { width: 104px; }
   .cpcard__body { padding: 0.875rem 0.875rem 0.875rem 0.75rem; }
+  .cpcard__badge { top: 0.5rem; left: 0.5rem; padding: 0.15rem 0.5rem; text-transform: none; letter-spacing: 0; }
+  .cpcard__meta { white-space: normal; @include v.line-clamp(2); }
   .cpcard__footer { flex-wrap: wrap; row-gap: 0.375rem; }
   .cpcard__last-access { white-space: normal; overflow: visible; text-overflow: clip; }
 }
