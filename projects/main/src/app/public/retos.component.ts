@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PublicHeaderComponent } from './public-header.component';
 import { PublicFooterComponent } from './public-footer.component';
 import { PublicCatalogService } from './public-catalog.service';
@@ -13,6 +13,7 @@ const INVITAR_DESDE = 3;
 /**
  * Página puente de los videos de retos («Piénsala Bien» y similares): los acertijos con su explicación,
  * uno detrás de otro. Tras unos cuantos aparece la invitación al curso gratis de razonamiento.
+ * Cada video enlaza con `/retos?r=<id>`: ese acertijo sale primero y luego siguen los demás en su orden.
  */
 @Component({
   selector: 'gems-retos',
@@ -79,12 +80,14 @@ export class RetosComponent {
   private readonly catalog = inject(PublicCatalogService);
   protected readonly starter = inject(CourseStarterService);
 
-  protected readonly total = RETOS.length;
+  /** El acertijo del video (si viene en el enlace) va primero; un id desconocido deja el orden normal. */
+  private readonly lista = ordenar(inject(ActivatedRoute).snapshot.queryParamMap.get('r'));
+  protected readonly total = this.lista.length;
   protected readonly i = signal(0);
   protected readonly elegida = signal<number | null>(null);
   protected readonly respondidos = signal(0);
   protected readonly aciertos = signal(0);
-  protected readonly reto = computed(() => RETOS[this.i()]);
+  protected readonly reto = computed(() => this.lista[this.i()]);
   protected readonly fin = computed(() => this.i() + 1 === this.total && this.elegida() !== null);
   protected readonly invitar = computed(() => this.respondidos() >= INVITAR_DESDE);
   protected readonly error = signal<string | null>(null);
@@ -114,4 +117,9 @@ export class RetosComponent {
     if (!id) return;
     this.error.set(await this.starter.start(id));
   }
+}
+
+function ordenar(id: string | null) {
+  const k = RETOS.findIndex(r => r.id === id);
+  return k < 0 ? RETOS : [RETOS[k], ...RETOS.filter((_, j) => j !== k)];
 }
