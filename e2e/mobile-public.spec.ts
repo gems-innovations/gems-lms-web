@@ -24,13 +24,19 @@ async function smallTapTargets(page: Page, scope: string) {
     .map(e => `${(e.textContent ?? '').trim().slice(0, 30)} (${Math.round(e.getBoundingClientRect().height)}px)`), scope);
 }
 
+// Las pruebas no deben contar como visitas en GoatCounter (también se corren contra producción).
+test.beforeEach(async ({ page }) => {
+  await page.route(/goatcounter\.com|gc\.zgo\.at/, route => route.abort());
+});
+
 for (const phone of PHONES) {
   test.describe(`Celular · ${phone.name}`, () => {
     test.use({ viewport: { width: phone.width, height: phone.height }, isMobile: true, hasTouch: true });
 
     test('landing: cursos, mini simulacro y botón fijo', async ({ page }) => {
       await page.goto('/');
-      await expect(page.locator('.card').first()).toBeVisible();
+      // Espera las tarjetas reales (los placeholders de carga también usan .card).
+      await expect(page.locator('article.card').first()).toBeVisible();
       expect(await page.locator('article.card').count(), 'debe haber al menos 4 cursos').toBeGreaterThanOrEqual(4);
       await expectNoHorizontalScroll(page);
       // El botón fijo aparece solo cuando ni el botón del hero ni la lista de cursos están a la vista.
