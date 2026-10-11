@@ -94,6 +94,25 @@ export const RETOS: IReto[] = [
   { id: 'cumple', tag: 'Lógica', q: 'Anteayer yo tenía 25 años y el próximo año cumpliré 28. ¿Qué día es hoy?',
     options: ['31 de diciembre', '1 de enero', '30 de diciembre', 'Es imposible'], answer: 1,
     why: '1 de enero. Cumple el 31 de diciembre: anteayer tenía 25, el 31 cumplió 26, este año cumple 27 y el próximo, 28.' },
+  // Videos de GEMS con la misma fórmula (12–14 oct).
+  { id: 'medias', tag: 'Lógica', q: 'En un cajón oscuro hay 10 medias negras y 10 blancas. ¿Cuántas sacas, como mínimo, para asegurar un par del mismo color?',
+    options: ['2', '3', '11', '20'], answer: 1,
+    why: '3. Solo hay dos colores: si las dos primeras no coinciden, la tercera hace pareja con una de ellas.' },
+  { id: 'avion', tag: 'Trampa rápida', q: 'Un avión se cae justo en la frontera entre Colombia y Venezuela. ¿En qué país entierran a los sobrevivientes?',
+    options: ['Colombia', 'Venezuela', 'En los dos', 'En ninguno'], answer: 3,
+    why: 'En ninguno. A los sobrevivientes no se les entierra: siguen vivos.' },
+  { id: 'reloj', tag: 'Razonamiento de examen', q: 'Un reloj da 6 campanadas en 5 segundos. ¿Cuánto tarda en dar 12 campanadas?',
+    options: ['10 s', '11 s', '12 s', '6 s'], answer: 1,
+    why: '11 segundos. Entre 6 campanadas hay 5 espacios de 1 segundo; entre 12 hay 11.' },
+  { id: 'maria', tag: 'Trampa rápida', q: 'El papá de María tiene 5 hijas: Nana, Nene, Nini y Nono. ¿Cómo se llama la quinta?',
+    options: ['Nunu', 'María', 'Nena', 'No se sabe'], answer: 1,
+    why: 'María. Lo dice la primera frase: es el papá de María, así que ella es la quinta hija.' },
+  { id: 'gallinas', tag: 'Razonamiento de examen', q: 'Si 3 gallinas ponen 3 huevos en 3 días, ¿cuántos huevos ponen 6 gallinas en 6 días?',
+    options: ['6', '12', '9', '36'], answer: 1,
+    why: '12. Cada gallina pone 1 huevo cada 3 días; en 6 días cada una pone 2: 6 × 2 = 12.' },
+  { id: 'tren', tag: 'Trampa rápida', q: 'Un tren eléctrico va hacia el norte y el viento sopla hacia el sur. ¿Hacia dónde va el humo?',
+    options: ['Al norte', 'Al sur', 'Hacia arriba', 'No hay humo'], answer: 3,
+    why: 'No hay humo. El tren es eléctrico: no quema nada, así que no echa humo.' },
 ];
 
 /**
