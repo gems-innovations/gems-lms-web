@@ -10,8 +10,13 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure'
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  webServer: {
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    // iPhone con el motor de Safari: el 40 % de las visitas reales llega desde iOS. Corre en Linux (CI); en Windows le falta libxml2.
+    { name: 'iphone-webkit', testMatch: /mobile-public\.spec\.ts/, use: { ...devices['iPhone 13'] } },
+  ],
+  // Con E2E_BASE_URL (p. ej. producción) no se levanta el servidor local.
+  webServer: process.env.E2E_BASE_URL ? undefined : {
     command: 'npx ng serve main --host localhost --port 4200',
     url: 'http://localhost:4200/auth/signin',
     reuseExistingServer: !process.env.CI,
