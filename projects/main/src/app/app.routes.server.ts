@@ -19,6 +19,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'cursos/:id',           renderMode: RenderMode.Server },
   { path: 'instituciones',        renderMode: RenderMode.Server },
   { path: 'retos',                renderMode: RenderMode.Server },
+  { path: 'bloques',              renderMode: RenderMode.Server },
   { path: 'terminos',             renderMode: RenderMode.Server },
   { path: 'privacidad',           renderMode: RenderMode.Server },
   { path: 'solicitudes',          renderMode: RenderMode.Client },

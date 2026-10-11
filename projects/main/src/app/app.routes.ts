@@ -25,6 +25,12 @@ export const routes: Routes = [
     loadComponent: () => import('./public/retos.component').then(m => m.RetosComponent)
   },
   {
+    path: 'bloques',
+    title: 'Quiz de Bloques: preguntas del juego con su explicación',
+    data: { set: 'bloques' },
+    loadComponent: () => import('./public/retos.component').then(m => m.RetosComponent)
+  },
+  {
     path: 'instituciones',
     title: 'GEMS para tu institución',
     loadComponent: () => import('./public/institutions.component').then(m => m.InstitutionsComponent)

@@ -5,7 +5,7 @@ import { PublicFooterComponent } from './public-footer.component';
 import { PublicCatalogService } from './public-catalog.service';
 import { CourseStarterService } from './course-starter.service';
 import { pop } from './micro-effects';
-import { RETOS } from './retos.data';
+import { IReto, RETO_SETS } from './retos.data';
 
 /** Después de cuántos retos respondidos aparece la invitación al curso (y se queda visible). */
 const INVITAR_DESDE = 3;
@@ -22,9 +22,9 @@ const INVITAR_DESDE = 3;
     <gems-public-header />
     <main class="pub">
       <section class="rintro">
-        <span class="eyebrow">Retos de lógica · gratis</span>
-        <h1>Los retos, <span class="hl">con su explicación</span></h1>
-        <p class="lead">Los acertijos de los videos y otros más. Respóndelos aquí y mira por qué la respuesta es esa. Sin registro.</p>
+        <span class="eyebrow">{{ set.eyebrow }}</span>
+        <h1>{{ set.title }} <span class="hl">{{ set.highlight }}</span></h1>
+        <p class="lead">{{ set.lead }}</p>
       </section>
 
       <div class="rgrid">
@@ -60,9 +60,9 @@ const INVITAR_DESDE = 3;
         </div>
 
         <aside class="rinvita" [class.rinvita--on]="invitar()" aria-labelledby="rinvita-t">
-          <span class="eyebrow">Para los que piensan bien</span>
-          <h2 id="rinvita-t">Sigue con el curso de casos y acertijos</h2>
-          <p>Un curso gratis con los trucos para pensar como detective, más retos explicados y un reto final. Sin registro.</p>
+          <span class="eyebrow">{{ set.inviteEyebrow }}</span>
+          <h2 id="rinvita-t">{{ set.inviteTitle }}</h2>
+          <p>{{ set.inviteText }}</p>
           @if (error(); as e) { <p class="error" role="alert">{{ e }}</p> }
           <button type="button" class="btn btn--primary btn--block" [disabled]="starter.starting() !== null || !cursoId()" (click)="empezarCurso()">
             {{ starter.starting() !== null ? 'Entrando…' : 'Empezar gratis, sin registro' }}
@@ -80,8 +80,11 @@ export class RetosComponent {
   private readonly catalog = inject(PublicCatalogService);
   protected readonly starter = inject(CourseStarterService);
 
-  /** El acertijo del video (si viene en el enlace) va primero; un id desconocido deja el orden normal. */
-  private readonly lista = ordenar(inject(ActivatedRoute).snapshot.queryParamMap.get('r'));
+  private readonly route = inject(ActivatedRoute).snapshot;
+  /** Juego de retos de la ruta (/retos = lógica, /bloques = Quiz de Bloques). */
+  protected readonly set = RETO_SETS[this.route.data['set'] as string] ?? RETO_SETS['logica'];
+  /** El reto del video (si viene en el enlace) va primero; un id desconocido deja el orden normal. */
+  private readonly lista = ordenar(this.set.items, this.route.queryParamMap.get('r'));
   protected readonly total = this.lista.length;
   protected readonly i = signal(0);
   protected readonly elegida = signal<number | null>(null);
@@ -119,7 +122,7 @@ export class RetosComponent {
   }
 }
 
-function ordenar(id: string | null) {
-  const k = RETOS.findIndex(r => r.id === id);
-  return k < 0 ? RETOS : [RETOS[k], ...RETOS.filter((_, j) => j !== k)];
+function ordenar(items: IReto[], id: string | null): IReto[] {
+  const k = items.findIndex(r => r.id === id);
+  return k < 0 ? items : [items[k], ...items.filter((_, j) => j !== k)];
 }

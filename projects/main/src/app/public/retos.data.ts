@@ -52,3 +52,69 @@ export const RETOS: IReto[] = [
     options: ['36', '40', '42', '44'], answer: 2,
     why: '42. Las diferencias crecen de 2 en 2 (+4, +6, +8, +10, +12). También es n × (n + 1): 6 × 7 = 42.' },
 ];
+
+/**
+ * Quiz de Bloques: preguntas de un juego de bloques y supervivencia, con cálculo y lógica.
+ * Los ids son los de los videos del canal (enlaces /bloques?r=<id>). Datos válidos en Java y Bedrock.
+ */
+export const BLOQUES: IReto[] = [
+  { id: 'portal', tag: 'Dato del juego', q: '¿Cuántos bloques de obsidiana necesitas, como mínimo, para un portal al Nether que funcione?',
+    options: ['14', '12', '10', '8'], answer: 2,
+    why: 'Diez. El marco de 4 × 5 lleva 14 con las esquinas, pero las 4 esquinas no hacen falta para que el portal se encienda.' },
+  { id: 'golem', tag: 'Cálculo', q: 'Un gólem de hierro se arma con 4 bloques de hierro. ¿Cuántos lingotes gastas en total?',
+    options: ['4', '16', '27', '36'], answer: 3,
+    why: '36. Cada bloque de hierro son 9 lingotes: 4 × 9 = 36. Y le falta la calabaza en la cabeza.' },
+  { id: 'cofre', tag: 'Cálculo', q: 'Un cofre grande tiene 54 espacios. Si llenas cada uno con 64 bloques, ¿cuántos bloques caben?',
+    options: ['2.560', '3.240', '3.456', '6.912'], answer: 2,
+    why: '3.456. Son 54 × 64: 50 × 64 = 3.200 y 4 × 64 = 256; en total 3.456.' },
+  { id: 'dia', tag: 'Dato del juego', q: '¿Cuánto dura en la vida real un día completo del juego, con su noche?',
+    options: ['10 minutos', '20 minutos', '24 minutos', '1 hora'], answer: 1,
+    why: '20 minutos: unos 10 de día, 7 de noche y el resto entre el amanecer y el atardecer.' },
+  { id: 'creeper', tag: 'Dato del juego', q: '¿De qué animal huyen los creepers?',
+    options: ['Del lobo', 'Del gato', 'Del cerdo', 'Del murciélago'], answer: 1,
+    why: 'Del gato (y del ocelote). Por eso tener gatos cerca de la casa la protege de explosiones.' },
+  { id: 'perlas', tag: 'Dato del juego', q: '¿Cuántas perlas de ender caben en un solo espacio del inventario?',
+    options: ['64', '32', '16', '1'], answer: 2,
+    why: '16. Igual que los huevos y los letreros; la mayoría de bloques sí llega a 64.' },
+  { id: 'tronco', tag: 'Cálculo', q: 'De un tronco salen 4 tablones. ¿Cuántos troncos necesitas para 2 mesas de crafteo y un cofre?',
+    options: ['3', '4', '5', '6'], answer: 1,
+    why: 'Cuatro. Cada mesa lleva 4 tablones y el cofre 8: 4 + 4 + 8 = 16 tablones, y 16 ÷ 4 = 4 troncos.' },
+  { id: 'armadura', tag: 'Cálculo', q: 'Casco 5, peto 8, pantalones 7 y botas 4 lingotes. ¿Cuántos lingotes de hierro cuesta la armadura completa?',
+    options: ['20', '22', '24', '26'], answer: 2,
+    why: '24. Se suman las cuatro piezas: 5 + 8 + 7 + 4 = 24.' },
+  { id: 'carbon', tag: 'Dato del juego', q: '¿Cuántos objetos alcanza a cocinar un solo carbón en el horno?',
+    options: ['1', '4', '8', '16'], answer: 2,
+    why: 'Ocho. Un bloque de carbón, que son 9 carbones, cocina 80: rinde un poco más.' },
+  { id: 'diamantes', tag: 'Lógica', q: 'Steve tiene más diamantes que Alex, y Alex tiene más que Sofi. ¿Quién tiene menos?',
+    options: ['Steve', 'Alex', 'Sofi', 'No se sabe'], answer: 2,
+    why: 'Sofi. Si Steve tiene más que Alex y Alex más que Sofi, Sofi es la que menos tiene. Este tipo de pregunta sale en los exámenes de admisión.' },
+];
+
+/** Cada juego de retos con sus textos: la misma página sirve para varios canales. */
+export interface IRetoSet {
+  eyebrow: string;
+  title: string;
+  highlight: string;
+  lead: string;
+  inviteEyebrow: string;
+  inviteTitle: string;
+  inviteText: string;
+  items: IReto[];
+}
+
+export const RETO_SETS: Record<string, IRetoSet> = {
+  logica: {
+    eyebrow: 'Retos de lógica · gratis', title: 'Los retos,', highlight: 'con su explicación',
+    lead: 'Los acertijos de los videos y otros más. Respóndelos aquí y mira por qué la respuesta es esa. Sin registro.',
+    inviteEyebrow: 'Para los que piensan bien', inviteTitle: 'Sigue con el curso de casos y acertijos',
+    inviteText: 'Un curso gratis con los trucos para pensar como detective, más retos explicados y un reto final. Sin registro.',
+    items: RETOS,
+  },
+  bloques: {
+    eyebrow: 'Quiz de Bloques · gratis', title: 'El quiz,', highlight: 'con su explicación',
+    lead: 'Las preguntas de los videos y otras más: datos del juego, cuentas rápidas y lógica. Responde y mira por qué. Sin registro.',
+    inviteEyebrow: 'Si te fue bien', inviteTitle: 'Entrena tu lógica con más retos',
+    inviteText: 'Un curso gratis de casos y acertijos, con trucos para pensar mejor y un reto final. Sin registro.',
+    items: BLOQUES,
+  },
+};
