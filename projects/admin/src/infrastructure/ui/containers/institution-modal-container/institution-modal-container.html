@@ -50,8 +50,37 @@
 
   <div footer class="modal-actions">
     <lib-button variant="secondary" size="md" (clicked)="close()">Cerrar</lib-button>
+    <lib-button variant="secondary" size="md" (clicked)="openAdmin()">Crear administrador</lib-button>
     <lib-button variant="primary" size="md" (clicked)="onEditFromView()">Editar Institución</lib-button>
   </div>
+</lib-modal-base>
+
+<!-- CREAR ADMINISTRADOR -->
+<lib-modal-base
+  [isOpen]="adminOpen()"
+  title="Crear administrador"
+  [subtitle]="uc.institutionForModal()?.name ?? ''"
+  [size]="'small'"
+  [showFooter]="false"
+  [closeOnOverlayClick]="!adminBusy()"
+  (close)="closeAdmin()"
+>
+  @if (adminResult(); as r) {
+    <p>Administrador creado. Entra con estos datos y cambia la clave al ingresar:</p>
+    <p><strong>Correo:</strong> {{ r.email }}<br><strong>Clave temporal:</strong> <code>{{ r.password }}</code></p>
+    <lib-button variant="primary" size="md" (clicked)="closeAdmin()">Listo</lib-button>
+  } @else {
+    <form (ngSubmit)="createAdmin()" style="display:flex;flex-direction:column;gap:.75rem">
+      <input name="fn" [(ngModel)]="adminForm.firstName" placeholder="Nombre" class="form-control" autocomplete="off">
+      <input name="ln" [(ngModel)]="adminForm.lastName" placeholder="Apellido" class="form-control" autocomplete="off">
+      <input name="em" [(ngModel)]="adminForm.email" type="email" placeholder="Correo" class="form-control" autocomplete="off">
+      @if (adminError()) { <p role="alert" style="color:#e5484d;margin:0">{{ adminError() }}</p> }
+      <div class="modal-actions">
+        <lib-button variant="secondary" size="md" (clicked)="closeAdmin()">Cancelar</lib-button>
+        <lib-button variant="primary" size="md" (clicked)="createAdmin()">{{ adminBusy() ? 'Creando...' : 'Crear administrador' }}</lib-button>
+      </div>
+    </form>
+  }
 </lib-modal-base>
 
 <!-- DELETE -->
