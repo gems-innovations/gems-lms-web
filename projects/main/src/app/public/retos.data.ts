@@ -120,7 +120,7 @@ export const RETOS: IReto[] = [
  * Los ids son los de los videos del canal (enlaces /bloques?r=<id>). Datos válidos en Java y Bedrock.
  */
 export const BLOQUES: IReto[] = [
-  { id: 'portal', tag: 'Dato del juego', q: '¿Cuántos bloques de obsidiana necesitas, como mínimo, para un portal al Nether que funcione?',
+  { id: 'portal', tag: 'Nether y End', q: '¿Cuántos bloques de obsidiana necesitas, como mínimo, para un portal al Nether que funcione?',
     options: ['14', '12', '10', '8'], answer: 2,
     why: 'Diez. El marco de 4 × 5 lleva 14 con las esquinas, pero las 4 esquinas no hacen falta para que el portal se encienda.' },
   { id: 'golem', tag: 'Cálculo', q: 'Un gólem de hierro se arma con 4 bloques de hierro. ¿Cuántos lingotes gastas en total?',
@@ -129,13 +129,13 @@ export const BLOQUES: IReto[] = [
   { id: 'cofre', tag: 'Cálculo', q: 'Un cofre grande tiene 54 espacios. Si llenas cada uno con 64 bloques, ¿cuántos bloques caben?',
     options: ['2.560', '3.240', '3.456', '6.912'], answer: 2,
     why: '3.456. Son 54 × 64: 50 × 64 = 3.200 y 4 × 64 = 256; en total 3.456.' },
-  { id: 'dia', tag: 'Dato del juego', q: '¿Cuánto dura en la vida real un día completo del juego, con su noche?',
+  { id: 'dia', tag: 'Supervivencia', q: '¿Cuánto dura en la vida real un día completo del juego, con su noche?',
     options: ['10 minutos', '20 minutos', '24 minutos', '1 hora'], answer: 1,
     why: '20 minutos: unos 10 de día, 7 de noche y el resto entre el amanecer y el atardecer.' },
-  { id: 'creeper', tag: 'Dato del juego', q: '¿De qué animal huyen los creepers?',
+  { id: 'creeper', tag: 'Mobs', q: '¿De qué animal huyen los creepers?',
     options: ['Del lobo', 'Del gato', 'Del cerdo', 'Del murciélago'], answer: 1,
     why: 'Del gato (y del ocelote). Por eso tener gatos cerca de la casa la protege de explosiones.' },
-  { id: 'perlas', tag: 'Dato del juego', q: '¿Cuántas perlas de ender caben en un solo espacio del inventario?',
+  { id: 'perlas', tag: 'Nether y End', q: '¿Cuántas perlas de ender caben en un solo espacio del inventario?',
     options: ['64', '32', '16', '1'], answer: 2,
     why: '16. Igual que los huevos y los letreros; la mayoría de bloques sí llega a 64.' },
   { id: 'tronco', tag: 'Cálculo', q: 'De un tronco salen 4 tablones. ¿Cuántos troncos necesitas para 2 mesas de crafteo y un cofre?',
@@ -144,12 +144,99 @@ export const BLOQUES: IReto[] = [
   { id: 'armadura', tag: 'Cálculo', q: 'Casco 5, peto 8, pantalones 7 y botas 4 lingotes. ¿Cuántos lingotes de hierro cuesta la armadura completa?',
     options: ['20', '22', '24', '26'], answer: 2,
     why: '24. Se suman las cuatro piezas: 5 + 8 + 7 + 4 = 24.' },
-  { id: 'carbon', tag: 'Dato del juego', q: '¿Cuántos objetos alcanza a cocinar un solo carbón en el horno?',
+  { id: 'carbon', tag: 'Crafteos', q: '¿Cuántos objetos alcanza a cocinar un solo carbón en el horno?',
     options: ['1', '4', '8', '16'], answer: 2,
     why: 'Ocho. Un bloque de carbón, que son 9 carbones, cocina 80: rinde un poco más.' },
-  { id: 'diamantes', tag: 'Lógica', q: 'Steve tiene más diamantes que Alex, y Alex tiene más que Sofi. ¿Quién tiene menos?',
+  { id: 'diamantes', tag: 'Cálculo', q: 'Steve tiene más diamantes que Alex, y Alex tiene más que Sofi. ¿Quién tiene menos?',
     options: ['Steve', 'Alex', 'Sofi', 'No se sabe'], answer: 2,
     why: 'Sofi. Si Steve tiene más que Alex y Alex más que Sofi, Sofi es la que menos tiene. Este tipo de pregunta sale en los exámenes de admisión.' },
+  // Mobs
+  { id: 'enderman', tag: 'Mobs', q: '¿Qué pasa si miras a los ojos a un enderman?',
+    options: ['Se teletransporta lejos', 'Se enfurece y te ataca', 'Te regala una perla', 'No pasa nada'], answer: 1,
+    why: 'Se enfurece. Mirarlo a los ojos lo provoca; si te toca verlo, mira hacia sus pies o usa una calabaza tallada en la cabeza.' },
+  { id: 'aldeano-zombi', tag: 'Mobs', q: '¿Cómo se cura a un aldeano zombi?',
+    options: ['Con pan y agua', 'Con una poción de debilidad y una manzana de oro', 'Con un hueso y un hongo', 'Dejándolo al sol'], answer: 1,
+    why: 'Se le lanza una poción de debilidad y se le da una manzana de oro. Al curarse vuelve a ser un aldeano normal.' },
+  { id: 'golem-ataque', tag: 'Mobs', q: '¿Cuándo ataca un gólem de hierro al jugador?',
+    options: ['Siempre que lo ve', 'Solo de noche', 'Solo si tú lo atacas antes', 'Cuando llevas hierro encima'], answer: 2,
+    why: 'Solo si lo atacas. El gólem defiende la aldea de los monstruos, pero no ataca al jugador por su cuenta.' },
+  { id: 'sol', tag: 'Mobs', q: '¿Qué les pasa a los esqueletos y a los zombis cuando les da el sol?',
+    options: ['Se vuelven más rápidos', 'Se prenden fuego', 'Se esconden bajo tierra', 'Nada'], answer: 1,
+    why: 'Arden con la luz del sol, salvo que estén bajo techo o a la sombra. Por eso de día hay menos peligro afuera.' },
+  { id: 'wither', tag: 'Mobs', q: '¿Qué necesitas para invocar al wither?',
+    options: ['4 bloques de arena de almas y 3 cráneos de wither', '4 bloques de hierro y una calabaza', '3 bloques de oro y 4 cráneos', '9 lingotes de netherite'], answer: 0,
+    why: 'Se arma en forma de T: 4 bloques de arena de almas y 3 cráneos de wither. Prepárate antes de invocarlo.' },
+  // Nether y End
+  { id: 'piglin', tag: 'Nether y End', q: '¿Cuándo te atacan los piglin en el Nether?',
+    options: ['Cuando llevas hierro', 'Si no llevas ninguna pieza de oro', 'Solo de noche', 'Nunca atacan'], answer: 1,
+    why: 'Si no llevas al menos una pieza de armadura de oro. Con una sola puesta te dejan en paz.' },
+  { id: 'cama', tag: 'Nether y End', q: '¿Qué pasa si intentas dormir en una cama en el Nether o en el End?',
+    options: ['Te cura', 'Cambia la hora', 'Explota', 'Guarda tu punto de reaparición'], answer: 2,
+    why: 'La cama explota. En esas dimensiones no se puede dormir, así que no la uses allí.' },
+  { id: 'cristales', tag: 'Nether y End', q: 'Peleas contra el dragón del End. ¿Qué haces primero?',
+    options: ['Atacarlo de frente', 'Destruir los cristales del End', 'Poner una cama', 'Tirar agua'], answer: 1,
+    why: 'Destruir los cristales, porque curan al dragón mientras estén en pie.' },
+  { id: 'portal-end', tag: 'Nether y End', q: '¿Cuántos marcos tiene el portal del End?',
+    options: ['8', '10', '12', '16'], answer: 2,
+    why: '12. A cada marco se le pone un ojo de ender y así se activa el portal.' },
+  { id: 'ghast', tag: 'Nether y End', q: 'Un ghast te lanza una bola de fuego. ¿Cómo lo vences?',
+    options: ['Escondiéndote bajo tierra', 'Devolviéndole la bola de fuego con un golpe', 'Dándole oro', 'Lanzándole agua'], answer: 1,
+    why: 'Golpeando la bola de fuego se la devuelves y puede derrotarlo.' },
+  // Crafteos
+  { id: 'mesa', tag: 'Crafteos', q: '¿Cuántos tablones lleva una mesa de crafteo?',
+    options: ['2', '4', '6', '8'], answer: 1,
+    why: '4 tablones, en cuadro de 2 × 2. El cofre, en cambio, lleva 8.' },
+  { id: 'antorcha', tag: 'Crafteos', q: '¿Con qué se hace una antorcha?',
+    options: ['Carbón y un palo', 'Hierro y un palo', 'Piedra y madera', 'Lana y carbón'], answer: 0,
+    why: 'Con un carbón arriba y un palo debajo.' },
+  { id: 'pico', tag: 'Crafteos', q: '¿Qué lleva un pico de diamante?',
+    options: ['2 diamantes y 3 palos', '3 diamantes y 2 palos', '3 diamantes y 1 palo', '5 diamantes'], answer: 1,
+    why: '3 diamantes arriba y 2 palos en el centro. Es la misma forma de todos los picos.' },
+  { id: 'netherite', tag: 'Crafteos', q: '¿Cómo se consigue una herramienta de netherite?',
+    options: ['Se fabrica con 9 lingotes', 'Se mejora una de diamante en la mesa de herrería', 'Se encuentra en el End', 'Se cocina en el horno'], answer: 1,
+    why: 'Se mejora un objeto de diamante en la mesa de herrería con un lingote de netherite, que sale de 4 chatarras y 4 lingotes de oro.' },
+  { id: 'horno', tag: 'Crafteos', q: '¿Cuántas piedras labradas (adoquines) lleva un horno?',
+    options: ['4', '6', '8', '9'], answer: 2,
+    why: '8, alrededor de un hueco vacío, igual que el cofre con los tablones.' },
+  // Redstone
+  { id: 'piston', tag: 'Redstone', q: '¿Cuántos bloques puede empujar un pistón a la vez?',
+    options: ['6', '9', '12', '16'], answer: 2,
+    why: '12. Si intentas empujar 13, el pistón no se mueve.' },
+  { id: 'pegajoso', tag: 'Redstone', q: '¿Qué lleva el pistón pegajoso además de un pistón?',
+    options: ['Una bola de slime', 'Un lingote de hierro', 'Un cubo de agua', 'Pólvora'], answer: 0,
+    why: 'Una bola de slime. Gracias a ella, además de empujar, jala el bloque cuando se retrae.' },
+  { id: 'observador', tag: 'Redstone', q: '¿Para qué sirve un observador?',
+    options: ['Para empujar bloques', 'Para detectar cambios en el bloque que mira', 'Para contar mobs', 'Para medir la hora'], answer: 1,
+    why: 'Detecta cuando cambia el bloque que tiene enfrente y manda un pulso de redstone. Se usa mucho en granjas automáticas.' },
+  { id: 'repetidor', tag: 'Redstone', q: '¿Cuántos bloques viaja la señal de redstone antes de apagarse?',
+    options: ['5', '10', '15', '30'], answer: 2,
+    why: '15 bloques. Para llegar más lejos se coloca un repetidor, que refuerza la señal.' },
+  { id: 'antorcha-redstone', tag: 'Redstone', q: '¿Qué hace una antorcha de redstone en un circuito?',
+    options: ['Amplifica la señal', 'Invierte la señal', 'Mide distancias', 'Cuenta pulsos'], answer: 1,
+    why: 'Invierte la señal: si le llega energía se apaga, y si no le llega se enciende.' },
+  // Supervivencia
+  { id: 'fuente', tag: 'Supervivencia', q: '¿Cómo se hace una fuente de agua infinita?',
+    options: ['Con dos fuentes de agua dejando un hueco en medio', 'Con un cubo de lava', 'Con tres antorchas', 'Con arena y un cubo vacío'], answer: 0,
+    why: 'Con dos fuentes de agua colocadas de modo que el hueco entre ellas se llene solo. Así puedes sacar agua sin que se acabe.' },
+  { id: 'lava', tag: 'Supervivencia', q: '¿Qué se forma cuando el agua toca una lava que corre (no la fuente)?',
+    options: ['Obsidiana', 'Piedra labrada', 'Vidrio', 'Arena'], answer: 1,
+    why: 'Piedra labrada. Si el agua toca la lava fuente (la que no corre), se forma obsidiana.' },
+  { id: 'phantom', tag: 'Supervivencia', q: '¿Qué pasa si pasas 3 noches sin dormir?',
+    options: ['Pierdes hambre más rápido', 'Aparecen phantoms', 'Los creepers te ignoran', 'Se acaba la noche'], answer: 1,
+    why: 'Aparecen phantoms, que atacan desde el cielo. Dormir en una cama reinicia el conteo.' },
+  { id: 'caida', tag: 'Supervivencia', q: 'Caes desde muy alto y abajo hay agua. ¿Qué pasa?',
+    options: ['Mueres igual', 'El agua amortigua la caída', 'Pierdes todo el inventario', 'Rebotas'], answer: 1,
+    why: 'El agua amortigua la caída. Por eso se cae sobre agua, o se lanza un cubo de agua justo antes de tocar el suelo.' },
+  { id: 'cavar', tag: 'Supervivencia', q: '¿Por qué no se debe cavar justo debajo de uno?',
+    options: ['Porque se acaba la pala', 'Porque puedes caer a una cueva o a la lava', 'Porque aparecen creepers', 'Porque se cierra el hueco'], answer: 1,
+    why: 'Puedes caer en una cueva o en lava. Mejor cava en escalera, para ver siempre dónde pisas.' },
+  // Cálculo
+  { id: 'nether-8', tag: 'Cálculo', q: 'Caminas 100 bloques en el Nether. ¿Cuántos bloques equivale eso en el mundo normal?',
+    options: ['100', '400', '800', '1.000'], answer: 2,
+    why: '800. Cada bloque en el Nether equivale a 8 del mundo normal: 100 × 8 = 800.' },
+  { id: 'perla-corazones', tag: 'Cálculo', q: 'Lanzar una perla de ender te hace 5 de daño. Cada corazón son 2 de vida. ¿Cuántos corazones pierdes?',
+    options: ['2', '2,5', '5', '10'], answer: 1,
+    why: '2,5 corazones. Son 5 ÷ 2 = 2,5.' },
 ];
 
 /** Cada juego de retos con sus textos: la misma página sirve para varios canales. */
@@ -162,6 +249,12 @@ export interface IRetoSet {
   inviteTitle: string;
   inviteText: string;
   items: IReto[];
+  /** Si trae categorías, la página muestra chips para filtrar el quiz y el botón de compartir puntaje. */
+  categorias?: string[];
+  /** Expresión (texto) para encontrar por título el curso de la invitación; por defecto, el de acertijos. */
+  cursoBuscar?: string;
+  /** Nombre del quiz en el texto de compartir. */
+  nombreCompartir?: string;
 }
 
 export const RETO_SETS: Record<string, IRetoSet> = {
@@ -174,9 +267,12 @@ export const RETO_SETS: Record<string, IRetoSet> = {
   },
   bloques: {
     eyebrow: 'Quiz de Bloques · gratis', title: 'El quiz,', highlight: 'con su explicación',
-    lead: 'Las preguntas de los videos y otras más: datos del juego, cuentas rápidas y lógica. Responde y mira por qué. Sin registro.',
-    inviteEyebrow: 'Si te fue bien', inviteTitle: 'Entrena tu lógica con más retos',
-    inviteText: 'Un curso gratis de casos y acertijos, con trucos para pensar mejor y un reto final. Sin registro.',
+    lead: 'Las preguntas de los videos y muchas más, por tema: mobs, Nether y End, crafteos, redstone y supervivencia. Elige un tema, responde y mira por qué. Sin registro.',
+    inviteEyebrow: 'Si te fue bien', inviteTitle: 'Sigue con el curso «Minecraft: ¿cuánto sabes?»',
+    inviteText: 'Un curso gratis con los datos clave de cada tema, preguntas explicadas y un reto final para ver si eres un crack. Sin registro.',
     items: BLOQUES,
+    categorias: ['Mobs', 'Nether y End', 'Crafteos', 'Redstone', 'Supervivencia', 'Cálculo'],
+    nombreCompartir: 'Quiz de Bloques',
+    cursoBuscar: 'minecraft',
   },
 };
