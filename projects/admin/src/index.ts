@@ -108,6 +108,22 @@ export const routes: Routes = [
     ]
   },
   {
+    path: 'home',
+    title: 'Home personalizada',
+    component: MainLayout,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/sidebar-container/sidebar-container').then(m => m.SidebarContainer),
+        outlet: 'sidebar'
+      },
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/home-editor-container/home-editor-container').then(m => m.HomeEditorContainer)
+      }
+    ]
+  },
+  {
     path: 'periods',
     title: 'Períodos académicos',
     component: MainLayout,
