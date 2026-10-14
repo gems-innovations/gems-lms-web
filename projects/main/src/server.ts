@@ -19,7 +19,14 @@ const apiBaseUrl = process.env['API_BASE_URL'];
 if (apiBaseUrl) {
   (globalThis as { API_BASE_URL?: string }).API_BASE_URL = apiBaseUrl;
 }
-const angularApp = new AngularNodeAppEngine();
+// Dominio base de los subdominios de institución (unal.<dominio>); /config.js se lo pasa al navegador.
+const tenantBaseDomain = process.env['TENANT_BASE_DOMAIN'];
+if (tenantBaseDomain) {
+  (globalThis as { TENANT_BASE_DOMAIN?: string }).TENANT_BASE_DOMAIN = tenantBaseDomain;
+}
+// Hosts que el SSR acepta; admite comodines (*.gemsinnovations.com) para los subdominios.
+const allowedHosts = (process.env['NG_ALLOWED_HOSTS'] ?? '').split(',').map((host) => host.trim()).filter(Boolean);
+const angularApp = new AngularNodeAppEngine(allowedHosts.length ? { allowedHosts } : undefined);
 const apiOrigin = (() => {
   try { return new URL(apiBaseUrl || 'http://localhost:8080/api/v1').origin; }
   catch { return ''; }
@@ -44,12 +51,13 @@ app.use((_req, res, next) => {
 
 app.get('/config.js', (_req, res) => {
   res.set('Cache-Control', 'no-store');
-  if (!apiBaseUrl) {
+  if (!apiBaseUrl && !tenantBaseDomain) {
     res.sendFile(join(browserDistFolder, 'config.js'), { maxAge: 0 });
     return;
   }
   res.type('application/javascript').set('Cache-Control', 'no-store')
-    .send(`globalThis.API_BASE_URL = ${JSON.stringify(apiBaseUrl)};\n`);
+    .send((apiBaseUrl ? `globalThis.API_BASE_URL = ${JSON.stringify(apiBaseUrl)};\n` : '')
+      + (tenantBaseDomain ? `globalThis.TENANT_BASE_DOMAIN = ${JSON.stringify(tenantBaseDomain)};\n` : ''));
 });
 
 /**

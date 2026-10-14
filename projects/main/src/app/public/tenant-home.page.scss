@@ -1,0 +1,99 @@
+// Estilos por defecto de la home de una institución. Todo va en :where() (especificidad 0) y sin encapsulación,
+// para que el CSS de la institución, acotado a su contenedor, los reemplace sin necesidad de !important.
+
+:where(.tb-page) {
+  min-height: 100vh;
+  background: var(--color-fondo-principal);
+  color: var(--color-texto-principal);
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+:where(.tb-header) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px clamp(16px, 5vw, 56px);
+  border-bottom: 1px solid var(--color-borde-principal);
+}
+
+:where(.tb-brand) { display: inline-flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; font-weight: 700; }
+:where(.tb-logo) { display: block; max-height: 40px; width: auto; }
+
+:where(.tb-login) {
+  padding: 8px 16px;
+  border: 1px solid var(--color-borde-principal);
+  border-radius: 999px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+:where(.tb-hero) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: clamp(48px, 10vw, 112px) clamp(16px, 5vw, 56px);
+  text-align: center;
+  background: linear-gradient(160deg, var(--color-primario-trans-20, transparent), transparent 70%);
+
+  h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.25rem); line-height: 1.1; }
+  p { margin: 0; max-width: 56ch; font-size: 1.1rem; color: var(--color-texto-secundario); }
+}
+
+:where(.tb-cta) {
+  margin-top: 12px;
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: var(--color-primario-accion, var(--color-primario));
+  color: var(--color-sobre-primario, #fff);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+:where(.tb-courses) {
+  padding: 40px clamp(16px, 5vw, 56px) 64px;
+  max-width: 1180px;
+  margin: 0 auto;
+
+  h2 { margin: 0 0 20px; font-size: 1.5rem; }
+}
+
+:where(.tb-footer) {
+  padding: 24px clamp(16px, 5vw, 56px);
+  border-top: 1px solid var(--color-borde-principal);
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-texto-secundario);
+}
+
+// Tarjetas de cursos: las usa la landing base y el marcador {{cursos}} del modo CUSTOM.
+:where(.gems-cursos) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+:where(.gems-cursos__empty) { color: var(--color-texto-secundario); }
+
+:where(.gems-curso) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-borde-principal);
+  border-radius: 16px;
+  background: var(--color-tarjeta, var(--color-superficie));
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+
+  &:hover { transform: translateY(-2px); border-color: var(--color-primario); }
+}
+
+:where(.gems-curso__img) { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--color-superficie-alta); }
+:where(.gems-curso__body) { display: flex; flex-direction: column; gap: 6px; padding: 16px; }
+:where(.gems-curso__title) { font-size: 1.05rem; }
+:where(.gems-curso__desc) { font-size: 0.9rem; color: var(--color-texto-secundario); }
+:where(.gems-curso__meta) { font-size: 0.8rem; color: var(--color-texto-terciario, var(--color-texto-secundario)); }

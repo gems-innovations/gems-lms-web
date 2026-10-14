@@ -18,6 +18,7 @@ import { AuthSessionService, authInterceptor } from 'auth/core';
 import { AppTitleStrategy } from './app-title.strategy';
 import { ClientErrorHandler } from './client-error-handler';
 import { AnalyticsService } from './analytics.service';
+import { TenantService } from './tenant.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -40,5 +41,7 @@ export const appConfig: ApplicationConfig = {
     // Restore persisted session before route guards run
     provideAppInitializer(() => inject(AuthSessionService).restoreSession()),
     provideAppInitializer(() => inject(AnalyticsService).start()),
+    // Marca y home de la institución según el subdominio (antes de pintar la primera página).
+    provideAppInitializer(() => inject(TenantService).load()),
   ]
 };

@@ -70,3 +70,6 @@ export { MarkdownEditorComponent } from "./infrastructure/ui/components/markdown
 export { FileUploadService, MAX_UPLOAD_BYTES } from "./infrastructure/services/file-upload.service";
 export type { IUploadedFile, TFileScope } from "./infrastructure/services/file-upload.service";
 export { ImageUploadComponent } from "./infrastructure/ui/components/image-upload/image-upload.component";
+
+export { scopeCss } from "./infrastructure/utils/scope-css";
+export { TenantHomeComponent } from "./infrastructure/ui/components/tenant-home/tenant-home.component";

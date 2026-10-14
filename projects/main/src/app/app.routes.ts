@@ -5,14 +5,22 @@ import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 import { loginRedirectGuard } from './guards/login-redirect.guard';
 import { guestGateGuard } from './public/guest-gate';
+import { TenantService } from './tenant.service';
+import { tenantLanding } from './tenant-landings';
 
 export const routes: Routes = [
   // ── Público: cursos gratis sin registro (gancho) e instituciones ──────────
   {
     path: '',
     pathMatch: 'full',
-    title: 'Cursos gratis, sin registro',
-    loadComponent: () => import('./public/landing.component').then(m => m.LandingComponent)
+    // Portada de GEMS para todos; en el subdominio de una institución cambian sus colores (TenantService) y, si tiene
+    // una landing propia (tenant-landings.ts), se muestra esa. Un host sin institución (o sin API) ve la portada normal.
+    title: () => tenantLanding(inject(TenantService).slug())?.title ?? 'Cursos gratis, sin registro',
+    loadComponent: () => {
+      const tenant = inject(TenantService);
+      return tenantLanding(tenant.slug())?.load()
+        ?? import('./public/landing.component').then(m => m.LandingComponent);
+    }
   },
   {
     path: 'cursos/:id',

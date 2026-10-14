@@ -1,0 +1,124 @@
+// Secciones de la landing de Knowledge Craft (las variables --kc-* las define .kc en kc-landing.component.scss).
+// ── Bloques ───────────────────────────────────────────────────────────────────
+.kc-block { max-width: var(--kc-max); margin: 0 auto; padding: 72px 20px;
+  &__head { margin-bottom: 32px; h2 { font-size: clamp(16px, 2.6vw, 24px); margin-bottom: 14px; } p { max-width: 62ch; color: var(--kc-muted); } } }
+
+.kc-pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+.kc-pillar {
+  padding: 24px; color: var(--kc-ink); box-shadow: 8px 8px 0 var(--kc-shadow);
+  h3 { font-size: 15px; margin-bottom: 12px; }
+  p { font-weight: 500; }
+  &--green { background: var(--kc-green); --kc-shadow: var(--kc-green-deep); }
+  &--gold { background: var(--kc-gold); --kc-shadow: var(--kc-gold-deep); }
+  &--cyan { background: var(--kc-cyan); --kc-shadow: var(--kc-cyan-deep); }
+}
+
+// ── Cursos ────────────────────────────────────────────────────────────────────
+.kc-cats { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+.kc-chip {
+  min-height: 44px; padding: 8px 14px; font: 700 15px/1 var(--kc-body); color: var(--kc-cream); background: var(--kc-surface);
+  border: 2px solid var(--kc-line); cursor: pointer;
+  span { margin-left: 6px; color: var(--kc-muted); }
+  &:hover { border-color: var(--kc-cyan); }
+  &[aria-selected='true'] { background: var(--kc-cyan); border-color: var(--kc-cyan); color: var(--kc-ink); span { color: var(--kc-ink); } }
+}
+.kc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 28px; }
+.kc-card {
+  display: flex; flex-direction: column; background: var(--kc-surface); border: 3px solid var(--kc-cream);
+  box-shadow: 8px 8px 0 #0d0f16; transition: transform 0.12s steps(3), box-shadow 0.12s steps(3);
+  &:hover { transform: translate(-3px, -3px); box-shadow: 11px 11px 0 var(--kc-cyan-deep); }
+  &--skeleton { min-height: 320px; background: repeating-linear-gradient(90deg, var(--kc-surface) 0 32px, var(--kc-bg-alt) 32px 64px); border-color: var(--kc-line); }
+  &__img { position: relative; aspect-ratio: 16 / 9; background: var(--kc-bg-alt); border-bottom: 3px solid var(--kc-cream);
+    img { width: 100%; height: 100%; object-fit: cover; display: block; } }
+  &__free { position: absolute; left: 10px; top: 10px; padding: 6px 8px; background: var(--kc-gold); color: var(--kc-ink); font: 400 9px/1 var(--kc-pixel); text-transform: uppercase; box-shadow: 3px 3px 0 var(--kc-gold-deep); }
+  &__body { display: flex; flex-direction: column; gap: 10px; flex: 1; padding: 18px;
+    h3 { font-size: 13px; line-height: 1.6; a { color: var(--kc-cream); text-decoration: none; &:hover { color: var(--kc-cyan); } } }
+    p { font-size: 15px; color: var(--kc-muted); display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; } }
+  &__meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--kc-muted); }
+  &__error { color: var(--kc-red); font-size: 14px; }
+  &__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-top: auto; padding-top: 6px;
+    a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; font-size: 15px; } }
+}
+.kc-empty { padding: 28px; text-align: center; color: var(--kc-muted); border: 3px dashed var(--kc-line);
+  .kc-btn { margin-top: 14px; } }
+
+// ── Cómo funciona ─────────────────────────────────────────────────────────────
+.kc-bento { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.kc-tile {
+  display: flex; flex-direction: column; gap: 10px; padding: 24px; background: var(--kc-surface); border: 3px solid var(--kc-line);
+  &--wide { grid-column: span 2; } &--full { grid-column: 1 / -1; } &--tall { grid-row: span 1; }
+  &__kicker { font: 400 10px/1.4 var(--kc-pixel); text-transform: uppercase; color: var(--kc-cyan); }
+  &__num { font: 400 30px/1.2 var(--kc-pixel); color: var(--kc-gold); small { font: 500 15px var(--kc-body); color: var(--kc-muted); } }
+  strong { font-size: 18px; }
+  span:not([class]) { color: var(--kc-muted); font-size: 15px; }
+  p { color: var(--kc-muted); }
+}
+.kc-prog {
+  display: grid; gap: 12px;
+  &__row { display: flex; justify-content: space-between; gap: 12px; font-weight: 700; }
+  &__bar { height: 16px; background: #0d0f16; border: 2px solid var(--kc-line); i { display: block; height: 100%; background: var(--kc-green); } }
+  &__list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none;
+    li { padding: 10px 12px; background: var(--kc-bg); border: 2px solid var(--kc-line); color: var(--kc-muted); }
+    li.is-done::before { content: '✓ '; color: var(--kc-green); font-weight: 700; }
+    li.is-next { border-color: var(--kc-cyan); color: var(--kc-cream); em { display: block; font-style: normal; font-size: 13px; color: var(--kc-cyan); } } }
+}
+.kc-week { display: flex; gap: 6px; margin-top: 6px;
+  span { flex: 1; text-align: center; padding: 8px 0; background: var(--kc-gold); color: var(--kc-ink); font: 700 13px/1 var(--kc-body); box-shadow: 3px 3px 0 var(--kc-gold-deep); } }
+.kc-explain__q { color: var(--kc-cream) !important; font-weight: 700; }
+.kc-explain__a b { color: var(--kc-green); }
+.kc-explain__tip { padding: 10px 12px; background: var(--kc-bg); border-left: 4px solid var(--kc-cyan); }
+
+// ── Preguntas frecuentes ──────────────────────────────────────────────────────
+.kc-faq { max-width: 860px; h2 { font-size: clamp(16px, 2.6vw, 24px); margin-bottom: 26px; }
+  &__list { display: grid; gap: 14px; }
+  details { background: var(--kc-surface); border: 3px solid var(--kc-line); }
+  details[open] { border-color: var(--kc-cyan); }
+  summary { display: flex; align-items: center; min-height: 56px; padding: 12px 18px; font-weight: 700; cursor: pointer; list-style: none;
+    &::-webkit-details-marker { display: none; }
+    &::after { content: '+'; margin-left: auto; font: 400 16px var(--kc-pixel); color: var(--kc-cyan); } }
+  details[open] summary::after { content: '−'; }
+  details p { padding: 0 18px 18px; color: var(--kc-muted); } }
+
+// ── Cierre y pie ──────────────────────────────────────────────────────────────
+.kc-band {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px;
+  max-width: var(--kc-max); margin: 24px auto 72px; padding: 36px; width: calc(100% - 40px);
+  background: var(--kc-cyan-deep); border: 3px solid var(--kc-cyan); box-shadow: 10px 10px 0 #0d0f16;
+  h2 { font-size: clamp(15px, 2.4vw, 22px); margin-bottom: 12px; } p { max-width: 52ch; }
+}
+.kc-footer {
+  display: grid; gap: 14px; justify-items: center; padding: 36px 20px calc(env(safe-area-inset-bottom, 0px) + 56px);
+  text-align: center; background: var(--kc-bg); border-top: 6px solid var(--kc-green);
+  p { max-width: 74ch; font-size: 13px; line-height: 1.6; color: var(--kc-muted); }
+  &__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 22px;
+    a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; font-size: 15px; } }
+}
+.kc-sticky { display: none; }
+
+// ── Pantallas pequeñas ────────────────────────────────────────────────────────
+@media (max-width: 900px) {
+  .kc-pixels { display: none; }
+  .kc-hero { grid-template-columns: minmax(0, 1fr); gap: 40px; padding: 48px 20px 64px; }
+  .kc-bento { grid-template-columns: minmax(0, 1fr); }
+  .kc-tile--wide { grid-column: auto; }
+}
+@media (max-width: 760px) {
+  .kc-nav { display: none; }
+  .kc-header { gap: 10px; padding: 10px 14px; }
+  .kc-brand__name { font-size: 10px; }
+  .kc-block { padding: 52px 20px; }
+  .kc-band { padding: 26px 20px; }
+  .kc-sticky {
+    display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    padding: 10px 14px calc(env(safe-area-inset-bottom, 0px) + 10px); background: var(--kc-bg); border-top: 3px solid var(--kc-cyan);
+  }
+}
+@media (max-width: 420px) {
+  .kc-long { display: none; } .kc-short { display: inline; }
+  .kc-brand__name { display: none; }
+  .kc-hero__cta .kc-btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kc-px { animation: none; }
+  .kc-btn, .kc-card { transition: none; }
+}

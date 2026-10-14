@@ -1,0 +1,119 @@
+<lib-page>
+  <lib-page-header
+    title="Home personalizada"
+    subtitle="Escribe el HTML y el CSS de la portada de tu institución. No se permite JavaScript ni estilos en línea: usa clases y el CSS de abajo."
+  />
+
+  @if (isSuperAdmin()) {
+    <div class="home__panel">
+      <label for="home-inst">Institución</label>
+      <select id="home-inst" class="home__input" [ngModel]="institutionId() ?? ''" (ngModelChange)="selectInstitution($event)">
+        <option value="">Elige una institución…</option>
+        @for (inst of institutions(); track inst.id) { <option [value]="inst.id">{{ inst.name }}</option> }
+      </select>
+    </div>
+  }
+
+  @switch (state()) {
+    @case ('idle') { <p class="home__hint">Elige una institución para editar su home.</p> }
+    @case ('loading') { <lib-loading-skeleton [rows]="4" /> }
+    @case ('error') { <p class="home__error">No se pudo cargar la home de esta institución.</p> }
+    @default {
+      <section class="home__panel" aria-labelledby="home-slug-title">
+        <h2 id="home-slug-title">Subdominio</h2>
+        @if (isSuperAdmin()) {
+          <div class="home__row">
+            <input class="home__input" name="slug" maxlength="40" placeholder="ej. unal" aria-label="Subdominio"
+                   [ngModel]="slug()" (ngModelChange)="slug.set($event)" />
+            <span class="home__suffix">.{{ baseDomain }}</span>
+            <lib-button variant="secondary" [loading]="busy()" (clicked)="assignSlug()">Asignar</lib-button>
+          </div>
+          <p class="home__hint">Solo letras minúsculas, números y guiones (3 a 40). Es único y solo lo asigna el super admin.</p>
+        }
+        @if (publicUrl(); as url) {
+          <p>Dirección pública: <a [href]="url" target="_blank" rel="noopener">{{ url }}</a></p>
+        } @else {
+          <p class="home__hint">Esta institución aún no tiene subdominio; pídelo al super admin para publicar su home.</p>
+        }
+        <p>
+          @if (view()?.publishedVersion; as v) { Publicada: versión {{ v }}. } @else { Sin versión publicada: se muestra la landing base con tu marca y sin personalización. }
+        </p>
+      </section>
+
+      <section class="home__panel" aria-labelledby="home-mode-title">
+        <h2 id="home-mode-title">Tipo de home</h2>
+        <div class="home__modes" role="radiogroup" aria-labelledby="home-mode-title">
+          <label class="home__mode" [class.home__mode--on]="mode() === 'BASE'">
+            <input type="radio" name="mode" value="BASE" [checked]="mode() === 'BASE'" (change)="setMode('BASE')" />
+            <strong>Landing de GEMS con tu marca</strong>
+            <span>Cabecera, portada y cursos ya armados con tu logo y colores. Tu CSS la restiliza y el HTML es un banner opcional.</span>
+          </label>
+          <label class="home__mode" [class.home__mode--on]="mode() === 'CUSTOM'">
+            <input type="radio" name="mode" value="CUSTOM" [checked]="mode() === 'CUSTOM'" (change)="setMode('CUSTOM')" />
+            <strong>Landing propia</strong>
+            <span>Tu HTML reemplaza toda la landing. Puedes usar los marcadores de abajo para los cursos y tu marca.</span>
+          </label>
+        </div>
+        @if (mode() === 'BASE') {
+          <p class="home__hint">Clases que puedes estilizar: <code>.tb-header</code> <code>.tb-brand</code> <code>.tb-logo</code> <code>.tb-login</code> <code>.tb-hero</code> <code>.tb-cta</code> <code>.tb-courses</code> <code>.gems-curso</code> <code>.gems-curso__title</code> <code>.tb-footer</code>. El HTML es opcional (aparece como banner bajo la cabecera).</p>
+        } @else {
+          <p class="home__hint" ngNonBindable>Marcadores: <code>{{cursos}}</code> tarjetas de cursos publicados · <code>{{nombre}}</code> nombre · <code>{{logo}}</code> URL del logo · <code>{{ingresar}}</code> enlace de ingreso. Clases de las tarjetas: <code>.gems-curso</code>, <code>__img</code>, <code>__title</code>, <code>__desc</code>, <code>__meta</code>.</p>
+        }
+        <div class="home__row"><lib-button variant="ghost" size="sm" (clicked)="useExample()">{{ mode() === 'CUSTOM' ? 'Cargar plantilla inicial' : 'Cargar ejemplo' }}</lib-button></div>
+      </section>
+
+      <section class="home__editor" aria-label="Editor">
+        <div class="home__field">
+          <label for="home-html">{{ mode() === 'BASE' ? 'Banner HTML (opcional)' : 'HTML' }} ({{ html().length }} / 200000)</label>
+          <textarea id="home-html" class="home__code" spellcheck="false" rows="16" name="html"
+                    [ngModel]="html()" (ngModelChange)="html.set($event)"
+                    placeholder="&lt;section class=&quot;hero&quot;&gt;&lt;h1&gt;Bienvenidos&lt;/h1&gt;&lt;a href=&quot;/auth/signin&quot;&gt;Iniciar sesión&lt;/a&gt;&lt;/section&gt;"></textarea>
+        </div>
+        <div class="home__field">
+          <label for="home-css">CSS ({{ css().length }} / 100000)</label>
+          <textarea id="home-css" class="home__code" spellcheck="false" rows="16" name="css"
+                    [ngModel]="css()" (ngModelChange)="css.set($event)"
+                    placeholder=".hero &#123; padding: 64px 24px; text-align: center; &#125;"></textarea>
+        </div>
+      </section>
+
+      <div class="home__actions">
+        <lib-button variant="secondary" [loading]="busy()" [disabled]="!dirty()" (clicked)="saveDraft()">Guardar borrador</lib-button>
+        <input class="home__input home__note" maxlength="200" name="note" placeholder="Nota de la versión (opcional)"
+               aria-label="Nota de la versión" [ngModel]="note()" (ngModelChange)="note.set($event)" />
+        <lib-button variant="primary" [loading]="busy()" [disabled]="mode() === 'CUSTOM' && !html().trim()" (clicked)="publish()">
+          Publicar nueva versión
+        </lib-button>
+        @if (view()?.publishedVersion) {
+          <lib-button variant="ghost" [loading]="busy()" (clicked)="unpublish()">Dejar de publicar</lib-button>
+        }
+        <lib-button variant="ghost" (clicked)="showPreview.set(!showPreview())">{{ showPreview() ? 'Ocultar vista previa' : 'Ver vista previa' }}</lib-button>
+      </div>
+
+      @if (showPreview()) {
+        <section class="home__preview" aria-label="Vista previa">
+          <h2>Vista previa</h2>
+          <div class="home__preview-frame"><gems-tenant-home [html]="previewHtml()" [css]="css()" /></div>
+        </section>
+      }
+
+      <section class="home__panel" aria-labelledby="home-history-title">
+        <h2 id="home-history-title">Historial de versiones</h2>
+        @if (versions().length === 0) {
+          <p class="home__hint">Todavía no hay versiones publicadas.</p>
+        } @else {
+          <ul class="home__versions">
+            @for (v of versions(); track v.version) {
+              <li>
+                <strong>Versión {{ v.version }}</strong> <span class="home__hint">{{ v.mode === 'CUSTOM' ? 'landing propia' : 'landing base' }}</span>
+                @if (v.current) { <span class="home__badge">Publicada</span> }
+                <span class="home__hint">{{ v.publishedAt | date: 'medium' }}@if (v.note) { · {{ v.note }} }</span>
+                <lib-button variant="ghost" size="sm" [disabled]="busy()" (clicked)="restore(v.version)">Restaurar al borrador</lib-button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+  }
+</lib-page>

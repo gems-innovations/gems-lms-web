@@ -18,6 +18,7 @@ export class AdminSidebarUseCase {
         { id: 'institutions', label: 'Instituciones', icon: 'institutions', route: '/admin/institutions' },
         // Solicitudes de espacio que llegan desde «Enseña en GEMS».
         { id: 'requests', label: 'Solicitudes', icon: 'users', route: '/solicitudes' },
+        { id: 'home', label: 'Home institucional', icon: 'dashboard', route: '/admin/home' },
         { id: 'audit', label: 'Auditoría', icon: 'audit', route: '/admin/audit' }
       ];
     }
@@ -28,6 +29,7 @@ export class AdminSidebarUseCase {
         { id: 'enrollments', label: 'Matrículas',      icon: 'courses',   route: '/admin/enrollments' },
         { id: 'periods',     label: 'Períodos',        icon: 'learning-paths', route: '/admin/periods' },
         { id: 'reports',     label: 'Reportes',         icon: 'stats',     route: '/admin/reports' },
+        { id: 'home',        label: 'Mi home',          icon: 'dashboard', route: '/admin/home' },
         { id: 'audit',       label: 'Auditoría',       icon: 'audit',     route: '/admin/audit' }
       ];
     }
