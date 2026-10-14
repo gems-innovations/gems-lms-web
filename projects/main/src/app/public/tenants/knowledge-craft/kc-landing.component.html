@@ -1,0 +1,228 @@
+<div class="kc">
+  <a class="kc-skip" href="#contenido">Saltar al contenido</a>
+
+  <header class="kc-header">
+    <a class="kc-brand" routerLink="/" aria-label="Knowledge Craft, inicio">
+      <svg width="38" height="42" viewBox="0 0 200 220" aria-hidden="true" focusable="false">
+        <rect x="94" y="0" width="12" height="12" fill="#F2C230"></rect>
+        <rect x="70" y="14" width="12" height="12" fill="#F2C230"></rect>
+        <rect x="118" y="14" width="12" height="12" fill="#F2C230"></rect>
+        <polygon points="100,30 180,75 100,120 20,75" fill="#5DBB47"></polygon>
+        <polygon points="20,75 100,120 100,210 20,165" fill="#8A5A34"></polygon>
+        <polygon points="100,120 180,75 180,165 100,210" fill="#6B4426"></polygon>
+        <polygon points="20,75 100,120 100,140 20,95" fill="#4A9A38"></polygon>
+        <polygon points="100,120 180,75 180,95 100,140" fill="#3D822F"></polygon>
+        <polygon points="40,130 52,137 52,149 40,142" fill="#3FD0D4"></polygon>
+        <polygon points="148,150 160,143 160,155 148,162" fill="#3FD0D4"></polygon>
+        <polygon points="100,52 128,68 100,84 72,68" fill="#3FD0D4"></polygon>
+        <polygon points="100,60 114,68 100,76 86,68" fill="#B8F3F5"></polygon>
+      </svg>
+      <span class="kc-brand__name">KNOWLEDGE<b>CRAFT</b></span>
+    </a>
+    <nav class="kc-nav" aria-label="Principal">
+      <a routerLink="/" fragment="cursos">Cursos gratis</a>
+      <a routerLink="/" fragment="trivia">Trivia</a>
+      <a routerLink="/" fragment="como">Cómo funciona</a>
+    </nav>
+    <div class="kc-actions">
+      <!-- En el servidor no hay sesión: los botones esperan al navegador para no mostrar «Ya tengo cuenta» a quien sí entró. -->
+      @if (!ready()) {
+        <span class="kc-wait" aria-hidden="true"></span>
+      } @else if (signedIn()) {
+        <a class="kc-btn kc-btn--cyan kc-btn--sm" [routerLink]="home()">{{ guest() ? 'Mis cursos' : 'Ir a mi panel' }}</a>
+      } @else {
+        <a class="kc-btn kc-btn--ghost kc-btn--sm" routerLink="/auth/signin"><span class="kc-long">Ya tengo cuenta</span><span class="kc-short">Entrar</span></a>
+      }
+    </div>
+  </header>
+
+  <main id="contenido">
+    <section class="kc-hero">
+      <div class="kc-pixels" aria-hidden="true">
+        <i class="kc-px kc-px--cyan" style="left: 95%; top: 5%"></i>
+        <i class="kc-px kc-px--gold kc-px--sm" style="left: 53%; top: 84%"></i>
+        <i class="kc-px kc-px--green" style="left: 49%; top: 9%"></i>
+        <i class="kc-px kc-px--gold kc-px--sm" style="left: 2%; top: 93%"></i>
+        <i class="kc-px kc-px--cyan kc-px--sm" style="left: 91%; top: 90%"></i>
+      </div>
+
+      <div class="kc-hero__copy">
+        <span class="kc-eyebrow">Cursos gratis · sin registro</span>
+        <h1>Juega, aprende y <span class="kc-hl">craftea</span></h1>
+        <p class="kc-lead">Cursos cortos, trivias y retos para aprender jugando, con el mundo de Minecraft de fondo. Eliges un curso y empiezas ya, sin crear cuenta.</p>
+        <div class="kc-hero__cta" gemsInView (inView)="heroCtaInView.set($event)">
+          <button type="button" class="kc-btn kc-btn--cyan" [disabled]="starter.starting() !== null" (click)="startFirst()">{{ starter.starting() !== null ? 'Cargando mundo…' : 'Empezar gratis ahora' }}</button>
+          <a class="kc-btn kc-btn--ghost" routerLink="/" fragment="cursos">Ver todos los cursos</a>
+        </div>
+        <p class="kc-trust">Sin correo, sin contraseña y sin tarjeta. Entras en un toque.</p>
+        <ul class="kc-facts">
+          <li><strong>$0</strong> para empezar</li>
+          <li><strong>0</strong> formularios</li>
+          <li><strong>10 min</strong> al día</li>
+        </ul>
+      </div>
+
+      <div class="kc-hero__card" id="trivia">
+        <kc-quiz (startCourse)="startFirst()" />
+      </div>
+    </section>
+
+    <div class="kc-ground" aria-hidden="true"></div>
+
+    <section class="kc-block" aria-labelledby="kc-pilares-title">
+      <div class="kc-block__head">
+        <h2 id="kc-pilares-title">Qué encuentras aquí</h2>
+        <p>Tres formas de aprender sin que se sienta como estudiar.</p>
+      </div>
+      <div class="kc-pillars">
+        <article class="kc-pillar kc-pillar--green">
+          <h3>Gameplays</h3>
+          <p>Partidas donde cada decisión del juego esconde una idea para llevarte.</p>
+        </article>
+        <article class="kc-pillar kc-pillar--gold">
+          <h3>Trivias</h3>
+          <p>Preguntas rápidas con explicación. Fallar también suma: ahí está lo que más enseña.</p>
+        </article>
+        <article class="kc-pillar kc-pillar--cyan">
+          <h3>Videos educativos</h3>
+          <p>Conceptos explicados en pocos minutos y con ejemplos que ya conoces del juego.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="cursos" class="kc-block" aria-labelledby="kc-cursos-title">
+      <div class="kc-block__head">
+        <h2 id="kc-cursos-title">Cursos gratis</h2>
+        <p>Toca «Empezar gratis» y entras directo. Si quieres guardar tu avance, después creas tu cuenta y no pierdes nada.</p>
+      </div>
+
+      @if (courses().length === 0) {
+        <p class="kc-empty">Muy pronto publicamos los primeros cursos de Knowledge Craft.</p>
+      } @else {
+        @if (categories().length) {
+          <div class="kc-cats" role="tablist" aria-label="Categorías de cursos">
+            @for (cat of categories(); track cat.id) {
+              <button type="button" class="kc-chip" role="tab" [attr.aria-selected]="category() === cat.id"
+                      (click)="category.set(cat.id)">{{ cat.label }} <span>{{ cat.n }}</span></button>
+            }
+          </div>
+        }
+        <div class="kc-grid" gemsInView (inView)="gridInView.set($event)">
+          @for (c of visibleCourses(); track c.id) {
+            <article class="kc-card">
+              <div class="kc-card__img">
+                @if (c.thumbnailUrl) { <img [src]="c.thumbnailUrl" alt="" loading="lazy" (error)="$any($event.target).remove()" /> }
+                <span class="kc-card__free">Gratis</span>
+              </div>
+              <div class="kc-card__body">
+                <h3><a [routerLink]="['/cursos', c.id]">{{ c.title }}</a></h3>
+                <p>{{ c.description }}</p>
+                <div class="kc-card__meta">
+                  <span>{{ c.lessons }} lecciones</span>
+                  @if (c.difficulty) { <span>{{ difficulty[c.difficulty] ?? c.difficulty }}</span> }
+                  @if (c.enrolled) { <span>{{ c.enrolled }} jugando</span> }
+                </div>
+                @if (errorFor() === c.id) { <p class="kc-card__error" role="alert">{{ error() }}</p> }
+                <div class="kc-card__actions">
+                  <button type="button" class="kc-btn kc-btn--green kc-btn--sm" [disabled]="starter.starting() !== null" (click)="start(c.id)">
+                    {{ starter.starting() === c.id ? 'Entrando…' : 'Empezar gratis' }}
+                  </button>
+                  <a [routerLink]="['/cursos', c.id]" [attr.aria-label]="'Ver temario de ' + c.title">Ver temario</a>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <section id="como" class="kc-block" aria-labelledby="kc-como-title">
+      <div class="kc-block__head">
+        <h2 id="kc-como-title">Así se estudia aquí</h2>
+        <p>Una lección dura lo que una misión corta. Lo demás lo ves en pantalla.</p>
+      </div>
+      <div class="kc-bento">
+        <article class="kc-tile kc-tile--wide">
+          <span class="kc-tile__kicker">Tu curso</span>
+          <div class="kc-prog">
+            <div class="kc-prog__row"><span>Misión 1 · Lo básico</span><span>3 de 5</span></div>
+            <div class="kc-prog__bar"><i style="width: 60%"></i></div>
+            <ol class="kc-prog__list">
+              <li class="is-done">Primera lección</li>
+              <li class="is-done">Ejemplo resuelto</li>
+              <li class="is-done">Práctica con explicación</li>
+              <li class="is-next">Siguiente lección <em>Sigue aquí · 9 min</em></li>
+            </ol>
+          </div>
+        </article>
+
+        <article class="kc-tile kc-tile--tall">
+          <span class="kc-tile__kicker">Racha</span>
+          <span class="kc-tile__num">7 <small>días</small></span>
+          <div class="kc-week" aria-label="Estudiaste 7 días seguidos">
+            @for (d of week; track $index) { <span>{{ d }}</span> }
+          </div>
+        </article>
+
+        <article class="kc-tile kc-tile--tall">
+          <span class="kc-tile__kicker">Después de cada respuesta</span>
+          <p class="kc-explain__q">Un cofre grande guarda 54 pilas de 64 bloques.</p>
+          <p class="kc-explain__a"><b>3.456 bloques.</b> 54 × 64 = 3.456.</p>
+          <p class="kc-explain__tip">Atajo: 50 × 64 = 3.200 y 4 × 64 = 256. Se suman.</p>
+        </article>
+
+        <article class="kc-tile">
+          <span class="kc-tile__num">10 <small>min</small></span>
+          <strong>por lección</strong>
+          <span>Cortas a propósito, para hacer una al día sin dejar de jugar.</span>
+        </article>
+
+        <article class="kc-tile">
+          <span class="kc-tile__num">0 <small>datos</small></span>
+          <strong>para empezar</strong>
+          <span>Ni correo ni contraseña. La cuenta es opcional, para guardar tu avance.</span>
+        </article>
+
+        <article class="kc-tile kc-tile--full">
+          <span class="kc-tile__kicker">De dónde salen las preguntas</span>
+          <p>Las escribe nuestro equipo y cada una trae la explicación de por qué la respuesta es esa. Ninguna es copiada.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="preguntas" class="kc-block kc-faq" aria-labelledby="kc-faq-title">
+      <h2 id="kc-faq-title">Preguntas frecuentes</h2>
+      <div class="kc-faq__list">
+        <details><summary>¿De verdad es gratis?</summary><p>Sí. Los cursos marcados como «Gratis» no tienen costo ni piden tarjeta. Si algún día lanzamos cursos o funciones de pago, te lo diremos claramente antes: nunca te cobraremos sin que lo aceptes.</p></details>
+        <details><summary>¿Tengo que registrarme?</summary><p>No. Tocas «Empezar gratis» y entras como invitado. Si quieres guardar tu avance para otro dispositivo, creas tu cuenta cuando quieras y no pierdes nada.</p></details>
+        <details><summary>¿Necesito tener Minecraft?</summary><p>No. Los cursos y las trivias se estudian desde el navegador; no necesitas el juego instalado.</p></details>
+        <details><summary>¿Puedo guardar mi avance?</summary><p>Sí. Crea tu cuenta cuando quieras y tu avance como invitado se conserva.</p></details>
+        <details><summary>¿Cada cuánto hay cursos nuevos?</summary><p>Publicamos contenido nuevo constantemente. Vuelve seguido o crea tu cuenta para no perderte nada.</p></details>
+      </div>
+    </section>
+
+    <section class="kc-band" aria-labelledby="kc-band-title">
+      <div>
+        <h2 id="kc-band-title">¿Listo para craftear tu conocimiento?</h2>
+        <p>Elige un curso, juega la primera lección y mira cuánto avanzas en 10 minutos.</p>
+      </div>
+      <button type="button" class="kc-btn kc-btn--gold" [disabled]="starter.starting() !== null" (click)="startFirst()">{{ starter.starting() !== null ? 'Cargando mundo…' : 'Empezar gratis' }}</button>
+    </section>
+  </main>
+
+  <footer class="kc-footer">
+    <nav class="kc-footer__links" aria-label="Información legal">
+      <a routerLink="/terminos">Términos de uso</a>
+      <a routerLink="/privacidad">Privacidad y datos</a>
+      <a routerLink="/auth/signin">Ya tengo cuenta</a>
+    </nav>
+    <p>Knowledge Craft es un proyecto independiente de la comunidad. No está afiliado, aprobado ni patrocinado por Mojang Studios ni Microsoft. Minecraft es una marca registrada de Mojang Synergies AB.</p>
+    <p>Es material educativo y de práctica con preguntas originales. Como invitado no pedimos tu nombre real, correo ni teléfono; si creas una cuenta, tratamos tus datos según la Ley 1581 de 2012. Si tienes menos de 18 años, crea tu cuenta con el acompañamiento de tu madre, tu padre o tu acudiente.</p>
+  </footer>
+
+  @if (courses().length && !heroCtaInView() && !gridInView()) {
+    <div class="kc-sticky">
+      <button type="button" class="kc-btn kc-btn--cyan kc-btn--block" [disabled]="starter.starting() !== null" (click)="startFirst()">{{ starter.starting() !== null ? 'Cargando mundo…' : 'Empezar gratis ahora' }}</button>
+    </div>
+  }
+</div>

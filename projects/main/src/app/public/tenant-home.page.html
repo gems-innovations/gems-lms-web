@@ -1,0 +1,26 @@
+@if (custom()) {
+  <gems-tenant-home class="tb-page" [html]="customHtml()" [css]="home().css" />
+} @else {
+  <gems-tenant-home class="tb-page" [html]="home().html" [css]="home().css">
+    <header slot="top" class="tb-header">
+      <a class="tb-brand" routerLink="/">
+        @if (logoUrl(); as logo) { <img class="tb-logo" [src]="logo" alt="" /> }
+        <span class="tb-name">{{ home().name }}</span>
+      </a>
+      <a class="tb-login" routerLink="/auth/signin">Iniciar sesión</a>
+    </header>
+
+    <section class="tb-hero">
+      <h1>{{ home().name }}</h1>
+      <p>Aprende con los cursos de {{ home().name }}.</p>
+      <a class="tb-cta" routerLink="/auth/signin">Ingresar a la plataforma</a>
+    </section>
+
+    <section class="tb-courses" aria-labelledby="tb-courses-title">
+      <h2 id="tb-courses-title">Nuestros cursos</h2>
+      <div [innerHTML]="courses()"></div>
+    </section>
+
+    <footer class="tb-footer">{{ home().name }} · Con tecnología de GEMS</footer>
+  </gems-tenant-home>
+}

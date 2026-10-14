@@ -1,0 +1,131 @@
+// Tipografías de la marca (licencia OFL), servidas desde el propio sitio: el CSP no permite Google Fonts.
+@font-face { font-family: 'Press Start 2P'; font-weight: 400; font-display: swap; src: url('/fonts/press-start-2p-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Rubik'; font-weight: 500; font-display: swap; src: url('/fonts/rubik-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Rubik'; font-weight: 700; font-display: swap; src: url('/fonts/rubik-latin-700-normal.woff2') format('woff2'); }
+
+// Landing de Knowledge Craft. Sin encapsulación: todo cuelga de .kc y sus clases llevan el prefijo kc-.
+.kc {
+  --kc-pixel: 'Press Start 2P', ui-monospace, monospace;
+  --kc-body: 'Rubik', system-ui, sans-serif;
+  --kc-bg: #14161f;
+  --kc-bg-alt: #191c27;
+  --kc-surface: #1c1f2b;
+  --kc-line: #2a2e3d;
+  --kc-cream: #f4f1e8;
+  --kc-muted: #b9b6ab;
+  --kc-cyan: #3fd0d4;
+  --kc-cyan-soft: #8be9ec;
+  --kc-cyan-deep: #0b5f63;
+  --kc-green: #5dbb47;
+  --kc-green-deep: #2e6b23;
+  --kc-gold: #f2c230;
+  --kc-gold-deep: #8c6a0e;
+  --kc-red: #e8574a;
+  --kc-ink: #14161f;
+  --kc-max: 1160px;
+
+  position: relative;
+  min-height: 100vh;
+  color: var(--kc-cream);
+  background-color: var(--kc-bg);
+  background-image:
+    linear-gradient(var(--kc-surface) 2px, transparent 2px),
+    linear-gradient(90deg, var(--kc-surface) 2px, transparent 2px);
+  background-size: 48px 48px;
+  font: 500 17px/1.6 var(--kc-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+
+  *, *::before, *::after { box-sizing: border-box; }
+  a { color: var(--kc-cyan); }
+  a:hover { color: var(--kc-cyan-soft); }
+  a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--kc-gold); outline-offset: 3px; }
+  h1, h2, h3 { margin: 0; font-family: var(--kc-pixel); font-weight: 400; line-height: 1.4; }
+  p { margin: 0; }
+}
+
+.kc-skip {
+  position: absolute; left: 12px; top: -64px; z-index: 100; padding: 10px 16px;
+  background: var(--kc-gold); color: var(--kc-ink) !important; font-weight: 700;
+  &:focus { top: 12px; }
+}
+
+// ── Botones: relleno vivo, texto oscuro y sombra dura, como los del banner ────
+.kc-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 12px 22px;
+  font: 700 16px/1.1 var(--kc-body); text-decoration: none; text-align: center; cursor: pointer;
+  color: var(--kc-ink) !important; border: 0; border-radius: 0;
+  box-shadow: 5px 5px 0 var(--kc-shadow, #0b5f63);
+  transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
+
+  &:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--kc-shadow, #0b5f63); }
+  &:active:not(:disabled) { transform: translate(4px, 4px); box-shadow: 1px 1px 0 var(--kc-shadow, #0b5f63); }
+  &:disabled { opacity: 0.7; cursor: progress; }
+
+  &--cyan { background: var(--kc-cyan); --kc-shadow: #0b5f63; }
+  &--green { background: var(--kc-green); --kc-shadow: #2e6b23; }
+  &--gold { background: var(--kc-gold); --kc-shadow: #8c6a0e; }
+  &--ghost { background: transparent; color: var(--kc-cream) !important; box-shadow: none; border: 2px solid var(--kc-cream);
+    &:hover:not(:disabled) { box-shadow: none; transform: none; border-color: var(--kc-cyan); color: var(--kc-cyan) !important; } }
+  &--sm { min-height: 44px; padding: 9px 16px; font-size: 15px; }
+  &--block { width: 100%; }
+}
+
+// ── Cabecera ──────────────────────────────────────────────────────────────────
+.kc-header {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50;
+  display: flex; align-items: center; gap: 22px;
+  padding: 12px max(20px, calc((100% - var(--kc-max)) / 2));
+  background: color-mix(in srgb, var(--kc-bg) 90%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 3px solid var(--kc-line);
+}
+.kc-brand {
+  display: inline-flex; align-items: center; gap: 12px; min-height: 48px; text-decoration: none;
+  color: var(--kc-cream) !important;
+  &__name { font: 400 12px/1.5 var(--kc-pixel); letter-spacing: 0.02em; b { color: var(--kc-cyan); font-weight: 400; } }
+}
+.kc-nav { display: flex; gap: 6px; margin-left: 6px;
+  a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; color: var(--kc-muted); text-decoration: none; font-weight: 700; font-size: 15px;
+    &:hover { color: var(--kc-cream); } } }
+.kc-actions { display: flex; gap: 10px; margin-left: auto; }
+.kc-wait { display: block; width: 130px; min-height: 44px; }
+.kc-short { display: none; }
+
+// ── Hero ──────────────────────────────────────────────────────────────────────
+.kc-hero {
+  position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 48px; align-items: center;
+  max-width: var(--kc-max); margin: 0 auto; padding: 72px 20px 88px;
+
+  h1 { font-size: clamp(22px, 4.6vw, 44px); line-height: 1.35; margin: 18px 0 22px; text-wrap: balance; }
+  .kc-hl { color: var(--kc-cyan); text-shadow: 4px 4px 0 var(--kc-cyan-deep); }
+}
+.kc-eyebrow {
+  display: inline-block; padding: 8px 12px; background: var(--kc-gold); color: var(--kc-ink);
+  font: 400 10px/1.4 var(--kc-pixel); letter-spacing: 0.04em; text-transform: uppercase; box-shadow: 4px 4px 0 var(--kc-gold-deep);
+}
+.kc-lead { max-width: 52ch; font-size: 19px; color: var(--kc-cream); }
+.kc-hero__cta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 28px; }
+.kc-trust { margin-top: 18px; font-size: 14px; color: var(--kc-muted); }
+.kc-facts { display: flex; flex-wrap: wrap; gap: 12px 26px; margin: 26px 0 0; padding: 0; list-style: none; color: var(--kc-muted); font-size: 14px;
+  strong { display: block; font: 400 15px/1.6 var(--kc-pixel); color: var(--kc-green); } }
+
+.kc-pixels { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.kc-px {
+  position: absolute; width: 40px; height: 40px; background: var(--c); animation: kc-float 5s steps(5) infinite;
+  box-shadow: inset -10px -10px 0 rgb(0 0 0 / 0.22), 6px 6px 0 #0d0f16;
+  &--cyan { --c: var(--kc-cyan); } &--gold { --c: var(--kc-gold); } &--green { --c: var(--kc-green); }
+  &--sm { width: 22px; height: 22px; animation-delay: -2s; box-shadow: inset -6px -6px 0 rgb(0 0 0 / 0.22), 4px 4px 0 #0d0f16; }
+}
+.kc-hero__copy, .kc-hero__card { position: relative; z-index: 1; }
+@keyframes kc-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+// Franja de pasto y tierra, como el banner del canal.
+.kc-ground {
+  height: 56px;
+  background:
+    repeating-linear-gradient(90deg, #4a9a38 0 32px, transparent 32px 96px) 0 24px / 100% 12px no-repeat,
+    repeating-linear-gradient(90deg, #5dbb47 0 64px, #4fa83b 64px 128px) 0 0 / 100% 24px no-repeat,
+    repeating-linear-gradient(90deg, #8a5a34 0 64px, #7a4e2c 64px 128px);
+}
