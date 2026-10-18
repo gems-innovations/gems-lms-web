@@ -1,0 +1,6 @@
+Texturas de objetos y bloques (archivos .png de esta carpeta)
+Origen: Minetest Game — https://github.com/minetest/minetest_game (mods/default y mods/tnt)
+Autores: celeron55 (Perttu Ahola), Cisoun, VanessaE, Calinou, PilzAdam, BlockMen, paramat y demás colaboradores de Minetest Game.
+Licencia: Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0) — https://creativecommons.org/licenses/by-sa/3.0/
+Cambios: ninguno en los archivos PNG. SkinLibre Clips los convierte en objetos 3D (voxels) al mostrarlos.
+Estas texturas mantienen su licencia CC BY-SA 3.0, independiente de la licencia del resto del sitio.

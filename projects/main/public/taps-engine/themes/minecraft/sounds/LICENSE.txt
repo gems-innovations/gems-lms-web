@@ -1,0 +1,6 @@
+Efectos de sonido (archivos .ogg de esta carpeta)
+Origen: Minetest Game — https://github.com/minetest/minetest_game (mods/default/sounds y mods/tnt/sounds)
+Licencias: las indicadas por Minetest Game para sus medios (CC BY-SA 3.0, CC BY 3.0 y CC0), con la lista completa
+de autores en LICENSE-minetest-default.txt y LICENSE-minetest-tnt.txt (copias sin cambios de los originales).
+Cambios: ninguno en los archivos. SkinLibre Clips los reproduce y los mezcla en los videos que crea cada usuario.
+Otros efectos (espada en el aire, diálogos, saltos, jingle y transiciones) se generan con código en el navegador y son propios.

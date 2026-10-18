@@ -33,7 +33,7 @@ export class App {
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
       takeUntilDestroyed(),
     ).subscribe(e => {
-      this.publicPage.set(/^\/($|[#?]|cursos\/|instituciones|terminos|privacidad)/.test(e.urlAfterRedirects));
+      this.publicPage.set(/^\/($|[#?]|cursos\/|instituciones|terminos|privacidad|taps)/.test(e.urlAfterRedirects));
       this.onboarding.maybeStart();
     });
   }

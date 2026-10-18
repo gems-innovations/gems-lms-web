@@ -20,6 +20,8 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'instituciones',        renderMode: RenderMode.Server },
   { path: 'retos',                renderMode: RenderMode.Server },
   { path: 'bloques',              renderMode: RenderMode.Server },
+  // El feed de Taps: la primera pregunta llega ya pintada; el motor 3D solo se carga en el navegador.
+  { path: 'taps',                 renderMode: RenderMode.Server },
   { path: 'terminos',             renderMode: RenderMode.Server },
   { path: 'privacidad',           renderMode: RenderMode.Server },
   { path: 'solicitudes',          renderMode: RenderMode.Client },

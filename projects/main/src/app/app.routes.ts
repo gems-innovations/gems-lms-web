@@ -39,6 +39,11 @@ export const routes: Routes = [
     loadComponent: () => import('./public/retos.component').then(m => m.RetosComponent)
   },
   {
+    path: 'taps',
+    title: 'Taps: quizzes que juegas con un personaje en vivo',
+    loadComponent: () => import('./taps/taps-feed.component').then(m => m.TapsFeedComponent)
+  },
+  {
     path: 'instituciones',
     title: 'GEMS para tu institución',
     loadComponent: () => import('./public/institutions.component').then(m => m.InstitutionsComponent)

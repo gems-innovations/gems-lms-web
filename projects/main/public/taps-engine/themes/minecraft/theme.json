@@ -1,0 +1,62 @@
+{
+  "id": "minecraft",
+  "name": "Minecraft",
+  "version": 1,
+
+  "renderer": "renderer3d.js",
+  "light": "light.js",
+  "vendor": { "skinview3d": "vendor/skinview3d.bundle.js" },
+  "defaultWorld": "pradera",
+
+  "font": { "family": "Pixelify Sans", "src": "fonts/pixelify-sans.woff2" },
+  "palette": {
+    "accent": "#c6f66a",
+    "good": "#2f8f2f",
+    "bad": "#c2332a",
+    "confetti": ["#c6f66a", "#ffd84a", "#6ad7ff", "#ff8ad0"],
+    "hit": ["#ffffff", "#fff3a0", "#ffd84a"],
+    "poof": ["#e8e8e8", "#bdbdbd", "#9a9a9a"]
+  },
+
+  "characters": {
+    "leo":   { "name": "Leo",   "skin": "skins/leo.png" },
+    "sofi":  { "name": "Sofi",  "skin": "skins/sofi.png", "slim": true },
+    "mateo": { "name": "Mateo", "skin": "skins/mateo.png" },
+    "dani":  { "name": "Dani",  "skin": "skins/dani.png" }
+  },
+
+  "camera": {
+    "dist": 105, "height": 8, "lookY": -5, "sway": 0.1, "swaySpeed": 0.5,
+    "worlds": { "cueva": { "dist": 100, "height": 6 }, "nether": { "dist": 100 } }
+  },
+
+  "scenes": {
+    "pradera":   { "sky": ["#3f8fe0", "#cfeaff"], "ground": "#5da83a", "groundDark": "#865a36" },
+    "bosque":    { "sky": ["#4d97d6", "#cfe6d8"], "ground": "#4f9a35", "groundDark": "#7a5330" },
+    "noche":     { "sky": ["#03061a", "#1c2a5a"], "sun": false, "ground": "#2f6a2a", "groundDark": "#4a331f" },
+    "cueva":     { "sky": ["#0b0a09", "#25201b"], "sun": false, "ground": "#6b6b6b", "groundDark": "#4e4e4e" },
+    "nether":    { "sky": ["#1a0303", "#7a2410"], "sun": false, "ground": "#8a2f2f", "groundDark": "#5e2020" },
+    "end":       { "sky": ["#05020b", "#241338"], "sun": false, "ground": "#e2e2a8", "groundDark": "#b9b985" },
+    "nieve":     { "sky": ["#8fb0d6", "#e7f0fa"], "ground": "#f4f9ff", "groundDark": "#865a36" },
+    "desierto":  { "sky": ["#5ea8e8", "#f3e2b8"], "ground": "#e3d39b", "groundDark": "#c9b27a" }
+  },
+
+  "sounds": {
+    "damage": { "files": ["sounds/player_damage.ogg"], "vol": 0.8, "synth": "wrong" },
+    "hit":    { "files": ["sounds/default_dug_node.1.ogg", "sounds/default_dug_node.2.ogg"], "vol": 0.8, "synth": "crit" },
+    "pop":    { "files": ["sounds/default_place_node.1.ogg", "sounds/default_place_node.2.ogg"], "vol": 0.7, "synth": "pop" },
+    "boom":   { "files": ["sounds/tnt_explode.ogg"], "vol": 0.7, "synth": "wrong" }
+  },
+
+  "reactions": {
+    "idle":      { "anim": "idle" },
+    "think":     { "anim": "think" },
+    "ask":       { "anim": "talk", "reducedAnim": "idle", "sfx": ["pop"], "duration": 1.5, "then": "think", "say": [] },
+    "celebrate": { "anim": "celebrate", "reducedAnim": "idle", "fx": ["push"], "sfx": ["jingle"], "particles": "confetti", "duration": 2.2, "then": "idle", "tone": "celebrate",
+                   "say": ["¡Eso!", "¡Crack!", "¡Bien jugado!", "¡Exacto!", "¡Cómo lo sabías!"] },
+    "hurt":      { "anim": "hurt", "reducedAnim": "idle", "fx": ["hurt"], "sfx": ["damage", "hit"], "particles": "hit", "duration": 1.5, "then": "think", "tone": "hurt",
+                   "say": ["¡Auch!", "Casi…", "Ouch…", "Esa dolió", "Nooo…"] },
+    "win":       { "anim": "dance", "reducedAnim": "idle", "fx": ["push"], "sfx": ["result"], "particles": "confetti", "tone": "celebrate", "say": [] },
+    "lose":      { "anim": "sad", "reducedAnim": "idle", "sfx": ["wrong"], "tone": "hurt", "say": [] }
+  }
+}

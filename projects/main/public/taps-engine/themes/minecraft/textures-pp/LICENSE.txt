@@ -1,0 +1,8 @@
+Texturas de bloques (archivos .png de esta carpeta)
+Origen: Mineclonia — https://codeberg.org/mineclonia/mineclonia (mods/ITEMS/mcl_core, mcl_nether, mcl_end, mcl_wool)
+Basadas en:
+ - Pixel Perfection, de XSSheep — https://www.planetminecraft.com/texture_pack/131pixel-perfection/
+ - Pixel Perfection Legacy, de Nova Wostra — https://www.curseforge.com/minecraft/texture-packs/pixel-perfection-legacy
+Licencia: Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) — http://creativecommons.org/licenses/by-sa/4.0/
+Cambios: ninguno en los archivos. SkinLibre Clips tiñe al vuelo las texturas en gris (pasto, hojas y agua) y usa solo el primer cuadro de las animadas.
+Estas texturas conservan su licencia CC BY-SA 4.0, independiente de la licencia del resto del sitio. Aviso legal completo de Mineclonia: LEGAL-mineclonia.md

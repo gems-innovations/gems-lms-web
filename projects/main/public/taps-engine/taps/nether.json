@@ -1,0 +1,95 @@
+{
+  "id": "nether",
+  "theme": "minecraft",
+  "title": "Nether y End",
+  "kicker": "Quiz de bloques",
+  "scene": {
+    "world": "nether",
+    "host": "leo",
+    "item": "sword"
+  },
+  "questions": [
+    {
+      "id": "portal",
+      "q": "¿Cuántos bloques de obsidiana necesitas, como mínimo, para un portal al Nether que funcione?",
+      "options": [
+        "14",
+        "12",
+        "10",
+        "8"
+      ],
+      "answer": 2,
+      "why": "Diez. El marco de 4 × 5 lleva 14 con las esquinas, pero las 4 esquinas no hacen falta para que el portal se encienda."
+    },
+    {
+      "id": "perlas",
+      "q": "¿Cuántas perlas de ender caben en un solo espacio del inventario?",
+      "options": [
+        "64",
+        "32",
+        "16",
+        "1"
+      ],
+      "answer": 2,
+      "why": "16. Igual que los huevos y los letreros; la mayoría de bloques sí llega a 64."
+    },
+    {
+      "id": "piglin",
+      "q": "¿Cuándo te atacan los piglin en el Nether?",
+      "options": [
+        "Cuando llevas hierro",
+        "Si no llevas ninguna pieza de oro",
+        "Solo de noche",
+        "Nunca atacan"
+      ],
+      "answer": 1,
+      "why": "Si no llevas al menos una pieza de armadura de oro. Con una sola puesta te dejan en paz."
+    },
+    {
+      "id": "cama",
+      "q": "¿Qué pasa si intentas dormir en una cama en el Nether o en el End?",
+      "options": [
+        "Te cura",
+        "Cambia la hora",
+        "Explota",
+        "Guarda tu punto de reaparición"
+      ],
+      "answer": 2,
+      "why": "La cama explota. En esas dimensiones no se puede dormir, así que no la uses allí."
+    },
+    {
+      "id": "ghast",
+      "q": "Un ghast te lanza una bola de fuego. ¿Cómo lo vences?",
+      "options": [
+        "Escondiéndote bajo tierra",
+        "Devolviéndole la bola de fuego con un golpe",
+        "Dándole oro",
+        "Lanzándole agua"
+      ],
+      "answer": 1,
+      "why": "Golpeando la bola de fuego se la devuelves y puede derrotarlo."
+    }
+  ],
+  "results": [
+    {
+      "min": 0,
+      "title": "Turista del Nether",
+      "line": "Cuidado con las camas y con la lava. Inténtalo otra vez."
+    },
+    {
+      "min": 2,
+      "title": "Cazador de piglins",
+      "line": "Ya no te roban el oro. Te falta conocer el End."
+    },
+    {
+      "min": 4,
+      "title": "Explorador del Nether",
+      "line": "Casi perfecto. Los ghast te tienen miedo."
+    },
+    {
+      "min": 5,
+      "title": "Rey del Nether",
+      "line": "Cero errores. Hasta el dragón te manda saludos."
+    }
+  ]
+}

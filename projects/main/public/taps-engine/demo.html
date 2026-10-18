@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Taps Engine · demo del motor</title>
+<link rel="stylesheet" href="taps-engine.css">
+<style>
+  html, body { margin: 0; height: 100%; background: #0b0d09; color: #fff; font-family: system-ui, sans-serif; }
+  #phone { position: relative; height: 100dvh; max-width: 480px; margin: 0 auto; overflow: hidden; }
+  #card { position: absolute; left: 0; right: 0; bottom: 0; padding: 16px 16px max(16px, env(safe-area-inset-bottom)); background: linear-gradient(transparent, rgba(8, 10, 6, .94) 22%); }
+  #q { font-size: 1.15rem; font-weight: 700; margin: 0 0 12px; text-shadow: 0 2px 0 #000; }
+  #opts { display: grid; gap: 8px; }
+  #opts button { min-height: 52px; padding: 10px 14px; border-radius: 10px; border: 2px solid #3a4a2a; background: #1b2414; color: #fff; font: inherit; text-align: left; }
+  #opts button.ok { background: #1f6b2a; border-color: #7bdc4a; } #opts button.bad { background: #7a2020; border-color: #ff6a5a; }
+  #why { margin: 10px 0 0; font-size: .9rem; color: #d7e6c8; } #next { margin-top: 10px; min-height: 48px; width: 100%; border-radius: 10px; border: 0; background: #c6f66a; color: #111; font-weight: 800; }
+  #hud { position: absolute; top: 8px; left: 12px; right: 12px; display: flex; justify-content: space-between; z-index: 3; font-size: .85rem; text-shadow: 0 1px 2px #000; }
+  #info { position: fixed; top: 4px; left: 4px; font: 11px monospace; color: #9f9; z-index: 9; }
+</style>
+</head>
+<body>
+<div id="phone">
+  <div id="stage" style="position:absolute;inset:0"></div>
+  <div id="hud"><span id="kick"></span><span id="prog"></span></div>
+  <div id="card"><p id="q"></p><div id="opts"></div><p id="why" hidden></p><button id="next" hidden>Siguiente</button></div>
+</div>
+<div id="info" hidden></div>
+<script type="module">
+// Demo mínima: el motor (taps-engine.js) no sabe de quizzes; aquí un quiz de unas 40 líneas lo maneja.
+import { create } from './taps-engine.js';
+const params = new URLSearchParams(location.search);
+const $ = id => document.getElementById(id);
+const t0 = performance.now();
+const tap = await (await fetch(`taps/${params.get('tap') || 'redstone'}.json`)).json();
+const stage = create($('stage'), { theme: `themes/${tap.theme}/theme.json`, mode: params.get('mode') || 'auto', degrade: params.get('degrade') !== '0' });
+window.stage = stage;
+let i = 0, score = 0, locked = false;
+if (params.has('debug')) $('info').hidden = false;
+const info = () => { $('info').textContent = `modo=${stage.mode} nivel=${stage.tier} t=${Math.round(performance.now() - t0)}ms`; };
+stage.on('mode', () => { info(); window.__modeAt = performance.now() - t0; });
+function show() {
+  const q = tap.questions[i]; locked = false;
+  $('kick').textContent = tap.kicker + ' · ' + tap.title; $('prog').textContent = `${i + 1} / ${tap.questions.length}`;
+  $('q').textContent = q.q; $('why').hidden = true; $('next').hidden = true;
+  $('opts').replaceChildren(...q.options.map((o, k) => Object.assign(document.createElement('button'), { textContent: o, onclick: () => answer(k) })));
+  stage.react('ask');
+  window.__firstQuestionAt ??= performance.now() - t0;
+}
+function answer(k) {
+  if (locked) return; locked = true; const q = tap.questions[i], good = k === q.answer; if (good) score++;
+  [...$('opts').children].forEach((b, n) => { b.classList.toggle('ok', n === q.answer); b.classList.toggle('bad', n === k && !good); });
+  $('why').textContent = q.why; $('why').hidden = false; stage.react(good ? 'celebrate' : 'hurt');
+  $('next').hidden = false; $('next').textContent = i === tap.questions.length - 1 ? 'Ver mi título' : 'Siguiente';
+}
+$('next').onclick = () => { i++; if (i < tap.questions.length) return show(); finish(); };
+function finish() {
+  const r = [...tap.results].reverse().find(x => score >= x.min);
+  $('q').textContent = `${score} de ${tap.questions.length}: ${r.title}`; $('opts').replaceChildren(); $('why').textContent = r.line; $('why').hidden = false; $('next').hidden = true;
+  stage.react(score >= 3 ? 'win' : 'lose'); stage.say(r.title, { hold: true, ms: 0 });
+}
+await stage.ready;
+await stage.setScene(tap.scene);
+show(); info();
+// pone listo lo del siguiente Tap en reposo
+</script>
+</body>
+</html>
