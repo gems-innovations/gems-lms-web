@@ -1,0 +1,95 @@
+{
+  "id": "redstone",
+  "theme": "minecraft",
+  "title": "Redstone",
+  "kicker": "Quiz de bloques",
+  "scene": {
+    "world": "cueva",
+    "host": "sofi",
+    "item": "pick"
+  },
+  "questions": [
+    {
+      "id": "piston",
+      "q": "¿Cuántos bloques puede empujar un pistón a la vez?",
+      "options": [
+        "6",
+        "9",
+        "12",
+        "16"
+      ],
+      "answer": 2,
+      "why": "12. Si intentas empujar 13, el pistón no se mueve."
+    },
+    {
+      "id": "pegajoso",
+      "q": "¿Qué lleva el pistón pegajoso además de un pistón?",
+      "options": [
+        "Una bola de slime",
+        "Un lingote de hierro",
+        "Un cubo de agua",
+        "Pólvora"
+      ],
+      "answer": 0,
+      "why": "Una bola de slime. Gracias a ella, además de empujar, jala el bloque cuando se retrae."
+    },
+    {
+      "id": "observador",
+      "q": "¿Para qué sirve un observador?",
+      "options": [
+        "Para empujar bloques",
+        "Para detectar cambios en el bloque que mira",
+        "Para contar mobs",
+        "Para medir la hora"
+      ],
+      "answer": 1,
+      "why": "Detecta cuando cambia el bloque que tiene enfrente y manda un pulso de redstone. Se usa mucho en granjas automáticas."
+    },
+    {
+      "id": "repetidor",
+      "q": "¿Cuántos bloques viaja la señal de redstone antes de apagarse?",
+      "options": [
+        "5",
+        "10",
+        "15",
+        "30"
+      ],
+      "answer": 2,
+      "why": "15 bloques. Para llegar más lejos se coloca un repetidor, que refuerza la señal."
+    },
+    {
+      "id": "antorcha-redstone",
+      "q": "¿Qué hace una antorcha de redstone en un circuito?",
+      "options": [
+        "Amplifica la señal",
+        "Invierte la señal",
+        "Mide distancias",
+        "Cuenta pulsos"
+      ],
+      "answer": 1,
+      "why": "Invierte la señal: si le llega energía se apaga, y si no le llega se enciende."
+    }
+  ],
+  "results": [
+    {
+      "min": 0,
+      "title": "Aprendiz de antorchas",
+      "line": "Todo gran ingeniero empezó quemándose los dedos. Vuelve a intentarlo."
+    },
+    {
+      "min": 2,
+      "title": "Electricista del pueblo",
+      "line": "Ya sabes lo básico. Un repetidor más y te sale la granja."
+    },
+    {
+      "min": 4,
+      "title": "Maquinista de pistones",
+      "line": "Casi no fallas: tus circuitos ya mueven bloques."
+    },
+    {
+      "min": 5,
+      "title": "Crack de redstone",
+      "line": "Perfecto. Hasta los observadores te piden consejo."
+    }
+  ]
+}
