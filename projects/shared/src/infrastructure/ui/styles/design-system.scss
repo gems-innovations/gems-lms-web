@@ -89,7 +89,8 @@
   // =========================================================================
   --color-scrollbar: rgba(255, 255, 255, 0.1);
   --color-scrollbar-hover: rgba(255, 255, 255, 0.18);
-  --color-focus-ring: rgba(123, 111, 240, 0.6);
+  // Sólido: el anterior rgba(123, 111, 240, .6) daba ~2,5:1 sobre el fondo y WCAG 1.4.11 pide 3:1.
+  --color-focus-ring: #9B8FF8;
 
   // =========================================================================
   // GRADIENTES
@@ -257,6 +258,7 @@
 
   // Acentos: en fondos claros los tonos del tema oscuro no alcanzan 4.5:1 como texto.
   --color-primario-claro: #5848B8;
+  --color-focus-ring: #5848B8; // ~6,5:1 sobre los fondos claros
   --color-teal: #0F766E;
   --color-acento: #0E7490;
   --color-info: #0369A1;
