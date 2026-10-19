@@ -9,8 +9,8 @@
 }
 <div class="centro">
 <div class="escenario">
-<gems-taps-bar [sound]="sound()" [topic]="topic()" [topicName]="topicName()" [topics]="topics" [desktop]="wide()"
-               (toggleSound)="toggleSound()" (topicChange)="selectTopic($event)" (sheetChange)="onSheet($event)" />
+<gems-taps-bar [sound]="sound()" [voice]="voice()" [topic]="topic()" [topicName]="topicName()" [topics]="topics" [desktop]="wide()"
+               (toggleSound)="toggleSound()" (toggleVoice)="toggleVoice()" (topicChange)="selectTopic($event)" (sheetChange)="onSheet($event)" />
 
 <main class="taps" #feed [attr.data-stage]="stageAttr()" aria-labelledby="taps-h1">
   <h1 id="taps-h1" class="visually-hidden">Taps de GEMS LMS: quizzes que juegas</h1>
