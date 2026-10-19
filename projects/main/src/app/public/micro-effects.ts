@@ -1,39 +1,28 @@
 import { Directive, ElementRef, afterNextRender, inject } from '@angular/core';
+import { prefersReducedMotion } from 'shared';
 
 /**
- * Microefectos de la landing con Motion. Todo se descarga bajo demanda (`import('motion')`) y solo en el
- * navegador, así no pesa en la carga inicial. Quien pide menos movimiento no ve ninguno.
+ * Microefectos de la landing sin librerías: CSS y requestAnimationFrame. El acierto, el error, la barra y la
+ * aparición usan las clases compartidas (.gm-acierto, .gm-error, .gm-progreso, .gm-aparecer) de
+ * projects/shared/src/infrastructure/ui/styles/_movimiento.scss. Quien pide menos movimiento no ve ninguno.
  */
-const motionAllowed = (): boolean =>
-  typeof window !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/** «Pop»: el elemento se agranda un instante, como confirmación de un acierto. */
-export async function pop(el: Element | null | undefined): Promise<void> {
-  if (!el || !motionAllowed()) return;
-  const { animate } = await import('motion');
-  animate(el, { scale: [1, 1.07, 1] }, { duration: 0.35, ease: 'easeOut' });
-}
-
-/** La barra se llena desde su ancho anterior hasta el nuevo (0-100). */
-export async function fillBar(el: HTMLElement | null | undefined, percent: number): Promise<void> {
+/** Un número que sube hasta su valor final (racha, puntaje), con la misma curva de salida del sistema. */
+export function countUp(el: HTMLElement | null | undefined, to: number, from = 0, duracion = 600): void {
   if (!el) return;
-  el.style.width = `${percent}%`;
-  if (!motionAllowed()) return;
-  const { animate } = await import('motion');
-  animate(el, { scaleX: [0.92, 1] }, { duration: 0.45, ease: 'easeOut' });
-}
-
-/** Un número que sube hasta su valor final (racha, puntaje). */
-export async function countUp(el: HTMLElement | null | undefined, to: number, from = 0): Promise<void> {
-  if (!el) return;
-  if (!motionAllowed()) { el.textContent = String(to); return; }
-  const { animate } = await import('motion');
-  animate(from, to, { duration: 0.7, ease: 'easeOut', onUpdate: v => { el.textContent = String(Math.round(v)); } });
+  if (typeof window === 'undefined' || prefersReducedMotion()) { el.textContent = String(to); return; }
+  const inicio = performance.now();
+  const paso = (ahora: number) => {
+    const t = Math.min(1, (ahora - inicio) / duracion);
+    el.textContent = String(Math.round(from + (to - from) * (1 - Math.pow(1 - t, 3))));
+    if (t < 1) requestAnimationFrame(paso);
+  };
+  requestAnimationFrame(paso);
 }
 
 /**
- * La tarjeta se inclina hacia el puntero. Solo con mouse (no en pantallas táctiles) y sin carga previa:
- * Motion se pide la primera vez que el puntero entra.
+ * La tarjeta se inclina hacia el puntero (máximo ±3°). Solo con mouse, sin librerías: escribe el transform y deja
+ * que una transición corta lo suavice.
  */
 @Directive({ selector: '[gemsTilt]', standalone: true })
 export class TiltDirective {
@@ -41,18 +30,20 @@ export class TiltDirective {
 
   constructor() {
     afterNextRender(() => {
-      if (!motionAllowed() || !window.matchMedia('(hover: hover)').matches) return;
-      let animate: typeof import('motion').animate | null = null;
-      const load = () => animate ? Promise.resolve(animate) : import('motion').then(m => (animate = m.animate));
-      const tilt = (x: number, y: number) => load().then(a => a(this.el, { rotateX: y, rotateY: x }, { duration: 0.25 }));
-      this.el.style.transformStyle = 'preserve-3d';
-      this.el.addEventListener('pointermove', e => {
-        const r = this.el.getBoundingClientRect();
-        const x = ((e.clientX - r.left) / r.width - 0.5) * 6;   // máximo ±3°
-        const y = -((e.clientY - r.top) / r.height - 0.5) * 6;
-        void tilt(x, y);
+      if (prefersReducedMotion() || !window.matchMedia('(hover: hover)').matches) return;
+      const el = this.el;
+      let frame = 0;
+      const inclinar = (x: number, y: number) => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => {
+          el.style.transform = x || y ? `perspective(900px) rotateX(${y}deg) rotateY(${x}deg) translateY(var(--elevar-hover))` : '';
+        });
+      };
+      el.addEventListener('pointermove', e => {
+        const r = el.getBoundingClientRect();
+        inclinar(((e.clientX - r.left) / r.width - 0.5) * 6, -((e.clientY - r.top) / r.height - 0.5) * 6);
       });
-      this.el.addEventListener('pointerleave', () => void tilt(0, 0));
+      el.addEventListener('pointerleave', () => inclinar(0, 0));
     });
   }
 }

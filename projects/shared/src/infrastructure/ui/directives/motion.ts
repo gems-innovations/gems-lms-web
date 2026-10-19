@@ -117,6 +117,37 @@ export async function celebrate(origin: { x: number; y: number } = { x: 0.5, y: 
   if (typeof window === 'undefined' || prefersReducedMotion()) return;
   const { default: confetti } = await import('canvas-confetti');
   const colors = ['#7B6FF0', '#4DE1FF', '#3DD6C8', '#C471ED', '#FBBF24'];
-  confetti({ particleCount: 90, spread: 70, startVelocity: 38, origin, colors, disableForReducedMotion: true });
-  setTimeout(() => confetti({ particleCount: 50, spread: 110, startVelocity: 28, origin, colors, disableForReducedMotion: true }), 180);
+  confetti({ particleCount: 90, spread: 70, startVelocity: 38, origin, colors, zIndex: 1090, disableForReducedMotion: true });
+  setTimeout(() => confetti({ particleCount: 50, spread: 110, startVelocity: 28, origin, colors, zIndex: 1090, disableForReducedMotion: true }), 180);
+}
+
+// ── Retroalimentación compartida (mismo lenguaje que Taps). Las clases viven en _movimiento.scss. ──
+
+/** Reinicia una animación CSS de una sola vez (gm-acierto, gm-error, gm-pop…) aunque la clase ya estuviera puesta. */
+export function animarClase(el: Element | null | undefined, clase: string): void {
+  if (!el) return;
+  el.classList.remove(clase);
+  void (el as HTMLElement).offsetWidth; // fuerza el reinicio de la animación
+  el.classList.add(clase);
+}
+
+/** Acierto: rebote corto con destello verde (con movimiento reducido, solo el destello). */
+export const marcarAcierto = (el: Element | null | undefined): void => animarClase(el, 'gm-acierto');
+
+/** Error: sacudida corta con destello rojo (con movimiento reducido, solo el destello). */
+export const marcarError = (el: Element | null | undefined): void => animarClase(el, 'gm-error');
+
+/**
+ * Confeti contenido: sale del elemento (no de media pantalla), con pocas piezas y los colores de GEMS.
+ * Para logros pequeños (racha, reto resuelto). Para logros grandes, `celebrate()`.
+ */
+export async function celebrarEn(el: Element | null | undefined, piezas = 36): Promise<void> {
+  if (!el || typeof window === 'undefined' || prefersReducedMotion()) return;
+  const r = el.getBoundingClientRect();
+  const origin = { x: (r.left + r.width / 2) / window.innerWidth, y: (r.top + r.height / 2) / window.innerHeight };
+  const { default: confetti } = await import('canvas-confetti');
+  confetti({
+    particleCount: piezas, spread: 55, startVelocity: 24, gravity: 1.1, ticks: 120, scalar: 0.8, origin, zIndex: 1090,
+    colors: ['#7B6FF0', '#4DE1FF', '#C471ED', '#34D399'], disableForReducedMotion: true,
+  });
 }

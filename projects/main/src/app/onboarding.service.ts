@@ -14,6 +14,23 @@ function visibleElement(selector: string): Element | null {
   }) ?? null;
 }
 
+/**
+ * Estilos de Driver.js bajo demanda: angular.json los compila como `driver.css` sin inyectarlos, así no pesan en
+ * el CSS inicial de quien nunca ve la guía. Resuelve también si falla la carga (la guía se ve igual, con menos estilo).
+ */
+function cargarEstiloTour(): Promise<void> {
+  const id = 'gems-driver-css';
+  if (document.getElementById(id)) return Promise.resolve();
+  return new Promise(resolve => {
+    const link = document.createElement('link');
+    link.id = id;
+    link.rel = 'stylesheet';
+    link.href = 'driver.css';
+    link.onload = link.onerror = () => resolve();
+    document.head.appendChild(link);
+  });
+}
+
 @Injectable({ providedIn: 'root' })
 export class OnboardingService {
   private readonly session = inject(AuthSessionService);
@@ -42,7 +59,7 @@ export class OnboardingService {
     // the popover is open must not schedule the same tour again and cover the
     // destination page.
     if (markCompleted) browserStorage.set(key, '1');
-    void import('driver.js').then(({ driver }) => {
+    void Promise.all([import('driver.js'), cargarEstiloTour()]).then(([{ driver }]) => {
       const tour = driver({
         animate: true,
         overlayOpacity: 0.62,

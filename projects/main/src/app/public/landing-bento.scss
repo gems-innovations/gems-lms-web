@@ -6,7 +6,7 @@
   strong { font: 700 var(--font-size-base)/1.3 var(--font-titulo); color: var(--color-texto-principal); }
   > span:last-child:not(.tile__num) { font-size: var(--font-size-sm); line-height: 1.5; color: var(--color-texto-secundario); }
   &__kicker { font-size: var(--font-size-xs); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-texto-terciario); }
-  &__num { font: 800 44px/1 var(--font-titulo); letter-spacing: -.03em; color: var(--color-texto-principal);
+  &__num { font: 800 44px/1 var(--font-titulo); letter-spacing: -.03em; color: var(--color-texto-principal); font-variant-numeric: tabular-nums;
     small { font-size: 16px; font-weight: 700; letter-spacing: 0; color: var(--color-texto-secundario); } }
   &--wide { grid-column: span 2; }
   &--tall { grid-row: span 2; }
@@ -49,7 +49,7 @@
     .reveal { animation: bento-in linear both; animation-timeline: view(); animation-range: entry 0% entry 35%; }
   }
 }
-@keyframes bento-in { from { opacity: 0; transform: translateY(24px); } }
+@keyframes bento-in { from { opacity: 0; transform: translateY(14px); } }
 
 @media (max-width: 860px) {
   .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: dense; gap: 10px; }

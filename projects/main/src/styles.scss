@@ -6,6 +6,7 @@
 // ============================================================================
 
 @use 'design-system';
+@use 'movimiento'; // movimiento, iconos de vidrio y tipografía compartidos (projects/shared/MOVIMIENTO.md)
 @import 'github-markdown-css/github-markdown-dark.css';
 
 // ── Markdown body overrides — adapt GitHub Dark theme to GEMS design system ──
@@ -74,37 +75,7 @@
   padding: 0;
 }
 
-@font-face {
-  font-family: 'Montserrat';
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url('./app/assets/fonts/Montserrat-Light.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Montserrat';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('./app/assets/fonts/Montserrat-Regular.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Montserrat';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('./app/assets/fonts/Montserrat-SemiBold.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Montserrat';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('./app/assets/fonts/Montserrat-Bold.woff2') format('woff2');
-}
+// La fuente de interfaz (Plus Jakarta Sans) se declara en shared/.../_movimiento.scss.
 
 html {
   -webkit-text-size-adjust: 100%;
@@ -247,55 +218,7 @@ button {
   cursor: pointer;
 }
 
-// Microinteracciones sobrias: respuesta inmediata sin rebotes ni degradados.
-:where(button, [role='button'], a) { transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast); }
-button:active:not(:disabled), [role='button']:active { transform: translateY(1px); }
-
-@keyframes gems-enter {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.gems-enter { animation: gems-enter 180ms var(--transition-easing) both; }
-
-// ── Movimiento compartido ───────────────────────────────────────────────────
-// Aparición al entrar en pantalla (directiva libReveal, en cascada con revealIndex).
-.lib-reveal {
-  opacity: 0;
-  transform: translateY(14px) scale(0.985);
-  transition: opacity 0.5s var(--transition-easing) var(--reveal-delay, 0ms),
-    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
-
-  &--in { opacity: 1; transform: none; }
-}
-
-// Cambio de página: el contenido se funde y sube un poco; la barra lateral queda quieta.
-::view-transition-old(root) { animation: gems-page-out 160ms var(--transition-easing) both; }
-::view-transition-new(root) { animation: gems-page-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both; }
-@keyframes gems-page-out { to { opacity: 0; } }
-@keyframes gems-page-in { from { opacity: 0; transform: translateY(8px); } }
-
-// Tarjetas interactivas: se elevan al pasar el cursor.
-.lib-lift {
-  transition: transform var(--transition-base) cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow var(--transition-base) var(--transition-easing),
-    border-color var(--transition-fast) var(--transition-easing);
-
-  @media (hover: hover) {
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--sombra-lg);
-      border-color: color-mix(in srgb, var(--color-primario) 35%, var(--color-borde-principal));
-    }
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lib-reveal { opacity: 1; transform: none; transition: none; }
-  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
-  .lib-lift:hover { transform: none; }
-}
-html.reduce-motion .lib-reveal { opacity: 1; transform: none; transition: none; }
+// Presión, elevación, aparición, cambio de página y foco visible: ver _movimiento.scss.
 
 a {
   color: inherit;
@@ -311,16 +234,6 @@ fieldset {
   border: none;
   padding: 0;
   margin: 0;
-}
-
-:focus-visible {
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-:focus:not(:focus-visible) {
-  outline: none;
 }
 
 h1, h2, h3, h4, h5, h6 {

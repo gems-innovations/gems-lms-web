@@ -49,7 +49,7 @@ import { AnalyticsService } from '../analytics.service';
           <input type="checkbox" name="tips" [checked]="acceptTips()" (change)="acceptTips.set($any($event.target).checked)" />
           <span>Quiero recordatorios para seguir estudiando <em>(opcional, máx. 1 por semana)</em></span>
         </label>
-        @if (error(); as e) { <p class="gsm__error" role="alert">{{ e }}</p> }
+        @if (error(); as e) { <p class="gsm__error gm-error" role="alert">{{ e }}</p> }
         <button type="submit" class="gsm__submit" [disabled]="busy()">{{ busy() ? 'Creando tu cuenta…' : 'Crear mi cuenta gratis' }}</button>
         <button type="button" class="gsm__skip" (click)="closed.emit()">{{ gate.blocked() ? 'Ahora no, seguir con mi curso' : 'Ahora no' }}</button>
       </form>
@@ -57,10 +57,12 @@ import { AnalyticsService } from '../analytics.service';
     </div>
   `,
   styles: [`
-    .gsm__backdrop { position: fixed; inset: 0; z-index: 1000; background: var(--color-fondo-overlay); }
+    .gsm__backdrop { position: fixed; inset: 0; z-index: 1000; background: var(--color-fondo-overlay); animation: gm-fundido var(--dur-base) var(--curva-estandar); }
     .gsm { position: fixed; z-index: 1001; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(460px, calc(100vw - 32px));
       max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain; padding: 20px 22px; border-radius: 18px; background: var(--color-superficie);
-      border: 1px solid var(--color-borde-secundario); box-shadow: var(--sombra-xl); }
+      border: 1px solid var(--color-borde-secundario); box-shadow: var(--sombra-xl); animation: gsm-in var(--dur-enfasis) var(--curva-salida) both; }
+    @keyframes gsm-in { from { opacity: 0; transform: translate(-50%, -46%) scale(.97); } }
+    @keyframes gsm-hoja { from { transform: translateY(100%); } }
     .gsm__lock { display: inline-block; margin-bottom: 8px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-texto-acento); }
     .gsm__alt { margin: 8px 0 0 !important; padding-top: 10px; border-top: 1px solid var(--color-borde-principal); text-align: center; font-size: 13px; color: var(--color-texto-terciario); }
     .gsm a { color: var(--color-texto-acento); font-weight: 700; }
@@ -81,11 +83,12 @@ import { AnalyticsService } from '../analytics.service';
     .gsm__eye:hover { color: var(--color-texto-principal); background: var(--color-fondo-hover); }
     .gsm__rules { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 0; padding: 0; list-style: none; }
     .gsm__rules li { padding: 4px 9px; border-radius: 99px; font-size: 12px; color: var(--color-texto-terciario); background: var(--color-fondo-sutil);
-      border: 1px solid var(--color-borde-principal); transition: color .15s, background .15s, border-color .15s; }
+      border: 1px solid var(--color-borde-principal); transition: color var(--dur-rapida), background var(--dur-rapida), border-color var(--dur-rapida); }
+    .gsm__rules li.ok { animation: gm-pop var(--dur-base) var(--curva-rebote); }
     .gsm__rules li.ok { color: var(--color-exito-texto); border-color: color-mix(in srgb, var(--color-exito) 45%, transparent);
       background: color-mix(in srgb, var(--color-exito) 12%, transparent); }
     .gsm__rules li.ok::before { content: '✓ '; }
-    .gsm__submit { width: 100%; min-height: 44px; padding: 12px 16px; margin-top: 2px; border: 0; border-radius: 10px; font: 700 var(--font-size-base)/1 var(--font-texto);
+    .gsm__submit { width: 100%; min-height: 48px; padding: 12px 16px; margin-top: 2px; border: 0; border-radius: var(--radio-control); font: 700 var(--font-size-base)/1 var(--font-texto);
       background: var(--color-primario-accion); color: var(--color-sobre-primario); cursor: pointer; }
     .gsm__submit:disabled { opacity: .6; cursor: progress; }
     .gsm__skip { justify-self: center; min-height: 44px; padding: 4px 12px; border: 0; background: none; color: var(--color-texto-secundario);
@@ -98,7 +101,7 @@ import { AnalyticsService } from '../analytics.service';
     @media (max-width: 640px) {
       .gsm__row { grid-template-columns: 1fr; }
       .gsm { left: 0; right: 0; top: auto; bottom: 0; transform: none; width: auto; max-height: 92vh; max-height: 92dvh;
-        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); border-radius: 18px 18px 0 0; border-bottom: 0; }
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); border-radius: 18px 18px 0 0; border-bottom: 0; animation: gsm-hoja var(--dur-enfasis) var(--curva-salida) both; }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,

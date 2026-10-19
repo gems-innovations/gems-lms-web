@@ -8,6 +8,7 @@ import { CourseStarterService } from './course-starter.service';
 import { TiltDirective } from './micro-effects';
 import { HeroQuizComponent } from './hero-quiz.component';
 import { InViewDirective } from './in-view.directive';
+import { LucideGraduationCap, LucideSchool, LucideSend, LucideShieldCheck, LucideZap } from '@lucide/angular';
 
 /**
  * Página de entrada pública: cursos gratis para prepararse para la universidad, sin registro.
@@ -15,9 +16,10 @@ import { InViewDirective } from './in-view.directive';
  */
 @Component({
   selector: 'gems-landing',
-  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, HeroQuizComponent, TiltDirective, InViewDirective],
+  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, HeroQuizComponent, TiltDirective, InViewDirective,
+    LucideGraduationCap, LucideSchool, LucideSend, LucideShieldCheck, LucideZap],
   templateUrl: './landing.component.html',
-  styleUrls: ['./public.scss', './landing-extra.scss', './landing-bento.scss'],
+  styleUrls: ['./public.scss', './landing-extra.scss', './landing-bento.scss', './landing-piezas.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LandingComponent {

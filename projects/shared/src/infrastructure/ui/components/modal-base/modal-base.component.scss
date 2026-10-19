@@ -9,7 +9,7 @@
   justify-content: flex-end;
   z-index: var(--z-modal, 1000);
   padding: 0;
-  animation: modal-overlay-in 0.2s ease;
+  animation: modal-overlay-in var(--dur-base) var(--curva-estandar);
 
   &:focus {
     outline: none;
@@ -28,7 +28,7 @@
   max-height: 100dvh;
   overflow: hidden;
   box-shadow: -16px 0 48px rgba(0, 0, 0, 0.45);
-  animation: modal-slide-in 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: modal-slide-in var(--dur-enfasis) var(--curva-salida);
 
   // Size variants → ancho del drawer (en vez de max-width centrado)
   &--small  { width: 420px; max-width: 92vw; }

@@ -174,11 +174,17 @@
   }
   &:disabled { opacity: 0.35; cursor: not-allowed; }
 
+  // --color-primario-accion (BrandingService lo ajusta por institución para que el blanco cumpla 4,5:1); con
+  // --color-primario el texto quedaba en 3,9:1 y el hover con --color-texto-acento en ~1,9:1.
   &--primary {
-    background: var(--color-primario);
-    border-color: var(--color-primario);
+    background: var(--color-primario-accion);
+    border-color: var(--color-primario-accion);
     color: var(--color-sobre-primario);
-    &:hover:not(:disabled) { background: var(--color-texto-acento); border-color: var(--color-texto-acento); }
+    &:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--color-primario-accion) 88%, #000);
+      border-color: color-mix(in srgb, var(--color-primario-accion) 88%, #000);
+      color: var(--color-sobre-primario);
+    }
   }
 
   &--lg { padding: 12px 28px; font-size: 15px; border-radius: 10px; }
@@ -348,7 +354,7 @@
   &--nudged {
     border-color: var(--color-advertencia);
     background: color-mix(in srgb, var(--color-advertencia) 12%, transparent);
-    animation: pcb-shake .4s ease;
+    animation: gm-sacudida var(--dur-enfasis) var(--curva-estandar);
     .pcb-gate__icon { color: var(--color-advertencia-texto, var(--color-advertencia)); }
   }
 
@@ -370,7 +376,7 @@
   svg { flex: 0 0 auto; color: var(--color-advertencia-texto, var(--color-advertencia)); }
 }
 
-.pcb-nudge { animation: pcb-shake .4s ease; }
+.pcb-nudge { animation: gm-sacudida var(--dur-enfasis) var(--curva-estandar); } // sacudida compartida (_movimiento.scss)
 
 .pcb-hint { margin: 0; }
 
@@ -378,11 +384,6 @@
 .pcb-retry .pcb-btn { flex: 1 1 100%; width: 100%; justify-content: center; }
 .pcb-retry .quiz-limit-msg { width: 100%; text-align: center; }
 
-@keyframes pcb-shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  75% { transform: translateX(4px); }
-}
 @media (prefers-reduced-motion: reduce) { .pcb-gate--nudged, .pcb-nudge { animation: none; } }
 @media (max-width: 640px) {
   .pcb-gate--foot .pcb-gate__next { flex: 1 1 100%; justify-content: center; margin-left: 0; }
@@ -519,7 +520,7 @@
 
 .quiz-progress__label {
   font-size: 13px;
-  color: color-mix(in srgb, var(--color-texto-principal) 40%, transparent);
+  color: var(--color-texto-terciario);
   white-space: nowrap;
 }
 
@@ -529,7 +530,7 @@
   gap: 5px;
   font-size: 14px;
   font-weight: 700;
-  color: color-mix(in srgb, var(--color-texto-principal) 55%, transparent);
+  color: var(--color-texto-secundario);
   font-variant-numeric: tabular-nums;
   padding: 5px 12px;
   border-radius: 8px;
@@ -573,13 +574,13 @@
 }
 
 .quiz-question__num {
-  color: var(--color-primario);
+  color: var(--color-texto-acento);
   margin-right: 6px;
 }
 
 .quiz-question__hint {
   font-size: 11px;
-  color: color-mix(in srgb, var(--color-texto-principal) 38%, transparent);
+  color: var(--color-texto-terciario);
   margin: -8px 0 4px;
   font-style: italic;
 }
@@ -596,20 +597,33 @@
 }
 
 .quiz-option {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 11px 16px;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 8%, transparent);
+  min-height: 52px;
+  padding: 12px 16px;
+  border-radius: var(--radio-control);
+  border: 1px solid color-mix(in srgb, var(--color-texto-principal) 12%, transparent);
   background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--color-texto-principal) 6%, transparent);
   cursor: pointer;
-  font-size: 14px;
-  color: color-mix(in srgb, var(--color-texto-principal) 65%, transparent);
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  font-size: var(--texto-opcion);
+  font-weight: 500;
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--color-texto-principal) 80%, transparent);
+  transition: border-color var(--dur-rapida) var(--curva-estandar), background var(--dur-rapida) var(--curva-estandar),
+    color var(--dur-rapida) var(--curva-estandar), transform var(--dur-base) var(--curva-salida);
   user-select: none;
 
-  input { display: none; }
+  // Presión como en Taps: se hunde un poco al tocar.
+  &:active { transform: scale(var(--presion-escala)); transition-duration: var(--dur-instante); }
+  @media (prefers-reduced-motion: reduce) { &:active { transform: none; } }
+  :host-context(.reduce-motion) &:active { transform: none; }
+
+  // Oculto a la vista pero no al teclado ni al lector de pantalla (con display: none no se podía llegar con Tab).
+  input { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+  &:has(input:focus-visible) { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
 
   &:hover {
     border-color: color-mix(in srgb, var(--color-primario) 40%, transparent);
@@ -621,7 +635,7 @@
     border-color: color-mix(in srgb, var(--color-primario) 60%, transparent);
     background: color-mix(in srgb, var(--color-primario) 12%, transparent);
     color: var(--color-texto-principal);
-    font-weight: 500;
+    font-weight: 600;
   }
 
   &--tf { flex: 1; justify-content: center; }
@@ -639,9 +653,10 @@
   border: 2px solid color-mix(in srgb, var(--color-texto-principal) 20%, transparent);
   border-radius: 4px;
   background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent);
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color var(--dur-rapida), background var(--dur-rapida);
 
   .quiz-option--checked & {
+    animation: gm-pop var(--dur-base) var(--curva-rebote);
     border-color: var(--color-primario);
     background: var(--color-primario);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
@@ -685,7 +700,7 @@
 .quiz-summary__title {
   font-size: 11px;
   font-weight: 700;
-  color: color-mix(in srgb, var(--color-texto-principal) 35%, transparent);
+  color: var(--color-texto-terciario);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin: 0;
@@ -693,7 +708,7 @@
 
 .quiz-summary__stat {
   font-size: 13px;
-  color: color-mix(in srgb, var(--color-texto-principal) 45%, transparent);
+  color: var(--color-texto-secundario);
   margin: 0;
 }
 
@@ -715,7 +730,7 @@
   border-radius: 6px;
   border: 1px solid color-mix(in srgb, var(--color-texto-principal) 10%, transparent);
   background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent);
-  color: color-mix(in srgb, var(--color-texto-principal) 35%, transparent);
+  color: var(--color-texto-terciario);
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
@@ -731,8 +746,8 @@
   }
 
   &--current {
-    border-color: var(--color-primario);
-    background: var(--color-primario);
+    border-color: var(--color-primario-accion);
+    background: var(--color-primario-accion);
     color: var(--color-sobre-primario);
   }
 
@@ -781,6 +796,7 @@
   background: color-mix(in srgb, var(--color-error) 10%, transparent);
   color: var(--color-error);
   flex-shrink: 0;
+  animation: gm-pop var(--dur-enfasis) var(--curva-rebote) both;
 
   &--pass { background: color-mix(in srgb, var(--color-exito) 10%, transparent); color: var(--color-exito); }
 }
@@ -893,7 +909,7 @@
   align-items: center;
   gap: 10px;
   box-shadow: 0 20px 50px rgba(0,0,0,0.55);
-  animation: submitPop 0.18s cubic-bezier(0.16,1,0.3,1) forwards;
+  animation: submitPop var(--dur-base) var(--curva-salida) forwards;
 
   @keyframes submitPop {
     from { opacity: 0; transform: scale(0.95); }

@@ -1,24 +1,29 @@
 // Página de retos (puente desde los videos): intro, reto actual e invitación al curso.
 .rintro { padding-block: 40px 20px; max-width: 760px;
-  h1 { margin: 12px 0 10px; font: 800 clamp(30px, 4.6vw, 48px)/1.08 var(--font-titulo); letter-spacing: -.02em; text-wrap: balance; } }
+  h1 { margin: 12px 0 10px; font: 800 var(--texto-titulo-1)/var(--interlineado-titulo) var(--font-titulo); letter-spacing: var(--tracking-titulo); text-wrap: balance; } }
 .rcats { display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 20px;
-  &__chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 16px; border-radius: 99px; cursor: pointer;
+  &__chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 16px; border-radius: var(--radio-pastilla); cursor: pointer;
     font: inherit; font-size: var(--font-size-sm); font-weight: 700; color: var(--color-texto-secundario);
-    background: var(--color-superficie); border: 1px solid var(--color-borde-secundario); transition: border-color .2s, color .2s, background .2s;
+    background: var(--color-superficie); border: 1px solid var(--color-borde-secundario);
     &:hover { border-color: var(--color-primario); }
-    &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
     &--on { color: var(--color-sobre-primario); background: var(--color-primario-accion); border-color: var(--color-primario-accion); } }
-  &__n { font-variant-numeric: tabular-nums; font-size: var(--font-size-xs, 12px); opacity: .75; }
+  // Sin opacidad: al 75 % el número quedaba en 4,4:1 sobre el chip activo y 4,2:1 en tema claro (12 px pide 4,5:1).
+  &__n { font-variant-numeric: tabular-nums; font-size: var(--font-size-xs, 12px); }
 }
+// Letra de la opción como tecla (igual que en Taps).
+.mock__key { display: inline-grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 9px; font-size: 14px; font-weight: 800;
+  background: color-mix(in srgb, var(--color-texto-principal) 9%, transparent); }
+.mock__opt--ok .mock__key { background: var(--color-exito); color: var(--color-sobre-acento); }
+// Texto oscuro en oscuro (#F87171: blanco daría 2,8:1) y blanco en claro (#B91C1C): --color-sobre-acento cubre ambos.
+.mock__opt--bad .mock__key { background: var(--color-error); color: var(--color-sobre-acento); }
 .rshare { display: grid; gap: 8px; margin-top: 14px;
   &__btn { background: transparent; color: var(--color-texto-acento); border: 1px solid var(--color-primario); }
   &__msg { margin: 0; text-align: center; font-size: var(--font-size-sm); color: var(--color-texto-secundario); } }
 .rgrid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 28px; align-items: start; padding-bottom: 40px; }
-.mock__q { font-size: var(--font-size-xl, 1.25rem); }
 .rinvita {
   position: sticky; top: 90px; display: grid; gap: 12px; padding: 22px; border-radius: 18px;
   background: var(--color-superficie); border: 1px solid var(--color-borde-secundario); box-shadow: var(--sombra-lg);
-  opacity: .55; transition: opacity .3s, border-color .3s, transform .3s;
+  opacity: .55; transition: opacity var(--dur-enfasis) var(--curva-estandar), border-color var(--dur-enfasis) var(--curva-estandar), transform var(--dur-enfasis) var(--curva-rebote);
   h2 { font-size: 22px; }
   p { margin: 0; font-size: var(--font-size-sm); color: var(--color-texto-secundario); line-height: 1.55; }
   &--on { opacity: 1; border-color: var(--color-primario); transform: translateY(-2px); }
@@ -31,6 +36,5 @@
   .rgrid { grid-template-columns: 1fr; gap: 18px; }
   // En el celular la invitación aparece debajo del reto solo cuando ya respondió unos cuantos.
   .rinvita { position: static; display: none; }
-  .rinvita--on { display: grid; }
+  .rinvita--on { display: grid; animation: gm-aparecer var(--dur-enfasis) var(--curva-salida) both; }
 }
-@media (prefers-reduced-motion: reduce) { .rinvita, .rcats__chip { transition: none; } }

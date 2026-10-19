@@ -1,5 +1,16 @@
 <a class="skip-link" href="#main-content">Ir al contenido principal</a>
 
+<!-- Degradado de marca para los iconos destacados (.gm-icono--destacado usa stroke: url(#gm-degradado-icono)). -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position: absolute">
+  <defs>
+    <linearGradient id="gm-degradado-icono" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#C471ED" />
+      <stop offset=".5" stop-color="#7B6FF0" />
+      <stop offset="1" stop-color="#4DE1FF" />
+    </linearGradient>
+  </defs>
+</svg>
+
 @if (!appStatus.online()) {
   <div class="connection-notice" role="status" aria-live="polite">
     <span class="connection-notice__dot" aria-hidden="true"></span>

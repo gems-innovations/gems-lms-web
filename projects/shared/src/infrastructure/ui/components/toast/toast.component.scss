@@ -1,14 +1,4 @@
-
-@keyframes slideIn {
-  from {
-    transform: translateX(400px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
+// Entrada: clase compartida .gm-toast (sube 12 px y se funde, 320 ms, curva de salida).
 
 .toast {
   position: relative;
@@ -27,7 +17,6 @@
   
   box-shadow: var(--sombra-lg);
   
-  animation: slideIn 0.3s ease-out;
   
   @media (max-width: 767px) {
     min-width: unset;
@@ -75,7 +64,7 @@
   color: var(--color-texto-secundario);
   
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background var(--dur-rapida) var(--curva-estandar), color var(--dur-rapida) var(--curva-estandar);
   flex-shrink: 0;
   
   &:hover {
