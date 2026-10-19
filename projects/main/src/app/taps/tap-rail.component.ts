@@ -3,7 +3,8 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, input, ou
 /**
  * Riel de acciones del Tap. Dos formas del mismo componente:
  * - móvil (por defecto): riel tipo TikTok sobre el mundo y nunca encima de las opciones (experiencia-ux.md §3.1), solo lo
- *   que funciona hoy: «Más» (más Taps de este tema) y «Enviar». Un botón que no hace nada enseña a no tocar el riel.
+ *   que funciona hoy: «Más» y «Enviar». «Más» es un menú, igual que en escritorio (antes saltaba de Tap a mitad de una
+ *   pregunta): «Otro de <tema>» y «No me interesa este tema» (se deshace desde el mismo menú).
  * - escritorio (`desktop`): fuera del escenario, pegado a su derecha (escritorio.md §5). Flechas ↑/↓ arriba y, abajo, tema,
  *   Retar y Más (menú). «Guardar» no está: no hay cuentas todavía y un botón muerto enseña a no tocar.
  */
@@ -13,10 +14,22 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, input, ou
   template: `
     @if (!desktop()) {
       <nav class="rail" aria-label="Acciones del Tap">
-        <button type="button" class="rail__btn" (click)="more.emit()" [attr.aria-label]="'Más Taps de ' + topicName()">
-          <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M16.5 13.5v6M13.5 16.5h6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span>
-          <span class="rail__label">Más</span>
-        </button>
+        <div class="rail__more">
+          <button type="button" class="rail__btn" (click)="toggleMenu($event)" #moreBtn [attr.aria-expanded]="menuOpen()" aria-controls="rail-mas-movil" aria-label="Más opciones">
+            <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="5.5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="18.5" cy="12" r="2" fill="currentColor"/></svg></span>
+            <span class="rail__label">Más</span>
+          </button>
+          @if (menuOpen()) {
+            <div class="rail__menu rail__menu--movil" id="rail-mas-movil">
+              <button type="button" (click)="pick(() => more.emit())">Otro de {{ topicName() }}</button>
+              @if (blocked()) {
+                <button type="button" (click)="pick(() => unblock.emit())">Volver a mostrar {{ topicName() }}</button>
+              } @else {
+                <button type="button" (click)="pick(() => notInterested.emit())">No me interesa este tema</button>
+              }
+            </div>
+          }
+        </div>
         <button type="button" class="rail__btn" (click)="share.emit()" aria-label="Compartir este Tap">
           <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M14 5l7 7-7 7M21 12H10a7 7 0 0 0-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <span class="rail__label">Enviar</span>
@@ -64,6 +77,8 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, input, ou
     }
   `,
   styleUrl: './tap-rail.component.scss',
+  // Móvil: el riel está a la derecha y su menú se abre hacia la izquierda (aparte del .scss, que está al límite de su presupuesto).
+  styles: '.rail__menu--movil { left: auto; right: calc(100% + 6px); }',
 })
 export class TapRailComponent {
   readonly topicName = input('este tema');

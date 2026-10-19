@@ -1,22 +1,26 @@
 import { ChangeDetectionStrategy, Component, ElementRef, Injector, afterNextRender, inject, input, output, signal, viewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { TapSesionComponent } from './tap-sesion.component';
+import { IResumenSesion, sessionLabel } from './taps.sesion';
 import { ITapTopic } from './taps.types';
 
 /**
- * Barra superior del feed de Taps: marca GEMS LMS (lleva a la portada), sonido, voz del personaje y selector de temas.
+ * Barra superior del feed de Taps: marca GEMS LMS, sonido, voz del personaje y selector de temas.
+ * La marca no saca del juego (hallazgo 5 de la auditoría de permanencia): abre «Tu día en Taps» (racha, meta y avance), desde
+ * donde la portada queda a un toque. Cuando ya hay progreso, el nombre de la marca cede su sitio a la racha y la meta del día.
  * El selector es una hoja inferior (nunca un modal centrado, experiencia-ux.md §8.5) con «Para ti» y las categorías;
  * las que aún no tienen Taps se ven como «Pronto». Al elegir, el feed salta a esos Taps y la URL queda `?tema=<id>`.
  */
 @Component({
   selector: 'gems-taps-bar',
-  imports: [RouterLink],
+  imports: [TapSesionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="bar">
-      <a class="bar__brand" routerLink="/" aria-label="GEMS LMS: ir a la portada">
+      <button type="button" class="bar__brand" (click)="brand.emit()" aria-haspopup="dialog"
+              [attr.aria-label]="'Tu día en Taps. ' + (resumen() ? label(resumen()!) : 'GEMS LMS')">
         <img src="/logo-64.png" width="28" height="28" alt="" decoding="async">
-        <span>GEMS LMS</span>
-      </a>
+        @if (resumen(); as r) { <gems-tap-sesion [resumen]="r" /> } @else { <span>GEMS LMS</span> }
+      </button>
       <button type="button" class="glass bar__pill bar__sound" (click)="toggleSound.emit()" [attr.aria-pressed]="sound() === 'on'"
               aria-label="Sonido">
         @if (sound() === 'on') {
@@ -86,7 +90,8 @@ import { ITapTopic } from './taps.types';
     .bar { position: fixed; z-index: 7; top: 0; left: 50%; width: 100%; max-width: 480px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px;
       padding: max(8px, env(safe-area-inset-top)) 10px 4px; pointer-events: none; color: #fff;
       > * { pointer-events: auto; } }
-    .bar__brand { display: inline-flex; align-items: center; gap: 6px; min-height: 48px; padding-right: 4px; color: #fff; text-decoration: none; font-size: 13px; font-weight: 800;
+    .bar__brand { display: inline-flex; align-items: center; gap: 6px; min-height: 48px; padding: 0 4px 0 0; border: 0; background: none; cursor: pointer; font-family: inherit;
+      color: #fff; text-decoration: none; font-size: 13px; font-weight: 800;
       letter-spacing: .02em; text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
       img { border-radius: 8px; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .4)); } }
     .bar__pill { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 48px; min-height: 48px; padding: 0 12px; border-radius: 999px;
@@ -105,6 +110,9 @@ import { ITapTopic } from './taps.types';
     /* Con logo, sonido, voz y ranking, «Temas» es lo único que cede: un tema largo («Lógica y trampas») se recorta con «…». */
     .bar__topics { flex: 0 1 auto; min-width: 48px; margin-left: auto; padding: 0 12px 0 10px; overflow: hidden;
       svg { flex: none; } span { min-width: 0; overflow: hidden; text-overflow: ellipsis; } }
+    /* Por debajo de 400 px «Temas» queda solo con su icono (y su etiqueta accesible): así caben logo (28 px, siempre), racha,
+       sonido, voz y ranking. Va siempre, con o sin racha, para que nada salte al hidratar. Fuera de la portada (#45). */
+    @media (max-width: 399px) { :host-context(gems-taps:not([modo='portada'])) .bar__topics span { display: none; } }
     .bar__chip { display: none; margin-left: auto; color: #0d1117; background: #4de1ff; border: 0; }
     /* Escritorio y tablet: la barra vive dentro del escenario; la marca y «Temas» están en el menú. */
     .sheet { width: 100%; max-width: 480px; margin: auto auto 0; padding: 0; border: 0; border-radius: 22px 22px 0 0; color: #fff; background: #161b24;
@@ -143,6 +151,8 @@ export class TapsBarComponent {
   readonly topicName = input('Para ti');
   readonly desktop = input(false);
   readonly topics = input<{ topic: ITapTopic; count: number; soon: boolean }[]>([]);
+  /** Racha y meta del día (null: aún no hay progreso y se ve el nombre de la marca). */
+  readonly resumen = input<IResumenSesion | null>(null);
 
   readonly toggleSound = output<void>();
   readonly toggleVoice = output<void>();
@@ -151,6 +161,9 @@ export class TapsBarComponent {
   readonly sheetChange = output<boolean>();
   /** Abrir la hoja del ranking (en móvil está aquí; en escritorio, en el menú y el panel). */
   readonly openRanking = output<void>();
+  /** Toque en la marca: el feed abre «Tu día en Taps» (no navega). */
+  readonly brand = output<void>();
+  protected label(r: IResumenSesion): string { return sessionLabel(r); }
 
   protected readonly isOpen = signal(false);
   private readonly sheet = viewChild<ElementRef<HTMLDialogElement>>('sheet');

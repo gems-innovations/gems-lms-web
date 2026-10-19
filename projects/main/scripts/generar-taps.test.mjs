@@ -229,3 +229,33 @@ test('emitir produce el mismo texto para los mismos datos', () => {
   const r = construir();
   assert.equal(emitir(r), emitir(clonar(r)));
 });
+
+test('titulosPorSubtema: cada subtema usa sus títulos y los demás, los del tema', () => {
+  const b = bancosMinimos();
+  b.minecraft.taps[1].subtema = 'redstone';
+  b.minecraft.titulosPorSubtema = { redstone: [{ min: 0, title: 'R0', line: 'r0' }, { min: 2, title: 'R2', line: 'r2' }, { min: 4, title: 'R4', line: 'r4', lineas: ['r4b', 'r4c'] }] };
+  const r = correr(b);
+  assert.deepEqual(r.errores, []);
+  const [gancho, dos] = r.taps;
+  assert.equal(gancho.results[0].title, 'A');
+  assert.equal(dos.results[0].title, 'R0');
+  assert.deepEqual(dos.results[2].lines, ['r4', 'r4b', 'r4c']);
+  assert.equal(dos.results[0].lines, undefined);
+});
+
+test('rechaza variantes de línea vacías, repetidas o de más', () => {
+  const b = bancosMinimos();
+  b.logica.titulosResultado[0].lineas = ['a', ''];
+  b.cultura.titulosResultado[1].lineas = ['x', 'y', 'z'];
+  const r = correr(b);
+  assert.ok(r.errores.some(e => /repite su línea/.test(e)));
+  assert.ok(r.errores.some(e => /variante de línea vacía/.test(e)));
+  assert.ok(r.errores.some(e => /hasta 2 variantes/.test(e)));
+});
+
+test('el banco real da títulos por subtema y 3 variantes de línea en cada título', () => {
+  const { taps } = construir();
+  const mc = taps.filter(t => t.topic === 'minecraft');
+  assert.ok(new Set(mc.map(t => t.results.find(x => x.min === 4).title)).size >= 6);
+  assert.ok(taps.every(t => t.results.every(x => x.lines?.length === 3)));
+});

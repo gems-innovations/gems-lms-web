@@ -25,6 +25,11 @@ No se edita `taps.banco.generated.ts` a mano.
   usuario puede tocar y arrastrar junto a la explicación al fallar. El catálogo está en el `theme.json` del tema
   (`visuals.objects`) y en `public/taps-engine/README.md`; el generador falla si el objeto o la acción no existen.
   Para una pregunta reutilizada de `retos.data.ts`, el campo va en su entrada de `existentes`.
+- En el tema: `"titulosPorSubtema": { "<subtema>": [...] }` da títulos propios a cada subtema (mismo formato que
+  `titulosResultado`; un subtema sin entrada usa los del tema). Así «Crack de bloques» no sale en todos los Taps de Minecraft.
+- En cada título: `"lineas": ["…", "…"]` (hasta 2 variantes más de su `line`). La app elige una con semilla al mostrar
+  el resultado, fija para la misma partida.
+- Los dos campos también están en `producto/taps/banco/` (su `validar.mjs` los ignora): al copiar el banco no se pierden.
 
 ## Escena de cada Tap (tema visual, personaje, mundo, objeto, encuadre, entrada y decorado)
 

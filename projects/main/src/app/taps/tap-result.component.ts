@@ -3,19 +3,24 @@ import { RouterLink } from '@angular/router';
 import { resultFor } from './taps.logic';
 import { TPartidaEstado } from './taps.ranking';
 import { TapXpComponent } from './tap-xp.component';
+import { lineaResultado } from './taps.frases';
+import { IResumenSesion } from './taps.sesion';
+import { ITemaAvance, TapSesionComponent } from './tap-sesion.component';
 import { ITap, ITapRun } from './taps.types';
 
 /**
  * Resultado de un Tap (experiencia-ux.md §5.5): título que nunca es negativo, cuadrícula de aciertos sin spoilers
  * (patrón Wordle) y «Retar a un amigo» como botón principal. El resultado no avanza solo: es el momento de compartir.
  * Bajo la línea va la tarjeta de XP y ranking (solo con datos reales del API; sin ellos no aparece).
+ * Arriba, la franja de la sesión (racha, meta del día y avance del tema): también en el celular, donde no hay panel.
  */
 @Component({
   selector: 'gems-tap-result',
-  imports: [RouterLink, TapXpComponent],
+  imports: [RouterLink, TapXpComponent, TapSesionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="res">
+      @if (sesion(); as s) { <gems-tap-sesion vista="franja" [resumen]="s" [tema]="tema()" [celebrar]="celebrar()" /> }
       <p class="res__over">Tu título</p>
       <h2 class="res__title" tabindex="-1">{{ result().title }}</h2>
       <p class="res__score">{{ run().score }} de {{ tap().questions.length }} · <span class="res__theme">{{ tap().title }}</span></p>
@@ -31,7 +36,7 @@ import { ITap, ITapRun } from './taps.types';
           </li>
         }
       </ol>
-      <p class="res__line">{{ result().line }}</p>
+      <p class="res__line">{{ line() }}</p>
       @if (xp()) { <gems-tap-xp [estado]="xp()" (ranking)="ranking.emit()" /> }
 
       <button type="button" class="res__main" (click)="challenge.emit()">
@@ -93,6 +98,11 @@ export class TapResultComponent {
   readonly notice = input<{ text: string; download?: string } | null>(null);
   /** Partida enviada al ranking (undefined: no se envió, p. ej. en el prerender o un tema que el ranking aún no tiene). */
   readonly xp = input<TPartidaEstado | undefined>(undefined);
+  /** Racha y meta del día (null en el servidor: el resultado solo existe en el navegador). */
+  readonly sesion = input<IResumenSesion | null>(null);
+  readonly tema = input<ITemaAvance | null>(null);
+  /** Este Tap cumplió la meta del día: la franja lo celebra (una vez al día). */
+  readonly celebrar = input(false);
 
   readonly challenge = output<void>();
   readonly again = output<void>();
@@ -101,4 +111,6 @@ export class TapResultComponent {
   readonly ranking = output<void>();
 
   protected readonly result = computed(() => resultFor(this.tap(), this.run().score));
+  /** Una de las variantes de la línea, fija para esta partida (Tap + aciertos y fallos en orden). */
+  protected readonly line = computed(() => lineaResultado(this.result(), `${this.tap().id}|${this.run().answers.map(a => (a ? 1 : 0)).join('')}`));
 }

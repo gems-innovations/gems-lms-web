@@ -4,24 +4,270 @@
     {
       "min": 0,
       "title": "Explorador valiente",
-      "line": "Todo minero empezó picando tierra con la mano. ¡Otra ronda!"
+      "line": "Todo minero empezó picando tierra con la mano. ¡Otra ronda!",
+      "lineas": [
+        "Hoy picaste piedra; mañana, diamante.",
+        "Cada partida te deja un bloque más arriba."
+      ]
     },
     {
       "min": 2,
       "title": "Minero del pueblo",
-      "line": "Ya sabes moverte. Un par de datos más y nadie te gana."
+      "line": "Ya sabes moverte. Un par de datos más y nadie te gana.",
+      "lineas": [
+        "Vas armando tu mapa. Otra ronda y lo completas.",
+        "Tu inventario de datos ya pesa. ¡Sigue!"
+      ]
     },
     {
       "min": 4,
       "title": "Crack de bloques",
-      "line": "Casi perfecto: hasta los aldeanos te piden consejo."
+      "line": "Casi perfecto: hasta los aldeanos te piden consejo.",
+      "lineas": [
+        "Un bloque más y serías leyenda. ¿Revancha?",
+        "Tu mundo ya tiene buenos cimientos."
+      ]
     },
     {
       "min": 5,
       "title": "Leyenda del servidor",
-      "line": "Cero errores. Los creepers ya te tienen miedo."
+      "line": "Cero errores. Los creepers ya te tienen miedo.",
+      "lineas": [
+        "Cinco de cinco. Ni un bloque fuera de lugar.",
+        "Perfecto: el servidor entero te aplaude."
+      ]
     }
   ],
+  "titulosPorSubtema": {
+    "crafteos": [
+      {
+        "min": 0,
+        "title": "Aprendiz de la mesa",
+        "line": "Todo gran taller empezó con una mesa de crafteo.",
+        "lineas": [
+          "Cada receta que fallas, la recuerdas mejor.",
+          "Hoy aprendiste recetas nuevas. ¡Otra!"
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Artesano del pueblo",
+        "line": "Ya sabes qué va en cada casilla. Casi todo.",
+        "lineas": [
+          "Tus herramientas ya no se rompen tan rápido.",
+          "Un par de recetas más y nadie te gana."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Maestro artesano",
+        "line": "Tu mesa de crafteo trabaja horas extra.",
+        "lineas": [
+          "A una receta de la perfección.",
+          "Los aldeanos vienen a copiar tus recetas."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Leyenda de la mesa",
+        "line": "Cero errores: hasta el horno te respeta.",
+        "lineas": [
+          "Todas las recetas, todas bien.",
+          "Perfecto. Tu taller es de otro nivel."
+        ]
+      }
+    ],
+    "mobs": [
+      {
+        "min": 0,
+        "title": "Amigo de los mobs",
+        "line": "Conocer a cada criatura lleva su tiempo. ¡Otra ronda!",
+        "lineas": [
+          "Hoy conociste mobs nuevos.",
+          "Ni los creepers nacen sabiendo."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Rastreador de mobs",
+        "line": "Ya reconoces a varios por su sonido.",
+        "lineas": [
+          "Vas aprendiendo quién es amigo y quién no.",
+          "Unos datos más y los tienes a todos."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Domador de mobs",
+        "line": "Los lobos ya te siguen solos.",
+        "lineas": [
+          "Casi perfecto: sabes cómo piensa cada criatura.",
+          "A un mob de la perfección."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Leyenda de los mobs",
+        "line": "Cinco de cinco: ningún mob te sorprende.",
+        "lineas": [
+          "Perfecto. Los zombis toman notas.",
+          "Cero errores con las criaturas."
+        ]
+      }
+    ],
+    "nether-end": [
+      {
+        "min": 0,
+        "title": "Aventurero del portal",
+        "line": "Cruzar el portal ya es de valientes.",
+        "lineas": [
+          "El Nether asusta a todos al principio.",
+          "Cada viaje te deja un dato nuevo."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Explorador del Nether",
+        "line": "Ya no te pierdes entre la lava.",
+        "lineas": [
+          "Vas encontrando el camino a la fortaleza.",
+          "Un par de datos más y llegas al End."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Cazador del End",
+        "line": "El dragón ya escucha tus pasos.",
+        "lineas": [
+          "Casi perfecto entre dimensiones.",
+          "A un paso de dominar las dimensiones."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Leyenda de las dimensiones",
+        "line": "Cinco de cinco: el Nether y el End son tu casa.",
+        "lineas": [
+          "Perfecto. Ni el wither te asusta.",
+          "Cero errores al otro lado del portal."
+        ]
+      }
+    ],
+    "redstone": [
+      {
+        "min": 0,
+        "title": "Chispa de redstone",
+        "line": "Todo circuito empieza con una antorcha. ¡Otra!",
+        "lineas": [
+          "La redstone confunde a todos al principio.",
+          "Hoy encendiste tus primeros cables."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Electricista del pueblo",
+        "line": "Tus puertas ya se abren solas.",
+        "lineas": [
+          "Vas entendiendo los repetidores.",
+          "Un par de datos más y armas una granja."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Ingeniero de redstone",
+        "line": "Tus circuitos casi no fallan.",
+        "lineas": [
+          "A una señal de la perfección.",
+          "Los pistones trabajan para ti."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Genio de los circuitos",
+        "line": "Cinco de cinco: cero cortocircuitos.",
+        "lineas": [
+          "Perfecto. Tu redstone es una obra de arte.",
+          "Ni un cable fuera de lugar."
+        ]
+      }
+    ],
+    "supervivencia": [
+      {
+        "min": 0,
+        "title": "Sobreviviente novato",
+        "line": "Pasaste la noche. Eso ya cuenta.",
+        "lineas": [
+          "Nadie sobrevive fácil su primera noche.",
+          "Cada ronda te hace más difícil de vencer."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Sobreviviente astuto",
+        "line": "Ya tienes cama, comida y antorchas.",
+        "lineas": [
+          "Los monstruos ya no te encuentran tan fácil.",
+          "Unos datos más y sobrevives a todo."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Experto en sobrevivir",
+        "line": "Ninguna noche te toma por sorpresa.",
+        "lineas": [
+          "A un dato de la supervivencia perfecta.",
+          "Tu refugio es el más seguro del mapa."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Leyenda de la supervivencia",
+        "line": "Cinco de cinco: sobrevives hasta en modo difícil.",
+        "lineas": [
+          "Perfecto. Ni la noche más larga te gana.",
+          "Cero errores. Los monstruos se esconden de ti."
+        ]
+      }
+    ],
+    "curiosidades": [
+      {
+        "min": 0,
+        "title": "Curioso de bloques",
+        "line": "Los secretos se descubren jugando. ¡Otra!",
+        "lineas": [
+          "Hoy supiste cosas que poca gente sabe.",
+          "Cada dato raro cuenta."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Cazador de secretos",
+        "line": "Ya conoces trucos que muchos no ven.",
+        "lineas": [
+          "Vas descubriendo el mundo por dentro.",
+          "Unos secretos más y lo sabes todo."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Sabio del servidor",
+        "line": "Sabes cosas que ni los veteranos saben.",
+        "lineas": [
+          "A un secreto de la perfección.",
+          "Tus amigos te preguntan a ti."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Enciclopedia de bloques",
+        "line": "Cinco de cinco: conoces cada rincón.",
+        "lineas": [
+          "Perfecto. No queda secreto sin descubrir.",
+          "Cero errores con los datos raros."
+        ]
+      }
+    ]
+  },
   "existentes": [
     {
       "id": "dia",

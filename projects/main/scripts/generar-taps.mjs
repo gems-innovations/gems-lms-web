@@ -11,7 +11,9 @@
 //
 // Formato del banco: ver src/app/taps/banco/LEEME.md. Un Tap (en "taps" del JSON) puede llevar además
 //   "retirado": true   → no se publica (su id sale en TAPS_RETIRADOS: el enlace compartido avisa «este Tap se retiró»).
-//   "resultados": [..] → títulos propios (si no, usa "titulosResultado" del tema).
+//   "resultados": [..] → títulos propios (si no, los de su subtema en "titulosPorSubtema" y, si tampoco, "titulosResultado").
+// En el banco, "titulosPorSubtema": { "<subtema>": [..] } da títulos distintos a cada subtema (redstone, mobs, series…), y
+// cada título puede traer "lineas": [..] (hasta 2 variantes más de su "line"): la app elige una con semilla al mostrarlo.
 //
 // Asignación de escena (tema visual, personaje, mundo, objeto en la mano, encuadre, entrada y decorado): reglas fijas y
 // deterministas, sin azar. Cada Tap publicado tiene su lugar en LUGARES; uno nuevo usa la lista de (mundo, objeto) de su
@@ -33,7 +35,7 @@ export const RUTAS = {
 };
 
 /** Mismos límites que `validar.mjs` del banco (y que los de la interfaz: la pregunta cabe en 5 líneas). */
-export const LIMITES = { pregunta: 120, opcion: 22, explicacion: 90, opciones: 4, preguntasPorTap: 5 };
+export const LIMITES = { pregunta: 120, opcion: 22, explicacion: 90, opciones: 4, preguntasPorTap: 5, linea: 110, lineasExtra: 2 };
 
 /** Archivo del banco → tema del motor, categoría del selector (`?tema=`) y rótulo. */
 export const TEMAS = {
@@ -179,6 +181,15 @@ function validarResultados(resultados, donde) {
   if (resultados[0].min !== 0) e.push(`${donde}: el primer título debe empezar en 0 aciertos (nunca un título negativo)`);
   resultados.forEach((r, i) => {
     if (!r.title || !r.line) e.push(`${donde}: el título ${i + 1} no tiene title o line`);
+    if (r.line && r.line.length > LIMITES.linea) e.push(`${donde}: la línea de «${r.title}» pasa de ${LIMITES.linea} caracteres`);
+    if (r.lineas !== undefined) {
+      if (!Array.isArray(r.lineas) || r.lineas.length > LIMITES.lineasExtra) e.push(`${donde}: «lineas» de «${r.title}» debe ser una lista de hasta ${LIMITES.lineasExtra} variantes`);
+      else r.lineas.forEach(l => {
+        if (typeof l !== 'string' || !l.trim()) e.push(`${donde}: «${r.title}» tiene una variante de línea vacía`);
+        else if (l.length > LIMITES.linea) e.push(`${donde}: una variante de «${r.title}» pasa de ${LIMITES.linea} caracteres`);
+        else if (l === r.line) e.push(`${donde}: una variante de «${r.title}» repite su línea`);
+      });
+    }
     if (i && !(r.min > resultados[i - 1].min)) e.push(`${donde}: los min de los títulos deben subir`);
     if (r.min > LIMITES.preguntasPorTap) e.push(`${donde}: un título pide ${r.min} aciertos y el Tap tiene ${LIMITES.preguntasPorTap} preguntas`);
   });
@@ -229,6 +240,13 @@ export function generar(bancos, retos, temas) {
     if (!banco || !Array.isArray(banco.preguntas) || !Array.isArray(banco.taps)) { err('debe tener «preguntas» y «taps»'); continue; }
     const errTit = validarResultados(banco.titulosResultado, `${archivo} · titulosResultado`);
     errores.push(...errTit);
+    // Títulos por subtema: el mismo formato que «titulosResultado», uno por subtema (los que falten usan los del tema).
+    const titulosSubtema = banco.titulosPorSubtema ?? {};
+    if (typeof titulosSubtema !== 'object' || Array.isArray(titulosSubtema)) err('«titulosPorSubtema» debe ser un objeto { "<subtema>": [títulos] }');
+    else for (const [sub, lista] of Object.entries(titulosSubtema)) {
+      errores.push(...validarResultados(lista, `${archivo} · titulosPorSubtema.${sub}`));
+      if (!banco.taps.some(t => (t.subtema ?? 'mixto') === sub)) avisos.push(`${archivo}: ningún Tap usa «titulosPorSubtema.${sub}»`);
+    }
 
     // Preguntas: las del banco y las que reutiliza de retos.data.ts (se resuelven por id).
     const porId = new Map();
@@ -286,7 +304,7 @@ export function generar(bancos, retos, temas) {
       if (escena.shot && !tema.encuadres.has(escena.shot)) err(`Tap «${t.id}»: el encuadre «${escena.shot}» no existe en el tema ${def.theme}`);
       if (escena.enter && !tema.entradas.has(escena.enter)) err(`Tap «${t.id}»: la entrada «${escena.enter}» no existe en el tema ${def.theme}`);
       if (escena.props && !tema.decorados.has(escena.props)) err(`Tap «${t.id}»: el decorado «${escena.props}» no existe en el tema ${def.theme}`);
-      const resultados = t.resultados ?? banco.titulosResultado;
+      const resultados = t.resultados ?? (Array.isArray(titulosSubtema) ? undefined : titulosSubtema[subtema]) ?? banco.titulosResultado;
       if (t.resultados) errores.push(...validarResultados(t.resultados, `${donde} · resultados`));
 
       taps.push({
@@ -298,7 +316,7 @@ export function generar(bancos, retos, temas) {
         backdrop: tema.mundos[escena.world]?.sky ?? ['#0b0d12', '#1a1f2e'],
         ground: tema.mundos[escena.world]?.ground ?? '#1a1f2e',
         questions: preguntas,
-        results: resultados.map(r => ({ min: r.min, title: r.title, line: r.line })),
+        results: resultados.map(r => ({ min: r.min, title: r.title, line: r.line, ...(r.lineas?.length ? { lines: [r.line, ...r.lineas] } : {}) })),
         topic: def.topic,
         ...(t.gancho ? { hook: true } : {}),
         ...(t.nivel ? { level: t.nivel } : {}),

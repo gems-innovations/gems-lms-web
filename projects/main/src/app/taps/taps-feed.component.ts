@@ -1,6 +1,6 @@
 import { DOCUMENT, Location, isPlatformBrowser } from '@angular/common';
 import {
-  afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, Injector, PLATFORM_ID, REQUEST, computed,
+  afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostAttributeToken, HostListener, Injector, PLATFORM_ID, REQUEST, computed,
   effect, inject, signal, untracked, viewChild, viewChildren,
 } from '@angular/core';
 import { LoadingGate, SkeletonComponent } from 'shared/loading';
@@ -23,7 +23,7 @@ import { TapsRankingService } from './taps-ranking.service';
 import { IPartidaRespuesta } from './taps.ranking';
 import {
   INTEREST_KEY, IInterest, TInterestSignal, addSignal, blockTopic, emptyInterest, isBlocked, markCompleted, parseInterest, personalize,
-  unblockTopic, yourTopics, topicProgress,
+  unblockTopic, yourTopics, topicProgress, dayKey,
 } from './taps.interest';
 import { keyAction, typingTarget } from './taps.keys';
 import { panelCards, panelState } from './taps.panel';
@@ -31,11 +31,16 @@ import { WheelGate } from './taps.wheel';
 import { TapsSonidoService } from './taps-sonido.service';
 import { ITap, ITapRun, ITapVisual, ITapsStage } from './taps.types';
 import { visualSide } from './taps.escena';
+import { fraseActual } from './taps.frases';
+import {
+  ISesionGuardada, PARTIDAS_KEY, SESION_KEY, TPartidaGuardada, emptySesion, freshHead, greeting, hasProgress, parseRuns, parseSesion,
+  rematchText, sessionBucket, sessionGoal, sessionSummary, sessionTapsBucket, storeRun,
+} from './taps.sesion';
+import { ITemaAvance, TapSesionHojaComponent } from './tap-sesion.component';
 
 const SOUND_KEY = 'gems-taps-sound';
 const VOZ_KEY = 'gems-taps-voz';
 const TEACH_KEY = 'gems-taps-ensenar';
-const RUNS_KEY = 'gems-taps-partidas';
 const KEYS_KEY = 'gems-taps-atajos';
 const MENU_KEY = 'gems-taps-menu';
 const PULSE_KEY = 'gems-taps-pulso';
@@ -43,8 +48,6 @@ const PULSE_KEY = 'gems-taps-pulso';
 type TStageMode = 'loading' | 'poster' | '3d' | 'light' | 'none';
 /** Cookie (solo para /taps, sin datos personales): el servidor ya no abre con el Tap de gancho a quien lo jugó. */
 const HOOK_COOKIE = 'gems_taps_gancho';
-const OK_WORDS = ['¡Exacto!', '¡Eso es!', '¡Crack!', '¡Fácil para ti!'];
-const BAD_WORDS = ['Casi...', 'Uy, por poco', 'Esta era trampa'];
 const SHAPES = ['triángulo', 'rombo', 'círculo', 'cuadrado'];
 
 type TSound = 'pending' | 'on' | 'off';
@@ -63,7 +66,7 @@ interface IPreAnswer { id: string; k: number; t: number }
  */
 @Component({
   selector: 'gems-taps',
-  imports: [TapResultComponent, TapsBarComponent, TapRailComponent, TapPanelComponent, TapsMenuComponent, TapsRankingComponent, SkeletonComponent],
+  imports: [TapResultComponent, TapsBarComponent, TapRailComponent, TapPanelComponent, TapsMenuComponent, TapsRankingComponent, SkeletonComponent, TapSesionHojaComponent],
   templateUrl: './taps-feed.component.html',
   styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.escritorio.scss', './taps-feed.escena.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -93,6 +96,12 @@ export class TapsFeedComponent {
   private readonly sharedRoute = this.snapshot.paramMap.has('id');
   /** Quien ya jugó el Tap de gancho (cookie): servidor y navegador leen lo mismo, así el orden coincide al hidratar. */
   private readonly hookDone = this.readHookCookie();
+  /**
+   * `<gems-taps modo="portada">`: incrustado en la portada («/»). Pinta UN solo Tap (el de gancho, o el siguiente sin jugar)
+   * dentro de una tarjeta; no toca la URL ni intercepta rueda o flechas (la página sigue desplazándose), y «Siguiente»,
+   * «Más de este tema» y el selector de temas continúan en el feed completo (/taps), que retoma lo jugado.
+   */
+  protected readonly portada = inject(new HostAttributeToken('modo'), { optional: true }) === 'portada';
 
   protected readonly topic = signal<string | null>(this.query.get('tema'));
   /** Orden deseado: `?t=<id>` (enlace compartido) pone ese Tap primero; `?tema=<id>` pone primero los de esa categoría. */
@@ -125,7 +134,7 @@ export class TapsFeedComponent {
   protected readonly pulseNext = signal(false);
   protected readonly legendOpen = signal(false);
   protected readonly interest = signal<IInterest>(emptyInterest());
-  protected readonly notice = signal<{ tapId: string; text: string; download?: string } | null>(null);
+  protected readonly notice = signal<{ tapId: string; text: string; download?: string; undo?: boolean } | null>(null);
   /** Cuenta atrás visible tras responder: duración (ms) y si está en pausa (mantener presionado). */
   protected readonly wait = signal<{ tapId: string; ms: number; key: number } | null>(null);
   protected readonly waitPaused = signal(false);
@@ -167,6 +176,22 @@ export class TapsFeedComponent {
     }, TAPS);
   });
   protected readonly activeBlocked = computed(() => isBlocked(this.interest(), topicOf(this.activeTap()), Date.now()));
+  // ───────────── sesión: racha, meta del día y avance (taps.sesion.ts) ─────────────
+  /** Racha y meta de hoy. En el servidor y antes de hidratar el interés está vacío: la barra muestra la marca (igual en ambos). */
+  /** Reloj de la sesión: se renueva al volver a la pestaña, al cambiar de Tap y al terminar uno (pasada la medianoche cambia el día). */
+  private readonly ahora = signal(0);
+  protected readonly resumen = computed(() => sessionSummary(this.interest(), this.ahora() || Date.now()));
+  protected readonly barResumen = computed(() => (hasProgress(this.resumen()) ? this.resumen() : null));
+  /** Avance de cada tema con Taps («Minecraft 5 de 23»). */
+  protected readonly avances = computed(() => new Map(this.topics.filter(t => !t.soon).map(t => {
+    const p = topicProgress(TAPS, this.interest(), t.topic.id);
+    return [t.topic.id, { nombre: t.topic.name, hechos: p.done, total: p.total, color: t.topic.color } as ITemaAvance];
+  })));
+  protected readonly avancesLista = computed(() => [...this.avances().values()]);
+  /** «Tu día en Taps» (lo abre la marca en el celular). */
+  protected readonly hojaDia = signal(false);
+  /** Tap cuyo resultado cumplió la meta del día: solo ahí se celebra. */
+  protected readonly metaTapId = signal<string | null>(null);
 
   private stage: ITapsStage | null = null;
   /** Cuándo empezó cada partida (para la duración que se envía al ranking). */
@@ -201,6 +226,19 @@ export class TapsFeedComponent {
   private pushed = false;
   /** Tocar el objeto que explica pausa la cuenta atrás; se reanuda sola tras un rato sin tocarlo. */
   private visualTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Lo guardado de la sesión (última visita, meta celebrada, puntajes) y las partidas a medias (48 h). */
+  private sesion: ISesionGuardada = emptySesion();
+  private savedRuns: Record<string, TPartidaGuardada> = {};
+  /** Semilla de las frases de esta carga de página (0 en el servidor, donde no se pinta ninguna frase). */
+  private semilla = 0;
+  /** Cuántas veces se repitió cada Tap en esta sesión (cambia las frases de la revancha). */
+  private readonly partidas = new Map<string, number>();
+  private sessionStart = 0;
+  private sessionCounted = false;
+  /** Mientras está abierto el menú de compartir la pestaña puede ocultarse: eso no cierra la sesión. */
+  private sharing = false;
+  /** Frase que pintó el script previo a hidratar para la primera respuesta (se mantiene al hidratar). */
+  private preWord: { tapId: string; text: string } | null = null;
 
   constructor() {
     const html = this.document.documentElement;
@@ -232,6 +270,9 @@ export class TapsFeedComponent {
       this.sound.set(this.readStorage(SOUND_KEY) === 'off' ? 'off' : this.readStorage(SOUND_KEY) === 'on' ? 'on' : 'pending');
       this.startAudio();
       this.interest.set(parseInterest(this.readStorage(INTEREST_KEY), Date.now()));
+      this.sesion = parseSesion(this.readStorage(SESION_KEY));
+      this.semilla = Math.floor(Math.random() * 1e9);
+      this.sessionStart = performance.now();
       this.shortcuts.set(this.readStorage(KEYS_KEY) !== 'off');
       this.menuInverted.set(this.readStorage(MENU_KEY) === 'inv');
       this.watchViewport();
@@ -240,13 +281,17 @@ export class TapsFeedComponent {
       const reordered = this.applyWantedOrder();
       this.restoreRuns();
       this.document.addEventListener('visibilitychange', this.onVisibility);
-      this.destroyRef.onDestroy(() => this.document.removeEventListener('visibilitychange', this.onVisibility));
+      const onPageHide = () => this.countSession();               // cerrar la pestaña o irse a otro sitio
+      addEventListener('pagehide', onPageHide);
+      this.destroyRef.onDestroy(() => { this.document.removeEventListener('visibilitychange', this.onVisibility); removeEventListener('pagehide', onPageHide); this.countSession(); });
       // Atrás del navegador (popstate): vuelve al Tap que dice la URL en vez de salir del feed.
       const sub = this.location.subscribe(() => this.onPopState());
       this.destroyRef.onDestroy(() => sub.unsubscribe());
       const asked = this.askedId;
       if (asked !== null && !findTap(asked)) {
         this.notice.set({ tapId: this.taps()[0].id, text: 'Este Tap se retiró. Te dejamos uno parecido.' });
+      } else {
+        this.welcome();
       }
       // Con el orden nuevo ya pintado se empieza a observar qué Tap está a la vista.
       const start = () => { if (reordered) this.feed().nativeElement.scrollTo({ top: 0 }); this.watchSections(); void this.activate(0); };
@@ -262,10 +307,15 @@ export class TapsFeedComponent {
     return list.length === TAPS.length && ids.length === TAPS.length ? list : null;
   }
 
-  /** Tras hidratar: pasa al orden deseado (enlace `?t=`, tema, gancho ya jugado) si nadie respondió todavía. */
+  /**
+   * Tras hidratar: pasa al orden deseado (enlace `?t=`, tema, gancho ya jugado) si nadie respondió todavía.
+   * Regreso sin repeticiones: lo jugado en los últimos 14 días no ocupa la cabeza del feed (salvo el Tap pedido por enlace).
+   */
   private applyWantedOrder(): boolean {
-    // «Para ti» aprende de lo que se jugó (los dos primeros Taps no se tocan); con un tema elegido se respeta tal cual.
-    const target = this.topic() === null ? personalize(this.wanted, 2, this.interest(), Date.now()) : this.wanted;
+    const now = Date.now(), fixed = findTap(this.askedId) ? 1 : 0;
+    // «Para ti» aprende de lo que se jugó; con un tema elegido el orden se respeta y solo se refresca la cabeza.
+    const base = this.topic() === null ? personalize(this.wanted, fixed, this.interest(), now) : this.wanted;
+    const target = freshHead(base, this.interest(), now, 2, fixed, this.topic());
     const current = this.taps().map(t => t.id).join(), wanted = target.map(t => t.id).join();
     const answered = Object.values(this.runs()).some(r => r.answers.length > 0) || !!(globalThis as { __tapsPre?: unknown }).__tapsPre;
     if (current === wanted || answered) return false;
@@ -282,11 +332,14 @@ export class TapsFeedComponent {
   protected streakOf(tap: ITap): number { return streak(this.run(tap)); }
   protected shape(k: number): string { return SHAPES[k] ?? ''; }
   protected letter(k: number): string { return 'ABCD'[k] ?? String(k + 1); }
+  /** Frase de la reacción: del personaje del Tap, con semilla (sesión + Tap + partida + pregunta) y sin repetir la anterior. */
   protected word(tap: ITap): string {
-    const run = this.run(tap), ok = run.answers[run.answers.length - 1];
-    const list = ok ? OK_WORDS : BAD_WORDS;
-    return list[run.index % list.length];
+    const semilla = `${this.semilla}|${tap.id}|${this.partidas.get(tap.id) ?? 0}`;
+    // La primera respuesta dada antes de hidratar ya mostró «¡Exacto!» o «Casi...» (script de index.html): se conserva.
+    const primera = this.preWord?.tapId === tap.id && (this.partidas.get(tap.id) ?? 0) === 0 ? this.preWord.text : undefined;
+    return fraseActual(this.run(tap).answers, { host: tap.scene.host, theme: tap.theme, semilla, primera });
   }
+  protected temaDe(tap: ITap): ITemaAvance | null { return this.avances().get(topicOf(tap)) ?? null; }
   protected topicOf(tap: ITap): string { return topicOf(tap); }
   protected topicColor(tap: ITap): string { return this.topics.find(t => t.topic.id === topicOf(tap))?.topic.color ?? '#8b93a7'; }
   protected displayFont(tap: ITap): string | null { return TAP_DISPLAY_FONTS[tap.theme] ?? null; }
@@ -317,6 +370,7 @@ export class TapsFeedComponent {
     const { run, correct } = choose(this.run(tap), tap, option);
     if (correct === null) return;
     const pre = this.takePreAnswer(tap, option);
+    if (pre) this.preWord = { tapId: tap.id, text: correct ? '¡Exacto!' : 'Casi...' };
     // Inicio de la partida para el ranking: si se respondió antes de hidratar, la pregunta se veía desde que cargó la página.
     if (pre) this.tapStart.set(tap.id, Math.round(performance.timeOrigin));
     else if (this.run(tap).answers.length === 0 && !this.tapStart.has(tap.id)) this.tapStart.set(tap.id, Date.now());
@@ -376,6 +430,7 @@ export class TapsFeedComponent {
   protected restart(tap: ITap): void {
     this.track(null, `taps/repetir/${eventSlug(tap.id)}`);
     this.signal(tap, 'repeat');
+    this.partidas.set(tap.id, (this.partidas.get(tap.id) ?? 0) + 1);
     this.setRun(tap, startRun(tap));
     this.ranking.olvidar(tap.id);
     this.tapStart.set(tap.id, Date.now());
@@ -415,6 +470,8 @@ export class TapsFeedComponent {
       this.track('taps-completar', `taps/completar/${eventSlug(tap.id)}`);
       this.completedThisSession++;
       this.updateInterest(i => markCompleted(i, tap, Date.now()));
+      this.ahora.set(Date.now());
+      this.onSessionTap(tap, run);
       this.reorderTail();
       if ([1, 2, 3, 4, 6, 10].includes(this.completedThisSession)) this.track(null, `taps/hito/${this.completedThisSession}`);
       this.onFinished(tap, run);
@@ -527,7 +584,66 @@ export class TapsFeedComponent {
   private readonly onVisibility = () => {
     if (this.document.hidden) { this.clock.pause(); this.audio.pausar(); }
     else { this.audio.reanudar(); if (!this.held && !this.sheetOpen()) this.clock.resume(); }
+    if (this.document.hidden && !this.sharing) this.countSession();
+    if (!this.document.hidden) this.ahora.set(Date.now());
   };
+
+  // ───────────── sesión: regreso, meta del día y medición ─────────────
+  /**
+   * Al abrir: el Tap de un enlace ya terminado se ofrece como revancha; quien vuelve tras 20 h recibe un saludo breve con
+   * su racha (sin culpa si se cortó). Luego se anota esta visita.
+   */
+  private welcome(): void {
+    if (this.portada) return;
+    const now = Date.now(), first = this.taps()[0], asked = findTap(this.askedId);
+    const rematch = asked && asked.id === first.id ? rematchText(asked, this.interest(), this.sesion) : null;
+    const hello = rematch ? null : greeting(this.interest(), this.sesion, now);
+    if (rematch || hello) this.notice.set({ tapId: first.id, text: (rematch ?? hello)! });
+    if (hello) this.track(null, 'taps/regreso/saludo');
+    this.saveSesion({ ...this.sesion, ultima: now });
+  }
+
+  /** Un Tap terminado: puntaje para la revancha y, si con él se llega a 3 hoy, una sola celebración en el día. */
+  private onSessionTap(tap: ITap, run: ITapRun): void {
+    const now = Date.now(), today = dayKey(now), goal = sessionGoal(this.interest(), now);
+    const celebrate = goal.cumplida && this.sesion.celebrada !== today;
+    if (celebrate) { this.metaTapId.set(tap.id); this.track(null, 'taps/meta-dia/cumplida'); }
+    this.saveSesion({ ultima: now, celebrada: celebrate ? today : this.sesion.celebrada, puntajes: { ...this.sesion.puntajes, [tap.id]: run.score } });
+  }
+
+  private saveSesion(next: ISesionGuardada): void {
+    this.sesion = next;
+    this.writeStorage(SESION_KEY, JSON.stringify(next));
+  }
+
+  /**
+   * `taps/sesion/<duración>` y `taps/sesion-taps/<n>`: una vez por sesión, al ocultar la pestaña o al salir del feed (mejora 13).
+   * El menú de compartir no cuenta como salida. Respeta `?interno=1` (AnalyticsService no envía nada del equipo).
+   */
+  private countSession(): void {
+    if (this.portada) return;
+    if (this.sessionCounted || !this.live()) return;
+    this.sessionCounted = true;
+    this.track(null, `taps/sesion/${sessionBucket(performance.now() - this.sessionStart)}`);
+    this.track(null, `taps/sesion-taps/${sessionTapsBucket(this.completedThisSession)}`);
+  }
+
+  /** La marca de la barra (celular) abre «Tu día en Taps»: no saca del juego. Mientras está abierta, la cuenta atrás espera. */
+  protected openDay(): void {
+    if (this.portada) return;
+    if (this.hojaDia()) return;
+    this.track(null, 'taps/dia/abrir');
+    this.hojaDia.set(true);
+    this.sheetOpen.set(true);
+    this.clock.pause();
+  }
+
+  protected closeDay(): void {
+    if (!this.hojaDia()) return;
+    this.hojaDia.set(false);
+    this.sheetOpen.set(false);
+    if (!this.held && !this.document.hidden) this.clock.resume();
+  }
 
   // ───────────── sonido ─────────────
   protected toggleSound(): void {
@@ -629,6 +745,7 @@ export class TapsFeedComponent {
     this.signal(tap, 'share');
     const run = this.run(tap), url = shareUrl(location.origin, tap.id), file = this.shareFiles.get(tap.id);
     const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
+    this.sharing = true;
     try {
       if (file && nav.share && nav.canShare?.({ files: [file] })) {
         await nav.share({ files: [file], title: 'Taps de GEMS LMS', text: shareText(tap, run, url) });
@@ -638,7 +755,7 @@ export class TapsFeedComponent {
       if (nav.share) { await nav.share({ title: 'Taps de GEMS LMS', text: shareText(tap, run), url }); this.track(null, 'taps/compartir-ok/nativo'); return; }
     } catch (error) {
       if ((error as DOMException)?.name === 'AbortError') return;      // la persona cerró el menú
-    }
+    } finally { this.sharing = false; }
     await this.copy(tap, shareText(tap, run, url), url, file);
   }
 
@@ -647,11 +764,12 @@ export class TapsFeedComponent {
     this.track('taps-compartir', `taps/compartir/${eventSlug(tap.id)}`);
     this.signal(tap, 'share');
     const url = shareUrl(location.origin, tap.id), text = `Juega este Tap de GEMS LMS: ${tap.title}. ¿Cuántas sacas de ${tap.questions.length}?`;
+    this.sharing = true;
     try {
       if (navigator.share) { await navigator.share({ title: 'Taps de GEMS LMS', text, url }); this.track(null, 'taps/compartir-ok/nativo'); return; }
     } catch (error) {
       if ((error as DOMException)?.name === 'AbortError') return;
-    }
+    } finally { this.sharing = false; }
     await this.copy(tap, `${text}\n${url}`, url);
   }
 
@@ -756,7 +874,13 @@ export class TapsFeedComponent {
     this.updateInterest(i => blockTopic(i, topic, Date.now()));
     this.track(null, `taps/no-me-interesa/${eventSlug(topic)}`);
     if (this.topic() === topic) this.selectTopic(null); else this.reorderTail();
-    this.notice.set({ tapId: tap.id, text: `Listo: no verás ${this.topicLabel(tap)} en «Para ti» por 30 días.` });
+    this.notice.set({ tapId: tap.id, text: `Listo: no verás ${this.topicLabel(tap)} en «Para ti» por 30 días.`, undo: true });
+  }
+
+  /** «Deshacer» del aviso: vuelve a mostrar el tema y quita el aviso. */
+  protected undoNotInterested(): void {
+    this.unblockActive();
+    this.notice.set(null);
   }
 
   protected unblockActive(): void {
@@ -801,7 +925,11 @@ export class TapsFeedComponent {
 
   private setRun(tap: ITap, run: ITapRun): void {
     this.runs.update(all => ({ ...all, [tap.id]: run }));
-    if (this.isBrowser) this.writeStorage(RUNS_KEY, JSON.stringify(this.runs()), true);
+    if (!this.isBrowser) return;
+    // localStorage con 48 h de vigencia por partida (taps.sesion.ts): un Tap a medias se retoma también al volver otro día.
+    const { saved, raw } = storeRun(this.savedRuns, run, Date.now());
+    this.savedRuns = saved;
+    this.writeStorage(PARTIDAS_KEY, raw);
   }
 
   private celebrateResult(tap: ITap, run: ITapRun): void {
@@ -872,6 +1000,7 @@ export class TapsFeedComponent {
     }
     this.activeIndex = index;
     this.activeId.set(tap.id);
+    this.ahora.set(Date.now());
     if (previous >= 0) { this.audio.callar(); this.audio.tocar('deslizar', { tema: tap.theme }); }
     if (this.run(tap).answers.length === 0 && !this.tapStart.has(tap.id)) this.tapStart.set(tap.id, Date.now());
     if (this.notice()?.tapId !== tap.id) this.notice.set(null);
@@ -1041,19 +1170,25 @@ export class TapsFeedComponent {
   }
 
   // ───────────── estado guardado ─────────────
-  /** Al volver a /taps en la misma pestaña (p. ej. tras tocar el logo) se retoma cada Tap donde iba. */
+  /**
+   * Se retoma cada Tap donde iba: en la misma pestaña y, durante 48 h, al volver otro día (localStorage, con try/catch).
+   * El Tap de un enlace que ya se terminó no abre en su resultado: se ofrece de nuevo con «¿Revancha?».
+   */
   private restoreRuns(): void {
-    try {
-      const saved = JSON.parse(sessionStorage.getItem(RUNS_KEY) ?? 'null') as Record<string, ITapRun> | null;
-      if (!saved || (globalThis as { __tapsPre?: unknown }).__tapsPre) return;
-      const valid = Object.fromEntries(Object.entries(saved).filter(([id, r]) =>
-        TAPS.some(t => t.id === id) && Array.isArray(r?.answers) && typeof r.index === 'number')
-        // Si recargó con una respuesta a la vista, se sigue en la pregunta siguiente (esa ya contó).
-        .map(([id, r]) => [id, r.finished || r.chosen === null ? r : next(r, TAPS.find(t => t.id === id)!)]));
-      // Una respuesta dada antes de hidratar manda sobre lo guardado.
-      const current = this.runs();
-      this.runs.set({ ...current, ...Object.fromEntries(Object.entries(valid).filter(([id]) => current[id].answers.length === 0)) });
-    } catch { /* sin sessionStorage se empieza de cero */ }
+    const now = Date.now(), ids = new Set(TAPS.map(t => t.id));
+    this.savedRuns = parseRuns(this.readStorage(PARTIDAS_KEY), now, ids);
+    try {                                                            // formato anterior (solo esta pestaña): se aprovecha y se retira
+      const old = sessionStorage.getItem(PARTIDAS_KEY);
+      if (old) { this.savedRuns = { ...parseRuns(old, now, ids), ...this.savedRuns }; sessionStorage.removeItem(PARTIDAS_KEY); }
+    } catch { /* sin sessionStorage */ }
+    if ((globalThis as { __tapsPre?: unknown }).__tapsPre) return;
+    const asked = findTap(this.askedId)?.id;
+    const valid = Object.fromEntries(Object.entries(this.savedRuns)
+      .filter(([id, r]) => !(id === asked && r.finished))
+      .map(([id, { t: _t, ...r }]) => [id, r.finished || r.chosen === null ? r : next(r, TAPS.find(x => x.id === id)!)] as [string, ITapRun]));
+    // Una respuesta dada antes de hidratar manda sobre lo guardado.
+    const current = this.runs();
+    this.runs.set({ ...current, ...Object.fromEntries(Object.entries(valid).filter(([id]) => current[id].answers.length === 0)) });
   }
 
   /**

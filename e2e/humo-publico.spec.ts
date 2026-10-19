@@ -101,6 +101,23 @@ test.describe('Humo · visitante', () => {
     await expect(page.locator('.tap.tap--active')).toHaveAttribute('data-tap', otro!);
   });
 
+  test('taps: al volver al día siguiente no repite el Tap de ayer y saluda', async ({ page }) => {
+    await apiFalsa(page);
+    // Ayer se completó el primer Tap del feed (reloj simulado: el mismo almacenamiento, 24 h después).
+    const ayer = new Date(2026, 9, 19, 18, 0, 0);
+    await page.clock.setFixedTime(new Date(ayer.getTime() + 24 * 3600_000));
+    await page.addInitScript(t => {
+      const d = new Date(t), p = (n: number) => String(n).padStart(2, '0');
+      localStorage.setItem('gems-taps-interes', JSON.stringify({ score: { minecraft: 3 }, blocked: {}, done: { 'mc-gancho': t },
+        days: [`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`] }));
+      localStorage.setItem('gems-taps-sesion', JSON.stringify({ ultima: t, celebrada: null, puntajes: { 'mc-gancho': 4 } }));
+    }, ayer.getTime());
+    await page.goto('/taps');
+    await page.waitForFunction(() => document.documentElement.hasAttribute('data-taps-live'));
+    await expect(page.locator('.tap.tap--active')).not.toHaveAttribute('data-tap', 'mc-gancho');
+    await expect(page.locator('.tap.tap--active .tap__toast')).toContainText('¡Volviste! Racha de 1 día');
+  });
+
   test('la portada prerenderizada no trae horneado el catálogo (ni su error)', async ({ request }) => {
     // Regresión de #27 corregida en #34: el prerender no pide el catálogo al API; el HTML trae el esqueleto, nunca el error ni cursos del build.
     const html = await (await request.get('/')).text();

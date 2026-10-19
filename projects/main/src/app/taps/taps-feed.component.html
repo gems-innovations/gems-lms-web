@@ -9,9 +9,11 @@
 }
 <div class="centro">
 <div class="escenario">
+<!-- «Tu día en Taps»: la abre la marca de la barra en el celular (racha, meta y avance; la portada, a un toque). -->
+@if (hojaDia()) { <gems-tap-sesion-hoja [resumen]="resumen()" [temas]="avancesLista()" (cerrar)="closeDay()" /> }
 <gems-taps-bar [sound]="sound()" [voice]="voice()" [topic]="topic()" [topicName]="topicName()" [topics]="topics" [desktop]="wide()"
                (toggleSound)="toggleSound()" (toggleVoice)="toggleVoice()" (topicChange)="selectTopic($event)" (sheetChange)="onSheet($event)"
-               (openRanking)="openRanking()" />
+               (openRanking)="openRanking()" [resumen]="barResumen()" (brand)="openDay()" />
 
 <main class="taps" #feed [attr.data-stage]="stageAttr()" aria-labelledby="taps-h1">
   <h1 id="taps-h1" class="visually-hidden">Taps de GEMS LMS: quizzes que juegas</h1>
@@ -57,8 +59,9 @@
         <p class="tap__pre" aria-hidden="true"><span class="tap__pre-ok">¡Exacto!</span><span class="tap__pre-bad">Casi...</span></p>
 
         @if (!run.finished) {
-          <gems-tap-rail [topicName]="topicLabel(tap)" (more)="moreOf(tap)" (share)="shareTap(tap)" />
-          @if (notice(); as n) { @if (n.tapId === tap.id) { <p class="tap__toast" role="status">{{ n.text }}</p> } }
+          <gems-tap-rail [topicName]="topicLabel(tap)" [blocked]="activeBlocked()" (more)="moreOf(tap)" (share)="shareTap(tap)"
+                         (notInterested)="notInterested(tap)" (unblock)="unblockActive()" />
+          @if (notice(); as n) { @if (n.tapId === tap.id) { <p class="tap__toast" role="status">{{ n.text }}@if (n.undo) { <button type="button" class="tap__undo" (click)="undoNotInterested()">Deshacer</button> }</p> } }
         }
       </div>
 
@@ -113,7 +116,8 @@
         } @else {
           <gems-tap-result [tap]="tap" [run]="run" [topicName]="topicLabel(tap)" [hasNext]="!!nextTap(tap)"
                            [notice]="notice()?.tapId === tap.id ? notice() : null" [xp]="ranking.partida(tap.id)"
-                           (ranking)="openRanking()" (challenge)="challenge(tap)" (again)="restart(tap)" (more)="moreOf(tap)" (next)="goNext(tap)" />
+                           (ranking)="openRanking()" (challenge)="challenge(tap)" (again)="restart(tap)" (more)="moreOf(tap)" (next)="goNext(tap)"
+                           [sesion]="live() ? resumen() : null" [tema]="temaDe(tap)" [celebrar]="metaTapId() === tap.id" />
         }
       </div>
 
@@ -151,6 +155,7 @@
     </div>
   }
 }
+
 
 <svg width="0" height="0" style="position: absolute" aria-hidden="true">
   <symbol id="shape-0" viewBox="0 0 24 24"><path d="M12 3 22.5 20.5h-21Z" fill="currentColor"/></symbol>
