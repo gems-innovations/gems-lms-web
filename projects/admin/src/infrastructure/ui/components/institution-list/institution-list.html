@@ -25,7 +25,7 @@
   </div>
 
   @if (isLoading()) {
-    <lib-loading-skeleton [rows]="5" [type]="'table'" />
+    <lib-skeleton shape="table-row" [count]="5" label="Cargando contenido" />
   }
 
   @if (error() && !isLoading()) {

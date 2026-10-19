@@ -1,15 +1,16 @@
 import { Component, input, output, signal, computed, effect, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AvatarComponent, EmptyStateComponent, LibButtonComponent, LoadingSkeletonComponent } from 'shared';
+import { AvatarComponent, EmptyStateComponent, LibButtonComponent } from 'shared';
 import type { IGradebookCell, IGradebookItem } from 'education';
 import type { IGradebookStudentRow } from '../../../../domain/model/instructor.model';
+import { SkeletonComponent } from 'shared/loading';
 
 /** Course gradebook: one column per quiz or assignment, weighted course grade per student. */
 @Component({
   selector: 'ins-gradebook-panel',
   standalone: true,
-  imports: [DecimalPipe, FormsModule, AvatarComponent, EmptyStateComponent, LibButtonComponent, LoadingSkeletonComponent],
+  imports: [DecimalPipe, FormsModule, AvatarComponent, EmptyStateComponent, LibButtonComponent, SkeletonComponent],
   templateUrl: './gradebook-panel.html',
   styleUrl: './gradebook-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

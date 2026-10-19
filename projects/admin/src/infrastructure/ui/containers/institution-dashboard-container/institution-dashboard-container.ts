@@ -1,9 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { EmptyStateComponent, LibButtonComponent, LoadingSkeletonComponent, PageComponent, PageHeaderComponent } from 'shared';
+import { EmptyStateComponent, LibButtonComponent, PageComponent, PageHeaderComponent } from 'shared';
 import { InstitutionUseCase } from '../../../../application/institution.usecase';
 import { InstitutionModalContainer } from '../institution-modal-container/institution-modal-container';
 import { InstitutionOverviewCard } from '../../components/institution-overview-card/institution-overview-card';
 import { InstitutionBrandingPanel } from '../../components/institution-branding-panel/institution-branding-panel';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'adm-institution-dashboard-container',
@@ -11,7 +12,7 @@ import { InstitutionBrandingPanel } from '../../components/institution-branding-
     PageComponent,
     PageHeaderComponent,
     LibButtonComponent,
-    LoadingSkeletonComponent,
+    SkeletonComponent,
     EmptyStateComponent,
     InstitutionModalContainer,
     InstitutionOverviewCard,

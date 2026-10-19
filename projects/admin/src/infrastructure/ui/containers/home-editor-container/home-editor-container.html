@@ -16,7 +16,7 @@
 
   @switch (state()) {
     @case ('idle') { <p class="home__hint">Elige una institución para editar su home.</p> }
-    @case ('loading') { <lib-loading-skeleton [rows]="4" /> }
+    @case ('loading') { <lib-skeleton shape="table-row" [count]="4" label="Cargando contenido" /> }
     @case ('error') { <p class="home__error">No se pudo cargar la home de esta institución.</p> }
     @default {
       <section class="home__panel" aria-labelledby="home-slug-title">

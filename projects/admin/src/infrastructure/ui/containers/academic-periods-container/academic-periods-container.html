@@ -30,7 +30,7 @@
   }
 
   @switch (state()) {
-    @case ('loading') { <lib-loading-skeleton [rows]="4" /> }
+    @case ('loading') { <lib-skeleton shape="table-row" [count]="4" label="Cargando contenido" /> }
     @case ('error') { <lib-empty-state title="Sin datos" description="No se pudieron cargar los períodos." /> }
     @default {
       @if (periods().length === 0) {

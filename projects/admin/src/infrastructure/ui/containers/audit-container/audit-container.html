@@ -12,7 +12,7 @@
   <section class="audit__card">
     <div class="audit__summary"><strong>{{ total() }}</strong> operaciones registradas</div>
     @if (loading()) {
-      <lib-loading-skeleton [rows]="5" />
+      <lib-skeleton shape="table-row" [count]="5" label="Cargando contenido" />
     } @else if (error()) {
       <lib-empty-state title="No pudimos cargar la auditoría" description="Comprueba tu conexión y vuelve a intentarlo." actionLabel="Reintentar" (action)="load()" />
     } @else if (events().length === 0) {

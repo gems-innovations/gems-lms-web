@@ -1,16 +1,14 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent, EMPTY_STATES,
-  LibButtonComponent, BackButtonComponent,
-} from 'shared';
+import { PageComponent, PageHeaderComponent, EmptyStateComponent, EMPTY_STATES, LibButtonComponent, BackButtonComponent } from 'shared';
 import { CourseSurveyUseCase } from '../../../../application/course-survey.usecase';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'edu-course-survey-container',
   standalone: true,
   imports: [
-    PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent,
+    PageComponent, PageHeaderComponent, SkeletonComponent, EmptyStateComponent,
     LibButtonComponent, BackButtonComponent,
   ],
   providers: [CourseSurveyUseCase],

@@ -2,12 +2,11 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-import {
-  AvatarComponent, EmptyStateComponent, LibButtonComponent, LoadingSkeletonComponent, RevealDirective, ToastService,
-} from 'shared';
+import { AvatarComponent, EmptyStateComponent, LibButtonComponent, RevealDirective, ToastService } from 'shared';
 import { AtRiskService } from '../../../services/at-risk.service';
 import type { ICourseRisk } from '../../../services/at-risk.service';
 import type { IEnrollmentRow } from '../../../../domain/model/instructor.model';
+import { SkeletonComponent } from 'shared/loading';
 
 /**
  * Alerta temprana: estudiantes del curso que se están quedando atrás, con las razones y un
@@ -15,7 +14,7 @@ import type { IEnrollmentRow } from '../../../../domain/model/instructor.model';
  */
 @Component({
   selector: 'ins-risk-panel',
-  imports: [FormsModule, AvatarComponent, EmptyStateComponent, LibButtonComponent, LoadingSkeletonComponent, RevealDirective],
+  imports: [FormsModule, AvatarComponent, EmptyStateComponent, LibButtonComponent, SkeletonComponent, RevealDirective],
   templateUrl: './risk-panel.html',
   styleUrl: './risk-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

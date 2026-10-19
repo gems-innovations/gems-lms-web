@@ -1,24 +1,17 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import {
-  ConfirmationDialogComponent,
-  EmptyStateComponent,
-  LibButtonComponent,
-  LoadingSkeletonComponent,
-  ModalBaseComponent,
-  PaginationComponent,
-  SearchBarComponent,
-} from 'shared';
+import { ConfirmationDialogComponent, EmptyStateComponent, LibButtonComponent, ModalBaseComponent, PaginationComponent, SearchBarComponent } from 'shared';
 import { AdminUserManagementUseCase, ICreateUserForm } from '../../../../application/admin-user-management.usecase';
 import { UserForm } from '../../forms/user-form/user-form';
 import { UserImportPanel } from '../../components/user-import-panel/user-import-panel';
 import { UserStatsChips } from '../../components/user-stats-chips/user-stats-chips';
 import { UserList } from '../../components/user-list/user-list';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'adm-user-management-container',
   imports: [
     LibButtonComponent,
-    LoadingSkeletonComponent,
+    SkeletonComponent,
     EmptyStateComponent,
     ConfirmationDialogComponent,
     ModalBaseComponent,

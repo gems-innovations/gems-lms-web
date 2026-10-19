@@ -4,19 +4,22 @@ name: Humo (regresión) sobre el build estático
 # rol, subdominios) contra el MISMO build que se despliega (`production,static`, servido como nginx), con el API
 # simulado en el navegador: no toca producción, no crea cuentas ni invitados reales. Ver e2e/humo-soporte.ts.
 
+# Corre en cada PR y, con `workflow_call`, como paso obligatorio de deploy.yml (Frontend CD): no se construye ni se
+# despliega la imagen si el humo falla. Por eso ya no tiene disparador `push` propio (el CD cubre develop, qa y main).
 on:
   pull_request:
-    branches: [main]
-  push:
-    branches: [main]
+    branches: [develop, qa, main, 'integracion/**']
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: humo-${{ github.ref }}
-  cancel-in-progress: true
+  group: humo-${{ github.workflow }}-${{ github.ref }}
+  # Solo se cancela la corrida vieja en PR. Llamado desde Frontend CD (push), `github.event_name` es el del llamador: no se cancela;
+  # si no, un segundo push seguido a develop/qa/main dejaría sin humo (y su despliegue en rojo) al primero.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   humo:
@@ -44,7 +47,8 @@ jobs:
       - name: Suite de humo (Chromium + iPhone WebKit)
         env:
           E2E_ESTATICO: '1'
-        run: npx playwright test e2e/humo-
+        # 90 s por prueba: con el plazo por defecto (30 s) 5 pruebas pesadas de Taps agotan el tiempo en máquinas lentas y, al ser requisito del CD, bloquearían el despliegue sin ser regresión.
+        run: npx playwright test e2e/humo- --timeout=90000
 
       - name: Reporte si falla
         if: failure()

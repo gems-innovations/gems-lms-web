@@ -1,18 +1,16 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import {
-  PageComponent, PageHeaderComponent, StatGridComponent, StatCardComponent,
-  LoadingSkeletonComponent, ProgressBarComponent, BadgeComponent,
-} from 'shared';
+import { PageComponent, PageHeaderComponent, StatGridComponent, StatCardComponent, ProgressBarComponent, BadgeComponent } from 'shared';
 import { RevealDirective } from 'shared';
 import { InstructorStatsUseCase } from '../../../../application/instructor-stats.usecase';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'ins-stats-container',
   standalone: true,
   imports: [RevealDirective, 
     DecimalPipe, PageComponent, PageHeaderComponent, StatGridComponent, StatCardComponent,
-    LoadingSkeletonComponent, ProgressBarComponent, BadgeComponent,
+    SkeletonComponent, ProgressBarComponent, BadgeComponent,
   ],
   templateUrl: './instructor-stats-container.html',
   styleUrl: './instructor-stats-container.scss',

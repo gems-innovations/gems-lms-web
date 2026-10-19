@@ -1,23 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import {
-  CardGridComponent,
-  ConfirmationDialogComponent,
-  EmptyStateComponent,
-  LibButtonComponent,
-  LoadingSkeletonComponent,
-  PageComponent,
-  PageHeaderComponent,
-  SearchBarComponent,
-  StatCardComponent,
-  StatGridComponent,
-  TabsComponent,
-  TabItem,
-  ToolbarComponent
-} from 'shared';
+import { CardGridComponent, ConfirmationDialogComponent, EmptyStateComponent, LibButtonComponent, PageComponent, PageHeaderComponent, SearchBarComponent, StatCardComponent, StatGridComponent, TabsComponent, TabItem, ToolbarComponent } from 'shared';
 import { CourseUseCase } from '../../../../application/course.usecase';
 import { ICourse, ECourseStatus } from '../../../../domain/model/course.model';
 import { CourseCard } from '../../components/course-card/course-card';
+import { SkeletonComponent } from 'shared/loading';
 
 const ALL_TAB = 'all';
 
@@ -33,7 +20,7 @@ const ALL_TAB = 'all';
     SearchBarComponent,
     TabsComponent,
     CardGridComponent,
-    LoadingSkeletonComponent,
+    SkeletonComponent,
     EmptyStateComponent,
     ConfirmationDialogComponent,
     CourseCard

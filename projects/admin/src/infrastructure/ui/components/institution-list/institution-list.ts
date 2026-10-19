@@ -1,14 +1,15 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LoadingSkeletonComponent } from '@gems-lms-web/shared';
+
 import { SearchBarComponent } from '@gems-lms-web/shared';
 import { IInstitution } from '../../../../domain/model/institution.model';
 import { LucideTriangleAlert, LucideSchool } from '@lucide/angular';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'adm-institution-list',
   standalone: true,
-  imports: [CommonModule, LoadingSkeletonComponent, SearchBarComponent, LucideTriangleAlert, LucideSchool],
+  imports: [CommonModule, SkeletonComponent, SearchBarComponent, LucideTriangleAlert, LucideSchool],
   templateUrl: './institution-list.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './institution-list.scss'

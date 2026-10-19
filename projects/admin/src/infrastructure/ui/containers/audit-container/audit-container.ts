@@ -1,14 +1,15 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent, ClientErrorJournal } from 'shared';
+import { PageComponent, PageHeaderComponent, EmptyStateComponent, ClientErrorJournal } from 'shared';
 import { AuditService } from '../../../services/audit.service';
 import { IAuditEvent } from '../../../../domain/model/audit-event.model';
 import { LibSelectComponent, SelectOption } from 'shared';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'adm-audit-container',
-  imports: [LibSelectComponent, DatePipe, FormsModule, PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent],
+  imports: [LibSelectComponent, DatePipe, FormsModule, PageComponent, PageHeaderComponent, SkeletonComponent, EmptyStateComponent],
   templateUrl: './audit-container.html',
   styleUrl: './audit-container.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

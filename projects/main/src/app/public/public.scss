@@ -75,7 +75,6 @@ h2 { margin: 0; font: 800 var(--texto-titulo-2)/1.15 var(--font-titulo); letter-
   &--skeleton { min-height: 340px; } // el barrido lo pone .gm-skeleton (_movimiento.scss)
 }
 
-.empty { padding: 28px; border-radius: 16px; background: var(--color-superficie); color: var(--color-texto-secundario); }
 
 .band {
   display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;

@@ -4,12 +4,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MarkdownComponent } from 'ngx-markdown';
 import { AuthSessionService } from 'auth';
-import {
-  EmptyStateComponent, EMPTY_STATES, LibButtonComponent, LoadingSkeletonComponent, MarkdownEditorComponent, PaginationComponent,
-  ConfirmationDialogComponent, ToastService,
-} from 'shared';
+import { EmptyStateComponent, EMPTY_STATES, LibButtonComponent, MarkdownEditorComponent, PaginationComponent, ConfirmationDialogComponent, ToastService } from 'shared';
 import { CourseCommunityService } from '../../../services/course-community.service';
 import type { IAnnouncement, IForumPost, IForumThread } from '../../../services/course-community.service';
+import { SkeletonComponent } from 'shared/loading';
 
 export type TCommunityTab = 'announcements' | 'forum';
 
@@ -27,7 +25,7 @@ interface IPendingDelete {
 @Component({
   selector: 'edu-course-community',
   standalone: true,
-  imports: [DatePipe, FormsModule, MarkdownComponent, EmptyStateComponent, LibButtonComponent, LoadingSkeletonComponent,
+  imports: [DatePipe, FormsModule, MarkdownComponent, EmptyStateComponent, LibButtonComponent, SkeletonComponent,
     MarkdownEditorComponent, PaginationComponent, ConfirmationDialogComponent],
   templateUrl: './course-community.html',
   styleUrl: './course-community.scss',

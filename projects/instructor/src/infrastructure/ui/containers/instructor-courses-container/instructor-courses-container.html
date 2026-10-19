@@ -6,7 +6,7 @@
   />
 
   @if (uc.isLoading()) {
-    <lib-loading-skeleton [rows]="5" />
+    <lib-skeleton shape="table-row" [count]="5" label="Cargando contenido" />
   } @else if (uc.courses().length === 0) {
     <lib-empty-state
       title="Sin grupos asignados"

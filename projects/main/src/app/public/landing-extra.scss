@@ -30,9 +30,6 @@
     &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; border-radius: 6px; } }
   &[open] summary::after { transform: rotate(45deg); }
   p { margin: 0 0 12px; } }
-.empty { display: grid; justify-items: start; gap: 12px;
-  p { margin: 0; }
-  .btn { min-height: 44px; } }
 @media (max-width: 860px) {
   .legal p a, .band__alt a { display: inline-block; padding-block: 13px; margin-block: -13px; }
 }

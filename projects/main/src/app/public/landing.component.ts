@@ -10,6 +10,7 @@ import { HeroQuizComponent } from './hero-quiz.component';
 import { InViewDirective } from './in-view.directive';
 import { LucideGraduationCap, LucideSchool, LucideSend, LucideShieldCheck, LucideZap } from '@lucide/angular';
 import { BusyLabelComponent, LoadErrorComponent, SkeletonComponent } from 'shared/loading';
+import { EMPTY_STATES, EmptyStateComponent } from 'shared';
 
 /**
  * Página de entrada pública: cursos gratis para prepararse para la universidad, sin registro.
@@ -19,7 +20,7 @@ import { BusyLabelComponent, LoadErrorComponent, SkeletonComponent } from 'share
   selector: 'gems-landing',
   imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, HeroQuizComponent, TiltDirective, InViewDirective,
     LucideGraduationCap, LucideSchool, LucideSend, LucideShieldCheck, LucideZap,
-    SkeletonComponent, LoadErrorComponent, BusyLabelComponent],
+    SkeletonComponent, LoadErrorComponent, BusyLabelComponent, EmptyStateComponent],
   templateUrl: './landing.component.html',
   styleUrls: ['./public.scss', './landing-extra.scss', './landing-bento.scss', './landing-piezas.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +36,8 @@ export class LandingComponent {
   protected readonly loadError = signal<unknown>(null);
   protected readonly errorFor = signal<number | null>(null);
   protected readonly difficulty = DIFFICULTY_LABEL;
+  /** Textos del catálogo vacío (lib-empty-state). */
+  protected readonly emptyCopy = EMPTY_STATES.public.coursesSoon;
   protected readonly heroCtaInView = signal(false);
   protected readonly gridInView = signal(false);
 

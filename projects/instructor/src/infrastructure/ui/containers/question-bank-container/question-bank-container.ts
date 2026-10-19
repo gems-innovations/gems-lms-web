@@ -1,12 +1,10 @@
 import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent, LibButtonComponent,
-  PaginationComponent, ConfirmationDialogComponent, ToastService,
-} from 'shared';
+import { PageComponent, PageHeaderComponent, EmptyStateComponent, LibButtonComponent, PaginationComponent, ConfirmationDialogComponent, ToastService } from 'shared';
 import { QuestionBankService } from 'education';
 import type { IBankQuestion, IBankCategory, IQuestion, TBankQuestionType } from 'education';
 import { LibSelectComponent, SelectOption } from 'shared';
+import { SkeletonComponent } from 'shared/loading';
 
 const PAGE_SIZE = 20;
 
@@ -38,7 +36,7 @@ const TYPE_LABELS: Record<TBankQuestionType, string> = {
 @Component({
   selector: 'ins-question-bank-container',
   standalone: true,
-  imports: [LibSelectComponent, FormsModule, PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent,
+  imports: [LibSelectComponent, FormsModule, PageComponent, PageHeaderComponent, SkeletonComponent, EmptyStateComponent,
     LibButtonComponent, PaginationComponent, ConfirmationDialogComponent],
   templateUrl: './question-bank-container.html',
   styleUrl: './question-bank-container.scss',

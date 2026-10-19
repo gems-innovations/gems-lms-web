@@ -1,15 +1,12 @@
 import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  LoadingSkeletonComponent, EmptyStateComponent, LibButtonComponent,
-  LibSelectComponent, BadgeComponent, AvatarComponent, ModalBaseComponent,
-  SearchBarComponent, PaginationComponent,
-} from 'shared';
+import { EmptyStateComponent, LibButtonComponent, LibSelectComponent, BadgeComponent, AvatarComponent, ModalBaseComponent, SearchBarComponent, PaginationComponent } from 'shared';
 import type { SelectOption } from 'shared';
 import { EnrollStudentSearch } from 'education';
 import type { IGroup, IStudentProfile, INewStudentRow } from 'education';
 import { AdminGroupsUseCase } from '../../../../application/admin-groups.usecase';
 import { parseUsersXlsx } from '../user-import-panel/user-xlsx.parser';
+import { SkeletonComponent } from 'shared/loading';
 
 type TCreateMode = 'select' | 'excel';
 
@@ -19,7 +16,7 @@ const PAGE_SIZE = 6;
   selector: 'adm-groups-view',
   standalone: true,
   imports: [
-    FormsModule, LoadingSkeletonComponent, EmptyStateComponent, LibButtonComponent,
+    FormsModule, SkeletonComponent, EmptyStateComponent, LibButtonComponent,
     LibSelectComponent, BadgeComponent, AvatarComponent, EnrollStudentSearch,
     ModalBaseComponent, SearchBarComponent, PaginationComponent,
   ],

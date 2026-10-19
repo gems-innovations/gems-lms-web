@@ -3,15 +3,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { MarkdownComponent } from 'ngx-markdown';
-import {
-  PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent, BackButtonComponent, EMPTY_STATES,
-} from 'shared';
+import { PageComponent, PageHeaderComponent, EmptyStateComponent, BackButtonComponent, EMPTY_STATES } from 'shared';
 import { CourseService } from '../../../services/course.service';
 import { EnrollmentService } from '../../../services/enrollment.service';
 import { GradebookService } from '../../../services/gradebook.service';
 import type { ICourse, IContentBlock } from '../../../../domain/model/course.model';
 import type { IAssignmentSubmission } from '../../../../domain/model/enrollment.model';
 import type { IGradebook, IGradebookCell, IGradebookItem } from '../../../../domain/model/gradebook.model';
+import { SkeletonComponent } from 'shared/loading';
 
 interface IGradeLine {
   item: IGradebookItem;
@@ -25,7 +24,7 @@ interface IGradeLine {
 @Component({
   selector: 'edu-student-grades-container',
   standalone: true,
-  imports: [DecimalPipe, MarkdownComponent, PageComponent, PageHeaderComponent, LoadingSkeletonComponent,
+  imports: [DecimalPipe, MarkdownComponent, PageComponent, PageHeaderComponent, SkeletonComponent,
     EmptyStateComponent, BackButtonComponent],
   templateUrl: './student-grades-container.html',
   styleUrl: './student-grades-container.scss',

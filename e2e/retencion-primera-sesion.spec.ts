@@ -80,6 +80,9 @@ async function completeActiveTap(page: Page): Promise<number> {
 }
 
 test.describe('Retención · primera sesión en celular (Taps)', () => {
+  // Estas pruebas dependen de código que producción aún no tiene (H-H): iphone.yml las corre contra producción.
+  test.skip(REMOTE, PENDIENTE_DE_DESPLIEGUE);
+
   test('llega desde un Short, responde, completa un Tap, pasa al siguiente y comparte', async ({ page }, info) => {
     await page.goto(SHORT_URL);
 

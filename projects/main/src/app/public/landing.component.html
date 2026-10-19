@@ -38,7 +38,7 @@
       }
       @default {
         @if (courses().length === 0) {
-          <p class="empty">Muy pronto publicamos los primeros cursos.</p>
+          <lib-empty-state [copy]="emptyCopy" [headingLevel]="2" [framed]="true" actionLink="/taps" secondaryLabel="Ver los retos" secondaryLink="/retos" />
         } @else {
           @if (categories().length) {
             <div class="cats" role="tablist" aria-label="Categorías de cursos">

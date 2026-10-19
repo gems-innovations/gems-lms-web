@@ -1,5 +1,5 @@
 @if (loading() && rows().length === 0) {
-  <lib-loading-skeleton />
+  <lib-skeleton shape="table-row" [count]="5" label="Cargando contenido" />
 } @else if (items().length === 0) {
   <lib-empty-state
     title="Sin evaluaciones"

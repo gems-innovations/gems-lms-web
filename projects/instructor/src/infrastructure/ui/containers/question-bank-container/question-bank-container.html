@@ -111,7 +111,7 @@
       }
 
       @if (loading()) {
-        <lib-loading-skeleton [rows]="6" />
+        <lib-skeleton shape="table-row" [count]="6" label="Cargando contenido" />
       } @else if (error()) {
         <lib-empty-state title="Sin datos" [description]="error()!" />
       } @else if (items().length === 0) {

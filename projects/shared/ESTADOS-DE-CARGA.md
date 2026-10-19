@@ -40,7 +40,7 @@ import { SkeletonComponent, LoadErrorComponent, BusyLabelComponent, retryTransie
 | `lib-route-progress` | Barra de 3 px arriba en cambios de página que tardan más de 200 ms | En `app.html` (diferida con `@defer`) |
 | `lib-connection-status` | «Sin conexión» / «Conexión recuperada». `placement="bottom"` en pantallas con controles arriba (Taps) | En `app.html` |
 | `lib-button [loading]` (en `shared`) | Ya no cambia de tamaño: el contenido se oculta y el spinner se superpone a los 300 ms. `loadingText` para lectores | `<lib-button [loading]="guardando()" loadingText="Guardando…">Guardar</lib-button>` |
-| `lib-loading-skeleton` (en `shared`) | Esqueleto genérico de tabla/tarjetas de los paneles; ahora también espera 300 ms y acepta `label` | — |
+| ~~`lib-loading-skeleton`~~ | Eliminado: los paneles de admin e instructor usan `lib-skeleton` (`table-row`, `list-item`) | `<lib-skeleton shape="table-row" [count]="5" label="Cargando contenido" />` |
 
 ## Utilidades
 
@@ -100,8 +100,8 @@ Los estados vacíos son de `feat/estados-vacios` (PR #33), que amplía `lib-empt
 
 ## Pendiente
 
-- **Paneles de admin e instructor** (fuera de este alcance por decisión del dueño): reemplazar `lib-loading-skeleton`
-  genérico por `lib-skeleton` con forma (`stat`, `chart`, `table-row` con sus columnas); en estadísticas del docente un
+- **Paneles de admin e instructor**: ya usan `lib-skeleton` (el genérico `lib-loading-skeleton` se eliminó); falta darles
+  forma propia (`stat`, `chart`, `table-row` con sus columnas); en estadísticas del docente un
   fallo deja el esqueleto para siempre (`instructor-stats.usecase.ts`, `forkJoin` sin `error`); reportes muestran texto
   plano «Generando reporte…»; gestión de usuarios, libro de calificaciones y tablero de institución muestran el estado
   vacío cuando la carga falla.

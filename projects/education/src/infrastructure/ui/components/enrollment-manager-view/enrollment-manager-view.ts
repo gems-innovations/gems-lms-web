@@ -1,16 +1,17 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LoadingSkeletonComponent } from 'shared';
+
 import { EnrollStudentSearch } from '../enroll-student-search/enroll-student-search';
 import { EnrollResultBanner } from '../enroll-result-banner/enroll-result-banner';
 import { EducationEnrollmentManagerUseCase } from '../../../../application/education-enrollment-manager.usecase';
 import { IStudentProfile } from '../../../services/enrollment.service';
 import { LibSelectComponent, SelectOption } from 'shared';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'edu-enrollment-manager-view',
   standalone: true,
-  imports: [LibSelectComponent, FormsModule, LoadingSkeletonComponent, EnrollStudentSearch, EnrollResultBanner],
+  imports: [LibSelectComponent, FormsModule, SkeletonComponent, EnrollStudentSearch, EnrollResultBanner],
   templateUrl: './enrollment-manager-view.html',
   styleUrl: './enrollment-manager-view.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

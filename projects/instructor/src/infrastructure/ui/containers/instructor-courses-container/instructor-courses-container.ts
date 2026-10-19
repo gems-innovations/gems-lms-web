@@ -1,14 +1,11 @@
 import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
-import {
-  PageComponent, PageHeaderComponent, CardGridComponent,
-  LoadingSkeletonComponent, EmptyStateComponent, PaginationComponent,
-  SearchBarComponent,
-} from 'shared';
+import { PageComponent, PageHeaderComponent, CardGridComponent, EmptyStateComponent, PaginationComponent, SearchBarComponent } from 'shared';
 import { InstructorCoursesUseCase } from '../../../../application/instructor-courses.usecase';
 import { InstructorCourseSummaryCard } from '../../components/instructor-course-summary-card/instructor-course-summary-card';
 import { RevealDirective } from 'shared';
 import type { ICourseSummary } from '../../components/instructor-course-summary-card/instructor-course-summary-card';
+import { SkeletonComponent } from 'shared/loading';
 
 const PAGE_SIZE = 6;
 
@@ -17,7 +14,7 @@ const PAGE_SIZE = 6;
   standalone: true,
   imports: [RevealDirective, 
     PageComponent, PageHeaderComponent, CardGridComponent,
-    LoadingSkeletonComponent, EmptyStateComponent, PaginationComponent,
+    SkeletonComponent, EmptyStateComponent, PaginationComponent,
     SearchBarComponent, InstructorCourseSummaryCard,
   ],
   templateUrl: './instructor-courses-container.html',

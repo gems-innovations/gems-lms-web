@@ -6,7 +6,7 @@
   />
 
   @if (uc.isLoading()) {
-    <lib-loading-skeleton [rows]="6" />
+    <lib-skeleton shape="table-row" [count]="6" label="Cargando contenido" />
   } @else {
 
     <!-- Resumen general -->

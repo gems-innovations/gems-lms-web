@@ -1,16 +1,17 @@
 import { Component, inject, input, signal, computed, effect, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
-import { LibButtonComponent, LoadingSkeletonComponent, ToastService } from 'shared';
+import { LibButtonComponent, ToastService } from 'shared';
 import { CourseService, EnrollmentRulesService } from 'education';
 import type { IAcademicPeriod, IEnrollmentRules } from 'education';
 import { LibSelectComponent, SelectOption } from 'shared';
+import { SkeletonComponent } from 'shared/loading';
 
 /** Enrollment rules of a course: period, window, capacity, self-enrollment and prerequisites. */
 @Component({
   selector: 'ins-enrollment-rules-panel',
   standalone: true,
-  imports: [LibSelectComponent, FormsModule, LibButtonComponent, LoadingSkeletonComponent],
+  imports: [LibSelectComponent, FormsModule, LibButtonComponent, SkeletonComponent],
   templateUrl: './enrollment-rules-panel.html',
   styleUrl: './enrollment-rules-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

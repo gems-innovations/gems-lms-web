@@ -61,7 +61,6 @@ export { ColorPickerComponent } from "./infrastructure/ui/components/color-picke
 
 // ── Services ─────────────────────────────────────────────────────────────────
 
-export { LoadingSkeletonComponent } from "./infrastructure/ui/components/loading-skeleton/loading-skeleton";
 // Estados de carga (esqueletos con forma, errores, barra de ruta…): punto de entrada aparte «shared/loading».
 
 export { PageComponent } from "./infrastructure/ui/components/page/page.component";

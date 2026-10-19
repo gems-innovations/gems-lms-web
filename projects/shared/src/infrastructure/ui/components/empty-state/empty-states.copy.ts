@@ -165,6 +165,12 @@ export const EMPTY_STATES = {
   },
 
   public: {
+    coursesSoon: {
+      kind: 'info', icon: 'book',
+      title: 'Muy pronto, los primeros cursos',
+      description: 'Estamos preparando el catálogo gratis. Mientras tanto, juega un Tap o resuelve un reto.',
+      action: 'Jugar un Tap',
+    },
     search: {
       kind: 'no-results', icon: 'search',
       title: 'Nada coincide con tu búsqueda',

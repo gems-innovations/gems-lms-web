@@ -1,11 +1,7 @@
 import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
-import {
-  PageComponent, PageHeaderComponent, StatGridComponent, StatCardComponent,
-  LoadingSkeletonComponent, BackButtonComponent, TabsComponent, LibButtonComponent,
-  EmptyStateComponent, LibSelectComponent,
-} from 'shared';
+import { PageComponent, PageHeaderComponent, StatGridComponent, StatCardComponent, BackButtonComponent, TabsComponent, LibButtonComponent, EmptyStateComponent, LibSelectComponent } from 'shared';
 import type { SelectOption } from 'shared';
 import { CourseDetailUseCase } from '../../../../application/course-detail.usecase';
 import { SurveyEditorUseCase } from '../../../../application/survey.usecase';
@@ -22,13 +18,14 @@ import { EnrollmentRulesPanel } from '../../components/enrollment-rules-panel/en
 import { RiskPanel } from '../../components/risk-panel/risk-panel';
 import { AccessibilityReport } from 'education';
 import type { ISubmissionRow, IGradeSubmitEvent, TCourseDetailTab } from '../../../../domain/model/instructor.model';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'ins-course-detail-container',
   standalone: true,
   imports: [AccessibilityReport, RiskPanel, 
     DecimalPipe, PageComponent, PageHeaderComponent, StatGridComponent, StatCardComponent,
-    LoadingSkeletonComponent, BackButtonComponent, TabsComponent, LibButtonComponent,
+    SkeletonComponent, BackButtonComponent, TabsComponent, LibButtonComponent,
     EmptyStateComponent, LibSelectComponent, StudentsTable, GradingPanel, ReviewCard, StudentDetail, SurveyPanel,
     GradebookPanel, CourseCommunity, EnrollmentRulesPanel,
   ],

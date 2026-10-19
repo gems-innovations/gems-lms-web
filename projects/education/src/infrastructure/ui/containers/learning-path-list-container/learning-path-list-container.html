@@ -26,7 +26,7 @@
   </lib-toolbar>
 
   @if (uc.isLoading()) {
-    <lib-loading-skeleton type="card" [rows]="3" />
+    <lib-skeleton shape="list-item" [count]="3" label="Cargando contenido" />
   } @else if (uc.filteredPaths().length === 0) {
     <lib-empty-state
       title="No hay rutas de aprendizaje"
