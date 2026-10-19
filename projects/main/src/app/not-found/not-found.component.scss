@@ -74,7 +74,7 @@ h1 {
   margin-top: 1.75rem;
   padding: .8rem 1.2rem;
   border-radius: .75rem;
-  background: var(--color-primario, #6d5ee8);
+  background: var(--color-primario-accion, #5B4EC1); // con --color-primario el blanco quedaba en 3,9:1
   color: var(--color-sobre-primario);
   font-weight: 750;
   box-shadow: 0 8px 24px rgba(109, 94, 232, .3);
