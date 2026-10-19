@@ -1,31 +1,38 @@
-import { RenderMode, ServerRoute } from '@angular/ssr';
+import { PrerenderFallback, RenderMode, ServerRoute } from '@angular/ssr';
+import { TAPS } from './taps/taps.data';
 
+/**
+ * Cómo se entrega cada ruta. Producción es estática (nginx, `--configuration production,static`): no hay Node que
+ * renderice en cada visita, así que las páginas públicas se PRERENDERIZAN en el build y nginx sirve ese HTML por ruta
+ * (deploy/nginx.conf). Lo demás recibe la «shell» (index.csr.html) y se pinta en el navegador.
+ *
+ * Las mismas reglas valen para `npm run serve:ssr:main` (outputMode server): ahí también se prerenderizan.
+ */
 export const serverRoutes: ServerRoute[] = [
-  // Auth-gated routes — must render on client (no session available during SSR)
-  { path: 'education/**',          renderMode: RenderMode.Client },
-  { path: 'learn/**',              renderMode: RenderMode.Client },
-  { path: 'admin/**',              renderMode: RenderMode.Client },
-  { path: 'instructor/**',         renderMode: RenderMode.Client },
-  { path: 'account/**',            renderMode: RenderMode.Client },
-  { path: 'certificates/**',       renderMode: RenderMode.Client },
-  // The reset link carries its token in the query string, read in the browser.
-  { path: 'auth/reset-password',   renderMode: RenderMode.Client },
-  { path: 'auth/verify-email',     renderMode: RenderMode.Client },
-  // The e-mail link carries a signed token in the query string, read in the browser.
-  { path: 'correo/preferencias',   renderMode: RenderMode.Client },
-
-  // Páginas públicas del gancho: se renderizan en el servidor en cada visita (catálogo vivo y buscadores).
-  { path: '',                     renderMode: RenderMode.Server },
-  { path: 'cursos/:id',           renderMode: RenderMode.Server },
-  { path: 'instituciones',        renderMode: RenderMode.Server },
-  { path: 'retos',                renderMode: RenderMode.Server },
-  { path: 'bloques',              renderMode: RenderMode.Server },
+  // Páginas públicas del gancho: el HTML llega con el contenido y los metadatos para compartir (og:, canonical).
+  // La portada depende del host: en el subdominio de una institución nginx entrega la shell, no este HTML.
+  { path: '',               renderMode: RenderMode.Prerender },
+  { path: 'retos',          renderMode: RenderMode.Prerender },
+  { path: 'bloques',        renderMode: RenderMode.Prerender },
+  { path: 'instituciones',  renderMode: RenderMode.Prerender },
+  { path: 'terminos',       renderMode: RenderMode.Prerender },
+  { path: 'privacidad',     renderMode: RenderMode.Prerender },
   // El feed de Taps: la primera pregunta llega ya pintada; el motor 3D solo se carga en el navegador.
-  { path: 'taps',                 renderMode: RenderMode.Server },
-  { path: 'terminos',             renderMode: RenderMode.Server },
-  { path: 'privacidad',           renderMode: RenderMode.Server },
-  { path: 'solicitudes',          renderMode: RenderMode.Client },
+  { path: 'taps',           renderMode: RenderMode.Prerender },
+  // Un Tap compartido (/t/nether): su propia tarjeta (título, descripción, imagen) y ese Tap primero.
+  // Un id que no se prerenderizó (un Tap nuevo) recibe la shell y se pinta en el navegador.
+  {
+    path: 't/:id',
+    renderMode: RenderMode.Prerender,
+    getPrerenderParams: async () => TAPS.map(tap => ({ id: tap.id })),
+    fallback: PrerenderFallback.Client,
+  },
+  { path: 'not-found',      renderMode: RenderMode.Prerender },
 
-  // Public / pre-renderable routes
-  { path: '**', renderMode: RenderMode.Prerender }
+  // Cursos abiertos: el catálogo vive en el API y cambia sin desplegar; sin SSR se pintan en el navegador
+  // (con los metadatos genéricos de index.html). Prerenderizarlos exigiría el API durante el build.
+  { path: 'cursos/:id',     renderMode: RenderMode.Client },
+
+  // Todo lo demás (zonas con sesión, auth, enlaces con token): solo en el navegador.
+  { path: '**',             renderMode: RenderMode.Client },
 ];

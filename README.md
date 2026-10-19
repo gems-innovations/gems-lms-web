@@ -68,6 +68,25 @@ npm run build:storybook
 
 ## Producción
 
+Producción es **estática**: el `Dockerfile` compila `--configuration production,static` y lo sirve nginx
+(`deploy/nginx.conf`). No hay Node en el servidor, así que las páginas públicas (`/`, `/taps`, `/t/<id>` por cada
+Tap, `/retos`, `/bloques`, `/instituciones`, `/terminos`, `/privacidad`, `/not-found`) se **prerenderizan** en el
+build (`app.routes.server.ts`): cada una queda en `<ruta>/index.html` con su contenido y sus metadatos para compartir
+(`SeoService`). El resto de rutas recibe la shell `index.csr.html`, que también usa el service worker. En el
+subdominio de una institución, `/` recibe la shell (su portada se decide en el navegador). Para probarlo en local:
+
+```bash
+npm run build:all
+npx ng build main --configuration production,static   # salida: dist/main/browser
+docker build -t gems-web . && docker run -p 8080:80 -e API_BASE_URL=https://api.example.com/api/v1 gems-web
+```
+
+Caché de nginx: JS/CSS con hash y `/media` → un año `immutable`; HTML, `taps-engine/` (sin hash) → `no-cache` con
+ETag; otros estáticos de `public/` → un día; `config.js`, `ngsw*.js(on)` y el manifiesto → `no-store`. Al agregar un
+Tap a `taps.data.ts` se prerenderiza solo su `/t/<id>`.
+
+Build SSR (opcional, no es el de producción):
+
 ```bash
 npm run build:all
 npx ng build main --configuration production

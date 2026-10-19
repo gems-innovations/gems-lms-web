@@ -3,7 +3,6 @@ import {
   afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, Injector, PLATFORM_ID, REQUEST, computed,
   inject, signal, viewChild, viewChildren,
 } from '@angular/core';
-import { Meta } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AnalyticsService, TAnalyticsEvent } from '../analytics.service';
 import { TEventPath, eventSlug } from '../analytics-taxonomy';
@@ -22,9 +21,6 @@ const TEACH_KEY = 'gems-taps-ensenar';
 const RUNS_KEY = 'gems-taps-partidas';
 /** Cookie (solo para /taps, sin datos personales): el servidor ya no abre con el Tap de gancho a quien lo jugó. */
 const HOOK_COOKIE = 'gems_taps_gancho';
-const DEFAULT_DESCRIPTION = 'GEMS LMS: aprendizaje, formación y seguimiento en un solo lugar.';
-const DESCRIPTION = 'Taps de GEMS LMS: quizzes que juegas con un personaje en vivo. Responde, mira cómo reacciona y gana tu título. Gratis y sin registro.';
-const SITE = 'https://lms.gemsinnovations.com';
 const OK_WORDS = ['¡Exacto!', '¡Eso es!', '¡Crack!', '¡Fácil para ti!'];
 const BAD_WORDS = ['Casi...', 'Uy, por poco', 'Esta era trampa'];
 const SHAPES = ['triángulo', 'rombo', 'círculo', 'cuadrado'];
@@ -54,7 +50,6 @@ export class TapsFeedComponent {
   private readonly platform = inject(PLATFORM_ID);
   private readonly analytics = inject(AnalyticsService);
   private readonly injector = inject(Injector);
-  private readonly meta = inject(Meta);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly document = inject(DOCUMENT);
@@ -62,13 +57,18 @@ export class TapsFeedComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(this.platform);
 
-  private readonly query = inject(ActivatedRoute).snapshot.queryParamMap;
+  private readonly snapshot = inject(ActivatedRoute).snapshot;
+  private readonly query = this.snapshot.queryParamMap;
+  /** Tap pedido por el enlace: `/t/<id>` (el que se comparte, prerenderizado con su tarjeta) o el antiguo `?t=<id>`. */
+  private readonly askedId = this.snapshot.paramMap.get('id') ?? this.query.get('t');
+  /** Se entró por `/t/<id>`: la URL sigue en ese formato al pasar de Tap (misma ruta, Atrás no recrea el feed). */
+  private readonly sharedRoute = this.snapshot.paramMap.has('id');
   /** Quien ya jugó el Tap de gancho (cookie): servidor y navegador leen lo mismo, así el orden coincide al hidratar. */
   private readonly hookDone = this.readHookCookie();
 
   protected readonly topic = signal<string | null>(this.query.get('tema'));
   /** Orden deseado: `?t=<id>` (enlace compartido) pone ese Tap primero; `?tema=<id>` pone primero los de esa categoría. */
-  private readonly wanted = orderFeed(TAPS, { first: this.query.get('t'), topic: this.topic(), hookDone: this.hookDone });
+  private readonly wanted = orderFeed(TAPS, { first: this.askedId, topic: this.topic(), hookDone: this.hookDone });
   /**
    * Orden con el que se pinta primero. Si el HTML ya viene del servidor (SSR o prerender), se hidrata con el MISMO orden
    * que trae (un HTML prerenderizado no conoce `?t=` ni la cookie): cambiar el orden antes de hidratar rompería la
@@ -121,13 +121,11 @@ export class TapsFeedComponent {
   constructor() {
     const html = this.document.documentElement;
     html.classList.add('taps-page');                               // sin fuentes de marca que compitan con el JS del juego
-    this.setMeta();
     this.destroyRef.onDestroy(() => {
       html.classList.remove('taps-page');
       html.removeAttribute('data-taps-live');
       html.removeAttribute('data-glass');
       this.clock.cancel();
-      this.clearMeta();
       this.stage?.destroy();
       this.stage = null;
     });
@@ -144,7 +142,7 @@ export class TapsFeedComponent {
       // Atrás del navegador (popstate): vuelve al Tap que dice la URL en vez de salir del feed.
       const sub = this.location.subscribe(() => this.onPopState());
       this.destroyRef.onDestroy(() => sub.unsubscribe());
-      const asked = this.query.get('t');
+      const asked = this.askedId;
       if (asked !== null && !TAPS.some(t => t.id === asked)) {
         this.notice.set({ tapId: this.taps()[0].id, text: 'Este Tap se retiró. Te dejamos uno parecido.' });
       }
@@ -491,17 +489,26 @@ export class TapsFeedComponent {
    */
   private syncUrl(tap: ITap, previous: number): void {
     if (!this.live()) return;
-    const params = new URLSearchParams(this.location.path().split('?')[1] ?? '');
-    if (params.get('t') === tap.id) return;
-    params.set('t', tap.id);
-    const query = params.toString();
-    if (previous >= 0 && !this.pushed) { this.pushed = true; this.location.go('/taps', query); }
-    else this.location.replaceState('/taps', query);
+    const [path, search = ''] = this.location.path().split('?');
+    const params = new URLSearchParams(search);
+    let next: string;
+    if (this.sharedRoute) {
+      if (path === `/t/${tap.id}`) return;
+      next = `/t/${encodeURIComponent(tap.id)}`;
+    } else {
+      if (params.get('t') === tap.id) return;
+      params.set('t', tap.id);
+      next = '/taps';
+    }
+    const query = this.sharedRoute ? search : params.toString();
+    if (previous >= 0 && !this.pushed) { this.pushed = true; this.location.go(next, query); }
+    else this.location.replaceState(next, query);
   }
 
   private onPopState(): void {
     this.pushed = false;
-    const id = new URLSearchParams(this.location.path().split('?')[1] ?? '').get('t');
+    const [path, search = ''] = this.location.path().split('?');
+    const id = this.sharedRoute ? decodeURIComponent(path.replace(/^\/t\//, '')) : new URLSearchParams(search).get('t');
     const index = this.taps().findIndex(t => t.id === id);
     if (index < 0) return;
     this.sections()[index]?.nativeElement.scrollIntoView({ behavior: 'auto', block: 'start' });
@@ -603,23 +610,4 @@ export class TapsFeedComponent {
   }
 
   private reducedMotion(): boolean { return matchMedia('(prefers-reduced-motion: reduce)').matches; }
-
-  // ───────────── metadatos con la marca GEMS LMS ─────────────
-  private setMeta(): void {
-    const title = 'Taps de GEMS LMS: quizzes que juegas con un personaje en vivo';
-    this.meta.updateTag({ name: 'description', content: DESCRIPTION });
-    this.meta.updateTag({ property: 'og:site_name', content: 'GEMS LMS' });
-    this.meta.updateTag({ property: 'og:type', content: 'website' });
-    this.meta.updateTag({ property: 'og:title', content: title });
-    this.meta.updateTag({ property: 'og:description', content: DESCRIPTION });
-    this.meta.updateTag({ property: 'og:url', content: `${SITE}/taps` });
-    this.meta.updateTag({ property: 'og:image', content: `${SITE}/logo-512.png` });
-    this.meta.updateTag({ name: 'twitter:card', content: 'summary' });
-  }
-
-  private clearMeta(): void {
-    this.meta.updateTag({ name: 'description', content: DEFAULT_DESCRIPTION });
-    for (const p of ['og:site_name', 'og:type', 'og:title', 'og:description', 'og:url', 'og:image']) this.meta.removeTag(`property="${p}"`);
-    this.meta.removeTag('name="twitter:card"');
-  }
 }

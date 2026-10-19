@@ -9,9 +9,9 @@ const tap: ITap = {
 const run: ITapRun = { tapId: 'redstone', index: 4, chosen: 0, score: 4, answers: [true, false, true, true, true], finished: true };
 
 describe('compartir un Tap', () => {
-  it('el enlace abre el mismo Tap con ?t=', () => {
-    expect(shareUrl('https://lms.gemsinnovations.com', 'redstone')).toBe('https://lms.gemsinnovations.com/taps?t=redstone');
-    expect(shareUrl('http://localhost:4200/', 'a b')).toBe('http://localhost:4200/taps?t=a%20b');
+  it('el enlace abre el mismo Tap en /t/<id>', () => {
+    expect(shareUrl('https://lms.gemsinnovations.com', 'redstone')).toBe('https://lms.gemsinnovations.com/t/redstone');
+    expect(shareUrl('http://localhost:4200/', 'a b')).toBe('http://localhost:4200/t/a%20b');
   });
 
   it('la cuadrícula no revela respuestas: solo verde o rojo por pregunta', () => {
@@ -19,11 +19,11 @@ describe('compartir un Tap', () => {
   });
 
   it('el texto lleva marca, cuadrícula, puntaje, título y el reto, sin preguntas ni respuestas', () => {
-    const text = shareText(tap, run, 'https://lms.gemsinnovations.com/taps?t=redstone');
+    const text = shareText(tap, run, 'https://lms.gemsinnovations.com/t/redstone');
     expect(text).toContain('GEMS LMS');
     expect(text).toContain('4/5 · Maquinista de pistones');
     expect(text).toContain('¿Me ganas?');
-    expect(text.endsWith('https://lms.gemsinnovations.com/taps?t=redstone')).toBeTrue();
+    expect(text.endsWith('https://lms.gemsinnovations.com/t/redstone')).toBeTrue();
     expect(text).not.toContain('Por eso');
     expect(text).not.toContain('¿Pregunta?');
   });

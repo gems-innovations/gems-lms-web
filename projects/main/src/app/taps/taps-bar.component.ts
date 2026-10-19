@@ -26,7 +26,7 @@ import { ITapTopic } from './taps.types';
           @if (sound() === 'pending') { <span class="bar__tip">Toca para sonido</span> }
         }
       </button>
-      <button type="button" class="glass bar__pill bar__topics" (click)="open()" aria-haspopup="dialog">
+      <button type="button" class="glass bar__pill bar__topics" (click)="open()" aria-haspopup="dialog" [attr.aria-label]="'Temas: ' + topicName()">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>
         <span>{{ topicName() }}</span>
       </button>

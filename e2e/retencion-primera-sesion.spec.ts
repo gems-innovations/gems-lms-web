@@ -54,14 +54,20 @@ async function expectCount(page: Page, path: string, n: number) {
   await expect.poll(async () => (await counts(page))[path] ?? 0, { message: `conteos de «${path}»` }).toBe(n);
 }
 
-const active = (page: Page) => page.locator('section.tap.tap--active');
+const active = (page: Page) => page.locator('.tap.tap--active');
 
-/** Responde la pregunta a la vista (primera opción) y pasa a la siguiente o al título. */
+/**
+ * Responde la pregunta a la vista (primera opción) y adelanta con «Seguir» (sin esperar el avance automático).
+ * Luego espera la guarda de 350 ms en la que un toque nuevo no responde (el toque de adelantar no cae en una opción).
+ */
 async function answerCurrent(page: Page) {
+  await page.waitForFunction(() => document.documentElement.hasAttribute('data-taps-live'));   // hidratado: responde Angular
   const tap = active(page);
   await tap.locator('.tap__opt').first().tap();
-  await expect(tap.locator('.tap__why')).toBeVisible();
-  await tap.locator('.tap__next').tap();
+  // Adelanta con «Seguir»; si el acierto ya avanzó solo (1,4 s), no hace falta.
+  await tap.locator('.tap__go').tap({ timeout: 1_000 }).catch(() => undefined);
+  await expect(tap.locator('.tap__opts.is-answered')).toHaveCount(0, { timeout: 8_000 });
+  await page.waitForTimeout(400);
 }
 
 /** Juega el Tap a la vista hasta su título; devuelve cuántas preguntas tenía. */
@@ -69,7 +75,7 @@ async function completeActiveTap(page: Page): Promise<number> {
   const tap = active(page);
   const total = await tap.locator('.tap__steps i').count();
   for (let k = 0; k < total; k++) await answerCurrent(page);
-  await expect(tap.locator('.tap__title')).toBeVisible();
+  await expect(tap.locator('.res__title')).toBeVisible();
   return total;
 }
 
@@ -99,14 +105,14 @@ test.describe('Retención · primera sesión en celular (Taps)', () => {
     await expectCount(page, 'taps-responder', questions);
     await expectCount(page, 'taps-completar', 1);
 
-    // 4. Compartir el resultado (el texto lleva el enlace al mismo Tap).
-    await active(page).getByRole('button', { name: 'Compartir' }).tap();
+    // 4. Retar a un amigo (el texto o la url llevan el enlace al mismo Tap).
+    await active(page).getByRole('button', { name: 'Retar a un amigo' }).tap();
     await expect.poll(() => page.evaluate(() => window.__shared?.length ?? 0)).toBe(1);
     const shared = await page.evaluate(() => window.__shared![0]);
-    expect(shared.url).toContain(`/taps?t=${firstId}`);
+    expect(`${shared.url ?? ''} ${shared.text ?? ''}`).toContain(`/t/${firstId}`);
 
     // 5. Pasar al siguiente Tap.
-    await active(page).locator('.tap__next').tap();
+    await active(page).locator('.res__next').tap();
     await expect(active(page)).not.toHaveAttribute('data-tap', firstId!);
     await expectCount(page, 'taps-siguiente', 1);
     await expectCount(page, 'taps-ver', 2);
@@ -159,18 +165,19 @@ test.describe('Retención · primera sesión en celular (Taps)', () => {
     expect(await page.evaluate(() => localStorage.getItem('skipgc'))).toBe('t');
   });
 
-  // ── Pendientes: dependen de la capa de Taps, que trabajan otros agentes (no se edita taps/ desde esta rama). ──
+  // ── Capa de Taps (feat/taps-ronda-1) ──
 
-  test.fixme('compartir cuenta «taps-compartir»', async ({ page }) => {
-    // Pendiente: lo añade la rama feat/taps-ronda-1 (agente de UX de Taps). Al fusionarla, quitar fixme.
+  test('retar a un amigo cuenta «taps-compartir» y el detalle del Tap', async ({ page }) => {
     await page.goto('/taps');
+    const id = await active(page).getAttribute('data-tap');
     await completeActiveTap(page);
-    await active(page).getByRole('button', { name: 'Compartir' }).tap();
+    await active(page).getByRole('button', { name: 'Retar a un amigo' }).tap();
     await expectCount(page, 'taps-compartir', 1);
+    await expectCount(page, `taps/compartir/${id}`, 1);
+    await expectCount(page, 'taps/compartir-ok/nativo', 1);
   });
 
-  test.fixme('primer toque y abandono por pregunta con detalle en el path', async ({ page }) => {
-    // Pendiente: taxonomía nueva en la capa de Taps (taps/primer-toque/<tramo>, taps/responder/<tap>/<n>).
+  test('primer toque y abandono por pregunta con detalle en el path', async ({ page }) => {
     await page.goto(SHORT_URL);
     const id = await active(page).getAttribute('data-tap');
     await answerCurrent(page);
@@ -178,8 +185,7 @@ test.describe('Retención · primera sesión en celular (Taps)', () => {
     await expectCount(page, `taps/responder/${id}/1`, 1);
   });
 
-  test.fixme('hitos de Taps completados por sesión (taps/hito/1, /2…)', async ({ page }) => {
-    // Pendiente: lo dispara la capa de Taps al completar el 1.º, 2.º, 3.º, 4.º, 6.º y 10.º Tap de la sesión.
+  test('hitos de Taps completados por sesión (taps/hito/1, /2…)', async ({ page }) => {
     await page.goto('/taps');
     await completeActiveTap(page);
     await expectCount(page, 'taps/hito/1', 1);
@@ -188,21 +194,24 @@ test.describe('Retención · primera sesión en celular (Taps)', () => {
   test.fixme('invitación a registro tras el 3.er Tap: ofrecido y rechazado', async ({ page }) => {
     // Pendiente: la hoja de registro con «Ahora no» aún no existe (experiencia-ux.md §2.6).
     await page.goto('/taps');
-    for (let k = 0; k < 3; k++) { await completeActiveTap(page); await active(page).locator('.tap__next').tap(); }
+    for (let k = 0; k < 3; k++) { await completeActiveTap(page); await active(page).locator('.res__next').tap(); }
     await expectCount(page, 'registro/ofrecido/tercer-tap', 1);
     await page.getByRole('button', { name: 'Ahora no' }).tap();
     await expectCount(page, 'registro/rechazado/tercer-tap', 1);
   });
 
-  test.fixme('selector de tema: abrir y elegir arranca un Tap de ese tema', async ({ page }) => {
-    // Pendiente: el selector de categorías lo hace otro agente (taps/tema/abrir, taps/tema/elegir/<tema>).
+  test('selector de tema: abrir y elegir arranca un Tap de ese tema', async ({ page }) => {
     await page.goto('/taps');
+    await expect(active(page).locator('.tap__opt').first()).toBeEnabled();
     await page.getByRole('button', { name: /temas/i }).tap();
     await expectCount(page, 'taps/tema/abrir', 1);
+    await page.getByRole('dialog').getByRole('button', { name: /Ciencia curiosa/ }).tap();
+    await expectCount(page, 'taps/tema/elegir/ciencia', 1);
+    await expect(page).toHaveURL(/tema=ciencia/);
+    await expect(active(page)).toHaveAttribute('data-tap', 'ciencia-curiosa');
   });
 
-  test.fixme('sin WebGL el Tap sigue jugable y se cuenta error/modo-ligero', async ({ page }) => {
-    // Pendiente: el evento lo emite la capa de Taps cuando el motor entra en modo ligero o no carga.
+  test('sin WebGL el Tap sigue jugable y se cuenta error/webgl', async ({ page }) => {
     await page.addInitScript(() => { HTMLCanvasElement.prototype.getContext = () => null; });
     await page.goto('/taps');
     await answerCurrent(page);

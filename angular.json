@@ -104,7 +104,6 @@
               "sourceMap": true
             },
             "static": {
-              "server": false,
               "ssr": false,
               "outputMode": "static"
             },

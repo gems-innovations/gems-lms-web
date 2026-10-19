@@ -9,9 +9,9 @@ import { resultFor } from './taps.logic';
 /** Dominio que se muestra en la marca de agua (el enlace real usa el origen actual). */
 export const SHARE_BRAND_URL = 'lms.gemsinnovations.com/taps';
 
-/** Enlace al mismo Tap: `/taps?t=<id>` lo pone primero en el feed (orderFeed). */
+/** Enlace al mismo Tap: `/t/<id>` (prerenderizada con la tarjeta del Tap; ese Tap va primero en el feed). */
 export function shareUrl(origin: string, tapId: string): string {
-  return `${origin.replace(/\/$/, '')}/taps?t=${encodeURIComponent(tapId)}`;
+  return `${origin.replace(/\/$/, '')}/t/${encodeURIComponent(tapId)}`;
 }
 
 /**

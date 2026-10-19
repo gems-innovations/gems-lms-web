@@ -6,4 +6,7 @@ set -eu
 printf 'globalThis.API_BASE_URL = %s;\n' "\"$API_BASE_URL\"" > /usr/share/nginx/html/config.js
 
 api_origin=$(printf %s "$API_BASE_URL" | sed -E 's#^(https?://[^/]+).*#\1#')
-sed -i "s#__API_ORIGIN__#${api_origin}#g" /etc/nginx/conf.d/default.conf
+# La CSP vive en /etc/nginx/gems/csp.conf (incluida por default.conf); default.conf por si alguna regla la repite.
+for conf in /etc/nginx/gems/csp.conf /etc/nginx/conf.d/default.conf; do
+  if [ -f "$conf" ]; then sed -i "s#__API_ORIGIN__#${api_origin}#g" "$conf"; fi
+done
