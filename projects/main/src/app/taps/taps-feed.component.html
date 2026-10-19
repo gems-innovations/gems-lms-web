@@ -3,14 +3,15 @@
      [style.--amb-a]="activeTap().backdrop[0]" [style.--amb-b]="activeTap().backdrop[1]">
 <!-- Menú, riel y panel de escritorio: solo se piden (y se pintan) desde 768 px; en móvil no cuestan ni un byte de más. -->
 @defer (when wide()) {
-<gems-taps-menu [topic]="topic()" [temas]="menuTopics()" [inverted]="menuInverted()" [shortcuts]="shortcuts()"
-                (forYou)="selectTopic(null)" (openTopics)="openTopics()" (pickTopic)="toggleTopicFilter($event)"
+<gems-taps-menu [topic]="topic()" [temas]="menuTopics()" [inverted]="menuInverted()" [shortcuts]="shortcuts()" [alias]="ranking.alias()"
+                (openRanking)="openRanking()" (forYou)="selectTopic(null)" (openTopics)="openTopics()" (pickTopic)="toggleTopicFilter($event)"
                 (toggleMenu)="toggleMenu()" (toggleShortcuts)="toggleShortcuts()" />
 }
 <div class="centro">
 <div class="escenario">
 <gems-taps-bar [sound]="sound()" [voice]="voice()" [topic]="topic()" [topicName]="topicName()" [topics]="topics" [desktop]="wide()"
-               (toggleSound)="toggleSound()" (toggleVoice)="toggleVoice()" (topicChange)="selectTopic($event)" (sheetChange)="onSheet($event)" />
+               (toggleSound)="toggleSound()" (toggleVoice)="toggleVoice()" (topicChange)="selectTopic($event)" (sheetChange)="onSheet($event)"
+               (openRanking)="openRanking()" />
 
 <main class="taps" #feed [attr.data-stage]="stageAttr()" aria-labelledby="taps-h1">
   <h1 id="taps-h1" class="visually-hidden">Taps de GEMS LMS: quizzes que juegas</h1>
@@ -104,8 +105,8 @@
           </p>
         } @else {
           <gems-tap-result [tap]="tap" [run]="run" [topicName]="topicLabel(tap)" [hasNext]="!!nextTap(tap)"
-                           [notice]="notice()?.tapId === tap.id ? notice() : null"
-                           (challenge)="challenge(tap)" (again)="restart(tap)" (more)="moreOf(tap)" (next)="goNext(tap)" />
+                           [notice]="notice()?.tapId === tap.id ? notice() : null" [xp]="ranking.partida(tap.id)"
+                           (ranking)="openRanking()" (challenge)="challenge(tap)" (again)="restart(tap)" (more)="moreOf(tap)" (next)="goNext(tap)" />
         }
       </div>
 
@@ -126,10 +127,23 @@
                [nextTitle]="nextTap(activeTap())?.title ?? null" [blocked]="activeBlocked()" [keysOn]="shortcuts()"
                (prev)="step(-1)" (nextTap)="step(1)" (filterTopic)="toggleTopicFilter(topicOf(activeTap()))" (more)="moreOf(activeTap())"
                (share)="shareActive()" (notInterested)="notInterested(activeTap())" (unblock)="unblockActive()" (toggleKeys)="toggleShortcuts()" />
-<gems-tap-panel (mouseenter)="holdPanel(true)" (mouseleave)="holdPanel(false)" (focusin)="holdPanel(true)" (focusout)="holdPanel(false)" [cards]="panelCardsList()" [state]="panelStateSig()" [keysOn]="shortcuts()" [(legend)]="legendOpen" (go)="step(1)" (toggleKeys)="toggleShortcuts()" />
+<gems-tap-panel (mouseenter)="holdPanel(true)" (mouseleave)="holdPanel(false)" (focusin)="holdPanel(true)" (focusout)="holdPanel(false)" [cards]="panelCardsList()" [state]="panelStateSig()" [keysOn]="shortcuts()" [(legend)]="legendOpen" (go)="onPanelGo($event)" (toggleKeys)="toggleShortcuts()" />
 }
 </div>
 </div>
+
+<!-- Ranking: hoja inferior (móvil) o cajón (escritorio). Su código se pide la primera vez que alguien lo abre. -->
+@if (rankingOpen()) {
+  @defer (on immediate) {
+    <gems-taps-ranking [temaInicial]="topic()" (abierto)="onRankingShown()" (cerrado)="closeRanking()" />
+  } @error {
+    <!-- El código del ranking no cargó (red): un aviso que se cierra; el juego sigue sin pausas ni atajos bloqueados. -->
+    <div class="ranking-fallo" role="alert">
+      <p>No pudimos abrir el ranking. Revisa tu conexión e inténtalo de nuevo más tarde.</p>
+      <button type="button" (click)="closeRanking()">Cerrar</button>
+    </div>
+  }
+}
 
 <svg width="0" height="0" style="position: absolute" aria-hidden="true">
   <symbol id="shape-0" viewBox="0 0 24 24"><path d="M12 3 22.5 20.5h-21Z" fill="currentColor"/></symbol>

@@ -33,12 +33,16 @@ import { ITapTopic } from './taps.types';
               [attr.aria-pressed]="v === 'on'" [attr.aria-hidden]="v !== 'on' && v !== 'off' ? 'true' : null"
               [attr.tabindex]="v !== 'on' && v !== 'off' ? -1 : null" aria-label="Voz del personaje" aria-describedby="taps-voz-nota">
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-            <path d="M4 5h16v10H10l-5 4v-4H4Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
-            @if (v === 'on') { <path d="M8 10h.01M12 8v4M16 9v2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/> }
+            <!-- Cabeza que habla (de perfil); encendida, con ondas de voz; apagada, la misma cabeza tachada. -->
+            <path d="M4 21v-3.5A7 7 0 1 1 14.6 11.5l1.6 3h-1.7V17a2 2 0 0 1-2 2H10v2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            @if (v === 'on') { <path d="M18 7.5a4 4 0 0 1 0 5M20.5 5a7.5 7.5 0 0 1 0 10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/> }
             @else { <path d="M3 3l18 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/> }
           </svg>
       </button>
       <span id="taps-voz-nota" class="visually-hidden">Lee las preguntas en voz alta. Si usas lector de pantalla, puedes dejarla apagada.</span>
+      <button type="button" class="glass bar__pill bar__rank" (click)="openRanking.emit()" aria-haspopup="dialog" aria-label="Ranking">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 14v3.5M8.5 20.5h7M9.5 17.5h5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       <button type="button" class="glass bar__pill bar__topics" (click)="open()" aria-haspopup="dialog" [attr.aria-label]="'Temas: ' + topicName()">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>
         <span>{{ topicName() }}</span>
@@ -88,15 +92,19 @@ import { ITapTopic } from './taps.types';
     .bar__pill { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 48px; min-height: 48px; padding: 0 12px; border-radius: 999px;
       font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
     .bar__sound { position: relative; }
-    /* Con el botón de voz no caben marca, sonido, voz y temas en 320 px: el nombre de la marca se oculta (queda el logo). */
+    /* Con voz y ranking no caben marca, sonido, voz, trofeo y temas por debajo de 400 px (375 incluido): el nombre de la marca se
+       oculta y queda el logo, para que «Temas» no se recorte. */
     .bar__voice.is-reserved { visibility: hidden; pointer-events: none; }
-    @media (max-width: 359px) { .bar__brand span { display: none; } }
+    @media (max-width: 399px) { .bar__brand span { display: none; } }
     .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     /* Aviso «Toca para sonido» bajo el botón (fuera del flujo: la barra cabe en 320 px) y bajo la barra de progreso. */
     .bar__tip { position: absolute; top: calc(100% + 16px); left: 0; padding: 4px 10px; border-radius: 999px; font-size: 13px; white-space: nowrap;
       background: rgba(8, 10, 14, .72); border: 1px solid rgba(255, 255, 255, .18); pointer-events: none; }
     .bar__brand, .bar__pill { white-space: nowrap; flex: none; }
-    .bar__topics { margin-left: auto; padding: 0 12px 0 10px; }
+    .bar__rank { padding: 0; }
+    /* Con logo, sonido, voz y ranking, «Temas» es lo único que cede: un tema largo («Lógica y trampas») se recorta con «…». */
+    .bar__topics { flex: 0 1 auto; min-width: 48px; margin-left: auto; padding: 0 12px 0 10px; overflow: hidden;
+      svg { flex: none; } span { min-width: 0; overflow: hidden; text-overflow: ellipsis; } }
     .bar__chip { display: none; margin-left: auto; color: #0d1117; background: #4de1ff; border: 0; }
     /* Escritorio y tablet: la barra vive dentro del escenario; la marca y «Temas» están en el menú. */
     .sheet { width: 100%; max-width: 480px; margin: auto auto 0; padding: 0; border: 0; border-radius: 22px 22px 0 0; color: #fff; background: #161b24;
@@ -114,7 +122,7 @@ import { ITapTopic } from './taps.types';
     .sheet__close { width: 100%; min-height: 48px; margin-top: 12px; border-radius: 14px; font: inherit; font-weight: 700; cursor: pointer; }
     @container taps (min-width: 768px) {
       .bar { position: absolute; left: 0; right: 0; width: auto; max-width: none; transform: none; padding-top: 10px; }
-      .bar__brand, .bar__topics { display: none; }
+      .bar__brand, .bar__topics, .bar__rank { display: none; }
       .bar__chip { display: inline-flex; }
       .sheet { width: min(660px, 100%); max-width: none; height: 100dvh; max-height: none; margin: 0 auto 0 0; border-radius: 0 22px 22px 0;
         &[open] { animation: drawer-in .26s var(--curva-estandar, ease); } }
@@ -141,6 +149,8 @@ export class TapsBarComponent {
   readonly topicChange = output<string | null>();
   /** Abierta o cerrada: el feed pausa la cuenta atrás mientras se elige. */
   readonly sheetChange = output<boolean>();
+  /** Abrir la hoja del ranking (en móvil está aquí; en escritorio, en el menú y el panel). */
+  readonly openRanking = output<void>();
 
   protected readonly isOpen = signal(false);
   private readonly sheet = viewChild<ElementRef<HTMLDialogElement>>('sheet');

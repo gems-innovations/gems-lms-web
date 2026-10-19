@@ -35,6 +35,7 @@ import { IPanelCard, TPanelState } from './taps.panel';
             }
             @if (c.body) { <p class="card__body">{{ c.body }}</p> }
             @if (c.cta; as cta) { <button type="button" class="card__cta" (click)="go.emit(cta.action)">{{ cta.label }}</button> }
+            @if (c.link; as l) { <button type="button" class="card__link" (click)="go.emit(l.action)" aria-haspopup="dialog">{{ l.label }}</button> }
             @if (c.note) { <p class="card__note">{{ c.note }}</p> }
           </section>
         }
@@ -65,7 +66,7 @@ export class TapPanelComponent {
   readonly state = input<TPanelState>('pregunta');
   readonly keysOn = input(true);
 
-  readonly go = output<'next'>();
+  readonly go = output<'next' | 'ranking'>();
   readonly toggleKeys = output<void>();
 
   /** Leyenda de atajos abierta (tecla «?»); en ≥ 1280 px está siempre a la vista. */

@@ -1,0 +1,102 @@
+<dialog class="rk" #dlg (close)="alCerrar()" (click)="$event.target === dlg && cerrar()" aria-labelledby="rk-titulo">
+  <div class="rk__cuerpo">
+    <header class="rk__cabeza">
+      <span class="gm-icono rk__trofeo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 14v3.5M8.5 20.5h7M9.5 17.5h5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <h2 id="rk-titulo" class="rk__titulo">Ranking</h2>
+      <button type="button" class="rk__cerrar" (click)="cerrar()" aria-label="Cerrar el ranking">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+
+    <div class="rk__quien">
+      <p class="rk__alias">
+        @if (alias(); as a) { Juegas como <strong>{{ a }}</strong> } @else { Juegas como invitado }
+      </p>
+      @if (!conSesion()) {
+        <p class="rk__nota">Al iniciar sesión se guarda tu progreso. <a routerLink="/auth/signin" (click)="cerrar()">Entrar</a></p>
+      }
+    </div>
+
+    <div class="rk__pestanas" role="tablist" aria-label="Periodo del ranking" (keydown)="teclaPestanas($event)">
+      @for (p of periodos; track p.id) {
+        <button type="button" role="tab" class="rk__pestana" [id]="'rk-tab-' + p.id" [class.is-on]="periodo() === p.id"
+                [attr.aria-selected]="periodo() === p.id" [attr.tabindex]="periodo() === p.id ? 0 : -1" aria-controls="rk-panel"
+                [attr.autofocus]="periodo() === p.id ? '' : null" (click)="elegirPeriodo(p.id)">{{ p.nombre }}</button>
+      }
+    </div>
+
+    <div class="rk__temas" role="group" aria-label="Filtrar por tema">
+      <button type="button" class="rk__tema" [class.is-on]="!tema()" [attr.aria-pressed]="!tema()" (click)="elegirTema(null)">Todos</button>
+      @for (t of temas; track t.id) {
+        <button type="button" class="rk__tema" [class.is-on]="tema() === t.id" [attr.aria-pressed]="tema() === t.id" (click)="elegirTema(t.id)">
+          <i class="rk__punto" [style.--c]="t.color" aria-hidden="true"></i>{{ t.name }}
+        </button>
+      }
+    </div>
+
+    <div id="rk-panel" class="rk__panel" role="tabpanel" [attr.aria-labelledby]="'rk-tab-' + periodo()" [attr.aria-busy]="vista().tipo === 'cargando'">
+      <p class="rk__reloj">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 9v4l2.5 2M9.5 2.5h5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        {{ cuenta() }}
+      </p>
+
+      @switch (vista().tipo) {
+        @case ('cargando') {
+          <lib-skeleton shape="list-item" [count]="6" label="Cargando el ranking" />
+        }
+        @case ('preparando') {
+          <lib-empty-state class="rk__estado" kind="info" icon="trophy" size="sm" [headingLevel]="3"
+                           title="El ranking se está preparando"
+                           description="Muy pronto verás aquí tu puesto. Sigue jugando: en cuanto abra, cada Tap que termines sumará XP."
+                           actionLabel="Seguir jugando" (action)="cerrar()" />
+        }
+        @case ('error') {
+          @if (vista(); as v) { @if (v.tipo === 'error') { <lib-load-error class="rk__estado" compact [error]="v.error" what="el ranking" (retry)="cargar()" /> } }
+        }
+        @case ('vacio') {
+          <lib-empty-state class="rk__estado" kind="first-use" icon="trophy" size="sm" [headingLevel]="3"
+                           [title]="periodo() === 'semana' ? 'Nadie juega todavía esta semana' : 'Nadie juega todavía hoy'"
+                           [description]="'Termina un Tap y abre el ranking. Con 5 de 5 sumas ' + xpMax + ' XP.'"
+                           actionLabel="Jugar un Tap" (action)="cerrar()" />
+        }
+        @case ('datos') {
+          @if (datos(); as r) {
+            @if (resumen(); as s) {
+              <section class="rk__yo" aria-label="Tu posición">
+                <p class="rk__yo-puesto">{{ s.puesto }}</p>
+                <p class="rk__yo-linea">{{ s.percentil }}@if (s.distancia) { · {{ s.distancia }} }</p>
+                <p class="rk__yo-xp">{{ s.xp }} XP {{ periodo() === 'semana' ? 'esta semana' : 'hoy' }}</p>
+              </section>
+            } @else {
+              <section class="rk__yo rk__yo--fuera" aria-label="Tu posición">
+                <p class="rk__yo-linea">Aún no apareces aquí. Termina un Tap y entras al ranking.</p>
+                <p class="rk__yo-xp">{{ numero(r.jugadores) }} {{ r.jugadores === 1 ? 'persona juega' : 'personas juegan' }} {{ periodo() === 'semana' ? 'esta semana' : 'hoy' }}</p>
+              </section>
+            }
+            <ol class="rk__lista" aria-label="Los mejores">
+              @for (f of r.top; track trackFila(f)) {
+                <li class="rk__fila" [class.is-tu]="f.esTu" [attr.aria-current]="f.esTu ? 'true' : null">
+                  <span class="rk__puesto" [attr.data-podio]="f.puesto <= 3 ? f.puesto : null"><span class="visually-hidden">Puesto </span>{{ f.puesto }}</span>
+                  <span class="rk__nombre">{{ f.alias }}@if (f.esTu) { <span class="rk__tu">Tú</span> }</span>
+                  <span class="rk__xp">{{ numero(f.xp) }} XP</span>
+                </li>
+              }
+            </ol>
+            @if (fijada(); as f) {
+              <div class="rk__fija">
+                <p class="rk__salto" aria-hidden="true">···</p>
+                <p class="rk__fila is-tu" aria-current="true">
+                  <span class="rk__puesto"><span class="visually-hidden">Tu puesto: </span>{{ etiqueta(f.puesto, r.jugadores) }}</span>
+                  <span class="rk__nombre">{{ f.alias }} <span class="rk__tu">Tú</span></span>
+                  <span class="rk__xp">{{ numero(f.xp) }} XP</span>
+                </p>
+              </div>
+            }
+          }
+        }
+      }
+    </div>
+  </div>
+</dialog>

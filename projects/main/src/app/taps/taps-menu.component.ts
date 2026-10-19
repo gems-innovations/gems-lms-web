@@ -5,8 +5,8 @@ import { RouterLink } from '@angular/router';
 export interface IMenuTopic { id: string; name: string; color: string; done: number; total: number }
 
 /**
- * Menú de escritorio y tablet (escritorio.md §3). Solo destinos que existen hoy: nada de «Ranking», «Reto del día» ni
- * «Mi institución», que dependen del servidor. ≥ 1280 px: lateral ancho (se contrae con `[`). 1024–1279: lateral de iconos
+ * Menú de escritorio y tablet (escritorio.md §3). Solo destinos que existen hoy: «Ranking» abre la hoja del ranking (con su
+ * propio estado «se está preparando» si el API aún no responde); «Reto del día» y «Mi institución» todavía no. ≥ 1280 px: lateral ancho (se contrae con `[`). 1024–1279: lateral de iconos
  * que `[` abre encima del contenido. 768–1023: barra superior de 64 px con pestañas y un menú. En móvil no se ve.
  */
 @Component({
@@ -31,6 +31,9 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
         <li><button type="button" class="side__item" (click)="openTopics.emit()" title="Temas" aria-haspopup="dialog" aria-keyshortcuts="T">
           <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></span>
           <span class="side__txt">Temas</span></button></li>
+        <li><button type="button" class="side__item" (click)="openRanking.emit()" title="Ranking" aria-haspopup="dialog">
+          <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 14v3.5M8.5 20.5h7M9.5 17.5h5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="side__txt">Ranking</span></button></li>
         <li><a class="side__item" routerLink="/retos" title="Retos de lógica">
           <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <span class="side__txt">Retos de lógica</span></a></li>
@@ -69,7 +72,11 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
       }
 
       <div class="side__foot">
-        <p class="side__who side__txt">Juegas como invitado. Tu avance vive en este navegador.</p>
+        @if (alias(); as a) {
+          <p class="side__who side__txt">Juegas como <strong>{{ a }}</strong>. Al iniciar sesión se guarda tu progreso.</p>
+        } @else {
+          <p class="side__who side__txt">Juegas como invitado. Tu avance vive en este navegador.</p>
+        }
         <a class="side__login side__txt" routerLink="/auth/signin">Entrar</a>
         <button type="button" class="side__keys" (click)="toggleShortcuts.emit()" [attr.aria-pressed]="shortcuts()" title="Atajos de teclado">
           <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
@@ -92,6 +99,7 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
       </button>
       @if (moreOpen()) {
         <div class="top__pop" id="top-mas">
+          <button type="button" (click)="openRanking.emit(); moreOpen.set(false)" aria-haspopup="dialog">Ranking</button>
           <a routerLink="/retos">Retos de lógica</a>
           <a routerLink="/bloques">Quiz de Bloques</a>
           <a routerLink="/">Cursos gratis</a>
@@ -110,12 +118,15 @@ export class TapsMenuComponent {
   /** El menú está en el estado contrario al de su ancho (contraído en ≥ 1280, abierto en 1024–1279). */
   readonly inverted = input(false);
   readonly shortcuts = input(true);
+  /** Alias del ranking («Creeper Veloz 482»), si el servidor ya asignó uno a este navegador. */
+  readonly alias = input<string | null>(null);
 
   readonly forYou = output<void>();
   readonly openTopics = output<void>();
   readonly pickTopic = output<string>();
   readonly toggleMenu = output<void>();
   readonly toggleShortcuts = output<void>();
+  readonly openRanking = output<void>();
 
   protected readonly moreOpen = signal(false);
 

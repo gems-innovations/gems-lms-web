@@ -1,15 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { resultFor } from './taps.logic';
+import { TPartidaEstado } from './taps.ranking';
+import { TapXpComponent } from './tap-xp.component';
 import { ITap, ITapRun } from './taps.types';
 
 /**
  * Resultado de un Tap (experiencia-ux.md §5.5): título que nunca es negativo, cuadrícula de aciertos sin spoilers
  * (patrón Wordle) y «Retar a un amigo» como botón principal. El resultado no avanza solo: es el momento de compartir.
+ * Bajo la línea va la tarjeta de XP y ranking (solo con datos reales del API; sin ellos no aparece).
  */
 @Component({
   selector: 'gems-tap-result',
-  imports: [RouterLink],
+  imports: [RouterLink, TapXpComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="res">
@@ -29,6 +32,7 @@ import { ITap, ITapRun } from './taps.types';
         }
       </ol>
       <p class="res__line">{{ result().line }}</p>
+      @if (xp()) { <gems-tap-xp [estado]="xp()" (ranking)="ranking.emit()" /> }
 
       <button type="button" class="res__main" (click)="challenge.emit()">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M14 5l7 7-7 7M21 12H10a7 7 0 0 0-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -87,11 +91,14 @@ export class TapResultComponent {
   readonly topicName = input('este tema');
   readonly hasNext = input(false);
   readonly notice = input<{ text: string; download?: string } | null>(null);
+  /** Partida enviada al ranking (undefined: no se envió, p. ej. en el prerender o un tema que el ranking aún no tiene). */
+  readonly xp = input<TPartidaEstado | undefined>(undefined);
 
   readonly challenge = output<void>();
   readonly again = output<void>();
   readonly more = output<void>();
   readonly next = output<void>();
+  readonly ranking = output<void>();
 
   protected readonly result = computed(() => resultFor(this.tap(), this.run().score));
 }
