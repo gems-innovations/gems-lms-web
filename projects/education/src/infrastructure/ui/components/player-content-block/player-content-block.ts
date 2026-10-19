@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MarkdownComponent } from 'ngx-markdown';
 import { MarkdownEditorComponent } from 'shared';
+import { BusyLabelComponent, LoadErrorComponent } from 'shared/loading';
 import {
   IContentBlock, EContentType, IQuestion, IMultipleChoiceQuestion, ITrueFalseQuestion, IOpenQuestion
 } from '../../../../domain/model/course.model';
@@ -43,7 +44,7 @@ type QuizPhase = 'confirm' | 'taking' | 'result';
 @Component({
   selector: 'edu-player-content-block',
   standalone: true,
-  imports: [DecimalPipe, DatePipe, FormsModule, MarkdownComponent, MarkdownEditorComponent],
+  imports: [DecimalPipe, DatePipe, FormsModule, MarkdownComponent, MarkdownEditorComponent, LoadErrorComponent, BusyLabelComponent],
   templateUrl: './player-content-block.html',
   styleUrl: './player-content-block.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,6 +58,8 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   readonly courseId           = input<string | null>(null);
   readonly lessonId           = input<string | null>(null);
   readonly isSubmitting       = input<boolean>(false);
+  /** Error del último envío del quiz: se vuelve a las preguntas con las respuestas intactas y «Reintentar envío». */
+  readonly quizSubmitError    = input<unknown>(null);
   readonly lastQuizResult     = input<IQuizResult | null>(null);
   readonly isComplete           = input<boolean>(false);
   readonly isLocked             = input<boolean>(false);
@@ -426,10 +429,25 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
       questionId: q.id,
       answer: this.quizAnswers()[q.id] ?? ''
     }));
+    this.submitFailed.set(false);
+    this._pendingSessionId = this._sessionId();
     this.quizSubmit.emit({ blockId: block.id, lessonId: lid, courseId: cid, answers, sessionId: this._sessionId() ?? undefined });
     this._sessionId.set(null);
     this.quizPhase.set('result');
   }
+
+  /** El envío falló: las respuestas siguen en `quizAnswers`; se vuelve a la última pregunta para reintentar. */
+  protected readonly submitFailed = signal(false);
+  private _pendingSessionId: string | null = null;
+  private readonly recoverFailedSubmit = effect(() => {
+    if (!this.quizSubmitError()) return;
+    untracked(() => {
+      if (this.quizPhase() !== 'result') return;
+      this._sessionId.set(this._pendingSessionId);
+      this.submitFailed.set(true);
+      this.quizPhase.set('taking');
+    });
+  });
 
   protected retryQuiz(): void {
     if (!this.canRetryQuiz()) return;

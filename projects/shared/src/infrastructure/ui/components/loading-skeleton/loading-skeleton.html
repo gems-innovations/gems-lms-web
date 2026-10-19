@@ -1,5 +1,5 @@
 @if (type() === 'table') {
-  <div class="skeleton-table" role="status" aria-label="Cargando datos de la tabla" aria-live="polite">
+  <div class="skeleton-table" role="status">
     @for (row of rowsArray(); track $index) {
       <article class="skeleton-row" aria-hidden="true">
         <div class="skeleton-cell skeleton-avatar"></div>
@@ -15,25 +15,23 @@
         </div>
       </article>
     }
-    <span class="sr-only">Cargando contenido, por favor espera...</span>
+    <span class="sr-only">{{ label() }}…</span>
   </div>
-}
-
-@if (type() === 'card') {
-  <div class="skeleton-cards" role="status" aria-label="Cargando tarjetas" aria-live="polite">
+} @else {
+  <div class="skeleton-cards" role="status">
     @for (row of rowsArray(); track $index) {
       <article class="skeleton-card" aria-hidden="true">
         <header class="skeleton-card-header">
-          <div class="skeleton-avatar"></div>
-          <div class="skeleton-text skeleton-text-lg"></div>
+          <div class="skeleton-cell skeleton-avatar"></div>
+          <div class="skeleton-cell skeleton-text skeleton-text-lg"></div>
         </header>
         <div class="skeleton-card-body">
-          <div class="skeleton-text skeleton-text-sm"></div>
-          <div class="skeleton-text skeleton-text-sm"></div>
-          <div class="skeleton-badge"></div>
+          <div class="skeleton-cell skeleton-text skeleton-text-sm"></div>
+          <div class="skeleton-cell skeleton-text skeleton-text-sm"></div>
+          <div class="skeleton-cell skeleton-badge"></div>
         </div>
       </article>
     }
-    <span class="sr-only">Cargando contenido, por favor espera...</span>
+    <span class="sr-only">{{ label() }}…</span>
   </div>
 }

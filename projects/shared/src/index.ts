@@ -62,6 +62,7 @@ export { ColorPickerComponent } from "./infrastructure/ui/components/color-picke
 // ── Services ─────────────────────────────────────────────────────────────────
 
 export { LoadingSkeletonComponent } from "./infrastructure/ui/components/loading-skeleton/loading-skeleton";
+// Estados de carga (esqueletos con forma, errores, barra de ruta…): punto de entrada aparte «shared/loading».
 
 export { PageComponent } from "./infrastructure/ui/components/page/page.component";
 export type { PageWidth } from "./infrastructure/ui/components/page/page.component";
@@ -72,7 +73,7 @@ export { CardGridComponent } from "./infrastructure/ui/components/layout/card-gr
 
 export { MarkdownEditorComponent } from "./infrastructure/ui/components/markdown-editor/markdown-editor";
 export { FileUploadService, MAX_UPLOAD_BYTES } from "./infrastructure/services/file-upload.service";
-export type { IUploadedFile, TFileScope } from "./infrastructure/services/file-upload.service";
+export type { IUploadedFile, IUploadProgress, TFileScope } from "./infrastructure/services/file-upload.service";
 export { ImageUploadComponent } from "./infrastructure/ui/components/image-upload/image-upload.component";
 
 export { scopeCss } from "./infrastructure/utils/scope-css";

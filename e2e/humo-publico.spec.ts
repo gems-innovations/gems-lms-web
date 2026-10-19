@@ -102,10 +102,7 @@ test.describe('Humo · visitante', () => {
   });
 
   test('la portada prerenderizada no trae horneado el catálogo (ni su error)', async ({ request }) => {
-    // Hallazgo conocido de #27: al prerenderizar «/» se pide el catálogo a localhost:8080 durante el build. Sin API, el
-    // HTML queda con el error; con el API local encendido, quedan horneados los cursos (y sus ids) de ese entorno, y la
-    // caché de transferencia de la hidratación los reutiliza sin volver a pedirlos. Al arreglarlo, quitar el test.fail.
-    test.fail(true, 'conocido: la portada se prerenderiza con datos del API del build (producto/organizacion/consolidacion-y-migracion.md)');
+    // Regresión de #27 corregida en #34: el prerender no pide el catálogo al API; el HTML trae el esqueleto, nunca el error ni cursos del build.
     const html = await (await request.get('/')).text();
     expect(html).not.toMatch(/No pudimos cargar|lib-load-error|<article[^>]*class="card["\s]/);
   });

@@ -1,0 +1,78 @@
+@if (label(); as l) { <span class="sk-sr">{{ l }}…</span> }
+@switch (shape()) {
+  @case ('course-card') {
+    @for (i of items(); track i) {
+      <div class="sk-card" aria-hidden="true">
+        <i class="b sk-media"></i>
+        <div class="sk-card__body">
+          <i class="b sk-h" style="width: 78%"></i>
+          <i class="b sk-t"></i><i class="b sk-t"></i><i class="b sk-t" style="width: 55%"></i>
+          <div class="sk-row"><i class="b sk-pill"></i><i class="b sk-pill"></i></div>
+          <div class="sk-row sk-row--end"><i class="b sk-btn"></i><i class="b sk-t" style="width: 72px"></i></div>
+        </div>
+      </div>
+    }
+  }
+  @case ('table-row') {
+    @for (i of items(); track i) {
+      <div class="sk-tr" aria-hidden="true">
+        @for (c of cols(); track c; let first = $first, last = $last) {
+          @if (first) { <span class="sk-row"><i class="b sk-circle sk-circle--sm"></i><i class="b sk-t" style="width: 60%"></i></span> }
+          @else if (last) { <i class="b sk-pill" style="justify-self: end"></i> }
+          @else { <i class="b sk-t" [style.width.%]="50 + ((i + c) % 3) * 15"></i> }
+        }
+      </div>
+    }
+  }
+  @case ('lesson') {
+    <div class="sk-stack" aria-hidden="true">
+      <i class="b sk-t" style="width: 30%"></i>
+      <i class="b sk-h sk-h--lg" style="width: 70%"></i>
+      <i class="b sk-media"></i>
+      @for (l of lineItems(); track l) { <i class="b sk-t" [style.width]="l === lines() - 1 ? '62%' : '100%'"></i> }
+      <i class="b sk-t" style="width: 92%"></i><i class="b sk-t" style="width: 80%"></i>
+    </div>
+  }
+  @case ('quiz') {
+    <div class="sk-stack" aria-hidden="true">
+      <i class="b sk-t" style="width: 25%"></i>
+      <i class="b sk-h" style="width: 85%"></i><i class="b sk-h" style="width: 50%"></i>
+      @for (o of [0, 1, 2, 3]; track o) { <i class="b sk-option"></i> }
+    </div>
+  }
+  @case ('chart') {
+    <div class="sk-chart" aria-hidden="true">
+      <i class="b sk-t" style="width: 40%"></i>
+      <div class="sk-chart__plot">
+        @for (h of bars; track $index) { <i class="b sk-bar" [style.height.%]="h"></i> }
+      </div>
+    </div>
+  }
+  @case ('profile') {
+    <div class="sk-profile" aria-hidden="true">
+      <i class="b sk-circle"></i>
+      <div class="sk-stack"><i class="b sk-h" style="width: 55%"></i><i class="b sk-t" style="width: 40%"></i></div>
+      <div class="sk-profile__stats">@for (s of [0, 1, 2]; track s) { <i class="b sk-stat-box"></i> }</div>
+    </div>
+  }
+  @case ('stat') {
+    @for (i of items(); track i) {
+      <div class="sk-stat" aria-hidden="true"><i class="b sk-t" style="width: 50%"></i><i class="b sk-num"></i><i class="b sk-t" style="width: 35%"></i></div>
+    }
+  }
+  @case ('list-item') {
+    @for (i of items(); track i) {
+      <div class="sk-li" aria-hidden="true">
+        <i class="b sk-circle sk-circle--sm"></i>
+        <div class="sk-stack"><i class="b sk-t" [style.width.%]="55 + (i % 3) * 12"></i><i class="b sk-t sk-t--sm" style="width: 35%"></i></div>
+      </div>
+    }
+  }
+  @case ('text') {
+    @for (l of lineItems(); track l) { <i class="b sk-t" [style.width]="l === lines() - 1 && lines() > 1 ? '62%' : (width() ?? '100%')"></i> }
+  }
+  @case ('title') { <i class="b sk-h sk-h--lg" [style.width]="width() ?? '60%'"></i> }
+  @case ('circle') { <i class="b sk-circle"></i> }
+  @case ('pill') { @for (i of items(); track i) { <i class="b sk-pill"></i> } }
+  @default { <i class="b sk-block"></i> }
+}

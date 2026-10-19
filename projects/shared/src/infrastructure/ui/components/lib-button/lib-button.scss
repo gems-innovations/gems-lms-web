@@ -97,17 +97,36 @@
     cursor: not-allowed;
   }
 
+  // Cargando: mismo tamaño siempre. El contenido se vuelve invisible (sigue ocupando su lugar) y el spinner se
+  // superpone; ambos cambian a los 300 ms, así una acción rápida no hace parpadear el botón.
   &--loading {
     cursor: progress;
+
+    &.lib-button--disabled, &:disabled { opacity: 0.85; }
+
+    .lib-button__content, .lib-button__icon { animation: lib-button-hide 0s linear 300ms forwards; }
   }
 
   &__spinner {
-    width: 1em;
-    height: 1em;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 1.1em;
+    height: 1.1em;
     border: 2px solid currentColor;
     border-top-color: transparent;
     border-radius: var(--border-radius-full);
-    animation: lib-button-spin 0.7s linear infinite;
+    opacity: 0;
+    animation: lib-button-spin 0.7s linear infinite, lib-button-show 150ms ease 300ms forwards;
+  }
+
+  &__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 
   &__icon {
@@ -127,6 +146,9 @@
     transform: rotate(360deg);
   }
 }
+
+@keyframes lib-button-hide { to { visibility: hidden; } }
+@keyframes lib-button-show { to { opacity: 1; } }
 
 // Celular: objetivo táctil mínimo de 44px también en el tamaño compacto.
 @media (max-width: 768px) {

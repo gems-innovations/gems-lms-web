@@ -1,5 +1,9 @@
 @if (uc.isLoading()) {
-  <lib-loading-skeleton [rows]="10" />
+  <!-- Forma del reproductor: lección (título, video 16:9, texto) y temario al lado; en celular el temario baja. -->
+  <div aria-busy="true" style="display: flex; flex-wrap: wrap; gap: 24px; padding: 24px; max-width: 1400px; margin: 0 auto">
+    <lib-skeleton shape="lesson" [lines]="4" label="Cargando el curso" style="flex: 1 1 520px; min-width: 0" />
+    <lib-skeleton shape="list-item" [count]="7" style="flex: 0 1 30%; min-width: 260px" />
+  </div>
 } @else if (uc.course(); as c) {
   <div class="course-player-container">
     <edu-player-topbar
@@ -44,6 +48,7 @@
           [courseId]="uc.courseId()"
           [lessonId]="uc.selectedLessonId()"
           [isSubmitting]="uc.isSubmitting()"
+          [quizSubmitError]="uc.quizSubmitError()"
           [lastQuizResult]="uc.lastQuizResult()"
           [isComplete]="uc.isBlockComplete()"
           [isLocked]="uc.isCurrentBlockLocked()"
@@ -160,6 +165,8 @@
     </div>
   }
 
+} @else if (uc.loadFailure()) {
+  <lib-load-error [error]="uc.loadFailure()" what="este curso" (retry)="uc.retryLoad()" [backLink]="'/learn'" backLabel="Ir a mis cursos" />
 } @else {
   <lib-empty-state [copy]="copy.common.contentGone" title="No encontramos este curso" [headingLevel]="2" actionLink="/learn/catalog" />
 }

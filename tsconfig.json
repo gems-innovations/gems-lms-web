@@ -27,6 +27,9 @@
       "shared": [
         "./dist/shared"
       ],
+      "shared/loading": [
+        "./dist/shared/loading"
+      ],
       "shared/core": [
         "./dist/shared/core"
       ],

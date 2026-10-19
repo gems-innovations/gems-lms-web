@@ -7,6 +7,7 @@ import { PublicFooterComponent } from './public-footer.component';
 import { DIFFICULTY_LABEL, IPublicCourse, PublicCatalogService } from './public-catalog.service';
 import { CourseStarterService } from './course-starter.service';
 import { InViewDirective } from './in-view.directive';
+import { BusyLabelComponent, LoadErrorComponent, SkeletonComponent } from 'shared/loading';
 
 /**
  * Ficha pública de un curso gratis. «Empezar ahora» abre una sesión de invitado (si no hay sesión),
@@ -14,17 +15,14 @@ import { InViewDirective } from './in-view.directive';
  */
 @Component({
   selector: 'gems-public-course',
-  imports: [RouterLink, FormsModule, PublicHeaderComponent, PublicFooterComponent, InViewDirective],
+  imports: [RouterLink, FormsModule, PublicHeaderComponent, PublicFooterComponent, InViewDirective, SkeletonComponent, LoadErrorComponent, BusyLabelComponent],
   template: `
     <gems-public-header />
     <main class="pub">
       <a class="back" routerLink="/" fragment="cursos">← Todos los cursos</a>
-      @switch (state()) {
-        @case ('loading') { <p class="empty" style="margin-top:24px">Cargando el curso…</p> }
-        @case ('error') { <p class="empty" style="margin-top:24px">Este curso no está disponible. <a routerLink="/">Ver los cursos gratis</a></p> }
-        @default {
-          @if (course(); as c) {
-            <div class="detail">
+      <!-- Carga progresiva: si la portada ya trajo el curso, se pinta al instante y solo el temario espera. -->
+      @if (course(); as c) {
+            <div class="detail" [attr.aria-busy]="!outlineReady()">
               <section class="detail__main">
                 <span class="eyebrow">Curso gratis</span>
                 <h1>{{ c.title }}</h1>
@@ -35,11 +33,19 @@ import { InViewDirective } from './in-view.directive';
                   @if (c.instructorName) { <span>{{ c.instructorName }}</span> }
                 </div>
                 <div class="outline" aria-label="Temario">
-                  @for (m of c.outline; track m.id; let i = $index) {
-                    <div class="outline__mod">
-                      <h3>Unidad {{ i + 1 }} · {{ m.title }}</h3>
-                      <ol>@for (l of m.lessons; track l.id) { <li>{{ l.title }}</li> }</ol>
-                    </div>
+                  @if (outlineReady()) {
+                    @for (m of c.outline; track m.id; let i = $index) {
+                      <div class="outline__mod">
+                        <h3>Unidad {{ i + 1 }} · {{ m.title }}</h3>
+                        <ol>@for (l of m.lessons; track l.id) { <li>{{ l.title }}</li> }</ol>
+                      </div>
+                    }
+                  } @else if (loadError()) {
+                    <lib-load-error compact [error]="loadError()" what="el temario" [retrying]="retrying()" (retry)="load()" />
+                  } @else {
+                    @for (k of skeletonModules(c); track k) {
+                      <div class="outline__mod"><lib-skeleton shape="text" [lines]="4" [label]="k === 0 ? 'Cargando el temario' : null" /></div>
+                    }
                   }
                 </div>
               </section>
@@ -56,8 +62,8 @@ import { InViewDirective } from './in-view.directive';
                            [(ngModel)]="nickname" (keydown.enter)="start()" />
                   }
                   @if (error(); as e) { <p class="error" role="alert">{{ e }}</p> }
-                  <button type="button" class="btn btn--primary btn--block" gemsInView (inView)="startInView.set($event)" [disabled]="busy()" (click)="start()">
-                    {{ busy() ? 'Entrando…' : signedIn() ? 'Ir al curso' : 'Empezar ahora' }}
+                  <button type="button" class="btn btn--primary btn--block" gemsInView (inView)="startInView.set($event)" [disabled]="busy()" [attr.aria-busy]="busy()" (click)="start()">
+                    <lib-busy-label [busy]="busy()" busyText="Entrando…">{{ signedIn() ? 'Ir al curso' : 'Empezar ahora' }}</lib-busy-label>
                   </button>
                   <span class="note">Material educativo de práctica. No pedimos datos personales.
                     <a routerLink="/terminos">Términos</a> · <a routerLink="/privacidad">Privacidad</a></span>
@@ -67,13 +73,32 @@ import { InViewDirective } from './in-view.directive';
 
             @if (!staff() && !startInView()) {
               <div class="mobile-cta">
-                <button type="button" class="btn btn--primary btn--block" [disabled]="busy()" (click)="start()">
-                  {{ busy() ? 'Entrando…' : signedIn() ? 'Ir al curso' : 'Empezar gratis' }}
+                <button type="button" class="btn btn--primary btn--block" [disabled]="busy()" [attr.aria-busy]="busy()" (click)="start()">
+                  <lib-busy-label [busy]="busy()" busyText="Entrando…">{{ signedIn() ? 'Ir al curso' : 'Empezar gratis' }}</lib-busy-label>
                 </button>
               </div>
             }
-          }
-        }
+      } @else if (loadError()) {
+        <lib-load-error [error]="loadError()" what="este curso" [retrying]="retrying()" (retry)="load()"
+                        [backLink]="'/'" backLabel="Ver los cursos gratis" />
+      } @else {
+        <!-- Sin datos aún: esqueleto con la forma exacta de la ficha (título, meta, temario y tarjeta de inicio). -->
+        <div class="detail" aria-busy="true">
+          <section class="detail__main">
+            <lib-skeleton shape="text" [lines]="1" width="110px" label="Cargando el curso" />
+            <lib-skeleton shape="title" width="85%" style="margin: 12px 0" />
+            <lib-skeleton shape="text" [lines]="2" />
+            <lib-skeleton shape="pill" [count]="3" style="display: flex; gap: 6px; margin-top: 14px" />
+            <div class="outline">
+              @for (k of [0, 1, 2]; track k) { <div class="outline__mod"><lib-skeleton shape="text" [lines]="4" /></div> }
+            </div>
+          </section>
+          <aside class="start">
+            <lib-skeleton shape="title" width="70%" />
+            <lib-skeleton shape="text" [lines]="2" />
+            <lib-skeleton shape="block" height="48px" />
+          </aside>
+        </div>
       }
     </main>
     <gems-public-footer />
@@ -87,8 +112,12 @@ export class PublicCourseComponent {
   private readonly session = inject(AuthSessionService);
   private readonly id = inject(ActivatedRoute).snapshot.paramMap.get('id') ?? '';
 
-  protected readonly state = signal<'loading' | 'ready' | 'error'>('loading');
-  protected readonly course = signal<IPublicCourse | null>(null);
+  /** Lo que ya se sabe del curso: el resumen de la portada (al instante) o el detalle completo. */
+  protected readonly course = signal<IPublicCourse | null>(this.catalog.peek(this.id));
+  /** El temario está completo (llegó el detalle o el resumen ya lo traía). */
+  protected readonly outlineReady = signal(!!this.course()?.outline?.length);
+  protected readonly loadError = signal<unknown>(null);
+  protected readonly retrying = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly busy = computed(() => this.starter.starting() !== null);
   protected readonly difficulty = DIFFICULTY_LABEL;
@@ -100,10 +129,20 @@ export class PublicCourseComponent {
   protected readonly roleLabel = computed(() => this.session.role() === EUserRole.INSTRUCTOR ? 'docente' : 'administrador');
 
   constructor() {
+    this.load();
+  }
+
+  protected load(): void {
+    this.retrying.set(this.loadError() !== null);
     this.catalog.course(this.id).subscribe({
-      next: c => { this.course.set(c); this.state.set('ready'); },
-      error: () => this.state.set('error'),
+      next: c => { this.course.set(c); this.outlineReady.set(true); this.loadError.set(null); this.retrying.set(false); },
+      error: e => { this.loadError.set(e); this.retrying.set(false); },
     });
+  }
+
+  /** Cuántas unidades dibujar en el esqueleto del temario (las que dice el resumen, entre 1 y 4). */
+  protected skeletonModules(c: IPublicCourse): number[] {
+    return Array.from({ length: Math.min(4, Math.max(1, c.modules || 3)) }, (_, i) => i);
   }
 
   protected async start(): Promise<void> {

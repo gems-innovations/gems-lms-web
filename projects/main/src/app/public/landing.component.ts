@@ -9,6 +9,7 @@ import { TiltDirective } from './micro-effects';
 import { HeroQuizComponent } from './hero-quiz.component';
 import { InViewDirective } from './in-view.directive';
 import { LucideGraduationCap, LucideSchool, LucideSend, LucideShieldCheck, LucideZap } from '@lucide/angular';
+import { BusyLabelComponent, LoadErrorComponent, SkeletonComponent } from 'shared/loading';
 
 /**
  * Página de entrada pública: cursos gratis para prepararse para la universidad, sin registro.
@@ -17,7 +18,8 @@ import { LucideGraduationCap, LucideSchool, LucideSend, LucideShieldCheck, Lucid
 @Component({
   selector: 'gems-landing',
   imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, HeroQuizComponent, TiltDirective, InViewDirective,
-    LucideGraduationCap, LucideSchool, LucideSend, LucideShieldCheck, LucideZap],
+    LucideGraduationCap, LucideSchool, LucideSend, LucideShieldCheck, LucideZap,
+    SkeletonComponent, LoadErrorComponent, BusyLabelComponent],
   templateUrl: './landing.component.html',
   styleUrls: ['./public.scss', './landing-extra.scss', './landing-bento.scss', './landing-piezas.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,6 +31,8 @@ export class LandingComponent {
   protected readonly state = signal<'loading' | 'ready' | 'error'>('loading');
   protected readonly courses = signal<IPublicCourse[]>([]);
   protected readonly error = signal<string | null>(null);
+  /** Error de la lista de cursos (para el mensaje humano y «Reintentar»). */
+  protected readonly loadError = signal<unknown>(null);
   protected readonly errorFor = signal<number | null>(null);
   protected readonly difficulty = DIFFICULTY_LABEL;
   protected readonly heroCtaInView = signal(false);
@@ -56,7 +60,7 @@ export class LandingComponent {
     this.state.set('loading');
     this.catalog.courses().subscribe({
       next: list => { this.courses.set(list); this.state.set('ready'); },
-      error: () => this.state.set('error'),
+      error: e => { this.loadError.set(e); this.state.set('error'); },
     });
   }
 

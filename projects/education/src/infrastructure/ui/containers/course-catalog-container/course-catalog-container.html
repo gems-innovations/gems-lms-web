@@ -11,7 +11,7 @@
   />
 
   @if (uc.isLoading()) {
-    <lib-loading-skeleton type="card" [rows]="6" />
+    <lib-skeleton shape="course-card" [count]="6" label="Cargando el catálogo" />
   } @else if (uc.loadError()) {
     <lib-empty-state
       [copy]="copy.common.error"

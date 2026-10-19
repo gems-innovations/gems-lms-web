@@ -1,7 +1,7 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { HttpClient, HttpEventType } from '@angular/common/http';
+import { Observable, filter, map } from 'rxjs';
 import { environment } from 'shared/core';
 import { ToastService } from '../ui/components/toast/toast.service';
 
@@ -15,6 +15,12 @@ export interface IUploadedFile {
   size: number;
   /** Absolute URL of the file. */
   url: string;
+}
+
+/** Avance de una subida: `progress` de 0 a 1; `file` llega solo al final. */
+export interface IUploadProgress {
+  progress: number;
+  file?: IUploadedFile;
 }
 
 /** Same limit as the API (files.max-size-bytes). */
@@ -36,6 +42,21 @@ export class FileUploadService {
     body.append('file', file, file.name);
     return this.http.post<IUploadedFile>(`${environment.apiUrls.files}?scope=${scope}`, body).pipe(
       map(f => ({ ...f, url: this.origin + f.url }))
+    );
+  }
+
+  /**
+   * Igual que {@link upload}, pero informa el avance: emite `{ progress }` (0-1) mientras sube y `{ file }` al
+   * terminar. Úsalo para mostrar una barra real en vez de un «Subiendo…» sin fin.
+   */
+  uploadWithProgress(file: File, scope: TFileScope = 'private'): Observable<IUploadProgress> {
+    const body = new FormData();
+    body.append('file', file, file.name);
+    return this.http.post<IUploadedFile>(`${environment.apiUrls.files}?scope=${scope}`, body, { reportProgress: true, observe: 'events' }).pipe(
+      filter(e => e.type === HttpEventType.UploadProgress || e.type === HttpEventType.Response),
+      map((e): IUploadProgress => e.type === HttpEventType.Response
+        ? { progress: 1, file: { ...e.body!, url: this.origin + e.body!.url } }
+        : { progress: e.total ? Math.min(0.99, e.loaded / e.total) : 0 }),
     );
   }
 

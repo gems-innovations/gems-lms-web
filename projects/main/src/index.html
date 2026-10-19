@@ -55,5 +55,51 @@
 </head>
 <body>
   <app-root></app-root>
+  <!--
+    Pantalla de arranque (ESTADOS-DE-CARGA.md §Primer arranque): se pinta con el HTML, antes de que llegue el JS de
+    Angular, y se funde cuando la primera página ya está pintada (arranque.ts). Si la página llegó prerenderizada
+    (<app-root> trae contenido) no se muestra: el contenido real ya está ahí. Sin JS no aparece.
+  -->
+  <style>
+    #gems-arranque{display:none}
+    .gems-arrancando #gems-arranque{position:fixed;inset:0;z-index:2000;display:grid;place-content:center;justify-items:center;gap:14px;
+      background:#080710;color:#edeaf8;font:600 15px/1.4 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;text-align:center;
+      transition:opacity .22s cubic-bezier(.4,0,.2,1)}
+    .light-mode #gems-arranque{background:#f4f6fb;color:#1a202c}
+    #gems-arranque.ga-fuera{opacity:0;pointer-events:none}
+    #gems-arranque img{width:72px;height:72px;opacity:0;transition:opacity .2s;animation:ga-respira 2.4s ease-in-out infinite}
+    #gems-arranque img.ga-ok{opacity:1}
+    #gems-arranque .ga-marca{font-weight:800;font-size:17px;letter-spacing:.02em}
+    #gems-arranque .ga-barra{width:120px;height:3px;border-radius:3px;overflow:hidden;background:rgba(123,111,240,.18)}
+    #gems-arranque .ga-barra i{display:block;width:40%;height:100%;border-radius:3px;background:linear-gradient(90deg,#7b6ff0,#4de1ff);animation:ga-barra 1.3s cubic-bezier(.4,0,.2,1) infinite}
+    #gems-arranque .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+    #gems-arranque .ga-aviso{min-height:2.8em;max-width:30ch;margin:4px 0 0;font-weight:500;font-size:14px;opacity:.75}
+    #gems-arranque button{display:none;min-height:44px;padding:0 20px;border:0;border-radius:12px;background:#5b4ec1;color:#fff;font:700 15px/1 inherit;cursor:pointer}
+    #gems-arranque.ga-lento .ga-aviso::after{content:'Tu conexión va lenta; ya casi está.'}
+    #gems-arranque.ga-fallo .ga-aviso::after{content:'No pudimos abrir GEMS. Revisa tu conexión y vuelve a intentarlo.'}
+    #gems-arranque.ga-fallo button,#gems-arranque.ga-muy-lento button{display:inline-block}
+    #gems-arranque.ga-fallo .ga-barra{visibility:hidden}
+    @keyframes ga-respira{50%{transform:scale(1.05);opacity:.85}}
+    @keyframes ga-barra{from{transform:translateX(-100%)}to{transform:translateX(250%)}}
+    @media (prefers-reduced-motion:reduce){#gems-arranque img,#gems-arranque .ga-barra i{animation:none}#gems-arranque .ga-barra i{width:100%;opacity:.5}}
+  </style>
+  <div id="gems-arranque" role="status">
+    <!-- El logo aparece entero (no a medio decodificar en redes lentas); su espacio está reservado. -->
+    <img src="logo-144.png" width="72" height="72" alt="" fetchpriority="high" onload="this.classList.add('ga-ok')">
+    <span class="ga-marca">GEMS LMS</span>
+    <span class="ga-barra" aria-hidden="true"><i></i></span>
+    <p class="ga-aviso"><span class="visually-hidden">Cargando GEMS LMS</span></p>
+    <button type="button">Recargar</button>
+  </div>
+  <script>
+    (function () {
+      var raiz = document.querySelector('app-root'), el = document.getElementById('gems-arranque');
+      if (!raiz || !el || raiz.firstElementChild) { if (el) el.remove(); return; }
+      document.documentElement.classList.add('gems-arrancando');
+      el.querySelector('button').addEventListener('click', function () { location.reload(); });
+      setTimeout(function () { el.classList.add('ga-lento'); }, 6000);
+      setTimeout(function () { el.classList.add('ga-muy-lento'); }, 20000);
+    })();
+  </script>
 </body>
 </html>

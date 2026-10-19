@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
-import { LoadingSkeletonComponent, PaginationComponent, EmptyStateComponent, EMPTY_STATES } from 'shared';
+import { PaginationComponent, EmptyStateComponent, EMPTY_STATES } from 'shared';
+import { SkeletonComponent } from 'shared/loading';
 import { MyLearningUseCase, ICertification } from '../../../../application/my-learning.usecase';
 import { IEnrolledCourseEntry, IEnrolledPathEntry } from '../../../../domain/model/enrollment.model';
 import { ICourseCertificate } from '../../../../domain/model/player.model';
@@ -16,8 +17,8 @@ const PATH_PAGE_SIZE = 6;
   selector: 'edu-my-learning-container',
   standalone: true,
   imports: [AchievementsCard, 
-    LoadingSkeletonComponent, PaginationComponent, CourseProgressCard,
-    CourseCertificate, DecimalPipe, EmptyStateComponent,
+    SkeletonComponent, PaginationComponent, CourseProgressCard,
+    CourseCertificate, DecimalPipe, RouterLink, EmptyStateComponent,
   ],
   templateUrl: './my-learning-container.html',
   styleUrl: './my-learning-container.scss',
