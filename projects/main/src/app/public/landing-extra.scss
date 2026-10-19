@@ -70,7 +70,8 @@
   &:hover { border-color: var(--color-primario); color: var(--color-texto-principal); }
   &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
   &[aria-selected='true'] { color: var(--color-sobre-primario); background: var(--color-primario-accion); border-color: transparent;
-    span { background: rgb(255 255 255 / .22); color: inherit; } } }
+    // Fondo oscuro para el número: con blanco al 22 % quedaba en 3,9:1.
+    span { background: rgb(0 0 0 / .24); color: inherit; } } }
 
 // ── «Crea tu curso» ──────────────────────────────────────────────────────────
 .crea { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
