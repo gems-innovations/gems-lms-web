@@ -138,12 +138,12 @@ function drawParticles(ctx, list, dt, scale, shape = 'square') {
 }
 
 // ───────────────────────── el escenario ─────────────────────────
-let cssLoaded = false;
+let cssLoaded = false, cssReady = Promise.resolve();   // cssReady: la hoja del motor ya aplicó (el escenario no se ve antes: evita un salto de layout)
 const FONTS = new Set();                       // fuentes de tema ya pedidas (document.fonts.check miente si la fuente aún no se registró)
 function ensureCss() {
   if (cssLoaded || typeof document === 'undefined') return; cssLoaded = true;
   const href = new URL('taps-engine.css', BASE).href;
-  if (!document.querySelector(`link[href="${href}"]`)) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l); }
+  if (!document.querySelector(`link[href="${href}"]`)) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; cssReady = new Promise(ok => { l.onload = l.onerror = () => ok(); }); document.head.appendChild(l); }
 }
 /** Hoja de estilos propia del tema (opcional, `css` en theme.json): se pide una sola vez y nunca bloquea el pintado. */
 function ensureThemeCss(href) {
@@ -166,6 +166,7 @@ const loadImage = src => new Promise((ok, no) => { const i = new Image(); i.onlo
 export function create(container, opts = {}) {
   ensureCss();
   const root = document.createElement('div'); root.className = 'te-stage'; root.dataset.mode = 'light'; root.setAttribute('aria-hidden', 'false');
+  root.style.position = 'absolute'; root.style.inset = '0'; root.style.visibility = 'hidden'; cssReady.then(() => root.style.removeProperty('visibility'));
   root.innerHTML = '<div class="te-bg"></div><div class="te-light"><canvas class="te-char" width="16" height="32"></canvas></div><canvas class="te-gl"></canvas><div class="te-fx"></div><div class="te-bubble" role="status" aria-live="polite"></div>';
   container.appendChild(root);
   const q = s => root.querySelector(s), bgEl = q('.te-bg'), lightEl = q('.te-light'), charEl = q('.te-char'), glEl = q('.te-gl'), fxEl = q('.te-fx'), bubbleEl = q('.te-bubble');
@@ -189,7 +190,7 @@ export function create(container, opts = {}) {
     let t = opts.theme;
     if (typeof t === 'string') {
       themeUrl = new URL(t, location.href);
-      const r = await fetch(themeUrl.href);
+      const r = await fetch(themeUrl.href, { signal: AbortSignal.timeout?.(6000) });   // sin respuesta en 6 s: el Tap se juega sobre su degradado
       if (!r.ok) throw new Error('No cargó el tema (' + r.status + ')');
       t = await r.json();
     }

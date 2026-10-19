@@ -1,29 +1,103 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, input, output, signal, viewChild } from '@angular/core';
 
 /**
- * Riel lateral tipo TikTok, sobre el mundo y nunca encima de las opciones (experiencia-ux.md §3.1).
- * Solo lo que funciona hoy: «Más» (más Taps de este tema) y «Enviar» (compartir el Tap). Me gusta, comentar y guardar
- * se agregan cuando existan cuentas: un botón que no hace nada enseña a no tocar el riel.
+ * Riel de acciones del Tap. Dos formas del mismo componente:
+ * - móvil (por defecto): riel tipo TikTok sobre el mundo y nunca encima de las opciones (experiencia-ux.md §3.1), solo lo
+ *   que funciona hoy: «Más» (más Taps de este tema) y «Enviar». Un botón que no hace nada enseña a no tocar el riel.
+ * - escritorio (`desktop`): fuera del escenario, pegado a su derecha (escritorio.md §5). Flechas ↑/↓ arriba y, abajo, tema,
+ *   Retar y Más (menú). «Guardar» no está: no hay cuentas todavía y un botón muerto enseña a no tocar.
  */
 @Component({
   selector: 'gems-tap-rail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <nav class="rail" aria-label="Acciones del Tap">
-      <button type="button" class="rail__btn" (click)="more.emit()" [attr.aria-label]="'Más Taps de ' + topicName()">
-        <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M16.5 13.5v6M13.5 16.5h6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span>
-        <span class="rail__label">Más</span>
-      </button>
-      <button type="button" class="rail__btn" (click)="share.emit()" aria-label="Compartir este Tap">
-        <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M14 5l7 7-7 7M21 12H10a7 7 0 0 0-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <span class="rail__label">Enviar</span>
-      </button>
-    </nav>
+    @if (!desktop()) {
+      <nav class="rail" aria-label="Acciones del Tap">
+        <button type="button" class="rail__btn" (click)="more.emit()" [attr.aria-label]="'Más Taps de ' + topicName()">
+          <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M16.5 13.5v6M13.5 16.5h6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span>
+          <span class="rail__label">Más</span>
+        </button>
+        <button type="button" class="rail__btn" (click)="share.emit()" aria-label="Compartir este Tap">
+          <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M14 5l7 7-7 7M21 12H10a7 7 0 0 0-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="rail__label">Enviar</span>
+        </button>
+      </nav>
+    } @else {
+      <nav class="rail rail--escritorio" aria-label="Acciones del Tap">
+        <div class="rail__nav">
+          <button type="button" class="rail__btn rail__btn--flecha" (click)="prev.emit()" [disabled]="!canPrev()" aria-label="Tap anterior" aria-keyshortcuts="ArrowUp K">
+            <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="m6 15 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+          <button type="button" class="rail__btn rail__btn--flecha" [class.is-pulse]="pulse()" (click)="nextTap.emit()" [disabled]="!canNext()" aria-label="Siguiente Tap" aria-keyshortcuts="ArrowDown J">
+            <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            @if (nextTitle()) { <span class="rail__tip" role="tooltip">Siguiente: {{ nextTitle() }}</span> }
+          </button>
+        </div>
+        <div class="rail__actions">
+          <button type="button" class="rail__btn" (click)="filterTopic.emit()" [attr.aria-label]="'Ver solo Taps de ' + topicName()">
+            <span class="gm-icono gm-icono--flotante rail__icon rail__topic" [style.--tinte]="topicColor()"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M16.5 13.5v6M13.5 16.5h6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span>
+            <span class="rail__label">Tema</span>
+          </button>
+          <button type="button" class="rail__btn" [class.is-hot]="finished()" (click)="share.emit()" aria-label="Retar a un amigo" aria-keyshortcuts="R">
+            <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M14 5l7 7-7 7M21 12H10a7 7 0 0 0-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="rail__label">Retar</span>
+          </button>
+          <div class="rail__more">
+            <button type="button" class="rail__btn" (click)="toggleMenu($event)" #moreBtn [attr.aria-expanded]="menuOpen()" aria-controls="rail-mas" aria-label="Más opciones">
+              <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="5.5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="18.5" cy="12" r="2" fill="currentColor"/></svg></span>
+              <span class="rail__label">Más</span>
+            </button>
+            @if (menuOpen()) {
+              <div class="rail__menu" id="rail-mas">
+                <button type="button" (click)="pick(() => more.emit())">Siguiente Tap de {{ topicName() }}</button>
+                @if (blocked()) {
+                  <button type="button" (click)="pick(() => unblock.emit())">Volver a mostrar {{ topicName() }}</button>
+                } @else {
+                  <button type="button" (click)="pick(() => notInterested.emit())">No me interesa este tema</button>
+                }
+                <button type="button" (click)="pick(() => toggleKeys.emit())">Atajos de teclado: {{ keysOn() ? 'apagar' : 'encender' }}</button>
+              </div>
+            }
+          </div>
+        </div>
+      </nav>
+    }
   `,
   styleUrl: './tap-rail.component.scss',
 })
 export class TapRailComponent {
   readonly topicName = input('este tema');
+  readonly topicColor = input('#8b93a7');
+  readonly desktop = input(false);
+  readonly canPrev = input(true);
+  readonly canNext = input(true);
+  /** Tras el primer resultado: anillo pulsante en la flecha ↓ (invita a seguir). */
+  readonly pulse = input(false);
+  readonly finished = input(false);
+  readonly nextTitle = input<string | null>(null);
+  readonly blocked = input(false);
+  readonly keysOn = input(true);
+
   readonly more = output<void>();
+  readonly filterTopic = output<void>();
   readonly share = output<void>();
+  readonly prev = output<void>();
+  readonly nextTap = output<void>();
+  readonly notInterested = output<void>();
+  readonly unblock = output<void>();
+  readonly toggleKeys = output<void>();
+
+  protected readonly menuOpen = signal(false);
+
+  protected toggleMenu(event: Event): void { event.stopPropagation(); this.menuOpen.update(v => !v); }
+  protected pick(action: () => void): void { this.menuOpen.set(false); action(); }
+
+  @HostListener('document:click') protected closeMenu(): void { if (this.menuOpen()) this.menuOpen.set(false); }
+  private readonly moreBtn = viewChild<ElementRef<HTMLButtonElement>>('moreBtn');
+  /** Esc cierra «Más» y devuelve el foco al botón que lo abrió (sin trampa de teclado). */
+  @HostListener('document:keydown.escape') protected closeOnEscape(): void {
+    if (!this.menuOpen()) return;
+    this.menuOpen.set(false);
+    this.moreBtn()?.nativeElement.focus();
+  }
 }

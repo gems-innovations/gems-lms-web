@@ -23,13 +23,19 @@ import { ITapTopic } from './taps.types';
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
         } @else {
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z" fill="currentColor"/><path d="m22 9-6 6M16 9l6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-          @if (sound() === 'pending') { <span class="bar__tip">Toca para sonido</span> }
+          @if (sound() === 'pending') { <span class="bar__tip">{{ desktop() ? 'Clic o M para sonido' : 'Toca para sonido' }}</span> }
         }
       </button>
       <button type="button" class="glass bar__pill bar__topics" (click)="open()" aria-haspopup="dialog" [attr.aria-label]="'Temas: ' + topicName()">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>
         <span>{{ topicName() }}</span>
       </button>
+      @if (topic()) {
+        <button type="button" class="bar__pill bar__chip" (click)="topicChange.emit(null)" [attr.aria-label]="'Quitar el filtro de ' + topicName()">
+          <span>{{ topicName() }}</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        </button>
+      }
     </header>
 
     @if (isOpen()) {
@@ -74,6 +80,8 @@ import { ITapTopic } from './taps.types';
       background: rgba(8, 10, 14, .72); border: 1px solid rgba(255, 255, 255, .18); pointer-events: none; }
     .bar__brand, .bar__pill { white-space: nowrap; flex: none; }
     .bar__topics { margin-left: auto; padding: 0 12px 0 10px; }
+    .bar__chip { display: none; margin-left: auto; color: #0d1117; background: #4de1ff; border: 0; }
+    /* Escritorio y tablet: la barra vive dentro del escenario; la marca y «Temas» están en el menú. */
     .sheet { width: 100%; max-width: 480px; margin: auto auto 0; padding: 0; border: 0; border-radius: 22px 22px 0 0; color: #fff; background: #161b24;
       &::backdrop { background: rgba(0, 0, 0, .55); }
       &[open] { animation: sheet-in .26s cubic-bezier(.2, 1.1, .4, 1); } }
@@ -87,8 +95,17 @@ import { ITapTopic } from './taps.types';
     .sheet__name { flex: 1; font-size: 16px; font-weight: 800; small { display: block; font-size: 12px; font-weight: 700; color: #aab4c4; } }
     .sheet__count { font-size: 12px; font-weight: 700; color: #c8d1de; }
     .sheet__close { width: 100%; min-height: 48px; margin-top: 12px; border-radius: 14px; font: inherit; font-weight: 700; cursor: pointer; }
+    @container taps (min-width: 768px) {
+      .bar { position: absolute; left: 0; right: 0; width: auto; max-width: none; transform: none; padding-top: 10px; }
+      .bar__brand, .bar__topics { display: none; }
+      .bar__chip { display: inline-flex; }
+      .sheet { width: min(660px, 100%); max-width: none; height: 100dvh; max-height: none; margin: 0 auto 0 0; border-radius: 0 22px 22px 0;
+        &[open] { animation: drawer-in .26s var(--curva-estandar, ease); } }
+      .sheet__list { grid-template-columns: repeat(2, 1fr); }
+    }
     a:focus-visible, button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
     @keyframes sheet-in { from { transform: translateY(100%); } }
+    @keyframes drawer-in { from { transform: translateX(-100%); } }
     @media (prefers-reduced-motion: reduce) { .sheet[open] { animation: none; } }
   `,
 })
@@ -97,6 +114,7 @@ export class TapsBarComponent {
   readonly sound = input<'pending' | 'on' | 'off'>('pending');
   readonly topic = input<string | null>(null);
   readonly topicName = input('Para ti');
+  readonly desktop = input(false);
   readonly topics = input<{ topic: ITapTopic; count: number; soon: boolean }[]>([]);
 
   readonly toggleSound = output<void>();

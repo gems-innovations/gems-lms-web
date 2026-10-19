@@ -1,0 +1,87 @@
+// Armazón de escritorio y tablet de Taps (escritorio.md) y estados de carga del escenario (estados-carga-taps.md).
+// El host es el contenedor `taps`: sus container queries (≥ 1280, 1024-1279, 768-1023) mandan sobre menú, riel y panel.
+// En móvil el armazón no existe (display: contents) y todo sigue como antes. Un solo escenario 9:16 en todos los anchos.
+:host { position: fixed; inset: 0; z-index: 5; container: taps / size; }
+.shell, .centro, .escenario { display: contents; }
+.tap__key { display: none; }
+.tap__touch .t-key { display: none; }
+
+// ── Esqueleto del personaje (solo en esa zona, nunca sobre la pregunta; misma caja que la capa ligera: CLS 0) ──
+.tap__ghost { position: absolute; z-index: 1; left: 50%; top: 13%; display: flex; flex-direction: column; align-items: center; gap: 3%; height: 36%; aspect-ratio: 1 / 2; transform: translateX(-50%); pointer-events: none;
+  > :first-child { flex: none; aspect-ratio: 1; }
+  > :last-child { flex: 1; width: 78%; border-radius: 14px; } }
+.tap__ghost lib-skeleton { --sk-bone: rgba(255, 255, 255, .16); --sk-shine: rgba(255, 255, 255, .14); }
+// Sin red y sin póster: silueta quieta, no hay nada que esperar.
+.tap__ghost.is-still ::ng-deep .b::after { display: none; }
+
+@container taps (min-width: 768px) {
+  .shell { --sh: min(calc(100cqh - 48px), 980px); --sw: calc(var(--sh) * 9 / 16); --menu-w: 72px; position: absolute; inset: 0; display: grid; grid-template-columns: var(--menu-w) minmax(0, 1fr); grid-template-rows: 100%;
+    background:
+      radial-gradient(60% 55% at 30% 38%, color-mix(in srgb, var(--amb-a, #1b2414) 42%, transparent), transparent 70%),
+      radial-gradient(50% 50% at 78% 72%, color-mix(in srgb, var(--amb-b, #3a4a2a) 36%, transparent), transparent 70%),
+      #0e1116; }
+  gems-taps-menu { grid-column: 1; grid-row: 1; }
+  .centro { display: flex; grid-column: 2; grid-row: 1; align-items: center; justify-content: center; min-width: 0; }
+  // Escenario 9:16: alto = min(100dvh − 48 px, 980 px). Por dentro escala con su propio tamaño.
+  .escenario { display: block; position: relative; flex: none; width: var(--sw); height: var(--sh); margin-right: 12px; border-radius: 26px; overflow: hidden; isolation: isolate;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .09); }
+  .taps { position: absolute; inset: 0; z-index: 1; }
+  .tap { height: 100%; max-width: none; }
+  gems-tap-panel { margin-left: 28px; }
+  // El riel del mundo (móvil) se sustituye por el riel fuera del escenario.
+  .tap__world gems-tap-rail { display: none; }
+  .tap__toast { right: 12px; }
+  .tap__touch .t-touch { display: none; }
+  .tap__touch .t-key { display: inline; }
+  .tap__opts .tap__label { padding-right: 24px; }
+}
+// ≥ 1280: menú ancho; contraído (`[`) mide 72 px.
+@container taps (min-width: 1280px) {
+  .shell { --menu-w: 240px; }
+  .shell[data-menu='inv'] { --menu-w: 72px; }
+  gems-tap-panel { margin-left: 48px; }
+}
+// 768-1023: barra superior de 64 px, riel a la derecha del escenario y el panel como franja debajo (si cabe).
+@container taps (min-width: 768px) and (max-width: 1023px) {
+  .shell { --menu-w: 0px; --sh: min(calc(100cqh - 64px - 32px), 980px); grid-template-columns: minmax(0, 1fr); grid-template-rows: 64px minmax(0, 1fr); }
+  gems-taps-menu { grid-column: 1; grid-row: 1; }
+  .centro { grid-column: 1; grid-row: 2; display: grid; grid-template-columns: var(--sw) 64px; grid-template-rows: var(--sh) auto; gap: 12px; justify-content: center; align-content: center; }
+  .escenario { margin: 0; }
+  gems-tap-panel { margin: 0; grid-column: 1 / -1; grid-row: 2; }
+}
+@container taps (min-width: 768px) and (max-width: 1023px) and (min-height: 700px) {
+  .shell { --sh: min(calc(100cqh - 64px - 32px - 176px), 980px); }
+}
+// Sin conexión: el aviso global va abajo y centrado; el escenario sube para que no tape «Seguir» ni los controles.
+@container taps (min-width: 1024px) {
+  .shell[data-offline] { --sh: min(calc(100cqh - 48px - 56px), 980px); .centro { align-items: flex-start; padding-top: 24px; } }
+}
+// Modo enfoque (F): sin menú ni panel. Esc sale.
+.shell[data-enfoque] { --menu-w: 0px !important; gems-taps-menu, gems-tap-panel { display: none; } }
+
+// Con ratón o teclado: teclas 1-4 en las opciones y opción que sube 3 px al pasar el puntero.
+@container taps (min-width: 768px) {
+  @media (hover: hover) and (pointer: fine) {
+    .tap__opts:not(.is-answered) .tap__key { position: absolute; right: 8px; bottom: 8px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; font-size: 12px; font-weight: 800;
+      color: var(--ink); background: color-mix(in srgb, var(--ink) 14%, transparent); border: 1.5px solid color-mix(in srgb, var(--ink) 55%, transparent); }
+    .tap__opt:hover:not([aria-disabled='true']) { transform: translateY(-3px); box-shadow: 0 7px 0 rgba(0, 0, 0, .3), 0 0 0 3px #fff; }
+  }
+}
+@media (prefers-reduced-motion: reduce) { .tap__opt:hover { transform: none !important; } }
+
+// ≥ 1024: tres columnas fijas (escenario · riel · panel). Existen aunque el riel y el panel (@defer) aún no hayan llegado: con flex el
+// escenario, centrado, se corría ~226 px al aparecerlos (CLS 0,10 en escritorio; el HTML llega por partes, así que ni un marcador
+// al final del documento lo evita). Las medidas son las de antes: riel 64, panel 340 (292 en portátil) y sus separaciones.
+@container taps (min-width: 1024px) {
+  .centro { display: grid; grid-template-columns: var(--sw) 64px 308px; grid-template-rows: var(--sh); column-gap: 12px; justify-content: center; align-content: center; align-items: start; }
+  .escenario { margin: 0; }
+  gems-tap-rail.riel-escritorio { grid-column: 2; }
+  gems-tap-panel { grid-column: 3; margin-left: 16px; }
+  .shell[data-offline] .centro { align-content: start; }
+  .shell[data-enfoque] .centro { grid-template-columns: var(--sw) 64px; }
+}
+@container taps (min-width: 1280px) {
+  .centro { grid-template-columns: var(--sw) 64px 376px; }
+  gems-tap-panel { margin-left: 36px; }
+}
+

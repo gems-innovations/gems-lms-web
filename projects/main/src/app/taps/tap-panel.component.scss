@@ -1,0 +1,59 @@
+// Panel contextual de Taps (escritorio.md §7). Texto claro sobre superficies oscuras; el acento cian solo con texto oscuro encima.
+:host { display: none; font-family: var(--font-interfaz, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif); color: #e8edf4; }
+.panel { display: flex; flex-direction: column; justify-content: space-between; gap: 12px; height: 100%; min-height: 0;
+  // Respira: atenuado mientras hay una pregunta sin responder; se enciende al responder, con el puntero encima o con foco dentro.
+  transition: opacity var(--dur-base) var(--curva-estandar);
+  &[data-estado='pregunta'] { opacity: .72; }
+  &:hover, &:focus-within { opacity: 1; } }
+.panel__cards { display: grid; align-content: start; gap: 12px; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+.card { padding: 14px 16px; border-radius: 18px; background: rgba(22, 27, 36, .92); border: 1px solid rgba(255, 255, 255, .1); animation: gm-pop var(--dur-base) var(--curva-salida) backwards; }
+.card__title { margin: 0 0 6px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #aab4c4; }
+.card__row { display: flex; align-items: center; gap: 12px; }
+.card__ring { flex: none; }
+.card__big { margin: 0; font-size: 1.75rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; color: #fff; }
+.card__body { margin: 6px 0 0; font-size: 14.5px; line-height: 1.4; color: #dfe6ef; }
+// #8b93a7 al 72 % de «Respira» queda en 3,6:1 (< 4,5): #aab4c4 llega a 4,9:1 incluso atenuado.
+.card__note { margin: 8px 0 0; font-size: 12px; font-weight: 600; color: #aab4c4; }
+.card__next { display: flex; align-items: center; gap: 12px; }
+.card__poster { flex: none; width: 54px; height: 96px; border-radius: 10px; background: linear-gradient(var(--a, #333), var(--b, #111)); border: 1px solid rgba(255, 255, 255, .2); }
+.card__nextname { margin: 0; font-size: 1.05rem; font-weight: 800; line-height: 1.2; color: #fff; small { display: block; margin-top: 2px; font-size: 12.5px; font-weight: 600; color: #aab4c4; } }
+.card__cta { width: 100%; min-height: 48px; margin-top: 12px; border: 0; border-radius: 14px; font: inherit; font-size: 1rem; font-weight: 800; color: #0d1117; background: #4de1ff; cursor: pointer;
+  &:active { transform: translateY(1px); } }
+button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+// Leyenda de atajos (abajo del panel).
+.keys { position: relative; flex: none; }
+.keys__help { display: none; width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .25); background: rgba(22, 27, 36, .92); color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+.keys__title { margin: 0 0 6px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #aab4c4; }
+dl { display: grid; gap: 4px 0; margin: 0; }
+dl div { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; }
+dt { display: flex; gap: 3px; }
+dd { margin: 0; color: #aab4c4; }
+kbd { min-width: 22px; padding: 1px 6px; border-radius: 6px; font: inherit; font-size: 12px; font-weight: 800; text-align: center; color: #fff; background: #2a3140; border: 1px solid rgba(255, 255, 255, .18); border-bottom-width: 2px; }
+.keys__off { margin-top: 8px; min-height: 36px; padding: 0 12px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 10px; background: none; color: #dfe6ef; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+// ≥ 1280: columna de 340 px con la leyenda siempre visible.
+@container taps (min-width: 1280px) { :host { display: block; width: 340px; height: var(--sh); } }
+// 1024-1279: columna de 292 px, «una tarjeta» (la principal y «Después de este») y los atajos tras un «?».
+@container taps (min-width: 1024px) and (max-width: 1279px) {
+  :host { display: block; width: 292px; height: var(--sh); }
+  .card--soft:not(:last-child) { display: none; }
+  .keys__help { display: block; }
+  .keys__list { display: none; position: absolute; right: 0; bottom: 44px; width: 260px; padding: 12px; border-radius: 14px; background: #161b24; border: 1px solid rgba(255, 255, 255, .16); box-shadow: 0 12px 32px rgba(0, 0, 0, .5);
+    &.is-open { display: block; } }
+}
+// 768-1023: franja horizontal bajo el escenario con las tarjetas compactas (si no cabe, no se ve: el contenido vive en el Tap).
+@container taps (min-width: 768px) and (max-width: 1023px) and (min-height: 700px) {
+  :host { display: block; width: 100%; height: auto; }
+  .panel { opacity: 1; }
+  .panel__cards { grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); overflow: hidden; }
+  .card { padding: 10px 12px; }
+  .card__big { font-size: 1.3rem; }
+  .card__poster { width: 36px; height: 64px; }
+  .card__body { font-size: 13px; }
+  .card__note { display: none; }
+  .keys { display: none; }
+}
+// Pantallas táctiles (tablet): objetivos de 48 px.
+@media (pointer: coarse) { .keys__help { width: 48px; height: 48px; } .keys__off { min-height: 48px; } }
+@media (prefers-reduced-motion: reduce) { .card { animation: none; } .panel { transition: none; } }
