@@ -1,12 +1,13 @@
 import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LibButtonComponent, BadgeComponent, EmptyStateComponent, LoadingSkeletonComponent } from 'shared';
+import { LibButtonComponent, BadgeComponent, EmptyStateComponent } from 'shared';
 import { SurveyEditorUseCase } from '../../../../application/survey.usecase';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'ins-survey-panel',
   standalone: true,
-  imports: [FormsModule, LibButtonComponent, BadgeComponent, EmptyStateComponent, LoadingSkeletonComponent],
+  imports: [FormsModule, LibButtonComponent, BadgeComponent, EmptyStateComponent, SkeletonComponent],
   templateUrl: './survey-panel.html',
   styleUrl: './survey-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

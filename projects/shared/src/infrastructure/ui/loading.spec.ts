@@ -83,13 +83,19 @@ describe('describeLoadError', () => {
 
   it('separa servidor, saturación y lentitud', () => {
     expect(describeLoadError(http(500)).kind).toBe('server');
+    expect(describeLoadError(http(404)).kind).toBe('not-found');
+    expect(describeLoadError(http(410)).kind).toBe('not-found');
+    // H-N: un 400 es una solicitud rechazada, no un recurso que no existe.
+    expect(describeLoadError(http(400)).kind).toBe('invalid');
+    expect(describeLoadError(http(422)).kind).toBe('invalid');
+    expect(describeLoadError(http(400)).title).not.toMatch(/encontramos/i);
     expect(describeLoadError(http(429)).kind).toBe('rate-limit');
     expect(describeLoadError(http(504)).kind).toBe('timeout');
     expect(describeLoadError({ name: 'TimeoutError' }).kind).toBe('timeout');
   });
 
   it('nunca muestra textos técnicos', () => {
-    for (const s of [0, 400, 401, 403, 404, 408, 429, 500, 502, 503]) {
+    for (const s of [0, 400, 401, 403, 404, 408, 422, 429, 500, 502, 503]) {
       const { title, message } = describeLoadError(http(s));
       expect(`${title} ${message}`).not.toMatch(/http|failure|error \d|status/i);
     }

@@ -1,15 +1,16 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LearningPathPlayerUseCase } from '../../../../application/learning-path-player.usecase';
-import { LoadingSkeletonComponent, EmptyStateComponent, EMPTY_STATES } from 'shared';
+import { EmptyStateComponent, EMPTY_STATES } from 'shared';
 import { PathPlayerHero } from '../../components/path-player-hero/path-player-hero';
 import { PathStepList } from '../../components/path-step-list/path-step-list';
 import { IStepEntry } from '../../../../domain/model/learning-path.model';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'edu-learning-path-player-container',
   standalone: true,
-  imports: [LoadingSkeletonComponent, EmptyStateComponent, PathPlayerHero, PathStepList],
+  imports: [SkeletonComponent, EmptyStateComponent, PathPlayerHero, PathStepList],
   templateUrl: './learning-path-player-container.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

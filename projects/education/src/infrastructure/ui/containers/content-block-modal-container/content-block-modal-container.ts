@@ -237,7 +237,8 @@ export class ContentBlockModalContainer {
 
   // ── Video helper ──
   extractYoutubeId(url: string): string {
-    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^?&]+)/);
+    // Solo el alfabeto de un id de YouTube: el id se interpola en una URL de iframe que se marca como segura.
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{6,20})(?![\w-])/);
     return match ? match[1] : '';
   }
 

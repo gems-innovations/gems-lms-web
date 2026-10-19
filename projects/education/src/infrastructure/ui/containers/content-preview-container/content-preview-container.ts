@@ -1,17 +1,18 @@
 import { Component, OnInit, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EmptyStateComponent, EMPTY_STATES, LoadingSkeletonComponent } from 'shared';
+import { EmptyStateComponent, EMPTY_STATES } from 'shared';
 import { PreviewHero } from '../../components/preview-hero/preview-hero';
 import { PreviewCourseOutline } from '../../components/preview-course-outline/preview-course-outline';
 import { PreviewPathSequence } from '../../components/preview-path-sequence/preview-path-sequence';
 import { ContentPreviewUseCase } from '../../../../application/content-preview.usecase';
 import { TPreviewType } from '../../../../domain/model/catalog.model';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'edu-content-preview-container',
   standalone: true,
   host: { style: 'display:block' },
-  imports: [EmptyStateComponent, LoadingSkeletonComponent, PreviewHero, PreviewCourseOutline, PreviewPathSequence],
+  imports: [EmptyStateComponent, SkeletonComponent, PreviewHero, PreviewCourseOutline, PreviewPathSequence],
   templateUrl: './content-preview-container.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

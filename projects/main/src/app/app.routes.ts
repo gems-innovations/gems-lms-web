@@ -18,6 +18,12 @@ const TAPS_SEO: IRouteSeo = {
 };
 /** El Tap de un enlace compartido (/t/:id); import diferido para no sumar las preguntas al bundle inicial. */
 const sharedTap = (id: string | null) => import('./taps/taps.data').then(m => m.findTap(id));
+/** Imagen para compartir del tema del Tap (og/taps-<tema>.jpg, de scripts/generar-og-taps.mjs); sin ella, la general de Taps. */
+const sharedTapImage = (id: string | null): Promise<Pick<IRouteSeo, 'image' | 'imageAlt'>> => import('./taps/taps.data').then(m => {
+  const tap = m.findTap(id);
+  const topic = m.TAP_TOPICS.find(t => t.id === (tap && (tap.topic ?? tap.theme)));
+  return topic ? { image: `/og/taps-${topic.id}.jpg`, imageAlt: `Taps de GEMS LMS: ${topic.name}, ${topic.blurb.toLowerCase()}` } : {};
+});
 
 export const routes: Routes = [
   // ── Público: cursos gratis sin registro (gancho) e instituciones ──────────
@@ -63,8 +69,9 @@ export const routes: Routes = [
     title: (route: ActivatedRouteSnapshot) => sharedTap(route.paramMap.get('id'))
       .then(tap => tap ? `Tap de ${tap.title}: ¿cuánto sabes?` : 'Taps: quizzes que juegas con un personaje en vivo'),
     resolve: {
-      seo: (route: ActivatedRouteSnapshot) => sharedTap(route.paramMap.get('id')).then((tap): IRouteSeo => tap ? {
+      seo: (route: ActivatedRouteSnapshot) => Promise.all([sharedTap(route.paramMap.get('id')), sharedTapImage(route.paramMap.get('id'))]).then(([tap, imagen]): IRouteSeo => tap ? {
         ...TAPS_SEO,
+        ...imagen,
         description: `${tap.questions.length} preguntas de ${tap.title} con un personaje en vivo. «${tap.questions[0].q}» Gratis y sin registro.`,
       } : TAPS_SEO),
     },

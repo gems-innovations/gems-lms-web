@@ -1,4 +1,4 @@
-/** Subdominios que son de la plataforma y no de una institución. */
+/** Subdominios que son de la plataforma y no de una institución (la pantalla de arranque de index.html repite esta lista). */
 const RESERVED = new Set(['www', 'lms', 'api', 'app', 'admin', 'auth', 'edu', 'mail', 'static', 'assets', 'cdn',
   // Ambientes y utilidades: nunca son una institución.
   'dev', 'qa', 'pdn', 'prod', 'staging', 'test', 'preview']);

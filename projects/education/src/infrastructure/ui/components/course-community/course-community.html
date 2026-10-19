@@ -40,7 +40,7 @@
       }
 
       @switch (announcementsState()) {
-        @case ('loading') { <lib-loading-skeleton [rows]="3" /> }
+        @case ('loading') { <lib-skeleton shape="table-row" [count]="3" label="Cargando contenido" /> }
         @case ('error') { <lib-empty-state [copy]="copy.common.error" title="No pudimos cargar los anuncios" (action)="loadAnnouncements()" /> }
         @default {
           @for (a of announcements(); track a.id) {
@@ -166,7 +166,7 @@
         </div>
 
         @switch (threadsState()) {
-          @case ('loading') { <lib-loading-skeleton [rows]="4" /> }
+          @case ('loading') { <lib-skeleton shape="table-row" [count]="4" label="Cargando contenido" /> }
           @case ('error') { <lib-empty-state [copy]="copy.common.error" title="No pudimos cargar el foro" (action)="loadThreads()" /> }
           @default {
             <ul class="ccom__threads">

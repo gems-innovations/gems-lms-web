@@ -2,7 +2,7 @@
 
 @if (uc.isLoading()) {
   <div class="ceditor__loading">
-    <lib-loading-skeleton type="card" [rows]="3" />
+    <lib-skeleton shape="list-item" [count]="3" label="Cargando contenido" />
   </div>
 } @else if (uc.course()) {
   <div class="ceditor__main" [class.ceditor__main--panel]="showPanel()">

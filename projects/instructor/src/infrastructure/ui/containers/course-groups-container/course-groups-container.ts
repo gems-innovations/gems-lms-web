@@ -1,19 +1,17 @@
 import { Component, inject, OnInit, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  PageComponent, PageHeaderComponent, CardGridComponent,
-  LoadingSkeletonComponent, EmptyStateComponent, BackButtonComponent,
-} from 'shared';
+import { PageComponent, PageHeaderComponent, CardGridComponent, EmptyStateComponent, BackButtonComponent } from 'shared';
 import { InstructorCoursesUseCase } from '../../../../application/instructor-courses.usecase';
 import { InstructorCourseCard } from '../../components/instructor-course-card/instructor-course-card';
 import type { ICohort } from '../../../../domain/model/instructor.model';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'ins-course-groups-container',
   standalone: true,
   imports: [
     PageComponent, PageHeaderComponent, CardGridComponent,
-    LoadingSkeletonComponent, EmptyStateComponent, BackButtonComponent, InstructorCourseCard,
+    SkeletonComponent, EmptyStateComponent, BackButtonComponent, InstructorCourseCard,
   ],
   templateUrl: './course-groups-container.html',
   styleUrl: './course-groups-container.scss',

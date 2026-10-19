@@ -1,6 +1,6 @@
 <lib-page width="full">
   @if (uc.isLoading()) {
-    <lib-loading-skeleton [rows]="5" />
+    <lib-skeleton shape="table-row" [count]="5" label="Cargando contenido" />
   } @else {
     <lib-back-button label="Mis cursos" (back)="backToCourses()" />
 

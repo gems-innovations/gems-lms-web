@@ -33,6 +33,21 @@ function institucion(slug: string, color: string): IRegla[] {
 }
 
 test.describe('Humo · subdominio de institución', () => {
+  test('la pantalla de arranque es neutra en el subdominio y lleva la marca GEMS en el dominio principal (H-M)', async ({ page, baseURL }) => {
+    // Sin el JS de Angular la pantalla de arranque se queda visible: es lo que se ve mientras llega el código.
+    await page.route(/\/(?!config\.js)[^/]+\.js(\?.*)?$/, route => route.abort());
+    await apiFalsa(page);
+    await page.goto(enSubdominio(baseURL, 'colegiohumo'));
+    const arranque = page.locator('#gems-arranque');
+    await expect(arranque).toBeVisible();
+    await expect(arranque).toHaveClass(/ga-neutro/);
+    await expect(arranque.locator('.ga-marca')).toBeHidden();
+    expect(await arranque.evaluate(e => (e as HTMLElement).innerText)).not.toContain('GEMS');
+    await page.goto(new URL('/auth/signin', baseURL ?? 'http://localhost:4200').toString());
+    await expect(page.locator('#gems-arranque')).not.toHaveClass(/ga-neutro/);
+    await expect(page.locator('#gems-arranque .ga-marca')).toBeVisible();
+  });
+
   test('con landing propia (knowledgecraft) se muestra la suya', async ({ page, baseURL }) => {
     const api = await apiFalsa(page, { reglas: institucion('knowledgecraft', '#3a7d2c') });
     await page.goto(enSubdominio(baseURL, 'knowledgecraft'));

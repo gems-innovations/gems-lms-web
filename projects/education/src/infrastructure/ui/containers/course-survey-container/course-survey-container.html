@@ -28,7 +28,7 @@
   }
 
   @if (uc.isLoading()) {
-    <lib-loading-skeleton [rows]="4" />
+    <lib-skeleton shape="table-row" [count]="4" label="Cargando contenido" />
   } @else if (uc.submitted()) {
     <lib-empty-state [copy]="copy.student.surveyDone" [headingLevel]="2" [autofocusAction]="true" (action)="goBack()" />
   } @else if (!uc.survey()) {

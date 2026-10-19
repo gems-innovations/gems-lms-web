@@ -1,5 +1,5 @@
 @switch (state()) {
-  @case ('loading') { <lib-loading-skeleton [rows]="5" /> }
+  @case ('loading') { <lib-skeleton shape="table-row" [count]="5" label="Cargando contenido" /> }
   @case ('error') { <p class="erules__error" role="alert">No se pudieron cargar las reglas de inscripción.</p> }
   @default {
     <form class="erules" (submit)="$event.preventDefault(); save()" aria-label="Reglas de inscripción">

@@ -1,12 +1,13 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { IStudentProfile, EnrollStudentSearch, EnrollResultBanner } from 'education';
-import { LoadingSkeletonComponent } from 'shared';
+
 import { AdminEnrollmentManagerUseCase } from '../../../../application/admin-enrollment-manager.usecase';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'adm-enrollment-manager-view',
   standalone: true,
-  imports: [LoadingSkeletonComponent, EnrollStudentSearch, EnrollResultBanner],
+  imports: [SkeletonComponent, EnrollStudentSearch, EnrollResultBanner],
   templateUrl: './enrollment-manager-view.html',
   styleUrl: './enrollment-manager-view.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

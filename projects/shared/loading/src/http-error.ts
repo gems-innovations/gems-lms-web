@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
 /** Tipo de fallo, para elegir icono, texto y si tiene sentido reintentar. */
-export type TLoadErrorKind = 'offline' | 'timeout' | 'not-found' | 'forbidden' | 'session' | 'rate-limit' | 'server' | 'unknown';
+export type TLoadErrorKind = 'offline' | 'timeout' | 'not-found' | 'invalid' | 'forbidden' | 'session' | 'rate-limit' | 'server' | 'unknown';
 
 export interface ILoadErrorInfo {
   kind: TLoadErrorKind;
@@ -47,7 +47,11 @@ export function describeLoadError(error: unknown, what = 'esta información'): I
   if (isTimeout(error) || status === 408 || status === 504) {
     return { kind: 'timeout', title: 'Está tardando más de lo normal', message: `La conexión está lenta y ${what} no alcanzó a llegar. Inténtalo otra vez.`, canRetry: true };
   }
-  if (status === 404 || status === 400 || status === 410) {
+  // 400/422: la petición misma fue rechazada (datos que el servidor no aceptó); no es que algo «no exista» (H-N).
+  if (status === 400 || status === 422) {
+    return { kind: 'invalid', title: 'No pudimos procesar la solicitud', message: 'El servidor no aceptó lo que enviamos. Revisa los datos o recarga la página e inténtalo de nuevo.', canRetry: false };
+  }
+  if (status === 404 || status === 410) {
     return { kind: 'not-found', title: 'No lo encontramos', message: `Puede que ${what} se haya movido o ya no esté disponible.`, canRetry: false };
   }
   if (status === 401) {

@@ -33,8 +33,12 @@ jobs:
       - name: Build estático (el mismo que usa la imagen)
         run: npx ng build main --configuration production,static
 
+  # Humo de regresión sobre el build estático (workflow reutilizable): sin esto en verde no se construye la imagen.
+  humo:
+    uses: ./.github/workflows/humo.yml
+
   image:
-    needs: validate
+    needs: [validate, humo]
     # La VM de Oracle es ARM (Ampere): se compila nativo en un runner ARM, sin emulación.
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 30

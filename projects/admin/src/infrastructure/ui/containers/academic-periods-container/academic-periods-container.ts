@@ -1,9 +1,6 @@
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  PageComponent, PageHeaderComponent, LibButtonComponent, LoadingSkeletonComponent, EmptyStateComponent,
-  ConfirmationDialogComponent, ToastService,
-} from 'shared';
+import { PageComponent, PageHeaderComponent, LibButtonComponent, EmptyStateComponent, ConfirmationDialogComponent, ToastService } from 'shared';
 import { firstValueFrom } from 'rxjs';
 import { EnrollmentRulesService } from 'education';
 import type { IAcademicPeriod } from 'education';
@@ -11,12 +8,13 @@ import { AuthSessionService } from 'auth';
 import { BrandingService } from 'shared';
 import { UserDirectoryService } from '../../../services/user-directory.service';
 import { downloadActaCsv, downloadActaPdf, IActaPerson } from '../../../../application/period-acta';
+import { SkeletonComponent } from 'shared/loading';
 
 /** Academic periods of the institution. Courses use them for their enrollment window. */
 @Component({
   selector: 'adm-academic-periods-container',
   standalone: true,
-  imports: [FormsModule, PageComponent, PageHeaderComponent, LibButtonComponent, LoadingSkeletonComponent,
+  imports: [FormsModule, PageComponent, PageHeaderComponent, LibButtonComponent, SkeletonComponent,
     EmptyStateComponent, ConfirmationDialogComponent],
   templateUrl: './academic-periods-container.html',
   styleUrl: './academic-periods-container.scss',

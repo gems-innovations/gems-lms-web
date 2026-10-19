@@ -14,7 +14,7 @@
 </div>
 
 @if (uc.isLoading()) {
-  <lib-loading-skeleton type="table" [rows]="6" />
+  <lib-skeleton shape="table-row" [count]="6" label="Cargando contenido" />
 } @else if (uc.users().length === 0) {
   <lib-empty-state
     title="No hay usuarios aún"

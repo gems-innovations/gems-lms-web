@@ -70,6 +70,11 @@
     #gems-arranque img{width:72px;height:72px;opacity:0;transition:opacity .2s;animation:ga-respira 2.4s ease-in-out infinite}
     #gems-arranque img.ga-ok{opacity:1}
     #gems-arranque .ga-marca{font-weight:800;font-size:17px;letter-spacing:.02em}
+    /* Subdominio de una institución: arranque neutro (zorro pequeño y barra gris, sin el nombre GEMS) hasta que llegue su marca. */
+    #gems-arranque.ga-neutro img{width:40px;height:40px}
+    #gems-arranque.ga-neutro .ga-marca{display:none}
+    #gems-arranque.ga-neutro .ga-barra{background:rgba(128,128,128,.22)}
+    #gems-arranque.ga-neutro .ga-barra i{background:rgba(128,128,128,.7)}
     #gems-arranque .ga-barra{width:120px;height:3px;border-radius:3px;overflow:hidden;background:rgba(123,111,240,.18)}
     #gems-arranque .ga-barra i{display:block;width:40%;height:100%;border-radius:3px;background:linear-gradient(90deg,#7b6ff0,#4de1ff);animation:ga-barra 1.3s cubic-bezier(.4,0,.2,1) infinite}
     #gems-arranque .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
@@ -95,6 +100,21 @@
     (function () {
       var raiz = document.querySelector('app-root'), el = document.getElementById('gems-arranque');
       if (!raiz || !el || raiz.firstElementChild) { if (el) el.remove(); return; }
+      // ¿Host de una institución (<slug>.<dominio base> o <slug>.localhost)? Mismas reglas que tenant-slug.ts
+      // (resolveTenantSlug): si cambian allí, cambian aquí. Solo toca el cliente: el HTML prerenderizado no cambia.
+      try {
+        var host = location.hostname.toLowerCase(), base = (globalThis.TENANT_BASE_DOMAIN || 'gemsinnovations.com').toLowerCase().replace(/^\./, '');
+        var reservados = 'www lms api app admin auth edu mail static assets cdn dev qa pdn prod staging test preview'.split(' ');
+        [base, 'localhost'].forEach(function (sufijo) {
+          if (!sufijo || host.slice(-(sufijo.length + 1)) !== '.' + sufijo) return;
+          var etiqueta = host.slice(0, -(sufijo.length + 1));
+          if (/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(etiqueta) && reservados.indexOf(etiqueta) < 0) {
+            el.classList.add('ga-neutro');
+            var oculto = el.querySelector('.visually-hidden');
+            if (oculto) oculto.textContent = 'Cargando';
+          }
+        });
+      } catch (_) {}
       document.documentElement.classList.add('gems-arrancando');
       el.querySelector('button').addEventListener('click', function () { location.reload(); });
       setTimeout(function () { el.classList.add('ga-lento'); }, 6000);

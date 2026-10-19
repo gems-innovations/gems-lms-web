@@ -3,12 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { Observable } from 'rxjs';
 import { AuthSessionService } from 'auth';
-import {
-  LibButtonComponent, LoadingSkeletonComponent, PageComponent, PageHeaderComponent, TenantHomeComponent, ToastService,
-} from 'shared';
+import { LibButtonComponent, PageComponent, PageHeaderComponent, TenantHomeComponent, ToastService } from 'shared';
 import { InstitutionUseCase } from '../../../../application/institution.usecase';
 import { HomeService, IHomeVersionSummary, IHomeView, THomeMode } from '../../../services/home.service';
 import { BASE_BANNER_EXAMPLE, BASE_CSS_EXAMPLE, STARTER_CSS, STARTER_HTML } from './home-starter';
+import { SkeletonComponent } from 'shared/loading';
 
 /**
  * Editor de la home de una institución: HTML y CSS (sin JavaScript), borrador, publicación con historial
@@ -16,7 +15,7 @@ import { BASE_BANNER_EXAMPLE, BASE_CSS_EXAMPLE, STARTER_CSS, STARTER_HTML } from
  */
 @Component({
   selector: 'adm-home-editor-container',
-  imports: [FormsModule, DatePipe, PageComponent, PageHeaderComponent, LibButtonComponent, LoadingSkeletonComponent,
+  imports: [FormsModule, DatePipe, PageComponent, PageHeaderComponent, LibButtonComponent, SkeletonComponent,
     TenantHomeComponent],
   templateUrl: './home-editor-container.html',
   styleUrl: './home-editor-container.scss',

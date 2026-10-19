@@ -4,7 +4,8 @@ on:
   push:
     branches: [develop, qa, main]
   pull_request:
-    branches: [develop, qa, main]
+    branches: [develop, qa, main, 'integracion/**']
+  workflow_call:
 
 permissions:
   contents: read
@@ -39,9 +40,7 @@ jobs:
       - name: Run unit tests
         run: npm run test:ci
 
-      - name: Build production application
-        run: npm run build
-
-      # El prerender (build estático, el de producción) no debe hornear datos del API: ver scripts/verificar-prerender.mjs.
-      - name: Build static prerender and verify no API data is baked in
+      # Se compila lo que se despliega: el build estático del Dockerfile (production,static), no el de SSR. El prerender
+      # no debe hornear datos del API: ver scripts/verificar-prerender.mjs.
+      - name: Build static (production,static) and verify no API data is baked in
         run: npx ng build main --configuration production,static && node scripts/verificar-prerender.mjs
