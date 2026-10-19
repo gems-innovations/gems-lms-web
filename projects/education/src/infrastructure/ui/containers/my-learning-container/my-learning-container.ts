@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
-import { LoadingSkeletonComponent, PaginationComponent } from 'shared';
+import { LoadingSkeletonComponent, PaginationComponent, EmptyStateComponent, EMPTY_STATES } from 'shared';
 import { MyLearningUseCase, ICertification } from '../../../../application/my-learning.usecase';
 import { IEnrolledCourseEntry, IEnrolledPathEntry } from '../../../../domain/model/enrollment.model';
 import { ICourseCertificate } from '../../../../domain/model/player.model';
@@ -17,7 +17,7 @@ const PATH_PAGE_SIZE = 6;
   standalone: true,
   imports: [AchievementsCard, 
     LoadingSkeletonComponent, PaginationComponent, CourseProgressCard,
-    CourseCertificate, DecimalPipe, RouterLink,
+    CourseCertificate, DecimalPipe, EmptyStateComponent,
   ],
   templateUrl: './my-learning-container.html',
   styleUrl: './my-learning-container.scss',
@@ -25,6 +25,7 @@ const PATH_PAGE_SIZE = 6;
 export class MyLearningContainer implements OnInit {
   private readonly router = inject(Router);
   protected readonly uc   = inject(MyLearningUseCase);
+  protected readonly copy = EMPTY_STATES;
 
   protected readonly viewingCertificate = signal<ICourseCertificate | null>(null);
 

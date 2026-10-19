@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LearningPathPlayerUseCase } from '../../../../application/learning-path-player.usecase';
-import { LoadingSkeletonComponent, EmptyStateComponent } from 'shared';
+import { LoadingSkeletonComponent, EmptyStateComponent, EMPTY_STATES } from 'shared';
 import { PathPlayerHero } from '../../components/path-player-hero/path-player-hero';
 import { PathStepList } from '../../components/path-step-list/path-step-list';
 import { IStepEntry } from '../../../../domain/model/learning-path.model';
@@ -14,6 +14,7 @@ import { IStepEntry } from '../../../../domain/model/learning-path.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LearningPathPlayerContainer implements OnInit {
+  protected readonly copy = EMPTY_STATES;
   private readonly route  = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly uc   = inject(LearningPathPlayerUseCase);

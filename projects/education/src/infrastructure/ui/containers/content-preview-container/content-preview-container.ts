@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EmptyStateComponent, LoadingSkeletonComponent } from 'shared';
+import { EmptyStateComponent, EMPTY_STATES, LoadingSkeletonComponent } from 'shared';
 import { PreviewHero } from '../../components/preview-hero/preview-hero';
 import { PreviewCourseOutline } from '../../components/preview-course-outline/preview-course-outline';
 import { PreviewPathSequence } from '../../components/preview-path-sequence/preview-path-sequence';
@@ -16,6 +16,7 @@ import { TPreviewType } from '../../../../domain/model/catalog.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContentPreviewContainer implements OnInit {
+  protected readonly copy = EMPTY_STATES;
   /** "Período 2026-2 · Inscripción hasta 30/11/2026 · 12 cupos" for courses with rules. */
   protected readonly enrollmentInfo = computed(() => {
     const e = this.uc.eligibility();

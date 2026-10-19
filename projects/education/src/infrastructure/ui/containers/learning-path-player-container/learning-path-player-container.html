@@ -13,8 +13,5 @@
     (startCourse)="startCourse($event)"
   />
 } @else {
-  <lib-empty-state
-    title="Ruta no encontrada"
-    description="Esta ruta de aprendizaje no existe o no está disponible."
-  />
+  <lib-empty-state [copy]="copy.common.contentGone" title="No encontramos esta ruta" [headingLevel]="2" actionLink="/learn/catalog" />
 }

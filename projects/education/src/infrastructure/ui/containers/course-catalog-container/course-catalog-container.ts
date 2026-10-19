@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CourseCatalogUseCase } from '../../../../application/course-catalog.usecase';
 import { ICatalogItem } from '../../../../domain/model/catalog.model';
 import { CatalogCard } from '../../components/catalog-card/catalog-card';
@@ -7,7 +7,7 @@ import { CatalogFilterBar } from '../../components/catalog-filter-bar/catalog-fi
 import { CatalogHero } from '../../components/catalog-hero/catalog-hero';
 import {
   PageComponent, CardGridComponent,
-  LoadingSkeletonComponent, EmptyStateComponent,
+  LoadingSkeletonComponent, EmptyStateComponent, EMPTY_STATES,
 } from 'shared';
 
 @Component({
@@ -25,9 +25,17 @@ import {
 })
 export class CourseCatalogContainer implements OnInit {
   private readonly router = inject(Router);
+  private readonly route  = inject(ActivatedRoute);
   protected readonly uc   = inject(CourseCatalogUseCase);
+  protected readonly copy = EMPTY_STATES;
 
-  ngOnInit(): void { this.uc.load(); }
+  ngOnInit(): void {
+    // ?tipo=rutas|cursos llega desde los estados vacíos de «Mi aprendizaje».
+    const tipo = this.route.snapshot.queryParamMap.get('tipo');
+    if (tipo === 'rutas') this.uc.setFilterKind('path');
+    else if (tipo === 'cursos') this.uc.setFilterKind('course');
+    this.uc.load();
+  }
 
   protected enroll(item: ICatalogItem): void { this.uc.enroll(item); }
 

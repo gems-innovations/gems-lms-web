@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent,
+  PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent, EMPTY_STATES,
   LibButtonComponent, BackButtonComponent,
 } from 'shared';
 import { CourseSurveyUseCase } from '../../../../application/course-survey.usecase';
@@ -19,6 +19,7 @@ import { CourseSurveyUseCase } from '../../../../application/course-survey.useca
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CourseSurveyContainer implements OnInit {
+  protected readonly copy = EMPTY_STATES;
   private readonly route  = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly uc   = inject(CourseSurveyUseCase);

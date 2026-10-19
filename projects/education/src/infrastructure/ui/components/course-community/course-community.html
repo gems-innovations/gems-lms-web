@@ -41,7 +41,7 @@
 
       @switch (announcementsState()) {
         @case ('loading') { <lib-loading-skeleton [rows]="3" /> }
-        @case ('error') { <lib-empty-state title="Sin datos" description="No se pudieron cargar los anuncios." /> }
+        @case ('error') { <lib-empty-state [copy]="copy.common.error" title="No pudimos cargar los anuncios" (action)="loadAnnouncements()" /> }
         @default {
           @for (a of announcements(); track a.id) {
             <article class="ccom__card" [class.ccom__card--pinned]="a.pinned">
@@ -61,7 +61,9 @@
               <div class="ccom__body markdown-body"><markdown [data]="a.body" /></div>
             </article>
           } @empty {
-            <lib-empty-state title="Sin anuncios" description="Aquí aparecerán los avisos del curso." />
+            @if (!announcementDraft()) {
+              <lib-empty-state [copy]="copy.student.announcements" />
+            }
           }
         }
       }
@@ -165,7 +167,7 @@
 
         @switch (threadsState()) {
           @case ('loading') { <lib-loading-skeleton [rows]="4" /> }
-          @case ('error') { <lib-empty-state title="Sin datos" description="No se pudo cargar el foro." /> }
+          @case ('error') { <lib-empty-state [copy]="copy.common.error" title="No pudimos cargar el foro" (action)="loadThreads()" /> }
           @default {
             <ul class="ccom__threads">
               @for (t of threads(); track t.id) {
@@ -180,7 +182,14 @@
                   </button>
                 </li>
               } @empty {
-                <li><lib-empty-state title="Sin temas" description="Abre el primer tema para hacer una pregunta al grupo." /></li>
+                <li>
+                  @if (search().trim()) {
+                    <lib-empty-state [copy]="copy.common.noSearchResultsFor" [params]="{ q: search().trim() }"
+                                     (action)="search.set(''); applySearch()" />
+                  } @else if (!threadDraft()) {
+                    <lib-empty-state [copy]="copy.student.forum" (action)="newThread()" />
+                  }
+                </li>
               }
             </ul>
             @if (totalPages() > 1) {

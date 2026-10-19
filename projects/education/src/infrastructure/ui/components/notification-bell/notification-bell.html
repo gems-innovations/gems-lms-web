@@ -21,7 +21,7 @@
         <button type="button" class="nbell__close" aria-label="Cerrar notificaciones" (click)="close()">×</button>
       </header>
       @if (service.notifications().length === 0) {
-        <p class="nbell__empty">No tienes notificaciones.</p>
+        <lib-empty-state [copy]="copy.student.notifications" size="sm" [headingLevel]="2" />
       } @else {
         <ul class="nbell__list">
           @for (n of service.notifications(); track n.id) {

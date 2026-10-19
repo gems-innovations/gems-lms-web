@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MarkdownComponent } from 'ngx-markdown';
 import { AuthSessionService } from 'auth';
 import {
-  EmptyStateComponent, LibButtonComponent, LoadingSkeletonComponent, MarkdownEditorComponent, PaginationComponent,
+  EmptyStateComponent, EMPTY_STATES, LibButtonComponent, LoadingSkeletonComponent, MarkdownEditorComponent, PaginationComponent,
   ConfirmationDialogComponent, ToastService,
 } from 'shared';
 import { CourseCommunityService } from '../../../services/course-community.service';
@@ -44,6 +44,7 @@ export class CourseCommunity {
   readonly threadId   = input<string | null>(null);
 
   protected readonly staff  = this.session.isInstructorOrAbove;
+  protected readonly copy   = EMPTY_STATES;
   protected readonly userId = computed(() => this.session.user()?.id ?? '');
   protected readonly tab    = signal<TCommunityTab>('announcements');
 
@@ -102,7 +103,7 @@ export class CourseCommunity {
 
   // ── Announcements ──────────────────────────────────────────────────────────
 
-  private loadAnnouncements(courseId = this.courseId()): void {
+  protected loadAnnouncements(courseId = this.courseId()): void {
     this.announcementsState.set('loading');
     this.service.announcements(courseId).subscribe({
       next: list => { this.announcements.set(list); this.announcementsState.set('ready'); },

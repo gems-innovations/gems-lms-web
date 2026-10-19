@@ -30,17 +30,9 @@
   @if (uc.isLoading()) {
     <lib-loading-skeleton [rows]="4" />
   } @else if (uc.submitted()) {
-    <lib-empty-state
-      title="¡Gracias por tu retroalimentación!"
-      description="Tus respuestas se enviaron correctamente y ayudarán a mejorar el curso."
-      actionLabel="Volver a mi aprendizaje"
-      (action)="goBack()"
-    />
+    <lib-empty-state [copy]="copy.student.surveyDone" [headingLevel]="2" [autofocusAction]="true" (action)="goBack()" />
   } @else if (!uc.survey()) {
-    <lib-empty-state
-      title="Sin encuesta disponible"
-      description="Este curso no tiene una encuesta de retroalimentación publicada."
-    />
+    <lib-empty-state [copy]="copy.student.survey" [headingLevel]="2" (action)="goBack()" />
   } @else if (uc.survey(); as survey) {
     <lib-page-header eyebrow="Retroalimentación" [title]="survey.title" [subtitle]="survey.description ?? ''" />
 
