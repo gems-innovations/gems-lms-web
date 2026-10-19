@@ -3,9 +3,14 @@ import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
+import {
+  ARRIVAL_KEY, INTERNAL_KEY, TEventPath, VISIT_KEY, arrivalEvent, internalFlagFrom, localDay, parseVisitState, visitEvents,
+} from './analytics-taxonomy';
+
+interface IGoatCounterVars { path: string; title?: string; event?: boolean }
 
 interface IGoatCounter {
-  count?: (vars: { path: string; title?: string; event?: boolean }) => void;
+  count?: (vars: IGoatCounterVars) => void;
 }
 
 /** Acciones clave del embudo, para medir conversión y no solo visitas. */
@@ -27,36 +32,85 @@ export function toAnalyticsPath(url: string): string {
   return segments.join('/') || '/';
 }
 
-/** Page views for GoatCounter (cookie-less). The script is in index.html with no_onload, so the router reports every page, the first one included. */
+/**
+ * Page views for GoatCounter (cookie-less). The script is in index.html with no_onload, so the router reports every page,
+ * the first one included. También cuenta la llegada (fuente/video), la primera visita y el regreso, y no cuenta al equipo.
+ */
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  private lastPath: string | null = null;
+  /** Lo que se pidió contar antes de que cargara count.js (async): todas las acciones y solo la última página. */
+  private pending: IGoatCounterVars[] = [];
+  private waiting = false;
 
   start(): void {
     if (!this.isBrowser) return;
+    this.applyInternalFlag();
+    if (this.isInternal()) return;                             // tráfico del equipo: ni páginas ni acciones
+    this.countArrival();
+    this.countVisit();
     this.router.events
       .pipe(
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(event => this.track(toAnalyticsPath(event.urlAfterRedirects)));
+      .subscribe(event => this.send({ path: toAnalyticsPath(event.urlAfterRedirects) }));
   }
 
-  /** Evento de conversión (GoatCounter lo lista aparte de las páginas). Nunca falla ni bloquea. */
-  event(name: TAnalyticsEvent): void {
-    if (!this.isBrowser) return;
-    try { this.counter()?.count?.({ path: name, title: name, event: true }); } catch { /* sin analítica no pasa nada */ }
+  /**
+   * Acción (GoatCounter la lista aparte de las páginas). Nunca falla ni bloquea.
+   * Acepta los nombres antiguos (`taps-ver`) y los de la taxonomía con detalle en el path (`taps/ver/redstone`).
+   */
+  event(name: TAnalyticsEvent | TEventPath): void {
+    if (!this.isBrowser || this.isInternal()) return;
+    try { this.send({ path: name, title: name, event: true }); } catch { /* sin analítica no pasa nada */ }
   }
 
-  private track(path: string): void {
-    this.lastPath = path;
-    if (this.counter()?.count) { this.counter()!.count!({ path }); return; }
-    // The script loads async: report the latest page once it is ready.
+  /** Navegador del equipo: `?interno=1` (o `#toggle-goatcounter` de GoatCounter) deja de contar para siempre en él. */
+  isInternal(): boolean {
+    try { return localStorage.getItem(INTERNAL_KEY) === 't'; } catch { return false; }
+  }
+
+  private applyInternalFlag(): void {
+    const flag = internalFlagFrom(location.search);
+    if (flag === null) return;
+    try { if (flag) localStorage.setItem(INTERNAL_KEY, 't'); else localStorage.removeItem(INTERNAL_KEY); } catch { /* sin almacenamiento */ }
+  }
+
+  /** `llegada/<fuente>[/<video>]`, una vez por pestaña. */
+  private countArrival(): void {
+    try {
+      if (sessionStorage.getItem(ARRIVAL_KEY)) return;
+      const path = arrivalEvent(location.search, document.referrer, location.hostname);
+      sessionStorage.setItem(ARRIVAL_KEY, '1');
+      if (path) this.event(path);
+    } catch { /* sin sessionStorage no se mide la llegada */ }
+  }
+
+  /** `visita/nueva` o `regreso/<tramo>/<cohorte>`: aproximación de D1/D7 sin cookies (marca en localStorage). */
+  private countVisit(): void {
+    try {
+      const { events, state } = visitEvents(localDay(new Date()), parseVisitState(localStorage.getItem(VISIT_KEY)));
+      localStorage.setItem(VISIT_KEY, JSON.stringify(state));
+      events.forEach(path => this.event(path));
+    } catch { /* sin almacenamiento todos parecerían nuevos: mejor no contar */ }
+  }
+
+  private send(vars: IGoatCounterVars): void {
+    const counter = this.counter();
+    if (counter?.count) { counter.count(vars); return; }
+    // count.js carga async: guarda las acciones y la última página, y las envía cuando esté listo.
+    if (!vars.event) this.pending = this.pending.filter(v => v.event);
+    this.pending.push(vars);
+    if (this.waiting) return;
+    this.waiting = true;
     document.getElementById(SCRIPT_ID)?.addEventListener('load', () => {
-      if (this.lastPath !== null) this.counter()?.count?.({ path: this.lastPath });
+      const queued = this.pending;
+      this.pending = [];
+      this.waiting = false;
+      queued.forEach(v => { try { this.counter()?.count?.(v); } catch { /* sin analítica no pasa nada */ } });
     }, { once: true });
   }
 
