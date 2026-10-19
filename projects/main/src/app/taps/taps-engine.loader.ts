@@ -2,7 +2,7 @@ import { ITapsEngineModule } from './taps.types';
 
 /** Dónde vive el motor: archivos estáticos del mismo origen (public/taps-engine), fuera del bundle de Angular. */
 /** Súbelo cuando cambie el motor: los archivos de public/ se cachean un día y esto fuerza la descarga nueva. */
-const TAPS_ENGINE_VERSION = '1';
+const TAPS_ENGINE_VERSION = '2';
 export const TAPS_ENGINE_URL = `/taps-engine/taps-engine.js?v=${TAPS_ENGINE_VERSION}`;
 export const tapsThemeUrl = (theme: string): string => `/taps-engine/themes/${theme}/theme.json`;
 

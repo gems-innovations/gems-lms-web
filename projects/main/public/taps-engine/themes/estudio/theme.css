@@ -1,0 +1,41 @@
+/* Tema «estudio» · capa ligera y globo. Solo aplica dentro de .te-stage[data-theme='estudio'] (no toca otros temas).
+   Los colores salen de theme.json (variables --te-*). Ilustración plana: sin rejilla de bloques ni píxeles. */
+.te-stage[data-theme='estudio'] { background: linear-gradient(var(--te-sky-top, #1E1B4B), var(--te-sky-bottom, #3B2F86) 60%); }
+
+/* «sol» → luz suave redonda; «suelo de bloques» → piso liso con borde de luz */
+.te-stage[data-theme='estudio'] .te-bg::before { right: 10%; top: 7%; width: 20vmin; height: 20vmin; max-width: 120px; max-height: 120px; border-radius: 50%;
+  background: var(--te-planet, #9B8FF8); box-shadow: 0 0 0 10px rgba(255, 255, 255, .06), 0 0 60px 10px rgba(123, 111, 240, .35); opacity: var(--te-sun, .9); }
+.te-stage[data-theme='estudio'] .te-bg::after { height: 50%; box-shadow: inset 0 6px 0 var(--te-accent, #4DE1FF);
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .05) 0 4px, transparent 4px 12.5%), var(--te-ground-dark, #2A2566); }
+.te-stage[data-theme='estudio'][data-world='espacio'] .te-bg {
+  background: radial-gradient(2px 2px at 12% 18%, #fff 50%, transparent 51%), radial-gradient(2px 2px at 30% 40%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 62% 12%, #fff 50%, transparent 51%), radial-gradient(2px 2px at 84% 34%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 46% 26%, #fff 50%, transparent 51%), radial-gradient(1.5px 1.5px at 8% 48%, #fff 50%, transparent 51%),
+    radial-gradient(60% 40% at 20% 20%, rgba(196, 113, 237, .28), transparent 70%); }
+.te-stage[data-theme='estudio'][data-world='espacio'] .te-bg::before { background: #C471ED; box-shadow: 0 0 0 6px rgba(77, 225, 255, .5), 0 0 60px 10px rgba(196, 113, 237, .3); }
+.te-stage[data-theme='estudio'][data-world='espacio'] .te-bg::after { border-radius: 50% 50% 0 0 / 14% 14% 0 0; left: -10%; right: -10%; box-shadow: inset 0 6px 0 #4A4480; background: #3A3566; }
+.te-stage[data-theme='estudio'][data-world='aula'] .te-bg::before { left: 6%; right: 6%; top: 8%; width: auto; height: 38%; max-width: none; max-height: none; border-radius: 12px;
+  background: #1F4A44; box-shadow: 0 0 0 10px #E9E6FF; opacity: 1; }
+
+/* personaje: ilustración (sin pixelado), proporción 4:5, sombra suave en lugar de la sombra dura de bloques */
+.te-stage[data-theme='estudio'] .te-light { top: 17%; height: 32%; aspect-ratio: 4 / 5; }
+.te-stage[data-theme='estudio'] .te-char { image-rendering: auto; filter: drop-shadow(0 10px 8px rgba(8, 7, 16, .35)); animation-name: te-estudio-float; animation-duration: 3s; }
+.te-stage[data-theme='estudio'] .te-light.te-hurt .te-char { filter: drop-shadow(0 10px 8px rgba(8, 7, 16, .35)); }
+@keyframes te-estudio-float { 0%, 100% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(-3%) scale(1.01, .99); } }
+
+/* confeti redondo y en tiras (no cuadritos) */
+.te-stage[data-theme='estudio'] .te-fx i { border-radius: 50%; }
+.te-stage[data-theme='estudio'] .te-fx i:nth-child(2n) { border-radius: 3px; height: 5px; width: 14px; }
+
+/* globo: redondeado, sin borde negro, tipografía del tema */
+.te-stage[data-theme='estudio'] .te-bubble { top: 15%; border: 0; border-radius: 18px; padding: .5em .9em .55em; color: #1E1B4B; background: #fff;
+  box-shadow: 0 6px 18px rgba(8, 7, 16, .35), inset 0 -3px 0 rgba(30, 27, 75, .08); }
+.te-stage[data-theme='estudio'] .te-bubble::after { border: 0; border-radius: 0 0 4px 0; bottom: -6px; width: 14px; height: 14px; }
+.te-stage[data-theme='estudio'] .te-bubble[data-tone='celebrate'] { background: var(--te-good, #34D399); color: #062a1e; }
+.te-stage[data-theme='estudio'] .te-bubble[data-tone='celebrate']::after { background: var(--te-good, #34D399); }
+.te-stage[data-theme='estudio'] .te-bubble[data-tone='hurt'] { background: var(--te-bad, #F87171); color: #3a0b0b; }
+.te-stage[data-theme='estudio'] .te-bubble[data-tone='hurt']::after { background: var(--te-bad, #F87171); }
+
+@media (prefers-reduced-motion: reduce) {
+  .te-stage[data-theme='estudio'] .te-char { animation: none; }
+}
