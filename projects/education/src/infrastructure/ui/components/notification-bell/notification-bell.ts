@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, DestroyRef, ElementRef, PLATFORM_ID, inject, signal, input, viewChild } from '@angular/core';
 import { DatePipe, isPlatformBrowser } from '@angular/common';
+import { EmptyStateComponent, EMPTY_STATES } from 'shared';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval, startWith, switchMap } from 'rxjs';
@@ -10,7 +11,7 @@ const REFRESH_MS = 60_000;
 /** Bell with the unread count and a panel listing the user's notifications. */
 @Component({
   selector: 'edu-notification-bell',
-  imports: [DatePipe],
+  imports: [DatePipe, EmptyStateComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '(document:keydown.escape)': 'closeOnEscape()' },
   templateUrl: './notification-bell.html',
@@ -18,6 +19,7 @@ const REFRESH_MS = 60_000;
 })
 export class NotificationBell {
   protected readonly service = inject(NotificationService);
+  protected readonly copy = EMPTY_STATES;
   private readonly router = inject(Router);
   /** Where the panel opens relative to the bell. */
   readonly align = input<'left' | 'right'>('right');

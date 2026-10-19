@@ -7,7 +7,7 @@ import { celebrate } from 'shared';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, Observable } from 'rxjs';
 import { CoursePlayerUseCase } from '../../../../application/course-player.usecase';
-import { LoadingSkeletonComponent, EmptyStateComponent } from 'shared';
+import { LoadingSkeletonComponent, EmptyStateComponent, EMPTY_STATES } from 'shared';
 import { PlayerTopbar } from '../../components/player-topbar/player-topbar';
 import { PlayerSidebar } from '../../components/player-sidebar/player-sidebar';
 import { PlayerContentBlock } from '../../components/player-content-block/player-content-block';
@@ -35,6 +35,7 @@ const INACTIVITY_THRESHOLD_MS = 5 * 60 * 1000; // 5 min
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQuiz {
+  protected readonly copy = EMPTY_STATES;
   private readonly route  = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly uc   = inject(CoursePlayerUseCase);

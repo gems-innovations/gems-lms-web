@@ -1,27 +1,65 @@
-<div class="empty">
-  <div class="empty__icon">
+<div class="es__art" aria-hidden="true">
+  <svg class="es__decor" viewBox="0 0 160 112" focusable="false">
+    <defs>
+      <radialGradient [attr.id]="gradientId" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" class="es__halo-in" />
+        <stop offset="100%" class="es__halo-out" />
+      </radialGradient>
+    </defs>
+    <ellipse cx="80" cy="56" rx="74" ry="50" [attr.fill]="'url(#' + gradientId + ')'" />
+    <circle class="es__ring" cx="80" cy="56" r="40" />
+    <circle class="es__dot es__dot--a" cx="26" cy="28" r="4.5" />
+    <path class="es__dot es__dot--b" d="M136 18 l6 6 -6 6 -6 -6z" />
+    <circle class="es__dot es__dot--c" cx="140" cy="86" r="3" />
+    <circle class="es__dot es__dot--d" cx="20" cy="84" r="2.5" />
+    @if (resolvedKind() === 'done') {
+      <path class="es__spark es__spark--1" d="M120 40 q2 -8 4 0 q8 2 0 4 q-2 8 -4 0 q-8 -2 0 -4z" />
+      <path class="es__spark es__spark--2" d="M36 52 q1.5 -6 3 0 q6 1.5 0 3 q-1.5 6 -3 0 q-6 -1.5 0 -3z" />
+    }
+  </svg>
+  <span class="es__tile">
     @if (svgIcon()) {
-      <span [innerHTML]="svgIcon()"></span>
+      <span class="es__legacy" [innerHTML]="svgIcon()"></span>
     } @else {
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M22 12h-6l-2 3h-4l-2-3H2" />
-        <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+      <svg class="es__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        @for (d of iconPaths(); track $index) { <svg:path [attr.d]="d" /> }
       </svg>
     }
-  </div>
-
-  <h3 class="empty__title">{{ title() }}</h3>
-
-  @if (description()) {
-    <p class="empty__desc">{{ description() }}</p>
-  }
-
-  @if (actionLabel()) {
-    <button class="empty__btn" type="button" (click)="onAction()">
-      {{ actionLabel() }}
-    </button>
-  }
-
-  <!-- Optional extra content slot -->
-  <ng-content />
+  </span>
 </div>
+
+@switch (headingLevel()) {
+  @case (1) { <h1 class="es__title" [id]="titleId">{{ resolvedTitle() }}</h1> }
+  @case (2) { <h2 class="es__title" [id]="titleId">{{ resolvedTitle() }}</h2> }
+  @case (4) { <h4 class="es__title" [id]="titleId">{{ resolvedTitle() }}</h4> }
+  @default { <h3 class="es__title" [id]="titleId">{{ resolvedTitle() }}</h3> }
+}
+
+@if (resolvedDescription()) {
+  <p class="es__desc" [id]="descId">{{ resolvedDescription() }}</p>
+}
+
+@if (resolvedAction() || resolvedSecondary()) {
+  <div class="es__actions">
+    @if (resolvedAction()) {
+      @if (actionLink(); as link) {
+        <a #primary class="es__btn es__btn--primary" [routerLink]="link" [queryParams]="actionQueryParams()" (click)="onAction()">
+          {{ resolvedAction() }}
+        </a>
+      } @else {
+        <button #primary class="es__btn es__btn--primary" type="button" (click)="onAction()">{{ resolvedAction() }}</button>
+      }
+    }
+    @if (resolvedSecondary()) {
+      @if (secondaryLink(); as link) {
+        <a class="es__btn es__btn--secondary" [routerLink]="link" (click)="onSecondary()">{{ resolvedSecondary() }}</a>
+      } @else {
+        <button class="es__btn es__btn--secondary" type="button" (click)="onSecondary()">{{ resolvedSecondary() }}</button>
+      }
+    }
+  </div>
+}
+
+<!-- Contenido extra opcional (enlaces de ayuda, listas cortas…) -->
+<ng-content />

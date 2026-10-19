@@ -4,7 +4,7 @@ import { DecimalPipe } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { MarkdownComponent } from 'ngx-markdown';
 import {
-  PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent, BackButtonComponent,
+  PageComponent, PageHeaderComponent, LoadingSkeletonComponent, EmptyStateComponent, BackButtonComponent, EMPTY_STATES,
 } from 'shared';
 import { CourseService } from '../../../services/course.service';
 import { EnrollmentService } from '../../../services/enrollment.service';
@@ -38,6 +38,7 @@ export class StudentGradesContainer implements OnInit {
   private readonly enrollments = inject(EnrollmentService);
   private readonly gradebooks  = inject(GradebookService);
 
+  protected readonly copy        = EMPTY_STATES;
   protected readonly loading     = signal(true);
   protected readonly error       = signal<string | null>(null);
   protected readonly course      = signal<ICourse | null>(null);
@@ -71,8 +72,12 @@ export class StudentGradesContainer implements OnInit {
     });
   });
 
-  ngOnInit(): void {
-    this.courseId = this.route.snapshot.paramMap.get('id') ?? '';
+  ngOnInit(): void { this.reload(); }
+
+  protected reload(): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.courseId ||= this.route.snapshot.paramMap.get('id') ?? '';
     forkJoin({
       course: this.courses.getCourseById(this.courseId),
       book: this.gradebooks.mine(this.courseId),

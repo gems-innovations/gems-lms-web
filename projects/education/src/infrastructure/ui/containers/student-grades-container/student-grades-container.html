@@ -8,11 +8,11 @@
   @if (loading()) {
     <lib-loading-skeleton [rows]="6" />
   } @else if (error()) {
-    <lib-empty-state title="Sin datos" [description]="error()!" />
+    <lib-empty-state [copy]="copy.common.error" title="No pudimos cargar tus notas" [description]="error()!" (action)="reload()" />
   } @else if (!row()) {
-    <lib-empty-state title="No estás inscrito" description="Inscríbete en el curso para ver tus calificaciones." />
+    <lib-empty-state [copy]="copy.student.gradesNotEnrolled" actionLink="/learn/catalog" />
   } @else if (lines().length === 0) {
-    <lib-empty-state title="Sin evaluaciones" description="Este curso no tiene quizzes ni tareas calificables." />
+    <lib-empty-state [copy]="copy.student.gradesNone" (action)="backToCourse()" />
   } @else {
     <section class="sgrades__summary" aria-label="Nota del curso">
       <div class="sgrades__summary-card">

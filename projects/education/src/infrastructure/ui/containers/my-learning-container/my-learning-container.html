@@ -45,13 +45,13 @@
         }
 
         @if (filteredCourses().length === 0) {
-          <div class="mlearning__empty">
-            @if (courseSearch()) {
-              <p>Sin resultados para "<strong>{{ courseSearch() }}</strong>".</p>
-            } @else {
-              <p>No tienes cursos aún. <a class="mlearning__link" routerLink="/learn/catalog">Explorar catálogo</a></p>
-            }
-          </div>
+          @if (courseSearch()) {
+            <lib-empty-state [copy]="copy.common.noSearchResultsFor" [params]="{ q: courseSearch() }" size="sm" [framed]="true"
+                             (action)="courseSearch.set('')" />
+          } @else {
+            <lib-empty-state [copy]="copy.student.myCourses" [framed]="true"
+                             actionLink="/learn/catalog" secondaryLink="/taps" />
+          }
         } @else {
           <div class="mlearning__course-grid">
             @for (entry of pagedCourses(); track entry.enrollment.id) {
@@ -97,13 +97,13 @@
         }
 
         @if (filteredPaths().length === 0) {
-          <div class="mlearning__empty">
-            @if (pathSearch()) {
-              <p>Sin resultados para "<strong>{{ pathSearch() }}</strong>".</p>
-            } @else {
-              <p>No estás inscrito en ninguna ruta. <a class="mlearning__link" routerLink="/learn/catalog">Ver catálogo</a></p>
-            }
-          </div>
+          @if (pathSearch()) {
+            <lib-empty-state [copy]="copy.common.noSearchResultsFor" [params]="{ q: pathSearch() }" size="sm" [framed]="true"
+                             (action)="pathSearch.set('')" />
+          } @else {
+            <lib-empty-state [copy]="copy.student.myPaths" size="sm" [framed]="true"
+                             actionLink="/learn/catalog" [actionQueryParams]="{ tipo: 'rutas' }" />
+          }
         } @else {
           <div class="mlearning__path-grid">
             @for (entry of pagedPaths(); track entry.enrollment.id) {
@@ -168,13 +168,12 @@
         }
 
         @if (filteredCerts().length === 0) {
-          <div class="mlearning__empty">
-            @if (certSearch()) {
-              <p>Sin resultados para "<strong>{{ certSearch() }}</strong>".</p>
-            } @else {
-              <p>Aún no tienes certificaciones.</p>
-            }
-          </div>
+          @if (certSearch()) {
+            <lib-empty-state [copy]="copy.common.noSearchResultsFor" [params]="{ q: certSearch() }" size="sm" [framed]="true"
+                             (action)="certSearch.set('')" />
+          } @else {
+            <lib-empty-state [copy]="copy.student.certificates" size="sm" [framed]="true" />
+          }
         } @else {
           <div class="mlearning__cert-grid">
             @for (cert of pagedCerts(); track cert.id) {
@@ -264,7 +263,7 @@
               </div>
             </div>
           } @empty {
-            <p class="mlearning__widget-empty">No tienes entregas con fecha próxima.</p>
+            <lib-empty-state class="mlearning__widget-empty" [copy]="copy.student.deadlines" size="sm" [headingLevel]="4" />
           }
         </div>
       </section>

@@ -1,52 +1,202 @@
-.empty {
+// Estado vacío informativo. Usa los tokens de design-system.scss; los de vidrio y movimiento
+// (--glass-*, --dur-*, --curva-*) llegan con el sistema visual y aquí tienen valores de respaldo.
+:host {
+  --es-tinte: var(--color-primario);
+  --es-tinte-2: var(--color-acento);
+  --es-tinte-3: var(--color-magenta);
+  --es-art: 144px;
+  --es-tile: 64px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 48px 32px;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-3xl) var(--spacing-xl);
   text-align: center;
+  color: var(--color-texto-principal);
+  animation: es-aparecer var(--dur-enfasis, 320ms) var(--curva-salida, cubic-bezier(0.16, 1, 0.3, 1)) both;
+}
 
-  &__icon {
-    width: 64px;
-    height: 64px;
-    background: var(--color-superficie-alta);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 8px;
-    color: var(--color-primario);
-  }
+// ── Tipos: solo cambian el tinte del arte ───────────────────────────────────
+:host([data-kind='no-results']) { --es-tinte: var(--color-acento); --es-tinte-2: var(--color-primario); }
+:host([data-kind='done']) { --es-tinte: var(--color-exito); --es-tinte-2: var(--color-acento); --es-tinte-3: var(--color-advertencia); }
+:host([data-kind='no-access']) { --es-tinte: var(--color-magenta); --es-tinte-2: var(--color-primario); }
+:host([data-kind='error']) { --es-tinte: var(--color-error); --es-tinte-2: var(--color-advertencia); --es-tinte-3: var(--color-magenta); }
+:host([data-kind='info']) { --es-tinte-2: var(--color-teal); }
 
-  &__title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--color-texto-principal);
-    margin: 0;
-  }
+:host(.es--sm) {
+  --es-art: 104px;
+  --es-tile: 48px;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
 
-  &__desc {
-    font-size: 13.5px;
-    color: var(--color-texto-secundario);
-    margin: 0;
-    max-width: 360px;
-    line-height: 1.6;
-  }
+:host(.es--framed) {
+  border-radius: var(--radio-tarjeta, var(--border-radius-xl));
+  border: 1px solid var(--glass-borde, var(--color-borde-principal));
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--es-tinte) 7%, transparent), transparent 55%),
+    var(--color-tarjeta);
+  box-shadow: inset 0 1px 0 var(--glass-luz, rgba(255, 255, 255, 0.06));
+}
 
-  &__btn {
-    margin-top: 8px;
-    padding: 8px 20px;
-    background: var(--color-primario-accion);
-    color: var(--color-sobre-primario);
-    border: none;
-    border-radius: 8px;
-    font-size: 13.5px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background .15s;
+// ── Arte: halo + figuras de marca + placa de vidrio con el icono ────────────
+.es__art {
+  position: relative;
+  width: var(--es-art);
+  aspect-ratio: 160 / 112;
+  display: grid;
+  place-items: center;
+  margin-bottom: var(--spacing-xs);
+}
 
-    &:hover { filter: brightness(1.08); }
-    &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
-  }
+.es__decor {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.es__halo-in { stop-color: var(--es-tinte); stop-opacity: 0.22; }
+.es__halo-out { stop-color: var(--es-tinte); stop-opacity: 0; }
+
+.es__ring {
+  fill: none;
+  stroke: color-mix(in srgb, var(--es-tinte) 35%, transparent);
+  stroke-width: 1.2;
+}
+:host([data-kind='no-results']) .es__ring { stroke-dasharray: 3 6; }
+:host([data-kind='error']) .es__ring { stroke-dasharray: 10 5; }
+
+.es__dot--a { fill: var(--es-tinte-2); opacity: 0.85; }
+.es__dot--b { fill: var(--es-tinte-3); opacity: 0.8; }
+.es__dot--c { fill: var(--es-tinte); opacity: 0.7; }
+.es__dot--d { fill: var(--es-tinte-2); opacity: 0.5; }
+.es__spark { fill: var(--es-tinte-3); opacity: 0.9; transform-box: fill-box; transform-origin: center; }
+
+.es__tile {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--es-tile);
+  height: var(--es-tile);
+  border-radius: calc(var(--es-tile) * 0.32);
+  color: color-mix(in srgb, var(--es-tinte) 72%, var(--color-texto-principal));
+  background:
+    linear-gradient(155deg, var(--glass-brillo, rgba(255, 255, 255, 0.14)), transparent 58%),
+    color-mix(in srgb, var(--es-tinte) 16%, var(--glass-fondo, rgba(255, 255, 255, 0.06)));
+  border: 1px solid color-mix(in srgb, var(--es-tinte) 34%, var(--glass-borde, rgba(255, 255, 255, 0.14)));
+  box-shadow:
+    inset 0 1px 0 var(--glass-luz, rgba(255, 255, 255, 0.22)),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+    0 10px 24px -10px color-mix(in srgb, var(--es-tinte) 70%, transparent);
+  transform: rotate(-4deg);
+}
+
+.es__legacy { display: inline-flex; }
+.es__icon { width: calc(var(--es-tile) * 0.44); height: calc(var(--es-tile) * 0.44); }
+
+// ── Texto ───────────────────────────────────────────────────────────────────
+.es__title {
+  margin: 0;
+  max-width: 34ch;
+  font-family: var(--font-titulo);
+  font-size: var(--texto-titulo-3, var(--font-size-lg));
+  font-weight: var(--font-weight-bold);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--color-texto-principal);
+  text-wrap: balance;
+}
+
+.es__desc {
+  margin: 0;
+  max-width: 46ch;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--color-texto-secundario);
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+
+:host(.es--sm) .es__title { font-size: var(--font-size-base); }
+:host(.es--sm) .es__desc { font-size: 0.8125rem; }
+
+// ── Acciones ────────────────────────────────────────────────────────────────
+.es__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.es__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px; // objetivo táctil cómodo en el celular
+  padding: 0 var(--spacing-xl);
+  border-radius: var(--radio-control, var(--border-radius-lg));
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-rapida, 120ms) var(--curva-estandar, ease),
+    border-color var(--dur-rapida, 120ms) var(--curva-estandar, ease),
+    transform var(--dur-instante, 80ms) var(--curva-estandar, ease);
+
+  &:active { transform: scale(var(--presion-escala, 0.97)); }
+  &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; }
+}
+
+.es__btn--primary {
+  border: 1px solid transparent;
+  background: var(--color-primario-accion);
+  color: var(--color-sobre-primario);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 6px 16px -8px var(--color-primario);
+
+  &:hover { background: var(--color-primario-profundo); }
+}
+
+.es__btn--secondary {
+  border: 1px solid var(--color-borde-secundario);
+  background: var(--glass-fondo, var(--color-tarjeta));
+  color: var(--color-texto-principal);
+
+  &:hover { background: var(--color-fondo-hover); border-color: var(--color-borde-activo); }
+}
+
+:host(.es--sm) .es__btn { min-height: 40px; padding: 0 var(--spacing-lg); font-size: 0.8125rem; }
+
+// En el celular las acciones se apilan a todo el ancho: más fácil de tocar con el pulgar.
+@media (max-width: 480px) {
+  :host { padding: var(--spacing-2xl) var(--spacing-lg); }
+  .es__actions { flex-direction: column; align-self: stretch; align-items: stretch; }
+  .es__btn { white-space: normal; }
+}
+
+// ── Movimiento: entra una vez y se queda quieto ─────────────────────────────
+@keyframes es-aparecer { from { opacity: 0; transform: translateY(8px); } }
+@keyframes es-chispa { 0% { opacity: 0; transform: scale(0.4); } 60% { opacity: 1; transform: scale(1.15); } 100% { transform: scale(1); } }
+@keyframes es-placa { from { transform: rotate(-4deg) scale(0.9); } }
+
+.es__tile { animation: es-placa var(--dur-lenta, 480ms) var(--curva-rebote, cubic-bezier(0.2, 1.4, 0.4, 1)) both; }
+.es__spark--1 { animation: es-chispa 520ms 180ms var(--curva-salida, ease-out) both; }
+.es__spark--2 { animation: es-chispa 520ms 300ms var(--curva-salida, ease-out) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  :host, .es__tile, .es__spark { animation: none; }
+  .es__btn { transition: none; }
+  .es__btn:active { transform: none; }
+}
+:host-context(.reduce-motion) {
+  animation: none;
+  .es__tile, .es__spark { animation: none; }
+  .es__btn:active { transform: none; }
 }

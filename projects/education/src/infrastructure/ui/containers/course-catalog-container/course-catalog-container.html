@@ -14,16 +14,16 @@
     <lib-loading-skeleton type="card" [rows]="6" />
   } @else if (uc.loadError()) {
     <lib-empty-state
+      [copy]="copy.common.error"
+      [headingLevel]="2"
       title="No pudimos cargar el catálogo"
       description="Comprueba tu conexión e inténtalo de nuevo. Tus filtros se conservarán."
-      actionLabel="Reintentar"
       (action)="uc.load()"
     />
+  } @else if (uc.totalAvailable() === 0) {
+    <lib-empty-state [copy]="copy.student.catalogEmpty" [headingLevel]="2" actionLink="/taps" />
   } @else if (uc.filtered().length === 0) {
-    <lib-empty-state
-      title="Sin resultados"
-      description="No se encontraron resultados con esos filtros."
-    />
+    <lib-empty-state [copy]="copy.student.catalogNoResults" [headingLevel]="2" (action)="uc.clearFilters()" />
   } @else {
     <lib-card-grid>
       @for (item of uc.pagedItems(); track item.id) {

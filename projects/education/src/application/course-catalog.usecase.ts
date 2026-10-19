@@ -57,6 +57,10 @@ export class CourseCatalogUseCase {
   });
 
   readonly totalCount  = computed(() => this.filtered().length);
+  /** Elementos publicados sin filtrar: distingue «catálogo vacío» de «los filtros no encuentran nada». */
+  readonly totalAvailable   = computed(() => this._allItems().length);
+  readonly hasActiveFilters = computed(() =>
+    !!this._search() || this._filterKind() !== 'all' || this._filterLevel() !== 'all');
   readonly totalPages  = computed(() => Math.max(1, Math.ceil(this.filtered().length / CATALOG_PAGE_SIZE)));
   readonly pagedItems  = computed(() => {
     const p = this._page();
@@ -151,6 +155,12 @@ export class CourseCatalogUseCase {
   setSearch(q: string): void { this._search.set(q); }
   setFilterKind(kind: TCatalogKindFilter): void { this._filterKind.set(kind); }
   setFilterLevel(level: TCatalogLevelFilter): void { this._filterLevel.set(level); }
+  clearFilters(): void {
+    this._search.set('');
+    this._filterKind.set('all');
+    this._filterLevel.set('all');
+    this._page.set(1);
+  }
   setPage(p: number): void { this._page.set(p); }
   prevPage(): void { this._page.update(p => Math.max(1, p - 1)); }
   nextPage(): void { this._page.update(p => Math.min(this.totalPages(), p + 1)); }

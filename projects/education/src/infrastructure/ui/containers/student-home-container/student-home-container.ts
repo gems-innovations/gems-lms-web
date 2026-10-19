@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoadingSkeletonComponent, EmptyStateComponent } from 'shared';
+import { LoadingSkeletonComponent, EmptyStateComponent, EMPTY_STATES } from 'shared';
 import { StudentHomeUseCase } from '../../../../application/student-home.usecase';
 import { IEnrolledCourseEntry } from '../../../../domain/model/enrollment.model';
 import { StudentHero } from '../../components/student-hero/student-hero';
@@ -25,6 +25,7 @@ import { ICatalogItem } from '../../../../domain/model/catalog.model';
 export class StudentHomeContainer implements OnInit {
   private readonly router = inject(Router);
   protected readonly uc   = inject(StudentHomeUseCase);
+  protected readonly copy = EMPTY_STATES;
 
   ngOnInit(): void { this.uc.load(); }
 

@@ -76,8 +76,11 @@
 
       @if (uc.enrolledCourses().length === 0 && uc.popularCourses().length === 0) {
         <lib-empty-state
-          title="Sin cursos por ahora"
-          description="Explora el catálogo y matricúlate en un curso para iniciar tu recorrido."
+          [copy]="copy.student.home"
+          [headingLevel]="2"
+          [framed]="true"
+          actionLink="/learn/catalog"
+          secondaryLink="/taps"
         />
       }
     </main>

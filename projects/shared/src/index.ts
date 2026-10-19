@@ -52,6 +52,10 @@ export { ProgressBarComponent } from "./infrastructure/ui/components/progress-ba
 export type { ProgressVariant, ProgressSize } from "./infrastructure/ui/components/progress-bar/progress-bar.component";
 
 export { EmptyStateComponent } from "./infrastructure/ui/components/empty-state/empty-state.component";
+export { EMPTY_STATES, EMPTY_STATE_LIMITS } from "./infrastructure/ui/components/empty-state/empty-states.copy";
+export type { EmptyStateCopy, EmptyStateKind } from "./infrastructure/ui/components/empty-state/empty-states.copy";
+export { EMPTY_STATE_ICONS } from "./infrastructure/ui/components/empty-state/empty-state.icons";
+export type { EmptyStateIcon } from "./infrastructure/ui/components/empty-state/empty-state.icons";
 
 export { ColorPickerComponent } from "./infrastructure/ui/components/color-picker/color-picker.component";
 
