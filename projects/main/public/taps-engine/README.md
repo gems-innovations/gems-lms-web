@@ -13,6 +13,8 @@ public/taps-engine/
 ├─ taps-engine.css           estilos de la capa ligera y del globo de diálogo (usan variables --te-* del tema)
 ├─ demo.html                 demo estática: un quiz de 50 líneas manejando el motor  (…/taps-engine/demo.html?tap=redstone&debug)
 ├─ taps/*.json               Taps de ejemplo en formato de datos (los usa la demo; ?tap=<id>)
+├─ audio/                  efectos de sonido sintetizados por código (efectos.js, puro) y reproductor Web Audio (sonido.js)
+├─ voz/                    voz de los personajes: perfiles por personaje, efectos de voz y motores (Web Speech, audios pregenerados, modelo local)
 └─ themes/
    ├─ minecraft/             tema 1 · 3D con WebGL: personajes de bloques
    │  ├─ theme.json          datos: personajes, mundos, colores, sonidos, reacciones, cámara
@@ -65,10 +67,12 @@ stage.say('¡Hola!');                                 // globo de diálogo (stag
 | `setScene({world, host, item})` | Cambia mundo, personaje y objeto en la mano (claves del tema) |
 | `preload(sceneSpec)` | Deja listo, sin mostrar, el siguiente escenario (llamar en reposo) |
 | `react(name)` | Anim + efecto + sonido + partículas + frase de `theme.reactions[name]` |
-| `say(text, {ms, hold, tone})` | Globo sobre la cabeza |
+| `say(text, {ms, hold, tone, voz, globo})` | Globo sobre la cabeza. Con voz conectada (`setVoz`) también lo dice en voz alta con el perfil del personaje en escena; `voz: false` = solo globo, `globo: false` = solo voz |
+| `setVoz(voz)` (o `null`) | Conecta una voz `{hablar(texto, personaje), callar()}` (p. ej. `crearVoz().paraMotor()` de `voz/voz.js`). Mientras habla, el personaje usa la animación `talk` |
 | `pause()` / `resume()` | Detiene/reanuda el dibujo (el feed lo usa fuera de pantalla) |
 | `attachTo(el)` | Mueve el escenario entero a otro contenedor (el feed usa **un** escenario para todos los Taps) |
 | `setMuted(bool)`, `sfx(name)` | Sonido (el audio arranca tras el primer gesto del usuario) |
+| `create(…, {audio})` | Opcional: `audio = {play(name, {theme})}` (p. ej. `crearSonido().paraMotor()` de `audio/sonido.js`). El motor no crea su propio AudioContext y le pasa cada sonido de `theme.json` por nombre; silencio, desbloqueo y pausa quedan en manos de la app. Así lo usa el feed: un solo AudioContext y efectos propios generados por código (ver `producto/taps/voz-y-sonido.md`) |
 | `on('mode' \| 'degrade', fn)` | Eventos: `{mode, reason, tier}` / `{step}` |
 | `destroy()` | Libera todo (incluido el contexto WebGL) |
 

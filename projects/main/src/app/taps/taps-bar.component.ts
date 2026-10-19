@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ITapTopic } from './taps.types';
 
 /**
- * Barra superior del feed de Taps: marca GEMS LMS (lleva a la portada), sonido y selector de temas.
+ * Barra superior del feed de Taps: marca GEMS LMS (lleva a la portada), sonido, voz del personaje y selector de temas.
  * El selector es una hoja inferior (nunca un modal centrado, experiencia-ux.md §8.5) con «Para ti» y las categorías;
  * las que aún no tienen Taps se ven como «Pronto». Al elegir, el feed salta a esos Taps y la URL queda `?tema=<id>`.
  */
@@ -26,6 +26,19 @@ import { ITapTopic } from './taps.types';
           @if (sound() === 'pending') { <span class="bar__tip">{{ desktop() ? 'Clic o M para sonido' : 'Toca para sonido' }}</span> }
         }
       </button>
+      <!-- «Voz»: el personaje lee la pregunta (apagada por defecto). Su lugar está reservado desde el primer pintado (sin saltos
+           al hidratar); mientras no se sabe si hay voz, o si el dispositivo no tiene, el botón ocupa espacio pero no se ve ni se enfoca. -->
+      @let v = voice();
+      <button type="button" class="glass bar__pill bar__voice" [class.is-reserved]="v !== 'on' && v !== 'off'" (click)="toggleVoice.emit()"
+              [attr.aria-pressed]="v === 'on'" [attr.aria-hidden]="v !== 'on' && v !== 'off' ? 'true' : null"
+              [attr.tabindex]="v !== 'on' && v !== 'off' ? -1 : null" aria-label="Voz del personaje" aria-describedby="taps-voz-nota">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M4 5h16v10H10l-5 4v-4H4Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+            @if (v === 'on') { <path d="M8 10h.01M12 8v4M16 9v2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/> }
+            @else { <path d="M3 3l18 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/> }
+          </svg>
+      </button>
+      <span id="taps-voz-nota" class="visually-hidden">Lee las preguntas en voz alta. Si usas lector de pantalla, puedes dejarla apagada.</span>
       <button type="button" class="glass bar__pill bar__topics" (click)="open()" aria-haspopup="dialog" [attr.aria-label]="'Temas: ' + topicName()">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>
         <span>{{ topicName() }}</span>
@@ -75,6 +88,10 @@ import { ITapTopic } from './taps.types';
     .bar__pill { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 48px; min-height: 48px; padding: 0 12px; border-radius: 999px;
       font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
     .bar__sound { position: relative; }
+    /* Con el botón de voz no caben marca, sonido, voz y temas en 320 px: el nombre de la marca se oculta (queda el logo). */
+    .bar__voice.is-reserved { visibility: hidden; pointer-events: none; }
+    @media (max-width: 359px) { .bar__brand span { display: none; } }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     /* Aviso «Toca para sonido» bajo el botón (fuera del flujo: la barra cabe en 320 px) y bajo la barra de progreso. */
     .bar__tip { position: absolute; top: calc(100% + 16px); left: 0; padding: 4px 10px; border-radius: 999px; font-size: 13px; white-space: nowrap;
       background: rgba(8, 10, 14, .72); border: 1px solid rgba(255, 255, 255, .18); pointer-events: none; }
@@ -112,12 +129,15 @@ import { ITapTopic } from './taps.types';
 export class TapsBarComponent {
   private readonly injector = inject(Injector);
   readonly sound = input<'pending' | 'on' | 'off'>('pending');
+  /** Voz del personaje; `null` = aún no se sabe y `'none'` = sin voz utilizable (el botón reserva su lugar pero no se ve). */
+  readonly voice = input<'on' | 'off' | 'none' | null>(null);
   readonly topic = input<string | null>(null);
   readonly topicName = input('Para ti');
   readonly desktop = input(false);
   readonly topics = input<{ topic: ITapTopic; count: number; soon: boolean }[]>([]);
 
   readonly toggleSound = output<void>();
+  readonly toggleVoice = output<void>();
   readonly topicChange = output<string | null>();
   /** Abierta o cerrada: el feed pausa la cuenta atrás mientras se elige. */
   readonly sheetChange = output<boolean>();

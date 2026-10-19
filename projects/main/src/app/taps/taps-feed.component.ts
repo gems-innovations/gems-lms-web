@@ -25,9 +25,11 @@ import {
 import { keyAction, typingTarget } from './taps.keys';
 import { panelCards, panelState } from './taps.panel';
 import { WheelGate } from './taps.wheel';
+import { TapsSonidoService } from './taps-sonido.service';
 import { ITap, ITapRun, ITapsStage } from './taps.types';
 
 const SOUND_KEY = 'gems-taps-sound';
+const VOZ_KEY = 'gems-taps-voz';
 const TEACH_KEY = 'gems-taps-ensenar';
 const RUNS_KEY = 'gems-taps-partidas';
 const KEYS_KEY = 'gems-taps-atajos';
@@ -61,6 +63,7 @@ interface IPreAnswer { id: string; k: number; t: number }
   templateUrl: './taps-feed.component.html',
   styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.escritorio.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [TapsSonidoService],
 })
 export class TapsFeedComponent {
   private readonly platform = inject(PLATFORM_ID);
@@ -73,6 +76,8 @@ export class TapsFeedComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly status = inject(AppStatusService);
   private readonly isBrowser = isPlatformBrowser(this.platform);
+  /** Efectos (sintetizados por código) y voz de los personajes: taps-engine/audio y taps-engine/voz, cargados bajo demanda. */
+  private readonly audio = inject(TapsSonidoService);
 
   private readonly snapshot = inject(ActivatedRoute).snapshot;
   private readonly query = this.snapshot.queryParamMap;
@@ -97,6 +102,8 @@ export class TapsFeedComponent {
   protected readonly activeId = signal(this.taps()[0].id);
   /** Sonido: arranca en silencio con el aviso «Toca para sonido»; el primer toque en una opción lo enciende (salvo que la persona lo haya apagado). */
   protected readonly sound = signal<TSound>('pending');
+  /** Voz del personaje (lee la pregunta): apagada por defecto y se recuerda. `null` = aún no se sabe; `'none'` = sin voz utilizable. */
+  protected readonly voice = signal<'on' | 'off' | 'none' | null>(null);
   /** Estado del escenario: cargando → poster (capa ligera ya visible, el 3D aún no) → 3d | light (ligero) | none (sin tema ni motor: el quiz sigue en DOM sobre el degradado). */
   protected readonly stageMode = signal<TStageMode>('loading');
   /** Esqueleto del personaje: tras 300 ms sin escenario y al menos 500 ms (reglas de carga de GEMS). */
@@ -193,6 +200,7 @@ export class TapsFeedComponent {
       this.stages.clear();
       this.stage = null;
       this.gate?.dispose();
+      this.audio.destruir();
     });
     // Vuelve la red: se reintenta solo lo que falló (el tema del escenario), sin recargar la página.
     effect(() => {
@@ -205,6 +213,7 @@ export class TapsFeedComponent {
       performance.mark?.('taps-interactive');
       this.live.set(true);
       this.sound.set(this.readStorage(SOUND_KEY) === 'off' ? 'off' : this.readStorage(SOUND_KEY) === 'on' ? 'on' : 'pending');
+      this.startAudio();
       this.interest.set(parseInterest(this.readStorage(INTEREST_KEY), Date.now()));
       this.shortcuts.set(this.readStorage(KEYS_KEY) !== 'off');
       this.menuInverted.set(this.readStorage(MENU_KEY) === 'inv');
@@ -279,7 +288,10 @@ export class TapsFeedComponent {
     this.notice.set(null);
     this.track('taps-responder', `taps/responder/${eventSlug(tap.id)}/${run.answers.length}`);
     this.countFirstTouch(pre);
-    if (this.sound() === 'pending') { this.sound.set('on'); this.stage?.setMuted(false); }   // el primer toque enciende el sonido
+    if (this.sound() !== 'off') this.audio.desbloquear();          // dentro del gesto: el navegador solo deja sonar así
+    if (this.sound() === 'pending') { this.sound.set('on'); this.stage?.setMuted(false); this.audio.silenciar(false); }   // el primer toque enciende el sonido
+    this.audio.callar();
+    this.answerSound(tap, run, correct);
     if (!pre) this.vibrate(correct);
     if (tap.id === this.activeId()) this.stage?.react(correct ? 'celebrate' : 'hurt', { say: false });
     const ms = advanceDelay(correct, pre ? performance.now() - pre.t : 0);
@@ -303,8 +315,10 @@ export class TapsFeedComponent {
     this.signal(tap, 'repeat');
     this.setRun(tap, startRun(tap));
     this.questionShownAt = performance.now();
+    this.audio.tocar('toque', { tema: tap.theme });
     this.stage?.say('');
     this.stage?.react('ask');
+    this.readQuestion(tap);
     this.focusLater(tap, '.tap__q');
   }
 
@@ -340,14 +354,17 @@ export class TapsFeedComponent {
       this.focusLater(tap, '.res__title');
     } else {
       this.questionShownAt = performance.now();
-      if (tap.id === this.activeId()) this.stage?.react('ask', { say: false });
+      if (tap.id === this.activeId()) { this.stage?.react('ask', { say: false }); this.readQuestion(tap); }
       this.focusLater(tap, '.tap__q');
       if (run.index === 2) this.preloadAhead(this.activeIndex);   // llega a la pregunta 3: se adelanta el escenario de los siguientes
     }
   }
 
   private onFinished(tap: ITap, run: ITapRun): void {
-    if (tap.id === this.activeId()) this.celebrateResult(tap, run);
+    if (tap.id === this.activeId()) {
+      this.celebrateResult(tap, run);
+      this.audio.tocar('resultado', { tema: tap.theme, puntaje: run.score / tap.questions.length });
+    }
     this.writeHookCookie();
     if (!this.teachShown && this.nextTap(tap)) {
       const count = Number(this.readStorage(TEACH_KEY) ?? 0) || 0;
@@ -384,8 +401,8 @@ export class TapsFeedComponent {
   }
 
   private readonly onVisibility = () => {
-    if (this.document.hidden) this.clock.pause();
-    else if (!this.held && !this.sheetOpen()) this.clock.resume();
+    if (this.document.hidden) { this.clock.pause(); this.audio.pausar(); }
+    else { this.audio.reanudar(); if (!this.held && !this.sheetOpen()) this.clock.resume(); }
   };
 
   // ───────────── sonido ─────────────
@@ -394,6 +411,67 @@ export class TapsFeedComponent {
     this.sound.set(on ? 'on' : 'off');
     this.stage?.setMuted(!on);
     this.writeStorage(SOUND_KEY, on ? 'on' : 'off');
+    if (on) this.audio.desbloquear();
+    this.audio.silenciar(!on);
+    if (on) this.audio.tocar('toque', { tema: this.activeTap().theme });
+  }
+
+  /** «Voz»: el personaje lee la pregunta en voz alta. Encenderla también enciende el sonido (sin sonido no hay voz). */
+  protected toggleVoice(): void {
+    const now = this.voice();
+    if (now !== 'on' && now !== 'off') return;
+    const on = now !== 'on';
+    this.voice.set(on ? 'on' : 'off');
+    this.writeStorage(VOZ_KEY, on ? 'on' : 'off');
+    this.audio.activarVoz(on);
+    this.syncStageVoice();
+    if (on && this.sound() !== 'on') this.toggleSound();
+    if (on) this.readQuestion(this.activeTap());                // dentro del gesto: iOS solo deja hablar así la primera vez
+    this.track(null, on ? 'taps/voz/encender' : 'taps/voz/apagar');
+  }
+
+  /** Tras hidratar: módulo de sonido en reposo, desbloqueo con el primer gesto y la voz si la persona la dejó encendida. */
+  private startAudio(): void {
+    this.audio.silenciar(this.sound() !== 'on');
+    this.audio.escucharGestos(() => this.sound() !== 'off');
+    const idle = (globalThis as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
+    const go = () => {
+      void this.audio.precargar().then(() => this.audio.precalentar(this.activeTap().theme));
+      void this.audio.prepararVoz().then(ok => {
+        const on = ok && this.readStorage(VOZ_KEY) === 'on';
+        this.voice.set(ok ? (on ? 'on' : 'off') : 'none');
+        this.audio.activarVoz(on);
+        this.syncStageVoice();
+      });
+    };
+    if (idle) idle(go, { timeout: 3000 }); else setTimeout(go, 1500);
+  }
+
+  /** Conecta la voz a los escenarios solo si está encendida: con la voz apagada el motor ni la conoce. */
+  private syncStageVoice(): void {
+    const voz = this.voice() === 'on' ? this.audio.motorVoz : null;
+    this.stages.forEach(stage => stage.setVoz?.(voz));
+  }
+
+  /** Sonido de la respuesta (a los ~80 ms del toque, experiencia-ux.md §5.1): acierto, racha desde 3 seguidas o fallo. */
+  private answerSound(tap: ITap, run: ITapRun, correct: boolean): void {
+    const level = correct ? streak(run) : 0;
+    if (!correct) this.audio.tocar('fallo', { tema: tap.theme });
+    else if (level >= 3) this.audio.tocar('racha', { tema: tap.theme, nivel: level });
+    else this.audio.tocar('acierto', { tema: tap.theme });
+  }
+
+  /**
+   * Con la voz encendida el personaje dice la pregunta (solo voz: el texto ya está en la tarjeta y es el subtítulo). No dice
+   * «correcto»/«incorrecto» ni la explicación: eso lo anuncia el aria-live y un lector de pantalla lo oiría dos veces.
+   */
+  private readQuestion(tap: ITap): void {
+    // Sin un gesto previo en la página no se habla: el navegador lo bloquearía (y sería audio sin pedirlo).
+    if (this.voice() !== 'on' || this.sound() !== 'on' || tap.id !== this.activeId() || !this.audio.huboGesto()) return;
+    const run = this.run(tap), q = tap.questions[run.index];
+    if (run.finished || !q || run.chosen !== null) return;
+    if (this.stage?.setVoz) this.stage.say(q.q, { globo: false });
+    else this.audio.hablar(q.q, tap.scene.host);
   }
 
   // ───────────── temas ─────────────
@@ -409,6 +487,7 @@ export class TapsFeedComponent {
   /** Elige categoría: el feed vuelve arriba con esos Taps primero y la URL queda enlazable (`/taps?tema=minecraft`). */
   protected selectTopic(id: string | null): void {
     this.track(null, `taps/tema/elegir/${id ? eventSlug(id) : 'para-ti'}`);
+    this.audio.tocar('toque', { tema: this.activeTap().theme });
     this.clock.flush();
     this.topic.set(id);
     const ordered = orderFeed(TAPS, { topic: id, hookDone: this.hookDone || this.anyFinished() });
@@ -669,6 +748,7 @@ export class TapsFeedComponent {
     }
     this.activeIndex = index;
     this.activeId.set(tap.id);
+    if (previous >= 0) { this.audio.callar(); this.audio.tocar('deslizar', { tema: tap.theme }); }
     if (this.notice()?.tapId !== tap.id) this.notice.set(null);
     this.syncUrl(tap, previous);
     if (!this.seen.has(tap.id)) { this.seen.add(tap.id); this.track('taps-ver', `taps/ver/${eventSlug(tap.id)}`); }
@@ -681,7 +761,8 @@ export class TapsFeedComponent {
       await stage.setScene(tap.scene);
       if (token !== this.token) return;
       const run = this.run(tap);
-      if (run.finished) this.celebrateResult(tap, run); else { stage.say(''); stage.react('ask', { say: false }); }
+      if (run.finished) this.celebrateResult(tap, run); else { stage.say(''); stage.react('ask', { say: false }); this.readQuestion(tap); }
+      this.audio.precalentar(tap.theme);
       this.preloadAhead(index);
     } catch {
       // Sin tema ni motor el Tap se juega sobre su degradado (--bg-top/--bg-bottom), sin personaje y sin aviso: es el mínimo garantizado.
@@ -737,7 +818,8 @@ export class TapsFeedComponent {
     const { create } = await loadTapsEngine();
     if (this.stages.has(tap.theme)) return this.switchStage(this.stages.get(tap.theme)!);   // otro activate lo creó mientras cargaba el motor
     // Modo ligero o ahorro de datos: póster fijo, sin pedir el motor 3D.
-    const stage = create(this.slots()[this.activeIndex].nativeElement, { theme: tapsThemeUrl(tap.theme), mode: this.lightOnly() ? 'light' : 'auto' });
+    const stage = create(this.slots()[this.activeIndex].nativeElement, { theme: tapsThemeUrl(tap.theme), mode: this.lightOnly() ? 'light' : 'auto', audio: this.audio.motorAudio });
+    stage.setVoz?.(this.voice() === 'on' ? this.audio.motorVoz : null);
     this.stages.set(tap.theme, stage);
     this.stage?.pause();
     this.stage = stage;

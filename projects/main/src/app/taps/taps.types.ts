@@ -78,7 +78,10 @@ export interface ITapsStage {
   readonly ready3d: Promise<'light' | '3d'>;
   setScene(spec: ITapScene): Promise<void>;
   preload(spec: ITapScene): Promise<void>;
-  say(text: string, opts?: { ms?: number; hold?: boolean; tone?: string }): void;
+  /** `voz: false` = solo globo; `globo: false` = solo voz (si hay voz conectada con `setVoz`). */
+  say(text: string, opts?: { ms?: number; hold?: boolean; tone?: string; voz?: boolean; globo?: boolean }): void;
+  /** Voz de los personajes (taps-engine/voz). Opcional: motores anteriores no la tienen. */
+  setVoz?(voz: ITapsVozMotor | null): void;
   react(name: string, opts?: { say?: boolean | string }): void;
   pause(why?: string): void;
   resume(): void;
@@ -89,6 +92,17 @@ export interface ITapsStage {
   stats(): { mode: string; tier: string; size: { w: number; h: number }; fpsCap: number; fps: number; degraded: number };
 }
 
+/** Voz que el motor usa en `say()` (taps-engine/voz/voz.js → paraMotor()). */
+export interface ITapsVozMotor {
+  hablar(texto: string, personaje?: string): Promise<void> | void;
+  callar(): void;
+}
+
+/** Sonido de la app que recibe los sonidos del tema por nombre (taps-engine/audio/sonido.js → paraMotor()). */
+export interface ITapsAudioMotor {
+  play(name: string, opts?: { theme?: string }): void;
+}
+
 export interface ITapsEngineModule {
-  create(container: HTMLElement, opts: { theme: string; mode?: 'auto' | '3d' | 'light' }): ITapsStage;
+  create(container: HTMLElement, opts: { theme: string; mode?: 'auto' | '3d' | 'light'; audio?: ITapsAudioMotor }): ITapsStage;
 }

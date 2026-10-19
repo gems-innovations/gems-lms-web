@@ -117,6 +117,13 @@ class Sound {
   /** Descarga y decodifica por adelantado los archivos de estos sonidos (tras el primer gesto, sin bloquear nada). */
   warm(names) { if (!this.ac) return; for (const n of names) (this.theme.sounds?.[n]?.files || []).forEach(f => this.load(f)); }
 }
+/**
+ * Sonido de la app (`opts.audio = { play(name, { theme }) }`, p. ej. audio/sonido.js → paraMotor()): el motor no crea su
+ * propio AudioContext y cada sonido de theme.json se le pasa por nombre. Silencio, desbloqueo y pausa son de la app.
+ */
+function externalSound(audio, theme) {
+  return { ac: null, unlock: () => false, warm() {}, setMuted() {}, play(name, o = {}) { try { audio.play?.(name, { ...o, theme: theme.id }); } catch { /* el sonido nunca tumba el motor */ } } };
+}
 
 // ───────────────────────── partículas (capa 2D sobre el 3D) ─────────────────────────
 function burst(list, x, y, kind, colors) {
@@ -204,7 +211,7 @@ export function create(container, opts = {}) {
       try { const f = new FontFace(t.font.family, `url(${resolveTheme(t.font.src)})`, { display: 'swap' }); f.load().then(ff => document.fonts.add(ff)).catch(() => {}); } catch { /* sin fuente propia se usa la del sistema */ }
     }
     if (t.palette) for (const [k, v] of Object.entries(t.palette)) if (typeof v === 'string') root.style.setProperty('--te-' + k, v);
-    sound = new Sound(t, resolveTheme);
+    sound = opts.audio ? externalSound(opts.audio, t) : new Sound(t, resolveTheme);
     paintBackdrop(t.defaultWorld);
     return t;
   })();
@@ -335,14 +342,32 @@ export function create(container, opts = {}) {
   /** Precalienta el siguiente escenario sin mostrarlo (se llama en reposo mientras el usuario responde). */
   S.preload = async function preload(spec = {}) { await readyTheme; try { await renderer?.preload?.(spec); } catch { /* es solo una optimización */ } };
 
-  /** Globo de diálogo sobre la cabeza. `text` vacío lo oculta. */
+  /**
+   * Voz de los personajes (opcional, voz/voz.js → paraMotor()): `{ hablar(texto, personaje), callar() }`. Con voz, `say()`
+   * también lo dice en voz alta con el perfil del personaje en escena. `null` la quita.
+   */
+  let voice = null, voiceTurn = 0;
+  S.setVoz = function setVoz(v) { voice?.callar?.(); voice = v && typeof v.hablar === 'function' ? v : null; };
+  function speak(text) {
+    const turn = ++voiceTurn, talk = !reduced && renderer;
+    if (talk) { renderer.play('talk'); wake(800); }
+    Promise.resolve(voice.hablar(text, S.scene?.host)).catch(() => {}).finally(() => { if (talk && turn === voiceTurn && renderer && !S.destroyed) { renderer.play(loopReact || 'idle'); wake(400); } });
+  }
+
+  /**
+   * Globo de diálogo sobre la cabeza. `text` vacío lo oculta (y calla la voz).
+   * `voz: false` = solo globo; `globo: false` = solo voz (p. ej. la pregunta, que ya está escrita en la tarjeta).
+   */
   S.say = function say(text, o = {}) {
     clearInterval(typeTimer); clearTimeout(bubbleTimer);
-    if (!text) { bubbleEl.classList.remove('on'); return; }
+    if (!text) { voiceTurn++; voice?.callar?.(); bubbleEl.classList.remove('on'); return; }
+    const spoken = !!voice && o.voz !== false;
+    if (spoken) speak(String(text));
+    if (o.globo === false) return;
     bubbleAnchor = o.anchor || 'top'; bubbleEl.classList.add('on'); bubbleEl.dataset.tone = o.tone || '';
     const full = String(text); let n = 0;
     if (reduced || full.length < 4) bubbleEl.textContent = full;
-    else { bubbleEl.textContent = ''; typeTimer = setInterval(() => { n += 2; bubbleEl.textContent = full.slice(0, n); sound?.play('blip'); if (n >= full.length) clearInterval(typeTimer); }, 28); }
+    else { bubbleEl.textContent = ''; typeTimer = setInterval(() => { n += 2; bubbleEl.textContent = full.slice(0, n); if (!spoken) sound?.play('blip'); if (n >= full.length) clearInterval(typeTimer); }, 28); }
     placeBubble();
     if (o.hold !== true) bubbleTimer = setTimeout(() => bubbleEl.classList.remove('on'), o.ms ?? 1400 + full.length * 45);
   };
@@ -350,7 +375,7 @@ export function create(container, opts = {}) {
   /** Dispara una reacción definida en theme.reactions: animación + efecto + sonido + partículas + frase. */
   S.react = function react(name, o = {}) {
     const t = S.theme; const def = t?.reactions?.[name]; if (!def) return;
-    clearTimeout(reactTimer);
+    clearTimeout(reactTimer); voiceTurn++;                     // una reacción manda sobre la boca que habla
     const anim = reduced ? (def.reducedAnim || 'idle') : def.anim;
     if (renderer) { renderer.play(anim); (def.fx || []).forEach(f => !reduced && renderer.fx(f)); wake(Math.max(1500, (def.duration || 0) * 1000 + 300)); }
     else { lightAnim({ celebrate: 'te-celebrate', hurt: 'te-hurt', think: 'te-think', talk: 'te-talk' }[def.anim] || '', (def.duration || 1.2) * 1000); lightPose(anim); }
@@ -372,7 +397,7 @@ export function create(container, opts = {}) {
   S.attachTo = function attachTo(el) { if (root.parentElement !== el) el.appendChild(root); if (renderer) wake(500); };
   S.sfx = name => sound?.play(name);
   S.destroy = function destroy() {
-    S.destroyed = true; clearTimeout(slowTimer); cancelAnimationFrame(raf); clearInterval(typeTimer); clearTimeout(bubbleTimer); clearTimeout(reactTimer);
+    S.destroyed = true; voice?.callar?.(); voice = null; clearTimeout(slowTimer); cancelAnimationFrame(raf); clearInterval(typeTimer); clearTimeout(bubbleTimer); clearTimeout(reactTimer);
     document.removeEventListener('visibilitychange', onVis); window.removeEventListener('pointerdown', unlock); window.removeEventListener('keydown', unlock);
     try { renderer?.dispose(); } catch { /* ya liberado */ } renderer = null; try { sound?.ac?.close(); } catch { /* sin audio */ } root.remove();
   };

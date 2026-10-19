@@ -5,7 +5,7 @@
     "ng": "ng",
     "taps:generar": "node projects/main/scripts/generar-taps.mjs",
     "taps:verificar": "node projects/main/scripts/generar-taps.mjs --check",
-    "taps:test": "node --test projects/main/scripts/generar-taps.test.mjs",
+    "taps:test": "node --test projects/main/scripts/generar-taps.test.mjs projects/main/taps-engine-tests/*.mjs",
     "og:generar": "node scripts/generar-og-taps.mjs",
     "og:verificar": "node scripts/generar-og-taps.mjs --check",
     "start": "npm run build:all && ng s",
