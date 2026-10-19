@@ -4,24 +4,270 @@
     {
       "min": 0,
       "title": "Curioso del universo",
-      "line": "Ahora sabes cinco cosas que casi nadie sabe. ¡Otra ronda!"
+      "line": "Ahora sabes cinco cosas que casi nadie sabe. ¡Otra ronda!",
+      "lineas": [
+        "Cada dato nuevo es un punto para tu cerebro.",
+        "Hoy sabes más que hace un minuto."
+      ]
     },
     {
       "min": 2,
       "title": "Sabelotodo en entrenamiento",
-      "line": "Vas bien. Un par de datos raros más y eres imparable."
+      "line": "Vas bien. Un par de datos raros más y eres imparable.",
+      "lineas": [
+        "Vas sumando datos para sorprender a todos.",
+        "Tu colección de datos crece. ¡Sigue!"
+      ]
     },
     {
       "min": 4,
       "title": "Enciclopedia andante",
-      "line": "Casi perfecto: tus amigos te van a pedir datos curiosos."
+      "line": "Casi perfecto: tus amigos te van a pedir datos curiosos.",
+      "lineas": [
+        "A un dato de la perfección.",
+        "Sabes cosas que poca gente sabe."
+      ]
     },
     {
       "min": 5,
       "title": "Genio de bolsillo",
-      "line": "Cinco de cinco. Ya puedes dar clases de datos raros."
+      "line": "Cinco de cinco. Ya puedes dar clases de datos raros.",
+      "lineas": [
+        "Cinco de cinco. Sabes de todo un poco.",
+        "Perfecto: tu cabeza es una biblioteca."
+      ]
     }
   ],
+  "titulosPorSubtema": {
+    "cuerpo-humano": [
+      {
+        "min": 0,
+        "title": "Explorador del cuerpo",
+        "line": "Tu cuerpo tiene más secretos de los que parece.",
+        "lineas": [
+          "Hoy conociste tu cuerpo un poco mejor.",
+          "Cada dato del cuerpo sirve de verdad."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Estudiante de anatomía",
+        "line": "Ya sabes cómo funcionan varias piezas.",
+        "lineas": [
+          "Vas entendiendo lo que pasa por dentro.",
+          "Unos datos más y lo explicas tú."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Médico de bolsillo",
+        "line": "Sabes del cuerpo más que muchos adultos.",
+        "lineas": [
+          "A un hueso de la perfección.",
+          "Tu cuerpo ya no tiene misterios para ti."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Genio del cuerpo humano",
+        "line": "Cinco de cinco: de los huesos al corazón.",
+        "lineas": [
+          "Perfecto. Sabes cómo funciona todo por dentro.",
+          "Cero errores sobre el cuerpo humano."
+        ]
+      }
+    ],
+    "espacio": [
+      {
+        "min": 0,
+        "title": "Mirador de estrellas",
+        "line": "Todo astronauta empezó mirando el cielo.",
+        "lineas": [
+          "El espacio es enorme: hay mucho por saber.",
+          "Hoy viajaste un poco más lejos."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Cadete espacial",
+        "line": "Ya conoces varios planetas por su nombre.",
+        "lineas": [
+          "Vas preparando tu primer viaje.",
+          "Unos datos más y despegas."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Astronauta de primera",
+        "line": "El sistema solar casi no tiene secretos para ti.",
+        "lineas": [
+          "A una estrella de la perfección.",
+          "Ya podrías guiar una misión."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Leyenda galáctica",
+        "line": "Cinco de cinco: dominas el sistema solar.",
+        "lineas": [
+          "Perfecto. Las estrellas te conocen.",
+          "Cero errores en el espacio."
+        ]
+      }
+    ],
+    "animales": [
+      {
+        "min": 0,
+        "title": "Amigo de los animales",
+        "line": "Los animales sorprenden hasta a los expertos.",
+        "lineas": [
+          "Hoy conociste criaturas increíbles.",
+          "Cada dato de animales es para contarlo."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Guardabosques",
+        "line": "Ya sabes cómo viven varias especies.",
+        "lineas": [
+          "Vas reconociendo sus superpoderes.",
+          "Unos datos más y conoces a todos."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Experto en fauna",
+        "line": "Sabes de animales más que un documental.",
+        "lineas": [
+          "A un animal de la perfección.",
+          "Ninguna especie te toma por sorpresa."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Leyenda de la selva",
+        "line": "Cinco de cinco: el reino animal es tuyo.",
+        "lineas": [
+          "Perfecto. Hasta las ballenas te saludan.",
+          "Cero errores con los animales."
+        ]
+      }
+    ],
+    "ciencia-cotidiana": [
+      {
+        "min": 0,
+        "title": "Científico curioso",
+        "line": "Preguntar «por qué» es lo que hace la ciencia.",
+        "lineas": [
+          "Hoy viste la ciencia en cosas de todos los días.",
+          "Cada experimento empieza con una duda."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Inventor en práctica",
+        "line": "Ya explicas cosas que pasan en tu cocina.",
+        "lineas": [
+          "Vas entendiendo cómo funciona el mundo.",
+          "Unos datos más y montas tu laboratorio."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Mente de laboratorio",
+        "line": "Ves la ciencia en todas partes.",
+        "lineas": [
+          "A un experimento de la perfección.",
+          "Explicas el mundo con datos."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Genio de la ciencia",
+        "line": "Cinco de cinco: la ciencia te sale natural.",
+        "lineas": [
+          "Perfecto. Tu laboratorio no tiene fallos.",
+          "Cero errores con la ciencia."
+        ]
+      }
+    ],
+    "geografia": [
+      {
+        "min": 0,
+        "title": "Viajero curioso",
+        "line": "El mapa es grande: hay mucho por recorrer.",
+        "lineas": [
+          "Hoy diste la vuelta al mundo un poco.",
+          "Cada país tiene algo que sorprende."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Trotamundos",
+        "line": "Ya te ubicas en varios continentes.",
+        "lineas": [
+          "Vas llenando tu pasaporte de datos.",
+          "Unos viajes más y conoces todo el mapa."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Mapa andante",
+        "line": "Ríos, montañas y desiertos: casi todos tuyos.",
+        "lineas": [
+          "A un país de la perfección.",
+          "Podrías guiar cualquier viaje."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Leyenda de los mapas",
+        "line": "Cinco de cinco: el mundo cabe en tu cabeza.",
+        "lineas": [
+          "Perfecto. Ningún rincón se te escapa.",
+          "Cero errores en el mapa."
+        ]
+      }
+    ],
+    "datos-sorprendentes": [
+      {
+        "min": 0,
+        "title": "Cazador de datos",
+        "line": "Los datos raros cuestan: por eso sorprenden.",
+        "lineas": [
+          "Hoy aprendiste cosas para contar en la mesa.",
+          "Cada dato raro suma."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Coleccionista de rarezas",
+        "line": "Ya tienes datos para sorprender a tus amigos.",
+        "lineas": [
+          "Vas armando tu colección de curiosidades.",
+          "Unos datos más y no te gana nadie."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Enciclopedia viva",
+        "line": "Sabes cosas que casi nadie sabe.",
+        "lineas": [
+          "A un dato de la perfección.",
+          "Tus datos dejan a todos con la boca abierta."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Genio de los datos",
+        "line": "Cinco de cinco: ningún dato te sorprende.",
+        "lineas": [
+          "Perfecto. Eres la persona de los datos raros.",
+          "Cero errores con las rarezas."
+        ]
+      }
+    ]
+  },
   "existentes": [],
   "preguntas": [
     {

@@ -4,24 +4,156 @@
     {
       "min": 0,
       "title": "Curioso sin miedo",
-      "line": "Estas preguntas engañan a casi todos. ¿Otra ronda?"
+      "line": "Estas preguntas engañan a casi todos. ¿Otra ronda?",
+      "lineas": [
+        "Las trampas se aprenden cayendo en ellas.",
+        "Leer despacio es el primer truco. ¡Otra!"
+      ]
     },
     {
       "min": 2,
       "title": "Detective en práctica",
-      "line": "Ya ves algunas trampas. Lee despacio y caen las demás."
+      "line": "Ya ves algunas trampas. Lee despacio y caen las demás.",
+      "lineas": [
+        "Ya ves algunas trampas venir.",
+        "Tu lupa de detective funciona. ¡Sigue!"
+      ]
     },
     {
       "min": 4,
       "title": "Mente afilada",
-      "line": "Casi nada se te escapa. Te falta un detalle."
+      "line": "Casi nada se te escapa. Te falta un detalle.",
+      "lineas": [
+        "A una trampa de no caer en ninguna.",
+        "Casi nada te engaña ya."
+      ]
     },
     {
       "min": 5,
       "title": "Imposible de engañar",
-      "line": "Perfecto. Ahora reta a alguien a ver si cae."
+      "line": "Perfecto. Ahora reta a alguien a ver si cae.",
+      "lineas": [
+        "Cinco de cinco. Ninguna trampa te atrapó.",
+        "Perfecto: lees entre líneas."
+      ]
     }
   ],
+  "titulosPorSubtema": {
+    "adivinanzas": [
+      {
+        "min": 0,
+        "title": "Adivinador valiente",
+        "line": "Las adivinanzas son difíciles hasta que las sabes.",
+        "lineas": [
+          "Hoy aprendiste respuestas para retar a otros.",
+          "Cada acertijo te entrena la mente."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Buen adivinador",
+        "line": "Ya piensas como quien inventa acertijos.",
+        "lineas": [
+          "Vas encontrando el doble sentido.",
+          "Un par más y las adivinas todas."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Descifrador experto",
+        "line": "Los acertijos te duran segundos.",
+        "lineas": [
+          "A una adivinanza de la perfección.",
+          "Ves el truco antes de terminar de leer."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Leyenda de los acertijos",
+        "line": "Cinco de cinco: no hay adivinanza que te gane.",
+        "lineas": [
+          "Perfecto. Te toca inventar las tuyas.",
+          "Cero errores con los acertijos."
+        ]
+      }
+    ],
+    "silogismos": [
+      {
+        "min": 0,
+        "title": "Pensador curioso",
+        "line": "La lógica se entrena como un músculo.",
+        "lineas": [
+          "Los silogismos engañan a casi todos.",
+          "Hoy tu cerebro hizo ejercicio."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Lógica en marcha",
+        "line": "Ya separas lo que dice de lo que parece.",
+        "lineas": [
+          "Vas siguiendo bien las premisas.",
+          "Unas más y ninguna premisa te engaña."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Razonador de élite",
+        "line": "Tu lógica casi no tiene grietas.",
+        "lineas": [
+          "A una premisa de la perfección.",
+          "Sigues cada paso sin perderte."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Lógica de acero",
+        "line": "Cinco de cinco: razonamiento impecable.",
+        "lineas": [
+          "Perfecto. Ni un salto lógico de más.",
+          "Cero errores con las premisas."
+        ]
+      }
+    ],
+    "series": [
+      {
+        "min": 0,
+        "title": "Buscador de patrones",
+        "line": "Los patrones aparecen cuanto más practicas.",
+        "lineas": [
+          "Cada serie te enseña un truco nuevo.",
+          "Hoy entrenaste el ojo. ¡Otra!"
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Ojo para las series",
+        "line": "Ya ves el ritmo detrás de los números.",
+        "lineas": [
+          "Vas encontrando la regla escondida.",
+          "Un par más y las ves al instante."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Cazador de patrones",
+        "line": "Encuentras la regla en segundos.",
+        "lineas": [
+          "A una serie de la perfección.",
+          "Los números ya no se te esconden."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Genio de las series",
+        "line": "Cinco de cinco: ves el patrón al vuelo.",
+        "lineas": [
+          "Perfecto. Ninguna secuencia te frena.",
+          "Cero errores con las series."
+        ]
+      }
+    ]
+  },
   "existentes": [
     {
       "id": "avion",

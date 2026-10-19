@@ -35,6 +35,7 @@
     color: #1b1300; background: #F5B83D; animation: pill-in .3s var(--curva-rebote) .3s backwards; }
 
   &__toast { position: absolute; left: 12px; right: 72px; bottom: 12px; margin: 0; padding: 8px 12px; border-radius: 12px; font-size: 1rem; overflow-wrap: anywhere; background: rgba(8, 10, 14, .8); }
+  &__undo { margin-left: 8px; padding: 2px 10px; min-height: 32px; border: 1px solid rgba(255, 255, 255, .4); border-radius: 999px; background: none; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
 
   // ── panel inferior: pregunta + opciones en la zona del pulgar ──
   &__panel { position: relative; z-index: 3; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: 10px 12px var(--safe-b); }

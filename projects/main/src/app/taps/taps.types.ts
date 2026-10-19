@@ -29,6 +29,8 @@ export interface ITapResult {
   min: number;
   title: string;
   line: string;
+  /** Variantes de la línea (la primera es `line`): se elige una con semilla para que el resultado no se lea siempre igual. */
+  lines?: string[];
 }
 
 /**

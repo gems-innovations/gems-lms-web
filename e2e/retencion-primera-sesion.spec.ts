@@ -56,6 +56,17 @@ async function expectCount(page: Page, path: string, n: number) {
 
 const active = (page: Page) => page.locator('.tap.tap--active');
 
+/** Simula ocultar y volver a mostrar la pestaña (cambiar de app en el celular). */
+async function setHidden(page: Page, hidden: boolean) {
+  await page.evaluate(h => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => h });
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => (h ? 'hidden' : 'visible') });
+    document.dispatchEvent(new Event('visibilitychange'));
+  }, hidden);
+}
+const hideTab = (page: Page) => setHidden(page, true);
+const showTab = (page: Page) => setHidden(page, false);
+
 /**
  * Responde la pregunta a la vista (primera opción) y adelanta con «Seguir» (sin esperar el avance automático).
  * Luego espera la guarda de 350 ms en la que un toque nuevo no responde (el toque de adelantar no cae en una opción).
@@ -163,6 +174,7 @@ test.describe('Retención · primera sesión en celular (Taps)', () => {
     await answerCurrent(page);
     await page.goto('/taps');                                  // la marca queda en el navegador
     await answerCurrent(page);
+    await hideTab(page);                                       // tampoco la duración de la sesión
     await page.waitForTimeout(500);
     expect(await hits(page), 'no debe contarse nada').toEqual([]);
     expect(await page.evaluate(() => localStorage.getItem('skipgc'))).toBe('t');
@@ -192,6 +204,35 @@ test.describe('Retención · primera sesión en celular (Taps)', () => {
     await page.goto('/taps');
     await completeActiveTap(page);
     await expectCount(page, 'taps/hito/1', 1);
+  });
+
+  // ── Permanencia (auditoria-permanencia.md, mejora 13): duración de la sesión y bucles ──
+
+  test('al ocultar la pestaña se cuenta una vez la duración de la sesión y los Taps completados', async ({ page }) => {
+    await page.goto('/taps');
+    await completeActiveTap(page);
+    await hideTab(page);
+    await expectCount(page, 'taps/sesion/0-1min', 1);
+    await expectCount(page, 'taps/sesion-taps/1', 1);
+    await showTab(page);
+    await hideTab(page);                                       // volver y ocultar otra vez no la repite
+    await page.waitForTimeout(300);
+    const c = await counts(page);
+    expect(Object.keys(c).filter(p => p.startsWith('taps/sesion/')).map(p => c[p])).toEqual([1]);
+  });
+
+  test('la meta del día y el saludo de regreso se cuentan', async ({ page }) => {
+    await page.addInitScript(() => {
+      if (localStorage.getItem('gems-taps-interes')) return;
+      const now = Date.now(), ayer = new Date(now - 86_400_000), p = (n: number) => String(n).padStart(2, '0');
+      const day = (d: Date) => `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+      localStorage.setItem('gems-taps-interes', JSON.stringify({ score: {}, blocked: {}, done: { 'cu-datos': now, 'lg-zorgs': now, 'mc-end': now - 86_400_000 }, days: [day(ayer), day(new Date(now))] }));
+      localStorage.setItem('gems-taps-sesion', JSON.stringify({ ultima: now - 21 * 3600_000, celebrada: null, puntajes: {} }));
+    });
+    await page.goto('/taps');
+    await expectCount(page, 'taps/regreso/saludo', 1);
+    await completeActiveTap(page);
+    await expectCount(page, 'taps/meta-dia/cumplida', 1);
   });
 
   test('antes de hidratar, tocar una opción ya marca la respuesta y un segundo toque no la cambia', async ({ page }) => {
