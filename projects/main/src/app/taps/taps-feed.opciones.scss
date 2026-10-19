@@ -15,10 +15,11 @@
     padding: 10px 12px; border: 0; border-radius: var(--radio-tarjeta); cursor: pointer; font: inherit; font-size: 1.25rem; font-weight: 800; line-height: 1.12; text-align: left;
     color: var(--ink); background: var(--c); box-shadow: 0 4px 0 rgba(0, 0, 0, .3); transition: transform var(--dur-instante), box-shadow var(--dur-instante), opacity var(--dur-rapida), background var(--dur-rapida);
     &[data-k='1'] { --c: #2F6BE0; }
-    &[data-k='2'] { --c: #F5B83D; --ink: #1B1300; }
-    &[data-k='3'] { --c: #2FBF71; --ink: #06210f; }
+    // Las cuatro con texto y forma en blanco (coherentes); amarillo y verde algo más profundos para que el blanco se lea (≥ 3,8:1, texto grande).
+    &[data-k='2'] { --c: #B97100; }
+    &[data-k='3'] { --c: #188A4E; }
     &:active:not([aria-disabled='true']) { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, .3); }
-    &.is-ok { --c: #2FBF71; --ink: #06210f; opacity: 1; }
+    &.is-ok { --c: #188A4E; --ink: #fff; opacity: 1; }
     &.is-bad { --c: #D1343A; --ink: #fff; opacity: 1; }
   }
   &__opts.is-answered &__opt:not(.is-ok):not(.is-bad) { opacity: .25; }
