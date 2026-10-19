@@ -1,0 +1,15 @@
+// Feed incrustado en la portada (`<gems-taps modo="portada">`): un solo Tap dentro de una tarjeta que pone la página.
+// El host deja de ocupar la pantalla (fixed) y toma el alto que le da la portada. `contain: layout` lo vuelve el bloque
+// contenedor de los hijos `position: fixed` (la barra y el feed en móvil), así quedan dentro de la tarjeta; `paint` recorta.
+// Sigue siendo el contenedor `taps`, y como la tarjeta mide < 768 px de ancho en todos los anchos, siempre se ve la versión
+// de celular (sin menú, riel de escritorio ni panel, que además no se piden: `wide` no se enciende en la portada).
+:host([modo='portada']) { position: relative; inset: auto; z-index: auto; height: 100%; contain: layout paint; }
+// Un solo Tap: el feed no desplaza nada y el gesto vertical es de la página (deslizar hacia arriba muestra lo de abajo).
+:host([modo='portada']) .taps { overflow: hidden; overscroll-behavior: auto; scroll-snap-type: none; }
+:host([modo='portada']) .tap { height: 100%; max-width: none; }
+// La marca ya está en la cabecera de la página, justo encima de la tarjeta.
+:host([modo='portada']) ::ng-deep .bar__brand { display: none; }
+:host([modo='portada']) ::ng-deep .bar__topics { margin-left: auto; }
+// El panel (pregunta y opciones) tiene scroll propio en pantallas bajas; sin esto, un gesto o la rueda sobre él se quedaba
+// atrapado en la tarjeta en vez de bajar la página.
+:host([modo='portada']) .tap__panel { overscroll-behavior: auto; }

@@ -16,6 +16,16 @@ const TAPS_SEO: IRouteSeo = {
   image: '/og/taps.png',
   imageAlt: 'Un Tap de GEMS: una pregunta de Minecraft con el personaje en vivo',
 };
+/** Portada del dominio principal: un Tap jugable arriba (la imagen para compartir es la de Taps). */
+const PORTADA_SEO: IRouteSeo = {
+  description: 'Juega Taps: cinco preguntas cortas con un personaje en vivo y la explicación de cada respuesta. También retos de lógica y cursos gratis. Sin registro.',
+  image: TAPS_SEO.image,
+  imageAlt: TAPS_SEO.imageAlt,
+};
+/** Portada en el subdominio de una institución: la de siempre (imagen por defecto de GEMS LMS). */
+const INSTITUCION_SEO: IRouteSeo = {
+  description: 'Cursos gratis y sin registro: empieza hoy, avanza a tu ritmo y guarda tu progreso cuando quieras. Retos de lógica y quizzes para jugar.',
+};
 /** El Tap de un enlace compartido (/t/:id); import diferido para no sumar las preguntas al bundle inicial. */
 const sharedTap = (id: string | null) => import('./taps/taps.data').then(m => m.findTap(id));
 /** Imagen para compartir del tema del Tap (og/taps-<tema>.jpg, de scripts/generar-og-taps.mjs); sin ella, la general de Taps. */
@@ -26,19 +36,24 @@ const sharedTapImage = (id: string | null): Promise<Pick<IRouteSeo, 'image' | 'i
 });
 
 export const routes: Routes = [
-  // ── Público: cursos gratis sin registro (gancho) e instituciones ──────────
+  // ── Público: Taps y cursos gratis sin registro (gancho) e instituciones ──────────
   {
     path: '',
     pathMatch: 'full',
     // Portada de GEMS para todos; en el subdominio de una institución cambian sus colores (TenantService) y, si tiene
-    // una landing propia (tenant-landings.ts), se muestra esa. Un host sin institución (o sin API) ve la portada normal.
-    title: () => tenantLanding(inject(TenantService).slug())?.title ?? 'Cursos gratis, sin registro',
+    // una landing propia (tenant-landings.ts), se muestra esa. Un host sin institución (o sin API) ve la portada normal:
+    // un Tap jugable en el primer pantallazo y, debajo, temas, retos, cursos gratis e instituciones. Con institución (con
+    // o sin landing propia) el título y la tarjeta para compartir no hablan de Taps: su portada no cambia.
+    title: () => {
+      const slug = inject(TenantService).slug();
+      return tenantLanding(slug)?.title ?? (slug ? 'Cursos gratis, sin registro' : 'Retos que juegas al instante, gratis y sin registro');
+    },
     loadComponent: () => {
       const tenant = inject(TenantService);
       return tenantLanding(tenant.slug())?.load()
         ?? import('./public/landing.component').then(m => m.LandingComponent);
     },
-    data: seo({ description: 'Cursos gratis y sin registro: empieza hoy, avanza a tu ritmo y guarda tu progreso cuando quieras. Retos de lógica y quizzes para jugar.' })
+    resolve: { seo: (): IRouteSeo => (inject(TenantService).slug() ? INSTITUCION_SEO : PORTADA_SEO) },
   },
   {
     path: 'cursos/:id',

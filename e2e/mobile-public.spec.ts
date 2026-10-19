@@ -1,4 +1,5 @@
 import { expect, Page, test } from '@playwright/test';
+import { omitirSiPortadaAnterior } from './humo-soporte';
 
 /**
  * Recorrido en celular de lo que ve un visitante: landing, ficha del curso, entrar como invitado,
@@ -33,22 +34,25 @@ for (const phone of PHONES) {
   test.describe(`Celular · ${phone.name}`, () => {
     test.use({ viewport: { width: phone.width, height: phone.height }, isMobile: true, hasTouch: true });
 
-    test('landing: cursos, mini simulacro y botón fijo', async ({ page }) => {
+    test('portada: un Tap jugable en la pantalla, y debajo temas y cursos', async ({ page }) => {
       await page.goto('/');
+      await omitirSiPortadaAnterior(page);
+      // Primer pantallazo = juego: las opciones del Tap se ven y se tocan sin desplazarse.
+      const tap = page.locator('gems-taps .tap.tap--active');
+      await expect(tap.locator('.tap__opt').last()).toBeInViewport({ ratio: 1 });
       // Espera las tarjetas reales (los placeholders de carga también usan .card).
       await expect(page.locator('article.card').first()).toBeVisible();
       expect(await page.locator('article.card').count(), 'debe haber al menos 4 cursos').toBeGreaterThanOrEqual(4);
       await expectNoHorizontalScroll(page);
-      // El botón fijo aparece solo cuando ni el botón del hero ni la lista de cursos están a la vista.
-      await page.locator('#por-que').scrollIntoViewIfNeeded();
-      await expect(page.locator('.land-cta button')).toBeVisible();
-      await page.evaluate(() => window.scrollTo(0, 0));
 
-      // Mini simulacro del hero: responder muestra la explicación.
-      await page.locator('gems-hero-quiz .mock__opt').first().tap();
-      await expect(page.locator('gems-hero-quiz .mock__why')).toBeVisible();
+      // Responder la primera pregunta marca la respuesta (prerenderizada: se reintenta si el toque llega antes de hidratar).
+      await expect(async () => {
+        await tap.locator('.tap__opt').first().tap();
+        await expect(tap.locator('.tap__opts.is-answered').first()).toBeAttached({ timeout: 2_000 });
+      }).toPass({ timeout: 15_000 });
 
-      expect(await smallTapTargets(page, 'main'), 'botones demasiado pequeños').toEqual([]);
+      expect(await smallTapTargets(page, 'main'), 'botones del Tap demasiado pequeños').toEqual([]);
+      expect(await smallTapTargets(page, '.portada'), 'botones demasiado pequeños').toEqual([]);
       await page.locator('#preguntas details').first().locator('summary').tap();
       await expect(page.locator('#preguntas details').first()).toHaveAttribute('open', '');
       await expectNoHorizontalScroll(page);

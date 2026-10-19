@@ -1,6 +1,6 @@
 @use 'piezas';
 
-// Mini simulacro del hero (y tarjeta de /retos). Mismo lenguaje que Taps: opción que se hunde al tocar,
+// Tarjeta de /retos y /bloques (antes también el mini simulacro de la portada, hoy un Tap). Mismo lenguaje que Taps: opción que se hunde al tocar,
 // acierto con rebote y destello (.gm-acierto), error con sacudida corta (.gm-error). Ver projects/shared/MOVIMIENTO.md.
 :host { display: block; }
 .mock {

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { apiFalsa, CURSOS, erroresDePagina, sinAnalitica, sinScrollHorizontal } from './humo-soporte';
+import { apiFalsa, CURSOS, erroresDePagina, omitirSiPortadaAnterior, sinAnalitica, sinScrollHorizontal } from './humo-soporte';
 
 /**
  * Humo · lo que ve un visitante sin cuenta: portada, ficha de curso, retos, bloques, Taps, legales, instituciones y 404.
@@ -22,25 +22,94 @@ test.afterEach(() => {
 });
 
 test.describe('Humo · visitante', () => {
-  test('portada: titular, cursos del catálogo y mini simulacro', async ({ page }) => {
+  test('portada: se juega un Tap en el primer pantallazo y debajo están los cursos del catálogo', async ({ page, isMobile }) => {
     await apiFalsa(page);
+    // Doble de count.js que anota cada conteo (manda sobre el de sinAnalitica: la última ruta registrada gana).
+    await page.route(/gc\.zgo\.at\/count\.js/, r => r.fulfill({ contentType: 'text/javascript',
+      body: 'window.__gc = []; window.goatcounter = { count: function (v) { window.__gc.push(v.path); } };' }));
     await page.goto('/');
+    await omitirSiPortadaAnterior(page);
     await expect(page.locator('h1').first()).toBeVisible();
+    // Un solo Tap, con su pregunta y sus opciones a la vista sin desplazarse (primer fotograma = juego).
+    const tap = page.locator('gems-taps .tap.tap--active');
+    await expect(page.locator('gems-taps .tap')).toHaveCount(1);
+    await expect(tap.locator('.tap__q')).not.toBeEmpty();
+    await expect(tap.locator('.tap__opt').first()).toBeInViewport();
+    // Ya hidratado (el feed marca <html data-taps-live>), el toque cuenta una sola vez.
+    await expect(page.locator('html[data-taps-live]')).toBeAttached({ timeout: 15_000 });
+    await tap.locator('.tap__opt').first().click();
+    await expect(tap.locator('.tap__opts.is-answered, .tap__steps i.is-ok, .tap__steps i.is-bad').first()).toBeAttached();
+    await expect(page, 'jugar en la portada no cambia la URL').toHaveURL(/\/$/);
+    // Analítica propia de la portada: no infla el embudo de /taps.
+    await expect.poll(() => page.evaluate(() => ((window as unknown as { __gc?: string[] }).__gc ?? []).some(e => e.startsWith('portada/tap/primer-toque/')))).toBe(true);
+    const eventos = await page.evaluate(() => (window as unknown as { __gc?: string[] }).__gc ?? []);
+    expect(eventos.some(e => e.startsWith('portada/tap/ver/')), 'portada/tap/ver/<id>').toBe(true);
+    expect(eventos.some(e => e.startsWith('portada/tap/responder/')), 'portada/tap/responder/<id>/1').toBe(true);
+    expect(eventos.filter(e => /^taps[-/]/.test(e)), 'sin eventos taps-* ni taps/* desde la portada').toEqual([]);
+    // La rueda sobre la pregunta y las opciones baja la página (no queda atrapada en la tarjeta).
+    // El gesto sobre la pregunta y las opciones baja la página (no queda atrapado en la tarjeta). La regla que lo garantiza
+    // (overscroll-behavior: auto en el panel) se revisa en todos los navegadores; la rueda, solo con ratón: WebKit móvil no
+    // la simula (`mouse.wheel` no existe ahí) y Playwright no ofrece un deslizamiento táctil nativo.
+    expect(await tap.locator('.tap__panel').evaluate(e => getComputedStyle(e).overscrollBehaviorY)).toBe('auto');
+    if (!isMobile) {
+      await tap.locator('.tap__q, .tap__card').first().hover();
+      await page.mouse.wheel(0, 600);
+      await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(100);
+      await page.evaluate(() => scrollTo(0, 0));
+    }
+    // La voz no habla en la portada aunque se haya dejado encendida en /taps: solo si la activan aquí.
+    // Y quien vuelve con racha (última visita hace 2 días) no recibe en la portada el saludo, la hoja «Tu día» ni la racha en
+    // la barra: eso es de /taps; aquí la cabecera del sitio va justo encima y lo primero es jugar.
+    await page.evaluate(() => {
+      localStorage.setItem('gems-taps-voz', 'on');
+      const dia = (d: number) => new Date(Date.now() - d * 86_400_000).toISOString().slice(0, 10);
+      localStorage.setItem('gems-taps-interes', JSON.stringify({ score: {}, blocked: {}, done: {}, days: [dia(3), dia(2)] }));
+      localStorage.setItem('gems-taps-sesion', JSON.stringify({ ultima: Date.now() - 2 * 86_400_000, puntajes: {} }));
+    });
+    await page.reload();
+    await page.waitForTimeout(4_000);                              // la voz se decide en reposo (requestIdleCallback, hasta 3 s)
+    await expect(page.locator('gems-taps .bar__voice')).not.toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('gems-taps .tap__toast')).toHaveCount(0);
+    await expect(page.locator('gems-taps .bar__brand')).toBeHidden();
+    await expect(page.locator('gems-tap-sesion-hoja')).toHaveCount(0);
+    // Las demás puertas siguen ahí: temas, retos, cursos gratis (del API) e instituciones.
+    await expect(page.locator('#temas a[href^="/taps"]').first()).toBeVisible();
+    await expect(page.locator('#temas a[href="/retos"]')).toBeVisible();
+    await expect(page.locator('a[href="/instituciones"]').first()).toBeAttached();
     await expect(page.locator('article.card')).toHaveCount(CURSOS.length);
     await expect(page.locator('article.card h3 a').first()).toHaveAttribute('href', /\/cursos\/\d+/);
-    // La portada llega prerenderizada: un toque antes de hidratar puede perderse, así que se reintenta.
-    await expect(async () => {
-      await page.locator('gems-hero-quiz .mock__opt').first().click();
-      await expect(page.locator('gems-hero-quiz .mock__why')).toBeVisible({ timeout: 2_000 });
-    }).toPass({ timeout: 15_000 });
     await sinScrollHorizontal(page);
+  });
+
+  test('portada: al terminar el Tap, «siguiente» sigue en el feed de Taps', async ({ page }) => {
+    test.setTimeout(60_000);
+    await apiFalsa(page);
+    await page.goto('/');
+    await omitirSiPortadaAnterior(page);
+    const tap = page.locator('gems-taps .tap.tap--active');
+    const primero = await tap.getAttribute('data-tap');
+    // Ya hidratado (el feed marca <html data-taps-live>): cada toque cuenta una sola vez.
+    await expect(page.locator('html[data-taps-live]')).toBeAttached({ timeout: 15_000 });
+    // Responde, adelanta con «Seguir» y responde la siguiente, hasta ver el título.
+    // «Seguir» puede irse solo (avance automático) justo al tocarlo: cada intento es corto y se tolera que desaparezca.
+    for (let k = 0; k < 20 && !(await tap.locator('.res__title').count()); k++) {
+      const objetivo = (await tap.locator('.tap__go').count()) ? tap.locator('.tap__go') : tap.locator('.tap__opt').first();
+      await objetivo.click({ timeout: 1_500 }).catch(() => undefined);
+      await page.waitForTimeout(400);
+    }
+    await expect(tap.locator('.res__title')).toBeVisible();
+    await tap.locator('.res__next').click();
+    await expect(page).toHaveURL(/\/taps\?t=/);
+    await expect(page.locator('.tap.tap--active')).not.toHaveAttribute('data-tap', primero ?? '');
   });
 
   test('portada con el API caído: no queda en blanco', async ({ page }) => {
     await apiFalsa(page, { caida: true });
     await page.goto('/');
+    await omitirSiPortadaAnterior(page);
     await expect(page.locator('h1').first()).toBeVisible();
-    await expect(page.locator('gems-hero-quiz .mock__opt').first()).toBeEnabled();
+    await expect(page.locator('gems-taps .tap__opt').first()).toBeEnabled();
+    await expect(page.locator('#cursos lib-load-error').first()).toBeVisible({ timeout: 20_000 });
   });
 
   test('ficha del curso: título, temario y botón de empezar', async ({ page }) => {

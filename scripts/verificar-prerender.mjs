@@ -37,10 +37,18 @@ for (const f of archivos) {
     if (m) { fallos++; console.error(`FALLO ${relative(raiz, f)}: «${m[0]}» -> ${que}`); }
   }
 }
-// La portada debe traer el texto estático de valor y los enlaces a las otras páginas públicas.
+// La portada debe traer el texto estático de valor, el esqueleto del catálogo y los enlaces a las otras puertas públicas.
 const portada = readFileSync(join(raiz, 'index.html'), 'utf8');
-for (const esperado of ['Aprende lo que necesitas', 'Cursos gratis', 'card--skeleton', 'href="/taps"', 'href="/instituciones"']) {
+for (const esperado of ['Retos cortos que', 'Cursos gratis', 'card--skeleton', 'href="/taps"', 'href="/retos"', 'href="/instituciones"', 'href="/auth/signin"']) {
   if (!portada.includes(esperado)) { fallos++; console.error(`FALLO index.html: falta «${esperado}»`); }
+}
+// Y se juega desde el primer fotograma: UN Tap ya pintado con su pregunta y sus opciones (el script de index.html marca
+// la respuesta antes de hidratar gracias a data-ans). Uno solo: la portada no debe cargar con el HTML de todo el feed.
+const tapsEnPortada = portada.match(/\sdata-tap="/g)?.length ?? 0;
+if (tapsEnPortada !== 1) { fallos++; console.error(`FALLO index.html: debe traer exactamente 1 Tap jugable y trae ${tapsEnPortada}`); }
+if (!/class="tap__q"[^>]*>[^<]{3,}/.test(portada)) { fallos++; console.error('FALLO index.html: el Tap no trae su pregunta en el HTML'); }
+if ((portada.match(/class="tap__opt[ "]/g)?.length ?? 0) < 2 || !/data-ans="\d"/.test(portada)) {
+  fallos++; console.error('FALLO index.html: el Tap no trae sus opciones jugables (tap__opt y data-ans)');
 }
 // Los enlaces compartidos con ids antiguos deben conservar su tarjeta: título propio, no el genérico de la shell.
 for (const id of ['primeros-pasos', 'redstone', 'nether']) {

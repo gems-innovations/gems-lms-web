@@ -1,4 +1,4 @@
-import { DOCUMENT, Location, isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, Location, NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import {
   afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostAttributeToken, HostListener, Injector, PLATFORM_ID, REQUEST, computed,
   effect, inject, signal, untracked, viewChild, viewChildren,
@@ -10,7 +10,7 @@ import { AnalyticsService, TAnalyticsEvent } from '../analytics.service';
 import { TEventPath, eventSlug } from '../analytics-taxonomy';
 import { AdvanceClock, TAP_RHYTHM, advanceDelay, browserClockHost } from './taps.clock';
 import { loadTapsEngine, tapsThemeUrl } from './taps-engine.loader';
-import { TAP_DISPLAY_FONTS, TAP_TOPICS, TAPS, findTap } from './taps.data';
+import { HOOK_TAP_IDS, TAP_DISPLAY_FONTS, TAP_TOPICS, TAPS, findTap } from './taps.data';
 import { choose, feedTopics, isGoodScore, next, optionLayout, orderFeed, resultFor, startRun, streak, topicOf } from './taps.logic';
 import { canvasToBlob, drawShareCard, loadImage, paintThemeCharacter, shareText, shareUrl } from './taps.share';
 import { TapResultComponent } from './tap-result.component';
@@ -66,9 +66,9 @@ interface IPreAnswer { id: string; k: number; t: number }
  */
 @Component({
   selector: 'gems-taps',
-  imports: [TapResultComponent, TapsBarComponent, TapRailComponent, TapPanelComponent, TapsMenuComponent, TapsRankingComponent, SkeletonComponent, TapSesionHojaComponent],
+  imports: [TapResultComponent, TapsBarComponent, TapRailComponent, TapPanelComponent, TapsMenuComponent, TapsRankingComponent, SkeletonComponent, TapSesionHojaComponent, NgTemplateOutlet],
   templateUrl: './taps-feed.component.html',
-  styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.escritorio.scss', './taps-feed.escena.scss'],
+  styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.escritorio.scss', './taps-feed.escena.scss', './taps-feed.portada.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [TapsSonidoService],
 })
@@ -102,10 +102,12 @@ export class TapsFeedComponent {
    * «Más de este tema» y el selector de temas continúan en el feed completo (/taps), que retoma lo jugado.
    */
   protected readonly portada = inject(new HostAttributeToken('modo'), { optional: true }) === 'portada';
+  /** Portada: el orden completo del feed, del que sale el Tap que sigue (`nextTap`). */
+  private following: ITap[] = [];
 
   protected readonly topic = signal<string | null>(this.query.get('tema'));
   /** Orden deseado: `?t=<id>` (enlace compartido) pone ese Tap primero; `?tema=<id>` pone primero los de esa categoría. */
-  private readonly wanted = orderFeed(TAPS, { first: findTap(this.askedId)?.id, topic: this.topic(), hookDone: this.hookDone });
+  private readonly wanted = this.onlyFirstInPortada(orderFeed(TAPS, { first: findTap(this.askedId)?.id, topic: this.topic(), hookDone: this.hookDone }));
   /**
    * Orden con el que se pinta primero. Si el HTML ya viene del servidor (SSR o prerender), se hidrata con el MISMO orden
    * que trae (un HTML prerenderizado no conoce `?t=` ni la cookie): cambiar el orden antes de hidratar rompería la
@@ -314,8 +316,9 @@ export class TapsFeedComponent {
   private applyWantedOrder(): boolean {
     const now = Date.now(), fixed = findTap(this.askedId) ? 1 : 0;
     // «Para ti» aprende de lo que se jugó; con un tema elegido el orden se respeta y solo se refresca la cabeza.
+    // En la portada, un solo Tap: el primero que esta persona aún no completó (portadaPick).
     const base = this.topic() === null ? personalize(this.wanted, fixed, this.interest(), now) : this.wanted;
-    const target = freshHead(base, this.interest(), now, 2, fixed, this.topic());
+    const target = this.portada ? this.portadaPick() : freshHead(base, this.interest(), now, 2, fixed, this.topic());
     const current = this.taps().map(t => t.id).join(), wanted = target.map(t => t.id).join();
     const answered = Object.values(this.runs()).some(r => r.answers.length > 0) || !!(globalThis as { __tapsPre?: unknown }).__tapsPre;
     if (current === wanted || answered) return false;
@@ -325,10 +328,41 @@ export class TapsFeedComponent {
     return true;
   }
 
+  // ───────────── portada (modo="portada") ─────────────
+  private onlyFirstInPortada(list: ITap[]): ITap[] {
+    if (!this.portada) return list;
+    this.following = list;
+    return list.slice(0, 1);
+  }
+
+  /** Portada, ya en el navegador: «Para ti» con lo aprendido y, primero, un Tap que esta persona aún no completó. */
+  private portadaPick(): ITap[] {
+    const done = this.interest().done;
+    const hookDone = this.hookDone || HOOK_TAP_IDS.some(id => id in done);
+    this.following = personalize(orderFeed(TAPS, { hookDone }), 2, this.interest(), Date.now());
+    const first = this.following.find(t => !(t.id in done)) ?? this.following[0];
+    this.following = [first, ...this.following.filter(t => t !== first)];
+    return [first];
+  }
+
+  /** Portada: seguir jugando es pasar al feed completo, que retoma lo jugado (sessionStorage) y abre en ese Tap o tema. */
+  private toFeed(queryParams: { t?: string; tema?: string | null }): void {
+    void this.router.navigate(['/taps'], { queryParams });
+  }
+
+  /** Portada: las teclas (1-4, Espacio, M) solo juegan mientras la tarjeta se ve; quien bajó a leer no responde sin querer. */
+  private portadaOnScreen(): boolean {
+    const box = this.host.nativeElement.getBoundingClientRect();
+    return box.bottom > innerHeight * .4 && box.top < innerHeight * .6;
+  }
+
   // ───────────── vista ─────────────
   protected run(tap: ITap): ITapRun { return this.runs()[tap.id]; }
   protected layout(tap: ITap): string { return optionLayout(tap.questions[this.run(tap).index]?.options ?? []); }
-  protected nextTap(tap: ITap): ITap | null { return this.taps()[this.taps().indexOf(tap) + 1] ?? null; }
+  protected nextTap(tap: ITap): ITap | null {
+    const list = this.portada ? this.following : this.taps();
+    return list[list.findIndex(t => t.id === tap.id) + 1] ?? null;
+  }
   protected streakOf(tap: ITap): number { return streak(this.run(tap)); }
   protected shape(k: number): string { return SHAPES[k] ?? ''; }
   protected letter(k: number): string { return 'ABCD'[k] ?? String(k + 1); }
@@ -443,12 +477,14 @@ export class TapsFeedComponent {
   }
 
   protected goNext(tap: ITap): void {
+    if (this.portada) { this.track('taps-siguiente', 'taps/siguiente'); this.toFeed({ t: this.nextTap(tap)?.id }); return; }
     const nextSection = this.sections()[this.taps().indexOf(tap) + 1]?.nativeElement;
     nextSection?.scrollIntoView({ behavior: this.reducedMotion() ? 'auto' : 'smooth', block: 'start' });
   }
 
   /** «Más de este tema»: el siguiente Tap sin terminar de la misma categoría; si no hay, el siguiente del feed. */
   protected moreOf(tap: ITap): void {
+    if (this.portada) { this.toFeed({ tema: topicOf(tap) }); return; }
     const list = this.taps(), from = list.indexOf(tap);
     const target = list.find((t, i) => i > from && topicOf(t) === topicOf(tap) && !this.run(t).finished)
       ?? list.find((t, i) => i !== from && topicOf(t) === topicOf(tap) && !this.run(t).finished);
@@ -678,7 +714,8 @@ export class TapsFeedComponent {
     const go = () => {
       void this.audio.precargar().then(() => this.audio.precalentar(this.activeTap().theme));
       void this.audio.prepararVoz().then(ok => {
-        const on = ok && this.readStorage(VOZ_KEY) === 'on';
+        // En la portada la voz arranca apagada aunque se haya dejado encendida en /taps: solo habla si la activan aquí.
+        const on = ok && !this.portada && this.readStorage(VOZ_KEY) === 'on';
         this.voice.set(ok ? (on ? 'on' : 'off') : 'none');
         this.audio.activarVoz(on);
         this.syncStageVoice();
@@ -728,6 +765,7 @@ export class TapsFeedComponent {
   protected selectTopic(id: string | null): void {
     this.track(null, `taps/tema/elegir/${id ? eventSlug(id) : 'para-ti'}`);
     this.audio.tocar('toque', { tema: this.activeTap().theme });
+    if (this.portada) { this.toFeed({ tema: id }); return; }
     this.clock.flush();
     this.topic.set(id);
     const ordered = orderFeed(TAPS, { topic: id, hookDone: this.hookDone || this.anyFinished() });
@@ -809,7 +847,7 @@ export class TapsFeedComponent {
    */
   @HostListener('window:keydown', ['$event'])
   protected onKey(event: KeyboardEvent): void {
-    if (this.sheetOpen() || event.defaultPrevented) return;
+    if (this.sheetOpen() || event.defaultPrevented || (this.portada && !this.portadaOnScreen())) return;
     const action = keyAction(event, this.shortcuts());
     const target = event.target as Element | null;
     if (!action || typingTarget(target)) return;
@@ -829,7 +867,7 @@ export class TapsFeedComponent {
       case 'focus': if (desktop) this.focusMode.update(v => !v); break;
       case 'menu': if (desktop) this.toggleMenu(); break;
       case 'help': if (desktop) this.legendOpen.update(v => !v); break;
-      case 'escape': if (this.legendOpen()) this.legendOpen.set(false); else if (this.focusMode()) this.focusMode.set(false); else if (this.menuInverted() && this.host.nativeElement.clientWidth < 1280) this.toggleMenu(); break;
+      case 'escape': if (this.portada) break; if (this.legendOpen()) this.legendOpen.set(false); else if (this.focusMode()) this.focusMode.set(false); else if (this.menuInverted() && this.host.nativeElement.clientWidth < 1280) this.toggleMenu(); break;
     }
   }
 
@@ -891,6 +929,7 @@ export class TapsFeedComponent {
 
   /** Escritorio y tablet: mide el ancho una vez y lo sigue; la rueda se intercepta solo ahí (en táctil queda el snap nativo). */
   private watchViewport(): void {
+    if (this.portada) return;                                        // en la portada la tarjeta es «móvil» en todo ancho y la rueda es de la página
     const query = matchMedia('(min-width: 768px)');
     const update = () => this.wide.set(query.matches);
     update();
@@ -940,6 +979,7 @@ export class TapsFeedComponent {
 
   private focusLater(tap: ITap, selector: string): void {
     afterNextRender(() => {
+      if (this.portada && !this.portadaOnScreen()) return;        // portada: quien bajó a leer no pierde su lugar por el foco
       const section = this.sections()[this.taps().indexOf(tap)]?.nativeElement;
       const el = section?.querySelector<HTMLElement>(selector);
       el?.focus({ preventScroll: true });
@@ -1031,7 +1071,7 @@ export class TapsFeedComponent {
    * entrada al historial, así Atrás vuelve una vez al Tap con el que se entró y la siguiente vez sale (no atrapa).
    */
   private syncUrl(tap: ITap, previous: number): void {
-    if (!this.live()) return;
+    if (!this.live() || this.portada) return;
     const [path, search = ''] = this.location.path().split('?');
     const params = new URLSearchParams(search);
     let next: string;
@@ -1049,6 +1089,7 @@ export class TapsFeedComponent {
   }
 
   private onPopState(): void {
+    if (this.portada) return;
     this.pushed = false;
     const [path, search = ''] = this.location.path().split('?');
     const id = this.sharedRoute ? this.safeDecode(path.replace(/^\/t\//, '')) : new URLSearchParams(search).get('t');
@@ -1196,6 +1237,8 @@ export class TapsFeedComponent {
    * antiguo del evento (`taps-ver`, `taps-compartir`…) para no cortar las series que ya existen.
    */
   private track(legacy: TAnalyticsEvent | null, path: TEventPath): void {
+    // Portada: su propio prefijo (`portada/tap/ver/<id>`, `portada/tap/responder/...`) para no inflar el embudo de /taps.
+    if (this.portada) { this.analytics.event(path.startsWith('taps/') ? `portada/tap/${path.slice('taps/'.length)}` : path); return; }
     if (legacy) this.analytics.event(legacy);
     this.analytics.event(path);
   }
