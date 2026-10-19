@@ -7,16 +7,13 @@
   font-family: var(--font-texto);
   font-weight: var(--font-weight-semibold);
   border: 1px solid transparent;
-  border-radius: var(--border-radius-md);
+  border-radius: var(--radio-control);
   cursor: pointer;
-  transition: background var(--transition-fast) var(--transition-easing),
-    border-color var(--transition-fast) var(--transition-easing),
-    box-shadow var(--transition-fast) var(--transition-easing),
-    transform var(--transition-fast) var(--transition-easing);
-
-  &:active:not(:disabled) {
-    transform: translateY(1px);
-  }
+  // Presión (scale 0.97 en 80 ms) y foco vienen del sistema compartido (_movimiento.scss).
+  transition: background var(--dur-rapida) var(--curva-estandar),
+    border-color var(--dur-rapida) var(--curva-estandar),
+    box-shadow var(--dur-base) var(--curva-estandar),
+    transform var(--dur-base) var(--curva-salida);
 
   // ── Tamaños ──────────────────────────────────────────────────────────────
   &--sm {
@@ -41,9 +38,11 @@
   &--primary {
     background: var(--color-primario-accion, var(--color-primario));
     color: var(--color-sobre-primario, var(--color-texto-invertido));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.16), 0 6px 16px -8px var(--color-primario);
 
     &:hover:not(:disabled) {
       background: color-mix(in srgb, var(--color-primario-accion) 88%, #000);
+      box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.16), 0 10px 24px -8px var(--color-primario);
     }
   }
 

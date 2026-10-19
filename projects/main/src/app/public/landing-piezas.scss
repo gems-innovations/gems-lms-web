@@ -1,0 +1,5 @@
+// Piezas del sistema visual que usa la portada: iconos de vidrio, chip y esqueleto de carga (projects/shared/MOVIMIENTO.md).
+@use 'piezas';
+
+@include piezas.iconos;
+@include piezas.skeleton;

@@ -35,7 +35,7 @@ export { PaginationComponent } from "./infrastructure/ui/components/pagination/p
 
 export { parseCsv, parseCsvObjects, normalizeHeader, toCsv, downloadCsv, detectDelimiter } from "./infrastructure/utils/csv";
 export { AutofocusDirective } from "./infrastructure/ui/directives/autofocus.directive";
-export { RevealDirective, CountUpDirective, AutoAnimateDirective, celebrate, prefersReducedMotion } from "./infrastructure/ui/directives/motion";
+export { RevealDirective, CountUpDirective, AutoAnimateDirective, celebrate, celebrarEn, prefersReducedMotion, animarClase, marcarAcierto, marcarError } from "./infrastructure/ui/directives/motion";
 
 export { RadarChartComponent } from "./infrastructure/ui/components/radar-chart/radar-chart.component";
 export type { IRadarSeries } from "./infrastructure/ui/components/radar-chart/radar-chart.component";

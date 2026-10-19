@@ -1,0 +1,150 @@
+// ============================================================================
+// GEMS – Piezas visuales compartidas como mixins (no son globales para no pesar en el CSS inicial).
+// Uso en el .scss de un componente:   @use 'piezas';   @include piezas.iconos;
+// Documentación: projects/shared/MOVIMIENTO.md. Tokens en design-system.scss.
+// ============================================================================
+
+// Iconos de vidrio (.gm-icono) y chip con icono (.gm-chip).
+// Variantes: --flotante (rieles sobre video/escena, único con desenfoque), --tema (color propio con --tinte),
+// --tarjeta, --destacado (trazo con el degradado de marca de app.html), tamaños --sm / --lg.
+@mixin iconos {
+  :where(.gm-icono) { position: relative; }
+  .gm-icono {
+    --tinte: var(--color-primario);
+    --caja: 40px;
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: var(--caja);
+    height: var(--caja);
+    border-radius: calc(var(--caja) * 0.32);
+    color: color-mix(in srgb, var(--tinte) 70%, var(--color-texto-principal));
+    background:
+      linear-gradient(155deg, var(--glass-brillo), transparent 58%),
+      color-mix(in srgb, var(--tinte) 16%, var(--glass-fondo));
+    border: 1px solid color-mix(in srgb, var(--tinte) 32%, var(--glass-borde));
+    box-shadow: inset 0 1px 0 var(--glass-luz), inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+      0 6px 16px -8px color-mix(in srgb, var(--tinte) 60%, transparent);
+    transition: transform var(--dur-base) var(--curva-rebote);
+
+    svg { stroke-width: 2.25; }
+
+    // Brillo al presionar: una capa de luz que sube de opacidad (más barato que filter).
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.45), transparent 70%);
+      opacity: 0;
+      transition: opacity var(--dur-rapida) var(--curva-estandar);
+    }
+
+    &--sm { --caja: 28px; svg { stroke-width: 2.5; } }
+    &--tarjeta { --caja: 44px; }
+    &--lg { --caja: 56px; }
+    &--tema { color: color-mix(in srgb, var(--tinte) 78%, var(--color-texto-principal)); }
+
+    &--destacado {
+      background:
+        linear-gradient(155deg, var(--glass-brillo), transparent 58%),
+        linear-gradient(135deg, color-mix(in srgb, var(--color-primario) 22%, transparent), color-mix(in srgb, var(--color-acento) 14%, transparent)),
+        var(--glass-fondo);
+      border-color: color-mix(in srgb, var(--color-primario) 40%, var(--glass-borde));
+      svg { stroke: url(#gm-degradado-icono); }
+    }
+
+    &--flotante {
+      --caja: 48px;
+      border-radius: 50%;
+      color: #fff;
+      background: linear-gradient(155deg, rgba(255, 255, 255, 0.2), transparent 60%), var(--glass-flotante-solido);
+      border-color: rgba(255, 255, 255, 0.22);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 6px 18px rgba(0, 0, 0, 0.35);
+    }
+  }
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .gm-icono--flotante {
+      background: linear-gradient(155deg, rgba(255, 255, 255, 0.2), transparent 60%), var(--glass-flotante);
+      -webkit-backdrop-filter: var(--glass-blur);
+      backdrop-filter: var(--glass-blur);
+    }
+  }
+
+  // Presionar el icono (o el botón/enlace que lo contiene): se encoge y brilla.
+  :is(button, a, [role='button']):active .gm-icono,
+  .gm-icono:is(button, a):active { transform: scale(0.92); transition-duration: var(--dur-instante); }
+  :is(button, a, [role='button']):active .gm-icono::after,
+  .gm-icono:is(button, a):active::after { opacity: 1; }
+  @media (hover: hover) {
+    :is(button, a):hover .gm-icono::after, .gm-icono:is(button, a):hover::after { opacity: 0.45; }
+  }
+
+  // Chip con icono: píldora de vidrio con un icono pequeño.
+  .gm-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 4px 14px 4px 4px;
+    border-radius: var(--radio-pastilla);
+    font: 700 var(--texto-etiqueta)/1 var(--font-texto);
+    color: var(--color-texto-principal);
+    background: linear-gradient(155deg, var(--glass-brillo), transparent 60%), var(--glass-fondo);
+    border: 1px solid var(--glass-borde);
+    box-shadow: inset 0 1px 0 var(--glass-luz);
+    > .gm-icono { --caja: 28px; border-radius: 50%; }
+  }
+
+  // Sin transparencia (preferencia del sistema) o modo ligero (equipos modestos / ahorro de datos): fondo sólido.
+  @media (prefers-reduced-transparency: reduce) {
+    .gm-icono, .gm-chip { background: color-mix(in srgb, var(--tinte, var(--color-primario)) 14%, var(--color-superficie-alta)); }
+    .gm-icono--flotante { background: var(--glass-flotante-solido); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  }
+  :host-context(.modo-ligero) .gm-icono--flotante { background: var(--glass-flotante-solido); -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    :is(button, a, [role='button']):active .gm-icono, .gm-icono:is(button, a):active { transform: none; }
+  }
+  :host-context(.reduce-motion) :is(button, a, [role='button']):active .gm-icono { transform: none; }
+}
+
+// Esqueleto de carga con barrido (solo transform).
+@mixin skeleton {
+  .gm-skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-fondo-sutil);
+    border-radius: var(--radio-tarjeta);
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-texto-principal) 7%, transparent), transparent);
+      animation: gm-barrido 1.4s var(--curva-estandar) infinite;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) { .gm-skeleton::after { animation: none; } }
+  :host-context(.reduce-motion) .gm-skeleton::after { animation: none; }
+}
+
+// Progreso: <div class="gm-progreso"><span [style.--p]="0.6"></span></div>. El relleno escala en X.
+@mixin progreso {
+  .gm-progreso {
+    height: 6px;
+    border-radius: var(--radio-pastilla);
+    overflow: hidden;
+    background: var(--color-fondo-sutil);
+    > i, > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--color-primario), var(--color-acento));
+      transform-origin: left center;
+      transform: scaleX(var(--p, 0));
+      transition: transform var(--dur-lenta) var(--curva-salida);
+    }
+  }
+}

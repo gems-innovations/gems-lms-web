@@ -1,0 +1,143 @@
+// ============================================================================
+// GEMS – Movimiento, microdiseño, iconos de vidrio y tipografía (patrones globales)
+// ============================================================================
+// Se carga una sola vez desde projects/main/src/styles.scss. Los tokens (--dur-*, --curva-*, --glass-*, --texto-*)
+// viven en design-system.scss. Guía de uso: projects/shared/MOVIMIENTO.md y projects/shared/TIPOGRAFIA.md.
+// Regla de oro: solo se animan transform y opacity. Con movimiento reducido todo pasa a un fundido corto.
+// ============================================================================
+
+// Con movimiento reducido (sistema operativo o preferencia de la plataforma) se aplica el mismo bloque.
+@mixin reducido {
+  @media (prefers-reduced-motion: reduce) { @content; }
+  :root.reduce-motion { @content; }
+}
+
+// ── Fuente de interfaz ──────────────────────────────────────────────────────
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-latin-var.woff2') format('woff2');
+}
+
+// Escala tipográfica: se usa con los tokens --texto-* de design-system.scss (sin clases globales, para no pesar).
+
+// ── Keyframes compartidos ───────────────────────────────────────────────────
+@keyframes gm-aparecer { from { opacity: 0; transform: translateY(8px); } }
+@keyframes gm-pop { from { opacity: 0; transform: scale(0.94); } }
+@keyframes gm-acierto { 0% { transform: scale(1); } 40% { transform: scale(1.035); } 100% { transform: scale(1); } }
+@keyframes gm-destello { 0% { opacity: 0; transform: scale(0.98); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(1.05); } }
+@keyframes gm-sacudida {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+@keyframes gm-fundido { from { opacity: 0; } }
+@keyframes gm-fundido-salida { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes gm-barrido { to { transform: translateX(100%); } }
+@keyframes gm-toast { from { opacity: 0; transform: translateY(12px) scale(0.98); } }
+
+// ── Presionar: toda acción responde al toque en 80 ms (como las opciones de Taps) ──
+:where(button, [role='button'], a) {
+  transition: color var(--dur-rapida) var(--curva-estandar), background-color var(--dur-rapida) var(--curva-estandar),
+    border-color var(--dur-rapida) var(--curva-estandar), box-shadow var(--dur-base) var(--curva-estandar),
+    transform var(--dur-base) var(--curva-salida);
+}
+:where(button, [role='button']):active:not(:disabled, [aria-disabled='true']),
+.gm-presion:active {
+  transform: scale(var(--presion-escala));
+  transition-duration: var(--dur-instante);
+}
+
+// ── Elevar al pasar el cursor (solo con mouse) ──
+.gm-elevar, .lib-lift {
+  transition: transform var(--dur-base) var(--curva-salida), box-shadow var(--dur-base) var(--curva-estandar),
+    border-color var(--dur-rapida) var(--curva-estandar);
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(var(--elevar-hover));
+      box-shadow: var(--sombra-lg);
+      border-color: color-mix(in srgb, var(--color-primario) 35%, var(--color-borde-principal));
+    }
+  }
+}
+
+// ── Aparecer: al montarse (gm-aparecer) o al entrar en pantalla (directiva libReveal) ──
+// Escalonado con --gm-i (índice): style="--gm-i: 2".
+.gm-aparecer { animation: gm-aparecer var(--dur-enfasis) var(--curva-salida) both; animation-delay: calc(min(var(--gm-i, 0), 8) * 40ms); }
+.gems-enter { animation: gm-aparecer var(--dur-base) var(--curva-salida) both; }
+.gm-pop { animation: gm-pop var(--dur-base) var(--curva-rebote) both; }
+.lib-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity var(--dur-lenta) var(--curva-estandar) var(--reveal-delay, 0ms),
+    transform var(--dur-lenta) var(--curva-salida) var(--reveal-delay, 0ms);
+  &--in { opacity: 1; transform: none; }
+}
+
+// ── Acierto (rebote + destello verde) y error (sacudida corta + destello rojo) ──
+// Se ponen en el elemento al responder; la animación corre una vez. El color no es la única señal: acompáñalo
+// de un icono (marca o X) y de texto.
+:where(.gm-acierto, .gm-error) { position: relative; } // :where: si el componente ya lo posiciona, gana el suyo
+.gm-acierto { animation: gm-acierto var(--dur-enfasis) var(--curva-rebote); }
+.gm-error { animation: gm-sacudida var(--dur-enfasis) var(--curva-estandar); }
+.gm-acierto::after, .gm-error::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  animation: gm-destello 600ms var(--curva-salida);
+}
+.gm-acierto::after { box-shadow: 0 0 0 2px var(--color-exito), 0 0 22px color-mix(in srgb, var(--color-exito) 55%, transparent); }
+.gm-error::after { box-shadow: 0 0 0 2px var(--color-error), 0 0 18px color-mix(in srgb, var(--color-error) 45%, transparent); }
+
+// ── Avisos (toasts) ──
+.gm-toast { animation: gm-toast var(--dur-enfasis) var(--curva-salida) both; }
+
+// ── Foco visible y accesible (teclado), también sobre fondos de color ──
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) { outline: none; }
+
+// ── Cambio de página (View Transitions; sin soporte, el contenido nuevo solo se funde) ──
+::view-transition-old(root) { animation: gm-salida-pagina var(--dur-rapida) var(--curva-entrada) both; }
+::view-transition-new(root) { animation: gm-aparecer var(--dur-lenta) var(--curva-salida) both; }
+@keyframes gm-salida-pagina { to { opacity: 0; } }
+
+// Iconos de vidrio, chip, esqueleto y progreso: mixins en _piezas.scss (los incluye cada componente que los usa,
+// así no pesan en el CSS inicial).
+
+// ============================================================================
+// Movimiento reducido: nada se desplaza ni escala; lo que comunica estado se vuelve un fundido corto.
+// (styles.scss ya anula el resto de transiciones y animaciones de la plataforma.)
+// ============================================================================
+@include reducido {
+  .gm-aparecer, .gems-enter, .gm-pop, .gm-toast {
+    animation-name: gm-fundido !important;
+    animation-duration: var(--dur-reducida) !important;
+    animation-delay: 0ms !important;
+  }
+  .gm-acierto, .gm-error { animation: none !important; }
+  .gm-acierto::after, .gm-error::after { animation-name: gm-fundido-salida !important; animation-duration: 600ms !important; }
+  .lib-reveal { opacity: 1; transform: none; transition: none; }
+  .gm-elevar:hover, .lib-lift:hover { transform: none; }
+  :where(button, [role='button']):active:not(:disabled), .gm-presion:active { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: gm-fundido var(--dur-reducida) linear both; }
+  ::view-transition-old(root) { animation-direction: reverse; }
+}
+
+// Tema claro: el degradado del icono destacado baja de luminosidad para mantener contraste sobre fondo blanco.
+:root.light-mode #gm-degradado-icono {
+  stop:nth-child(1) { stop-color: #9333C9; }
+  stop:nth-child(2) { stop-color: #5B4EC1; }
+  stop:nth-child(3) { stop-color: #0E7490; }
+}

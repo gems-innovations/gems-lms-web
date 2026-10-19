@@ -10,7 +10,7 @@
         <button type="button" class="btn btn--primary" [disabled]="starter.starting() !== null" (click)="startFirst()">{{ starter.starting() !== null ? 'Entrando…' : 'Empezar gratis ahora' }}</button>
         <a class="btn btn--ghost" routerLink="/" fragment="cursos">Ver todos los cursos</a>
       </div>
-      <p class="trust">Sin correo, sin contraseña y sin tarjeta. Entras en un toque.</p>
+      <p class="trust"><span class="gm-chip"><span class="gm-icono gm-icono--sm gm-icono--tema" style="--tinte: var(--color-exito)"><svg lucideShieldCheck [size]="16" aria-hidden="true"></svg></span>Sin correo, sin contraseña y sin tarjeta</span></p>
       <ul class="hero__facts">
         <li><strong>$0</strong> para empezar</li>
         <li><strong>0</strong> formularios</li>
@@ -31,7 +31,7 @@
     @switch (state()) {
       @case ('loading') {
         <div class="grid">
-          @for (i of [1, 2, 3]; track i) { <div class="card card--skeleton"></div> }
+          @for (i of [1, 2, 3]; track i) { <div class="card card--skeleton gm-skeleton"></div> }
         </div>
       }
       @case ('error') {
@@ -119,12 +119,14 @@
       </article>
 
       <article class="tile">
+        <span class="gm-icono gm-icono--destacado" aria-hidden="true"><svg lucideZap [size]="22"></svg></span>
         <span class="tile__num">10 <small>min</small></span>
         <strong>por lección</strong>
         <span>Cortas a propósito, para hacer una al día sin dejar de hacer lo demás.</span>
       </article>
 
       <article class="tile">
+        <span class="gm-icono gm-icono--destacado" aria-hidden="true"><svg lucideShieldCheck [size]="22"></svg></span>
         <span class="tile__num">0 <small>datos</small></span>
         <strong>para empezar</strong>
         <span>Ni correo ni contraseña. La cuenta es opcional, para guardar tu avance.</span>
@@ -158,16 +160,19 @@
     </div>
     <div class="crea">
       <article class="crea__card">
+        <span class="gm-icono gm-icono--tema gm-icono--tarjeta" aria-hidden="true"><svg lucideGraduationCap [size]="22"></svg></span>
         <span class="crea__chip" aria-hidden="true"><i></i>Lección 3 · 10 min</span>
         <strong>Profesores y tutores</strong>
         <p>Pasa tus clases a lecciones de 10 minutos y mira quién va al día y quién necesita ayuda.</p>
       </article>
       <article class="crea__card">
+        <span class="gm-icono gm-icono--tema gm-icono--tarjeta" style="--tinte: var(--color-acento)" aria-hidden="true"><svg lucideSend [size]="22"></svg></span>
         <span class="crea__chip" aria-hidden="true"><i></i>Tu enlace · sin registro</span>
         <strong>Creadores de contenido</strong>
         <p>Retos, tests y mini cursos para tu comunidad, con un enlace que pueden abrir sin registrarse.</p>
       </article>
       <article class="crea__card">
+        <span class="gm-icono gm-icono--tema gm-icono--tarjeta" style="--tinte: var(--color-magenta)" aria-hidden="true"><svg lucideSchool [size]="22"></svg></span>
         <span class="crea__chip" aria-hidden="true"><i></i>Periodo 2 · notas y certificados</span>
         <strong>Colegios, academias y empresas</strong>
         <p>Un espacio propio con tus cursos, tu gente, períodos, notas y certificados.</p>

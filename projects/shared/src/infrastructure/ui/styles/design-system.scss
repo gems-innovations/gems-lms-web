@@ -113,8 +113,30 @@
   // =========================================================================
   // TIPOGRAFÍA
   // =========================================================================
-  --font-titulo: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-texto: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  // Una sola familia de interfaz en todo el sitio (y en los textos de Taps): Plus Jakarta Sans variable, subconjunto
+  // latino, un archivo de 27 KB para todos los pesos (200-800). Detalle y escala en projects/shared/TIPOGRAFIA.md.
+  --font-interfaz: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-titulo: var(--font-interfaz);
+  --font-texto: var(--font-interfaz);
+  // Display: solo acentos de un tema (título, burbuja). Cada tema la redefine; nunca en opciones ni textos largos.
+  --font-display: var(--font-interfaz);
+
+  // Escala fluida: tamaño / peso / interlineado / tracking por rol. Ningún texto de lectura baja de 16 px.
+  --texto-titulo-1: clamp(2rem, 1.35rem + 3.2vw, 3.5rem);
+  --texto-titulo-2: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
+  --texto-titulo-3: clamp(1.125rem, 1.05rem + 0.4vw, 1.3rem);
+  --texto-pregunta: clamp(1.1875rem, 1.05rem + 0.9vw, 1.4rem);
+  --texto-opcion: clamp(1rem, 0.96rem + 0.25vw, 1.0625rem);
+  --texto-cuerpo: 1rem;
+  --texto-cuerpo-lg: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+  --texto-etiqueta: 0.8125rem;
+  --texto-puntaje: clamp(2.25rem, 1.8rem + 2vw, 3rem);
+  --interlineado-titulo: 1.1;
+  --interlineado-pregunta: 1.3;
+  --interlineado-cuerpo: 1.6;
+  --tracking-titulo: -0.02em;
+  --tracking-pregunta: -0.01em;
+  --tracking-etiqueta: 0.08em;
 
   --font-size-xs: 0.75rem;    // 12px
   --font-size-sm: 0.875rem;   // 14px
@@ -156,10 +178,38 @@
   // =========================================================================
   // TRANSICIONES
   // =========================================================================
-  --transition-fast: 0.15s;
-  --transition-base: 0.3s;
-  --transition-slow: 0.5s;
-  --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  // Sistema de movimiento (projects/shared/MOVIMIENTO.md). Los nombres --transition-* quedan como alias.
+  --dur-instante: 80ms;    // presión de un toque (Taps: la opción baja en 80 ms)
+  --dur-rapida: 120ms;     // hover, color, foco
+  --dur-base: 200ms;       // aparecer, cambiar de estado
+  --dur-enfasis: 320ms;    // acierto, error, tarjetas que entran
+  --dur-lenta: 480ms;      // aparición al hacer scroll, cambio de página
+  --dur-reducida: 150ms;   // fundido que reemplaza al movimiento con prefers-reduced-motion
+  --curva-estandar: cubic-bezier(0.4, 0, 0.2, 1);
+  --curva-salida: cubic-bezier(0.16, 1, 0.3, 1);      // entra rápido y frena suave (la más usada)
+  --curva-entrada: cubic-bezier(0.4, 0, 1, 1);        // solo para lo que sale de pantalla
+  --curva-rebote: cubic-bezier(0.2, 1.4, 0.4, 1);     // «spring» de Taps: píldoras, aciertos
+  --presion-escala: 0.97;
+  --elevar-hover: -2px;
+
+  --transition-fast: var(--dur-rapida);
+  --transition-base: var(--dur-base);
+  --transition-slow: var(--dur-lenta);
+  --transition-easing: var(--curva-estandar);
+
+  // Radios por rol (alineados con Taps: opciones 16 px, píldoras redondas).
+  --radio-control: 12px;
+  --radio-tarjeta: 16px;
+  --radio-pastilla: 999px;
+
+  // Vidrio (iconos y controles flotantes). Ver .gm-icono en _movimiento.scss.
+  --glass-fondo: rgba(255, 255, 255, 0.06);
+  --glass-borde: rgba(255, 255, 255, 0.14);
+  --glass-luz: rgba(255, 255, 255, 0.22);
+  --glass-brillo: rgba(255, 255, 255, 0.14);
+  --glass-flotante: rgba(12, 14, 22, 0.38);
+  --glass-flotante-solido: rgba(12, 14, 22, 0.72);
+  --glass-blur: blur(14px) saturate(170%);
 
   // =========================================================================
   // Z-INDEX
@@ -171,6 +221,8 @@
   --z-modal: 1050;
   --z-popover: 1060;
   --z-tooltip: 1070;
+  --z-toast: 1080;
+  --z-confeti: 1090;
 }
 
 // ============================================================================
@@ -224,4 +276,9 @@
   --sombra-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --sombra-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --sombra-sidebar: 4px 0 20px rgba(0, 0, 0, 0.08);
+
+  --glass-fondo: rgba(255, 255, 255, 0.62);
+  --glass-borde: rgba(15, 16, 33, 0.08);
+  --glass-luz: rgba(255, 255, 255, 0.95);
+  --glass-brillo: rgba(255, 255, 255, 0.7);
 }

@@ -5,7 +5,8 @@ import { PublicHeaderComponent } from './public-header.component';
 import { PublicFooterComponent } from './public-footer.component';
 import { PublicCatalogService } from './public-catalog.service';
 import { CourseStarterService } from './course-starter.service';
-import { pop } from './micro-effects';
+import { LucideCircleCheck, LucideX } from '@lucide/angular';
+import { celebrarEn } from 'shared';
 import { IReto, RETO_SETS } from './retos.data';
 
 /** Después de cuántos retos respondidos aparece la invitación al curso (y se queda visible). */
@@ -20,7 +21,7 @@ const TODOS = 'Todos';
  */
 @Component({
   selector: 'gems-retos',
-  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent],
+  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, LucideCircleCheck, LucideX],
   template: `
     <gems-public-header />
     <main class="pub">
@@ -41,34 +42,39 @@ const TODOS = 'Todos';
       }
 
       <div class="rgrid">
-        <div class="mock" aria-live="polite">
+        <div class="mock" #tarjeta aria-live="polite">
           @if (reto(); as r) {
             <div class="mock__top">
               <span class="mock__tag">{{ r.tag }}</span>
               <span class="mock__n">
-                @if (aciertos() > 0) { <span class="mock__streak">{{ aciertos() }} {{ aciertos() === 1 ? 'acierto' : 'aciertos' }}</span> }
+                @if (aciertos() > 0) { <span class="mock__streak gm-pop">{{ aciertos() }} {{ aciertos() === 1 ? 'acierto' : 'aciertos' }}</span> }
                 {{ i() + 1 }}/{{ total() }}
               </span>
             </div>
-            <div class="mock__bar" role="progressbar" [attr.aria-valuenow]="i() + 1" aria-valuemin="1" [attr.aria-valuemax]="total()"><span [style.width.%]="((i() + 1) / total()) * 100"></span></div>
+            <div class="mock__bar gm-progreso" role="progressbar" [attr.aria-valuenow]="i() + 1" aria-valuemin="1" [attr.aria-valuemax]="total()"><span [style.--p]="(i() + 1) / total()"></span></div>
             <strong class="mock__q" id="reto-q">{{ r.q }}</strong>
-            <div class="mock__opts" role="group" aria-labelledby="reto-q">
+            <div class="mock__opts" [class.mock__opts--done]="elegida() !== null" role="group" aria-labelledby="reto-q">
               @for (o of r.options; track o; let k = $index) {
                 <button type="button" class="mock__opt" [disabled]="elegida() !== null"
                         [class.mock__opt--ok]="elegida() !== null && k === r.answer"
                         [class.mock__opt--bad]="elegida() === k && k !== r.answer"
-                        (click)="elegir(k, $event)">{{ 'ABCD'[k] }}. {{ o }}@if (elegida() !== null && k === r.answer) { <span aria-hidden="true"> ✓</span> }</button>
+                        [class.gm-acierto]="elegida() === k && k === r.answer"
+                        [class.gm-error]="elegida() === k && k !== r.answer"
+                        (click)="elegir(k, tarjeta)"><span class="mock__key">{{ 'ABCD'[k] }}</span> {{ o }}
+                  @if (elegida() !== null && k === r.answer) { <svg lucideCircleCheck [size]="20" aria-hidden="true"></svg> }
+                  @else if (elegida() === k) { <svg lucideX [size]="20" aria-hidden="true"></svg> }
+                </button>
               }
             </div>
             @if (elegida() !== null) {
-              <p class="mock__why"><strong>{{ elegida() === r.answer ? '¡Bien pensado!' : 'Casi.' }}</strong> {{ r.why }}</p>
+              <p class="mock__why gm-aparecer"><strong>{{ elegida() === r.answer ? '¡Bien pensado!' : 'Casi.' }}</strong> {{ r.why }}</p>
               @if (i() + 1 < total()) {
                 <button type="button" class="btn btn--primary btn--block" (click)="siguiente()">Siguiente reto</button>
               }
             }
           }
           @if (fin()) {
-            <p class="mock__why"><strong>{{ set.categorias ? 'Terminaste este tema.' : '¡Los resolviste todos!' }} {{ aciertos() }} de {{ respondidos() }} acertadas.</strong> {{ set.categorias ? 'Prueba otro tema o comparte tu puntaje.' : 'Pronto subimos más.' }}</p>
+            <p class="mock__why gm-pop"><strong>{{ set.categorias ? 'Terminaste este tema.' : '¡Los resolviste todos!' }} {{ aciertos() }} de {{ respondidos() }} acertadas.</strong> {{ set.categorias ? 'Prueba otro tema o comparte tu puntaje.' : 'Pronto subimos más.' }}</p>
           }
           @if (set.categorias && respondidos() > 0) {
             <div class="rshare">
@@ -136,10 +142,11 @@ export class RetosComponent {
     });
   }
 
-  protected elegir(k: number, event: Event): void {
+  protected elegir(k: number, tarjeta: HTMLElement): void {
     const r = this.reto();
     this.respuestas.update(m => ({ ...m, [r.id]: k }));
-    if (k === r.answer) void pop(event.currentTarget as Element);
+    // Cada 5 aciertos, un confeti pequeño que sale de la tarjeta (no de toda la pantalla).
+    if (k === r.answer && this.aciertos() > 0 && this.aciertos() % 5 === 0) void celebrarEn(tarjeta);
   }
 
   protected siguiente(): void {

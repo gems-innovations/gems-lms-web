@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, afterNextRender, computed, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -9,6 +9,16 @@ import { GuestSaveBarComponent } from './public/guest-save-bar.component';
 import { isGuestUser } from './public/guest-access.service';
 import { AppStatusService } from './app-status.service';
 import { ToastContainerComponent } from 'shared';
+
+/**
+ * Modo ligero: en equipos modestos (≤ 2 GB) o con ahorro de datos se quitan los efectos caros, como el desenfoque
+ * de los iconos de vidrio (ver _movimiento.scss). Va aquí y no en 'shared' para no arrastrar más código al bundle inicial.
+ */
+function aplicarModoLigero(): void {
+  const nav = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
+  const ligero = nav.connection?.saveData === true || (nav.deviceMemory !== undefined && nav.deviceMemory <= 2);
+  document.documentElement.classList.toggle('modo-ligero', ligero);
+}
 
 @Component({
   selector: 'app-root',
@@ -29,6 +39,7 @@ export class App {
 
   constructor() {
     inject(DisplayPreferencesService);
+    afterNextRender(() => aplicarModoLigero());
     inject(Router).events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
       takeUntilDestroyed(),
