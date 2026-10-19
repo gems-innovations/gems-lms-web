@@ -6,6 +6,7 @@
     "start": "npm run build:all && ng s",
     "build": "ng build main",
     "watch": "ng build --watch --configuration development",
+    "verificar:prerender": "node scripts/verificar-prerender.mjs",
     "build:all": "ng build shared && ng build auth && ng build education && ng build instructor && ng build admin",
     "test": "ng test",
     "test:ci": "ng test shared --watch=false --browsers=ChromeHeadless && ng test auth --watch=false --browsers=ChromeHeadless && ng test education --watch=false --browsers=ChromeHeadless && ng test admin --watch=false --browsers=ChromeHeadless && ng test instructor --watch=false --browsers=ChromeHeadless && ng test main --watch=false --browsers=ChromeHeadless",

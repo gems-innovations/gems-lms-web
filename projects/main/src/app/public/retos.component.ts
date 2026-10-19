@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PublicHeaderComponent } from './public-header.component';
 import { PublicFooterComponent } from './public-footer.component';
@@ -136,6 +136,11 @@ export class RetosComponent {
   protected readonly cursoId = signal<number | null>(null);
 
   constructor() {
+    // Solo en el navegador: el prerender no debe depender del API ni hornear el id del curso de ese ambiente.
+    afterNextRender(() => this.cargarCurso());
+  }
+
+  private cargarCurso(): void {
     this.catalog.courses().subscribe({
       next: list => this.cursoId.set((list.find(c => new RegExp(this.set.cursoBuscar ?? 'acertijo', 'i').test(c.title)) ?? list.find(c => /razonamiento/i.test(c.title)) ?? list[0])?.id ?? null),
       error: () => this.cursoId.set(null),

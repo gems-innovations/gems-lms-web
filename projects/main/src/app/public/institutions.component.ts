@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PublicHeaderComponent } from './public-header.component';
@@ -82,6 +82,14 @@ import { AnalyticsService } from '../analytics.service';
 export class InstitutionsComponent {
   private readonly catalog = inject(PublicCatalogService);
   private readonly analytics = inject(AnalyticsService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  constructor() {
+    // El formulario llega prerenderizado y se puede escribir antes de que la página hidrate; al hidratar, ngModel
+    // reescribiría los campos con el modelo vacío. Se recoge lo escrito en el DOM antes de que eso pase.
+    afterNextRender(() => this.recuperarEscrito());
+  }
 
   protected form: IInstitutionRequest = { institutionName: '', contactName: '', email: '', phone: '', role: '', students: null, message: '' };
   /** Rangos en vez de un número exacto: se guarda el tope de cada rango. */
@@ -92,6 +100,22 @@ export class InstitutionsComponent {
   protected readonly busy = signal(false);
   protected readonly sent = signal(false);
   protected readonly error = signal<string | null>(null);
+
+  private recuperarEscrito(): void {
+    const campos: Record<string, 'institutionName' | 'contactName' | 'role' | 'email' | 'phone' | 'message'> = {
+      inst: 'institutionName', contact: 'contactName', role: 'role', email: 'email', phone: 'phone', msg: 'message',
+    };
+    let hubo = false;
+    this.host.nativeElement.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('form.form input[name], form.form textarea[name]').forEach(el => {
+      if (el.type === 'radio') {
+        if ((el as HTMLInputElement).checked && el.name === 'students') { this.form.students = Number(el.value); hubo = true; }
+        return;
+      }
+      const campo = campos[el.name];
+      if (campo && el.value) { this.form[campo] = el.value; hubo = true; }
+    });
+    if (hubo) this.cdr.markForCheck();
+  }
 
   protected submit(): void {
     const f = this.form;
