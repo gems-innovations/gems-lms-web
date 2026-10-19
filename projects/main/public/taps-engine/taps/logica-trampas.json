@@ -1,0 +1,51 @@
+{
+  "id": "logica-trampas",
+  "theme": "estudio",
+  "title": "Piénsalo dos veces",
+  "kicker": "Lógica y trampas",
+  "scene": { "world": "aula", "host": "chispa", "item": "lupa" },
+  "backdrop": ["#1B2B4F", "#2B3F73"],
+  "questions": [
+    {
+      "id": "bate",
+      "q": "Un bate y una pelota cuestan $1.100 en total. El bate cuesta $1.000 más que la pelota. ¿Cuánto cuesta la pelota?",
+      "options": ["$100", "$50", "$1.000", "$10"],
+      "answer": 1,
+      "why": "$50. Con $100 el bate costaría $1.100 y el total sería $1.200. Con $50, el bate cuesta $1.050 y suman $1.100."
+    },
+    {
+      "id": "maquinas",
+      "q": "Si 5 máquinas hacen 5 piezas en 5 minutos, ¿cuánto tardan 100 máquinas en hacer 100 piezas?",
+      "options": ["100 minutos", "20 minutos", "5 minutos", "1 minuto"],
+      "answer": 2,
+      "why": "5 minutos. Cada máquina hace una pieza en 5 minutos; 100 máquinas a la vez hacen 100 piezas en ese mismo tiempo."
+    },
+    {
+      "id": "algas",
+      "q": "Una mancha de algas duplica su tamaño cada día y tarda 48 días en cubrir todo el lago. ¿Cuántos días tardó en cubrir la mitad?",
+      "options": ["24", "47", "46", "12"],
+      "answer": 1,
+      "why": "47. Si se duplica cada día, un día antes de cubrirlo todo cubría justo la mitad."
+    },
+    {
+      "id": "carrera",
+      "q": "En una carrera adelantas a quien va de segundo. ¿En qué puesto quedas?",
+      "options": ["Primero", "Segundo", "Tercero", "Depende de la carrera"],
+      "answer": 1,
+      "why": "Segundo. Tomas su lugar; el que va primero sigue adelante."
+    },
+    {
+      "id": "meses",
+      "q": "¿Cuántos meses del año tienen 28 días?",
+      "options": ["1", "2", "12", "Ninguno"],
+      "answer": 2,
+      "why": "Los 12. Todos tienen al menos 28 días; febrero es el único que tiene solo 28 (o 29 en año bisiesto)."
+    }
+  ],
+  "results": [
+    { "min": 0, "title": "Cayó en la trampa", "line": "Estas preguntas engañan a casi todos. Respira y vuelve a intentarlo." },
+    { "min": 2, "title": "Detective en práctica", "line": "Ya ves venir algunas trampas. Desconfía de la primera respuesta." },
+    { "min": 4, "title": "Mente afilada", "line": "Casi nada te engaña. Una más y eres imbatible." },
+    { "min": 5, "title": "Imposible de engañar", "line": "Cinco de cinco. Tu primera intuición ya no te traiciona." }
+  ]
+}

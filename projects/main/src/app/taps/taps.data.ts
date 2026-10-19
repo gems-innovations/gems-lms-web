@@ -1,5 +1,6 @@
 import { BLOQUES } from '../public/retos.data';
 import { ITap, ITapQuestion, ITapResult, ITapScene } from './taps.types';
+import { TAPS_ESTUDIO } from './taps-estudio.data';
 
 /**
  * Los Taps. Agregar uno = agregar un objeto a TAPS (las preguntas pueden salir del banco ya existente por id).
@@ -44,4 +45,6 @@ export const TAPS: ITap[] = [
       { min: 5, title: 'Rey del Nether', line: 'Cero errores. Hasta el dragón te manda saludos.' },
     ],
   }),
+  // Tema «estudio» (otro estilo visual, mismo motor): Lógica y trampas, Ciencia curiosa
+  ...TAPS_ESTUDIO,
 ];

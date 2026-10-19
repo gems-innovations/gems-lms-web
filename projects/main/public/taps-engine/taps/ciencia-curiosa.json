@@ -1,0 +1,51 @@
+{
+  "id": "ciencia-curiosa",
+  "theme": "estudio",
+  "title": "Datos que no esperabas",
+  "kicker": "Ciencia curiosa",
+  "scene": { "world": "laboratorio", "host": "nube", "item": "matraz" },
+  "backdrop": ["#1E1B4B", "#3B2F86"],
+  "questions": [
+    {
+      "id": "venus",
+      "q": "¿En qué planeta un día dura más que un año?",
+      "options": ["Marte", "Venus", "Júpiter", "Neptuno"],
+      "answer": 1,
+      "why": "Venus. Tarda unos 243 días terrestres en girar sobre sí mismo y unos 225 en dar la vuelta al Sol."
+    },
+    {
+      "id": "pulpo",
+      "q": "¿Cuántos corazones tiene un pulpo?",
+      "options": ["1", "2", "3", "8"],
+      "answer": 2,
+      "why": "Tres: dos bombean la sangre hacia las branquias y uno hacia el resto del cuerpo."
+    },
+    {
+      "id": "luz-sol",
+      "q": "¿Cuánto tarda la luz del Sol en llegar a la Tierra?",
+      "options": ["Llega al instante", "Unos 8 minutos", "Unas 8 horas", "Un segundo"],
+      "answer": 1,
+      "why": "Unos 8 minutos y 20 segundos: el Sol está a unos 150 millones de kilómetros."
+    },
+    {
+      "id": "mercurio",
+      "q": "¿Qué metal es líquido a temperatura ambiente?",
+      "options": ["Hierro", "Aluminio", "Mercurio", "Plata"],
+      "answer": 2,
+      "why": "El mercurio. Se congela a unos −39 °C, así que a temperatura ambiente es líquido."
+    },
+    {
+      "id": "hervir",
+      "q": "¿Dónde hierve el agua a menos de 100 °C?",
+      "options": ["A nivel del mar", "En la cima de una montaña", "En el fondo de una mina", "En ninguna parte"],
+      "answer": 1,
+      "why": "En lo alto hay menos presión de aire y el agua hierve antes: en Bogotá, a unos 2.600 m, hierve cerca de los 91 °C."
+    }
+  ],
+  "results": [
+    { "min": 0, "title": "Curioso en entrenamiento", "line": "La ciencia está llena de sorpresas. Prueba otra vez." },
+    { "min": 2, "title": "Asistente de laboratorio", "line": "Vas bien. Te faltan un par de datos raros." },
+    { "min": 4, "title": "Mente científica", "line": "Casi perfecto. El laboratorio ya es tuyo." },
+    { "min": 5, "title": "Premio a la curiosidad", "line": "Cinco de cinco. Hasta Nube quiere tu autógrafo." }
+  ]
+}

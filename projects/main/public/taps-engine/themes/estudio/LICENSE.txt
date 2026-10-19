@@ -1,0 +1,7 @@
+Tema «estudio» de Taps (GEMS Innovations)
+
+- Personajes (Chispa y Nube), escenarios y objetos: ilustración original dibujada por código (rig.js, scenery.js).
+  No usa imágenes, modelos ni personajes de terceros.
+- Sonidos: sintetizados en el navegador con Web Audio a partir de los tonos definidos en theme.json. Sin archivos de audio.
+- Fuente: Rubik (Bold), servida desde /fonts/rubik-latin-700-normal.woff2, licencia SIL Open Font License 1.1
+  (ver /fonts/LICENSE-rubik.txt).
