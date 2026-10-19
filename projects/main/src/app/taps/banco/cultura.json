@@ -1,0 +1,1517 @@
+{
+  "tema": "Cultura general y ciencia curiosa",
+  "titulosResultado": [
+    {
+      "min": 0,
+      "title": "Curioso del universo",
+      "line": "Ahora sabes cinco cosas que casi nadie sabe. ¡Otra ronda!"
+    },
+    {
+      "min": 2,
+      "title": "Sabelotodo en entrenamiento",
+      "line": "Vas bien. Un par de datos raros más y eres imparable."
+    },
+    {
+      "min": 4,
+      "title": "Enciclopedia andante",
+      "line": "Casi perfecto: tus amigos te van a pedir datos curiosos."
+    },
+    {
+      "min": 5,
+      "title": "Genio de bolsillo",
+      "line": "Cinco de cinco. Ya puedes dar clases de datos raros."
+    }
+  ],
+  "existentes": [],
+  "preguntas": [
+    {
+      "id": "huesos-206",
+      "q": "¿Cuántos huesos tiene una persona adulta?",
+      "options": [
+        "106",
+        "206",
+        "306",
+        "500"
+      ],
+      "answer": 1,
+      "why": "206 huesos. Más de la mitad están en las manos y los pies.",
+      "dificultad": 1,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/Esqueleto_humano",
+      "estado": "revisada"
+    },
+    {
+      "id": "bebe-huesos",
+      "q": "¿Quién tiene más huesos: un bebé o un adulto?",
+      "options": [
+        "El adulto",
+        "Tienen igual",
+        "El bebé",
+        "Depende"
+      ],
+      "answer": 2,
+      "why": "El bebé nace con unos 300; al crecer, varios se unen en uno solo.",
+      "dificultad": 2,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/Esqueleto_humano",
+      "estado": "revisada"
+    },
+    {
+      "id": "estribo",
+      "q": "¿Dónde está el hueso más pequeño del cuerpo?",
+      "options": [
+        "En el oído",
+        "En el dedo meñique",
+        "En la nariz",
+        "En el pie"
+      ],
+      "answer": 0,
+      "why": "En el oído: se llama estribo y mide unos 3 milímetros.",
+      "dificultad": 2,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/Estribo_(anatom%C3%ADa)",
+      "estado": "revisada"
+    },
+    {
+      "id": "femur",
+      "q": "¿Cuál es el hueso más largo del cuerpo?",
+      "options": [
+        "La columna",
+        "La tibia",
+        "El húmero",
+        "El fémur"
+      ],
+      "answer": 3,
+      "why": "El fémur, el hueso del muslo.",
+      "dificultad": 1,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/F%C3%A9mur",
+      "estado": "revisada"
+    },
+    {
+      "id": "piel-organo",
+      "q": "¿Cuál es el órgano más grande del cuerpo?",
+      "options": [
+        "El hígado",
+        "La piel",
+        "Los pulmones",
+        "El cerebro"
+      ],
+      "answer": 1,
+      "why": "La piel: es un órgano y cubre todo el cuerpo.",
+      "dificultad": 2,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/Piel",
+      "estado": "revisada"
+    },
+    {
+      "id": "esmalte",
+      "q": "¿Cuál es la parte más dura del cuerpo humano?",
+      "options": [
+        "El cráneo",
+        "La uña",
+        "El esmalte dental",
+        "El fémur"
+      ],
+      "answer": 2,
+      "why": "El esmalte que cubre los dientes es más duro que cualquier hueso.",
+      "dificultad": 2,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/Esmalte_dental",
+      "estado": "revisada"
+    },
+    {
+      "id": "cornea",
+      "q": "¿Qué parte del cuerpo toma oxígeno casi directo del aire, no de la sangre?",
+      "options": [
+        "La córnea",
+        "La lengua",
+        "Las uñas",
+        "El cabello"
+      ],
+      "answer": 0,
+      "why": "La córnea del ojo no tiene vasos sanguíneos: el oxígeno le llega por las lágrimas.",
+      "dificultad": 3,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/C%C3%B3rnea",
+      "estado": "revisada"
+    },
+    {
+      "id": "pulmon-izq",
+      "q": "¿Por qué el pulmón izquierdo es más pequeño que el derecho?",
+      "options": [
+        "Respira menos",
+        "No es más pequeño",
+        "Por la comida",
+        "Por espacio al corazón"
+      ],
+      "answer": 3,
+      "why": "El corazón está un poco a la izquierda y le quita espacio.",
+      "dificultad": 3,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/Pulm%C3%B3n",
+      "estado": "revisada"
+    },
+    {
+      "id": "huella-gemelos",
+      "q": "¿Los gemelos idénticos tienen las mismas huellas dactilares?",
+      "options": [
+        "Sí, iguales",
+        "No, son distintas",
+        "Solo en un dedo",
+        "Solo de bebés"
+      ],
+      "answer": 1,
+      "why": "No: las huellas se forman en el vientre y cambian hasta en gemelos.",
+      "dificultad": 2,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/Huella_dactilar",
+      "estado": "revisada"
+    },
+    {
+      "id": "lengua-mapa",
+      "q": "¿Es cierto que cada zona de la lengua siente un solo sabor?",
+      "options": [
+        "Sí, siempre",
+        "Solo lo dulce",
+        "No, es un mito",
+        "Solo en niños"
+      ],
+      "answer": 2,
+      "why": "Es un mito: todas las zonas de la lengua sienten todos los sabores.",
+      "dificultad": 3,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/Mapa_de_la_lengua",
+      "estado": "revisada"
+    },
+    {
+      "id": "unas-manos",
+      "q": "¿Qué uñas crecen más rápido?",
+      "options": [
+        "Las de las manos",
+        "Las de los pies",
+        "Crecen igual",
+        "Las del dedo gordo"
+      ],
+      "answer": 0,
+      "why": "Las de las manos crecen más rápido que las de los pies.",
+      "dificultad": 2,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/U%C3%B1a",
+      "estado": "revisada"
+    },
+    {
+      "id": "rinon",
+      "q": "¿Qué órgano filtra la sangre y produce la orina?",
+      "options": [
+        "El hígado",
+        "El corazón",
+        "El estómago",
+        "El riñón"
+      ],
+      "answer": 3,
+      "why": "El riñón: limpia la sangre y saca lo que sobra en la orina.",
+      "dificultad": 1,
+      "subtema": "cuerpo-humano",
+      "estado": "revisada"
+    },
+    {
+      "id": "dientes-32",
+      "q": "¿Cuántos dientes tiene un adulto, contando las muelas del juicio?",
+      "options": [
+        "20",
+        "28",
+        "32",
+        "36"
+      ],
+      "answer": 2,
+      "why": "32. Los niños tienen 20 dientes de leche.",
+      "dificultad": 2,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/Diente_humano",
+      "estado": "revisada"
+    },
+    {
+      "id": "mercurio",
+      "q": "¿Qué planeta está más cerca del Sol?",
+      "options": [
+        "Venus",
+        "Mercurio",
+        "Marte",
+        "La Tierra"
+      ],
+      "answer": 1,
+      "why": "Mercurio, el más pequeño de los planetas.",
+      "dificultad": 1,
+      "subtema": "espacio",
+      "fuente": "https://science.nasa.gov/mercury/facts/",
+      "estado": "revisada"
+    },
+    {
+      "id": "venus-caliente",
+      "q": "¿Cuál es el planeta más caliente del sistema solar?",
+      "options": [
+        "Mercurio",
+        "Marte",
+        "Venus",
+        "Júpiter"
+      ],
+      "answer": 2,
+      "why": "Venus: su atmósfera atrapa el calor. Es más caliente que Mercurio.",
+      "dificultad": 2,
+      "subtema": "espacio",
+      "fuente": "https://www.rmg.co.uk/explore/interesting-facts-about-venus",
+      "estado": "revisada"
+    },
+    {
+      "id": "venus-dia",
+      "q": "¿En qué planeta un día dura más que un año?",
+      "options": [
+        "Venus",
+        "Marte",
+        "Júpiter",
+        "Neptuno"
+      ],
+      "answer": 0,
+      "why": "Venus tarda unos 243 días en girar sobre sí mismo y 225 en darle la vuelta al Sol.",
+      "dificultad": 3,
+      "subtema": "espacio",
+      "fuente": "https://www.rmg.co.uk/explore/interesting-facts-about-venus",
+      "estado": "revisada"
+    },
+    {
+      "id": "jupiter",
+      "q": "¿Cuál es el planeta más grande del sistema solar?",
+      "options": [
+        "Saturno",
+        "La Tierra",
+        "Neptuno",
+        "Júpiter"
+      ],
+      "answer": 3,
+      "why": "Júpiter: dentro de él cabrían más de mil Tierras.",
+      "dificultad": 1,
+      "subtema": "espacio",
+      "fuente": "https://science.nasa.gov/jupiter/facts/",
+      "estado": "revisada"
+    },
+    {
+      "id": "luz-8min",
+      "q": "¿Cuánto tarda la luz del Sol en llegar a la Tierra?",
+      "options": [
+        "1 segundo",
+        "Unos 8 minutos",
+        "Un día",
+        "Un año"
+      ],
+      "answer": 1,
+      "why": "Unos 8 minutos: ves el Sol como era hace 8 minutos.",
+      "dificultad": 2,
+      "subtema": "espacio",
+      "fuente": "https://science.nasa.gov/sun/facts/",
+      "estado": "revisada"
+    },
+    {
+      "id": "saturno-densidad",
+      "q": "¿Qué planeta es menos denso que el agua?",
+      "options": [
+        "Júpiter",
+        "Marte",
+        "Saturno",
+        "Urano"
+      ],
+      "answer": 2,
+      "why": "Saturno: es tan liviano para su tamaño que, en teoría, flotaría.",
+      "dificultad": 3,
+      "subtema": "espacio",
+      "fuente": "https://science.gsfc.nasa.gov/attic/huygensgcms/Saturn.htm",
+      "estado": "revisada"
+    },
+    {
+      "id": "olimpo",
+      "q": "¿Dónde está el volcán más alto del sistema solar?",
+      "options": [
+        "En Marte",
+        "En la Tierra",
+        "En Venus",
+        "En la Luna"
+      ],
+      "answer": 0,
+      "why": "En Marte: el monte Olimpo mide más del doble que el Everest.",
+      "dificultad": 3,
+      "subtema": "espacio",
+      "fuente": "https://es.wikipedia.org/wiki/Monte_Olimpo_(Marte)",
+      "estado": "revisada"
+    },
+    {
+      "id": "sonido-espacio",
+      "q": "En el espacio, una explosión se escucharía…",
+      "options": [
+        "Más fuerte",
+        "Igual",
+        "Con eco",
+        "No se escucharía"
+      ],
+      "answer": 3,
+      "why": "El sonido necesita aire u otro material para viajar; el espacio es casi vacío.",
+      "dificultad": 2,
+      "subtema": "espacio",
+      "fuente": "https://es.wikipedia.org/wiki/Sonido",
+      "estado": "revisada"
+    },
+    {
+      "id": "muralla",
+      "q": "¿Se ve la Gran Muralla China a simple vista desde la Luna?",
+      "options": [
+        "Sí, clarito",
+        "No",
+        "Solo de noche",
+        "Solo sin nubes"
+      ],
+      "answer": 1,
+      "why": "Es un mito: desde la Luna no se ve a simple vista ninguna obra humana.",
+      "dificultad": 3,
+      "subtema": "espacio",
+      "fuente": "https://es.wikipedia.org/wiki/Gran_Muralla_China",
+      "estado": "revisada"
+    },
+    {
+      "id": "estrella-cercana",
+      "q": "¿Cuál es la estrella más cercana a la Tierra?",
+      "options": [
+        "Sirio",
+        "La estrella polar",
+        "El Sol",
+        "Alfa Centauri"
+      ],
+      "answer": 2,
+      "why": "El Sol también es una estrella, y es la más cercana.",
+      "dificultad": 1,
+      "subtema": "espacio",
+      "estado": "revisada"
+    },
+    {
+      "id": "urano",
+      "q": "¿Qué planeta gira «acostado», casi de lado?",
+      "options": [
+        "Urano",
+        "Marte",
+        "Mercurio",
+        "Venus"
+      ],
+      "answer": 0,
+      "why": "Urano tiene el eje tan inclinado que rueda de lado alrededor del Sol.",
+      "dificultad": 3,
+      "subtema": "espacio",
+      "fuente": "https://science.nasa.gov/uranus/facts/",
+      "estado": "revisada"
+    },
+    {
+      "id": "marte-rojo",
+      "q": "¿Por qué Marte se ve rojo?",
+      "options": [
+        "Está muy caliente",
+        "Tiene lava",
+        "Refleja al Sol",
+        "Tiene polvo oxidado"
+      ],
+      "answer": 3,
+      "why": "Su polvo tiene óxido de hierro, lo mismo que pone rojo al metal oxidado.",
+      "dificultad": 1,
+      "subtema": "espacio",
+      "fuente": "https://science.nasa.gov/mars/facts/",
+      "estado": "revisada"
+    },
+    {
+      "id": "sol-masa",
+      "q": "¿Qué parte de la masa del sistema solar está en el Sol?",
+      "options": [
+        "La mitad",
+        "Más del 99 %",
+        "Cerca del 75 %",
+        "El 10 %"
+      ],
+      "answer": 1,
+      "why": "Más del 99 %: todos los planetas juntos son casi nada a su lado.",
+      "dificultad": 3,
+      "subtema": "espacio",
+      "fuente": "https://science.nasa.gov/sun/facts/",
+      "estado": "revisada"
+    },
+    {
+      "id": "huellas-luna",
+      "q": "¿Por qué las huellas de los astronautas siguen en la Luna?",
+      "options": [
+        "Las cuidan",
+        "Son de cemento",
+        "Sin viento ni lluvia",
+        "Ya se borraron"
+      ],
+      "answer": 2,
+      "why": "Sin viento ni lluvia que las borren, pueden durar muchísimo tiempo.",
+      "dificultad": 2,
+      "subtema": "espacio",
+      "fuente": "https://science.nasa.gov/moon/facts/",
+      "estado": "revisada"
+    },
+    {
+      "id": "planetas-8",
+      "q": "¿Cuántos planetas tiene el sistema solar?",
+      "options": [
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "answer": 1,
+      "why": "Ocho. Plutón pasó a ser planeta enano en 2006.",
+      "dificultad": 1,
+      "subtema": "espacio",
+      "fuente": "https://es.wikipedia.org/wiki/Planeta_enano",
+      "estado": "revisada"
+    },
+    {
+      "id": "pulpo-corazones",
+      "q": "¿Cuántos corazones tiene un pulpo?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "8"
+      ],
+      "answer": 2,
+      "why": "Tres: dos bombean sangre a las branquias y uno al resto del cuerpo.",
+      "dificultad": 2,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Octopoda",
+      "estado": "revisada"
+    },
+    {
+      "id": "pulpo-sangre",
+      "q": "¿De qué color es la sangre del pulpo?",
+      "options": [
+        "Azul",
+        "Verde",
+        "Roja",
+        "Negra"
+      ],
+      "answer": 0,
+      "why": "Azul: usa cobre en vez de hierro para llevar el oxígeno.",
+      "dificultad": 3,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Hemocianina",
+      "estado": "revisada"
+    },
+    {
+      "id": "guepardo",
+      "q": "¿Cuál es el animal terrestre más rápido?",
+      "options": [
+        "El león",
+        "El avestruz",
+        "El caballo",
+        "El guepardo"
+      ],
+      "answer": 3,
+      "why": "El guepardo: en carreras cortas pasa de 100 km/h.",
+      "dificultad": 1,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Acinonyx_jubatus",
+      "estado": "revisada"
+    },
+    {
+      "id": "ballena-azul",
+      "q": "¿Cuál es el animal más grande que vive hoy en el planeta?",
+      "options": [
+        "El elefante",
+        "La ballena azul",
+        "La jirafa",
+        "El tiburón ballena"
+      ],
+      "answer": 1,
+      "why": "La ballena azul: puede medir unos 30 metros de largo.",
+      "dificultad": 1,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Balaenoptera_musculus",
+      "estado": "revisada"
+    },
+    {
+      "id": "murcielago",
+      "q": "¿Cuál es el único mamífero que puede volar de verdad?",
+      "options": [
+        "La ardilla voladora",
+        "El colibrí",
+        "El murciélago",
+        "El pingüino"
+      ],
+      "answer": 2,
+      "why": "El murciélago. La ardilla «voladora» solo planea.",
+      "dificultad": 2,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Chiroptera",
+      "estado": "revisada"
+    },
+    {
+      "id": "pinguinos-norte",
+      "q": "¿En qué polo NO viven pingüinos salvajes?",
+      "options": [
+        "Polo Norte",
+        "Polo Sur",
+        "En los dos viven",
+        "En ninguno viven"
+      ],
+      "answer": 0,
+      "why": "En el Polo Norte no hay pingüinos: casi todos viven en el hemisferio sur.",
+      "dificultad": 2,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Spheniscidae",
+      "estado": "revisada"
+    },
+    {
+      "id": "arana-patas",
+      "q": "¿Cuántas patas tiene una araña?",
+      "options": [
+        "4",
+        "6",
+        "8",
+        "10"
+      ],
+      "answer": 2,
+      "why": "8. Por eso no es un insecto: los insectos tienen 6.",
+      "dificultad": 1,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Araneae",
+      "estado": "revisada"
+    },
+    {
+      "id": "ajolote-regenera",
+      "q": "¿Qué puede hacer el ajolote si pierde una pata?",
+      "options": [
+        "Nada",
+        "Camina en 3",
+        "Cambia de color",
+        "Le vuelve a crecer"
+      ],
+      "answer": 3,
+      "why": "Regenera patas, cola y hasta partes de órganos.",
+      "dificultad": 2,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Ambystoma_mexicanum",
+      "estado": "revisada"
+    },
+    {
+      "id": "flamenco",
+      "q": "¿Por qué los flamencos son rosados?",
+      "options": [
+        "Nacen así",
+        "Por lo que comen",
+        "Por el sol",
+        "Por el agua salada"
+      ],
+      "answer": 1,
+      "why": "Por los pigmentos de las algas y camarones que comen; nacen grises.",
+      "dificultad": 2,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Phoenicopteridae",
+      "estado": "revisada"
+    },
+    {
+      "id": "colibri-atras",
+      "q": "¿Qué ave puede volar hacia atrás?",
+      "options": [
+        "La paloma",
+        "El águila",
+        "El colibrí",
+        "El loro"
+      ],
+      "answer": 2,
+      "why": "El colibrí: también puede quedarse quieto en el aire.",
+      "dificultad": 2,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Trochilidae",
+      "estado": "revisada"
+    },
+    {
+      "id": "jirafa-cuello",
+      "q": "¿Cuántas vértebras tiene el cuello de una jirafa?",
+      "options": [
+        "7",
+        "14",
+        "25",
+        "40"
+      ],
+      "answer": 0,
+      "why": "Siete, las mismas que tú: solo que cada una es enorme.",
+      "dificultad": 3,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Giraffa_camelopardalis",
+      "estado": "revisada"
+    },
+    {
+      "id": "estrella-mar",
+      "q": "¿Qué NO tiene una estrella de mar?",
+      "options": [
+        "Cerebro",
+        "Boca",
+        "Brazos",
+        "Ojos"
+      ],
+      "answer": 0,
+      "why": "No tiene cerebro, pero sí ojos: uno en la punta de cada brazo.",
+      "dificultad": 3,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Asteroidea",
+      "estado": "revisada"
+    },
+    {
+      "id": "tiburon-cartilago",
+      "q": "¿De qué está hecho el esqueleto de un tiburón?",
+      "options": [
+        "Hueso",
+        "No tiene",
+        "Concha",
+        "Cartílago"
+      ],
+      "answer": 3,
+      "why": "De cartílago, como tu nariz y tus orejas: flexible y liviano.",
+      "dificultad": 2,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Selachimorpha",
+      "estado": "revisada"
+    },
+    {
+      "id": "ornitorrinco",
+      "q": "¿Cuál de estos mamíferos pone huevos?",
+      "options": [
+        "El canguro",
+        "El ornitorrinco",
+        "El castor",
+        "El murciélago"
+      ],
+      "answer": 1,
+      "why": "El ornitorrinco: es mamífero, pero sus crías salen de huevos.",
+      "dificultad": 2,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Ornithorhynchus_anatinus",
+      "estado": "revisada"
+    },
+    {
+      "id": "perezoso",
+      "q": "¿Cada cuánto baja del árbol el perezoso de tres dedos para hacer popó?",
+      "options": [
+        "Cada hora",
+        "Nunca baja",
+        "Una vez por semana",
+        "Cada día"
+      ],
+      "answer": 2,
+      "why": "Más o menos una vez por semana; el resto del tiempo vive en las ramas.",
+      "dificultad": 3,
+      "subtema": "animales",
+      "fuente": "https://www.scientificamerican.com/article/why-sloths-leave-the-trees-to-defecate",
+      "estado": "revisada"
+    },
+    {
+      "id": "delfin-dormir",
+      "q": "¿Cómo duermen los delfines?",
+      "options": [
+        "Con medio cerebro",
+        "No duermen",
+        "Boca arriba",
+        "En la arena"
+      ],
+      "answer": 0,
+      "why": "Duerme una mitad del cerebro y la otra sigue alerta para respirar.",
+      "dificultad": 3,
+      "subtema": "animales",
+      "fuente": "https://en.wikipedia.org/wiki/Unihemispheric_slow-wave_sleep",
+      "estado": "revisada"
+    },
+    {
+      "id": "camello-joroba",
+      "q": "¿Qué guarda el camello en su joroba?",
+      "options": [
+        "Agua",
+        "Leche",
+        "Aire",
+        "Grasa"
+      ],
+      "answer": 3,
+      "why": "Grasa: es su reserva de energía cuando no hay comida.",
+      "dificultad": 2,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Camelus",
+      "estado": "revisada"
+    },
+    {
+      "id": "medusa-inmortal",
+      "q": "¿Qué animal puede volver a ser «joven» una y otra vez?",
+      "options": [
+        "La tortuga",
+        "Una medusa",
+        "El pulpo",
+        "La langosta"
+      ],
+      "answer": 1,
+      "why": "La medusa Turritopsis dohrnii puede volver a su etapa juvenil.",
+      "dificultad": 3,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Turritopsis_dohrnii",
+      "estado": "revisada"
+    },
+    {
+      "id": "avestruz-ojo",
+      "q": "¿Qué animal tiene cada ojo más grande que su cerebro?",
+      "options": [
+        "El gato",
+        "El pulpo",
+        "El avestruz",
+        "La vaca"
+      ],
+      "answer": 2,
+      "why": "El avestruz: cada ojo mide unos 5 cm, más que su cerebro.",
+      "dificultad": 3,
+      "subtema": "animales",
+      "fuente": "https://www.guinnessworldrecords.com/world-records/516757-largest-eyes-for-a-bird",
+      "estado": "revisada"
+    },
+    {
+      "id": "bogota-hierve",
+      "q": "En Bogotá, ¿a qué temperatura hierve el agua?",
+      "options": [
+        "A menos de 100 °C",
+        "A más de 100 °C",
+        "A 100 °C",
+        "No hierve"
+      ],
+      "answer": 0,
+      "why": "A unos 91 °C: en lo alto hay menos presión de aire y hierve antes.",
+      "dificultad": 3,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Punto_de_ebullici%C3%B3n",
+      "estado": "revisada"
+    },
+    {
+      "id": "hielo-flota",
+      "q": "¿Por qué el hielo flota en el agua?",
+      "options": [
+        "Tiene aire adentro",
+        "Es liso",
+        "Está frío",
+        "Es menos denso"
+      ],
+      "answer": 3,
+      "why": "Al congelarse, el agua se expande y queda menos densa que el agua líquida.",
+      "dificultad": 1,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Hielo",
+      "estado": "revisada"
+    },
+    {
+      "id": "sonido-agua",
+      "q": "¿Dónde viaja más rápido el sonido?",
+      "options": [
+        "En el aire",
+        "En el agua",
+        "En el vacío",
+        "Igual en todos"
+      ],
+      "answer": 1,
+      "why": "En el agua va unas 4 veces más rápido que en el aire.",
+      "dificultad": 2,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Velocidad_del_sonido",
+      "estado": "revisada"
+    },
+    {
+      "id": "rayo-sol",
+      "q": "¿Qué está más caliente: un rayo o la superficie del Sol?",
+      "options": [
+        "El Sol",
+        "Igual",
+        "El rayo",
+        "Ninguno quema"
+      ],
+      "answer": 2,
+      "why": "Un rayo calienta el aire a unos 27.000 °C: unas 5 veces la superficie del Sol.",
+      "dificultad": 3,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://www.weather.gov/safety/lightning-temperature",
+      "estado": "revisada"
+    },
+    {
+      "id": "rayo-dos-veces",
+      "q": "¿Puede caer un rayo dos veces en el mismo lugar?",
+      "options": [
+        "Sí",
+        "Nunca",
+        "Solo en el mar",
+        "Solo de noche"
+      ],
+      "answer": 0,
+      "why": "Sí, y pasa mucho: los edificios altos reciben varios rayos al año.",
+      "dificultad": 2,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://www.weather.gov/safety/lightning-myths",
+      "estado": "revisada"
+    },
+    {
+      "id": "cielo-azul",
+      "q": "¿Por qué el cielo es azul de día?",
+      "options": [
+        "Refleja el mar",
+        "Por el ozono",
+        "Por las nubes",
+        "Dispersión de la luz"
+      ],
+      "answer": 3,
+      "why": "El aire dispersa la luz azul del Sol más que los otros colores.",
+      "dificultad": 2,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://spaceplace.nasa.gov/blue-sky/sp/",
+      "estado": "revisada"
+    },
+    {
+      "id": "banano-radiactivo",
+      "q": "¿Qué fruta le da nombre a una medida curiosa de radiactividad?",
+      "options": [
+        "La manzana",
+        "El banano",
+        "La uva",
+        "La fresa"
+      ],
+      "answer": 1,
+      "why": "La «dosis equivalente a un banano»: su potasio es un poquito radiactivo, pero inofensivo.",
+      "dificultad": 3,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Dosis_equivalente_a_un_pl%C3%A1tano",
+      "estado": "revisada"
+    },
+    {
+      "id": "miel-dura",
+      "q": "¿Qué alimento puede durar miles de años sin dañarse si se guarda bien?",
+      "options": [
+        "El pan",
+        "La leche",
+        "La miel",
+        "El queso"
+      ],
+      "answer": 2,
+      "why": "La miel: hallaron miel comestible en tumbas egipcias muy antiguas.",
+      "dificultad": 2,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://www.smithsonianmag.com/science-nature/the-science-behind-honeys-eternal-shelf-life-1218690/",
+      "estado": "revisada"
+    },
+    {
+      "id": "diamante-carbono",
+      "q": "El diamante está hecho del mismo elemento que…",
+      "options": [
+        "La mina del lápiz",
+        "El vidrio",
+        "La sal",
+        "El hierro"
+      ],
+      "answer": 0,
+      "why": "Ambos son carbono: solo cambia cómo se ordenan sus átomos.",
+      "dificultad": 2,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Al%C3%B3tropos_del_carbono",
+      "estado": "revisada"
+    },
+    {
+      "id": "mercurio-liquido",
+      "q": "¿Qué metal es líquido a temperatura ambiente?",
+      "options": [
+        "El hierro",
+        "El cobre",
+        "El aluminio",
+        "El mercurio"
+      ],
+      "answer": 3,
+      "why": "El mercurio. Por eso se usaba en los termómetros antiguos.",
+      "dificultad": 2,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Mercurio_(elemento)",
+      "estado": "revisada"
+    },
+    {
+      "id": "tomate-fruta",
+      "q": "Para la botánica, el tomate es…",
+      "options": [
+        "Una verdura",
+        "Una fruta",
+        "Una raíz",
+        "Un tallo"
+      ],
+      "answer": 1,
+      "why": "Es una fruta (un fruto): nace de la flor y lleva las semillas.",
+      "dificultad": 1,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Solanum_lycopersicum",
+      "estado": "revisada"
+    },
+    {
+      "id": "banano-baya",
+      "q": "Para la botánica, ¿cuál de estas es una baya?",
+      "options": [
+        "La fresa",
+        "La frambuesa",
+        "El banano",
+        "La mora"
+      ],
+      "answer": 2,
+      "why": "El banano sí es baya; la fresa y la mora, aunque parezcan, no lo son.",
+      "dificultad": 3,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Baya",
+      "estado": "revisada"
+    },
+    {
+      "id": "mani-legumbre",
+      "q": "El maní es en realidad…",
+      "options": [
+        "Una legumbre",
+        "Una nuez",
+        "Una semilla de árbol",
+        "Un cereal"
+      ],
+      "answer": 0,
+      "why": "Una legumbre, pariente del fríjol y la lenteja, que crece bajo tierra.",
+      "dificultad": 3,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Arachis_hypogaea",
+      "estado": "revisada"
+    },
+    {
+      "id": "gaseosa-gas",
+      "q": "¿Qué gas hace las burbujas de una gaseosa?",
+      "options": [
+        "Oxígeno",
+        "Nitrógeno",
+        "Helio",
+        "Dióxido de carbono"
+      ],
+      "answer": 3,
+      "why": "Dióxido de carbono: está disuelto a presión y escapa al abrirla.",
+      "dificultad": 2,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Agua_carbonatada",
+      "estado": "revisada"
+    },
+    {
+      "id": "relampago-trueno",
+      "q": "¿Por qué vemos el relámpago antes de oír el trueno?",
+      "options": [
+        "El trueno sale después",
+        "La luz es más rápida",
+        "Las nubes lo tapan",
+        "Es casualidad"
+      ],
+      "answer": 1,
+      "why": "La luz viaja muchísimo más rápido que el sonido.",
+      "dificultad": 1,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Trueno",
+      "estado": "revisada"
+    },
+    {
+      "id": "agua-superficie",
+      "q": "¿Qué parte de la superficie de la Tierra está cubierta de agua?",
+      "options": [
+        "Un 30 %",
+        "La mitad",
+        "Un 71 %",
+        "Un 90 %"
+      ],
+      "answer": 2,
+      "why": "Cerca del 71 %. Por eso desde el espacio se ve como un planeta azul.",
+      "dificultad": 2,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://www.usgs.gov/special-topics/water-science-school/science/how-much-water-there-earth",
+      "estado": "revisada"
+    },
+    {
+      "id": "amazonas-caudal",
+      "q": "¿Qué río lleva más agua en el mundo?",
+      "options": [
+        "El Amazonas",
+        "El Nilo",
+        "El Misisipi",
+        "El Magdalena"
+      ],
+      "answer": 0,
+      "why": "El Amazonas: ningún otro río del mundo lleva tanta agua al mar.",
+      "dificultad": 2,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/R%C3%ADo_Amazonas",
+      "estado": "revisada"
+    },
+    {
+      "id": "antartida-desierto",
+      "q": "¿Cuál es el desierto más grande del mundo?",
+      "options": [
+        "El Sahara",
+        "El de Gobi",
+        "El de Atacama",
+        "La Antártida"
+      ],
+      "answer": 3,
+      "why": "La Antártida: un desierto es donde casi no llueve, aunque sea helado.",
+      "dificultad": 3,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Desierto",
+      "estado": "revisada"
+    },
+    {
+      "id": "pacifico",
+      "q": "¿Cuál es el océano más grande?",
+      "options": [
+        "Atlántico",
+        "Pacífico",
+        "Índico",
+        "Ártico"
+      ],
+      "answer": 1,
+      "why": "El Pacífico: es más grande que todos los continentes juntos.",
+      "dificultad": 1,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Oc%C3%A9ano_Pac%C3%ADfico",
+      "estado": "revisada"
+    },
+    {
+      "id": "colombia-oceanos",
+      "q": "¿Qué país de Sudamérica tiene costas en el Pacífico y en el mar Caribe?",
+      "options": [
+        "Perú",
+        "Chile",
+        "Colombia",
+        "Argentina"
+      ],
+      "answer": 2,
+      "why": "Colombia es el único país de Sudamérica con costa en los dos.",
+      "dificultad": 1,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Colombia",
+      "estado": "revisada"
+    },
+    {
+      "id": "canberra",
+      "q": "¿Cuál es la capital de Australia?",
+      "options": [
+        "Canberra",
+        "Sídney",
+        "Melbourne",
+        "Perth"
+      ],
+      "answer": 0,
+      "why": "Canberra. Sídney es la ciudad más grande, pero no es la capital.",
+      "dificultad": 2,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Canberra",
+      "estado": "revisada"
+    },
+    {
+      "id": "sierra-nevada",
+      "q": "¿Dónde está el punto más alto de Colombia?",
+      "options": [
+        "Nevado del Ruiz",
+        "Nevado del Huila",
+        "Sierra del Cocuy",
+        "S. N. de Santa Marta"
+      ],
+      "answer": 3,
+      "why": "En la Sierra Nevada de Santa Marta, muy cerca del mar Caribe.",
+      "dificultad": 3,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Pico_Crist%C3%B3bal_Col%C3%B3n",
+      "estado": "revisada"
+    },
+    {
+      "id": "cano-cristales",
+      "q": "¿Qué río colombiano es famoso por sus colores rojo, verde y amarillo?",
+      "options": [
+        "El Magdalena",
+        "Caño Cristales",
+        "El Cauca",
+        "El Atrato"
+      ],
+      "answer": 1,
+      "why": "Caño Cristales, en el Meta: unas plantas acuáticas le dan los colores.",
+      "dificultad": 2,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Ca%C3%B1o_Cristales",
+      "estado": "revisada"
+    },
+    {
+      "id": "ecuador-venezuela",
+      "q": "¿Por cuál de estos países NO pasa la línea del ecuador?",
+      "options": [
+        "Ecuador",
+        "Colombia",
+        "Venezuela",
+        "Brasil"
+      ],
+      "answer": 2,
+      "why": "Venezuela queda toda al norte del ecuador; los otros tres sí lo cruzan.",
+      "dificultad": 3,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Ecuador_terrestre",
+      "estado": "revisada"
+    },
+    {
+      "id": "atacama-seco",
+      "q": "¿Cuál es el desierto no polar más seco del mundo?",
+      "options": [
+        "El de Atacama",
+        "El Sahara",
+        "El Kalahari",
+        "La Guajira"
+      ],
+      "answer": 0,
+      "why": "El de Atacama, en Chile: hay zonas donde casi nunca llueve.",
+      "dificultad": 2,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Desierto_de_Atacama",
+      "estado": "revisada"
+    },
+    {
+      "id": "italia-bota",
+      "q": "¿Qué país tiene forma de bota?",
+      "options": [
+        "España",
+        "Portugal",
+        "Grecia",
+        "Italia"
+      ],
+      "answer": 3,
+      "why": "Italia: en el mapa parece una bota pateando una isla, Sicilia.",
+      "dificultad": 1,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Italia",
+      "estado": "revisada"
+    },
+    {
+      "id": "rusia",
+      "q": "¿Cuál es el país más grande del mundo por territorio?",
+      "options": [
+        "China",
+        "Rusia",
+        "Canadá",
+        "Brasil"
+      ],
+      "answer": 1,
+      "why": "Rusia: ocupa parte de Europa y de Asia.",
+      "dificultad": 1,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Rusia",
+      "estado": "revisada"
+    },
+    {
+      "id": "mauna-kea",
+      "q": "Medida desde su base en el fondo del mar, ¿cuál es la montaña más alta?",
+      "options": [
+        "El Everest",
+        "El Aconcagua",
+        "El Mauna Kea",
+        "El K2"
+      ],
+      "answer": 2,
+      "why": "El Mauna Kea, en Hawái: más de 10.000 m desde su base bajo el mar.",
+      "dificultad": 3,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Mauna_Kea",
+      "estado": "revisada"
+    },
+    {
+      "id": "cleopatra",
+      "q": "¿Qué pasó más cerca de la época de Cleopatra?",
+      "options": [
+        "La llegada a la Luna",
+        "La Gran Pirámide",
+        "Están a igual tiempo",
+        "El primer faraón"
+      ],
+      "answer": 0,
+      "why": "Vivió más cerca de 1969 que de cuando se construyó la Gran Pirámide.",
+      "dificultad": 3,
+      "subtema": "datos-sorprendentes",
+      "fuente": "https://www.worldatlas.com/articles/so-cleopatra-lived-closer-in-time-to-the-first-lunar-landing-than-the-great-pyramids.html",
+      "estado": "revisada"
+    },
+    {
+      "id": "arboles-estrellas",
+      "q": "¿Qué hay más: árboles en la Tierra o estrellas en la Vía Láctea?",
+      "options": [
+        "Estrellas",
+        "No se sabe",
+        "Igual",
+        "Árboles"
+      ],
+      "answer": 3,
+      "why": "Árboles: unos 3 billones, más que las estrellas de nuestra galaxia.",
+      "dificultad": 3,
+      "subtema": "datos-sorprendentes",
+      "fuente": "https://www.nature.com/articles/525170a",
+      "estado": "revisada"
+    },
+    {
+      "id": "eiffel-verano",
+      "q": "¿Qué le pasa a la torre Eiffel en verano?",
+      "options": [
+        "Se encoge",
+        "Crece un poquito",
+        "Cambia de color",
+        "Nada"
+      ],
+      "answer": 1,
+      "why": "El calor dilata el hierro y la torre crece un poquito; en invierno se encoge.",
+      "dificultad": 3,
+      "subtema": "datos-sorprendentes",
+      "fuente": "https://www.toureiffel.paris/en/news/history-and-culture/why-does-eiffel-tower-change-size",
+      "estado": "revisada"
+    },
+    {
+      "id": "cuerpo-agua",
+      "q": "Más o menos, ¿qué parte de tu cuerpo es agua?",
+      "options": [
+        "10 %",
+        "30 %",
+        "60 %",
+        "95 %"
+      ],
+      "answer": 2,
+      "why": "Cerca del 60 % del cuerpo de un adulto es agua.",
+      "dificultad": 2,
+      "subtema": "datos-sorprendentes",
+      "fuente": "https://www.usgs.gov/special-topics/water-science-school/science/water-you-water-and-human-body",
+      "estado": "revisada"
+    },
+    {
+      "id": "abejas-danza",
+      "q": "¿Cómo les avisan las abejas a las otras dónde hay flores?",
+      "options": [
+        "Zumbando",
+        "Con colores",
+        "Bailando",
+        "No avisan"
+      ],
+      "answer": 2,
+      "why": "Con una danza: los giros indican la dirección y la distancia.",
+      "dificultad": 2,
+      "subtema": "datos-sorprendentes",
+      "fuente": "https://es.wikipedia.org/wiki/Danza_de_las_abejas",
+      "estado": "revisada"
+    }
+  ],
+  "taps": [
+    {
+      "id": "cu-gancho",
+      "titulo": "¿Sabías esto?",
+      "nivel": "facil",
+      "subtema": "mixto",
+      "gancho": true,
+      "preguntas": [
+        "estrella-cercana",
+        "tomate-fruta",
+        "guepardo",
+        "colombia-oceanos",
+        "venus-caliente"
+      ]
+    },
+    {
+      "id": "cu-cuerpo-1",
+      "titulo": "Tu cuerpo por dentro",
+      "nivel": "media",
+      "subtema": "cuerpo-humano",
+      "preguntas": [
+        "huesos-206",
+        "femur",
+        "bebe-huesos",
+        "dientes-32",
+        "pulmon-izq"
+      ]
+    },
+    {
+      "id": "cu-espacio-1",
+      "titulo": "Viaje por el sistema solar",
+      "nivel": "facil",
+      "subtema": "espacio",
+      "preguntas": [
+        "mercurio",
+        "jupiter",
+        "planetas-8",
+        "luz-8min",
+        "venus-dia"
+      ]
+    },
+    {
+      "id": "cu-datos",
+      "titulo": "Datos que no parecen ciertos",
+      "nivel": "dificil",
+      "subtema": "datos-sorprendentes",
+      "preguntas": [
+        "cuerpo-agua",
+        "abejas-danza",
+        "cleopatra",
+        "arboles-estrellas",
+        "eiffel-verano"
+      ]
+    },
+    {
+      "id": "cu-animales-1",
+      "titulo": "Animales increíbles",
+      "nivel": "media",
+      "subtema": "animales",
+      "preguntas": [
+        "ballena-azul",
+        "pulpo-corazones",
+        "colibri-atras",
+        "ornitorrinco",
+        "pulpo-sangre"
+      ]
+    },
+    {
+      "id": "cu-ciencia-1",
+      "titulo": "Ciencia de todos los días",
+      "nivel": "media",
+      "subtema": "ciencia-cotidiana",
+      "preguntas": [
+        "relampago-trueno",
+        "gaseosa-gas",
+        "miel-dura",
+        "diamante-carbono",
+        "banano-radiactivo"
+      ]
+    },
+    {
+      "id": "cu-geografia-2",
+      "titulo": "Desiertos, ríos y montañas",
+      "nivel": "dificil",
+      "subtema": "geografia",
+      "preguntas": [
+        "amazonas-caudal",
+        "atacama-seco",
+        "sierra-nevada",
+        "ecuador-venezuela",
+        "antartida-desierto"
+      ]
+    },
+    {
+      "id": "cu-cuerpo-2",
+      "titulo": "Cuerpo sorprendente",
+      "nivel": "media",
+      "subtema": "cuerpo-humano",
+      "preguntas": [
+        "estribo",
+        "piel-organo",
+        "esmalte",
+        "unas-manos",
+        "cornea"
+      ]
+    },
+    {
+      "id": "cu-geografia-1",
+      "titulo": "Geografía para viajar",
+      "nivel": "media",
+      "subtema": "geografia",
+      "preguntas": [
+        "italia-bota",
+        "pacifico",
+        "canberra",
+        "cano-cristales",
+        "mauna-kea"
+      ]
+    },
+    {
+      "id": "cu-mitos",
+      "titulo": "Mitos y verdades",
+      "nivel": "dificil",
+      "subtema": "mixto",
+      "preguntas": [
+        "huella-gemelos",
+        "mercurio-liquido",
+        "lengua-mapa",
+        "banano-baya",
+        "mani-legumbre"
+      ]
+    },
+    {
+      "id": "cu-animales-2",
+      "titulo": "Animales con superpoderes",
+      "nivel": "media",
+      "subtema": "animales",
+      "preguntas": [
+        "murcielago",
+        "ajolote-regenera",
+        "flamenco",
+        "tiburon-cartilago",
+        "medusa-inmortal"
+      ]
+    },
+    {
+      "id": "cu-espacio-2",
+      "titulo": "Mitos del espacio",
+      "nivel": "media",
+      "subtema": "espacio",
+      "preguntas": [
+        "marte-rojo",
+        "sonido-espacio",
+        "huellas-luna",
+        "muralla",
+        "urano"
+      ]
+    },
+    {
+      "id": "cu-gigantes",
+      "titulo": "Planeta y espacio en grande",
+      "nivel": "dificil",
+      "subtema": "mixto",
+      "preguntas": [
+        "rusia",
+        "agua-superficie",
+        "saturno-densidad",
+        "olimpo",
+        "sol-masa"
+      ]
+    },
+    {
+      "id": "cu-animales-3",
+      "titulo": "Animales rarísimos",
+      "nivel": "media",
+      "subtema": "animales",
+      "preguntas": [
+        "arana-patas",
+        "pinguinos-norte",
+        "camello-joroba",
+        "jirafa-cuello",
+        "perezoso"
+      ]
+    },
+    {
+      "id": "cu-luz-sonido",
+      "titulo": "Luz, agua y sonido",
+      "nivel": "media",
+      "subtema": "ciencia-cotidiana",
+      "preguntas": [
+        "hielo-flota",
+        "cielo-azul",
+        "sonido-agua",
+        "rayo-dos-veces",
+        "rayo-sol"
+      ]
+    },
+    {
+      "id": "cu-rarezas",
+      "titulo": "Rarezas de la naturaleza",
+      "nivel": "dificil",
+      "subtema": "mixto",
+      "preguntas": [
+        "rinon",
+        "estrella-mar",
+        "delfin-dormir",
+        "avestruz-ojo",
+        "bogota-hierve"
+      ]
+    }
+  ]
+}

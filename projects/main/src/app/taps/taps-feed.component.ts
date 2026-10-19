@@ -8,7 +8,7 @@ import { AnalyticsService, TAnalyticsEvent } from '../analytics.service';
 import { TEventPath, eventSlug } from '../analytics-taxonomy';
 import { AdvanceClock, TAP_RHYTHM, advanceDelay, browserClockHost } from './taps.clock';
 import { loadTapsEngine, tapsThemeUrl } from './taps-engine.loader';
-import { TAP_DISPLAY_FONTS, TAP_TOPICS, TAPS } from './taps.data';
+import { TAP_DISPLAY_FONTS, TAP_TOPICS, TAPS, findTap } from './taps.data';
 import { choose, feedTopics, isGoodScore, next, optionLayout, orderFeed, resultFor, startRun, streak, topicOf } from './taps.logic';
 import { canvasToBlob, drawShareCard, loadImage, paintThemeCharacter, shareText, shareUrl } from './taps.share';
 import { TapResultComponent } from './tap-result.component';
@@ -68,7 +68,7 @@ export class TapsFeedComponent {
 
   protected readonly topic = signal<string | null>(this.query.get('tema'));
   /** Orden deseado: `?t=<id>` (enlace compartido) pone ese Tap primero; `?tema=<id>` pone primero los de esa categoría. */
-  private readonly wanted = orderFeed(TAPS, { first: this.askedId, topic: this.topic(), hookDone: this.hookDone });
+  private readonly wanted = orderFeed(TAPS, { first: findTap(this.askedId)?.id, topic: this.topic(), hookDone: this.hookDone });
   /**
    * Orden con el que se pinta primero. Si el HTML ya viene del servidor (SSR o prerender), se hidrata con el MISMO orden
    * que trae (un HTML prerenderizado no conoce `?t=` ni la cookie): cambiar el orden antes de hidratar rompería la
@@ -97,10 +97,19 @@ export class TapsFeedComponent {
   private readonly bar = viewChild.required(TapsBarComponent);
 
   protected readonly activeTap = computed(() => this.taps().find(t => t.id === this.activeId()) ?? this.taps()[0]);
+  /**
+   * Ids de los Taps con contenido en el DOM: el anterior, el actual y el siguiente (experiencia-ux.md, DOM ligero). Los demás
+   * conservan su marco (altura, fondo y casilla del escenario) para que el scroll y el motor sigan igual, sin sus preguntas.
+   * Servidor y navegador parten del primer Tap, así que la hidratación coincide.
+   */
+  protected readonly mounted = computed(() => {
+    const list = this.taps(), i = Math.max(0, list.findIndex(t => t.id === this.activeId()));
+    return new Set(list.slice(Math.max(0, i - 1), i + 2).map(t => t.id));
+  });
   protected readonly topicName = computed(() => this.topics.find(t => t.topic.id === this.topic())?.topic.name ?? 'Para ti');
 
   private stage: ITapsStage | null = null;
-  private stageTheme: string | null = null;
+  private readonly stages = new Map<string, ITapsStage>();
   private activeIndex = -1;
   private token = 0;
   private waitKey = 0;
@@ -130,7 +139,8 @@ export class TapsFeedComponent {
       this.clock.cancel();
       this.clearHold();
       this.revokeDownload();
-      this.stage?.destroy();
+      this.stages.forEach(stage => stage.destroy());
+      this.stages.clear();
       this.stage = null;
     });
     if (!this.isBrowser) return;
@@ -147,7 +157,7 @@ export class TapsFeedComponent {
       const sub = this.location.subscribe(() => this.onPopState());
       this.destroyRef.onDestroy(() => sub.unsubscribe());
       const asked = this.askedId;
-      if (asked !== null && !TAPS.some(t => t.id === asked)) {
+      if (asked !== null && !findTap(asked)) {
         this.notice.set({ tapId: this.taps()[0].id, text: 'Este Tap se retiró. Te dejamos uno parecido.' });
       }
       // Con el orden nuevo ya pintado se empieza a observar qué Tap está a la vista.
@@ -327,7 +337,9 @@ export class TapsFeedComponent {
     this.track(null, `taps/tema/elegir/${id ? eventSlug(id) : 'para-ti'}`);
     this.clock.flush();
     this.topic.set(id);
-    this.taps.set(orderFeed(TAPS, { topic: id, hookDone: this.hookDone || this.anyFinished() }));
+    const ordered = orderFeed(TAPS, { topic: id, hookDone: this.hookDone || this.anyFinished() });
+    this.taps.set(ordered);
+    this.activeId.set(ordered[0].id);                              // el nuevo primer Tap ya tiene contenido al volver arriba
     void this.router.navigate([], { queryParams: { tema: id, t: null }, queryParamsHandling: 'merge', replaceUrl: true });
     this.activeIndex = -1;
     afterNextRender(() => { this.feed().nativeElement.scrollTo({ top: 0 }); void this.activate(0); }, { injector: this.injector });
@@ -520,16 +532,23 @@ export class TapsFeedComponent {
     this.sections()[index]?.nativeElement.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
 
-  /** Un solo escenario para todo el feed; si el Tap usa otro tema (otro videojuego) se reemplaza. */
+  /**
+   * Un escenario por tema (videojuego), creado al primer Tap de ese tema y reutilizado en todos los siguientes: el feed
+   * alterna Minecraft (3D) y estudio (2D), y recrear el motor en cada deslizada sería lento. Solo el del Tap a la vista
+   * dibuja; el otro queda en pausa (a lo sumo hay dos).
+   */
   private async ensureStage(tap: ITap): Promise<ITapsStage | null> {
-    if (this.stage && this.stageTheme === tap.theme) return this.stage;
-    this.stage?.destroy();
+    const known = this.stages.get(tap.theme);
+    if (known) return this.switchStage(known);
     const { create } = await loadTapsEngine();
+    if (this.stages.has(tap.theme)) return this.switchStage(this.stages.get(tap.theme)!);   // otro activate lo creó mientras cargaba el motor
     const stage = create(this.slots()[this.activeIndex].nativeElement, { theme: tapsThemeUrl(tap.theme) });
+    this.stages.set(tap.theme, stage);
+    this.stage?.pause();
     this.stage = stage;
-    this.stageTheme = tap.theme;
     stage.setMuted(this.sound() !== 'on');
     stage.on('mode', data => {
+      if (stage !== this.stage) return;
       this.stageMode.set(data.mode ?? 'light');
       performance.mark?.('taps-stage-' + data.mode);
       if (data.mode === 'light') {
@@ -540,15 +559,23 @@ export class TapsFeedComponent {
     stage.on('degrade', () => this.glassOff());                     // el 3D va justo: el blur sobre el canvas cuesta fps
     await stage.ready;
     this.stageMode.set(stage.mode);
-    void stage.ready3d.then(mode => this.stageMode.set(mode));
+    void stage.ready3d.then(mode => { if (stage === this.stage) this.stageMode.set(mode); });
     return stage;
   }
 
-  /** En reposo y solo del Tap siguiente (nunca los demás) para no gastar datos ni memoria. */
+  private switchStage(stage: ITapsStage): ITapsStage {
+    if (this.stage && this.stage !== stage) this.stage.pause();
+    this.stage = stage;
+    this.stageMode.set(stage.mode);
+    return stage;
+  }
+
+  /** En reposo y solo del Tap siguiente (nunca los demás) para no gastar datos ni memoria; si su tema aún no tiene escenario, espera a llegar. */
   private preloadNext(index: number): void {
     const upcoming = this.taps()[index + 1];
-    if (!upcoming || upcoming.theme !== this.stageTheme) return;
-    const run = () => void this.stage?.preload(upcoming.scene);
+    const target = upcoming ? this.stages.get(upcoming.theme) : undefined;
+    if (!upcoming || !target) return;
+    const run = () => void target.preload(upcoming.scene);
     const idle = (globalThis as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
     if (idle) idle(run, { timeout: 4000 }); else setTimeout(run, 2500);
   }

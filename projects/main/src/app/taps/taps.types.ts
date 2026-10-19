@@ -41,6 +41,10 @@ export interface ITap {
   topic?: string;
   /** Tap «de gancho»: preguntas muy fáciles para el primer Tap de alguien nuevo (el primer toque casi siempre se premia). */
   hook?: boolean;
+  /** Dificultad del Tap (promedio de sus 5 preguntas): el feed la sube y la baja en «diente de sierra». */
+  level?: 'facil' | 'media' | 'dificil';
+  /** Subtema dentro de su categoría (p. ej. «redstone», «espacio»): solo informativo. */
+  subtopic?: string;
 }
 
 /** Una categoría del selector. Las que aún no tienen Taps se muestran como «Pronto». */

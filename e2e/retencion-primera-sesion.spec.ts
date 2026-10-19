@@ -221,10 +221,10 @@ test.describe('Retención · primera sesión en celular (Taps)', () => {
     await expect(active(page).locator('.tap__opt').first()).toBeEnabled();
     await page.getByRole('button', { name: /temas/i }).tap();
     await expectCount(page, 'taps/tema/abrir', 1);
-    await page.getByRole('dialog').getByRole('button', { name: /Ciencia curiosa/ }).tap();
-    await expectCount(page, 'taps/tema/elegir/ciencia', 1);
-    await expect(page).toHaveURL(/tema=ciencia/);
-    await expect(active(page)).toHaveAttribute('data-tap', 'ciencia-curiosa');
+    await page.getByRole('dialog').getByRole('button', { name: /Cultura general/ }).tap();
+    await expectCount(page, 'taps/tema/elegir/cultura', 1);
+    await expect(page).toHaveURL(/tema=cultura/);
+    await expect(active(page)).toHaveAttribute('data-tap', 'cu-gancho');
   });
 
   test('sin WebGL el Tap sigue jugable y se cuenta error/webgl', async ({ page }) => {

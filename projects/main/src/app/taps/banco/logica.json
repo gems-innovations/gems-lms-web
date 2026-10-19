@@ -1,0 +1,1210 @@
+{
+  "tema": "Lógica y trampas",
+  "titulosResultado": [
+    {
+      "min": 0,
+      "title": "Curioso sin miedo",
+      "line": "Estas preguntas engañan a casi todos. ¿Otra ronda?"
+    },
+    {
+      "min": 2,
+      "title": "Detective en práctica",
+      "line": "Ya ves algunas trampas. Lee despacio y caen las demás."
+    },
+    {
+      "min": 4,
+      "title": "Mente afilada",
+      "line": "Casi nada se te escapa. Te falta un detalle."
+    },
+    {
+      "min": 5,
+      "title": "Imposible de engañar",
+      "line": "Perfecto. Ahora reta a alguien a ver si cae."
+    }
+  ],
+  "existentes": [
+    {
+      "id": "avion",
+      "origen": "RETOS",
+      "subtema": "lee-bien",
+      "dificultad": 2
+    },
+    {
+      "id": "dias",
+      "origen": "RETOS",
+      "subtema": "silogismos",
+      "dificultad": 2
+    },
+    {
+      "id": "hermana",
+      "origen": "RETOS",
+      "subtema": "lateral",
+      "dificultad": 3
+    },
+    {
+      "id": "hermanos",
+      "origen": "RETOS",
+      "subtema": "silogismos",
+      "dificultad": 3
+    },
+    {
+      "id": "ovejas",
+      "origen": "RETOS",
+      "subtema": "lee-bien",
+      "dificultad": 1
+    },
+    {
+      "id": "reloj",
+      "origen": "RETOS",
+      "subtema": "lateral",
+      "dificultad": 3
+    }
+  ],
+  "preguntas": [
+    {
+      "id": "30-febrero",
+      "q": "¿Qué día de la semana cae el 30 de febrero de este año?",
+      "options": [
+        "Lunes",
+        "Viernes",
+        "Ninguno",
+        "Domingo"
+      ],
+      "answer": 2,
+      "why": "Ninguno: febrero nunca tiene 30 días.",
+      "dificultad": 1,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "adelantar-ultimo",
+      "q": "En una carrera adelantas al último. ¿En qué puesto quedas?",
+      "options": [
+        "Es imposible",
+        "Último",
+        "Primero",
+        "Penúltimo"
+      ],
+      "answer": 0,
+      "why": "Imposible: si es el último, no hay nadie detrás para adelantarlo.",
+      "dificultad": 1,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "huevos-ayunas",
+      "q": "¿Cuántos huevos puedes comerte en ayunas?",
+      "options": [
+        "Ninguno",
+        "Los que quieras",
+        "Dos",
+        "Uno"
+      ],
+      "answer": 3,
+      "why": "Uno: después del primero ya no estás en ayunas.",
+      "dificultad": 2,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "final-todo",
+      "q": "¿Qué hay al final de todo?",
+      "options": [
+        "El infinito",
+        "La letra O",
+        "El universo",
+        "El cielo"
+      ],
+      "answer": 1,
+      "why": "La letra O: es la última letra de la palabra «todo».",
+      "dificultad": 2,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "medio-paris",
+      "q": "¿Qué hay en medio de París?",
+      "options": [
+        "La torre Eiffel",
+        "Un volcán",
+        "La letra R",
+        "Un parque"
+      ],
+      "answer": 2,
+      "why": "La letra R: está justo en medio de la palabra «París».",
+      "dificultad": 2,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "banana-a",
+      "q": "¿Cuántas veces aparece la letra A en la palabra BANANA?",
+      "options": [
+        "2",
+        "3",
+        "4",
+        "6"
+      ],
+      "answer": 1,
+      "why": "Tres: b-A-n-A-n-A.",
+      "dificultad": 1,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "carnicero",
+      "q": "Un carnicero mide 1,80 m y calza 42. ¿Qué pesa?",
+      "options": [
+        "Carne",
+        "80 kilos",
+        "1,80",
+        "42"
+      ],
+      "answer": 0,
+      "why": "Carne: es carnicero, su trabajo es pesar carne.",
+      "dificultad": 1,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "huevo-cemento",
+      "q": "¿Cómo dejas caer un huevo crudo sobre un piso de cemento sin que el piso se rompa?",
+      "options": [
+        "Con un cojín",
+        "Desde muy bajo",
+        "Congelándolo",
+        "No hace falta nada"
+      ],
+      "answer": 3,
+      "why": "Un huevo no rompe el cemento: el que se rompe es el huevo.",
+      "dificultad": 2,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "hijo-papa",
+      "q": "Es hijo de mi papá, pero no es mi hermano. Lo dice un niño. ¿Quién es?",
+      "options": [
+        "Mi primo",
+        "Yo",
+        "Mi tío",
+        "Mi abuelo"
+      ],
+      "answer": 1,
+      "why": "Soy yo: el hijo de mi papá que no es mi hermano soy yo mismo.",
+      "dificultad": 1,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "ocho-dias",
+      "q": "Un señor pasó 8 días sin dormir y no está cansado. ¿Cómo?",
+      "options": [
+        "Toma café",
+        "Es un robot",
+        "Duerme de noche",
+        "Mintió"
+      ],
+      "answer": 2,
+      "why": "Duerme de noche: lo que no hizo en esos 8 días fue dormir de día.",
+      "dificultad": 1,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "camion-luces",
+      "q": "Un camión va sin luces, no hay luna ni postes, y un carro que viene de frente lo esquiva. ¿Cómo lo vio?",
+      "options": [
+        "Era de día",
+        "Tenía buena vista",
+        "Por el ruido",
+        "Lo adivinó"
+      ],
+      "answer": 0,
+      "why": "Era de día: nadie dijo que fuera de noche.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "everest-antes",
+      "q": "Antes de que descubrieran el Everest, ¿cuál era la montaña más alta del mundo?",
+      "options": [
+        "El K2",
+        "El Kilimanjaro",
+        "El Aconcagua",
+        "El Everest"
+      ],
+      "answer": 3,
+      "why": "El Everest: ya era la más alta, aunque nadie la hubiera medido.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "gatos-esquinas",
+      "q": "Un cuarto tiene 4 esquinas, un gato en cada una, y cada gato ve 3 gatos. ¿Cuántos gatos hay?",
+      "options": [
+        "3",
+        "4",
+        "12",
+        "16"
+      ],
+      "answer": 1,
+      "why": "Cuatro: cada gato ve a los otros 3.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "ascensor-paraguas",
+      "q": "Vive en el piso 10. Al volver sube en ascensor solo hasta el 7, salvo si lleva paraguas: ahí llega al 10. ¿Por qué?",
+      "options": [
+        "Hace ejercicio",
+        "No alcanza el botón",
+        "El ascensor falla",
+        "Le da miedo"
+      ],
+      "answer": 1,
+      "why": "Es bajito: con la punta del paraguas sí alcanza el botón del 10.",
+      "dificultad": 3,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "perro-cuerda",
+      "q": "Un perro está atado a una cuerda de 3 m y alcanza un hueso a 10 m. ¿Cómo?",
+      "options": [
+        "Estira la cuerda",
+        "Salta",
+        "La cuerda va suelta",
+        "Rompe la cuerda"
+      ],
+      "answer": 2,
+      "why": "La cuerda no está amarrada a nada: el perro va con ella a donde quiera.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "viernes-caballo",
+      "q": "Un vaquero llega al pueblo un viernes, se queda 3 días y se va en viernes. ¿Cómo?",
+      "options": [
+        "Su caballo es Viernes",
+        "Se quedó una semana",
+        "Mintió",
+        "Llegó de noche"
+      ],
+      "answer": 0,
+      "why": "Se fue montado en Viernes, su caballo: llegó un viernes y se fue en Viernes.",
+      "dificultad": 3,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "calvo",
+      "q": "Llueve, un señor camina sin paraguas ni sombrero y no se le moja ni un pelo. ¿Cómo?",
+      "options": [
+        "Corre rápido",
+        "Es de noche",
+        "Llovía poquito",
+        "Es calvo"
+      ],
+      "answer": 3,
+      "why": "Es calvo: no tiene ni un pelo que se pueda mojar.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "nombre-uso",
+      "q": "Es tuyo, pero los demás lo usan más que tú. ¿Qué es?",
+      "options": [
+        "Tu celular",
+        "Tu nombre",
+        "Tu ropa",
+        "Tu casa"
+      ],
+      "answer": 1,
+      "why": "Tu nombre: casi siempre lo dicen los demás, no tú.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "secreto",
+      "q": "Si lo tienes, quieres compartirlo; si lo compartes, ya no lo tienes. ¿Qué es?",
+      "options": [
+        "Un chiste",
+        "Un abrazo",
+        "Un secreto",
+        "Una canción"
+      ],
+      "answer": 2,
+      "why": "Un secreto: en cuanto lo cuentas, deja de ser secreto.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "toalla",
+      "q": "¿Qué se moja mientras más seca?",
+      "options": [
+        "La toalla",
+        "El viento",
+        "El sol",
+        "La ropa"
+      ],
+      "answer": 0,
+      "why": "La toalla: mientras más te seca, más mojada queda.",
+      "dificultad": 1,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "peine",
+      "q": "¿Qué tiene dientes pero no muerde?",
+      "options": [
+        "El cocodrilo",
+        "El tiburón",
+        "El perro",
+        "El peine"
+      ],
+      "answer": 3,
+      "why": "El peine: tiene dientes, pero solo para peinar.",
+      "dificultad": 1,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "reloj-agujas",
+      "q": "¿Qué tiene agujas pero no pincha?",
+      "options": [
+        "El cactus",
+        "El reloj",
+        "El erizo",
+        "La jeringa"
+      ],
+      "answer": 1,
+      "why": "El reloj: sus manecillas también se llaman agujas.",
+      "dificultad": 1,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "escalera",
+      "q": "¿Qué sube y baja, pero nunca se mueve de su sitio?",
+      "options": [
+        "El ascensor",
+        "El yoyo",
+        "La escalera",
+        "El columpio"
+      ],
+      "answer": 2,
+      "why": "La escalera: la usas para subir y bajar, pero ella se queda quieta.",
+      "dificultad": 2,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "hueco-crece",
+      "q": "Mientras más le quitas, más grande se hace. ¿Qué es?",
+      "options": [
+        "Un hueco",
+        "Un globo",
+        "Una deuda",
+        "Una pizza"
+      ],
+      "answer": 0,
+      "why": "Un hueco: cada palada de tierra que le quitas lo agranda.",
+      "dificultad": 2,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "silencio",
+      "q": "¿Qué se rompe con solo decir su nombre?",
+      "options": [
+        "El vidrio",
+        "Un secreto",
+        "Un récord",
+        "El silencio"
+      ],
+      "answer": 3,
+      "why": "El silencio: apenas dices «silencio», ya hiciste ruido.",
+      "dificultad": 2,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "aguja-ojo",
+      "q": "Tiene un ojo pero no puede ver. ¿Qué es?",
+      "options": [
+        "El pirata",
+        "La aguja",
+        "El búho",
+        "La lupa"
+      ],
+      "answer": 1,
+      "why": "La aguja: su «ojo» es el huequito por donde pasa el hilo.",
+      "dificultad": 2,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "mapa",
+      "q": "Tiene ciudades pero no casas, ríos pero no agua y bosques pero no árboles. ¿Qué es?",
+      "options": [
+        "Un sueño",
+        "Un desierto",
+        "Un mapa",
+        "Una maqueta"
+      ],
+      "answer": 2,
+      "why": "Un mapa: tiene de todo, pero dibujado.",
+      "dificultad": 2,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "edad",
+      "q": "¿Qué sube y nunca baja?",
+      "options": [
+        "Tu edad",
+        "Un avión",
+        "Un globo",
+        "El precio"
+      ],
+      "answer": 0,
+      "why": "Tu edad: cada año sube uno y nunca vuelve atrás.",
+      "dificultad": 1,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "libro-hojas",
+      "q": "Tengo hojas pero no soy árbol, tengo lomo pero no soy animal. ¿Qué soy?",
+      "options": [
+        "Una planta",
+        "Un sobre",
+        "Una mesa",
+        "Un libro"
+      ],
+      "answer": 3,
+      "why": "Un libro: tiene hojas de papel y un lomo donde va el título.",
+      "dificultad": 1,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "oscuridad",
+      "q": "Mientras más grande es, menos se ve. ¿Qué es?",
+      "options": [
+        "Un elefante",
+        "La oscuridad",
+        "Una montaña",
+        "Un edificio"
+      ],
+      "answer": 1,
+      "why": "La oscuridad: mientras más hay, menos puedes ver.",
+      "dificultad": 2,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "cero",
+      "q": "Multiplicas un número por 5, por 7 o por 100 y el resultado es siempre el mismo. ¿Qué número es?",
+      "options": [
+        "0",
+        "1",
+        "10",
+        "100"
+      ],
+      "answer": 0,
+      "why": "El cero: 5 × 0, 7 × 0 y 100 × 0 dan 0. Con cualquier otro, el resultado cambia.",
+      "dificultad": 2,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "vela",
+      "q": "Mientras más vive, más pequeña se hace. ¿Qué es?",
+      "options": [
+        "El perro",
+        "El árbol",
+        "La vela",
+        "La luna"
+      ],
+      "answer": 2,
+      "why": "La vela: mientras más tiempo está encendida, más se gasta.",
+      "dificultad": 1,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "promesa",
+      "q": "¿Qué se rompe sin que nadie la toque?",
+      "options": [
+        "Una promesa",
+        "Un vaso",
+        "Un hueso",
+        "Una hoja"
+      ],
+      "answer": 0,
+      "why": "Una promesa: se rompe cuando no la cumples.",
+      "dificultad": 2,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "eco",
+      "q": "Hablo sin boca y oigo sin oídos; repito lo que dices. ¿Qué soy?",
+      "options": [
+        "La radio",
+        "El loro",
+        "El espejo",
+        "El eco"
+      ],
+      "answer": 3,
+      "why": "El eco: es tu propia voz que rebota y vuelve.",
+      "dificultad": 3,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-doble",
+      "q": "¿Qué número sigue? 2, 4, 8, 16, …",
+      "options": [
+        "18",
+        "20",
+        "24",
+        "32"
+      ],
+      "answer": 3,
+      "why": "Cada número es el doble del anterior: 16 × 2 = 32.",
+      "dificultad": 1,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-letras",
+      "q": "¿Qué letra sigue? A, C, E, G, …",
+      "options": [
+        "H",
+        "I",
+        "J",
+        "K"
+      ],
+      "answer": 1,
+      "why": "Salta una letra cada vez: después de G (saltando H) viene I.",
+      "dificultad": 1,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-dias",
+      "q": "¿Qué letra sigue? L, M, M, J, V, S, …",
+      "options": [
+        "L",
+        "S",
+        "D",
+        "M"
+      ],
+      "answer": 2,
+      "why": "Son los días: lunes, martes, miércoles, jueves, viernes, sábado, domingo.",
+      "dificultad": 2,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-meses",
+      "q": "¿Qué letra sigue? E, F, M, A, M, J, …",
+      "options": [
+        "J",
+        "A",
+        "S",
+        "M"
+      ],
+      "answer": 0,
+      "why": "Son los meses: enero, febrero… junio y luego julio.",
+      "dificultad": 2,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-cuadrados",
+      "q": "¿Qué número sigue? 1, 4, 9, 16, …",
+      "options": [
+        "20",
+        "24",
+        "25",
+        "32"
+      ],
+      "answer": 2,
+      "why": "Son 1×1, 2×2, 3×3, 4×4… y sigue 5×5 = 25.",
+      "dificultad": 2,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-numeros",
+      "q": "¿Qué letra sigue? U, D, T, C, C, S, …",
+      "options": [
+        "O",
+        "D",
+        "N",
+        "S"
+      ],
+      "answer": 3,
+      "why": "Son los números: uno, dos, tres, cuatro, cinco, seis… y siete.",
+      "dificultad": 3,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-fibonacci",
+      "q": "¿Qué número sigue? 1, 1, 2, 3, 5, 8, …",
+      "options": [
+        "11",
+        "12",
+        "13",
+        "16"
+      ],
+      "answer": 2,
+      "why": "Cada número es la suma de los dos anteriores: 5 + 8 = 13.",
+      "dificultad": 2,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-resta",
+      "q": "¿Qué número sigue? 100, 90, 81, 73, …",
+      "options": [
+        "63",
+        "65",
+        "66",
+        "70"
+      ],
+      "answer": 2,
+      "why": "Restas 10, 9, 8 y luego 7: 73 − 7 = 66.",
+      "dificultad": 3,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-triple",
+      "q": "¿Qué número sigue? 3, 6, 9, 12, …",
+      "options": [
+        "14",
+        "15",
+        "16",
+        "18"
+      ],
+      "answer": 1,
+      "why": "Suma 3 cada vez: 12 + 3 = 15.",
+      "dificultad": 1,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-vocales",
+      "q": "¿Qué letra sigue? A, E, I, O, …",
+      "options": [
+        "P",
+        "U",
+        "Y",
+        "A"
+      ],
+      "answer": 1,
+      "why": "Son las vocales en orden: a, e, i, o, u.",
+      "dificultad": 1,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-alterna",
+      "q": "¿Qué número sigue? 1, 10, 2, 20, 3, 30, …",
+      "options": [
+        "4",
+        "31",
+        "40",
+        "300"
+      ],
+      "answer": 0,
+      "why": "Van dos series intercaladas: 1, 2, 3, 4… y 10, 20, 30…",
+      "dificultad": 2,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-sobra",
+      "q": "¿Qué número sobra? 2, 4, 6, 7, 8",
+      "options": [
+        "2",
+        "6",
+        "7",
+        "8"
+      ],
+      "answer": 2,
+      "why": "El 7 es el único impar; los demás son pares.",
+      "dificultad": 2,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-reloj",
+      "q": "¿Qué número sigue? 9, 10, 11, 12, 1, …",
+      "options": [
+        "0",
+        "2",
+        "13",
+        "14"
+      ],
+      "answer": 1,
+      "why": "Son las horas del reloj: después del 12 vuelve el 1 y luego el 2.",
+      "dificultad": 3,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-reves",
+      "q": "¿Qué letra sigue? Z, Y, X, W, …",
+      "options": [
+        "A",
+        "U",
+        "V",
+        "T"
+      ],
+      "answer": 2,
+      "why": "Es el abecedario al revés: después de W viene V.",
+      "dificultad": 2,
+      "subtema": "series",
+      "estado": "revisada"
+    },
+    {
+      "id": "zorg-azul",
+      "q": "Todos los zorgs son azules. Pipo es un zorg. ¿Pipo es azul?",
+      "options": [
+        "Sí",
+        "No",
+        "No se sabe",
+        "Solo a veces"
+      ],
+      "answer": 0,
+      "why": "Sí: si todos los zorgs son azules y Pipo es uno, Pipo es azul.",
+      "dificultad": 1,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "zorg-inverso",
+      "q": "Todos los zorgs son azules. Lulo es azul. ¿Lulo es un zorg?",
+      "options": [
+        "Sí",
+        "No",
+        "Solo si vuela",
+        "No se puede saber"
+      ],
+      "answer": 3,
+      "why": "No se sabe: puede haber cosas azules que no sean zorgs.",
+      "dificultad": 2,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "ningun-blip",
+      "q": "Ningún blip sabe nadar. Tito es un blip. ¿Tito sabe nadar?",
+      "options": [
+        "Sí",
+        "No",
+        "No se sabe",
+        "Un poco"
+      ],
+      "answer": 1,
+      "why": "No: si ningún blip nada y Tito es un blip, Tito no nada.",
+      "dificultad": 1,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "lluvia-seca",
+      "q": "Si llueve, la calle se moja. La calle está seca. ¿Llovió?",
+      "options": [
+        "Sí",
+        "No se sabe",
+        "No",
+        "Un poquito"
+      ],
+      "answer": 2,
+      "why": "No: si hubiera llovido, la calle estaría mojada.",
+      "dificultad": 2,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "lluvia-mojada",
+      "q": "Si llueve, la calle se moja. La calle está mojada. ¿Llovió?",
+      "options": [
+        "No se puede saber",
+        "No",
+        "Sí, seguro",
+        "Solo de noche"
+      ],
+      "answer": 0,
+      "why": "No se sabe: la pudieron mojar con una manguera o un balde.",
+      "dificultad": 3,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "musicos",
+      "q": "Algunos estudiantes son músicos y todos los músicos leen partituras. ¿Algunos estudiantes leen partituras?",
+      "options": [
+        "Todos",
+        "No",
+        "No se sabe",
+        "Sí"
+      ],
+      "answer": 3,
+      "why": "Sí: los estudiantes que son músicos leen partituras.",
+      "dificultad": 3,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "llegadas",
+      "q": "Leo llegó antes que Max, y Sam llegó después de Max. ¿Quién llegó de último?",
+      "options": [
+        "Leo",
+        "Sam",
+        "Max",
+        "No se sabe"
+      ],
+      "answer": 1,
+      "why": "El orden es Leo, Max y Sam: Sam fue el último.",
+      "dificultad": 2,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "primo",
+      "q": "El hijo de tu tío es tu…",
+      "options": [
+        "Hermano",
+        "Sobrino",
+        "Primo",
+        "Abuelo"
+      ],
+      "answer": 2,
+      "why": "Tu primo: es hijo del hermano o la hermana de tu papá o tu mamá.",
+      "dificultad": 1,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "hace-tres-dias",
+      "q": "Si hoy es miércoles, ¿qué día fue hace 3 días?",
+      "options": [
+        "Domingo",
+        "Lunes",
+        "Sábado",
+        "Viernes"
+      ],
+      "answer": 0,
+      "why": "Martes, lunes, domingo: hace 3 días fue domingo.",
+      "dificultad": 2,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "manana-domingo",
+      "q": "Si mañana es domingo, ¿qué día fue ayer?",
+      "options": [
+        "Lunes",
+        "Sábado",
+        "Jueves",
+        "Viernes"
+      ],
+      "answer": 3,
+      "why": "Si mañana es domingo, hoy es sábado y ayer fue viernes.",
+      "dificultad": 1,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "gatos-ana",
+      "q": "Todos los gatos de Ana son grises. Michi no es gris. ¿Michi es de Ana?",
+      "options": [
+        "Sí",
+        "No",
+        "No se sabe",
+        "Tal vez"
+      ],
+      "answer": 1,
+      "why": "No: si fuera de Ana, sería gris.",
+      "dificultad": 2,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "bolsa-roja",
+      "q": "En una bolsa solo hay pelotas rojas. Sacas una sin mirar. ¿De qué color es?",
+      "options": [
+        "No se sabe",
+        "Azul",
+        "Roja",
+        "Blanca"
+      ],
+      "answer": 2,
+      "why": "Roja: no hay pelotas de otro color en la bolsa.",
+      "dificultad": 1,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "moneda-cara",
+      "q": "Una moneda cae cara 5 veces seguidas. ¿Qué es más probable en el sexto lanzamiento?",
+      "options": [
+        "Igual de probable",
+        "Sello",
+        "Cara",
+        "Que caiga de canto"
+      ],
+      "answer": 0,
+      "why": "La moneda no tiene memoria: cara y sello siguen al 50 %.",
+      "dificultad": 2,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada"
+    },
+    {
+      "id": "dado-6",
+      "q": "Con un dado normal, ¿qué es más fácil sacar: un 6 o un 1?",
+      "options": [
+        "El 6",
+        "El 1",
+        "Depende",
+        "Igual de fácil"
+      ],
+      "answer": 3,
+      "why": "Cada cara tiene la misma probabilidad: 1 de 6.",
+      "dificultad": 1,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada"
+    },
+    {
+      "id": "cumple-367",
+      "q": "En un grupo de 367 personas, ¿es seguro que dos cumplen años el mismo día?",
+      "options": [
+        "No",
+        "Sí, seguro",
+        "Solo si son familia",
+        "Es muy difícil"
+      ],
+      "answer": 1,
+      "why": "Sí: el año tiene máximo 366 días, así que al menos dos se repiten.",
+      "dificultad": 3,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada"
+    },
+    {
+      "id": "decimal",
+      "q": "¿Qué número es mayor: 0,5 o 0,45?",
+      "options": [
+        "0,45",
+        "Son iguales",
+        "0,5",
+        "No se sabe"
+      ],
+      "answer": 2,
+      "why": "0,5 es lo mismo que 0,50, y 0,50 es mayor que 0,45.",
+      "dificultad": 2,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada"
+    }
+  ],
+  "taps": [
+    {
+      "id": "lg-gancho",
+      "titulo": "Trampas para leer bien",
+      "nivel": "facil",
+      "subtema": "mixto",
+      "gancho": true,
+      "preguntas": [
+        "adelantar-ultimo",
+        "30-febrero",
+        "banana-a",
+        "carnicero",
+        "gatos-esquinas"
+      ]
+    },
+    {
+      "id": "lg-adivinanzas-1",
+      "titulo": "Adivinanzas de la casa",
+      "nivel": "facil",
+      "subtema": "adivinanzas",
+      "preguntas": [
+        "toalla",
+        "peine",
+        "reloj-agujas",
+        "escalera",
+        "eco"
+      ]
+    },
+    {
+      "id": "lg-zorgs",
+      "titulo": "Silogismos de zorgs",
+      "nivel": "media",
+      "subtema": "silogismos",
+      "preguntas": [
+        "zorg-azul",
+        "ningun-blip",
+        "zorg-inverso",
+        "gatos-ana",
+        "musicos"
+      ]
+    },
+    {
+      "id": "lg-lee-bien-2",
+      "titulo": "Lee bien otra vez",
+      "nivel": "media",
+      "subtema": "mixto",
+      "preguntas": [
+        "hijo-papa",
+        "ocho-dias",
+        "final-todo",
+        "medio-paris",
+        "viernes-caballo"
+      ]
+    },
+    {
+      "id": "lg-calendario",
+      "titulo": "Días y calendario",
+      "nivel": "media",
+      "subtema": "mixto",
+      "preguntas": [
+        "manana-domingo",
+        "serie-dias",
+        "hace-tres-dias",
+        "dias",
+        "hermana"
+      ]
+    },
+    {
+      "id": "lg-azar",
+      "titulo": "La suerte no tiene memoria",
+      "nivel": "media",
+      "subtema": "mixto",
+      "preguntas": [
+        "dado-6",
+        "bolsa-roja",
+        "moneda-cara",
+        "decimal",
+        "cumple-367"
+      ]
+    },
+    {
+      "id": "lg-series-1",
+      "titulo": "Series para calentar",
+      "nivel": "facil",
+      "subtema": "series",
+      "preguntas": [
+        "serie-vocales",
+        "serie-doble",
+        "serie-letras",
+        "serie-fibonacci",
+        "serie-numeros"
+      ]
+    },
+    {
+      "id": "lg-lateral",
+      "titulo": "Piensa de lado",
+      "nivel": "media",
+      "subtema": "mixto",
+      "preguntas": [
+        "calvo",
+        "perro-cuerda",
+        "huevo-cemento",
+        "everest-antes",
+        "ascensor-paraguas"
+      ]
+    },
+    {
+      "id": "lg-series-2",
+      "titulo": "Series con truco",
+      "nivel": "media",
+      "subtema": "series",
+      "preguntas": [
+        "serie-triple",
+        "serie-cuadrados",
+        "serie-alterna",
+        "serie-sobra",
+        "serie-reloj"
+      ]
+    },
+    {
+      "id": "lg-lluvia",
+      "titulo": "Si llueve, entonces…",
+      "nivel": "media",
+      "subtema": "silogismos",
+      "preguntas": [
+        "primo",
+        "llegadas",
+        "lluvia-seca",
+        "lluvia-mojada",
+        "hermanos"
+      ]
+    },
+    {
+      "id": "lg-adivinanzas-2",
+      "titulo": "Adivina qué es",
+      "nivel": "facil",
+      "subtema": "adivinanzas",
+      "preguntas": [
+        "edad",
+        "vela",
+        "hueco-crece",
+        "silencio",
+        "mapa"
+      ]
+    },
+    {
+      "id": "lg-rapidas",
+      "titulo": "Trampas rápidas",
+      "nivel": "media",
+      "subtema": "mixto",
+      "preguntas": [
+        "ovejas",
+        "huevos-ayunas",
+        "camion-luces",
+        "avion",
+        "reloj"
+      ]
+    },
+    {
+      "id": "lg-adivinanzas-3",
+      "titulo": "Adivinanzas difíciles",
+      "nivel": "media",
+      "subtema": "adivinanzas",
+      "preguntas": [
+        "libro-hojas",
+        "aguja-ojo",
+        "oscuridad",
+        "promesa",
+        "cero"
+      ]
+    },
+    {
+      "id": "lg-mezcla",
+      "titulo": "Mezcla para cracks",
+      "nivel": "media",
+      "subtema": "mixto",
+      "preguntas": [
+        "serie-reves",
+        "serie-meses",
+        "nombre-uso",
+        "secreto",
+        "serie-resta"
+      ]
+    }
+  ]
+}

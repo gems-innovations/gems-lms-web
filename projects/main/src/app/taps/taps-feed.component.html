@@ -11,6 +11,8 @@
              [style.--tap-display-font]="displayFont(tap)" [inert]="live() && activeId() !== tap.id"
              (pointerdown)="onPress($event)" (pointerup)="onRelease($event)" (pointercancel)="onCancel()">
       <div class="tap__stage" #slot aria-hidden="true"></div>
+      <!-- Solo el Tap anterior, el actual y el siguiente tienen contenido: los demás son un marco vacío del mismo tamaño. -->
+      @if (mounted().has(tap.id)) {
       <div class="tap__mark" aria-hidden="true"><img src="/logo-64.png" width="44" height="44" alt="" decoding="async"><span>GEMS LMS · Taps</span></div>
 
       <div class="tap__steps" role="img" [attr.aria-label]="run.finished ? 'Terminaste las ' + tap.questions.length + ' preguntas' : 'Pregunta ' + (run.index + 1) + ' de ' + tap.questions.length">
@@ -95,6 +97,7 @@
         <button type="button" class="tap__peek" [style.--peek]="up.backdrop[0]" (click)="goNext(tap)" [attr.aria-label]="'Siguiente Tap: ' + up.title">
           <span>{{ up.title }}</span>
         </button>
+      }
       }
     </article>
   }
