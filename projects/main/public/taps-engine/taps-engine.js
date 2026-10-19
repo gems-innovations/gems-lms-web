@@ -80,7 +80,8 @@ class Sound {
   }
   async load(file) {
     if (this.bufs.has(file)) return this.bufs.get(file); if (this.pending.has(file)) return this.pending.get(file);
-    const p = fetch(this.resolve(file)).then(r => r.arrayBuffer()).then(ab => new Promise((ok, no) => this.ac.decodeAudioData(ab, ok, no))).then(b => (this.bufs.set(file, b), b)).catch(() => (this.bufs.set(file, null), null));
+    const p = fetch(this.resolve(file)).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); })
+      .then(ab => new Promise((ok, no) => { const d = this.ac.decodeAudioData(ab, ok, no); d?.catch?.(() => {}); })).then(b => (this.bufs.set(file, b), b)).catch(() => (this.bufs.set(file, null), null));
     this.pending.set(file, p); return p;
   }
   /** Reproduce un sonido del tema (archivos) o uno sintetizado del motor. Si el navegador no decodifica el archivo (p. ej. .ogg en Safari) usa la versión sintetizada. */
@@ -160,7 +161,12 @@ export function create(container, opts = {}) {
   // ── tema ──
   const readyTheme = (async () => {
     let t = opts.theme;
-    if (typeof t === 'string') { themeUrl = new URL(t, location.href); t = await (await fetch(themeUrl.href)).json(); }
+    if (typeof t === 'string') {
+      themeUrl = new URL(t, location.href);
+      const r = await fetch(themeUrl.href);
+      if (!r.ok) throw new Error('No cargó el tema (' + r.status + ')');
+      t = await r.json();
+    }
     else { themeUrl = new URL(t.__url || location.href); }
     S.theme = t;
     if (t.font?.src && !FONTS.has(t.font.family)) {
@@ -213,6 +219,9 @@ export function create(container, opts = {}) {
   }
 
   // ── 3D ──
+  let slow = false;
+  const slowMs = opts.slowMs ?? 4000;
+  const slowTimer = slowMs > 0 ? setTimeout(() => { if (S.mode !== '3d' && !S.destroyed && !slow) { slow = true; fallback('el 3D tardó más de ' + slowMs + ' ms'); } }, slowMs) : 0;
   async function start3d() {
     if (S.destroyed) return;
     const t = await readyTheme; performance.mark?.('te-theme'); 
@@ -235,6 +244,8 @@ export function create(container, opts = {}) {
       performance.mark?.('te-scene'); await yieldMain(); 
       renderer.play(loopReact || 'idle');
       renderer.frame(.016);
+      if (slow) { renderer.dispose(); renderer = null; return; }       // llegó tarde: se queda la capa ligera
+      clearTimeout(slowTimer);
       performance.mark?.('te-visible'); root.dataset.mode = '3d'; S.mode = '3d'; glEl.classList.add('on'); emit('mode', { mode: '3d', tier });
       wake(1500); loop();
     } catch (e) { renderer?.dispose?.(); renderer = null; fallback('error 3D: ' + (e?.message || e)); }
@@ -317,14 +328,14 @@ export function create(container, opts = {}) {
     if (def.then && def.duration) reactTimer = setTimeout(() => S.react(def.then, { say: false }), def.duration * 1000);
   };
 
-  S.pause = function pause(why) { S.paused = true; cancelAnimationFrame(raf); raf = 0; root.dataset.paused = why || '1'; };
-  S.resume = function resume() { if (!S.paused && raf) return; S.paused = false; delete root.dataset.paused; if (renderer) { wake(300); loop(); } };
+  S.pause = function pause(why) { S.paused = true; cancelAnimationFrame(raf); raf = 0; root.dataset.paused = why || '1'; if (sound?.ac?.state === 'running') sound.ac.suspend().catch(() => {}); };
+  S.resume = function resume() { if (!S.paused && raf) return; S.paused = false; delete root.dataset.paused; if (sound?.ac?.state === 'suspended' && !document.hidden) sound.ac.resume().catch(() => {}); if (renderer) { wake(300); loop(); } };
   S.setMuted = function setMuted(m) { sound?.setMuted(m); readyTheme.then(() => sound?.setMuted(m)); S.muted = !!m; };
   /** Mueve el escenario entero a otro contenedor (el feed usa UN escenario para todos los Taps). */
   S.attachTo = function attachTo(el) { if (root.parentElement !== el) el.appendChild(root); if (renderer) wake(500); };
   S.sfx = name => sound?.play(name);
   S.destroy = function destroy() {
-    S.destroyed = true; cancelAnimationFrame(raf); clearInterval(typeTimer); clearTimeout(bubbleTimer); clearTimeout(reactTimer);
+    S.destroyed = true; clearTimeout(slowTimer); cancelAnimationFrame(raf); clearInterval(typeTimer); clearTimeout(bubbleTimer); clearTimeout(reactTimer);
     document.removeEventListener('visibilitychange', onVis); window.removeEventListener('pointerdown', unlock); window.removeEventListener('keydown', unlock);
     try { renderer?.dispose(); } catch { /* ya liberado */ } renderer = null; try { sound?.ac?.close(); } catch { /* sin audio */ } root.remove();
   };

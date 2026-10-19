@@ -1,6 +1,9 @@
-import { choose, isGoodScore, next, orderTaps, progressPercent, resultFor, startRun, validateTap } from './taps.logic';
+import {
+  TAP_LIMITS, choose, feedTopics, isGoodScore, next, optionLayout, orderFeed, orderTaps, progressPercent, resultFor, startRun, streak, topicOf,
+  validateTap,
+} from './taps.logic';
 import { ITap } from './taps.types';
-import { TAPS } from './taps.data';
+import { HOOK_TAP_ID, TAP_TOPICS, TAPS } from './taps.data';
 
 const tap: ITap = {
   id: 'prueba',
@@ -42,7 +45,7 @@ describe('resultFor', () => {
 
 describe('avance de un Tap', () => {
   it('empieza en la primera pregunta sin responder', () => {
-    expect(startRun(tap)).toEqual({ tapId: 'prueba', index: 0, chosen: null, score: 0, finished: false });
+    expect(startRun(tap)).toEqual({ tapId: 'prueba', index: 0, chosen: null, score: 0, answers: [], finished: false });
   });
 
   it('suma un acierto solo si la opción es la correcta', () => {
