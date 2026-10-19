@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { COURSE_CATEGORIES, categoryOf } from './course-categories';
 import { RouterLink } from '@angular/router';
 import { PublicHeaderComponent } from './public-header.component';
@@ -44,7 +44,10 @@ export class LandingComponent {
     this.category() === 'todos' ? this.courses() : this.courses().filter(c => categoryOf(c) === this.category()));
 
   constructor() {
-    this.load();
+    // El catálogo vive en el API y cambia sin desplegar: se pide SOLO en el navegador. Si se pidiera en el
+    // servidor, el prerender del build hornearía el catálogo (o el error) de la máquina que compila y la
+    // hidratación lo reutilizaría desde la caché de transferencia. El HTML prerenderizado lleva el esqueleto.
+    afterNextRender(() => this.load());
   }
 
   protected load(): void {
