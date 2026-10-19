@@ -47,6 +47,9 @@ const LEGACY_IDS: Record<string, string | undefined> = {
   'ciencia-curiosa': HOOK_TAP_IDS.find(id => id.startsWith('cu-')),
 };
 
+/** Ids antiguos que aún circulan en enlaces compartidos: se prerenderizan para que conserven su tarjeta (título e imagen). */
+export const LEGACY_TAP_IDS: readonly string[] = Object.keys(LEGACY_IDS).filter(id => LEGACY_IDS[id]);
+
 /** El Tap de un id (`/t/<id>` o `?t=`); los ids antiguos llevan a su equivalente. null si no existe o se retiró. */
 export function findTap(id: string | null | undefined): ITap | null {
   if (!id) return null;
