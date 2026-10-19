@@ -1,6 +1,9 @@
 <div class="search-bar">
   <div class="search-icon">
-    <svg lucideSearch [size]="18" aria-hidden="true"></svg>
+    <svg class="lucide" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" />
+    </svg>
   </div>
   <input
     type="text"
@@ -17,7 +20,10 @@
       (click)="onClear()"
       aria-label="Limpiar búsqueda"
     >
-      <svg lucideX [size]="16" aria-hidden="true"></svg>
+      <svg class="lucide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+      </svg>
     </button>
   }
 </div>
