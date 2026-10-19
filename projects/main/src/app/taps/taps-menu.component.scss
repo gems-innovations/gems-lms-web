@@ -17,7 +17,19 @@
   small { display: block; font-size: 11.5px; font-weight: 600; color: #aab4c4; } }
 .side__brand { display: flex; align-items: center; gap: 10px; min-height: 48px; color: #fff; text-decoration: none; font-weight: 800; img { flex: none; border-radius: 8px; }
   .side__txt { font-size: 15px; small { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; } } }
-.side__toggle { position: absolute; top: 18px; right: 12px; display: var(--txt, inline-grid); place-items: center; width: 32px; height: 32px; border: 0; border-radius: 8px; background: none; color: #aab4c4; cursor: pointer;
+// Contraído (solo iconos): todo centrado en la columna y el botón de ampliar sigue visible debajo del logo.
+@mixin contraido {
+  .side__brand, .side__item, .side__keys { justify-content: center; padding-inline: 0; }
+  .side__toggle { position: static; display: grid; margin: 2px auto 6px; }
+}
+.side.is-inv { @include contraido; }
+@container taps (min-width: 1024px) and (max-width: 1279px) {
+  .side:not(.is-inv) { @include contraido; }
+  // Abierto encima del contenido: vuelve al botón arriba a la derecha.
+  .side.is-inv { .side__brand, .side__item, .side__keys { justify-content: flex-start; padding-inline: 8px; } .side__brand { padding-inline: 0; }
+    .side__toggle { position: absolute; margin: 0; } }
+}
+.side__toggle { position: absolute; top: 18px; right: 12px; display: inline-grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 8px; background: none; color: #aab4c4; cursor: pointer;
   &:hover { color: #fff; background: rgba(255, 255, 255, .08); } }
 .side__group { margin: 16px 8px 6px; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #8b93a7; white-space: nowrap; overflow: hidden; }
 .side.is-inv .side__group { visibility: hidden; height: 0; margin: 8px 0; }
@@ -34,8 +46,8 @@
 // Chip de vidrio de 30 px con un icono dibujado (mismos tokens que .gm-icono del sistema visual).
 .chip { flex: none; display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 10px; color: #dfe6ef; border: 1px solid var(--glass-borde, rgba(255, 255, 255, .16));
   background: linear-gradient(155deg, var(--glass-brillo, rgba(255, 255, 255, .14)), transparent 58%), var(--glass-fondo, rgba(255, 255, 255, .06)); }
-.side__ring { flex: none; margin: 0 -1px; }
-.side__x { margin-left: auto; font-size: 20px; line-height: 1; color: #c8d1de; }
+.side__ring { flex: none; width: 30px; height: 30px; }
+.side__x { display: var(--txt, inline); margin-left: auto; font-size: 20px; line-height: 1; color: #c8d1de; }
 .side__note { display: var(--txt, block); margin: 6px 8px 0; font-size: 12.5px; font-weight: 600; line-height: 1.35; color: #aab4c4; white-space: normal; }
 .side__foot { margin-top: 22px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, .08); }
 .side__who { display: var(--txt, block); margin: 0 8px 8px; font-size: 12.5px; font-weight: 600; line-height: 1.35; color: #c8d1de; white-space: normal; }
