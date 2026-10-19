@@ -13,7 +13,8 @@
 .mock__key { display: inline-grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 9px; font-size: 14px; font-weight: 800;
   background: color-mix(in srgb, var(--color-texto-principal) 9%, transparent); }
 .mock__opt--ok .mock__key { background: var(--color-exito); color: var(--color-sobre-acento); }
-.mock__opt--bad .mock__key { background: var(--color-error); color: var(--color-sobre-primario); }
+// Texto oscuro en oscuro (#F87171: blanco daría 2,8:1) y blanco en claro (#B91C1C): --color-sobre-acento cubre ambos.
+.mock__opt--bad .mock__key { background: var(--color-error); color: var(--color-sobre-acento); }
 .rshare { display: grid; gap: 8px; margin-top: 14px;
   &__btn { background: transparent; color: var(--color-texto-acento); border: 1px solid var(--color-primario); }
   &__msg { margin: 0; text-align: center; font-size: var(--font-size-sm); color: var(--color-texto-secundario); } }
