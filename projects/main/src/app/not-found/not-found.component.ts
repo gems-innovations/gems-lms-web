@@ -41,10 +41,11 @@ export class NotFoundComponent {
       return;
     }
     try {
-      if (await this.swUpdate.checkForUpdate()) {
-        await this.swUpdate.activateUpdate();
-        location.replace(target);
-      }
+      // checkForUpdate() da false si la versión nueva ya se descargó antes (queda lista pero sin activar en
+      // esta pestaña); por eso se intenta activar siempre: activateUpdate() da true si cambió de versión.
+      const found = await this.swUpdate.checkForUpdate();
+      const activated = await this.swUpdate.activateUpdate();
+      if (found || activated) location.replace(target);
     } catch {
       // Sin red o sin service worker: se queda la página de no encontrado.
     }
