@@ -13,10 +13,10 @@
     var(--te-ground-dark, #6b4a2b); box-shadow: inset 0 3px 0 rgba(255, 255, 255, .16); }
 .te-light { position: absolute; left: 50%; top: 13%; height: 36%; aspect-ratio: 1 / 2; transform: translateX(-50%); transform-origin: 50% 100%; will-change: transform; }
 .te-char { width: 100%; height: 100%; image-rendering: pixelated; display: block; filter: drop-shadow(0 6px 0 rgba(0, 0, 0, .25)); animation: te-idle 2.6s ease-in-out infinite; }
-.te-gl { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .5s ease; pointer-events: none; }
+.te-gl { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity var(--dur-base, 200ms) var(--curva-estandar, ease); pointer-events: none; }
 .te-gl.on { opacity: 1; }
-.te-stage[data-mode='3d'] .te-light { visibility: hidden; transition: visibility 0s .5s; }
-.te-stage[data-mode='3d'] .te-bg { opacity: 0; transition: opacity .5s ease .1s; }
+.te-stage[data-mode='3d'] .te-light { visibility: hidden; transition: visibility 0s var(--dur-base, 200ms); }
+.te-stage[data-mode='3d'] .te-bg { opacity: 0; transition: opacity var(--dur-base, 200ms) var(--curva-estandar, ease); }
 .te-stage[data-paused] .te-char { animation-play-state: paused; }
 
 .te-light.te-celebrate { animation: te-jump .55s ease-in-out 3; }

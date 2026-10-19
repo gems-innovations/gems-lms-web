@@ -1,8 +1,10 @@
 import { DOCUMENT, Location, isPlatformBrowser } from '@angular/common';
 import {
   afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, Injector, PLATFORM_ID, REQUEST, computed,
-  inject, signal, viewChild, viewChildren,
+  effect, inject, signal, untracked, viewChild, viewChildren,
 } from '@angular/core';
+import { LoadingGate, SkeletonComponent } from 'shared/loading';
+import { AppStatusService } from '../app-status.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AnalyticsService, TAnalyticsEvent } from '../analytics.service';
 import { TEventPath, eventSlug } from '../analytics-taxonomy';
@@ -14,11 +16,25 @@ import { canvasToBlob, drawShareCard, loadImage, paintThemeCharacter, shareText,
 import { TapResultComponent } from './tap-result.component';
 import { TapsBarComponent } from './taps-bar.component';
 import { TapRailComponent } from './tap-rail.component';
+import { TapPanelComponent } from './tap-panel.component';
+import { IMenuTopic, TapsMenuComponent } from './taps-menu.component';
+import {
+  INTEREST_KEY, IInterest, TInterestSignal, addSignal, blockTopic, emptyInterest, isBlocked, markCompleted, parseInterest, personalize,
+  unblockTopic, yourTopics, topicProgress,
+} from './taps.interest';
+import { keyAction, typingTarget } from './taps.keys';
+import { panelCards, panelState } from './taps.panel';
+import { WheelGate } from './taps.wheel';
 import { ITap, ITapRun, ITapsStage } from './taps.types';
 
 const SOUND_KEY = 'gems-taps-sound';
 const TEACH_KEY = 'gems-taps-ensenar';
 const RUNS_KEY = 'gems-taps-partidas';
+const KEYS_KEY = 'gems-taps-atajos';
+const MENU_KEY = 'gems-taps-menu';
+const PULSE_KEY = 'gems-taps-pulso';
+/** Seguridad extra: si el 3D no llega en este tiempo el póster (capa ligera) se queda todo el Tap. El motor ya lo hace a los 4 s. */
+type TStageMode = 'loading' | 'poster' | '3d' | 'light' | 'none';
 /** Cookie (solo para /taps, sin datos personales): el servidor ya no abre con el Tap de gancho a quien lo jugó. */
 const HOOK_COOKIE = 'gems_taps_gancho';
 const OK_WORDS = ['¡Exacto!', '¡Eso es!', '¡Crack!', '¡Fácil para ti!'];
@@ -41,9 +57,9 @@ interface IPreAnswer { id: string; k: number; t: number }
  */
 @Component({
   selector: 'gems-taps',
-  imports: [TapResultComponent, TapsBarComponent, TapRailComponent],
+  imports: [TapResultComponent, TapsBarComponent, TapRailComponent, TapPanelComponent, TapsMenuComponent, SkeletonComponent],
   templateUrl: './taps-feed.component.html',
-  styleUrl: './taps-feed.component.scss',
+  styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.escritorio.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TapsFeedComponent {
@@ -55,6 +71,7 @@ export class TapsFeedComponent {
   private readonly document = inject(DOCUMENT);
   private readonly request = inject(REQUEST, { optional: true });
   private readonly destroyRef = inject(DestroyRef);
+  private readonly status = inject(AppStatusService);
   private readonly isBrowser = isPlatformBrowser(this.platform);
 
   private readonly snapshot = inject(ActivatedRoute).snapshot;
@@ -80,8 +97,21 @@ export class TapsFeedComponent {
   protected readonly activeId = signal(this.taps()[0].id);
   /** Sonido: arranca en silencio con el aviso «Toca para sonido»; el primer toque en una opción lo enciende (salvo que la persona lo haya apagado). */
   protected readonly sound = signal<TSound>('pending');
-  /** Estado del escenario: cargando → 3d | light (ligero) | none (el motor no cargó: el quiz sigue funcionando). */
-  protected readonly stageMode = signal<'loading' | '3d' | 'light' | 'none'>('loading');
+  /** Estado del escenario: cargando → poster (capa ligera ya visible, el 3D aún no) → 3d | light (ligero) | none (sin tema ni motor: el quiz sigue en DOM sobre el degradado). */
+  protected readonly stageMode = signal<TStageMode>('loading');
+  /** Esqueleto del personaje: tras 300 ms sin escenario y al menos 500 ms (reglas de carga de GEMS). */
+  protected readonly skeleton = signal(false);
+  protected readonly stageAttr = computed(() => (this.stageMode() === 'loading' && this.skeleton() ? 'skeleton' : this.stageMode()));
+  protected readonly online = this.status.online;
+  /** ≥ 768 px: armazón de escritorio (menú, riel y panel). Por debajo es el móvil de siempre. */
+  protected readonly wide = signal(false);
+  protected readonly shortcuts = signal(true);
+  protected readonly focusMode = signal(false);
+  /** El menú está en el estado contrario al de su ancho (contraído en ≥ 1280, abierto en 1024-1279). */
+  protected readonly menuInverted = signal(false);
+  protected readonly pulseNext = signal(false);
+  protected readonly legendOpen = signal(false);
+  protected readonly interest = signal<IInterest>(emptyInterest());
   protected readonly notice = signal<{ tapId: string; text: string; download?: string } | null>(null);
   /** Cuenta atrás visible tras responder: duración (ms) y si está en pausa (mantener presionado). */
   protected readonly wait = signal<{ tapId: string; ms: number; key: number } | null>(null);
@@ -95,6 +125,7 @@ export class TapsFeedComponent {
   private readonly sections = viewChildren<ElementRef<HTMLElement>>('section');
   private readonly slots = viewChildren<ElementRef<HTMLElement>>('slot');
   private readonly bar = viewChild.required(TapsBarComponent);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly activeTap = computed(() => this.taps().find(t => t.id === this.activeId()) ?? this.taps()[0]);
   /**
@@ -107,8 +138,27 @@ export class TapsFeedComponent {
     return new Set(list.slice(Math.max(0, i - 1), i + 2).map(t => t.id));
   });
   protected readonly topicName = computed(() => this.topics.find(t => t.topic.id === this.topic())?.topic.name ?? 'Para ti');
+  protected readonly activeIndexSig = computed(() => Math.max(0, this.taps().findIndex(t => t.id === this.activeId())));
+  protected readonly menuTopics = computed<IMenuTopic[]>(() => yourTopics(TAPS, this.interest()).flatMap(id => {
+    const t = this.topics.find(x => x.topic.id === id)?.topic;
+    return t ? [{ id, name: t.name, color: t.color, ...topicProgress(TAPS, this.interest(), id) }] : [];
+  }));
+  protected readonly panelStateSig = computed(() => panelState(this.runs()[this.activeId()]));
+  protected readonly panelCardsList = computed(() => {
+    const tap = this.activeTap(), taps = this.taps();
+    return panelCards({
+      tap, run: this.runs()[tap.id], next: taps[taps.indexOf(tap) + 1] ?? null, interest: this.interest(), now: Date.now(),
+      topicName: this.topicLabel(tap), topicColor: this.topicColor(tap),
+    }, TAPS);
+  });
+  protected readonly activeBlocked = computed(() => isBlocked(this.interest(), topicOf(this.activeTap()), Date.now()));
 
   private stage: ITapsStage | null = null;
+  private readonly wheel = new WheelGate();
+  private gate: LoadingGate | null = null;
+  private readonly prefetched = new Set<string>();
+  /** Escenarios cuyo 3D aún no decidió si llega (póster visible). */
+  private readonly pending3d = new Set<ITapsStage>();
   private readonly stages = new Map<string, ITapsStage>();
   private activeIndex = -1;
   private token = 0;
@@ -142,6 +192,12 @@ export class TapsFeedComponent {
       this.stages.forEach(stage => stage.destroy());
       this.stages.clear();
       this.stage = null;
+      this.gate?.dispose();
+    });
+    // Vuelve la red: se reintenta solo lo que falló (el tema del escenario), sin recargar la página.
+    effect(() => {
+      const on = this.status.online();
+      untracked(() => { if (on && this.live() && this.stageMode() === 'none') this.retryStage(); });
     });
     if (!this.isBrowser) return;
     afterNextRender(() => {
@@ -149,6 +205,12 @@ export class TapsFeedComponent {
       performance.mark?.('taps-interactive');
       this.live.set(true);
       this.sound.set(this.readStorage(SOUND_KEY) === 'off' ? 'off' : this.readStorage(SOUND_KEY) === 'on' ? 'on' : 'pending');
+      this.interest.set(parseInterest(this.readStorage(INTEREST_KEY), Date.now()));
+      this.shortcuts.set(this.readStorage(KEYS_KEY) !== 'off');
+      this.menuInverted.set(this.readStorage(MENU_KEY) === 'inv');
+      this.watchViewport();
+      this.gate = new LoadingGate(visible => this.skeleton.set(visible), 300, 500);
+      this.gate.set(this.stageMode() === 'loading');
       const reordered = this.applyWantedOrder();
       this.restoreRuns();
       this.document.addEventListener('visibilitychange', this.onVisibility);
@@ -176,11 +238,13 @@ export class TapsFeedComponent {
 
   /** Tras hidratar: pasa al orden deseado (enlace `?t=`, tema, gancho ya jugado) si nadie respondió todavía. */
   private applyWantedOrder(): boolean {
-    const current = this.taps().map(t => t.id).join(), wanted = this.wanted.map(t => t.id).join();
+    // «Para ti» aprende de lo que se jugó (los dos primeros Taps no se tocan); con un tema elegido se respeta tal cual.
+    const target = this.topic() === null ? personalize(this.wanted, 2, this.interest(), Date.now()) : this.wanted;
+    const current = this.taps().map(t => t.id).join(), wanted = target.map(t => t.id).join();
     const answered = Object.values(this.runs()).some(r => r.answers.length > 0) || !!(globalThis as { __tapsPre?: unknown }).__tapsPre;
     if (current === wanted || answered) return false;
-    this.taps.set(this.wanted);
-    this.activeId.set(this.wanted[0].id);
+    this.taps.set(target);
+    this.activeId.set(target[0].id);
     this.activeIndex = -1;
     return true;
   }
@@ -197,6 +261,8 @@ export class TapsFeedComponent {
     const list = ok ? OK_WORDS : BAD_WORDS;
     return list[run.index % list.length];
   }
+  protected topicOf(tap: ITap): string { return topicOf(tap); }
+  protected topicColor(tap: ITap): string { return this.topics.find(t => t.topic.id === topicOf(tap))?.topic.color ?? '#8b93a7'; }
   protected displayFont(tap: ITap): string | null { return TAP_DISPLAY_FONTS[tap.theme] ?? null; }
   protected topicLabel(tap: ITap): string { return this.topics.find(t => t.topic.id === topicOf(tap))?.topic.name ?? tap.kicker; }
   /** «Toca tu respuesta»: solo en la primera pregunta del Tap de gancho, hasta el primer toque. */
@@ -223,7 +289,9 @@ export class TapsFeedComponent {
     this.wait.set({ tapId: tap.id, ms, key: ++this.waitKey });
     afterNextRender(() => {                                        // pantallas bajas: que se vea cómo seguir
       const section = this.sections()[this.taps().indexOf(tap)]?.nativeElement;
-      this.reveal(section, section?.querySelector<HTMLElement>('.tap__go'));
+      const go = section?.querySelector<HTMLElement>('.tap__go');
+      this.reveal(section, go);
+      if (this.wide()) go?.focus({ preventScroll: true });          // escritorio: Enter o Espacio adelantan sin código especial
     }, { injector: this.injector });
   }
 
@@ -232,6 +300,7 @@ export class TapsFeedComponent {
 
   protected restart(tap: ITap): void {
     this.track(null, `taps/repetir/${eventSlug(tap.id)}`);
+    this.signal(tap, 'repeat');
     this.setRun(tap, startRun(tap));
     this.questionShownAt = performance.now();
     this.stage?.say('');
@@ -264,6 +333,8 @@ export class TapsFeedComponent {
     if (run.finished) {
       this.track('taps-completar', `taps/completar/${eventSlug(tap.id)}`);
       this.completedThisSession++;
+      this.updateInterest(i => markCompleted(i, tap, Date.now()));
+      this.reorderTail();
       if ([1, 2, 3, 4, 6, 10].includes(this.completedThisSession)) this.track(null, `taps/hito/${this.completedThisSession}`);
       this.onFinished(tap, run);
       this.focusLater(tap, '.res__title');
@@ -271,6 +342,7 @@ export class TapsFeedComponent {
       this.questionShownAt = performance.now();
       if (tap.id === this.activeId()) this.stage?.react('ask', { say: false });
       this.focusLater(tap, '.tap__q');
+      if (run.index === 2) this.preloadAhead(this.activeIndex);   // llega a la pregunta 3: se adelanta el escenario de los siguientes
     }
   }
 
@@ -280,6 +352,8 @@ export class TapsFeedComponent {
     if (!this.teachShown && this.nextTap(tap)) {
       const count = Number(this.readStorage(TEACH_KEY) ?? 0) || 0;
       if (count < 2) { this.teach.set(true); this.teachShown = true; this.writeStorage(TEACH_KEY, String(count + 1)); }
+      const pulses = Number(this.readStorage(PULSE_KEY) ?? 0) || 0;
+      if (this.wide() && pulses < 2 && tap.id === this.activeId()) { this.pulseNext.set(true); this.writeStorage(PULSE_KEY, String(pulses + 1)); }
     }
     this.prepareShareCard(tap, run);
   }
@@ -349,6 +423,7 @@ export class TapsFeedComponent {
   /** «Retar a un amigo»: imagen 9:16 + texto + enlace al mismo Tap. Si no se puede compartir, copia y ofrece la imagen. */
   protected async challenge(tap: ITap): Promise<void> {
     this.track('taps-compartir', `taps/compartir/${eventSlug(tap.id)}`);
+    this.signal(tap, 'share');
     const run = this.run(tap), url = shareUrl(location.origin, tap.id), file = this.shareFiles.get(tap.id);
     const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
     try {
@@ -367,6 +442,7 @@ export class TapsFeedComponent {
   /** Compartir desde el riel (a mitad del Tap): solo el enlace, sin resultado. */
   protected async shareTap(tap: ITap): Promise<void> {
     this.track('taps-compartir', `taps/compartir/${eventSlug(tap.id)}`);
+    this.signal(tap, 'share');
     const url = shareUrl(location.origin, tap.id), text = `Juega este Tap de GEMS LMS: ${tap.title}. ¿Cuántas sacas de ${tap.questions.length}?`;
     try {
       if (navigator.share) { await navigator.share({ title: 'Taps de GEMS LMS', text, url }); this.track(null, 'taps/compartir-ok/nativo'); return; }
@@ -405,12 +481,119 @@ export class TapsFeedComponent {
     if (idle) idle(go, { timeout: 1500 }); else setTimeout(go, 300);
   }
 
-  /** Teclas 1-4 eligen opción en el Tap a la vista; Enter adelanta tras responder. */
+  /**
+   * Atajos (escritorio.md §6.2). 1-4 (o A-D) eligen opción; ↑ ↓ J K cambian de Tap; Espacio y Enter adelantan; M sonido, R retar,
+   * T temas, F modo enfoque, [ menú, ? atajos, Esc cierra. Los de un carácter se pueden apagar (WCAG 2.1.4) y nunca se activan
+   * al escribir o dentro de un diálogo. Con el foco en el panel, ↑ ↓ desplazan el panel.
+   */
   @HostListener('window:keydown', ['$event'])
   protected onKey(event: KeyboardEvent): void {
-    if (event.ctrlKey || event.metaKey || event.altKey || this.sheetOpen()) return;
-    const tap = this.activeTap(), run = this.run(tap);
-    if (/^[1-4]$/.test(event.key) && !run.finished) this.choose(tap, Number(event.key) - 1);
+    if (this.sheetOpen() || event.defaultPrevented) return;
+    const action = keyAction(event, this.shortcuts());
+    const target = event.target as Element | null;
+    if (!action || typingTarget(target)) return;
+    const tap = this.activeTap(), run = this.run(tap), desktop = this.wide();
+    const onControl = !!target?.closest?.('button, a, [role="menuitem"]');
+    switch (action.kind) {
+      case 'option': if (!run.finished) this.choose(tap, action.index); break;
+      case 'step':
+        if (!desktop || target?.closest?.('gems-tap-panel, gems-taps-menu, .rail__menu')) return;   // ahí ↑ ↓ son del propio control
+        event.preventDefault(); this.step(action.dir); break;
+      case 'continue':
+        if (onControl || !this.clock.active) return;
+        event.preventDefault(); this.skip(); break;
+      case 'sound': this.toggleSound(); break;
+      case 'challenge': if (desktop) this.shareActive(); break;
+      case 'topics': if (desktop) this.openTopics(); break;
+      case 'focus': if (desktop) this.focusMode.update(v => !v); break;
+      case 'menu': if (desktop) this.toggleMenu(); break;
+      case 'help': if (desktop) this.legendOpen.update(v => !v); break;
+      case 'escape': if (this.legendOpen()) this.legendOpen.set(false); else if (this.focusMode()) this.focusMode.set(false); else if (this.menuInverted() && this.host.nativeElement.clientWidth < 1280) this.toggleMenu(); break;
+    }
+  }
+
+  /** Cambia de Tap con la rueda, las flechas o el teclado: lleva la sección vecina a la vista (el snap la deja exacta). */
+  protected step(dir: 1 | -1): void {
+    const index = this.activeIndexSig() + dir;
+    if (index < 0 || index >= this.taps().length) return;
+    this.pulseNext.set(false);
+    this.sections()[index]?.nativeElement.scrollIntoView({ behavior: this.reducedMotion() ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  /** Retar desde el riel o con R: tras el resultado, tarjeta con puntaje; a mitad del Tap, solo el enlace. */
+  protected shareActive(): void {
+    const tap = this.activeTap();
+    void (this.run(tap).finished ? this.challenge(tap) : this.shareTap(tap));
+  }
+
+  protected toggleShortcuts(): void {
+    const on = !this.shortcuts();
+    this.shortcuts.set(on);
+    this.writeStorage(KEYS_KEY, on ? 'on' : 'off');
+  }
+
+  protected toggleMenu(): void {
+    this.menuInverted.update(v => !v);
+    this.writeStorage(MENU_KEY, this.menuInverted() ? 'inv' : 'std');
+  }
+
+  /** «Tus temas»: pone o quita el filtro de ese tema. */
+  protected toggleTopicFilter(id: string): void { this.selectTopic(this.topic() === id ? null : id); }
+
+  /** El puntero sobre el panel o el foco dentro pausan la cuenta atrás del feedback («En pausa mientras lees»). */
+  protected holdPanel(on: boolean): void {
+    if (!this.wide() || !this.clock.active) return;
+    if (on) { this.clock.pause(); this.waitPaused.set(true); }
+    else if (!this.held && !this.sheetOpen() && !this.document.hidden) { this.clock.resume(); this.waitPaused.set(false); }
+  }
+
+  /** «No me interesa este tema»: no sale en «Para ti» durante 30 días (se puede deshacer desde el mismo menú). */
+  protected notInterested(tap: ITap): void {
+    const topic = topicOf(tap);
+    this.updateInterest(i => blockTopic(i, topic, Date.now()));
+    this.track(null, `taps/no-me-interesa/${eventSlug(topic)}`);
+    if (this.topic() === topic) this.selectTopic(null); else this.reorderTail();
+    this.notice.set({ tapId: tap.id, text: `Listo: no verás ${this.topicLabel(tap)} en «Para ti» por 30 días.` });
+  }
+
+  protected unblockActive(): void {
+    const tap = this.activeTap();
+    this.updateInterest(i => unblockTopic(i, topicOf(tap)));
+    this.reorderTail();
+  }
+
+  /** Escritorio y tablet: mide el ancho una vez y lo sigue; la rueda se intercepta solo ahí (en táctil queda el snap nativo). */
+  private watchViewport(): void {
+    const query = matchMedia('(min-width: 768px)');
+    const update = () => this.wide.set(query.matches);
+    update();
+    query.addEventListener('change', update);
+    const onWheel = (e: WheelEvent) => {
+      if (!this.wide() || e.ctrlKey || this.sheetOpen() || !(e.target instanceof Element)) return;
+      if (e.target.closest('gems-tap-panel, gems-taps-menu, dialog')) return;
+      const inner = e.target.closest('.tap__panel');                  // panel inferior con scroll propio (pantallas bajas)
+      if (inner && inner.scrollHeight > inner.clientHeight + 1) return;
+      e.preventDefault();
+      const dir = this.wheel.push({ deltaY: e.deltaY, deltaX: e.deltaX, deltaMode: e.deltaMode }, performance.now(), innerHeight);
+      if (dir) this.step(dir);
+    };
+    this.host.nativeElement.addEventListener('wheel', onWheel, { passive: false });
+    this.destroyRef.onDestroy(() => { query.removeEventListener('change', update); this.host.nativeElement.removeEventListener('wheel', onWheel); });
+  }
+
+  // ───────────── señales de interés (solo en este navegador) ─────────────
+  private updateInterest(change: (i: IInterest) => IInterest): void {
+    this.interest.update(change);
+    this.writeStorage(INTEREST_KEY, JSON.stringify(this.interest()));
+  }
+
+  private signal(tap: ITap, kind: TInterestSignal): void { this.updateInterest(i => addSignal(i, topicOf(tap), kind)); }
+
+  /** Reordena lo que viene después del Tap a la vista y el que asoma (esos dos no cambian de pronto). Con un tema elegido no se toca. */
+  private reorderTail(): void {
+    if (this.topic() !== null || !this.isBrowser) return;
+    const next = personalize(this.taps(), this.activeIndexSig() + 2, this.interest(), Date.now());
+    if (next.some((t, i) => t.id !== this.taps()[i].id)) this.taps.set(next);
   }
 
   private setRun(tap: ITap, run: ITapRun): void {
@@ -479,6 +662,11 @@ export class TapsFeedComponent {
     if (index === this.activeIndex) return;
     const previous = this.activeIndex, tap = this.taps()[index], token = ++this.token;
     if (this.clockTap && this.clockTap.id !== tap.id) this.clock.flush();   // se fue con la respuesta a la vista: queda en la siguiente pregunta
+    const left = previous >= 0 ? this.taps().find(t => t.id === this.activeId()) : undefined;
+    if (left && left.id !== tap.id) {                                   // se fue a mitad de un Tap tras fallar: el tema pierde 1 punto
+      const r = this.run(left);
+      if (!r.finished && r.answers.length > 0 && r.answers[r.answers.length - 1] === false) this.signal(left, 'leave-after-error');
+    }
     this.activeIndex = index;
     this.activeId.set(tap.id);
     if (this.notice()?.tapId !== tap.id) this.notice.set(null);
@@ -494,9 +682,10 @@ export class TapsFeedComponent {
       if (token !== this.token) return;
       const run = this.run(tap);
       if (run.finished) this.celebrateResult(tap, run); else { stage.say(''); stage.react('ask', { say: false }); }
-      this.preloadNext(index);
+      this.preloadAhead(index);
     } catch {
-      this.stageMode.set('none');                              // sin escenario el quiz sigue funcionando en DOM
+      // Sin tema ni motor el Tap se juega sobre su degradado (--bg-top/--bg-bottom), sin personaje y sin aviso: es el mínimo garantizado.
+      if (token === this.token) this.setStageMode('none');
       this.stageError('error/motor');
     }
   }
@@ -526,10 +715,15 @@ export class TapsFeedComponent {
   private onPopState(): void {
     this.pushed = false;
     const [path, search = ''] = this.location.path().split('?');
-    const id = this.sharedRoute ? decodeURIComponent(path.replace(/^\/t\//, '')) : new URLSearchParams(search).get('t');
+    const id = this.sharedRoute ? this.safeDecode(path.replace(/^\/t\//, '')) : new URLSearchParams(search).get('t');
     const index = this.taps().findIndex(t => t.id === id);
     if (index < 0) return;
     this.sections()[index]?.nativeElement.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }
+
+  /** `decodeURIComponent` lanza con un `%` mal formado (p. ej. `/t/%E0%A4%A`): se queda con el texto tal cual. */
+  private safeDecode(value: string): string {
+    try { return decodeURIComponent(value); } catch { return value; }
   }
 
   /**
@@ -542,42 +736,99 @@ export class TapsFeedComponent {
     if (known) return this.switchStage(known);
     const { create } = await loadTapsEngine();
     if (this.stages.has(tap.theme)) return this.switchStage(this.stages.get(tap.theme)!);   // otro activate lo creó mientras cargaba el motor
-    const stage = create(this.slots()[this.activeIndex].nativeElement, { theme: tapsThemeUrl(tap.theme) });
+    // Modo ligero o ahorro de datos: póster fijo, sin pedir el motor 3D.
+    const stage = create(this.slots()[this.activeIndex].nativeElement, { theme: tapsThemeUrl(tap.theme), mode: this.lightOnly() ? 'light' : 'auto' });
     this.stages.set(tap.theme, stage);
     this.stage?.pause();
     this.stage = stage;
+    this.pending3d.add(stage);
     stage.setMuted(this.sound() !== 'on');
     stage.on('mode', data => {
       if (stage !== this.stage) return;
-      this.stageMode.set(data.mode ?? 'light');
-      performance.mark?.('taps-stage-' + data.mode);
+      this.setStageMode(data.mode === '3d' ? '3d' : 'light');
+      performance.mark?.('taps-stage-' + data.mode, { detail: { reason: data.reason ?? null } });
       if (data.mode === 'light') {
         this.glassOff();                                             // modo ligero: botones sin blur
         this.stageError(/webgl/i.test(data.reason ?? '') ? 'error/webgl' : 'error/modo-ligero');
+        this.track(null, `taps/poster-solo/${this.posterReason(data.reason)}`);
       }
     });
     stage.on('degrade', () => this.glassOff());                     // el 3D va justo: el blur sobre el canvas cuesta fps
-    await stage.ready;
-    this.stageMode.set(stage.mode);
-    void stage.ready3d.then(mode => { if (stage === this.stage) this.stageMode.set(mode); });
+    // La promesa del 3D puede rechazar si el tema falla: siempre se atiende, o sería un error sin capturar.
+    const ready3d = stage.ready3d.then(mode => { this.pending3d.delete(stage); if (stage === this.stage) this.setStageMode(mode); }, () => undefined);
+    try {
+      await stage.ready;
+    } catch (error) {
+      // theme.json no llegó (red, 500, JSON inválido): se retira ese escenario y el Tap sigue sobre su degradado.
+      // El siguiente Tap del mismo tema vuelve a intentarlo.
+      this.pending3d.delete(stage);
+      this.stages.delete(tap.theme);
+      if (this.stage === stage) this.stage = null;
+      stage.destroy();
+      throw error;
+    }
+    performance.mark?.('taps-poster');                              // la capa ligera (póster) ya se ve; el 3D se prepara detrás
+    if (this.pending3d.has(stage)) this.setStageMode('poster'); else this.setStageMode(stage.mode);
+    void ready3d;
     return stage;
   }
 
   private switchStage(stage: ITapsStage): ITapsStage {
     if (this.stage && this.stage !== stage) this.stage.pause();
     this.stage = stage;
-    this.stageMode.set(stage.mode);
+    this.setStageMode(stage.mode === '3d' ? '3d' : this.pending3d.has(stage) ? 'poster' : 'light');
     return stage;
   }
 
-  /** En reposo y solo del Tap siguiente (nunca los demás) para no gastar datos ni memoria; si su tema aún no tiene escenario, espera a llegar. */
-  private preloadNext(index: number): void {
-    const upcoming = this.taps()[index + 1];
-    const target = upcoming ? this.stages.get(upcoming.theme) : undefined;
-    if (!upcoming || !target) return;
-    const run = () => void target.preload(upcoming.scene);
+  /** Cambia el estado del escenario y avisa al LoadingGate: el esqueleto solo vive mientras no hay nada que mostrar. */
+  private setStageMode(mode: TStageMode): void {
+    this.stageMode.set(mode);
+    this.gate?.set(mode === 'loading');
+  }
+
+  /** Por qué el escenario se quedó en póster: lento, ligero, webgl u otro (analítica, sin datos personales). */
+  private posterReason(reason: string | undefined): string {
+    return /tard/i.test(reason ?? '') ? 'lento' : /webgl/i.test(reason ?? '') ? 'webgl' : /ligero|dispositivo|rendimiento/i.test(reason ?? '') ? 'ligero' : 'otro';
+  }
+
+  /** Ahorro de datos o 2G: no se pide el motor 3D ni se precarga nada de más. */
+  private lightOnly(): boolean {
+    const c = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    return !!c && (c.saveData === true || /(^|-)2g$/.test(c.effectiveType ?? ''));
+  }
+
+  /** Vuelve a pedir el escenario del Tap a la vista (volvió la red o se pasó a otro Tap del mismo tema). */
+  private retryStage(): void {
+    if (this.activeIndex < 0) return;
+    const index = this.activeIndex;
+    this.activeIndex = -1;
+    this.setStageMode('loading');
+    void this.activate(index);
+  }
+
+  /**
+   * Precarga en reposo de los 2 Taps siguientes (experiencia-ux.md §7.1): si su tema ya tiene escenario se prepara su escena; si
+   * es otro tema, solo se pide su `theme.json` (el motor del otro tema no). Nunca con ahorro de datos, 2G o modo ligero.
+   */
+  private preloadAhead(index: number): void {
+    if (this.lightOnly()) return;
     const idle = (globalThis as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
-    if (idle) idle(run, { timeout: 4000 }); else setTimeout(run, 2500);
+    for (const offset of [1, 2]) {
+      const upcoming = this.taps()[index + offset];
+      if (!upcoming) continue;
+      const target = this.stages.get(upcoming.theme);
+      const run = () => {
+        if (target) void target.preload(upcoming.scene).catch(() => undefined);
+        else this.prefetchTheme(upcoming.theme);
+      };
+      if (idle) idle(run, { timeout: 4000 }); else setTimeout(run, 2500);
+    }
+  }
+
+  private prefetchTheme(theme: string): void {
+    if (this.prefetched.has(theme) || !this.status.online()) return;
+    this.prefetched.add(theme);
+    fetch(tapsThemeUrl(theme), { priority: 'low' } as RequestInit).catch(() => this.prefetched.delete(theme));
   }
 
   // ───────────── estado guardado ─────────────

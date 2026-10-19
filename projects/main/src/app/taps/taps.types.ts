@@ -10,6 +10,8 @@ export interface ITapQuestion {
   answer: number;
   /** Explicación corta que se muestra al fallar: 90 caracteres como máximo (se lee en ~3 s). */
   why: string;
+  /** Explicación ampliada (280 caracteres como máximo) para el panel de escritorio tras fallar. Opcional: el banco aún no la trae. */
+  more?: string;
 }
 
 /** Título que se gana según el puntaje: se elige el de mayor `min` que no supere los aciertos. */

@@ -1,7 +1,18 @@
-<gems-taps-bar [sound]="sound()" [topic]="topic()" [topicName]="topicName()" [topics]="topics"
+<!-- En móvil el armazón (shell, centro, escenario) no existe: display: contents. En escritorio se vuelve la sala de juego. -->
+<div class="shell" [attr.data-enfoque]="focusMode() || null" [attr.data-menu]="menuInverted() ? 'inv' : null" [attr.data-offline]="online() ? null : ''"
+     [style.--amb-a]="activeTap().backdrop[0]" [style.--amb-b]="activeTap().backdrop[1]">
+<!-- Menú, riel y panel de escritorio: solo se piden (y se pintan) desde 768 px; en móvil no cuestan ni un byte de más. -->
+@defer (when wide()) {
+<gems-taps-menu [topic]="topic()" [temas]="menuTopics()" [inverted]="menuInverted()" [shortcuts]="shortcuts()"
+                (forYou)="selectTopic(null)" (openTopics)="openTopics()" (pickTopic)="toggleTopicFilter($event)"
+                (toggleMenu)="toggleMenu()" (toggleShortcuts)="toggleShortcuts()" />
+}
+<div class="centro">
+<div class="escenario">
+<gems-taps-bar [sound]="sound()" [topic]="topic()" [topicName]="topicName()" [topics]="topics" [desktop]="wide()"
                (toggleSound)="toggleSound()" (topicChange)="selectTopic($event)" (sheetChange)="onSheet($event)" />
 
-<main class="taps" #feed [attr.data-stage]="stageMode()" aria-labelledby="taps-h1">
+<main class="taps" #feed [attr.data-stage]="stageAttr()" aria-labelledby="taps-h1">
   <h1 id="taps-h1" class="visually-hidden">Taps de GEMS LMS: quizzes que juegas</h1>
   @for (tap of taps(); track tap.id) {
     @let run = runs()[tap.id];
@@ -11,6 +22,10 @@
              [style.--tap-display-font]="displayFont(tap)" [inert]="live() && activeId() !== tap.id"
              (pointerdown)="onPress($event)" (pointerup)="onRelease($event)" (pointercancel)="onCancel()">
       <div class="tap__stage" #slot aria-hidden="true"></div>
+      <!-- Esqueleto del personaje: solo en esa zona, tras 300 ms sin escenario y al menos 500 ms (LoadingGate). Nunca sobre la pregunta. -->
+      @if (skeleton() && activeId() === tap.id) {
+        <div class="tap__ghost" [class.is-still]="!online()" aria-hidden="true"><lib-skeleton shape="circle" width="46%" /><lib-skeleton shape="block" height="100%" /></div>
+      }
       <!-- Solo el Tap anterior, el actual y el siguiente tienen contenido: los demás son un marco vacío del mismo tamaño. -->
       @if (mounted().has(tap.id)) {
       <div class="tap__mark" aria-hidden="true"><img src="/logo-64.png" width="44" height="44" alt="" decoding="async"><span>GEMS LMS · Taps</span></div>
@@ -67,7 +82,8 @@
                 <span class="tap__label">{{ o }}</span>
                 @if (feedback && k === q.answer) { <svg class="tap__mark-ok" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,.35)"/><path d="m6.5 12.5 3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg> }
                 @if (run.chosen === k && k !== q.answer) { <svg class="tap__mark-ok" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> }
-                @if (k === 3 && showTouchHint(tap)) { <span class="tap__touch" aria-hidden="true"><i></i><b>Toca tu respuesta</b></span> }
+                <span class="tap__key" aria-hidden="true">{{ k + 1 }}</span>
+                @if (k === 3 && showTouchHint(tap)) { <span class="tap__touch" aria-hidden="true"><i></i><b><span class="t-touch">Toca tu respuesta</span><span class="t-key">Haz clic o pulsa 1 2 3 4</span></b></span> }
               </button>
             }
           </div>
@@ -102,6 +118,18 @@
     </article>
   }
 </main>
+</div>
+
+@defer (when wide()) {
+<gems-tap-rail class="riel-escritorio" [desktop]="true" [topicName]="topicLabel(activeTap())" [topicColor]="topicColor(activeTap())"
+               [canPrev]="activeIndexSig() > 0" [canNext]="activeIndexSig() < taps().length - 1" [pulse]="pulseNext()" [finished]="run(activeTap()).finished"
+               [nextTitle]="nextTap(activeTap())?.title ?? null" [blocked]="activeBlocked()" [keysOn]="shortcuts()"
+               (prev)="step(-1)" (nextTap)="step(1)" (filterTopic)="toggleTopicFilter(topicOf(activeTap()))" (more)="moreOf(activeTap())"
+               (share)="shareActive()" (notInterested)="notInterested(activeTap())" (unblock)="unblockActive()" (toggleKeys)="toggleShortcuts()" />
+<gems-tap-panel (mouseenter)="holdPanel(true)" (mouseleave)="holdPanel(false)" (focusin)="holdPanel(true)" (focusout)="holdPanel(false)" [cards]="panelCardsList()" [state]="panelStateSig()" [keysOn]="shortcuts()" [(legend)]="legendOpen" (go)="step(1)" (toggleKeys)="toggleShortcuts()" />
+}
+</div>
+</div>
 
 <svg width="0" height="0" style="position: absolute" aria-hidden="true">
   <symbol id="shape-0" viewBox="0 0 24 24"><path d="M12 3 22.5 20.5h-21Z" fill="currentColor"/></symbol>
@@ -110,7 +138,3 @@
   <symbol id="shape-3" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2.5" fill="currentColor"/></symbol>
 </svg>
 
-<div class="taps__rotate" role="status">
-  <svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true"><rect x="15" y="6" width="18" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M38 30a14 14 0 0 1-12 12m0 0 4-4m-4 4 4 4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  <p>Gira el celular para jugar</p>
-</div>
