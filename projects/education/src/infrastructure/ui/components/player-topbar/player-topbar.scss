@@ -81,7 +81,7 @@
   align-items: center;
   gap: 3px;
   font-size: 12px;
-  color: color-mix(in srgb, var(--color-texto-principal) 38%, transparent);
+  color: var(--color-texto-terciario); // al 38 % quedaba en 3,1:1 (oscuro) y 2,3:1 (claro)
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -138,14 +138,15 @@
     cursor: not-allowed;
   }
 
+  // --color-primario-accion: con --color-primario el blanco quedaba en 3,9:1 y el hover (--color-texto-acento) en ~1,9:1.
   &--next {
-    background: var(--color-primario);
-    border-color: var(--color-primario);
+    background: var(--color-primario-accion);
+    border-color: var(--color-primario-accion);
     color: var(--color-sobre-primario);
 
     &:hover:not(:disabled) {
-      background: var(--color-texto-acento);
-      border-color: var(--color-texto-acento);
+      background: color-mix(in srgb, var(--color-primario-accion) 88%, #000);
+      border-color: color-mix(in srgb, var(--color-primario-accion) 88%, #000);
     }
 
     &:disabled {
@@ -219,7 +220,7 @@
     font-size: 12px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    color: #9B8FF8;
+    color: var(--color-texto-acento); // #9B8FF8 fijo daba 2,5:1 en tema claro
   }
 
   .player-topbar__progress-track { height: 3px; }

@@ -174,11 +174,17 @@
   }
   &:disabled { opacity: 0.35; cursor: not-allowed; }
 
+  // --color-primario-accion (BrandingService lo ajusta por institución para que el blanco cumpla 4,5:1); con
+  // --color-primario el texto quedaba en 3,9:1 y el hover con --color-texto-acento en ~1,9:1.
   &--primary {
-    background: var(--color-primario);
-    border-color: var(--color-primario);
+    background: var(--color-primario-accion);
+    border-color: var(--color-primario-accion);
     color: var(--color-sobre-primario);
-    &:hover:not(:disabled) { background: var(--color-texto-acento); border-color: var(--color-texto-acento); }
+    &:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--color-primario-accion) 88%, #000);
+      border-color: color-mix(in srgb, var(--color-primario-accion) 88%, #000);
+      color: var(--color-sobre-primario);
+    }
   }
 
   &--lg { padding: 12px 28px; font-size: 15px; border-radius: 10px; }
@@ -514,7 +520,7 @@
 
 .quiz-progress__label {
   font-size: 13px;
-  color: color-mix(in srgb, var(--color-texto-principal) 40%, transparent);
+  color: var(--color-texto-terciario);
   white-space: nowrap;
 }
 
@@ -524,7 +530,7 @@
   gap: 5px;
   font-size: 14px;
   font-weight: 700;
-  color: color-mix(in srgb, var(--color-texto-principal) 55%, transparent);
+  color: var(--color-texto-secundario);
   font-variant-numeric: tabular-nums;
   padding: 5px 12px;
   border-radius: 8px;
@@ -568,13 +574,13 @@
 }
 
 .quiz-question__num {
-  color: var(--color-primario);
+  color: var(--color-texto-acento);
   margin-right: 6px;
 }
 
 .quiz-question__hint {
   font-size: 11px;
-  color: color-mix(in srgb, var(--color-texto-principal) 38%, transparent);
+  color: var(--color-texto-terciario);
   margin: -8px 0 4px;
   font-style: italic;
 }
@@ -694,7 +700,7 @@
 .quiz-summary__title {
   font-size: 11px;
   font-weight: 700;
-  color: color-mix(in srgb, var(--color-texto-principal) 35%, transparent);
+  color: var(--color-texto-terciario);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin: 0;
@@ -702,7 +708,7 @@
 
 .quiz-summary__stat {
   font-size: 13px;
-  color: color-mix(in srgb, var(--color-texto-principal) 45%, transparent);
+  color: var(--color-texto-secundario);
   margin: 0;
 }
 
@@ -724,7 +730,7 @@
   border-radius: 6px;
   border: 1px solid color-mix(in srgb, var(--color-texto-principal) 10%, transparent);
   background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent);
-  color: color-mix(in srgb, var(--color-texto-principal) 35%, transparent);
+  color: var(--color-texto-terciario);
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
@@ -740,8 +746,8 @@
   }
 
   &--current {
-    border-color: var(--color-primario);
-    background: var(--color-primario);
+    border-color: var(--color-primario-accion);
+    background: var(--color-primario-accion);
     color: var(--color-sobre-primario);
   }
 
