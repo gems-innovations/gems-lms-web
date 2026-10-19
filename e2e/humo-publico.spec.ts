@@ -28,8 +28,11 @@ test.describe('Humo · visitante', () => {
     await expect(page.locator('h1').first()).toBeVisible();
     await expect(page.locator('article.card')).toHaveCount(CURSOS.length);
     await expect(page.locator('article.card h3 a').first()).toHaveAttribute('href', /\/cursos\/\d+/);
-    await page.locator('gems-hero-quiz .mock__opt').first().click();
-    await expect(page.locator('gems-hero-quiz .mock__why')).toBeVisible();
+    // La portada llega prerenderizada: un toque antes de hidratar puede perderse, así que se reintenta.
+    await expect(async () => {
+      await page.locator('gems-hero-quiz .mock__opt').first().click();
+      await expect(page.locator('gems-hero-quiz .mock__why')).toBeVisible({ timeout: 2_000 });
+    }).toPass({ timeout: 15_000 });
     await sinScrollHorizontal(page);
   });
 
@@ -77,11 +80,31 @@ test.describe('Humo · visitante', () => {
   test('taps: la primera pregunta se responde sin esperar al personaje', async ({ page }) => {
     await apiFalsa(page);
     await page.goto('/taps');
-    const tap = page.locator('section.tap.tap--active');
+    // Selectores tolerantes a la ronda 1 de UX (section→article, explicación solo al fallar, .tap__next→.tap__go).
+    const tap = page.locator('.tap.tap--active');
     await expect(tap.locator('.tap__q')).not.toBeEmpty();
     await tap.locator('.tap__opt').first().click();
-    await expect(tap.locator('.tap__why')).toBeVisible();
-    await expect(tap.locator('.tap__next')).toBeVisible();
+    await expect(tap.locator('.tap__opt[disabled], .tap__opt[aria-disabled="true"], .tap__opts.is-answered').first(),
+      'tras responder, la pregunta queda contestada').toBeAttached();
+    await expect(tap.locator('.tap__next, .tap__go, .tap__why').first()).toBeVisible();
+  });
+
+  test('taps: un enlace compartido (/taps?t=<id>) abre ese Tap', async ({ page }) => {
+    await apiFalsa(page);
+    await page.goto('/taps');
+    const id = await page.locator('.tap.tap--active').getAttribute('data-tap');
+    const otro = await page.locator('.tap[data-tap]').nth(1).getAttribute('data-tap');
+    expect(otro).not.toBe(id);
+    await page.goto(`/taps?t=${otro}`);
+    await expect(page.locator('.tap.tap--active')).toHaveAttribute('data-tap', otro!);
+  });
+
+  test('la portada prerenderizada no trae horneado el error del catálogo', async ({ request }) => {
+    // Hallazgo conocido de #27: al prerenderizar «/» se pide el catálogo a localhost:8080 durante el build y el HTML
+    // queda con «No pudimos cargar los cursos». Cuando se arregle, esta prueba avisará: quitar el test.fail.
+    test.fail(true, 'conocido: la portada se prerenderiza con el error del catálogo (producto/organizacion/consolidacion-y-migracion.md)');
+    const html = await (await request.get('/')).text();
+    expect(html).not.toContain('No pudimos cargar los cursos');
   });
 
   for (const [ruta, titulo] of [

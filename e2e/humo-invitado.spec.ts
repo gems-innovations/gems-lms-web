@@ -19,8 +19,11 @@ test.describe('Humo · invitado', () => {
     await expect(page).toHaveURL(/\/learn\/courses\/1/, { timeout: 15_000 });
     expect(api.veces(/^\/auth\/guest$/, 'POST')).toBe(1);
     expect(api.veces(/^\/enrollments/, 'POST')).toBe(1);
-    const sesion = await page.evaluate(() => JSON.parse(localStorage.getItem('gems_session') ?? '{}'));
-    expect(sesion.user?.email).toMatch(/@invitado\.gems\.lat$/);
+    // El respaldo de CourseStarterService puede recargar la página a los 3 s: se lee la sesión con reintentos.
+    await expect.poll(async () => {
+      await page.waitForLoadState();
+      return page.evaluate(() => JSON.parse(localStorage.getItem('gems_session') ?? '{}').user?.email ?? '').catch(() => '');
+    }, { timeout: 10_000 }).toMatch(/@invitado\.gems\.lat$/);
   });
 
   test('desde la portada: el botón de la tarjeta abre el curso', async ({ page }) => {

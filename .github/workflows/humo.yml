@@ -1,0 +1,55 @@
+name: Humo (regresión) sobre el build estático
+
+# Recorridos básicos que no se pueden romper (visitante, retos, bloques, Taps, invitado, cuentas, permisos, paneles por
+# rol, subdominios) contra el MISMO build que se despliega (`production,static`, servido como nginx), con el API
+# simulado en el navegador: no toca producción, no crea cuentas ni invitados reales. Ver e2e/humo-soporte.ts.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: humo-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  humo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Build estático (el mismo del Dockerfile)
+        run: npm run build:all && npx ng build main --configuration production,static
+
+      - name: Install Chromium y WebKit
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Suite de humo (Chromium + iPhone WebKit)
+        env:
+          E2E_ESTATICO: '1'
+        run: npx playwright test e2e/humo-
+
+      - name: Reporte si falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-humo
+          path: playwright-report
+          retention-days: 7
