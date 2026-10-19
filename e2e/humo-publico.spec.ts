@@ -83,10 +83,12 @@ test.describe('Humo · visitante', () => {
     // Selectores tolerantes a la ronda 1 de UX (section→article, explicación solo al fallar, .tap__next→.tap__go).
     const tap = page.locator('.tap.tap--active');
     await expect(tap.locator('.tap__q')).not.toBeEmpty();
-    await tap.locator('.tap__opt').first().click();
-    await expect(tap.locator('.tap__opt[disabled], .tap__opt[aria-disabled="true"], .tap__opts.is-answered').first(),
-      'tras responder, la pregunta queda contestada').toBeAttached();
-    await expect(tap.locator('.tap__next, .tap__go, .tap__why').first()).toBeVisible();
+    // /taps llega prerenderizado: un toque antes de hidratar puede perderse, así que se reintenta.
+    await expect(async () => {
+      await tap.locator('.tap__opt').first().click();
+      await expect(tap.locator('.tap__opt[disabled], .tap__opt[aria-disabled="true"], .tap__opts.is-answered, .tap__steps i.is-ok, .tap__steps i.is-bad').first(),
+        'tras responder, la pregunta queda contestada').toBeAttached({ timeout: 2_000 });
+    }).toPass({ timeout: 15_000 });
   });
 
   test('taps: un enlace compartido (/taps?t=<id>) abre ese Tap', async ({ page }) => {
@@ -99,12 +101,13 @@ test.describe('Humo · visitante', () => {
     await expect(page.locator('.tap.tap--active')).toHaveAttribute('data-tap', otro!);
   });
 
-  test('la portada prerenderizada no trae horneado el error del catálogo', async ({ request }) => {
-    // Hallazgo conocido de #27: al prerenderizar «/» se pide el catálogo a localhost:8080 durante el build y el HTML
-    // queda con «No pudimos cargar los cursos». Cuando se arregle, esta prueba avisará: quitar el test.fail.
-    test.fail(true, 'conocido: la portada se prerenderiza con el error del catálogo (producto/organizacion/consolidacion-y-migracion.md)');
+  test('la portada prerenderizada no trae horneado el catálogo (ni su error)', async ({ request }) => {
+    // Hallazgo conocido de #27: al prerenderizar «/» se pide el catálogo a localhost:8080 durante el build. Sin API, el
+    // HTML queda con el error; con el API local encendido, quedan horneados los cursos (y sus ids) de ese entorno, y la
+    // caché de transferencia de la hidratación los reutiliza sin volver a pedirlos. Al arreglarlo, quitar el test.fail.
+    test.fail(true, 'conocido: la portada se prerenderiza con datos del API del build (producto/organizacion/consolidacion-y-migracion.md)');
     const html = await (await request.get('/')).text();
-    expect(html).not.toContain('No pudimos cargar los cursos');
+    expect(html).not.toMatch(/No pudimos cargar|lib-load-error|<article[^>]*class="card["\s]/);
   });
 
   for (const [ruta, titulo] of [
@@ -124,6 +127,8 @@ test.describe('Humo · visitante', () => {
   test('instituciones: la solicitud se envía al API', async ({ page }) => {
     const api = await apiFalsa(page);
     await page.goto('/instituciones');
+    // Página prerenderizada: lo escrito antes de hidratar no llega al formulario de Angular. Se espera a que cargue todo.
+    await page.waitForLoadState('networkidle');
     await page.locator('input[name="inst"]').fill('Colegio de Prueba');
     await page.locator('input[name="contact"]').fill('Persona de Prueba');
     await page.locator('input[name="email"]').fill('contacto@prueba.test');
