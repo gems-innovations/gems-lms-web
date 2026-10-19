@@ -1,16 +1,18 @@
 import { IInterest, streakDays, topicProgress } from './taps.interest';
 import { resultFor, streak, topicOf } from './taps.logic';
+import { IPartidaRespuesta, frasePuesto, numero } from './taps.ranking';
 import { ITap, ITapRun } from './taps.types';
 
 /**
  * Panel contextual de escritorio (escritorio.md §7): hasta 3 tarjetas que cambian según el momento del Tap.
  * Solo se calcula lo que el cliente sabe de verdad (avance, racha local, siguiente Tap, explicación ampliada si el banco la
- * trae). Lo que depende del servidor (ranking en vivo, «así respondieron hoy», percentil) NO se inventa: no hay tarjeta.
+ * trae). Lo que depende del servidor solo aparece con su respuesta real: la tarjeta «Ranking semanal» del resultado sale si el API
+ * devolvió la partida; «así respondieron hoy» aún no existe. Nada se inventa: sin datos, no hay tarjeta.
  */
 export type TPanelState = 'pregunta' | 'acierto' | 'fallo' | 'resultado';
 
 export interface IPanelCard {
-  id: 'racha' | 'avance' | 'siguiente' | 'por-que' | 'este-tap';
+  id: 'racha' | 'avance' | 'siguiente' | 'por-que' | 'este-tap' | 'ranking';
   title: string;
   /** Cifra grande de la tarjeta (p. ej. «5 días»). */
   big?: string;
@@ -23,6 +25,8 @@ export interface IPanelCard {
   next?: { id: string; title: string; kicker: string; backdrop: [string, string] };
   /** Única llamada a la acción principal del panel. */
   cta?: { label: string; action: 'next' };
+  /** Enlace secundario (no compite con la llamada principal). */
+  link?: { label: string; action: 'ranking' };
 }
 
 export const MAX_PANEL_CARDS = 3;
@@ -35,6 +39,8 @@ export interface IPanelContext {
   now: number;
   topicName: string;
   topicColor: string;
+  /** Respuesta del API a la partida recién terminada (null o ausente: no hay tarjeta de ranking). */
+  partida?: IPartidaRespuesta | null;
 }
 
 export function panelState(run: ITapRun): TPanelState {
@@ -65,6 +71,12 @@ const nextCard = (next: ITap | null, primary: boolean): IPanelCard[] => next
       cta: primary ? { label: 'Jugar el siguiente', action: 'next' } : undefined }]
   : [];
 
+/** Ranking semanal tras el resultado: solo con la respuesta real del API. Amplía el resultado con tu XP de la semana. */
+const rankingCard = (p: IPartidaRespuesta): IPanelCard => ({
+  id: 'ranking', title: 'Ranking semanal', big: frasePuesto(p.semana.puesto, p.semana.jugadores, '') ?? undefined,
+  body: `Llevas ${numero(p.semana.xp)} XP esta semana.`, link: { label: 'Ver ranking', action: 'ranking' },
+});
+
 const avanceCard = (c: IPanelContext, taps: readonly ITap[]): IPanelCard => {
   const p = topicProgress(taps, c.interest, topicOf(c.tap));
   return { id: 'avance', title: `Tu avance en ${c.topicName}`, big: `${p.done} de ${p.total}`, body: p.done === 0 ? 'Termina un Tap para empezar.' : 'Taps completados.',
@@ -86,7 +98,9 @@ export function panelCards(c: IPanelContext, taps: readonly ITap[]): IPanelCard[
       ...(q?.more ? [{ id: 'por-que', title: 'Por qué', body: q.more } as IPanelCard] : []),
       thisTap(), ...nextCard(c.next, false)]; break;
     case 'acierto': cards = [thisTap(), ...nextCard(c.next, false)]; break;
-    default: cards = [avanceCard(c, taps), streakCard(c.interest, c.now), ...nextCard(c.next, true)];
+    default: cards = c.partida
+      ? [rankingCard(c.partida), avanceCard(c, taps), ...nextCard(c.next, true)]
+      : [avanceCard(c, taps), streakCard(c.interest, c.now), ...nextCard(c.next, true)];
   }
   return cards.slice(0, MAX_PANEL_CARDS);
 }

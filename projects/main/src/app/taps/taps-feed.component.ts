@@ -18,6 +18,9 @@ import { TapsBarComponent } from './taps-bar.component';
 import { TapRailComponent } from './tap-rail.component';
 import { TapPanelComponent } from './tap-panel.component';
 import { IMenuTopic, TapsMenuComponent } from './taps-menu.component';
+import { TapsRankingComponent } from './taps-ranking.component';
+import { TapsRankingService } from './taps-ranking.service';
+import { IPartidaRespuesta } from './taps.ranking';
 import {
   INTEREST_KEY, IInterest, TInterestSignal, addSignal, blockTopic, emptyInterest, isBlocked, markCompleted, parseInterest, personalize,
   unblockTopic, yourTopics, topicProgress,
@@ -59,7 +62,7 @@ interface IPreAnswer { id: string; k: number; t: number }
  */
 @Component({
   selector: 'gems-taps',
-  imports: [TapResultComponent, TapsBarComponent, TapRailComponent, TapPanelComponent, TapsMenuComponent, SkeletonComponent],
+  imports: [TapResultComponent, TapsBarComponent, TapRailComponent, TapPanelComponent, TapsMenuComponent, TapsRankingComponent, SkeletonComponent],
   templateUrl: './taps-feed.component.html',
   styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.escritorio.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -75,6 +78,8 @@ export class TapsFeedComponent {
   private readonly request = inject(REQUEST, { optional: true });
   private readonly destroyRef = inject(DestroyRef);
   private readonly status = inject(AppStatusService);
+  /** Rankings: envío de cada partida terminada y alias del jugador (solo en el navegador). */
+  protected readonly ranking = inject(TapsRankingService);
   private readonly isBrowser = isPlatformBrowser(this.platform);
   /** Efectos (sintetizados por código) y voz de los personajes: taps-engine/audio y taps-engine/voz, cargados bajo demanda. */
   private readonly audio = inject(TapsSonidoService);
@@ -127,6 +132,8 @@ export class TapsFeedComponent {
   protected readonly teach = signal(false);
   protected readonly sheetOpen = signal(false);
   protected readonly live = signal(false);
+  /** Hoja del ranking abierta (se carga diferida la primera vez). */
+  protected readonly rankingOpen = signal(false);
 
   private readonly feed = viewChild.required<ElementRef<HTMLElement>>('feed');
   private readonly sections = viewChildren<ElementRef<HTMLElement>>('section');
@@ -155,12 +162,18 @@ export class TapsFeedComponent {
     const tap = this.activeTap(), taps = this.taps();
     return panelCards({
       tap, run: this.runs()[tap.id], next: taps[taps.indexOf(tap) + 1] ?? null, interest: this.interest(), now: Date.now(),
-      topicName: this.topicLabel(tap), topicColor: this.topicColor(tap),
+      topicName: this.topicLabel(tap), topicColor: this.topicColor(tap), partida: this.partidaLista(tap.id),
     }, TAPS);
   });
   protected readonly activeBlocked = computed(() => isBlocked(this.interest(), topicOf(this.activeTap()), Date.now()));
 
   private stage: ITapsStage | null = null;
+  /** Cuándo empezó cada partida (para la duración que se envía al ranking). */
+  private readonly tapStart = new Map<string, number>();
+  /** Control que abrió el ranking: el foco vuelve ahí al cerrarlo. */
+  private rankingOpener: HTMLElement | null = null;
+  /** El diálogo del ranking llegó a abrirse (su código cargó). */
+  private rankingShown = false;
   private readonly wheel = new WheelGate();
   private gate: LoadingGate | null = null;
   private readonly prefetched = new Set<string>();
@@ -284,6 +297,9 @@ export class TapsFeedComponent {
     const { run, correct } = choose(this.run(tap), tap, option);
     if (correct === null) return;
     const pre = this.takePreAnswer(tap, option);
+    // Inicio de la partida para el ranking: si se respondió antes de hidratar, la pregunta se veía desde que cargó la página.
+    if (pre) this.tapStart.set(tap.id, Math.round(performance.timeOrigin));
+    else if (this.run(tap).answers.length === 0 && !this.tapStart.has(tap.id)) this.tapStart.set(tap.id, Date.now());
     this.setRun(tap, run);
     this.notice.set(null);
     this.track('taps-responder', `taps/responder/${eventSlug(tap.id)}/${run.answers.length}`);
@@ -314,6 +330,8 @@ export class TapsFeedComponent {
     this.track(null, `taps/repetir/${eventSlug(tap.id)}`);
     this.signal(tap, 'repeat');
     this.setRun(tap, startRun(tap));
+    this.ranking.olvidar(tap.id);
+    this.tapStart.set(tap.id, Date.now());
     this.questionShownAt = performance.now();
     this.audio.tocar('toque', { tema: tap.theme });
     this.stage?.say('');
@@ -366,6 +384,7 @@ export class TapsFeedComponent {
       this.audio.tocar('resultado', { tema: tap.theme, puntaje: run.score / tap.questions.length });
     }
     this.writeHookCookie();
+    this.sendToRanking(tap, run);
     if (!this.teachShown && this.nextTap(tap)) {
       const count = Number(this.readStorage(TEACH_KEY) ?? 0) || 0;
       if (count < 2) { this.teach.set(true); this.teachShown = true; this.writeStorage(TEACH_KEY, String(count + 1)); }
@@ -373,6 +392,61 @@ export class TapsFeedComponent {
       if (this.wide() && pulses < 2 && tap.id === this.activeId()) { this.pulseNext.set(true); this.writeStorage(PULSE_KEY, String(pulses + 1)); }
     }
     this.prepareShareCard(tap, run);
+  }
+
+  /**
+   * La partida terminada va al ranking en segundo plano: el juego no la espera y si falla no se avisa (la tarjeta no sale).
+   * Sin un inicio conocido (partida retomada a medias tras recargar) no se envía: una duración inventada no sirve al servidor.
+   */
+  private sendToRanking(tap: ITap, run: ITapRun): void {
+    const started = this.tapStart.get(tap.id);
+    this.tapStart.delete(tap.id);
+    if (!started) return;
+    this.ranking.enviarPartida({
+      tapId: tap.id, topic: topicOf(tap), aciertos: run.score, total: tap.questions.length, duracionMs: Date.now() - started,
+    });
+  }
+
+  /** Respuesta real del API a la última partida de ese Tap (null mientras llega o si no llegó). */
+  protected partidaLista(tapId: string): IPartidaRespuesta | null {
+    const p = this.ranking.partida(tapId);
+    return p?.estado === 'listo' ? p.datos : null;
+  }
+
+  // ───────────── ranking ─────────────
+  /** Abre la hoja del ranking (barra en móvil; menú, panel o resultado en escritorio). Mientras está abierta, la cuenta atrás espera. */
+  protected openRanking(): void {
+    if (this.rankingOpen()) return;
+    const active = this.document.activeElement;
+    this.rankingOpener = active instanceof HTMLElement && active !== this.document.body ? active : null;
+    this.track(null, 'taps/ranking/abrir');
+    this.rankingOpen.set(true);
+  }
+
+  /** El diálogo ya se ve: mientras esté abierto, la cuenta atrás espera y los atajos no actúan. */
+  protected onRankingShown(): void {
+    this.rankingShown = true;
+    this.sheetOpen.set(true);
+    this.clock.pause();
+    this.audio.callar();                                            // la voz no sigue leyendo la pregunta debajo del ranking
+  }
+
+  protected closeRanking(): void {
+    if (!this.rankingOpen()) return;
+    this.rankingOpen.set(false);
+    if (this.rankingShown) {
+      this.rankingShown = false;
+      this.sheetOpen.set(false);
+      if (!this.held && !this.document.hidden) this.clock.resume();
+    }
+    const opener = this.rankingOpener;
+    this.rankingOpener = null;
+    if (opener?.isConnected) afterNextRender(() => opener.focus({ preventScroll: true }), { injector: this.injector });
+  }
+
+  /** Acciones del panel: «Jugar el siguiente» o «Ver ranking». */
+  protected onPanelGo(action: 'next' | 'ranking'): void {
+    if (action === 'ranking') this.openRanking(); else this.step(1);
   }
 
   // ───────────── gestos: mantener presionado pausa, tocar adelanta ─────────────
@@ -749,6 +823,7 @@ export class TapsFeedComponent {
     this.activeIndex = index;
     this.activeId.set(tap.id);
     if (previous >= 0) { this.audio.callar(); this.audio.tocar('deslizar', { tema: tap.theme }); }
+    if (this.run(tap).answers.length === 0 && !this.tapStart.has(tap.id)) this.tapStart.set(tap.id, Date.now());
     if (this.notice()?.tapId !== tap.id) this.notice.set(null);
     this.syncUrl(tap, previous);
     if (!this.seen.has(tap.id)) { this.seen.add(tap.id); this.track('taps-ver', `taps/ver/${eventSlug(tap.id)}`); }

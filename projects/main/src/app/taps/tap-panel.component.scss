@@ -19,6 +19,7 @@
 .card__nextname { margin: 0; font-size: 1.05rem; font-weight: 800; line-height: 1.2; color: #fff; small { display: block; margin-top: 2px; font-size: 12.5px; font-weight: 600; color: #aab4c4; } }
 .card__cta { width: 100%; min-height: 48px; margin-top: 12px; border: 0; border-radius: 14px; font: inherit; font-size: 1rem; font-weight: 800; color: #0d1117; background: #4de1ff; cursor: pointer;
   &:active { transform: translateY(1px); } }
+.card__link { min-height: 44px; margin-top: 4px; padding: 0; border: 0; background: none; font: inherit; font-size: .95rem; font-weight: 800; color: #9fe9ff; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 
 // Leyenda de atajos (abajo del panel).
