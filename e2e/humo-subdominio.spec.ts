@@ -53,6 +53,8 @@ test.describe('Humo · subdominio de institución', () => {
     await page.goto(enSubdominio(baseURL, 'knowledgecraft'));
     await expect(page.locator('h1').first()).toContainText('Juega, aprende y');
     expect(api.veces(/^\/public\/home\/knowledgecraft$/, 'GET')).toBe(1);
+    // La tarjeta para compartir de Taps es solo del dominio principal.
+    await expect(page.locator('meta[property="og:image"]')).not.toHaveAttribute('content', /taps/);
   });
 
   test('una institución sin landing propia ve la portada con su color', async ({ page, baseURL }) => {
@@ -61,12 +63,19 @@ test.describe('Humo · subdominio de institución', () => {
     await expect(page.locator('h1').first()).toBeVisible();
     const estilo = await page.evaluate(() => document.documentElement.getAttribute('style') ?? '');
     expect(estilo.toLowerCase(), 'se aplica el color de la institución').toContain('#c0392b');
+    // Su portada no cambia con Taps: sin el Tap ni la promoción de Taps, con sus cursos y sin la SEO de Taps.
+    await expect(page.locator('article.card').first()).toBeVisible();
+    await expect(page.locator('gems-taps')).toHaveCount(0);
+    await expect(page.locator('#temas, #inst-title')).toHaveCount(0);
+    await expect(page.locator('meta[property="og:image"]')).not.toHaveAttribute('content', /taps/);
+    await expect(page.locator('meta[name="description"]')).not.toHaveAttribute('content', /Taps/);
   });
 
   test('un subdominio que no es institución ve la portada de GEMS', async ({ page, baseURL }) => {
     await apiFalsa(page);
     await page.goto(enSubdominio(baseURL, 'noexiste'));
     await expect(page.locator('article.card').first()).toBeVisible();
+    await expect(page.locator('gems-taps .tap')).toHaveCount(1);
   });
 
   test('con el API caído, el subdominio no se queda en blanco', async ({ page, baseURL }) => {

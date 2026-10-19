@@ -14,6 +14,8 @@ export type TEventPath =
   | 'visita/nueva'
   | `regreso/${TReturnBucket}/${string}`
   | `taps/${string}`
+  // Portada: qué puerta abre la gente (`portada/opcion/<taps|temas/<tema>|retos|bloques|cursos|instituciones|entrar>`).
+  | `portada/${string}`
   | `registro/${string}`
   | `error/${string}`;
 

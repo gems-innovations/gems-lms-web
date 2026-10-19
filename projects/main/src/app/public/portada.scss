@@ -1,0 +1,89 @@
+// Portada con un Tap jugable en el primer pantallazo (variante B, producto/retencion/plan-retencion.md). Primero celular.
+// --ph-h es el alto de la cabecera pública (44 px de botón + relleno + borde), para que la tarjeta llene lo que queda.
+.portada { --ph-h: 65px; }
+
+.juego { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+
+// Celular: la tarjeta va primero, de borde a borde, y ocupa la pantalla menos una franja que invita a bajar.
+// svh (pantalla con las barras del navegador a la vista): el alto no cambia al desplazarse, así el Tap no salta.
+.juego__tarjeta {
+  order: -2; height: calc(100svh - var(--ph-h) - 44px); min-height: 520px; max-height: 940px;
+  margin-inline: -20px; overflow: hidden; background: #0e1116;
+}
+.juego__mas {
+  order: -1; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; margin-inline: -20px;
+  font-size: var(--font-size-sm); font-weight: 700; color: var(--color-texto-secundario); text-decoration: none;
+  background: var(--color-fondo-sutil); border-bottom: 1px solid var(--color-borde-principal);
+  svg { animation: mas-rebote 1.6s ease-in-out 3s 2; }
+  &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: -2px; }
+}
+
+.juego__copia {
+  padding-block: 28px 8px;
+  h1 { margin: 10px 0 12px; font: 800 var(--texto-titulo-1)/var(--interlineado-titulo) var(--font-titulo); letter-spacing: var(--tracking-titulo); text-wrap: balance; }
+  .trust a { color: var(--color-texto-acento); font-weight: 700; text-decoration: none; &:hover { text-decoration: underline; } }
+}
+.juego__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px;
+  .btn { flex: 1 1 auto; } }
+// Temas a un toque: cada uno abre el feed con esa categoría primero (/taps?tema=<id>).
+.juego__temas { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none;
+  a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 14px; border-radius: 99px; text-decoration: none;
+    font: 700 var(--font-size-sm)/1 var(--font-texto); color: var(--color-texto-principal);
+    background: var(--color-superficie); border: 1px solid var(--color-borde-principal);
+    &::before { content: ''; width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+    &:hover { border-color: var(--c); }
+    &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; } } }
+
+#temas, #cursos, #preguntas, #importante { scroll-margin-top: calc(var(--ph-h) + 16px); }
+
+// ── Temas ────────────────────────────────────────────────────────────────────
+.temas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+.tema { position: relative; display: grid; gap: 4px; align-content: start; height: 100%; padding: 18px; border-radius: 18px; overflow: hidden; text-decoration: none; color: inherit;
+  background: var(--color-superficie); border: 1px solid var(--color-borde-principal);
+  transition: transform var(--dur-base) var(--curva-salida), border-color var(--dur-rapida) var(--curva-estandar), box-shadow var(--dur-base) var(--curva-estandar);
+  &::after { content: ''; position: absolute; inset: 0 0 auto; height: 4px; background: var(--c); }
+  > .gm-icono { margin-bottom: 8px; }
+  strong { font: 700 var(--texto-titulo-3)/1.25 var(--font-titulo); color: var(--color-texto-principal); }
+  span { font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
+  small { margin-top: 6px; font-size: 12px; font-weight: 700; color: var(--color-texto-terciario); font-variant-numeric: tabular-nums; }
+  &:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--c) 55%, var(--color-borde-principal)); box-shadow: var(--sombra-lg); }
+  &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; } }
+
+.clasicos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 10px; margin: 14px 0 0; padding: 0; list-style: none; }
+.clasico { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 10px 16px; border-radius: 14px; text-decoration: none; color: var(--color-texto-secundario);
+  font-size: var(--font-size-sm); background: var(--color-fondo-sutil); border: 1px solid var(--color-borde-principal);
+  > span:nth-child(2) { flex: 1; }
+  strong { display: block; color: var(--color-texto-principal); font-size: var(--font-size-base); }
+  > svg { flex: none; color: var(--color-texto-acento); }
+  &:hover { border-color: var(--color-primario); }
+  &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; } }
+
+.band .btn svg { flex: none; }
+
+// Tableta: la tarjeta deja de ir de borde a borde y se ve como un celular centrado.
+@media (min-width: 600px) {
+  .juego__tarjeta { width: min(440px, 100%); height: min(calc(100svh - var(--ph-h) - 72px), 820px); margin: 16px auto 0; border-radius: 28px;
+    box-shadow: 0 24px 60px -20px rgb(0 0 0 / .55), 0 0 0 1px var(--color-borde-principal); }
+  .juego__mas { margin: 12px auto 0; padding-inline: 16px; border: 0; border-radius: 99px; }
+}
+@media (min-width: 761px) { .portada { --ph-h: 73px; } }
+
+// Escritorio: promesa y puertas a la izquierda, Tap (9:16) a la derecha, todo en el primer pantallazo.
+@media (min-width: 960px) {
+  .juego { grid-template-columns: minmax(0, 1fr) auto; column-gap: 56px; align-items: center; min-height: calc(100svh - var(--ph-h)); padding-block: 24px; }
+  .juego__copia { order: 0; padding: 0; }
+  .juego__cta .btn { flex: 0 0 auto; }
+  .juego__tarjeta { order: 1; width: auto; height: min(calc(100svh - var(--ph-h) - 48px), 800px); aspect-ratio: 9 / 16; margin: 0; }
+  .juego__mas { display: none; }
+}
+
+@keyframes mas-rebote { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) {
+  .juego__mas svg { animation: none; }
+  .tema:hover { transform: none; }
+}
+
+// Subdominio de institución: la portada de siempre, solo texto y botones (sin tarjeta de juego).
+.juego--institucion { min-height: 0; padding-block: 48px 8px;
+  .juego__copia { padding: 0; } }
+@media (min-width: 960px) { .juego--institucion { grid-template-columns: minmax(0, 1fr); min-height: 0; padding-block: 64px 24px; } }

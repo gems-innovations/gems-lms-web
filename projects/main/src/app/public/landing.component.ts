@@ -6,28 +6,50 @@ import { PublicFooterComponent } from './public-footer.component';
 import { DIFFICULTY_LABEL, IPublicCourse, PublicCatalogService } from './public-catalog.service';
 import { CourseStarterService } from './course-starter.service';
 import { TiltDirective } from './micro-effects';
-import { HeroQuizComponent } from './hero-quiz.component';
-import { InViewDirective } from './in-view.directive';
-import { LucideGraduationCap, LucideSchool, LucideSend, LucideShieldCheck, LucideZap } from '@lucide/angular';
+import {
+  LucideArrowRight, LucideBox, LucideBoxes, LucideBrain, LucideLightbulb, LucidePuzzle, LucideSchool, LucideShuffle,
+} from '@lucide/angular';
 import { BusyLabelComponent, LoadErrorComponent, SkeletonComponent } from 'shared/loading';
 import { EMPTY_STATES, EmptyStateComponent } from 'shared';
+import { TapsFeedComponent } from '../taps/taps-feed.component';
+import { TAP_TOPICS, TAPS } from '../taps/taps.data';
+import { feedTopics } from '../taps/taps.logic';
+import { AnalyticsService } from '../analytics.service';
+import { eventSlug } from '../analytics-taxonomy';
+import { TenantService } from '../tenant.service';
+
+/** Destinos que se miden desde la portada (`cursos` = abre o empieza un curso; `cursos-ancla` = baja a la lista) (`portada/opcion/<destino>`, producto/retencion/plan-retencion.md). */
+type TPortadaDestino = 'taps' | `temas/${string}` | 'retos' | 'bloques' | 'cursos' | 'cursos-ancla' | 'instituciones' | 'entrar';
 
 /**
- * Página de entrada pública: cursos gratis para prepararse para la universidad, sin registro.
- * Cada tarjeta abre el curso con un toque; las instituciones encuentran arriba su acceso.
+ * Portada de GEMS LMS con la filosofía de Taps (variante B de producto/retencion/plan-retencion.md): se juega desde el
+ * primer fotograma. Arriba, un Tap jugable (el mismo feed de /taps en modo «portada», prerenderizado con su pregunta y
+ * sus opciones); al lado en escritorio, o al bajar en celular, las demás puertas: seguir con más Taps, temas, retos,
+ * cursos gratis (catálogo del API, solo en el navegador), instituciones y entrar. Responder es libre y sin cuenta.
  */
 @Component({
   selector: 'gems-landing',
-  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, HeroQuizComponent, TiltDirective, InViewDirective,
-    LucideGraduationCap, LucideSchool, LucideSend, LucideShieldCheck, LucideZap,
+  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, TapsFeedComponent, TiltDirective,
+    LucideArrowRight, LucideBox, LucideBoxes, LucideBrain, LucideLightbulb, LucidePuzzle, LucideSchool, LucideShuffle,
     SkeletonComponent, LoadErrorComponent, BusyLabelComponent, EmptyStateComponent],
   templateUrl: './landing.component.html',
-  styleUrls: ['./public.scss', './landing-extra.scss', './landing-bento.scss', './landing-piezas.scss'],
+  styleUrls: ['./public.scss', './landing-extra.scss', './landing-piezas.scss', './portada.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LandingComponent {
   private readonly catalog = inject(PublicCatalogService);
+  private readonly analytics = inject(AnalyticsService);
+  private readonly tenant = inject(TenantService);
   protected readonly starter = inject(CourseStarterService);
+  /**
+   * Subdominio de una institución sin landing propia: su portada no cambia con Taps (sin el Tap, sin temas ni «Lleva los
+   * Taps a tu grupo»); conserva sus colores y sus cursos. Solo se sabe en el navegador (nginx entrega la shell en subdominios).
+   */
+  protected readonly institucion = computed(() => !!this.tenant.slug());
+
+  /** Temas jugables (los del banco de Taps; los que aún no tienen Taps no se ofrecen aquí). */
+  protected readonly topics = feedTopics(TAPS, TAP_TOPICS).filter(t => !t.soon);
+  protected readonly tapCount = TAPS.length;
 
   protected readonly state = signal<'loading' | 'ready' | 'error'>('loading');
   protected readonly courses = signal<IPublicCourse[]>([]);
@@ -38,8 +60,6 @@ export class LandingComponent {
   protected readonly difficulty = DIFFICULTY_LABEL;
   /** Textos del catálogo vacío (lib-empty-state). */
   protected readonly emptyCopy = EMPTY_STATES.public.coursesSoon;
-  protected readonly heroCtaInView = signal(false);
-  protected readonly gridInView = signal(false);
 
   /** Categoría elegida en la portada («todos» muestra todo). Las fichas solo aparecen si hay cursos en ellas. */
   protected readonly category = signal('todos');
@@ -67,17 +87,18 @@ export class LandingComponent {
     });
   }
 
-  /** CTA principal: abre el curso de admisión (el del mini simulacro del hero); si no hay, el primero. */
-  protected startFirst(): void {
-    const first = this.courses().find(c => categoryOf(c) === 'admision') ?? this.courses()[0];
-    if (first) void this.start(first.id);
-    else document.getElementById('cursos')?.scrollIntoView({ behavior: 'smooth' });
-  }
-
   protected async start(id: number): Promise<void> {
     this.errorFor.set(null);
+    this.choose('cursos');
     const e = await this.starter.start(id);
     this.error.set(e);
     this.errorFor.set(e ? id : null);
   }
+
+  /** Qué puerta abre la gente desde la portada (una medida por toque; GoatCounter cuenta visitantes únicos por path). */
+  protected choose(destino: TPortadaDestino): void {
+    this.analytics.event(`portada/opcion/${destino}`);
+  }
+
+  protected topicEvent(id: string): TPortadaDestino { return `temas/${eventSlug(id)}`; }
 }

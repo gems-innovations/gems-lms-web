@@ -1,4 +1,4 @@
-import { expect, Page, Request, Route } from '@playwright/test';
+import { expect, Page, Request, Route, test } from '@playwright/test';
 
 /**
  * Soporte de la suite de humo (e2e/humo-*.spec.ts): una API falsa en el navegador y sesiones de prueba.
@@ -181,4 +181,14 @@ export function erroresDePagina(page: Page): string[] {
 export async function sinScrollHorizontal(page: Page): Promise<void> {
   const { scroll, width } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth }));
   expect(scroll, 'la página no debe desbordarse a los lados').toBeLessThanOrEqual(width + 1);
+}
+
+/**
+ * La portada con un Tap (PR #45) se prueba contra el build local y en CI; iphone.yml corre contra producción, que hasta el
+ * despliegue sigue sirviendo la portada anterior (con el mini simulacro `gems-hero-quiz`). Solo en ese caso la prueba se
+ * omite: si producción ya tiene la portada nueva (o ninguna de las dos), corre y falla como debe.
+ */
+export async function omitirSiPortadaAnterior(page: Page): Promise<void> {
+  await page.locator('gems-hero-quiz, gems-taps').first().waitFor({ state: 'attached', timeout: 15_000 }).catch(() => undefined);
+  test.skip(await page.locator('gems-hero-quiz').count() > 0, 'producción aún sirve la portada anterior (sin Tap): se prueba al desplegar #45');
 }
