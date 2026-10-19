@@ -7,7 +7,8 @@
     background: var(--color-superficie); border: 1px solid var(--color-borde-secundario);
     &:hover { border-color: var(--color-primario); }
     &--on { color: var(--color-sobre-primario); background: var(--color-primario-accion); border-color: var(--color-primario-accion); } }
-  &__n { font-variant-numeric: tabular-nums; font-size: var(--font-size-xs, 12px); opacity: .75; }
+  // Sin opacidad: al 75 % el número quedaba en 4,4:1 sobre el chip activo y 4,2:1 en tema claro (12 px pide 4,5:1).
+  &__n { font-variant-numeric: tabular-nums; font-size: var(--font-size-xs, 12px); }
 }
 // Letra de la opción como tecla (igual que en Taps).
 .mock__key { display: inline-grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 9px; font-size: 14px; font-weight: 800;
