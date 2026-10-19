@@ -15,7 +15,7 @@
 // #8b93a7 al 72 % de «Respira» queda en 3,6:1 (< 4,5): #aab4c4 llega a 4,9:1 incluso atenuado.
 .card__note { margin: 8px 0 0; font-size: 12px; font-weight: 600; color: #aab4c4; }
 .card__next { display: flex; align-items: center; gap: 12px; }
-.card__poster { flex: none; width: 54px; height: 96px; border-radius: 10px; background: linear-gradient(var(--a, #333), var(--b, #111)); border: 1px solid rgba(255, 255, 255, .2); }
+.card__poster { flex: none; width: 54px; height: 96px; border-radius: 10px; background: linear-gradient(var(--a, #333) 0 58%, var(--b, #111) 58%); border: 1px solid rgba(255, 255, 255, .2); }
 .card__nextname { margin: 0; font-size: 1.05rem; font-weight: 800; line-height: 1.2; color: #fff; small { display: block; margin-top: 2px; font-size: 12.5px; font-weight: 600; color: #aab4c4; } }
 .card__cta { width: 100%; min-height: 48px; margin-top: 12px; border: 0; border-radius: 14px; font: inherit; font-size: 1rem; font-weight: 800; color: #0d1117; background: #4de1ff; cursor: pointer;
   &:active { transform: translateY(1px); } }

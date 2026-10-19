@@ -1,9 +1,13 @@
-/* Taps Engine · capa ligera (DOM/CSS) + lienzo 3D. Los colores salen del tema (variables --te-*). */
+/* Taps Engine · capa ligera (DOM/CSS) + lienzo 3D. Los colores salen del tema (variables --te-*).
+   Sin degradados suaves: cielo en franjas planas (como el cielo por capas de un juego de bloques), sol cuadrado sin halo,
+   suelo de bloques con rejilla y sombras duras. Cada tema afina su textura en su theme.css. */
 .te-stage { position: absolute; inset: 0; overflow: hidden; isolation: isolate; font-family: var(--te-font, 'Pixelify Sans'), system-ui, sans-serif;
-  background: linear-gradient(var(--te-sky-top, #4aa3e8), var(--te-sky-bottom, #c4e9ff) 60%); contain: layout paint; }
+  --te-sky-mid: color-mix(in srgb, var(--te-sky-top, #4aa3e8) 50%, var(--te-sky-bottom, #c4e9ff));
+  background: linear-gradient(var(--te-sky-top, #4aa3e8) 0 30%, var(--te-sky-mid) 30% 44%, var(--te-sky-bottom, #c4e9ff) 44%); contain: layout paint; }
 .te-bg { position: absolute; inset: 0; }
-/* sol cuadrado */
-.te-bg::before { content: ''; position: absolute; right: 12%; top: 8%; width: 14vmin; height: 14vmin; max-width: 90px; max-height: 90px; background: #fff6b0; box-shadow: 0 0 60px 24px rgba(255, 246, 176, .45); opacity: var(--te-sun, .9); }
+/* sol cuadrado: borde de un «píxel» más claro en lugar de un brillo difuso */
+.te-bg::before { content: ''; position: absolute; right: 12%; top: 8%; width: 14vmin; height: 14vmin; max-width: 90px; max-height: 90px; background: #fff6b0;
+  box-shadow: 0 0 0 8px rgba(255, 246, 176, .35); opacity: var(--te-sun, .9); }
 /* suelo de bloques: franja de pasto y tierra con rejilla de cubos */
 .te-bg::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 46%;
   background:
@@ -11,13 +15,30 @@
     repeating-linear-gradient(90deg, rgba(0, 0, 0, .14) 0 2px, transparent 2px 9vmin),
     repeating-linear-gradient(0deg, rgba(0, 0, 0, .14) 0 2px, transparent 2px 9vmin),
     var(--te-ground-dark, #6b4a2b); box-shadow: inset 0 3px 0 rgba(255, 255, 255, .16); }
-.te-light { position: absolute; left: 50%; top: 13%; height: 36%; aspect-ratio: 1 / 2; transform: translateX(-50%); transform-origin: 50% 100%; will-change: transform; }
+/* Encuadre: el motor pone --te-x (centro del personaje) y --te-s (tamaño); al mostrar un objeto, --te-dx (px) corre al personaje
+   con la propiedad translate (compuesta en la GPU, no anima left y no choca con las animaciones de transform). */
+.te-light { position: absolute; left: var(--te-x, 50%); translate: var(--te-dx, 0px) 0; top: calc(13% + 36% * (1 - var(--te-s, 1))); height: calc(36% * var(--te-s, 1)); aspect-ratio: 1 / 2;
+  transform: translateX(-50%); transform-origin: 50% 100%; will-change: transform; }
 .te-char { width: 100%; height: 100%; image-rendering: pixelated; display: block; filter: drop-shadow(0 6px 0 rgba(0, 0, 0, .25)); animation: te-idle 2.6s ease-in-out infinite; }
-.te-gl { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity var(--dur-base, 200ms) var(--curva-estandar, ease); pointer-events: none; }
+.te-gl { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity var(--dur-base, 200ms) var(--curva-estandar, ease), transform var(--dur-enfasis, 320ms) var(--curva-salida, ease-out); pointer-events: none; }
 .te-gl.on { opacity: 1; }
 .te-stage[data-mode='3d'] .te-light { visibility: hidden; transition: visibility 0s var(--dur-base, 200ms); }
 .te-stage[data-mode='3d'] .te-bg { opacity: 0; transition: opacity var(--dur-base, 200ms) var(--curva-estandar, ease); }
 .te-stage[data-paused] .te-char { animation-play-state: paused; }
+
+/* Cambio de lugar entre Taps: el escenario se oculta al instante (queda el color plano del mundo nuevo) y vuelve en 280 ms
+   con un leve acercamiento, como un corte de cámara. Con movimiento reducido el motor no pone data-cambio. */
+.te-stage[data-cambio] .te-gl.on { opacity: 0; transform: scale(1.04); transition: none; }
+.te-stage[data-cambio] .te-light, .te-stage[data-cambio] .te-bg::before { opacity: 0; transition: none; }
+.te-stage .te-gl.on { transition-duration: 280ms, 320ms; }
+.te-light, .te-bg::before { transition: opacity 280ms var(--curva-salida, ease-out), translate var(--dur-enfasis, 320ms) var(--curva-estandar, ease); }
+/* Entrada del personaje en la capa ligera (el 3D hace la suya en el renderizador). */
+.te-stage[data-entra='camina'] .te-char, .te-stage[data-entra='vuela'] .te-char { animation: te-entra-lado .6s var(--curva-salida, ease-out) both; }
+.te-stage[data-entra='salta'] .te-char, .te-stage[data-entra='cae'] .te-char { animation: te-entra-arriba .55s cubic-bezier(.3, 1.4, .5, 1) both; }
+.te-stage[data-entra='gira'] .te-char, .te-stage[data-entra='aparece'] .te-char, .te-stage[data-entra='saluda'] .te-char { animation: te-entra-pop .45s cubic-bezier(.3, 1.4, .5, 1) both; }
+@keyframes te-entra-lado { from { transform: translateX(-60%); opacity: 0; } }
+@keyframes te-entra-arriba { from { transform: translateY(-40%); opacity: 0; } }
+@keyframes te-entra-pop { from { transform: scale(.6); opacity: 0; } }
 
 .te-light.te-celebrate { animation: te-jump .55s ease-in-out 3; }
 .te-light.te-hurt { animation: te-shake .5s linear 1; }
@@ -34,8 +55,8 @@
 .te-fx i { position: absolute; left: 50%; top: 24%; width: 11px; height: 11px; opacity: 0; animation: te-conf 1.5s cubic-bezier(.2, .7, .3, 1) forwards; }
 @keyframes te-conf { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), calc(var(--y) * -1 + 70vmin)) rotate(var(--r)); } }
 
-/* globo de diálogo estilo juego */
-.te-bubble { position: absolute; left: 50%; top: 13%; max-width: 72%; padding: .45em .75em .5em; background: #fff; color: #16190f; border: 3px solid #111; box-shadow: 0 4px 0 rgba(0, 0, 0, .3);
+/* globo de diálogo estilo juego (en la capa ligera sigue al personaje sin salirse del borde) */
+.te-bubble { position: absolute; left: clamp(36%, calc(var(--te-x, 50%) + var(--te-nudge, 0%)), 64%); top: 13%; max-width: 72%; padding: .45em .75em .5em; background: #fff; color: #16190f; border: 3px solid #111; box-shadow: 0 4px 0 rgba(0, 0, 0, .3);
   font-size: clamp(16px, 4.8vw, 24px); line-height: 1.15; text-align: center; transform: translate(-50%, -100%) scale(.85); transform-origin: 50% 100%; opacity: 0; pointer-events: none; transition: opacity .16s, transform .16s; z-index: 2; }
 .te-bubble.on { opacity: 1; transform: translate(-50%, -100%) scale(1); }
 .te-bubble::after { content: ''; position: absolute; left: 50%; bottom: -10px; width: 14px; height: 14px; margin-left: -7px; background: #fff; border: 0 solid #111; border-right-width: 3px; border-bottom-width: 3px; transform: rotate(45deg); }
@@ -44,12 +65,16 @@
 .te-bubble[data-tone='celebrate']::after { border-color: var(--te-good, #2f8f2f); }
 .te-bubble[data-tone='hurt']::after { border-color: var(--te-bad, #c2332a); }
 
+/* Objeto para explicar (S.visual): un lienzo que llena el contenedor que da la app. Se toca y se arrastra sin mover el feed. */
+.te-visual { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; -webkit-user-select: none; user-select: none; }
+.te-visual:active { cursor: grabbing; }
+
 @media (prefers-reduced-motion: reduce) {
   .te-char, .te-light.te-celebrate, .te-light.te-hurt, .te-light.te-think, .te-light.te-talk { animation: none; }
-  .te-gl, .te-bubble { transition: none; }
+  .te-gl, .te-bubble, .te-light, .te-bg::before { transition: none; }
   .te-fx { display: none; }
 }
 /* mismo efecto cuando la app pasa `reducedMotion: true` aunque el sistema no lo pida */
 .te-stage[data-reduced] .te-char, .te-stage[data-reduced] .te-light { animation: none !important; }
-.te-stage[data-reduced] .te-gl, .te-stage[data-reduced] .te-bubble { transition: none; }
+.te-stage[data-reduced] .te-gl, .te-stage[data-reduced] .te-bubble, .te-stage[data-reduced] .te-light { transition: none; }
 .te-stage[data-reduced] .te-fx { display: none; }

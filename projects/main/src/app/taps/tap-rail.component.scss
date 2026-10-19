@@ -19,7 +19,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 }
 .rail__nav, .rail__actions { display: grid; gap: 8px; align-content: start; }
 .rail__actions { align-content: end; }
-.rail__topic { background: linear-gradient(155deg, rgba(255, 255, 255, .2), transparent 60%), color-mix(in srgb, var(--tinte, #8b93a7) 55%, #10141b); }
+.rail__topic { background: color-mix(in srgb, var(--tinte, #8b93a7) 55%, #10141b); }
 .rail__btn.is-hot .gm-icono { background: var(--gems-grad, linear-gradient(135deg, #5646d8, #1a77ad)); border-color: rgba(255, 255, 255, .5); }
 .rail__btn.is-pulse .gm-icono { animation: rail-pulse 1.6s ease-out infinite; }
 @keyframes rail-pulse { 0% { box-shadow: 0 0 0 0 rgba(77, 225, 255, .9); } 100% { box-shadow: 0 0 0 14px rgba(77, 225, 255, 0); } }

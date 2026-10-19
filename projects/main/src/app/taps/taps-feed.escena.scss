@@ -1,0 +1,56 @@
+// Escena de cada Tap (lo que se ve antes y alrededor del escenario del motor) y objeto para explicar.
+// Sin degradados suaves: el fondo inmediato son franjas planas (cielo, horizonte, suelo) con la textura de su tema
+// (rejilla de bloques en Minecraft, renglones de cuaderno en estudio). Las sombras son duras, como de papel o de bloque.
+
+.tap {
+  // cielo en tres franjas planas y suelo desde el 54 % (la misma línea que la capa ligera del motor: el cambio no salta)
+  background: linear-gradient(var(--bg-top, #1b2414) 0 30%, color-mix(in srgb, var(--bg-top, #1b2414) 50%, var(--bg-bottom, #3a4a2a)) 30% 44%,
+    var(--bg-bottom, #3a4a2a) 44% 54%, var(--bg-ground, var(--bg-bottom, #3a4a2a)) 54%);
+  &::before { content: ''; position: absolute; inset: 54% 0 0; pointer-events: none; }
+}
+// Minecraft: suelo de bloques (franja de pasto + rejilla de cubos)
+.tap[data-tema='minecraft']::before {
+  background:
+    linear-gradient(rgba(255, 255, 255, .14) 0 3px, transparent 3px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .16) 0 2px, transparent 2px 48px),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, .16) 0 2px, transparent 2px 48px);
+}
+// estudio: hoja de cuaderno (renglones finos y línea de margen) sobre la pared; piso liso con borde de color
+.tap[data-tema='estudio'] {
+  background:
+    linear-gradient(90deg, transparent 0 11%, rgba(255, 138, 208, .16) 11% calc(11% + 2px), transparent calc(11% + 2px)),
+    repeating-linear-gradient(transparent 0 27px, rgba(255, 255, 255, .055) 27px 28px),
+    linear-gradient(var(--bg-top, #1E1B4B) 0 38%, var(--bg-bottom, #3B2F86) 38% 54%, var(--bg-ground, #2A2566) 54%);
+  &::before { background: linear-gradient(rgba(255, 255, 255, .16) 0 5px, transparent 5px), var(--bg-ground, #2A2566); }
+}
+
+// Panel de la pregunta: una bandeja plana con borde y sombra dura (antes era un velo degradado sobre el escenario).
+.tap__panel { background: rgba(13, 16, 22, .94); border-radius: 22px 22px 0 0; box-shadow: 0 -4px 0 rgba(0, 0, 0, .22); }
+.tap[data-tema='minecraft'] .tap__panel { border-radius: 0; background: rgba(20, 20, 20, .94); box-shadow: inset 0 3px 0 rgba(255, 255, 255, .08), 0 -3px 0 #000; }
+.tap[data-tema='estudio'] .tap__panel { background: rgba(18, 16, 44, .95); box-shadow: inset 0 3px 0 rgba(255, 255, 255, .06), 0 -4px 0 rgba(8, 7, 16, .3); }
+
+// ── Objeto para explicar: tarjeta del lado contrario al personaje (el motor dibuja dentro y corre al personaje) ──
+.tap__visual {
+  position: absolute; top: 58px; z-index: 3; width: min(52%, 236px); aspect-ratio: 1; max-height: calc(100% - 92px); min-height: 0;
+  padding: 0; border: 0; border-radius: 16px; background: #FBF7EE; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, .32); animation: visual-in var(--dur-enfasis, 320ms) var(--curva-rebote, ease-out) both;
+  &[data-lado='izq'] { left: 12px; }
+  &[data-lado='der'] { right: 12px; }
+  &[hidden] { display: none; }
+  &:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+}
+.tap[data-tema='minecraft'] .tap__visual { border-radius: 0; background: #C6C6C6; box-shadow: 0 6px 0 rgba(0, 0, 0, .45); }
+.tap__visual-tip { position: absolute; left: 50%; bottom: -30px; padding: 3px 10px; border-radius: 999px; transform: translateX(-50%); white-space: nowrap; pointer-events: none;
+  font-size: 12px; font-weight: 700; color: #fff; background: rgba(8, 10, 14, .78); }
+.tap[data-tema='minecraft'] .tap__visual-tip { border-radius: 0; }
+// Mientras se ve el objeto, el riel del mundo se aparta (en móvil ocupa el mismo lado).
+.tap--visual .tap__world gems-tap-rail { visibility: hidden; }
+@keyframes visual-in { from { opacity: 0; transform: translateY(10px) scale(.92); } }
+
+@media (max-height: 680px) {
+  .tap__visual { top: 52px; max-height: calc(100% - 60px); }
+  .tap__visual-tip { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tap__visual { animation: none; }
+}

@@ -13,9 +13,12 @@
 //   "retirado": true   → no se publica (su id sale en TAPS_RETIRADOS: el enlace compartido avisa «este Tap se retiró»).
 //   "resultados": [..] → títulos propios (si no, usa "titulosResultado" del tema).
 //
-// Asignación de escena (tema visual, personaje, mundo y objeto en la mano): reglas fijas y deterministas, sin azar.
-// Cada subtema tiene una lista de (mundo, objeto); el n-ésimo Tap de ese subtema usa el n-ésimo par, dando la vuelta.
-// El personaje rota por el orden del Tap dentro de su tema. El Tap de gancho usa siempre la escena de ESCENA_GANCHO.
+// Asignación de escena (tema visual, personaje, mundo, objeto en la mano, encuadre, entrada y decorado): reglas fijas y
+// deterministas, sin azar. Cada Tap publicado tiene su lugar en LUGARES; uno nuevo usa la lista de (mundo, objeto) de su
+// subtema (el n-ésimo Tap de ese subtema usa el n-ésimo par, dando la vuelta). Personaje, encuadre y entrada rotan por el
+// orden del Tap dentro de su tema. El Tap de gancho usa siempre la escena de ESCENA_GANCHO, centrado y saludando.
+// Una pregunta puede traer "visual": { objeto, accion, valor? } (objeto para explicar tras responder; catálogo en el
+// theme.json de su tema → visuals.objects). El generador lo copia tal cual y falla si el objeto o la acción no existen.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -51,6 +54,41 @@ export const ESCENA_GANCHO = {
   logica: { world: 'aula', host: 'chispa', item: 'lupa' },
   cultura: { world: 'laboratorio', host: 'nube', item: 'matraz' },
 };
+
+/**
+ * Lugar de cada Tap publicado: [mundo, objeto en la mano, decorado | null]. Así cada Tap se siente en un sitio propio y
+ * acorde a lo que pregunta (el viaje al Nether pasa en el Nether, la redstone en una cueva con circuitos, las series en el
+ * aula). Un Tap nuevo que no esté aquí usa las reglas por subtema de ESCENAS (sin decorado).
+ */
+export const LUGARES = {
+  'mc-crafteo-1': ['pradera', 'axe', 'taller'], 'mc-mascotas': ['aldea', 'apple', 'corral'], 'mc-nether-2': ['nether', 'sword', 'portal'],
+  'mc-secretos': ['nieve', 'diamond', null], 'mc-nether-1': ['nether', 'sword', 'portal'], 'mc-mundo': ['bosque', 'sword', 'corral'],
+  'mc-crafteo-2': ['aldea', 'pick', 'taller'], 'mc-monstruos': ['noche', 'torch', 'campamento'], 'mc-redstone-1': ['cueva', 'pick', 'circuito'],
+  'mc-end': ['end', 'diamond', null], 'mc-redstone-3': ['cueva', 'torch', 'circuito'], 'mc-encantamientos': ['casa', 'diamond', 'biblioteca'],
+  'mc-mineria': ['cueva', 'pick', 'mina'], 'mc-nether-3': ['nether', 'diamond', 'portal'], 'mc-rayos': ['desierto', 'sword', null],
+  'mc-noche-1': ['noche', 'torch', 'campamento'], 'mc-nuevos': ['playa', 'apple', null], 'mc-redstone-2': ['noche', 'pick', 'circuito'],
+  'mc-leyendas': ['desierto', 'pick', null], 'mc-noche-2': ['nieve', 'axe', 'campamento'], 'mc-mezcla': ['bosque', 'axe', null],
+  'mc-taller': ['casa', 'axe', 'taller'],
+  'lg-adivinanzas-1': ['cocina', 'libro', 'reloj'], 'lg-zorgs': ['espacio', 'lupa', null], 'lg-lee-bien-2': ['biblioteca', 'lupa', null],
+  'lg-calendario': ['aula', 'libro', 'reloj'], 'lg-azar': ['jardin', 'lupa', 'planta'], 'lg-series-1': ['laboratorio', 'lupa', null],
+  'lg-lateral': ['observatorio', 'lupa', null], 'lg-series-2': ['aula', 'libro', 'reloj'], 'lg-lluvia': ['jardin', 'libro', 'planta'],
+  'lg-adivinanzas-2': ['biblioteca', 'libro', 'reloj'], 'lg-rapidas': ['cocina', 'lupa', null], 'lg-adivinanzas-3': ['biblioteca', 'libro', 'globo'],
+  'lg-mezcla': ['museo', 'lupa', null],
+  'cu-cuerpo-1': ['laboratorio', 'lupa', null], 'cu-espacio-1': ['observatorio', 'lupa', null], 'cu-datos': ['biblioteca', 'libro', 'globo'],
+  'cu-animales-1': ['jardin', 'lupa', null], 'cu-ciencia-1': ['cocina', 'matraz', null], 'cu-geografia-2': ['museo', 'libro', null],
+  'cu-cuerpo-2': ['laboratorio', 'matraz', 'libros'], 'cu-geografia-1': ['museo', 'lupa', 'globo'], 'cu-mitos': ['biblioteca', 'lupa', null],
+  'cu-animales-2': ['jardin', 'libro', 'planta'], 'cu-espacio-2': ['espacio', 'lupa', null], 'cu-gigantes': ['observatorio', 'libro', 'globo'],
+  'cu-animales-3': ['aula', 'libro', 'planta'], 'cu-luz-sonido': ['cocina', 'matraz', null], 'cu-rarezas': ['laboratorio', 'lupa', 'planta'],
+};
+
+/**
+ * Encuadre y entrada del personaje (claves de `shots` y `enters` del theme.json). Rotan por el orden del Tap dentro de su
+ * tema (con un desfase por categoría) para que al deslizar el personaje no quede siempre en el mismo sitio ni entre igual.
+ * El Tap de gancho va centrado y saluda. Todo es determinista: el servidor y el navegador ven la misma escena.
+ */
+export const ENCUADRES = ['izquierda', 'derecha', 'cerca-izquierda', 'lejos', 'cerca-derecha', 'centro'];
+export const ENTRADAS = { minecraft: ['camina', 'salta', 'gira', 'saluda'], estudio: ['vuela', 'cae', 'aparece', 'saluda'] };
+const DESFASE = { minecraft: 0, logica: 0, cultura: 3 };
 
 /** Por tema y subtema: [mundo, objeto] que se reparten por orden. `_` es la lista de cualquier subtema sin regla propia. */
 export const ESCENAS = {
@@ -89,12 +127,15 @@ export function leerRetos(ruta = RUTAS.retos) {
   return { RETOS: new Map(RETOS.map(r => [r.id, r])), BLOQUES: new Map(BLOQUES.map(r => [r.id, r])) };
 }
 
-/** Mundos y personajes de cada tema del motor, y el color del cielo (= degradado de carga del Tap). */
+/** Mundos, personajes, encuadres, entradas, decorados y objetos para explicar de cada tema del motor (y los colores de carga). */
 export function leerTemas(carpeta = RUTAS.temas) {
   const salida = {};
   for (const id of Object.keys(OBJETOS)) {
     const t = JSON.parse(readFileSync(join(carpeta, id, 'theme.json'), 'utf8'));
-    salida[id] = { mundos: t.scenes, personajes: new Set(Object.keys(t.characters)) };
+    salida[id] = {
+      mundos: t.scenes, personajes: new Set(Object.keys(t.characters)), encuadres: new Set(Object.keys(t.shots ?? {})),
+      entradas: new Set(t.enters ?? []), decorados: new Set(Object.keys(t.props ?? {})), objetos: t.visuals?.objects ?? {},
+    };
   }
   return salida;
 }
@@ -144,14 +185,34 @@ function validarResultados(resultados, donde) {
   return e;
 }
 
-/** Escoge (mundo, objeto, personaje) de un Tap. `n` = lugar del Tap dentro de su subtema; `orden` = dentro de su tema. */
-export function asignarEscena(clave, subtema, n, orden, esGancho) {
-  if (esGancho) return { ...ESCENA_GANCHO[clave] };
+/**
+ * Escoge la escena de un Tap: mundo, personaje, objeto, encuadre, entrada y decorado. `n` = lugar del Tap dentro de su
+ * subtema; `orden` = dentro de su tema; `id` = id del Tap (si está en LUGARES manda su lugar).
+ */
+export function asignarEscena(clave, subtema, n, orden, esGancho, id) {
+  const entradas = ENTRADAS[TEMAS[clave].theme];
+  if (esGancho) return { ...ESCENA_GANCHO[clave], shot: 'centro', enter: 'saluda' };
   const reglas = ESCENAS[clave];
   const lista = reglas[subtema] ?? reglas._;
-  const [world, item] = lista[n % lista.length];
+  const [world, item, props] = LUGARES[id] ?? [...lista[n % lista.length], null];
   const personajes = TEMAS[clave].personajes;
-  return { world, host: personajes[orden % personajes.length], item };
+  const k = orden + DESFASE[clave];
+  return {
+    world, host: personajes[orden % personajes.length], item,
+    shot: ENCUADRES[k % ENCUADRES.length], enter: entradas[(k * 3 + 1) % entradas.length],
+    ...(props ? { props } : {}),
+  };
+}
+
+/** Revisa el objeto para explicar de una pregunta contra el catálogo del tema (theme.json → visuals.objects). */
+function validarVisual(v, catalogo, donde) {
+  if (v === undefined) return [];
+  if (!v || typeof v !== 'object' || typeof v.objeto !== 'string' || typeof v.accion !== 'string') return [`${donde}: «visual» debe ser { objeto, accion, valor? }`];
+  const acciones = catalogo?.[v.objeto];
+  if (!acciones) return [`${donde}: el objeto «${v.objeto}» no existe en el tema (${Object.keys(catalogo ?? {}).join(', ') || 'sin objetos'})`];
+  if (!acciones.includes(v.accion)) return [`${donde}: el objeto «${v.objeto}» no tiene la acción «${v.accion}» (${acciones.join(', ')})`];
+  if (v.valor !== undefined && typeof v.valor !== 'string') return [`${donde}: «valor» del objeto debe ser texto`];
+  return [];
 }
 
 /**
@@ -207,7 +268,8 @@ export function generar(bancos, retos, temas) {
         if (['retirada', 'retirado'].includes(p.estado)) err(`Tap «${t.id}»: la pregunta «${id}» está retirada; cámbiala o retira el Tap (retirado: true)`);
         if (p.estado === 'borrador') err(`Tap «${t.id}»: la pregunta «${id}» sigue en borrador; revísala (estado «revisada») antes de publicarla`);
         errores.push(...validarPregunta(p, `${archivo} · pregunta «${id}»`).map(m => m));
-        preguntas.push({ id: p.id, q: p.q, options: p.options, answer: p.answer, why: p.why });
+        errores.push(...validarVisual(p.visual, temas[def.theme]?.objetos, `${archivo} · pregunta «${id}»`));
+        preguntas.push({ id: p.id, q: p.q, options: p.options, answer: p.answer, why: p.why, ...(p.visual ? { visual: p.visual } : {}) });
       }
       if (t.gancho && !(banco.taps[0] === t)) err(`Tap «${t.id}»: el Tap de gancho debe ser el primero del archivo`);
       if (banco.taps[0] === t && !t.gancho) err(`Tap «${t.id}»: el primer Tap del tema debe ser el de gancho (gancho: true)`);
@@ -215,12 +277,15 @@ export function generar(bancos, retos, temas) {
       const subtema = t.subtema ?? 'mixto';
       const n = porSubtema.get(subtema) ?? 0;
       porSubtema.set(subtema, n + 1);
-      const escena = asignarEscena(clave, subtema, n, orden, t.gancho === true);
+      const escena = asignarEscena(clave, subtema, n, orden, t.gancho === true, t.id);
       orden++;
       const tema = temas[def.theme];
       if (!OBJETOS[def.theme].includes(escena.item)) err(`Tap «${t.id}»: el objeto «${escena.item}» no existe en el tema ${def.theme}`);
       if (!tema.mundos[escena.world]) err(`Tap «${t.id}»: el mundo «${escena.world}» no existe en el tema ${def.theme}`);
       if (!tema.personajes.has(escena.host)) err(`Tap «${t.id}»: el personaje «${escena.host}» no existe en el tema ${def.theme}`);
+      if (escena.shot && !tema.encuadres.has(escena.shot)) err(`Tap «${t.id}»: el encuadre «${escena.shot}» no existe en el tema ${def.theme}`);
+      if (escena.enter && !tema.entradas.has(escena.enter)) err(`Tap «${t.id}»: la entrada «${escena.enter}» no existe en el tema ${def.theme}`);
+      if (escena.props && !tema.decorados.has(escena.props)) err(`Tap «${t.id}»: el decorado «${escena.props}» no existe en el tema ${def.theme}`);
       const resultados = t.resultados ?? banco.titulosResultado;
       if (t.resultados) errores.push(...validarResultados(t.resultados, `${donde} · resultados`));
 
@@ -231,6 +296,7 @@ export function generar(bancos, retos, temas) {
         kicker: def.kicker,
         scene: escena,
         backdrop: tema.mundos[escena.world]?.sky ?? ['#0b0d12', '#1a1f2e'],
+        ground: tema.mundos[escena.world]?.ground ?? '#1a1f2e',
         questions: preguntas,
         results: resultados.map(r => ({ min: r.min, title: r.title, line: r.line })),
         topic: def.topic,

@@ -16,8 +16,8 @@
 .tap {
   position: relative; display: flex; flex-direction: column; height: 100vh; height: 100dvh; max-width: 480px; margin: 0 auto; overflow: hidden;
   scroll-snap-align: start; scroll-snap-stop: always; touch-action: pan-y; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-touch-callout: none;
-  // Fondo inmediato en CSS: se ve antes de que cargue nada del motor.
-  background: linear-gradient(var(--bg-top, #1b2414), var(--bg-bottom, #3a4a2a));
+  // Fondo inmediato en CSS (franjas planas + textura del tema): taps-feed.escena.scss. Se ve antes de que cargue el motor.
+  background: var(--bg-bottom, #3a4a2a);
   &__stage { position: absolute; inset: 0; }
   // Marca sutil del primer fotograma: se ve mientras el escenario carga y se desvanece cuando aparece.
   &__mark { position: absolute; left: 50%; top: 34%; z-index: 0; display: grid; justify-items: center; gap: 6px; transform: translate(-50%, -50%);
@@ -37,7 +37,7 @@
   &__toast { position: absolute; left: 12px; right: 72px; bottom: 12px; margin: 0; padding: 8px 12px; border-radius: 12px; font-size: 1rem; overflow-wrap: anywhere; background: rgba(8, 10, 14, .8); }
 
   // ── panel inferior: pregunta + opciones en la zona del pulgar ──
-  &__panel { position: relative; z-index: 3; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: 10px 12px var(--safe-b); background: linear-gradient(to bottom, rgba(10, 12, 16, 0), rgba(10, 12, 16, .7) 26px, rgba(10, 12, 16, .9)); }
+  &__panel { position: relative; z-index: 3; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: 10px 12px var(--safe-b); }
   &__bubble, &__card { position: relative; margin: 0 0 10px; padding: 10px 14px 12px; border-radius: var(--radio-tarjeta); background: #fff; color: #11151c; box-shadow: 0 4px 0 rgba(0, 0, 0, .25);
     &::before { content: ''; position: absolute; left: 34%; top: -8px; width: 16px; height: 16px; background: inherit; transform: rotate(45deg); border-radius: 3px; } }
   &__bubble { animation: gm-pop var(--dur-base) var(--curva-estandar); }
@@ -51,7 +51,7 @@
 
   // El siguiente Tap «asoma» 24 px abajo y rebota una vez (enseña a deslizar sin tutorial).
   &__peek { position: absolute; z-index: 4; left: 8px; right: 8px; bottom: 0; height: 24px; padding: 0; border: 0; border-radius: 14px 14px 0 0; cursor: pointer;
-    background: linear-gradient(var(--peek, #333), rgba(0, 0, 0, .6)); color: #fff; font: inherit; font-size: 11px; font-weight: 700; box-shadow: 0 -4px 12px rgba(0, 0, 0, .4);
+    background: var(--peek, #333); color: #fff; font: inherit; font-size: 11px; font-weight: 700; box-shadow: 0 -4px 0 rgba(0, 0, 0, .35);
     animation: peek-bounce .7s ease-in-out 2s 1; }
 }
 

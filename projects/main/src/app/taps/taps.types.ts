@@ -12,6 +12,16 @@ export interface ITapQuestion {
   why: string;
   /** Explicación ampliada (280 caracteres como máximo) para el panel de escritorio tras fallar. Opcional: el banco aún no la trae. */
   more?: string;
+  /** Objeto para explicar tras responder (catálogo del tema: theme.json → visuals.objects). Sin él, la explicación es solo texto. */
+  visual?: ITapVisual;
+}
+
+/** Objeto que el motor muestra y anima junto a la explicación (p. ej. un pistón que no mueve la obsidiana). Se toca y se arrastra. */
+export interface ITapVisual {
+  objeto: string;
+  accion: string;
+  /** Dato de la acción (p. ej. la receta «antorcha» o la palabra «BANANA|A»). */
+  valor?: string;
 }
 
 /** Título que se gana según el puntaje: se elige el de mayor `min` que no supere los aciertos. */
@@ -21,11 +31,20 @@ export interface ITapResult {
   line: string;
 }
 
-/** Qué se ve en el escenario: el mundo, el personaje anfitrión y el objeto que sostiene (claves del tema). */
+/**
+ * Qué se ve en el escenario: el mundo, el personaje anfitrión y el objeto que sostiene, más el encuadre (lado, distancia y
+ * ángulo), la entrada del personaje y el decorado de fondo (claves del tema). Lo asigna el generador de forma determinista.
+ */
 export interface ITapScene {
   world: string;
   host: string;
   item?: string;
+  /** Encuadre (theme.json → shots): 'izquierda', 'derecha', 'cerca-izquierda', 'cerca-derecha', 'lejos' o 'centro'. */
+  shot?: string;
+  /** Cómo entra el personaje al llegar a este Tap (theme.json → enters). */
+  enter?: string;
+  /** Decorado de fondo (theme.json → props). */
+  props?: string;
 }
 
 export interface ITap {
@@ -37,6 +56,8 @@ export interface ITap {
   scene: ITapScene;
   /** Colores del degradado de fondo mientras carga el escenario [arriba, abajo]. */
   backdrop: [string, string];
+  /** Color del suelo del mundo: franja inferior del fondo mientras carga (con la textura de su tema). */
+  ground?: string;
   questions: ITapQuestion[];
   results: ITapResult[];
   /** Categoría del selector de temas (`/taps?tema=<id>`). Sin ella se usa `theme` (el videojuego). */
@@ -86,9 +107,17 @@ export interface ITapsStage {
   pause(why?: string): void;
   resume(): void;
   setMuted(muted: boolean): void;
+  /**
+   * Muestra un objeto para explicar dentro de `el`; `side` = lado donde está (el personaje se corre al otro). Devuelve su
+   * descripción para lectores de pantalla, o false si el tema no lo tiene.
+   */
+  visual?(spec: ITapVisual, el: HTMLElement, opts?: { side?: 'izq' | 'der' }): Promise<string | false>;
+  clearVisual?(): void;
+  replayVisual?(): void;
+  preloadVisuals?(): Promise<void>;
   attachTo(el: HTMLElement): void;
   destroy(): void;
-  on(name: 'mode' | 'degrade', fn: (data: { mode?: 'light' | '3d'; reason?: string; step?: string }) => void): () => void;
+  on(name: 'mode' | 'degrade' | 'visual', fn: (data: { mode?: 'light' | '3d'; reason?: string; step?: string; type?: string }) => void): () => void;
   stats(): { mode: string; tier: string; size: { w: number; h: number }; fpsCap: number; fps: number; degraded: number };
 }
 

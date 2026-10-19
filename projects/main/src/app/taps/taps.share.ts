@@ -56,11 +56,11 @@ export function drawShareCard(data: IShareCardData, canvas: HTMLCanvasElement = 
   canvas.height = CARD_H;
   const x = canvas.getContext('2d');
   if (!x) return canvas;
-  const sky = x.createLinearGradient(0, 0, 0, CARD_H);
-  sky.addColorStop(0, data.backdrop[0]);
-  sky.addColorStop(1, data.backdrop[1]);
-  x.fillStyle = sky;
+  // Cielo en dos franjas planas (sin degradado), como el fondo del Tap.
+  x.fillStyle = data.backdrop[0];
   x.fillRect(0, 0, CARD_W, CARD_H);
+  x.fillStyle = data.backdrop[1];
+  x.fillRect(0, CARD_H * 0.42, CARD_W, CARD_H * 0.58);
   x.fillStyle = 'rgba(7, 9, 12, .45)';
   x.fillRect(0, 0, CARD_W, CARD_H);
 

@@ -18,8 +18,9 @@
   @for (tap of taps(); track tap.id) {
     @let run = runs()[tap.id];
     @let feedback = !run.finished && run.chosen !== null;
-    <article class="tap" #section [attr.data-tap]="tap.id" [class.tap--active]="activeId() === tap.id" [class.tap--feedback]="feedback"
-             aria-roledescription="Tap" [attr.aria-label]="'Tap de ' + tap.title" [style.--bg-top]="tap.backdrop[0]" [style.--bg-bottom]="tap.backdrop[1]"
+    @let visual = visualOf(tap, run);
+    <article class="tap" #section [attr.data-tap]="tap.id" [attr.data-tema]="tap.theme" [class.tap--active]="activeId() === tap.id" [class.tap--feedback]="feedback" [class.tap--visual]="!!visual"
+             aria-roledescription="Tap" [attr.aria-label]="'Tap de ' + tap.title" [style.--bg-top]="tap.backdrop[0]" [style.--bg-bottom]="tap.backdrop[1]" [style.--bg-ground]="tap.ground ?? null"
              [style.--tap-display-font]="displayFont(tap)" [inert]="live() && activeId() !== tap.id"
              (pointerdown)="onPress($event)" (pointerup)="onRelease($event)" (pointercancel)="onCancel()">
       <div class="tap__stage" #slot aria-hidden="true"></div>
@@ -46,6 +47,12 @@
             {{ word(tap) }}
           </p>
           @if (ok && streakOf(tap) >= 3) { <p class="tap__streak" aria-hidden="true">x{{ streakOf(tap) }} seguidas</p> }
+        }
+        <!-- Objeto para explicar (tras fallar, si la pregunta lo trae): lo dibuja el motor; tocar repite y arrastrar lo recorre. -->
+        @if (visual) {
+          <button type="button" class="tap__visual" [attr.data-lado]="visualSide(tap)" aria-label="Explicación con un objeto: pulsa para verla otra vez" (click)="replayVisual($event)">
+            <span class="tap__visual-tip" aria-hidden="true">Tócalo o arrástralo</span>
+          </button>
         }
         <p class="tap__pre" aria-hidden="true"><span class="tap__pre-ok">¡Exacto!</span><span class="tap__pre-bad">Casi...</span></p>
 

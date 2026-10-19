@@ -29,7 +29,27 @@
   "scenes": {
     "laboratorio": { "sky": ["#1E1B4B", "#3B2F86"], "ground": "#2A2566", "groundDark": "#2A2566" },
     "espacio":     { "sky": ["#080710", "#1E1B4B"], "ground": "#3A3566", "groundDark": "#3A3566" },
-    "aula":        { "sky": ["#1B2B4F", "#2B3F73"], "sun": false, "ground": "#2B2458", "groundDark": "#2B2458" }
+    "aula":        { "sky": ["#1B2B4F", "#2B3F73"], "sun": false, "ground": "#2B2458", "groundDark": "#2B2458" },
+    "biblioteca":  { "sky": ["#3A1F2B", "#5A2E3A"], "sun": false, "ground": "#4A2A1E", "groundDark": "#3A2016" },
+    "observatorio": { "sky": ["#0B1630", "#16264D"], "ground": "#2A3350", "groundDark": "#20283F" },
+    "jardin":      { "sky": ["#2E7D6B", "#5FB39A"], "ground": "#2F5D3A", "groundDark": "#24492D" },
+    "cocina":      { "sky": ["#C2563A", "#E08A5C"], "sun": false, "ground": "#4B3A5C", "groundDark": "#3B2D49" },
+    "museo":       { "sky": ["#1F3B4D", "#2E5670"], "sun": false, "ground": "#3D3326", "groundDark": "#2F271D" }
+  },
+
+  "shots": {
+    "centro":          { "x": 0 },
+    "izquierda":       { "x": -0.24, "zoom": 0.9 },
+    "derecha":         { "x": 0.24, "zoom": 0.9, "flip": true },
+    "cerca-izquierda": { "x": -0.17, "zoom": 1.08 },
+    "cerca-derecha":   { "x": 0.17, "zoom": 1.08, "flip": true },
+    "lejos":           { "x": 0.12, "zoom": 0.74 }
+  },
+  "enters": ["vuela", "cae", "aparece", "saluda"],
+  "props": { "reloj": {}, "planta": {}, "globo": {}, "libros": {} },
+  "visuals": {
+    "module": "visuals.js",
+    "objects": { "balanza": ["compara"], "calendario": ["febrero", "atras", "manana"], "palabra": ["contar", "ultima", "medio"], "planetas": ["cercano", "grande", "ocho"] }
   },
 
   "sounds": {

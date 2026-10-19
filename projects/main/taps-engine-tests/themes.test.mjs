@@ -117,6 +117,80 @@ test('Taps de ejemplo: formato válido y escenas que existen en su tema', () => 
   }
 });
 
+test('escenas: encuadres, entradas, decorados y objetos para explicar declarados en cada tema', async () => {
+  for (const id of THEMES) {
+    const t = readJson(themeUrl(id));
+    for (const [k, s] of Object.entries(t.shots || {})) {
+      assert.ok(Math.abs(s.x ?? 0) <= 0.3, `${id}: el encuadre ${k} no saca al personaje de la pantalla`);
+      assert.ok((s.zoom ?? 1) >= 0.6 && (s.zoom ?? 1) <= 1.3, `${id}: zoom razonable en ${k}`);
+    }
+    for (const k of ['centro', 'izquierda', 'derecha']) assert.ok(t.shots?.[k], `${id}: falta el encuadre ${k}`);
+    assert.ok((t.enters || []).length >= 3, `${id}: pocas entradas`);
+    if (t.visuals) {
+      assert.ok(existsSync(new URL(t.visuals.module, themeUrl(id))), `${id}: existe ${t.visuals.module}`);
+      const mod = await import(new URL(t.visuals.module, themeUrl(id)).href);
+      for (const [objeto, acciones] of Object.entries(t.visuals.objects)) {
+        assert.equal(typeof mod.OBJECTS[objeto], 'function', `${id}: el módulo dibuja ${objeto}`);
+        assert.ok(acciones.length > 0);
+      }
+      assert.equal(mod.createVisual({ objeto: 'no-existe', accion: 'x' }), null, 'un objeto desconocido no rompe nada');
+    }
+  }
+});
+
+test('objetos para explicar: cada pregunta del banco que trae uno se dibuja, se toca y se arrastra', async () => {
+  const src = readFileSync(new URL('../src/app/taps/taps.banco.generated.ts', import.meta.url), 'utf8');
+  const taps = src.split('\n').filter(l => l.startsWith('  {')).map(l => JSON.parse(l.trim().replace(/,$/, '')));
+  let n = 0;
+  for (const tap of taps) for (const q of tap.questions.filter(x => x.visual)) {
+    const t = readJson(themeUrl(tap.theme));
+    const mod = await import(new URL(t.visuals.module, themeUrl(tap.theme)).href);
+    for (const reducedMotion of [false, true]) {
+      const v = mod.createVisual(q.visual, { reducedMotion });
+      assert.ok(v, `${tap.id}/${q.id}: ${q.visual.objeto} ${q.visual.accion} ${q.visual.valor ?? ''} se crea`);
+      assert.ok(typeof v.label === 'string' && v.label.length > 10 && v.duration > 0, `${q.id}: descripción para lector de pantalla y duración`);
+      const canvas = fakeCanvas(200, 200), ctx = canvas.getContext();
+      for (const time of [0, v.duration / 2, v.duration]) v.draw(ctx, 200, 180, time);
+      v.drag?.(0.7, 0.5); v.draw(ctx, 200, 180, v.duration); v.tap?.(0.5, 0.5); v.draw(ctx, 200, 180, v.duration);
+      assert.ok(canvas.calls.fill + canvas.calls.fillRect > 20, `${q.id}: dibujó el objeto`);
+    }
+    n++;
+  }
+  assert.ok(n >= 25, `hay ${n} preguntas con objeto`);
+});
+
+test('recetas: cada cantidad que dice la explicación del banco coincide con la mesa de crafteo', async () => {
+  const src = readFileSync(new URL('../src/app/taps/taps.banco.generated.ts', import.meta.url), 'utf8');
+  const qs = src.split('\n').filter(l => l.startsWith('  {')).flatMap(l => JSON.parse(l.trim().replace(/,$/, '')).questions)
+    .filter(q => q.visual?.objeto === 'receta');
+  const mod = await import(new URL('themes/minecraft/visuals.js', ENGINE).href);
+  assert.ok(qs.length >= 17);
+  for (const q of qs) {
+    const label = mod.createVisual(q.visual).label;
+    // «4 palos, poniendo…», «3 papeles y 1 cuero», «8 lingotes»: toda cifra de la explicación aparece con su palabra en la receta
+    for (const [, n, word] of q.why.matchAll(/(\d+) (?:de )?([a-záéíóúñ]+)/gi)) {
+      assert.ok(label.includes(`${n} ${word.slice(0, 4).toLowerCase()}`), `${q.id}: la explicación dice «${n} ${word}» y la receta dice «${label}»`);
+    }
+  }
+  const palos = mod.createVisual({ objeto: 'receta', accion: 'crafteo', valor: 'palos' }).label;
+  assert.match(palos, /2 tablones dan 4 palos/);
+});
+
+test('tema «estudio»: encuadre, entrada, decorado y nudge no sacan al personaje del lienzo', async () => {
+  const theme = readJson(themeUrl('estudio'));
+  const { createRenderer } = await import(new URL('themes/estudio/renderer2d.js', ENGINE).href);
+  const canvas = fakeCanvas();
+  const r = await createRenderer({ canvas, width: 540, height: 960, theme, resolve: x => x, reducedMotion: false });
+  for (const world of Object.keys(theme.scenes)) for (const [key, shot] of Object.entries(theme.shots)) for (const enter of theme.enters) {
+    await r.setScene({ world, host: 'chispa', item: 'lupa', props: Object.keys(theme.props)[0], shot, enter });
+    r.nudge(((shot.x ?? 0) < 0 ? -0.2 : 0.2) - (shot.x ?? 0));        // como lo pide el motor al mostrar un objeto
+    for (let i = 0; i < 40; i++) r.frame(1 / 30);
+    const [x, y] = r.anchor('chest');
+    assert.ok(x > 40 && x < 500 && y > 0 && y < 960, `${world}/${key}/${enter}: el personaje queda dentro (${x | 0}, ${y | 0})`);
+  }
+  r.dispose();
+});
+
 test('los Taps de «estudio» de la app (taps-estudio.data.ts) coinciden con los de la demo', () => {
   const ts = readFileSync(new URL('../src/app/taps/taps-estudio.data.ts', import.meta.url), 'utf8').replace(/\\'/g, "'");
   for (const id of ['logica-trampas', 'ciencia-curiosa']) {

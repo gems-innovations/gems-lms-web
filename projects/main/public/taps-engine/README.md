@@ -20,11 +20,13 @@ public/taps-engine/
    │  ├─ theme.json          datos: personajes, mundos, colores, sonidos, reacciones, cámara
    │  ├─ light.js            dibuja el personaje 2D de la capa ligera
    │  ├─ renderer3d.js       el ÚNICO archivo que sabe de Minecraft (skinview3d / three.js)
+   │  ├─ visuals.js          objetos para explicar en estilo inventario (se piden solo al usarse)
    │  └─ vendor/ skins/ textures/ textures-pp/ sounds/ fonts/
    └─ estudio/               tema 2 · ilustración plana con Canvas 2D: robot Chispa/Nube en laboratorio, espacio y aula
       ├─ theme.json          datos (sin imágenes ni audio: colores, tonos sintetizados, reacciones)
       ├─ rig.js              el personaje: rig 2D (cuerpo, cabeza-pantalla, brazos, antena) + poses + objetos
-      ├─ scenery.js          los tres escenarios (se pintan una vez y se copian)
+      ├─ scenery.js          los ocho escenarios y sus decorados (se pintan una vez y se copian)
+      ├─ visuals.js          objetos para explicar en estilo cuaderno (se piden solo al usarse)
       ├─ renderer2d.js       renderizador animado (misma interfaz que renderer3d.js, sin WebGL)
       ├─ light.js            el mismo rig, quieto, para la capa ligera (+ paintReaction)
       └─ theme.css           estilos de la capa ligera y del globo SOLO para este tema
@@ -64,7 +66,7 @@ stage.say('¡Hola!');                                 // globo de diálogo (stag
 | `create(container, {theme, mode?, reducedMotion?, onEvent?})` | Crea el escenario dentro de `container` (que debe tener tamaño). `theme`: URL del `theme.json` u objeto. `mode`: `'auto'` (defecto), `'3d'` o `'light'`. `degrade: false` desactiva la degradación automática (útil para medir/capturar en equipos sin GPU; la demo lo toma de `?degrade=0`). `slowMs` (4000 por defecto, `0` lo desactiva): si el 3D no se ve en ese tiempo se queda la capa ligera |
 | `stage.ready` / `stage.ready3d` | `ready`: tema listo. `ready3d`: se cumple con `'3d'` o `'light'` cuando ya se decidió |
 | `stage.mode`, `stage.stats()` | Modo actual y `{mode, tier, size, fpsCap, fps, degraded, canvas}`. `mode: '3d'` significa «capa animada del renderizador» aunque el tema dibuje en 2D; `canvas` dice cuál (`'webgl'` o `'2d'`) |
-| `setScene({world, host, item})` | Cambia mundo, personaje y objeto en la mano (claves del tema) |
+| `setScene({world, host, item, shot?, enter?, props?})` | Cambia mundo, personaje, objeto, encuadre, entrada y decorado (claves del tema; las que el tema no conoce se ignoran). Si cambia el lugar, el escenario se oculta al instante (queda el color plano del mundo nuevo) y vuelve con un fundido de 280 ms; con movimiento reducido el cambio es directo |
 | `preload(sceneSpec)` | Deja listo, sin mostrar, el siguiente escenario (llamar en reposo) |
 | `react(name)` | Anim + efecto + sonido + partículas + frase de `theme.reactions[name]` |
 | `say(text, {ms, hold, tone, voz, globo})` | Globo sobre la cabeza. Con voz conectada (`setVoz`) también lo dice en voz alta con el perfil del personaje en escena; `voz: false` = solo globo, `globo: false` = solo voz |
@@ -73,7 +75,9 @@ stage.say('¡Hola!');                                 // globo de diálogo (stag
 | `attachTo(el)` | Mueve el escenario entero a otro contenedor (el feed usa **un** escenario para todos los Taps) |
 | `setMuted(bool)`, `sfx(name)` | Sonido (el audio arranca tras el primer gesto del usuario) |
 | `create(…, {audio})` | Opcional: `audio = {play(name, {theme})}` (p. ej. `crearSonido().paraMotor()` de `audio/sonido.js`). El motor no crea su propio AudioContext y le pasa cada sonido de `theme.json` por nombre; silencio, desbloqueo y pausa quedan en manos de la app. Así lo usa el feed: un solo AudioContext y efectos propios generados por código (ver `producto/taps/voz-y-sonido.md`) |
-| `on('mode' \| 'degrade', fn)` | Eventos: `{mode, reason, tier}` / `{step}` |
+| `visual({objeto, accion, valor?}, el, {side?})` | Muestra un objeto para explicar dentro de `el` (el hueco lo pone la app). Carga `visuals.js` del tema la primera vez. Tocar repite la animación y arrastrar la recorre. `side` ('izq' / 'der') = dónde está el objeto: el personaje se corre a la mitad libre. Devuelve la descripción del objeto (la app la pone en el `aria-label` de su botón; el lienzo va con `aria-hidden`) o `false` si el tema no tiene ese objeto |
+| `clearVisual()`, `replayVisual()`, `preloadVisuals()` | Quita el objeto (también al mover el escenario a otro Tap), lo repite (teclado) o pide el módulo en reposo |
+| `on('mode' \| 'degrade' \| 'visual', fn)` | Eventos: `{mode, reason, tier}` / `{step}` / `{type: 'touch' \| 'drag'}` (la app pausa la cuenta atrás mientras se explora el objeto) |
 | `destroy()` | Libera todo (incluido el contexto WebGL) |
 
 ## Cómo crear un tema
@@ -126,6 +130,13 @@ Un tema es una carpeta `themes/<id>/` con un `theme.json`. Hay dos ejemplos que 
 - `reactions`: `{ nombre: { anim, reducedAnim, fx:[…], sfx:[…], particles, say:[frases], tone, duration, then } }`. Sin `duration` la animación se
   repite hasta la siguiente reacción; con `duration` pasa a `then`. `reducedAnim` es la pose con movimiento reducido (en `estudio`: poses quietas `happy`/`oops`).
 - `camera`: solo la usa el renderizador 3D de `minecraft` (`dist`, `height`, `lookY`, `sway`, `swaySpeed`, `worlds`).
+- `shots`: encuadres `{ clave: { x, zoom, yaw, height, flip } }`. `x` = centro del personaje en pantalla (fracción del ancho, + derecha), `zoom` (1 = normal),
+  `yaw`/`height` ángulo y altura de la cámara (3D), `flip` lo refleja (2D). La capa ligera usa `x` y `zoom` (variables `--te-x`, `--te-s`). Mismas claves en
+  todos los temas: `centro`, `izquierda`, `derecha`, `cerca-izquierda`, `cerca-derecha`, `lejos` (el generador de la app las reparte). *(nuevo)*
+- `enters`: entradas del personaje al llegar a un lugar (`camina`, `salta`, `gira`, `saluda` en minecraft; `vuela`, `cae`, `aparece`, `saluda` en estudio). *(nuevo)*
+- `props`: decorados de fondo `{ clave: {} }` que dibuja el renderizador del lado libre del encuadre (minecraft: taller, biblioteca, circuito, corral, portal,
+  campamento, mina; estudio: reloj, planta, globo, libros). *(nuevo)*
+- `visuals`: `{ module, objects: { objeto: [acciones] } }` objetos para explicar (ver abajo). El generador de Taps valida el banco contra este catálogo. *(nuevo)*
 
 Todo lo marcado *(nuevo)* es opcional y retrocompatible: el tema `minecraft` funciona sin cambios.
 
@@ -133,7 +144,25 @@ Todo lo marcado *(nuevo)* es opcional y retrocompatible: el tema `minecraft` fun
 
 `createRenderer(opts)` (puede ser async) recibe `{canvas, width, height, theme, resolve, vendor, skinview3d, reducedMotion}`, donde `canvas` es el lienzo de
 salida (el renderizador dibuja ahí cada fotograma; el motor pinta las partículas encima con su contexto 2D) y `resolve(rel)` convierte rutas del tema en URLs. Devuelve:
-`setScene({world,host,item})`, `preload(spec)`, `play(anim)`, `fx(name)`, `frame(dt)`, `anchor('head'|'top'|'chest'|'feet') → [px, py]`, `setSize(w,h)`, `dispose()`.
+`setScene({world,host,item,props,shot,enter})` (`shot` llega ya resuelto como objeto; `enter` solo cuando cambia el lugar), `preload(spec)`, `play(anim)`, `fx(name)`,
+`frame(dt)`, `anchor('head'|'top'|'chest'|'feet') → [px, py]`, `setSize(w,h)`, `dispose()` y, opcional, `nudge(dx, ahora)` (correr al personaje para hacerle sitio a un objeto).
+
+### Objetos para explicar (`visuals.js`)
+
+`createVisual({objeto, accion, valor}, {reducedMotion}) → { label, duration, draw(ctx, w, h, t), tap?(u, v), drag?(u, v) } | null`. El motor crea un lienzo dentro del
+contenedor de la app, anima `t` de 0 a `duration` (con movimiento reducido dibuja directo el estado final), llama `tap` al tocar (si no devuelve `false`, repite)
+y `drag` al arrastrar (`u`, `v` = posición 0..1 dentro del objeto). `label` es la descripción para lectores de pantalla. Sin imágenes: todo es Canvas 2D.
+
+| Tema | Objeto | Acciones | Qué muestra |
+|---|---|---|---|
+| minecraft | `receta` | `crafteo` (`valor` = receta: palos, cubo, cama, escudo, manzana-oro, tnt, antorcha, horno, linterna, libro, estanteria, brujula, mesa-encantar, palanca, lampara, tolva, antorcha-redstone) | La mesa de crafteo se llena casilla por casilla y sale el resultado; arrastrar la arma a mano |
+| minecraft | `piston` | `bloquea` | Empuja tierra (se mueve) y luego obsidiana (no se mueve); arrastrar empuja a mano |
+| minecraft | `reloj` | `dia`, `cama` | Ciclo de 20 minutos (día, atardecer, noche, amanecer); dormir salta la noche |
+| minecraft | `comparador` | `cofre` | El cofre se llena y la señal sube de 0 a 15; arrastrar lo llena o vacía |
+| estudio | `balanza` | `compara` (`valor` = `0,5\|0,45`) | Iguala los decimales y se inclina hacia el mayor |
+| estudio | `calendario` | `febrero`, `atras` (`mi\|3`), `manana` (`do`) | Febrero sin día 30; saltos hacia atrás en la semana |
+| estudio | `palabra` | `contar` (`BANANA\|A`), `ultima` (`TODO`), `medio` (`PARÍS`) | Fichas de letras que se marcan una a una; arrastrar pasa una lupa |
+| estudio | `planetas` | `cercano`, `grande`, `ocho` | Los 8 planetas en fila junto al Sol; arrastrar dice el nombre de cada uno |
 El motor llama `frame(dt)` a su ritmo (tope de 24-30 fps); todo lo demás (partículas, globo, sonido, fps, pausa, degradación) ya está resuelto afuera.
 Con movimiento reducido el motor solo dibuja un instante tras cada cambio: el renderizador debe poder mostrar la pose final en el primer fotograma.
 
@@ -144,8 +173,10 @@ Con movimiento reducido el motor solo dibuja un instante tras cada cambio: el re
   pensando, parpadeo), boca (hablar, sonrisa, ondulada, triste) y rubor.
 - **Animaciones**: cada una es una función pura `(t, T) → pose` (`idle`, `talk`, `think`, `celebrate`, `hurt`, `dance`, `sad` y las quietas
   `happy`, `oops`, `still`). El renderizador mezcla la pose actual hacia la nueva (suavizado exponencial), así no hay saltos entre reacciones.
-- **Escenarios** (`scenery.js`): `laboratorio`, `espacio`, `aula`. Se pintan una vez por tamaño en un lienzo aparte (máximo 2 en memoria) y cada fotograma
-  es un `drawImage` + un detalle animado de menos de 15 figuras (burbujas, estrellas, polvo de tiza).
+- **Escenarios** (`scenery.js`): `laboratorio`, `espacio`, `aula`, `biblioteca`, `observatorio`, `jardin`, `cocina` y `museo`, con colores lisos, textura de
+  cuaderno y sombras duras (sin degradados). Se pintan una vez por mundo, decorado y tamaño en un lienzo aparte (máximo 2 en memoria) y cada fotograma
+  es un `drawImage` + un detalle animado de menos de 15 figuras (burbujas, estrellas, polvo de tiza, mariposas, vapor).
+- **Encuadres y entradas**: el personaje se corre de lado, cambia de tamaño o se refleja según `shot`, y entra volando, cayendo, apareciendo o saludando.
 - **Objetos** (`scene.item`): `matraz`, `lupa`, `libro`.
 - **Personajes**: `chispa` (morado GEMS, antena de bola) y `nube` (magenta, dos antenas). Un personaje nuevo es solo un `look` en `theme.json`.
 - **Efectos** (`fx`): `ring` (aro de luz), `flash`, `shake`.
@@ -160,9 +191,11 @@ Un Tap es un objeto de datos (tipos en `src/app/taps/taps.types.ts`; ejemplos en
   "id": "redstone",
   "theme": "minecraft",
   "title": "Redstone", "kicker": "Quiz de bloques",
-  "scene": { "world": "cueva", "host": "sofi", "item": "pick" },
-  "backdrop": ["#0b0a09", "#3a322b"],                 // degradado mientras carga (solo en la app)
-  "questions": [{ "id": "piston", "q": "…", "options": ["…"], "answer": 2, "why": "Explicación corta." }],
+  "scene": { "world": "cueva", "host": "sofi", "item": "pick", "shot": "lejos", "enter": "camina", "props": "circuito" },
+  "backdrop": ["#0b0a09", "#3a322b"],                 // franjas planas del cielo mientras carga (solo en la app)
+  "ground": "#6b6b6b",                                // suelo del fondo inmediato
+  "questions": [{ "id": "piston", "q": "…", "options": ["…"], "answer": 2, "why": "Explicación corta.",
+                  "visual": { "objeto": "piston", "accion": "bloquea" } }],   // opcional: objeto para explicar
   "results": [                                         // se elige el de mayor `min` que no supere los aciertos
     { "min": 0, "title": "Aprendiz de antorchas", "line": "…" },
     { "min": 5, "title": "Crack de redstone", "line": "…" }
