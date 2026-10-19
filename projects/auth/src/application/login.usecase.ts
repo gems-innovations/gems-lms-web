@@ -4,15 +4,21 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserService } from '../infrastructure/services/user.service';
 import { AuthSessionService } from 'auth/core';
-import { Subject, EMPTY } from 'rxjs';
-import { switchMap, tap, catchError } from 'rxjs/operators';
+import { Subject, EMPTY, of } from 'rxjs';
+import { switchMap, tap, catchError, timeout, shareReplay } from 'rxjs/operators';
 import { ILoginCredentials } from '../domain/model/login-credentials.model';
 
-function loginErrorMessage(err: unknown): string {
+/** Mensaje para la persona: solo se habla de la contraseña cuando de verdad es la contraseña (401/400). */
+export function loginErrorMessage(err: unknown): string {
   if (err instanceof HttpErrorResponse) {
-    if (err.status === 0) return 'No se pudo conectar con el servidor. Intenta de nuevo en unos minutos.';
+    if (err.status === 0) {
+      return typeof navigator !== 'undefined' && navigator.onLine === false
+        ? 'No tienes conexión. Revisa tu internet y vuelve a intentarlo.'
+        : 'No logramos conectarnos con GEMS. Revisa tu internet e inténtalo de nuevo.';
+    }
     if (err.error?.code === 'USER_DEACTIVATED') return 'Tu cuenta está desactivada. Contacta al administrador.';
     if (err.status === 429) return 'Demasiados intentos. Espera un momento e intenta de nuevo.';
+    if (err.status >= 500) return 'Tuvimos un problema de nuestro lado (no es tu contraseña). Inténtalo en un momento.';
   }
   return 'Correo o contraseña incorrectos';
 }
@@ -42,8 +48,13 @@ export class LoginUseCase {
       switchMap(credentials =>
         this.userService.login(credentials).pipe(
           tap(({ user, token, mustChangePassword }) => this.authSession.saveSession(user, token, mustChangePassword)),
-          // Branding is best-effort: it never blocks the login.
-          switchMap(() => this.authSession.loadInstitutionBranding()),
+          // Branding is best-effort: it never blocks the login (ni lo demora más de 2,5 s con red lenta).
+          // Si tarda, se entra igual y la marca termina de llegar en segundo plano (shareReplay mantiene la petición).
+          switchMap(() => {
+            const branding$ = this.authSession.loadInstitutionBranding().pipe(shareReplay(1));
+            branding$.subscribe({ error: () => undefined });
+            return branding$.pipe(timeout({ first: 2500, with: () => of(null) }), catchError(() => of(null)));
+          }),
           tap(() => {
             this._isLoading.set(false);
             this.router.navigate([this.authSession.mustChangePassword()

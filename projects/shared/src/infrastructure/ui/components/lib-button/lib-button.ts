@@ -14,6 +14,8 @@ export class LibButtonComponent {
   readonly type = input<'button' | 'submit' | 'reset'>('button');
   readonly disabled = input<boolean>(false);
   readonly loading = input<boolean>(false);
+  /** Lo que oye un lector de pantalla mientras `loading` (el texto visible no cambia el ancho). */
+  readonly loadingText = input<string>('Procesando…');
   readonly fullWidth = input<boolean>(false);
   readonly icon = input<string | undefined>(undefined);
   readonly iconPosition = input<'left' | 'right'>('left');

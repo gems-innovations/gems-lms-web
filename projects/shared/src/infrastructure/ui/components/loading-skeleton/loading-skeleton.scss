@@ -1,3 +1,7 @@
+// Reserva el espacio desde el primer fotograma, pero se dibuja a los 300 ms: las cargas rápidas no parpadean.
+:host { display: block; }
+.skeleton-table, .skeleton-cards { animation: skeleton-in var(--dur-base, 200ms) ease var(--sk-delay, 300ms) both; }
+@keyframes skeleton-in { from { opacity: 0; } }
 
 // Screen reader only utility class
 .sr-only {
@@ -12,15 +16,6 @@
   border-width: 0;
 }
 
-// Shimmer animation
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-}
 
 .skeleton-table {
   display: flex;

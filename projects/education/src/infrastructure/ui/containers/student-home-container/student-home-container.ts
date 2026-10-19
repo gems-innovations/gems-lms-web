@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoadingSkeletonComponent, EmptyStateComponent, EMPTY_STATES } from 'shared';
+import { EmptyStateComponent, EMPTY_STATES } from 'shared';
+import { SkeletonComponent } from 'shared/loading';
 import { StudentHomeUseCase } from '../../../../application/student-home.usecase';
 import { IEnrolledCourseEntry } from '../../../../domain/model/enrollment.model';
 import { StudentHero } from '../../components/student-hero/student-hero';
@@ -13,7 +14,7 @@ import { ICatalogItem } from '../../../../domain/model/catalog.model';
 @Component({
   selector: 'edu-student-home-container',
   imports: [RevealDirective, AutoAnimateDirective, 
-    LoadingSkeletonComponent,
+    SkeletonComponent,
     EmptyStateComponent,
     StudentHero,
     CourseProgressCard,

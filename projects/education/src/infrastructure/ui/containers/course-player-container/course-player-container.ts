@@ -7,7 +7,8 @@ import { celebrate } from 'shared';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, Observable } from 'rxjs';
 import { CoursePlayerUseCase } from '../../../../application/course-player.usecase';
-import { LoadingSkeletonComponent, EmptyStateComponent, EMPTY_STATES } from 'shared';
+import { EmptyStateComponent, EMPTY_STATES } from 'shared';
+import { LoadErrorComponent, SkeletonComponent } from 'shared/loading';
 import { PlayerTopbar } from '../../components/player-topbar/player-topbar';
 import { PlayerSidebar } from '../../components/player-sidebar/player-sidebar';
 import { PlayerContentBlock } from '../../components/player-content-block/player-content-block';
@@ -25,7 +26,7 @@ const INACTIVITY_THRESHOLD_MS = 5 * 60 * 1000; // 5 min
   selector: 'edu-course-player-container',
   standalone: true,
   imports: [
-    LoadingSkeletonComponent, EmptyStateComponent,
+    SkeletonComponent, LoadErrorComponent, EmptyStateComponent,
     PlayerTopbar, PlayerSidebar, PlayerContentBlock, CourseCertificate,
     CourseResult, DecimalPipe
   ],

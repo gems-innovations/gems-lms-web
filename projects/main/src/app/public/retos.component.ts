@@ -8,6 +8,7 @@ import { CourseStarterService } from './course-starter.service';
 import { LucideCircleCheck, LucideX } from '@lucide/angular';
 import { celebrarEn } from 'shared';
 import { IReto, RETO_SETS } from './retos.data';
+import { BusyLabelComponent } from 'shared/loading';
 
 /** Después de cuántos retos respondidos aparece la invitación al curso (y se queda visible). */
 const INVITAR_DESDE = 3;
@@ -21,7 +22,7 @@ const TODOS = 'Todos';
  */
 @Component({
   selector: 'gems-retos',
-  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, LucideCircleCheck, LucideX],
+  imports: [RouterLink, PublicHeaderComponent, PublicFooterComponent, LucideCircleCheck, LucideX, BusyLabelComponent],
   template: `
     <gems-public-header />
     <main class="pub">
@@ -89,8 +90,9 @@ const TODOS = 'Todos';
           <h2 id="rinvita-t">{{ set.inviteTitle }}</h2>
           <p>{{ set.inviteText }}</p>
           @if (error(); as e) { <p class="error" role="alert">{{ e }}</p> }
-          <button type="button" class="btn btn--primary btn--block" [disabled]="starter.starting() !== null || !cursoId()" (click)="empezarCurso()">
-            {{ starter.starting() !== null ? 'Entrando…' : 'Empezar gratis, sin registro' }}
+          <button type="button" class="btn btn--primary btn--block" [disabled]="starter.starting() !== null || !cursoId()"
+                  [attr.aria-busy]="starter.starting() !== null" (click)="empezarCurso()">
+            <lib-busy-label [busy]="starter.starting() !== null" busyText="Entrando…">Empezar gratis, sin registro</lib-busy-label>
           </button>
           <a class="rinvita__alt" routerLink="/" fragment="cursos">Ver todos los cursos gratis</a>
         </aside>

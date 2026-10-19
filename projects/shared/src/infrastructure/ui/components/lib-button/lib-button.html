@@ -1,14 +1,17 @@
+<!-- Cargando: el contenido se oculta (sin quitarlo) y el spinner se superpone; el botón conserva su tamaño. -->
 <button
   [type]="type()"
   [class]="buttonClasses()"
   [disabled]="disabled() || loading()"
+  [attr.aria-busy]="loading() || null"
   (click)="onClick($event)"
 >
   @if (loading()) {
-    <span class="lib-button__spinner"></span>
+    <span class="lib-button__spinner" aria-hidden="true"></span>
+    <span class="lib-button__sr">{{ loadingText() }}</span>
   }
 
-  @if (icon() && iconPosition() === 'left' && !loading()) {
+  @if (icon() && iconPosition() === 'left') {
     <span class="lib-button__icon lib-button__icon--left">
       <ng-content select="[slot=icon-left]"></ng-content>
     </span>
@@ -18,7 +21,7 @@
     <ng-content></ng-content>
   </span>
 
-  @if (icon() && iconPosition() === 'right' && !loading()) {
+  @if (icon() && iconPosition() === 'right') {
     <span class="lib-button__icon lib-button__icon--right">
       <ng-content select="[slot=icon-right]"></ng-content>
     </span>

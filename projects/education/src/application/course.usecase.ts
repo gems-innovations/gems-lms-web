@@ -33,6 +33,8 @@ export class CourseUseCase {
   private readonly _isSaving = signal(false);
   private readonly _isDeleting = signal(false);
   private readonly _error = signal<string | null>(null);
+  /** Error original de la última carga (para un mensaje humano y «Reintentar» en lib-load-error). */
+  private readonly _loadFailure = signal<unknown>(null);
   private readonly _searchTerm = signal('');
   private readonly _statusFilter = signal<ECourseStatus | null>(null);
   private readonly _pagination = signal({ page: 1, limit: 12, total: 0 });
@@ -44,6 +46,7 @@ export class CourseUseCase {
   readonly isSaving = computed(() => this._isSaving());
   readonly isDeleting = computed(() => this._isDeleting());
   readonly error = computed(() => this._error());
+  readonly loadFailure = this._loadFailure.asReadonly();
   readonly searchTerm = computed(() => this._searchTerm());
   readonly statusFilter = computed(() => this._statusFilter());
   readonly pagination = computed(() => this._pagination());
@@ -86,7 +89,7 @@ export class CourseUseCase {
 
   constructor() {
     this.load$.pipe(
-      tap(() => this._isLoading.set(true)),
+      tap(() => { this._isLoading.set(true); this._loadFailure.set(null); }),
       switchMap(({ filters, page = 1 }) =>
         this.courseService.getCourses(filters, page).pipe(
           tap(res => {
@@ -97,6 +100,7 @@ export class CourseUseCase {
           }),
           catchError(err => {
             this._error.set(err.message ?? 'Error cargando cursos');
+            this._loadFailure.set(err);
             this._isLoading.set(false);
             return EMPTY;
           })

@@ -734,9 +734,6 @@ body:has([aria-modal='true'], .cbm__overlay, .modal-overlay) .app-tour-button { 
   body:has(.course-player-container__progress--open) gems-guest-save-bar .gsb { display: none; }
 }
 
-// Taps (/taps): el aviso «Sin conexión» del LMS baja bajo la barra del Tap (antes tapaba volver y sonido).
-html.taps-page .connection-notice { top: calc(max(8px, env(safe-area-inset-top)) + 66px); max-width: calc(100vw - 24px); font-size: 13px; }
-
 // Botones de icono «glass» de GEMS (Taps: barra superior, riel lateral y selector de temas). Nombres simples
 // (.glass, --glass-*) para unificarlos con el sistema visual del sitio. Sin blur cuando el navegador no lo soporta,
 // con prefers-reduced-transparency o cuando Taps pasa a modo ligero o se degrada (html[data-glass='off']).

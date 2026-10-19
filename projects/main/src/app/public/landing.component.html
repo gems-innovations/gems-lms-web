@@ -7,7 +7,7 @@
       <h1>Aprende lo que necesitas, <span class="hl">a tu ritmo</span></h1>
       <p class="lead">Para entrar a la universidad, manejar mejor tu plata, escribir mejor y lo que venga. Lecciones de 10 minutos, ejercicios explicados y simulacros. Eliges un curso y empiezas ya, sin crear cuenta.</p>
       <div class="hero__cta" gemsInView (inView)="heroCtaInView.set($event)">
-        <button type="button" class="btn btn--primary" [disabled]="starter.starting() !== null" (click)="startFirst()">{{ starter.starting() !== null ? 'Entrando…' : 'Empezar gratis ahora' }}</button>
+        <button type="button" class="btn btn--primary" [disabled]="starter.starting() !== null" [attr.aria-busy]="starter.starting() !== null" (click)="startFirst()"><lib-busy-label [busy]="starter.starting() !== null" busyText="Entrando…">Empezar gratis ahora</lib-busy-label></button>
         <a class="btn btn--ghost" routerLink="/" fragment="cursos">Ver todos los cursos</a>
       </div>
       <p class="trust"><span class="gm-chip"><span class="gm-icono gm-icono--sm gm-icono--tema" style="--tinte: var(--color-exito)"><svg lucideShieldCheck [size]="16" aria-hidden="true"></svg></span>Sin correo, sin contraseña y sin tarjeta</span></p>
@@ -22,7 +22,7 @@
     </div>
   </section>
 
-  <section id="cursos" class="block reveal" aria-labelledby="cursos-title">
+  <section id="cursos" class="block reveal" aria-labelledby="cursos-title" [attr.aria-busy]="state() === 'loading'">
     <div class="block__head">
       <h2 id="cursos-title">Cursos gratis</h2>
       <p>Toca «Empezar gratis» y entras directo. Si quieres guardar tu avance, después creas tu cuenta y no pierdes nada.</p>
@@ -31,15 +31,10 @@
 
     @switch (state()) {
       @case ('loading') {
-        <div class="grid">
-          @for (i of [1, 2, 3]; track i) { <div class="card card--skeleton gm-skeleton"></div> }
-        </div>
+        <lib-skeleton class="grid" shape="course-card" [count]="3" label="Cargando los cursos gratis" />
       }
       @case ('error') {
-        <div class="empty" role="status">
-          <p>No pudimos cargar los cursos. Revisa tu conexión e inténtalo de nuevo.</p>
-          <button type="button" class="btn btn--ghost" (click)="load()">Reintentar</button>
-        </div>
+        <lib-load-error compact [error]="loadError()" what="los cursos" (retry)="load()" />
       }
       @default {
         @if (courses().length === 0) {
@@ -70,8 +65,8 @@
                   </div>
                   @if (errorFor() === c.id) { <p class="card__error" role="alert">{{ error() }}</p> }
                   <div class="card__actions">
-                    <button type="button" class="btn btn--primary" [disabled]="starter.starting() !== null" (click)="start(c.id)">
-                      {{ starter.starting() === c.id ? 'Entrando…' : 'Empezar gratis' }}
+                    <button type="button" class="btn btn--primary" [disabled]="starter.starting() !== null" [attr.aria-busy]="starter.starting() === c.id" (click)="start(c.id)">
+                      <lib-busy-label [busy]="starter.starting() === c.id" busyText="Entrando…">Empezar gratis</lib-busy-label>
                     </button>
                     <a [routerLink]="['/cursos', c.id]" [attr.aria-label]="'Ver temario de ' + c.title">Ver temario</a>
                   </div>
@@ -209,6 +204,6 @@
 
 @if (courses().length && !heroCtaInView() && !gridInView()) {
   <div class="land-cta">
-    <button type="button" class="btn btn--primary btn--block" [disabled]="starter.starting() !== null" (click)="startFirst()">{{ starter.starting() !== null ? 'Entrando…' : 'Empezar gratis ahora' }}</button>
+    <button type="button" class="btn btn--primary btn--block" [disabled]="starter.starting() !== null" [attr.aria-busy]="starter.starting() !== null" (click)="startFirst()"><lib-busy-label [busy]="starter.starting() !== null" busyText="Entrando…">Empezar gratis ahora</lib-busy-label></button>
   </div>
 }

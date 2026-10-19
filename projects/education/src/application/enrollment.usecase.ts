@@ -30,12 +30,15 @@ export class EnrollmentUseCase {
   private readonly _isSubmitting = signal(false);
   private readonly _activeEnrollment = signal<IEnrollment | null>(null);
   private readonly _lastQuizResult = signal<IQuizAttempt | null>(null);
+  /** Último envío de quiz fallido (red, servidor): el reproductor vuelve a las preguntas sin perder respuestas. */
+  private readonly _quizSubmitError = signal<unknown>(null);
   private readonly _lastSubmission = signal<IAssignmentSubmission | null>(null);
 
   readonly isLoading = computed(() => this._isLoading());
   readonly isSubmitting = computed(() => this._isSubmitting());
   readonly activeEnrollment = computed(() => this._activeEnrollment());
   readonly lastQuizResult = computed(() => this._lastQuizResult());
+  readonly quizSubmitError = this._quizSubmitError.asReadonly();
   readonly lastSubmission = computed(() => this._lastSubmission());
 
   readonly enrolledCourseIds = computed(() =>
@@ -113,7 +116,7 @@ export class EnrollmentUseCase {
     ).subscribe();
 
     this.submitQuiz$.pipe(
-      tap(() => this._isSubmitting.set(true)),
+      tap(() => { this._isSubmitting.set(true); this._quizSubmitError.set(null); }),
       switchMap(req => this.service.submitQuiz(req).pipe(
         tap(attempt => {
           this.state.addQuizAttempt(attempt);
@@ -122,7 +125,8 @@ export class EnrollmentUseCase {
         }),
         catchError(err => {
           this._isSubmitting.set(false);
-          this.toastService.error(err.message ?? 'Error al enviar quiz');
+          // El bloque del quiz muestra el error con «Reintentar envío» y conserva las respuestas.
+          this._quizSubmitError.set(err);
           return EMPTY;
         })
       )),

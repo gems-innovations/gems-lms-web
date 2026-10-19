@@ -7,8 +7,9 @@ import { CatalogFilterBar } from '../../components/catalog-filter-bar/catalog-fi
 import { CatalogHero } from '../../components/catalog-hero/catalog-hero';
 import {
   PageComponent, CardGridComponent,
-  LoadingSkeletonComponent, EmptyStateComponent, EMPTY_STATES,
+  EmptyStateComponent, EMPTY_STATES,
 } from 'shared';
+import { SkeletonComponent } from 'shared/loading';
 
 @Component({
   selector: 'edu-course-catalog-container',
@@ -16,7 +17,7 @@ import {
   host: { style: 'display:block' },
   imports: [
     PageComponent, CardGridComponent,
-    LoadingSkeletonComponent, EmptyStateComponent,
+    SkeletonComponent, EmptyStateComponent,
     CatalogCard, CatalogFilterBar, CatalogHero,
   ],
   templateUrl: './course-catalog-container.html',

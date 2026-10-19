@@ -1,7 +1,9 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { isPlatformServer } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { NEVER, Observable, catchError, shareReplay, tap, throwError } from 'rxjs';
 import { environment } from 'shared/core';
+import { retryTransient } from 'shared/loading';
 
 export interface IPublicLesson { id: number; title: string; blocks: number; free: boolean; }
 export interface IPublicModule { id: number; title: string; lessons: IPublicLesson[]; }
@@ -30,18 +32,42 @@ export interface IInstitutionRequest {
   message?: string;
 }
 
-/** Lo que se ve sin sesión: cursos gratis de GEMS Abierto y la solicitud de instituciones. */
+/**
+ * Lo que se ve sin sesión: cursos gratis de GEMS Abierto y la solicitud de instituciones.
+ * La lista se pide una sola vez por visita (la comparten la portada, /retos y la ficha) y los fallos pasajeros de red
+ * se reintentan solos; así la ficha de un curso puede pintar al instante lo que ya se sabe de él (carga progresiva).
+ */
 @Injectable({ providedIn: 'root' })
 export class PublicCatalogService {
   private readonly http = inject(HttpClient);
   private readonly api = environment.apiBaseUrl;
+  private readonly server = isPlatformServer(inject(PLATFORM_ID));
+  private list$: Observable<IPublicCourse[]> | null = null;
+  private readonly known = new Map<string, IPublicCourse>();
 
   courses(): Observable<IPublicCourse[]> {
-    return this.http.get<IPublicCourse[]>(`${this.api}/public/courses`);
+    // En el prerender (build sin API) no se pide: la página sale con el esqueleto de las tarjetas, nunca con un
+    // «no pudimos cargar» congelado en el HTML. El navegador pide la lista al hidratar.
+    if (this.server) return NEVER;
+    return this.list$ ??= this.http.get<IPublicCourse[]>(`${this.api}/public/courses`).pipe(
+      retryTransient(),
+      tap(list => list.forEach(c => this.known.set(String(c.id), c))),
+      // Un fallo no se queda en caché: el próximo «Reintentar» vuelve a pedir.
+      catchError(error => { this.list$ = null; return throwError(() => error); }),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+  }
+
+  /** Lo que ya se conoce de un curso (de la lista), sin pedir nada: para pintar la ficha antes del detalle. */
+  peek(id: string): IPublicCourse | null {
+    return this.known.get(id) ?? null;
   }
 
   course(id: string): Observable<IPublicCourse> {
-    return this.http.get<IPublicCourse>(`${this.api}/public/courses/${encodeURIComponent(id)}`);
+    return this.http.get<IPublicCourse>(`${this.api}/public/courses/${encodeURIComponent(id)}`).pipe(
+      retryTransient(),
+      tap(c => this.known.set(String(c.id), c)),
+    );
   }
 
   requestInstitution(body: IInstitutionRequest): Observable<{ id: number }> {

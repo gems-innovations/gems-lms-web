@@ -1,5 +1,6 @@
 <auth-login-form
   [isLoading]="isLoading()"
+  [disabled]="isLoading()"
   [errorMessage]="error()"
   (onSubmit)="login($event)"
 />

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { HttpEventType, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { FileUploadService } from './file-upload.service';
 import { environment } from 'shared/core';
@@ -28,6 +28,21 @@ describe('FileUploadService', () => {
     req.flush({ id: 'abc', name: 'tarea.txt', contentType: 'text/plain', size: 4, url: '/api/v1/files/abc' });
 
     expect(url).toBe(`${origin}/api/v1/files/abc`);
+  });
+
+  it('reports upload progress and ends with the absolute URL', () => {
+    const file = new File(['hola'], 'foto.png', { type: 'image/png' });
+    const seen: number[] = [];
+    let url = '';
+    service.uploadWithProgress(file, 'public').subscribe(p => { seen.push(p.progress); if (p.file) url = p.file.url; });
+
+    const req = http.expectOne(`${environment.apiUrls.files}?scope=public`);
+    expect(req.request.reportProgress).toBeTrue();
+    req.event({ type: HttpEventType.UploadProgress, loaded: 50, total: 100 });
+    req.flush({ id: 'f', name: 'foto.png', contentType: 'image/png', size: 4, url: '/api/v1/files/public/f' });
+
+    expect(seen).toEqual([0.5, 1]);
+    expect(url).toBe(`${origin}/api/v1/files/public/f`);
   });
 
   it('tells private API files apart from public images and external links', () => {

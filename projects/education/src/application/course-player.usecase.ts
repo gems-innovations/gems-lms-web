@@ -37,7 +37,10 @@ export class CoursePlayerUseCase {
   readonly completedBlockIds = computed(() => this._completedBlockIds());
 
   readonly isLoading    = computed(() => this.courseUc.isLoading() || this.enrollmentUc.isLoading());
+  /** La carga del curso falló (red, servidor…): distinto de «no existe o no tienes acceso». */
+  readonly loadFailure  = computed(() => this.courseUc.loadFailure());
   readonly isSubmitting = computed(() => this.enrollmentUc.isSubmitting());
+  readonly quizSubmitError = computed(() => this.enrollmentUc.quizSubmitError());
   readonly lastQuizResult = computed(() => {
     const block = this.selectedBlock();
     if (!block) return null;
@@ -320,6 +323,12 @@ export class CoursePlayerUseCase {
     if (cached?.progress.completedBlockIds?.length) {
       this._completedBlockIds.set(new Set(cached.progress.completedBlockIds));
     }
+    this.courseUc.load();
+    if (this.enrollmentUc.enrollments().length === 0) this.enrollmentUc.loadEnrollments();
+  }
+
+  /** «Reintentar» tras un fallo de carga: vuelve a pedir el curso (y las inscripciones si faltan). */
+  retryLoad(): void {
     this.courseUc.load();
     if (this.enrollmentUc.enrollments().length === 0) this.enrollmentUc.loadEnrollments();
   }
