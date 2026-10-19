@@ -1,85 +1,122 @@
-// Feed de Taps: pantalla completa, un Tap por pantalla (scroll-snap). Pensado primero para celular.
-:host { display: block; }
+// Feed de Taps: pantalla completa (100dvh), un Tap por pantalla (scroll-snap). Primero celular, oscuro por defecto.
+// Zonas (experiencia-ux.md §3): barra arriba (se toca poco), mundo + riel en el centro, pregunta y opciones abajo (pulgar).
+// Tipografía: la familia de interfaz del sitio (--tap-font) para todo lo que se lee y se toca; la del tema
+// (--tap-display-font, p. ej. la pixelada de Minecraft) solo como acento en el nombre del tema.
+:host { display: block; --tap-font: var(--font-texto, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif); --safe-b: max(12px, calc(env(safe-area-inset-bottom) + 8px)); --bar-h: calc(max(8px, env(safe-area-inset-top)) + 56px); }
 
-.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.visually-hidden { font-weight: 700; position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 
 .taps {
   position: fixed; inset: 0; z-index: 5; overflow-y: auto; overscroll-behavior-y: contain;
-  scroll-snap-type: y mandatory; scrollbar-width: none; background: #07090a; color: #fff;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  scroll-snap-type: y mandatory; scrollbar-width: none; background: #0e1116; color: #fff;
+  font-family: var(--tap-font);
   &::-webkit-scrollbar { display: none; }
 }
 
 .tap {
-  position: relative; height: 100vh; height: 100dvh; max-width: 480px; margin: 0 auto; overflow: hidden;
-  scroll-snap-align: start; scroll-snap-stop: always;
+  position: relative; display: flex; flex-direction: column; height: 100vh; height: 100dvh; max-width: 480px; margin: 0 auto; overflow: hidden;
+  scroll-snap-align: start; scroll-snap-stop: always; touch-action: pan-y; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-touch-callout: none;
   // Fondo inmediato en CSS: se ve antes de que cargue nada del motor.
   background: linear-gradient(var(--bg-top, #1b2414), var(--bg-bottom, #3a4a2a));
   &__stage { position: absolute; inset: 0; }
+  // Marca sutil del primer fotograma: se ve mientras el escenario carga y se desvanece cuando aparece.
+  &__mark { position: absolute; left: 50%; top: 34%; z-index: 0; display: grid; justify-items: center; gap: 6px; transform: translate(-50%, -50%);
+    font-size: 12px; font-weight: 700; letter-spacing: .08em; color: rgba(255, 255, 255, .55); transition: opacity .4s; pointer-events: none;
+    img { opacity: .75; border-radius: 10px; } }
+  &__steps { position: relative; z-index: 2; display: flex; gap: 4px; padding: var(--bar-h) 14px 0;
+    i { flex: 1; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, .3); transition: background .2s;
+      &.is-ok { background: #2FBF71; }
+      &.is-bad { background: #D1343A; }
+      &.is-now { background: rgba(255, 255, 255, .85); } } }
 
-  // ── barra superior ──
-  &__top { position: absolute; z-index: 3; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 10px; padding: max(10px, env(safe-area-inset-top)) 12px 0; }
-  &__icon {
-    display: inline-flex; align-items: center; justify-content: center; flex: none; width: 44px; height: 44px; border-radius: 12px; cursor: pointer;
-    color: #fff; background: rgba(8, 10, 6, .55); border: 2px solid rgba(255, 255, 255, .16); text-decoration: none; backdrop-filter: blur(4px);
-    &:hover { background: rgba(8, 10, 6, .75); }
-  }
-  &__steps { flex: 1; display: flex; gap: 5px;
-    i { flex: 1; height: 8px; border-radius: 2px; background: rgba(255, 255, 255, .28); box-shadow: 0 1px 0 rgba(0, 0, 0, .35); transition: background .25s;
-      &.is-done { background: #c6f66a; }
-      &.is-now { background: #fff; } } }
+  // ── mundo: reacción + riel (nunca encima de las opciones) ──
+  &__world { position: relative; z-index: 2; flex: 1; min-height: 96px; }
+  &__pill, &__pre { position: absolute; left: 50%; top: 10px; display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 8px 16px; border-radius: 999px;
+    font-size: 1.2rem; font-weight: 800; white-space: nowrap; color: #06210f; background: #2FBF71; box-shadow: 0 4px 0 rgba(0, 0, 0, .25);
+    transform: translateX(-50%); animation: pill-in .32s cubic-bezier(.2, 1.4, .4, 1) .08s backwards; pointer-events: none;
+    &.is-bad { color: #fff; background: #D1343A; } }
+  &__pre { display: none; }
+  &__streak { position: absolute; left: 50%; top: 58px; margin: 0; padding: 4px 12px; border-radius: 999px; transform: translateX(-50%); font-size: 1rem; font-weight: 800; font-variant-numeric: tabular-nums;
+    color: #1b1300; background: #F5B83D; animation: pill-in .3s cubic-bezier(.2, 1.4, .4, 1) .3s backwards; }
 
-  // ── panel de pregunta (abajo, sobre el escenario) ──
-  &__panel {
-    position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; max-height: 64%; overflow-y: auto; overscroll-behavior: contain;
-    padding: 38px 14px max(14px, env(safe-area-inset-bottom));
-    background: linear-gradient(to bottom, rgba(7, 9, 6, 0), rgba(7, 9, 6, .82) 34px, rgba(7, 9, 6, .94));
-  }
-  &__kicker { margin: 0 0 6px; font-size: 13px; font-weight: 700; letter-spacing: .02em; color: #c6f66a; text-shadow: 0 1px 0 #000; }
-  &__q, &__title { margin: 0 0 12px; outline: none; font-family: 'Pixelify Sans', system-ui, sans-serif; font-weight: 600; line-height: 1.12; text-shadow: 0 2px 0 #000; text-wrap: balance; }
-  &__q { font-size: clamp(21px, 6vw, 26px); }
-  &__title { font-size: clamp(30px, 9vw, 40px); color: #c6f66a; }
-  &__line { margin: 0 0 16px; font-size: 16px; line-height: 1.4; color: #e3ecd8; }
+  &__toast { position: absolute; left: 12px; right: 72px; bottom: 12px; margin: 0; padding: 8px 12px; border-radius: 12px; font-size: 1rem; overflow-wrap: anywhere; background: rgba(8, 10, 14, .8); }
 
-  &__opts { display: grid; gap: 8px; }
+  // ── panel inferior: pregunta + opciones en la zona del pulgar ──
+  &__panel { position: relative; z-index: 3; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: 10px 12px var(--safe-b); background: linear-gradient(to bottom, rgba(10, 12, 16, 0), rgba(10, 12, 16, .7) 26px, rgba(10, 12, 16, .9)); }
+  &__bubble, &__card { position: relative; margin: 0 0 10px; padding: 10px 14px 12px; border-radius: 16px; background: #fff; color: #11151c; box-shadow: 0 4px 0 rgba(0, 0, 0, .25);
+    &::before { content: ''; position: absolute; left: 34%; top: -8px; width: 16px; height: 16px; background: inherit; transform: rotate(45deg); border-radius: 3px; } }
+  &__bubble { animation: pop .22s ease-in-out; }
+  &__card { background: #1d2430; color: #fff; border: 1px solid rgba(255, 255, 255, .12); &::before { display: none; } animation: pop .22s ease-out .3s backwards; }
+  &__over { margin: 0 0 3px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #5b6575; }
+  &__card &__over { color: #aab4c4; }
+  &__theme { font-family: var(--tap-display-font, inherit); font-size: 1.15em; letter-spacing: .02em; text-transform: none; }
+  &__q { margin: 0; outline: none; font-size: clamp(1.1rem, 5vw, 1.4rem); font-weight: 800; line-height: 1.2; text-wrap: balance; }
+  &__chip { display: inline-flex; align-items: center; gap: 6px; margin: 2px 0 6px; padding: 4px 10px; border-radius: 999px; font-size: 1rem; font-weight: 800; color: #06210f; background: #2FBF71; }
+  &__why { margin: 0; font-size: 1rem; line-height: 1.35; color: #e8edf4; }
+
+  &__opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    &[data-layout='list'] { grid-template-columns: 1fr; .tap__opt { min-height: 54px; flex-direction: row; align-items: center; } }
+    &[data-layout='pair'] { grid-template-columns: 1fr; } }
   &__opt {
-    display: flex; align-items: center; gap: 12px; width: 100%; min-height: 54px; padding: 10px 14px; border-radius: 12px; cursor: pointer;
-    font: inherit; font-size: 17px; font-weight: 600; line-height: 1.2; text-align: left; color: #fff;
-    background: #1b2414; border: 2px solid #3d4f2b; box-shadow: 0 3px 0 #0b0f08; transition: transform .08s, background .15s, border-color .15s;
-    &:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #0b0f08; }
-    &:hover:not(:disabled) { border-color: #c6f66a; }
-    &:disabled { cursor: default; opacity: .72; }
-    &.is-ok { opacity: 1; background: #1f6b2a; border-color: #7bdc4a; }
-    &.is-bad { opacity: 1; background: #7a2020; border-color: #ff6a5a; }
+    --c: #D1343A; --ink: #fff;
+    position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 6px; min-height: clamp(64px, 10.6dvh, 86px);
+    padding: 10px 12px; border: 0; border-radius: 16px; cursor: pointer; font: inherit; font-size: 1.25rem; font-weight: 800; line-height: 1.12; text-align: left;
+    color: var(--ink); background: var(--c); box-shadow: 0 4px 0 rgba(0, 0, 0, .3); transition: transform .08s, box-shadow .08s, opacity .15s, background .12s;
+    &[data-k='1'] { --c: #2F6BE0; }
+    &[data-k='2'] { --c: #F5B83D; --ink: #1B1300; }
+    &[data-k='3'] { --c: #2FBF71; --ink: #06210f; }
+    &:active:not([aria-disabled='true']) { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, .3); }
+    &.is-ok { --c: #2FBF71; --ink: #06210f; opacity: 1; }
+    &.is-bad { --c: #D1343A; --ink: #fff; opacity: 1; }
   }
-  &__key { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 30px; height: 30px; border-radius: 8px; font-size: 15px; font-weight: 800; background: rgba(255, 255, 255, .12); }
-  &__label { flex: 1; min-width: 0; }
+  &__opts.is-answered &__opt:not(.is-ok):not(.is-bad) { opacity: .25; }
+  &__shape { flex: none; color: var(--ink); opacity: .95; }
+  &__label { min-width: 0; overflow-wrap: anywhere; }
+  &__mark-ok { position: absolute; top: 8px; right: 8px; animation: pop .2s ease-out; }
+  &__touch { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; animation: fade-in .3s ease-out .8s backwards;
+    i { width: 56px; height: 56px; border-radius: 50%; border: 3px solid #fff; animation: ring 1.4s ease-out infinite; }
+    b { position: absolute; top: 8px; right: 8px; padding: 3px 9px; border-radius: 999px; font-size: 13px; white-space: nowrap; color: #11151c; background: #fff; } }
 
-  &__why { margin: 12px 0 10px; font-size: 15px; line-height: 1.4; color: #e3ecd8; strong { color: #fff; } }
-  &__next {
-    display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 52px; padding: 10px 16px; border: 0; border-radius: 12px; cursor: pointer;
-    font: inherit; font-size: 17px; font-weight: 800; text-decoration: none; color: #101808; background: #c6f66a; box-shadow: 0 3px 0 #6d8f2b;
-    &:active { transform: translateY(2px); box-shadow: 0 1px 0 #6d8f2b; }
-  }
-  &__actions { display: grid; gap: 10px; }
-  &__row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  &__ghost { min-height: 48px; border-radius: 12px; cursor: pointer; font: inherit; font-size: 16px; font-weight: 700; color: #fff; background: rgba(255, 255, 255, .08); border: 2px solid rgba(255, 255, 255, .22);
-    &:hover { border-color: #c6f66a; } }
-  &__notice, &__hint { margin: 10px 0 0; text-align: center; font-size: 14px; color: #c9d6bb; }
-  &__hint { animation: tap-hint 1.8s ease-in-out infinite; }
+  &__wait { height: 4px; margin: 10px 2px 0; border-radius: 2px; background: rgba(255, 255, 255, .18); overflow: hidden;
+    i { display: block; height: 100%; background: #fff; transform-origin: left; animation: drain var(--wait, 1.4s) linear forwards; }
+    &.is-paused i { animation-play-state: paused; } }
+  &__go { display: block; margin: 6px auto 0; min-height: 48px; padding: 0 18px; border: 0; border-radius: 999px; font: inherit; font-size: 1rem; font-weight: 700;
+    color: #fff; background: rgba(255, 255, 255, .12); cursor: pointer; }
+
+  // El siguiente Tap «asoma» 24 px abajo y rebota una vez (enseña a deslizar sin tutorial).
+  &__peek { position: absolute; z-index: 4; left: 8px; right: 8px; bottom: 0; height: 24px; padding: 0; border: 0; border-radius: 14px 14px 0 0; cursor: pointer;
+    background: linear-gradient(var(--peek, #333), rgba(0, 0, 0, .6)); color: #fff; font: inherit; font-size: 11px; font-weight: 700; box-shadow: 0 -4px 12px rgba(0, 0, 0, .4);
+    animation: peek-bounce .7s ease-in-out 2s 1; }
 }
+
+
+// Marca del primer fotograma: se apaga cuando el escenario ya se ve.
+.taps[data-stage='3d'] .tap__mark, .taps[data-stage='light'] .tap__mark { opacity: 0; }
+
+.tap--feedback gems-tap-rail { opacity: .35; }
 
 a, button { &:focus-visible { outline: 3px solid #fff; outline-offset: 2px; } }
 
-@keyframes tap-hint { 0%, 100% { transform: translateY(0); opacity: .7; } 50% { transform: translateY(4px); opacity: 1; } }
+@keyframes pill-in { from { opacity: 0; transform: translateX(-50%) scale(.8); } }
+@keyframes pop { from { opacity: 0; transform: scale(.94); } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes ring { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes peek-bounce { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-14px); } }
 
-// Celulares bajitos: el panel puede ocupar más y el título baja un poco.
-@media (max-height: 700px) {
-  .tap__panel { max-height: 72%; padding-top: 28px; }
-  .tap__opt { min-height: 50px; padding-block: 8px; }
+// Celulares bajitos (320×568, zoom): el mundo cede espacio y el panel, si aún no cabe, hace scroll (reveal() deja a la vista «Seguir»).
+@media (max-height: 680px) {
+  .tap__opt { min-height: 52px; font-size: 1.1rem; gap: 2px; padding-block: 8px; }
+  .tap__world { min-height: 0; }
+  .tap__mark, .tap__streak { display: none; }
+  .tap__bubble, .tap__card { padding-block: 8px; margin-bottom: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tap__opt, .tap__steps i { transition: none; }
-  .tap__hint { animation: none; }
+  .tap__pill, .tap__pre, .tap__streak, .tap__bubble, .tap__card, .tap__mark-ok, .tap__peek { animation: none; }
+  .tap__touch i { animation: none; opacity: .8; }
+  .tap__wait i { animation-name: drain-static; }
 }
+@keyframes drain-static { from, to { transform: scaleX(1); } }
+.tap:has(.tap__peek) .tap__panel { padding-bottom: calc(var(--safe-b) + 24px); }

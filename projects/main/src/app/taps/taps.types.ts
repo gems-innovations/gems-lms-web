@@ -8,7 +8,7 @@ export interface ITapQuestion {
   options: string[];
   /** Índice de la opción correcta. */
   answer: number;
-  /** Explicación corta que se muestra al responder. */
+  /** Explicación corta que se muestra al fallar: 90 caracteres como máximo (se lee en ~3 s). */
   why: string;
 }
 
@@ -37,6 +37,20 @@ export interface ITap {
   backdrop: [string, string];
   questions: ITapQuestion[];
   results: ITapResult[];
+  /** Categoría del selector de temas (`/taps?tema=<id>`). Sin ella se usa `theme` (el videojuego). */
+  topic?: string;
+  /** Tap «de gancho»: preguntas muy fáciles para el primer Tap de alguien nuevo (el primer toque casi siempre se premia). */
+  hook?: boolean;
+}
+
+/** Una categoría del selector. Las que aún no tienen Taps se muestran como «Pronto». */
+export interface ITapTopic {
+  id: string;
+  name: string;
+  /** Línea corta bajo el nombre (p. ej. «Quiz de bloques»). */
+  blurb: string;
+  /** Color del tema en todo el sistema (chip, borde). */
+  color: string;
 }
 
 /** Estado de una partida de un Tap (inmutable: cada paso devuelve uno nuevo). */
@@ -46,6 +60,8 @@ export interface ITapRun {
   /** Opción elegida en la pregunta actual (null = aún sin responder). */
   chosen: number | null;
   score: number;
+  /** Acierto (true) o fallo (false) de cada pregunta respondida, en orden: cuadrícula del resultado y racha. */
+  answers: boolean[];
   finished: boolean;
 }
 

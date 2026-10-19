@@ -59,7 +59,7 @@ stage.say('¡Hola!');                                 // globo de diálogo (stag
 
 | Miembro | Qué hace |
 |---|---|
-| `create(container, {theme, mode?, reducedMotion?, onEvent?})` | Crea el escenario dentro de `container` (que debe tener tamaño). `theme`: URL del `theme.json` u objeto. `mode`: `'auto'` (defecto), `'3d'` o `'light'`. `degrade: false` desactiva la degradación automática (útil para medir/capturar en equipos sin GPU; la demo lo toma de `?degrade=0`) |
+| `create(container, {theme, mode?, reducedMotion?, onEvent?})` | Crea el escenario dentro de `container` (que debe tener tamaño). `theme`: URL del `theme.json` u objeto. `mode`: `'auto'` (defecto), `'3d'` o `'light'`. `degrade: false` desactiva la degradación automática (útil para medir/capturar en equipos sin GPU; la demo lo toma de `?degrade=0`). `slowMs` (4000 por defecto, `0` lo desactiva): si el 3D no se ve en ese tiempo se queda la capa ligera |
 | `stage.ready` / `stage.ready3d` | `ready`: tema listo. `ready3d`: se cumple con `'3d'` o `'light'` cuando ya se decidió |
 | `stage.mode`, `stage.stats()` | Modo actual y `{mode, tier, size, fpsCap, fps, degraded, canvas}`. `mode: '3d'` significa «capa animada del renderizador» aunque el tema dibuje en 2D; `canvas` dice cuál (`'webgl'` o `'2d'`) |
 | `setScene({world, host, item})` | Cambia mundo, personaje y objeto en la mano (claves del tema) |

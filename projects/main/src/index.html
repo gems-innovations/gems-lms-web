@@ -29,6 +29,23 @@
         preference === 'light' || (preference !== 'dark' && branding?.darkMode === false));
     } catch { document.documentElement.classList.remove('light-mode'); }
   </script>
+  <script>
+    // Taps (/taps): la primera pregunta responde antes de que Angular hidrate. Solo pinta la señal (colores, vibración)
+    // sobre el HTML del servidor; Angular repite el mismo toque al hidratar (event replay) y sigue desde ahí.
+    // En cualquier otra página no hace nada: sale en la primera línea si el toque no es una opción de un Tap.
+    document.addEventListener('click', function (e) {
+      var b = e.target && e.target.closest && e.target.closest('.tap__opt');
+      if (!b || document.documentElement.hasAttribute('data-taps-live')) return;
+      var g = b.parentElement, s = b.closest('.tap');
+      if (!g || !g.hasAttribute('data-ans') || !s || s.hasAttribute('data-pre')) return;
+      var k = Array.prototype.indexOf.call(g.children, b), a = +g.getAttribute('data-ans'), ok = k === a;
+      s.setAttribute('data-pre', ok ? 'ok' : 'bad');
+      b.classList.add(ok ? 'pre-ok' : 'pre-bad');
+      if (g.children[a]) g.children[a].classList.add('pre-ok');
+      window.__tapsPre = { id: s.getAttribute('data-tap'), k: k, t: performance.now() };
+      try { if (navigator.vibrate) navigator.vibrate(ok ? 15 : [30, 40, 30]); } catch (_) {}
+    }, true);
+  </script>
   <!-- Runtime configuration (API URL); see public/config.js -->
   <script src="config.js"></script>
   <!-- GoatCounter: estadísticas de visitas sin cookies. AnalyticsService cuenta cada página desde el router. -->

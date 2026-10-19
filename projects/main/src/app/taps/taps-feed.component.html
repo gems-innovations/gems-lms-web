@@ -1,73 +1,113 @@
-<main class="taps" #feed [attr.data-stage]="stageMode()" aria-label="Taps: quizzes que juegas">
-  @for (tap of taps; track tap.id) {
-    @let run = runs()[tap.id];
-    <section class="tap" #section [attr.data-tap]="tap.id" [class.tap--active]="activeId() === tap.id"
-             [attr.aria-label]="'Tap de ' + tap.title" [style.--bg-top]="tap.backdrop[0]" [style.--bg-bottom]="tap.backdrop[1]">
-      <div class="tap__stage" #slot></div>
+<gems-taps-bar [sound]="sound()" [topic]="topic()" [topicName]="topicName()" [topics]="topics"
+               (toggleSound)="toggleSound()" (topicChange)="selectTopic($event)" (sheetChange)="onSheet($event)" />
 
-      <header class="tap__top">
-        <a class="tap__icon" routerLink="/" aria-label="Volver al inicio de GEMS">
-          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="m15 18-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-        <div class="tap__steps" role="img" [attr.aria-label]="run.finished ? 'Terminaste las ' + tap.questions.length + ' preguntas' : 'Pregunta ' + (run.index + 1) + ' de ' + tap.questions.length">
-          @for (q of tap.questions; track q.id; let k = $index) {
-            <i [class.is-done]="run.finished || k < run.index || (k === run.index && run.chosen !== null)" [class.is-now]="!run.finished && k === run.index"></i>
-          }
-        </div>
-        <button type="button" class="tap__icon" (click)="toggleSound()" [attr.aria-pressed]="!muted()" [attr.aria-label]="muted() ? 'Activar sonido' : 'Silenciar sonido'">
-          @if (muted()) {
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z" fill="currentColor"/><path d="m22 9-6 6M16 9l6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-          } @else {
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-          }
-        </button>
-      </header>
+<main class="taps" #feed [attr.data-stage]="stageMode()" aria-labelledby="taps-h1">
+  <h1 id="taps-h1" class="visually-hidden">Taps de GEMS LMS: quizzes que juegas</h1>
+  @for (tap of taps(); track tap.id) {
+    @let run = runs()[tap.id];
+    @let feedback = !run.finished && run.chosen !== null;
+    <article class="tap" #section [attr.data-tap]="tap.id" [class.tap--active]="activeId() === tap.id" [class.tap--feedback]="feedback"
+             aria-roledescription="Tap" [attr.aria-label]="'Tap de ' + tap.title" [style.--bg-top]="tap.backdrop[0]" [style.--bg-bottom]="tap.backdrop[1]"
+             [style.--tap-display-font]="displayFont(tap)" [inert]="live() && activeId() !== tap.id"
+             (pointerdown)="onPress($event)" (pointerup)="onRelease($event)" (pointercancel)="onCancel()">
+      <div class="tap__stage" #slot aria-hidden="true"></div>
+      <div class="tap__mark" aria-hidden="true"><img src="/logo-64.png" width="44" height="44" alt="" decoding="async"><span>GEMS LMS · Taps</span></div>
+
+      <div class="tap__steps" role="img" [attr.aria-label]="run.finished ? 'Terminaste las ' + tap.questions.length + ' preguntas' : 'Pregunta ' + (run.index + 1) + ' de ' + tap.questions.length">
+        @for (q of tap.questions; track q.id; let k = $index) {
+          <i [class.is-ok]="run.answers[k] === true" [class.is-bad]="run.answers[k] === false" [class.is-now]="!run.finished && k === run.index && run.chosen === null"></i>
+        }
+      </div>
+
+      <div class="tap__world">
+        @if (feedback) {
+          @let ok = run.answers[run.answers.length - 1];
+          <p class="tap__pill" [class.is-bad]="!ok" aria-hidden="true">
+            @if (ok) { <svg viewBox="0 0 24 24" width="20" height="20"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg> }
+            @else { <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> }
+            {{ word(tap) }}
+          </p>
+          @if (ok && streakOf(tap) >= 3) { <p class="tap__streak" aria-hidden="true">x{{ streakOf(tap) }} seguidas</p> }
+        }
+        <p class="tap__pre" aria-hidden="true"><span class="tap__pre-ok">¡Exacto!</span><span class="tap__pre-bad">Casi...</span></p>
+
+        @if (!run.finished) {
+          <gems-tap-rail [topicName]="topicLabel(tap)" (more)="moreOf(tap)" (share)="shareTap(tap)" />
+          @if (notice(); as n) { @if (n.tapId === tap.id) { <p class="tap__toast" role="status">{{ n.text }}</p> } }
+        }
+      </div>
 
       <div class="tap__panel">
         @if (!run.finished) {
           @let q = tap.questions[run.index];
-          <p class="tap__kicker">{{ tap.kicker }} · {{ tap.title }} · {{ run.index + 1 }}/{{ tap.questions.length }}</p>
-          <h2 class="tap__q" tabindex="-1" [id]="'q-' + tap.id">{{ q.q }}</h2>
-          <div class="tap__opts" role="group" [attr.aria-labelledby]="'q-' + tap.id">
-            @for (o of q.options; track $index; let k = $index) {
-              <button type="button" class="tap__opt" [disabled]="run.chosen !== null"
-                      [class.is-ok]="run.chosen !== null && k === q.answer"
-                      [class.is-bad]="run.chosen === k && k !== q.answer"
-                      (click)="choose(tap, k)">
-                <span class="tap__key" aria-hidden="true">{{ letter(k) }}</span>
-                <span class="tap__label">{{ o }}</span>
-                @if (run.chosen !== null && k === q.answer) { <span class="visually-hidden">Respuesta correcta</span> }
-                @if (run.chosen === k && k !== q.answer) { <span class="visually-hidden">Tu respuesta, incorrecta</span> }
-              </button>
-            }
-          </div>
-          @if (run.chosen !== null) {
-            <p class="tap__why" role="status"><strong>{{ run.chosen === q.answer ? '¡Bien!' : 'Casi.' }}</strong> {{ q.why }}</p>
-            <button type="button" class="tap__next" (click)="next(tap)">{{ isLast(tap) ? 'Ver mi título' : 'Siguiente pregunta' }}</button>
-          }
-        } @else {
-          @let r = result(tap);
-          <p class="tap__kicker">{{ tap.title }} · {{ run.score }} de {{ tap.questions.length }} aciertos</p>
-          <h2 class="tap__title" tabindex="-1">{{ r.title }}</h2>
-          <p class="tap__line">{{ r.line }}</p>
-          <div class="tap__actions">
-            @if (hasNextTap(tap)) {
-              <button type="button" class="tap__next" (click)="goNext(tap)">
-                Siguiente Tap
-                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-            } @else {
-              <a class="tap__next" routerLink="/">Ver los cursos gratis de GEMS</a>
-            }
-            <div class="tap__row">
-              <button type="button" class="tap__ghost" (click)="restart(tap)">Repetir</button>
-              <button type="button" class="tap__ghost" (click)="share(tap)">Compartir</button>
+          @if (feedback && run.chosen !== q.answer) {
+            <div class="tap__card">
+              <p class="tap__over">La correcta era</p>
+              <p class="tap__chip" [attr.data-k]="q.answer">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><use [attr.href]="'#shape-' + q.answer"/></svg>{{ q.options[q.answer] }}
+              </p>
+              <p class="tap__why">{{ q.why }}</p>
             </div>
+          } @else {
+            @for (cur of [q]; track cur.id) {
+              <div class="tap__bubble">
+                <p class="tap__over">Pregunta {{ run.index + 1 }} de {{ tap.questions.length }} · <span class="tap__theme">{{ tap.title }}</span></p>
+                <h2 class="tap__q" tabindex="-1" [id]="'q-' + tap.id">{{ cur.q }}</h2>
+              </div>
+            }
+          }
+          <div class="tap__opts" role="group" [attr.aria-labelledby]="'q-' + tap.id" [attr.data-ans]="q.answer" [attr.data-layout]="layout(tap)" [class.is-answered]="feedback">
+            @for (o of q.options; track $index; let k = $index) {
+              <button type="button" class="tap__opt" [attr.data-k]="k" [attr.aria-disabled]="feedback"
+                      [class.is-ok]="feedback && k === q.answer" [class.is-bad]="run.chosen === k && k !== q.answer"
+                      [attr.aria-label]="'Opción ' + letter(k) + ', ' + shape(k) + ': ' + o" (click)="choose(tap, k)">
+                <svg class="tap__shape" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><use [attr.href]="'#shape-' + k"/></svg>
+                <span class="tap__label">{{ o }}</span>
+                @if (feedback && k === q.answer) { <svg class="tap__mark-ok" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,.35)"/><path d="m6.5 12.5 3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg> }
+                @if (run.chosen === k && k !== q.answer) { <svg class="tap__mark-ok" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> }
+                @if (k === 3 && showTouchHint(tap)) { <span class="tap__touch" aria-hidden="true"><i></i><b>Toca tu respuesta</b></span> }
+              </button>
+            }
           </div>
-          @if (notice(); as n) { <p class="tap__notice" role="status">{{ n }}</p> }
-          @if (hasNextTap(tap)) { <p class="tap__hint" aria-hidden="true">o desliza hacia abajo</p> }
+          @if (feedback) {
+            @if (wait(); as w) {
+              @if (w.tapId === tap.id) {
+                @for (key of [w.key]; track key) {
+                  <div class="tap__wait" [class.is-paused]="waitPaused()" [style.--wait]="w.ms + 'ms'" aria-hidden="true"><i></i></div>
+                }
+              }
+            }
+            <button type="button" class="tap__go" (click)="skip()">{{ run.index >= tap.questions.length - 1 ? 'Ver mi título' : 'Seguir' }}</button>
+          }
+          <p class="visually-hidden" aria-live="polite">
+            @if (feedback) {
+              @if (run.chosen === q.answer) { Correcto. } @else { Incorrecto. La correcta era {{ q.options[q.answer] }}. {{ q.why }} }
+            }
+          </p>
+        } @else {
+          <gems-tap-result [tap]="tap" [run]="run" [topicName]="topicLabel(tap)" [hasNext]="!!nextTap(tap)"
+                           [notice]="notice()?.tapId === tap.id ? notice() : null"
+                           (challenge)="challenge(tap)" (again)="restart(tap)" (more)="moreOf(tap)" (next)="goNext(tap)" />
         }
       </div>
-    </section>
+
+      @if (run.finished && teach() && nextTap(tap); as up) {
+        <button type="button" class="tap__peek" [style.--peek]="up.backdrop[0]" (click)="goNext(tap)" [attr.aria-label]="'Siguiente Tap: ' + up.title">
+          <span>{{ up.title }}</span>
+        </button>
+      }
+    </article>
   }
 </main>
+
+<svg width="0" height="0" style="position: absolute" aria-hidden="true">
+  <symbol id="shape-0" viewBox="0 0 24 24"><path d="M12 3 22.5 20.5h-21Z" fill="currentColor"/></symbol>
+  <symbol id="shape-1" viewBox="0 0 24 24"><path d="M12 1.5 22.5 12 12 22.5 1.5 12Z" fill="currentColor"/></symbol>
+  <symbol id="shape-2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/></symbol>
+  <symbol id="shape-3" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2.5" fill="currentColor"/></symbol>
+</svg>
+
+<div class="taps__rotate" role="status">
+  <svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true"><rect x="15" y="6" width="18" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M38 30a14 14 0 0 1-12 12m0 0 4-4m-4 4 4 4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <p>Gira el celular para jugar</p>
+</div>

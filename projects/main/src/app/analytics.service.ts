@@ -15,8 +15,8 @@ interface IGoatCounter {
 
 /** Acciones clave del embudo, para medir conversión y no solo visitas. */
 export type TAnalyticsEvent = 'empezar-gratis' | 'cuenta-creada' | 'solicitud-institucion'
-  // Taps (feed de quizzes en vivo): ver un Tap, responder una pregunta, completarlo y pasar al siguiente.
-  | 'taps-ver' | 'taps-responder' | 'taps-completar' | 'taps-siguiente';
+  // Taps (feed de quizzes en vivo): ver un Tap, responder una pregunta, completarlo, pasar al siguiente y retar/compartir.
+  | 'taps-ver' | 'taps-responder' | 'taps-completar' | 'taps-siguiente' | 'taps-compartir';
 
 const SCRIPT_ID = 'goatcounter-script';
 const NUMERIC_OR_UUID = /^(\d+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;

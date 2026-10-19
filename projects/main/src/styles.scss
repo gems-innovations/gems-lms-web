@@ -733,3 +733,68 @@ body:has([aria-modal='true'], .cbm__overlay, .modal-overlay) .app-tour-button { 
   // La barra «Guardar mi avance» del invitado tampoco debe tapar la lista de lecciones del panel de avance.
   body:has(.course-player-container__progress--open) gems-guest-save-bar .gsb { display: none; }
 }
+
+// Taps (/taps): el aviso «Sin conexión» del LMS baja bajo la barra del Tap (antes tapaba volver y sonido).
+html.taps-page .connection-notice { top: calc(max(8px, env(safe-area-inset-top)) + 66px); max-width: calc(100vw - 24px); font-size: 13px; }
+
+// Botones de icono «glass» de GEMS (Taps: barra superior, riel lateral y selector de temas). Nombres simples
+// (.glass, --glass-*) para unificarlos con el sistema visual del sitio. Sin blur cuando el navegador no lo soporta,
+// con prefers-reduced-transparency o cuando Taps pasa a modo ligero o se degrada (html[data-glass='off']).
+html.taps-page {
+  --glass-bg: rgba(255, 255, 255, .13);
+  --glass-bg-solid: rgba(22, 26, 38, .86);
+  --glass-border: rgba(255, 255, 255, .24);
+  --glass-shine: inset 0 1px 0 rgba(255, 255, 255, .3);
+  --glass-shadow: 0 6px 18px rgba(0, 0, 0, .28);
+  --glass-blur: blur(14px) saturate(160%);
+  --gems-grad: linear-gradient(135deg, #5646d8, #1a77ad);
+  --gems-glow: 0 0 18px rgba(196, 113, 237, .5);
+}
+html.taps-page .glass {
+  color: #fff;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shine), var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  transition: transform .12s ease, filter .12s ease, background .2s ease;
+}
+html.taps-page .glass:active { transform: scale(.94); filter: brightness(1.2); }
+html.taps-page .glass.is-on,
+html.taps-page .glass[aria-pressed='true'] {
+  background: var(--gems-grad);
+  border-color: rgba(255, 255, 255, .45);
+  box-shadow: var(--glass-shine), var(--gems-glow);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  html.taps-page .glass:not(.is-on):not([aria-pressed='true']) { background: var(--glass-bg-solid); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  html.taps-page .glass { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  html.taps-page .glass:not(.is-on):not([aria-pressed='true']) { background: var(--glass-bg-solid); }
+}
+html.taps-page[data-glass='off'] .glass { -webkit-backdrop-filter: none; backdrop-filter: none; }
+html.taps-page[data-glass='off'] .glass:not(.is-on):not([aria-pressed='true']) { background: var(--glass-bg-solid); }
+@media (prefers-reduced-motion: reduce) {
+  html.taps-page .glass { transition: none; }
+  html.taps-page .glass:active { transform: none; }
+}
+
+// Taps: respuesta dada antes de que Angular hidrate (script de index.html). Global porque esas clases las pone ese script.
+html.taps-page .tap__opt.pre-ok { --c: #2FBF71; --ink: #06210f; opacity: 1; }
+html.taps-page .tap__opt.pre-bad { --c: #D1343A; --ink: #fff; opacity: 1; }
+html.taps-page .tap[data-pre] .tap__opt:not(.pre-ok):not(.pre-bad) { opacity: .25; }
+html.taps-page .tap[data-pre] .tap__touch { display: none; }
+html.taps-page .tap[data-pre] .tap__pre { display: inline-flex; }
+html.taps-page .tap[data-pre='bad'] .tap__pre { color: #fff; background: #D1343A; }
+html.taps-page .tap[data-pre='ok'] .tap__pre-bad, html.taps-page .tap[data-pre='bad'] .tap__pre-ok { display: none; }
+
+// Taps con el celular en horizontal: aviso «Gira el celular» (experiencia-ux.md §9). En escritorio con zoom se juega con scroll.
+html.taps-page .taps__rotate { display: none; }
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  html.taps-page .taps__rotate {
+    position: fixed; inset: 0; z-index: 9; display: grid; place-content: center; justify-items: center; gap: 10px;
+    background: #0e1116; color: #fff; font-size: 1.15rem; font-weight: 700; text-align: center;
+  }
+  html.taps-page .taps__rotate p { margin: 0; }
+}
