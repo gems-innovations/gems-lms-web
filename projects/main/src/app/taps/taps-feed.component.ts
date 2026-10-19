@@ -5,7 +5,8 @@ import {
 } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AnalyticsService } from '../analytics.service';
+import { AnalyticsService, TAnalyticsEvent } from '../analytics.service';
+import { TEventPath, eventSlug } from '../analytics-taxonomy';
 import { AdvanceClock, TAP_RHYTHM, advanceDelay, browserClockHost } from './taps.clock';
 import { loadTapsEngine, tapsThemeUrl } from './taps-engine.loader';
 import { TAP_DISPLAY_FONTS, TAP_TOPICS, TAPS } from './taps.data';
@@ -111,6 +112,9 @@ export class TapsFeedComponent {
   private readonly shareFiles = new Map<string, File>();
   private readonly clock = new AdvanceClock(browserClockHost, () => this.advance());
   private clockTap: ITap | null = null;
+  private completedThisSession = 0;
+  private firstTouchCounted = false;
+  private stageErrorCounted = false;
   /** Ya se agregó una entrada al historial al dejar el primer Tap (Atrás vuelve a él una vez y luego sale). */
   private pushed = false;
 
@@ -195,7 +199,8 @@ export class TapsFeedComponent {
     const pre = this.takePreAnswer(tap, option);
     this.setRun(tap, run);
     this.notice.set(null);
-    this.analytics.event('taps-responder');
+    this.track('taps-responder', `taps/responder/${eventSlug(tap.id)}/${run.answers.length}`);
+    this.countFirstTouch(pre);
     if (this.sound() === 'pending') { this.sound.set('on'); this.stage?.setMuted(false); }   // el primer toque enciende el sonido
     if (!pre) this.vibrate(correct);
     if (tap.id === this.activeId()) this.stage?.react(correct ? 'celebrate' : 'hurt', { say: false });
@@ -214,6 +219,7 @@ export class TapsFeedComponent {
   protected skip(): void { this.clock.flush(); }
 
   protected restart(tap: ITap): void {
+    this.track(null, `taps/repetir/${eventSlug(tap.id)}`);
     this.setRun(tap, startRun(tap));
     this.questionShownAt = performance.now();
     this.stage?.say('');
@@ -244,7 +250,9 @@ export class TapsFeedComponent {
     if (run === this.run(tap)) return;
     this.setRun(tap, run);
     if (run.finished) {
-      this.analytics.event('taps-completar');
+      this.track('taps-completar', `taps/completar/${eventSlug(tap.id)}`);
+      this.completedThisSession++;
+      if ([1, 2, 3, 4, 6, 10].includes(this.completedThisSession)) this.track(null, `taps/hito/${this.completedThisSession}`);
       this.onFinished(tap, run);
       this.focusLater(tap, '.res__title');
     } else {
@@ -308,11 +316,13 @@ export class TapsFeedComponent {
   /** Mientras se elige tema, la cuenta atrás espera. */
   protected onSheet(open: boolean): void {
     this.sheetOpen.set(open);
+    if (open) this.track(null, 'taps/tema/abrir');
     if (open) this.clock.pause(); else if (!this.held) this.clock.resume();
   }
 
   /** Elige categoría: el feed vuelve arriba con esos Taps primero y la URL queda enlazable (`/taps?tema=minecraft`). */
   protected selectTopic(id: string | null): void {
+    this.track(null, `taps/tema/elegir/${id ? eventSlug(id) : 'para-ti'}`);
     this.clock.flush();
     this.topic.set(id);
     this.taps.set(orderFeed(TAPS, { topic: id, hookDone: this.hookDone || this.anyFinished() }));
@@ -324,15 +334,16 @@ export class TapsFeedComponent {
   // ───────────── compartir ─────────────
   /** «Retar a un amigo»: imagen 9:16 + texto + enlace al mismo Tap. Si no se puede compartir, copia y ofrece la imagen. */
   protected async challenge(tap: ITap): Promise<void> {
-    this.analytics.event('taps-compartir');
+    this.track('taps-compartir', `taps/compartir/${eventSlug(tap.id)}`);
     const run = this.run(tap), url = shareUrl(location.origin, tap.id), file = this.shareFiles.get(tap.id);
     const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
     try {
       if (file && nav.share && nav.canShare?.({ files: [file] })) {
         await nav.share({ files: [file], title: 'Taps de GEMS LMS', text: shareText(tap, run, url) });
+        this.track(null, 'taps/compartir-ok/nativo');
         return;
       }
-      if (nav.share) { await nav.share({ title: 'Taps de GEMS LMS', text: shareText(tap, run), url }); return; }
+      if (nav.share) { await nav.share({ title: 'Taps de GEMS LMS', text: shareText(tap, run), url }); this.track(null, 'taps/compartir-ok/nativo'); return; }
     } catch (error) {
       if ((error as DOMException)?.name === 'AbortError') return;      // la persona cerró el menú
     }
@@ -341,10 +352,10 @@ export class TapsFeedComponent {
 
   /** Compartir desde el riel (a mitad del Tap): solo el enlace, sin resultado. */
   protected async shareTap(tap: ITap): Promise<void> {
-    this.analytics.event('taps-compartir');
+    this.track('taps-compartir', `taps/compartir/${eventSlug(tap.id)}`);
     const url = shareUrl(location.origin, tap.id), text = `Juega este Tap de GEMS LMS: ${tap.title}. ¿Cuántas sacas de ${tap.questions.length}?`;
     try {
-      if (navigator.share) { await navigator.share({ title: 'Taps de GEMS LMS', text, url }); return; }
+      if (navigator.share) { await navigator.share({ title: 'Taps de GEMS LMS', text, url }); this.track(null, 'taps/compartir-ok/nativo'); return; }
     } catch (error) {
       if ((error as DOMException)?.name === 'AbortError') return;
     }
@@ -354,7 +365,7 @@ export class TapsFeedComponent {
   /** Sin menú de compartir: copia el texto y ofrece la imagen para descargar; si tampoco hay portapapeles, muestra el enlace. */
   private async copy(tap: ITap, text: string, url: string, file?: File): Promise<void> {
     let copied = false;
-    try { await navigator.clipboard.writeText(text); copied = true; } catch { /* sin portapapeles: se muestra el enlace */ }
+    try { await navigator.clipboard.writeText(text); copied = true; this.track(null, 'taps/compartir-ok/copiado'); } catch { /* sin portapapeles: se muestra el enlace */ }
     const download = file ? URL.createObjectURL(file) : undefined;
     this.notice.set({ tapId: tap.id, text: copied ? 'Copiado. Pégalo en WhatsApp o donde quieras.' : `Copia y envía este enlace: ${url}`, download });
   }
@@ -456,8 +467,8 @@ export class TapsFeedComponent {
     this.activeId.set(tap.id);
     if (this.notice()?.tapId !== tap.id) this.notice.set(null);
     this.syncUrl(tap, previous);
-    if (!this.seen.has(tap.id)) { this.seen.add(tap.id); this.analytics.event('taps-ver'); }
-    if (previous >= 0 && index > previous) this.analytics.event('taps-siguiente');
+    if (!this.seen.has(tap.id)) { this.seen.add(tap.id); this.track('taps-ver', `taps/ver/${eventSlug(tap.id)}`); }
+    if (previous >= 0 && index > previous) this.track('taps-siguiente', 'taps/siguiente');
     try {
       const stage = await this.ensureStage(tap);
       if (token !== this.token || !stage) return;
@@ -470,6 +481,7 @@ export class TapsFeedComponent {
       this.preloadNext(index);
     } catch {
       this.stageMode.set('none');                              // sin escenario el quiz sigue funcionando en DOM
+      this.stageError('error/motor');
     }
   }
 
@@ -507,7 +519,10 @@ export class TapsFeedComponent {
     stage.on('mode', data => {
       this.stageMode.set(data.mode ?? 'light');
       performance.mark?.('taps-stage-' + data.mode);
-      if (data.mode === 'light') this.glassOff();                    // modo ligero: botones sin blur
+      if (data.mode === 'light') {
+        this.glassOff();                                             // modo ligero: botones sin blur
+        this.stageError(/webgl/i.test(data.reason ?? '') ? 'error/webgl' : 'error/modo-ligero');
+      }
     });
     stage.on('degrade', () => this.glassOff());                     // el 3D va justo: el blur sobre el canvas cuesta fps
     await stage.ready;
@@ -539,6 +554,31 @@ export class TapsFeedComponent {
       const current = this.runs();
       this.runs.set({ ...current, ...Object.fromEntries(Object.entries(valid).filter(([id]) => current[id].answers.length === 0)) });
     } catch { /* sin sessionStorage se empieza de cero */ }
+  }
+
+  /**
+   * Medición (producto/retencion/plan-retencion.md): la taxonomía con detalle en el path y, mientras conviven, el nombre
+   * antiguo del evento (`taps-ver`, `taps-compartir`…) para no cortar las series que ya existen.
+   */
+  private track(legacy: TAnalyticsEvent | null, path: TEventPath): void {
+    if (legacy) this.analytics.event(legacy);
+    this.analytics.event(path);
+  }
+
+  /** `taps/primer-toque/<tramo>`: primera respuesta de la sesión, contada desde que la pregunta responde (taps-interactive). */
+  private countFirstTouch(pre: IPreAnswer | null): void {
+    if (this.firstTouchCounted) return;
+    this.firstTouchCounted = true;
+    const start = performance.getEntriesByName?.('taps-interactive')[0]?.startTime ?? 0;
+    const ms = (pre ? pre.t : performance.now()) - start;
+    this.track(null, `taps/primer-toque/${ms < 3000 ? '0-3s' : ms < 10000 ? '3-10s' : '10s+'}`);
+  }
+
+  /** El escenario cayó a modo ligero o el motor no cargó (el quiz sigue): se cuenta una vez por sesión. */
+  private stageError(path: TEventPath): void {
+    if (this.stageErrorCounted) return;
+    this.stageErrorCounted = true;
+    this.track(null, path);
   }
 
   private glassOff(): void { this.document.documentElement.setAttribute('data-glass', 'off'); }

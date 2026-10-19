@@ -13,7 +13,8 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     // iPhone con el motor de Safari: el 40 % de las visitas reales llega desde iOS. Corre en Linux (CI); en Windows le falta libxml2.
-    { name: 'iphone-webkit', testMatch: /mobile-public\.spec\.ts/, use: { ...devices['iPhone 13'] } },
+    // También corre la primera sesión de Taps (retencion-primera-sesion.spec.ts).
+    { name: 'iphone-webkit', testMatch: /(mobile-public|retencion-primera-sesion)\.spec\.ts/, use: { ...devices['iPhone 13'] } },
   ],
   // Con E2E_BASE_URL (p. ej. producción) no se levanta el servidor local.
   webServer: process.env.E2E_BASE_URL ? undefined : {

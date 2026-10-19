@@ -53,6 +53,22 @@ const SYNTH = {
   whoosh: (s) => s.whoosh(.25, .2, 500, 2400),
   result: (s) => { [392, 523, 659, 784].forEach((f, k) => s.tone('triangle', f, f, .22, .12, k * .12)); },
 };
+export const SYNTH_NAMES = Object.freeze(Object.keys(SYNTH));
+/**
+ * Decide cómo suena `name` en un tema (puro, para poder probarlo):
+ *   · `files`  → archivo del tema (con `synth` de respaldo si el navegador no lo decodifica)
+ *   · `tones`  → tonos sintetizados definidos en el propio tema: [[onda, f0, f1, dur, vol, retraso], …]  (sin archivos)
+ *   · `noise`  → ráfaga de ruido filtrado [dur, vol, f0, f1] (un «fiu» o un chispazo); se puede sumar a `tones`
+ *   · `synth`  → uno de los sintetizados del motor (SYNTH_NAMES)
+ * Sin definición en el tema se usa el sintetizado del motor con ese nombre, si existe.
+ */
+export function resolveSound(theme, name) {
+  const def = theme?.sounds?.[name];
+  if (def?.files?.length) return { kind: 'file', files: def.files, vol: def.vol ?? 1, synth: SYNTH[def.synth] ? def.synth : null };
+  if (Array.isArray(def?.tones) || Array.isArray(def?.noise)) return { kind: 'tones', tones: def.tones || [], noise: def.noise || null, vol: def.vol ?? 1 };
+  const synth = def?.synth ?? name;
+  return SYNTH[synth] ? { kind: 'synth', synth } : { kind: 'none' };
+}
 class Sound {
   constructor(theme, resolve) { this.theme = theme; this.resolve = resolve; this.ac = null; this.muted = false; this.bufs = new Map(); this.pending = new Map(); this.master = null; }
   /** El navegador solo deja crear el AudioContext tras un gesto del usuario. */
@@ -87,15 +103,16 @@ class Sound {
   /** Reproduce un sonido del tema (archivos) o uno sintetizado del motor. Si el navegador no decodifica el archivo (p. ej. .ogg en Safari) usa la versión sintetizada. */
   play(name, o = {}) {
     if (!this.ac || this.muted) return;
-    const def = this.theme.sounds?.[name];
-    if (def?.files?.length) {
-      const file = pick(def.files), buf = this.bufs.get(file);
-      if (buf) { const s = this.ac.createBufferSource(), g = this.ac.createGain(); s.buffer = buf; s.playbackRate.value = (o.rate || 1) * (.94 + Math.random() * .12); g.gain.value = (def.vol ?? 1) * (o.vol ?? 1); s.connect(g); g.connect(this.master); s.start(); return; }
+    const plan = resolveSound(this.theme, name);
+    if (plan.kind === 'file') {
+      const file = pick(plan.files), buf = this.bufs.get(file);
+      if (buf) { const s = this.ac.createBufferSource(), g = this.ac.createGain(); s.buffer = buf; s.playbackRate.value = (o.rate || 1) * (.94 + Math.random() * .12); g.gain.value = plan.vol * (o.vol ?? 1); s.connect(g); g.connect(this.master); s.start(); return; }
       if (buf === undefined) this.load(file);
-      if (def.synth && SYNTH[def.synth]) SYNTH[def.synth](this);
-      return;
-    }
-    (SYNTH[name] || (() => {}))(this);
+      if (plan.synth) SYNTH[plan.synth](this);
+    } else if (plan.kind === 'tones') {
+      for (const [type = 'sine', f0 = 440, f1 = f0, dur = .1, vol = .12, delay = 0] of plan.tones) this.tone(type, f0, f1, dur, vol * plan.vol, delay);
+      if (plan.noise) this.whoosh(...plan.noise);
+    } else if (plan.kind === 'synth') SYNTH[plan.synth](this);
   }
   /** Descarga y decodifica por adelantado los archivos de estos sonidos (tras el primer gesto, sin bloquear nada). */
   warm(names) { if (!this.ac) return; for (const n of names) (this.theme.sounds?.[n]?.files || []).forEach(f => this.load(f)); }
@@ -108,11 +125,14 @@ function burst(list, x, y, kind, colors) {
   else if (kind === 'hit') make(16, i => { const a = Math.random() * Math.PI * 2, v = 220 + Math.random() * 300; return { x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 120, g: 900, life: .5, max: .5, c: colors[i % colors.length], s: 7 + Math.random() * 8 }; });
   else if (kind === 'poof') make(14, i => { const a = Math.random() * Math.PI * 2, v = 90 + Math.random() * 120; return { x, y, vx: Math.cos(a) * v, vy: -60 - Math.random() * 160, g: -40, life: .9, max: .9, c: colors[i % colors.length], s: 20 + Math.random() * 16 }; });
 }
-function drawParticles(ctx, list, dt, scale) {
+function drawParticles(ctx, list, dt, scale, shape = 'square') {
   for (let i = list.length - 1; i >= 0; i--) {
     const q = list[i]; q.life -= dt; if (q.life <= 0) { list.splice(i, 1); continue; }
     q.vy += q.g * dt; q.x += q.vx * dt; q.y += q.vy * dt;
-    ctx.globalAlpha = Math.min(1, q.life / q.max * 1.4); ctx.fillStyle = q.c; const s = q.s * scale; ctx.fillRect(q.x - s / 2, q.y - s / 2, s, s);
+    ctx.globalAlpha = Math.min(1, q.life / q.max * 1.4); ctx.fillStyle = q.c; const s = q.s * scale;
+    if (shape === 'round' || (shape === 'mixed' && i % 2)) { ctx.beginPath(); ctx.arc(q.x, q.y, s / 2, 0, Math.PI * 2); ctx.fill(); }
+    else if (shape === 'mixed') { ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.life * 6 + i); ctx.fillRect(-s / 2, -s / 4, s, s / 2); ctx.restore(); }
+    else ctx.fillRect(q.x - s / 2, q.y - s / 2, s, s);
   }
   ctx.globalAlpha = 1;
 }
@@ -124,6 +144,11 @@ function ensureCss() {
   if (cssLoaded || typeof document === 'undefined') return; cssLoaded = true;
   const href = new URL('taps-engine.css', BASE).href;
   if (!document.querySelector(`link[href="${href}"]`)) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l); }
+}
+/** Hoja de estilos propia del tema (opcional, `css` en theme.json): se pide una sola vez y nunca bloquea el pintado. */
+function ensureThemeCss(href) {
+  if (typeof document === 'undefined' || document.querySelector(`link[data-te-theme="${href}"]`)) return;
+  const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; l.dataset.teTheme = href; document.head.appendChild(l);
 }
 function loadScript(src) {
   return new Promise((ok, no) => {
@@ -145,6 +170,7 @@ export function create(container, opts = {}) {
   container.appendChild(root);
   const q = s => root.querySelector(s), bgEl = q('.te-bg'), lightEl = q('.te-light'), charEl = q('.te-char'), glEl = q('.te-gl'), fxEl = q('.te-fx'), bubbleEl = q('.te-bubble');
   const reduced = opts.reducedMotion ?? (typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  if (reduced) root.dataset.reduced = '1';      // la opción `reducedMotion` apaga también las animaciones CSS, no solo la media query
   const listeners = new Map();
   const emit = (n, d) => { opts.onEvent?.(n, d); (listeners.get(n) || []).forEach(f => { try { f(d); } catch { /* un oyente roto no tumba el motor */ } }); };
 
@@ -155,7 +181,7 @@ export function create(container, opts = {}) {
   };
   let themeUrl = null, renderer = null, sound = null, particles = [], ctx2d = null, size = { w: 540, h: 960 }, fpsCap = 30;
   let raf = 0, last = 0, runUntil = 0, bubbleTimer = 0, bubbleAnchor = null, typeTimer = 0, reactTimer = 0, loopReact = null;
-  let winT = 0, fpsN = 0, fpsT = 0, fpsNow = 0, slowFrames = 0, frames = 0, degraded = 0, hostImg = null, lastSkinKey = null;
+  let winT = 0, fpsN = 0, fpsT = 0, fpsNow = 0, slowFrames = 0, frames = 0, degraded = 0, hostImg = null, lastSkinKey = null, lightMod = null, lightOpts = {};
   const resolveTheme = rel => new URL(rel, themeUrl).href;
 
   // ── tema ──
@@ -169,6 +195,9 @@ export function create(container, opts = {}) {
     }
     else { themeUrl = new URL(t.__url || location.href); }
     S.theme = t;
+    if (t.id) root.dataset.theme = t.id;
+    if (t.css) ensureThemeCss(resolveTheme(t.css));
+    if (t.font?.family) root.style.setProperty('--te-font', `'${t.font.family}'`);
     if (t.font?.src && !FONTS.has(t.font.family)) {
       FONTS.add(t.font.family);
       try { const f = new FontFace(t.font.family, `url(${resolveTheme(t.font.src)})`, { display: 'swap' }); f.load().then(ff => document.fonts.add(ff)).catch(() => {}); } catch { /* sin fuente propia se usa la del sistema */ }
@@ -186,14 +215,18 @@ export function create(container, opts = {}) {
     root.style.setProperty('--te-ground', sc.ground || '#4a8f2a'); root.style.setProperty('--te-ground-dark', sc.groundDark || '#6b4a2b');
     root.style.setProperty('--te-sun', sc.sun === false ? '0' : '.9'); root.dataset.world = world;
   }
-  async function paintCharacter(key) {
-    const t = S.theme, chars = t.characters || {}, id = chars[key] ? key : Object.keys(chars)[0]; if (!id) return;
-    if (lastSkinKey === id) return; lastSkinKey = id;
+  async function paintCharacter(spec = {}) {
+    const t = S.theme, chars = t.characters || {}, id = chars[spec.host] ? spec.host : Object.keys(chars)[0]; if (!id) return;
+    const key = id + '|' + (spec.item || ''); if (lastSkinKey === key) return; lastSkinKey = key;
     try {
-      const [img, mod] = await Promise.all([loadImage(resolveTheme(chars[id].skin)), t.light ? import(resolveTheme(t.light)) : null]);
-      hostImg = img; mod?.paintCharacter?.(charEl, img, { slim: chars[id].slim });
+      // `skin` es opcional: un tema dibujado por código (sin imágenes) recibe `null` y la definición del personaje en las opciones
+      const [img, mod] = await Promise.all([chars[id].skin ? loadImage(resolveTheme(chars[id].skin)) : null, t.light ? import(resolveTheme(t.light)) : null]);
+      hostImg = img; lightMod = mod; lightOpts = { slim: chars[id].slim, id, character: chars[id], item: spec.item, world: spec.world, theme: t };
+      mod?.paintCharacter?.(charEl, img, lightOpts);
     } catch { /* sin personaje 2D se queda el fondo */ }
   }
+  /** Opcional en light.js: `paintReaction(canvas, anim, opciones)` cambia la pose/cara 2D en cada reacción (también con movimiento reducido). */
+  function lightPose(anim) { try { lightMod?.paintReaction?.(charEl, anim, lightOpts); } catch { /* la pose es un extra */ } }
   function lightAnim(cls, ms) {
     lightEl.classList.remove('te-celebrate', 'te-hurt', 'te-think', 'te-talk'); void lightEl.offsetWidth; if (cls && !reduced) lightEl.classList.add(cls);
     if (!cls || cls === 'te-think' || cls === 'te-talk') return; if (ms) setTimeout(() => lightEl.classList.remove(cls), ms);
@@ -229,15 +262,18 @@ export function create(container, opts = {}) {
     const tier = opts.mode === '3d' ? (pickTier() === 'light' ? 'low' : pickTier()) : pickTier();
     S.tier = tier;
     if (tier === 'light') return fallback('dispositivo ligero');
-    if (!t.renderer || !t.vendor?.skinview3d) return fallback('el tema no trae renderizador 3D');
-    if (!webglWorks()) return fallback('WebGL no disponible');
+    // `canvas: '2d'` = el renderizador dibuja con Canvas 2D (sin WebGL ni librerías). Sin el campo se asume WebGL, como siempre.
+    const kind = t.canvas === '2d' ? '2d' : 'webgl'; S.canvas = kind;
+    if (!t.renderer || (kind === 'webgl' && !t.vendor)) return fallback('el tema no trae renderizador animado');
+    if (kind === 'webgl' && !webglWorks()) return fallback('WebGL no disponible');
     try {
       const cfg = TIERS[tier]; size = { w: cfg.w, h: cfg.h }; fpsCap = cfg.fps;
-      const [, mod] = await Promise.all([loadScript(resolveTheme(t.vendor.skinview3d)), import(resolveTheme(t.renderer))]);
+      const [, mod] = await Promise.all([Promise.all(Object.values(t.vendor || {}).map(v => loadScript(resolveTheme(v)))), import(resolveTheme(t.renderer))]);
       if (S.destroyed) return; performance.mark?.('te-libs'); await yieldMain();
       
       glEl.width = size.w; glEl.height = size.h; ctx2d = glEl.getContext('2d');
-      renderer = await mod.createRenderer({ canvas: glEl, width: size.w, height: size.h, theme: t, resolve: resolveTheme, skinview3d: globalThis.skinview3d, reducedMotion: reduced });
+      const vendor = Object.fromEntries(Object.keys(t.vendor || {}).map(k => [k, globalThis[k]]));
+      renderer = await mod.createRenderer({ canvas: glEl, width: size.w, height: size.h, theme: t, resolve: resolveTheme, skinview3d: globalThis.skinview3d, vendor, reducedMotion: reduced });
       if (S.destroyed) { renderer.dispose(); return; } performance.mark?.('te-renderer'); await yieldMain();
       
       if (S.scene) await renderer.setScene(S.scene);
@@ -264,7 +300,7 @@ export function create(container, opts = {}) {
     const el = now - last, min = 1000 / fpsCap; if (el < min - 2) return;
     last = now - (el % min); const dt = Math.min(.1, el / 1000), t0 = nowMs();
     renderer.frame(dt);
-    if (particles.length) drawParticles(ctx2d, particles, dt, size.w / 540);
+    if (particles.length) drawParticles(ctx2d, particles, dt, size.w / 540, S.theme.particles?.shape);
     placeBubble();
     fpsN++; if (now - fpsT >= 1000) { fpsNow = Math.round(fpsN * 1000 / (now - fpsT)); fpsN = 0; fpsT = now; root.dataset.fps = String(fpsNow); }
     // medición: si en la ventana de 90 fotogramas el promedio queda muy por debajo del tope, se baja la resolución y luego se pasa a ligero
@@ -291,7 +327,7 @@ export function create(container, opts = {}) {
   S.setScene = async function setScene(spec = {}) {
     await readyTheme; S.scene = { ...spec };
     paintBackdrop(spec.world || S.theme.defaultWorld);
-    const jobs = [paintCharacter(spec.host)];
+    const jobs = [paintCharacter(spec)];
     if (renderer) jobs.push(renderer.setScene(S.scene));
     await Promise.all(jobs); winT = 0; frames = 0; slowFrames = 0; wake(1200);
   };
@@ -316,7 +352,7 @@ export function create(container, opts = {}) {
     clearTimeout(reactTimer);
     const anim = reduced ? (def.reducedAnim || 'idle') : def.anim;
     if (renderer) { renderer.play(anim); (def.fx || []).forEach(f => !reduced && renderer.fx(f)); wake(Math.max(1500, (def.duration || 0) * 1000 + 300)); }
-    else lightAnim({ celebrate: 'te-celebrate', hurt: 'te-hurt', think: 'te-think', talk: 'te-talk' }[def.anim] || '', (def.duration || 1.2) * 1000);
+    else { lightAnim({ celebrate: 'te-celebrate', hurt: 'te-hurt', think: 'te-think', talk: 'te-talk' }[def.anim] || '', (def.duration || 1.2) * 1000); lightPose(anim); }
     (def.sfx || []).forEach(n => sound?.play(n));
     if (def.particles && !reduced) {
       const colors = t.palette?.[def.particles] || t.palette?.confetti || ['#fff'];
@@ -340,8 +376,8 @@ export function create(container, opts = {}) {
     try { renderer?.dispose(); } catch { /* ya liberado */ } renderer = null; try { sound?.ac?.close(); } catch { /* sin audio */ } root.remove();
   };
   S.snapshot = () => (S.mode === '3d' ? glEl.toDataURL('image/png') : null);
-  S.stats = () => ({ mode: S.mode, tier: S.tier, size, fpsCap, fps: fpsNow, degraded });
+  S.stats = () => ({ mode: S.mode, tier: S.tier, size, fpsCap, fps: fpsNow, degraded, canvas: S.canvas || null });
   return S;
 }
 
-export default { create, pickTier, TIERS };
+export default { create, pickTier, TIERS, resolveSound, SYNTH_NAMES };

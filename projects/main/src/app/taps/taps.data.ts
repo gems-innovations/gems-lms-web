@@ -1,5 +1,6 @@
 import { BLOQUES } from '../public/retos.data';
 import { ITap, ITapQuestion, ITapResult, ITapScene, ITapTopic } from './taps.types';
+import { TAPS_ESTUDIO } from './taps-estudio.data';
 
 /**
  * Los Taps. Agregar uno = agregar un objeto a TAPS (las preguntas pueden salir del banco ya existente por id).
@@ -44,7 +45,8 @@ function tap(t: { id: string; title: string; scene: ITapScene; backdrop: [string
  */
 export const TAP_TOPICS: ITapTopic[] = [
   { id: 'minecraft', name: 'Minecraft', blurb: 'Quiz de bloques', color: '#5fbf3a' },
-  { id: 'logica', name: 'Lógica', blurb: 'Piénsala bien', color: '#8b6cf0' },
+  { id: 'logica', name: 'Lógica y trampas', blurb: 'Piénsalo dos veces', color: '#8b6cf0' },
+  { id: 'ciencia', name: 'Ciencia curiosa', blurb: 'Datos que no esperabas', color: '#4de1ff' },
   { id: 'cultura', name: 'Cultura general', blurb: 'Datos que sorprenden', color: '#f0a43a' },
 ];
 
@@ -54,7 +56,37 @@ export const TAP_TOPICS: ITapTopic[] = [
  */
 export const TAP_DISPLAY_FONTS: Record<string, string> = {
   minecraft: "'Pixelify Sans', var(--tap-font)",
+  estudio: "'Rubik', var(--tap-font)",
 };
+
+/**
+ * Tema «estudio» (datos en taps-estudio.data.ts, compartidos con la demo del motor): aquí solo se le da su categoría del
+ * selector y se acortan los textos a los límites de Taps (pregunta ≤ 70, explicación ≤ 90, título nunca negativo).
+ */
+const ESTUDIO_TOPIC: Record<string, string> = { 'logica-trampas': 'logica', 'ciencia-curiosa': 'ciencia' };
+const ESTUDIO_EDITS: Record<string, Partial<Pick<ITapQuestion, 'q' | 'options' | 'why'>>> = {
+  bate: { q: 'Bate y pelota cuestan $1.100. El bate vale $1.000 más. ¿Y la pelota?',
+    why: '$50: el bate cuesta $1.050 y suman $1.100. Con $100 el total sería $1.200.' },
+  maquinas: { q: '5 máquinas hacen 5 piezas en 5 min. ¿100 máquinas, 100 piezas?',
+    why: '5 minutos: cada máquina hace una pieza en 5 minutos, todas a la vez.' },
+  algas: { q: 'Unas algas se duplican cada día y cubren el lago en 48. ¿Y la mitad?',
+    why: '47: si se duplican cada día, un día antes cubrían justo la mitad.' },
+  carrera: { options: ['Primero', 'Segundo', 'Tercero', 'Depende'] },
+  meses: { why: 'Los 12: todos tienen al menos 28 días. Febrero es el único que tiene solo 28.' },
+  venus: { why: 'Venus: gira sobre sí en unos 243 días y da la vuelta al Sol en unos 225.' },
+  hervir: { options: ['A nivel del mar', 'En una montaña', 'En una mina', 'En ninguna parte'],
+    why: 'Arriba hay menos presión: en Bogotá (2.600 m) el agua hierve cerca de 91 °C.' },
+};
+const ESTUDIO_TITLES: Record<string, string> = { 'Cayó en la trampa': 'Aprendiz de detective' };
+
+function forTaps(t: ITap): ITap {
+  return {
+    ...t,
+    topic: t.topic ?? ESTUDIO_TOPIC[t.id],
+    questions: t.questions.map(q => ({ ...q, ...ESTUDIO_EDITS[q.id] })),
+    results: t.results.map(r => ({ ...r, title: ESTUDIO_TITLES[r.title] ?? r.title })),
+  };
+}
 
 /** Id del Tap de gancho (primer Tap de alguien nuevo). */
 export const HOOK_TAP_ID = 'primeros-pasos';
@@ -106,4 +138,6 @@ export const TAPS: ITap[] = [
       { min: 5, title: 'Rey del Nether', line: 'Cero errores. Hasta el dragón te manda saludos.' },
     ],
   }),
+  // Tema «estudio» (otro estilo visual, mismo motor): Lógica y trampas, Ciencia curiosa
+  ...TAPS_ESTUDIO.map(forTaps),
 ];

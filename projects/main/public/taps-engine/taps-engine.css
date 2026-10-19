@@ -49,3 +49,7 @@
   .te-gl, .te-bubble { transition: none; }
   .te-fx { display: none; }
 }
+/* mismo efecto cuando la app pasa `reducedMotion: true` aunque el sistema no lo pida */
+.te-stage[data-reduced] .te-char, .te-stage[data-reduced] .te-light { animation: none !important; }
+.te-stage[data-reduced] .te-gl, .te-stage[data-reduced] .te-bubble { transition: none; }
+.te-stage[data-reduced] .te-fx { display: none; }
