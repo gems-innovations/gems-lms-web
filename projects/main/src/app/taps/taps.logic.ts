@@ -2,8 +2,11 @@ import { ITap, ITapResult, ITapRun, ITapTopic } from './taps.types';
 
 /** Lógica pura de un Tap (sin DOM ni motor): puntaje → título, avance de preguntas y validación del formato de datos. */
 
-/** Límites de texto (experiencia-ux.md §3.1, §3.2 y §5.4): se leen de un vistazo y caben en la zona del pulgar. */
-export const TAP_LIMITS = { question: 70, option: 40, optionGrid: 22, why: 90 } as const;
+/**
+ * Límites de texto (experiencia-ux.md §3.1, §3.2 y §5.4): se leen de un vistazo y caben en la zona del pulgar. La pregunta
+ * pasó de 70 a 120 con el banco (5 líneas a 375 px); el generador (scripts/generar-taps.mjs) aplica los mismos límites.
+ */
+export const TAP_LIMITS = { question: 120, option: 40, optionGrid: 22, why: 90 } as const;
 
 export function startRun(tap: ITap): ITapRun {
   return { tapId: tap.id, index: 0, chosen: null, score: 0, answers: [], finished: false };
@@ -61,23 +64,77 @@ export function topicOf(tap: ITap): string {
   return tap.topic ?? tap.theme;
 }
 
+/** Dificultad en número: facil 1, media 2, dificil 3 (sin dato = media). */
+const levelOf = (tap: ITap): number => ({ facil: 1, media: 2, dificil: 3 })[tap.level ?? 'media'];
+/**
+ * Diente de sierra (experiencia-ux.md §7.1): la dificultad sube y baja en vez de solo subir. Cada valor es un «cuantil» de
+ * la dificultad de los Taps de la categoría (0 = lo más fácil, 1 = lo más difícil): fácil, media, difícil, fácil, media,
+ * media, difícil... Al medirse contra los Taps que hay, las tres dificultades se reparten parejo y no se agotan las fáciles al principio.
+ */
+export const SAWTOOTH = [0.1, 0.4, 0.9, 0.2, 0.55, 0.65, 0.97] as const;
+
+/** Ordena los Taps de UNA categoría en diente de sierra: el gancho primero, luego la ola de dificultad. */
+export function sawtoothOrder(taps: readonly ITap[]): ITap[] {
+  const hooks = taps.filter(t => t.hook), rest = taps.filter(t => !t.hook);
+  const share = (n: number) => rest.length ? rest.filter(t => levelOf(t) === n).length / rest.length : 0;
+  const easy = share(1), middle = easy + share(2);
+  const out = [...hooks];
+  for (let step = 0; rest.length; step++) {
+    const quantile = SAWTOOTH[step % SAWTOOTH.length];
+    const wanted = quantile < easy ? 1 : quantile < middle ? 2 : 3;
+    let pick = 0, best = Infinity;
+    rest.forEach((t, i) => { const d = Math.abs(levelOf(t) - wanted); if (d < best) { best = d; pick = i; } });
+    out.push(rest.splice(pick, 1)[0]);
+  }
+  return out;
+}
+/** Máximo de Taps seguidos de la misma categoría en «Para ti». */
+export const MAX_SAME_TOPIC_IN_A_ROW = 2;
+
+/**
+ * Mezcla un conjunto de Taps para el feed «Para ti» (sin azar: el servidor y el navegador deben dar el mismo orden):
+ * - Nunca más de 2 seguidos de la misma categoría (salvo que solo quede una categoría).
+ * - Se escoge la categoría con más Taps por jugar (así ninguna se queda sola al final); a igualdad, la que lleva más tiempo sin salir.
+ * - Dentro de cada categoría los Taps van en diente de sierra (`sawtoothOrder`).
+ * - El Tap de gancho de cada categoría es el primero de esa categoría; con `hookDone` (ya jugó uno) los ganchos van al final.
+ */
+export function mixFeed(taps: readonly ITap[], opts: { hookDone?: boolean } = {}): ITap[] {
+  const hooks = taps.filter(t => t.hook);
+  const queued = opts.hookDone ? taps.filter(t => !t.hook) : [...taps];
+  const byTopic = new Map<string, ITap[]>();
+  for (const t of queued) byTopic.set(topicOf(t), [...(byTopic.get(topicOf(t)) ?? []), t]);
+  const queues = new Map([...byTopic].map(([topic, list]) => [topic, sawtoothOrder(list)]));
+  const lastSeen = new Map([...byTopic.keys()].map(topic => [topic, -1]));
+  const out: ITap[] = [];
+  while (out.length < queued.length) {
+    const lastTopic = out.length ? topicOf(out[out.length - 1]) : null;
+    const tail = out.slice(-MAX_SAME_TOPIC_IN_A_ROW);
+    const full = tail.length === MAX_SAME_TOPIC_IN_A_ROW && tail.every(t => topicOf(t) === lastTopic);
+    const open = [...queues.entries()].filter(([, q]) => q.length > 0);
+    const allowed = open.filter(([k]) => !(full && k === lastTopic));
+    const pool = allowed.length ? allowed : open;
+    const [topic, queue] = pool.sort((a, b) => b[1].length - a[1].length || lastSeen.get(a[0])! - lastSeen.get(b[0])!)[0];
+    out.push(queue.shift()!);
+    lastSeen.set(topic, out.length);
+  }
+  return opts.hookDone ? [...out, ...hooks] : out;
+}
+
 /**
  * Orden del feed:
  * 1. El Tap del enlace (`?t=`) va primero.
  * 2. Con `?tema=` van primero los Taps de esa categoría (el resto sigue después: el feed nunca se acaba de golpe).
- * 3. Alguien nuevo empieza por el Tap de gancho; quien ya lo jugó lo encuentra al final (no se le repite lo fácil).
+ * 3. Alguien nuevo empieza por un Tap de gancho (el de la categoría con más Taps); quien ya jugó uno los encuentra al final.
+ * 4. «Para ti» alterna categorías y sube y baja la dificultad (ver `mixFeed`).
  */
 export function orderFeed(taps: readonly ITap[], opts: { first?: string | null; topic?: string | null; hookDone?: boolean }): ITap[] {
-  const hooksLast = (list: ITap[]) => {
-    const hooks = list.filter(t => t.hook), rest = list.filter(t => !t.hook);
-    return opts.hookDone ? [...rest, ...hooks] : [...hooks, ...rest];
-  };
+  const mix = { hookDone: opts.hookDone };
   let list: ITap[];
   if (opts.topic && taps.some(t => topicOf(t) === opts.topic)) {
     const mine = taps.filter(t => topicOf(t) === opts.topic), others = taps.filter(t => topicOf(t) !== opts.topic);
-    list = [...hooksLast(mine), ...hooksLast(others)];
+    list = [...mixFeed(mine, mix), ...mixFeed(others, mix)];
   } else {
-    list = hooksLast([...taps]);
+    list = mixFeed(taps, mix);
   }
   return taps.some(t => t.id === opts.first) ? orderTaps(list, opts.first) : list;
 }

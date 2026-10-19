@@ -19,7 +19,8 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'privacidad',     renderMode: RenderMode.Prerender },
   // El feed de Taps: la primera pregunta llega ya pintada; el motor 3D solo se carga en el navegador.
   { path: 'taps',           renderMode: RenderMode.Prerender },
-  // Un Tap compartido (/t/nether): su propia tarjeta (título, descripción, imagen) y ese Tap primero.
+  // Un Tap compartido (/t/mc-nether-1): su propia tarjeta (título, descripción con la primera pregunta, imagen) y ese Tap
+  // primero. Se prerenderizan los 53 del banco (~81 KB c/u: el feed solo pinta el Tap pedido y el siguiente, no los 53).
   // Un id que no se prerenderizó (un Tap nuevo) recibe la shell y se pinta en el navegador.
   {
     path: 't/:id',

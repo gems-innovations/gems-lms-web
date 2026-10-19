@@ -1,0 +1,2111 @@
+{
+  "tema": "Minecraft",
+  "titulosResultado": [
+    {
+      "min": 0,
+      "title": "Explorador valiente",
+      "line": "Todo minero empezó picando tierra con la mano. ¡Otra ronda!"
+    },
+    {
+      "min": 2,
+      "title": "Minero del pueblo",
+      "line": "Ya sabes moverte. Un par de datos más y nadie te gana."
+    },
+    {
+      "min": 4,
+      "title": "Crack de bloques",
+      "line": "Casi perfecto: hasta los aldeanos te piden consejo."
+    },
+    {
+      "min": 5,
+      "title": "Leyenda del servidor",
+      "line": "Cero errores. Los creepers ya te tienen miedo."
+    }
+  ],
+  "existentes": [
+    {
+      "id": "dia",
+      "origen": "BLOQUES",
+      "subtema": "supervivencia",
+      "dificultad": 1
+    },
+    {
+      "id": "antorcha",
+      "origen": "BLOQUES",
+      "subtema": "crafteos",
+      "dificultad": 1
+    },
+    {
+      "id": "horno",
+      "origen": "BLOQUES",
+      "subtema": "crafteos",
+      "dificultad": 2
+    },
+    {
+      "id": "creeper",
+      "origen": "BLOQUES",
+      "subtema": "mobs",
+      "dificultad": 1
+    },
+    {
+      "id": "perlas",
+      "origen": "BLOQUES",
+      "subtema": "nether-end",
+      "dificultad": 2
+    },
+    {
+      "id": "carbon",
+      "origen": "BLOQUES",
+      "subtema": "crafteos",
+      "dificultad": 2
+    }
+  ],
+  "preguntas": [
+    {
+      "id": "lobo-hueso",
+      "q": "¿Con qué se domestica un lobo?",
+      "options": [
+        "Con pescado",
+        "Con carne cruda",
+        "Con huesos",
+        "Con trigo"
+      ],
+      "answer": 2,
+      "why": "Dale huesos hasta que salgan corazones y le aparezca el collar.",
+      "dificultad": 1,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Wolf",
+      "estado": "revisada"
+    },
+    {
+      "id": "gato-pescado",
+      "q": "¿Qué le das a un gato callejero para domesticarlo?",
+      "options": [
+        "Pescado crudo",
+        "Leche",
+        "Semillas",
+        "Zanahorias"
+      ],
+      "answer": 0,
+      "why": "Bacalao o salmón crudo. Acércate despacio, que se asustan fácil.",
+      "dificultad": 1,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Cat",
+      "estado": "revisada"
+    },
+    {
+      "id": "loro-galleta",
+      "q": "¿Qué comida NO debes darle nunca a un loro?",
+      "options": [
+        "Semillas de trigo",
+        "Semillas de melón",
+        "Semillas de calabaza",
+        "Galletas"
+      ],
+      "answer": 3,
+      "why": "La galleta lo envenena. Los loros se domestican con semillas.",
+      "dificultad": 2,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Parrot",
+      "estado": "revisada"
+    },
+    {
+      "id": "creeper-polvora",
+      "q": "¿Qué suelta un creeper cuando lo derrotas?",
+      "options": [
+        "Carbón",
+        "Pólvora",
+        "Hueso",
+        "Hilo"
+      ],
+      "answer": 1,
+      "why": "Pólvora, la base de la dinamita (TNT) y de los cohetes.",
+      "dificultad": 1,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Creeper",
+      "estado": "revisada"
+    },
+    {
+      "id": "arana-hilo",
+      "q": "¿Qué mob te da el hilo para fabricar un arco?",
+      "options": [
+        "El esqueleto",
+        "El zombi",
+        "La araña",
+        "El slime"
+      ],
+      "answer": 2,
+      "why": "La araña suelta hilo. El arco lleva 3 hilos y 3 palos.",
+      "dificultad": 1,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Spider",
+      "estado": "revisada"
+    },
+    {
+      "id": "rayo-cerdo",
+      "q": "Si un rayo cae sobre un cerdo, ¿en qué se convierte?",
+      "options": [
+        "En piglin zombificado",
+        "En hoglin",
+        "En cerdo asado",
+        "En creeper"
+      ],
+      "answer": 0,
+      "why": "Se transforma en piglin zombificado, con espada de oro y todo.",
+      "dificultad": 2,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Pig",
+      "estado": "revisada"
+    },
+    {
+      "id": "rayo-creeper",
+      "q": "¿Qué le pasa a un creeper si le cae un rayo cerca?",
+      "options": [
+        "Explota al instante",
+        "Huye asustado",
+        "Se vuelve TNT",
+        "Queda cargado"
+      ],
+      "answer": 3,
+      "why": "Queda cargado: brilla azul y su explosión es mucho más fuerte.",
+      "dificultad": 2,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Creeper",
+      "estado": "revisada"
+    },
+    {
+      "id": "rayo-aldeano",
+      "q": "Un rayo cae junto a un aldeano. ¿En qué se convierte?",
+      "options": [
+        "En zombi",
+        "En bruja",
+        "En gólem",
+        "En saqueador"
+      ],
+      "answer": 1,
+      "why": "Se convierte en bruja. Por eso conviene proteger bien la aldea.",
+      "dificultad": 3,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Villager",
+      "estado": "revisada"
+    },
+    {
+      "id": "vaca-champinon",
+      "q": "Si usas un tazón en una vaca champiñón, ¿qué obtienes?",
+      "options": [
+        "Leche",
+        "Hongos rojos",
+        "Sopa de champiñones",
+        "Nada"
+      ],
+      "answer": 2,
+      "why": "Sopa (estofado) de champiñones. Con un cubo vacío, en cambio, da leche.",
+      "dificultad": 2,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Mooshroom",
+      "estado": "revisada"
+    },
+    {
+      "id": "enderman-agua",
+      "q": "¿Qué le hace daño a un enderman?",
+      "options": [
+        "El agua",
+        "La arena",
+        "La lana",
+        "La tierra"
+      ],
+      "answer": 0,
+      "why": "El agua y la lluvia lo lastiman. Por eso se teletransporta cuando llueve.",
+      "dificultad": 1,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Enderman",
+      "estado": "revisada"
+    },
+    {
+      "id": "abeja-pica",
+      "q": "¿Qué le pasa a una abeja después de picarte?",
+      "options": [
+        "Hace miel",
+        "Se duplica",
+        "Se vuelve reina",
+        "Muere al rato"
+      ],
+      "answer": 3,
+      "why": "Pierde el aguijón y muere al poco tiempo. Mejor no la hagas enojar.",
+      "dificultad": 2,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Bee",
+      "estado": "revisada"
+    },
+    {
+      "id": "golem-nieve",
+      "q": "Pones una calabaza tallada sobre 2 bloques de nieve. ¿Qué aparece?",
+      "options": [
+        "Un muñeco quieto",
+        "Un gólem de nieve",
+        "Un gólem de hierro",
+        "Un enderman"
+      ],
+      "answer": 1,
+      "why": "Nace un gólem de nieve, que les lanza bolas de nieve a los monstruos.",
+      "dificultad": 1,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Snow_Golem",
+      "estado": "revisada"
+    },
+    {
+      "id": "golem-nieve-calor",
+      "q": "¿Qué le pasa a un gólem de nieve en el desierto?",
+      "options": [
+        "Se congela",
+        "Se vuelve de arena",
+        "Se derrite",
+        "Nada"
+      ],
+      "answer": 2,
+      "why": "Recibe daño en biomas cálidos y en el Nether: se va derritiendo.",
+      "dificultad": 3,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Snow_Golem",
+      "estado": "revisada"
+    },
+    {
+      "id": "guardian-fatiga",
+      "q": "¿Qué efecto te pone el guardián anciano del monumento?",
+      "options": [
+        "Fatiga minera",
+        "Ceguera",
+        "Lentitud",
+        "Veneno"
+      ],
+      "answer": 0,
+      "why": "Fatiga minera: picas lentísimo unos 5 minutos. Un cubo de leche te la quita.",
+      "dificultad": 3,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Elder_Guardian",
+      "estado": "revisada"
+    },
+    {
+      "id": "warden-ciego",
+      "q": "El warden de las ciudades antiguas no puede…",
+      "options": [
+        "Oír",
+        "Oler",
+        "Moverse",
+        "Ver"
+      ],
+      "answer": 3,
+      "why": "Es ciego: te encuentra por las vibraciones y el olfato. Muévete en silencio.",
+      "dificultad": 2,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Warden",
+      "estado": "revisada"
+    },
+    {
+      "id": "allay",
+      "q": "Le das un objeto a un allay. ¿Qué hace?",
+      "options": [
+        "Se lo come",
+        "Te trae más iguales",
+        "Lo encanta",
+        "Lo esconde"
+      ],
+      "answer": 1,
+      "why": "Recoge los objetos iguales que encuentre y te los trae.",
+      "dificultad": 3,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Allay",
+      "estado": "revisada"
+    },
+    {
+      "id": "aldeano-bibliotecario",
+      "q": "¿Qué bloque convierte a un aldeano en bibliotecario?",
+      "options": [
+        "Una estantería",
+        "Una mesa de crafteo",
+        "Un atril",
+        "Un cofre"
+      ],
+      "answer": 2,
+      "why": "El atril. Cada profesión tiene su bloque: el compostador da granjero.",
+      "dificultad": 2,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Villager",
+      "estado": "revisada"
+    },
+    {
+      "id": "aldeano-moneda",
+      "q": "¿Qué usan los aldeanos como moneda para comerciar?",
+      "options": [
+        "Esmeraldas",
+        "Diamantes",
+        "Oro",
+        "Hierro"
+      ],
+      "answer": 0,
+      "why": "Esmeraldas. Con ellas compras libros encantados, comida y más.",
+      "dificultad": 1,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Trading",
+      "estado": "revisada"
+    },
+    {
+      "id": "ajolote-cria",
+      "q": "¿Con qué se reproducen los ajolotes?",
+      "options": [
+        "Algas",
+        "Bacalao crudo",
+        "Semillas",
+        "Cubo de pez tropical"
+      ],
+      "answer": 3,
+      "why": "Con cubos de pez tropical. Y 1 de cada 1.200 crías sale azul.",
+      "dificultad": 3,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Axolotl",
+      "estado": "revisada"
+    },
+    {
+      "id": "rana-ranaluz",
+      "q": "¿Qué se come una rana para soltar una ranaluz?",
+      "options": [
+        "Una luciérnaga",
+        "Un cubo de magma chico",
+        "Un slime pequeño",
+        "Un pez"
+      ],
+      "answer": 1,
+      "why": "Al comerse un cubo de magma pequeño suelta una ranaluz, un bloque que brilla.",
+      "dificultad": 3,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Froglight",
+      "estado": "revisada"
+    },
+    {
+      "id": "tortuga-casco",
+      "q": "El casco de caparazón de tortuga te deja…",
+      "options": [
+        "Nadar más rápido",
+        "Ver en la oscuridad",
+        "Respirar bajo el agua",
+        "Saltar más alto"
+      ],
+      "answer": 2,
+      "why": "Te da unos segundos extra de respiración acuática al meterte al agua.",
+      "dificultad": 2,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Turtle_Shell",
+      "estado": "revisada"
+    },
+    {
+      "id": "delfin",
+      "q": "Si nadas cerca de un delfín, ¿qué ganas?",
+      "options": [
+        "Nadar más rápido",
+        "Más vida",
+        "Visión nocturna",
+        "Más hambre"
+      ],
+      "answer": 0,
+      "why": "La gracia del delfín te hace nadar mucho más rápido.",
+      "dificultad": 2,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Dolphin",
+      "estado": "revisada"
+    },
+    {
+      "id": "jinete-arana",
+      "q": "¿Cómo se llama un esqueleto montado en una araña?",
+      "options": [
+        "Esqueleto wither",
+        "Caballero araña",
+        "Rey esqueleto",
+        "Jinete arácnido"
+      ],
+      "answer": 3,
+      "why": "Jinete arácnido. Es raro, pero dispara y trepa paredes a la vez.",
+      "dificultad": 2,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Spider_Jockey",
+      "estado": "revisada"
+    },
+    {
+      "id": "zorro-boca",
+      "q": "¿Qué hacen los zorros con los objetos que encuentran?",
+      "options": [
+        "Los entierran",
+        "Los llevan en la boca",
+        "Los rompen",
+        "Te los traen"
+      ],
+      "answer": 1,
+      "why": "Los cargan en la boca. Si sueltas comida, el zorro cambia lo que lleva.",
+      "dificultad": 2,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Fox",
+      "estado": "revisada"
+    },
+    {
+      "id": "evocador-totem",
+      "q": "¿Qué mob suelta el tótem de la inmortalidad?",
+      "options": [
+        "El wither",
+        "La bruja",
+        "El evocador",
+        "El warden"
+      ],
+      "answer": 2,
+      "why": "El evocador, de las mansiones del bosque y de los asaltos a aldeas.",
+      "dificultad": 3,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Evoker",
+      "estado": "revisada"
+    },
+    {
+      "id": "golem-flor",
+      "q": "¿Qué flor les ofrece un gólem de hierro a los aldeanos?",
+      "options": [
+        "Una amapola",
+        "Un tulipán",
+        "Un diente de león",
+        "Una orquídea"
+      ],
+      "answer": 0,
+      "why": "Una amapola. Y al derrotarlo, a veces la suelta.",
+      "dificultad": 3,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Iron_Golem",
+      "estado": "revisada"
+    },
+    {
+      "id": "agua-nether",
+      "q": "Vacías un cubo de agua en el Nether. ¿Qué pasa?",
+      "options": [
+        "Se forma obsidiana",
+        "Se congela",
+        "Apaga la lava",
+        "Se evapora"
+      ],
+      "answer": 3,
+      "why": "El agua se evapora al instante. Ni intentes hacer una piscina allá.",
+      "dificultad": 1,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Water",
+      "estado": "revisada"
+    },
+    {
+      "id": "brujula-nether",
+      "q": "¿Qué hace una brújula normal en el Nether?",
+      "options": [
+        "Apunta al portal",
+        "Gira sin sentido",
+        "Apunta al norte",
+        "Se rompe"
+      ],
+      "answer": 1,
+      "why": "Gira loca, sin rumbo. Lo mismo le pasa en el End.",
+      "dificultad": 2,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Compass",
+      "estado": "revisada"
+    },
+    {
+      "id": "netherita-lava",
+      "q": "¿Qué tienen de especial los objetos de netherita?",
+      "options": [
+        "Pesan menos",
+        "Brillan de noche",
+        "No se queman en lava",
+        "Son invisibles"
+      ],
+      "answer": 2,
+      "why": "Si caen en lava o fuego, flotan y no se queman.",
+      "dificultad": 2,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Netherite_Ingot",
+      "estado": "revisada"
+    },
+    {
+      "id": "escombros-pico",
+      "q": "¿Qué pico necesitas para minar escombros ancestrales?",
+      "options": [
+        "Diamante o netherita",
+        "Oro",
+        "Hierro",
+        "Piedra"
+      ],
+      "answer": 0,
+      "why": "Solo los de diamante o netherita. Con otros, el bloque no suelta nada.",
+      "dificultad": 2,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Ancient_Debris",
+      "estado": "revisada"
+    },
+    {
+      "id": "blaze-vara",
+      "q": "¿Qué suelta el blaze que sirve para el soporte de pociones?",
+      "options": [
+        "Polvo de redstone",
+        "Pólvora",
+        "Lágrima",
+        "Vara de blaze"
+      ],
+      "answer": 3,
+      "why": "La vara de blaze: con ella haces el soporte y el polvo de blaze.",
+      "dificultad": 2,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Blaze_Rod",
+      "estado": "revisada"
+    },
+    {
+      "id": "ojo-ender",
+      "q": "¿Qué se combina para hacer un ojo de ender?",
+      "options": [
+        "Perla y redstone",
+        "Perla y polvo de blaze",
+        "Ojo de araña y oro",
+        "Perla y diamante"
+      ],
+      "answer": 1,
+      "why": "Perla de ender + polvo de blaze. Lánzalo y te guía a la fortaleza.",
+      "dificultad": 2,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Eye_of_Ender",
+      "estado": "revisada"
+    },
+    {
+      "id": "ojo-romper",
+      "q": "Al lanzar un ojo de ender, ¿qué puede pasarle?",
+      "options": [
+        "Se vuelve perla",
+        "Se duplica",
+        "Se rompe",
+        "Explota"
+      ],
+      "answer": 2,
+      "why": "Hay 20 % de probabilidad de que se rompa. Lleva ojos de sobra.",
+      "dificultad": 3,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Eye_of_Ender",
+      "estado": "revisada"
+    },
+    {
+      "id": "elitros",
+      "q": "¿Dónde se consiguen los élitros?",
+      "options": [
+        "En un barco del End",
+        "En un bastión",
+        "En un templo",
+        "Con aldeanos"
+      ],
+      "answer": 0,
+      "why": "En el barco de las ciudades del End, colgados en un marco.",
+      "dificultad": 2,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Elytra",
+      "estado": "revisada"
+    },
+    {
+      "id": "huevo-dragon",
+      "q": "¿Qué pasa si golpeas el huevo del dragón?",
+      "options": [
+        "Nace un dragón",
+        "Se rompe",
+        "Explota",
+        "Se teletransporta"
+      ],
+      "answer": 3,
+      "why": "Salta a otro lugar cercano. Para atraparlo, hazlo caer sobre una antorcha.",
+      "dificultad": 3,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Dragon_Egg",
+      "estado": "revisada"
+    },
+    {
+      "id": "coral-fruta",
+      "q": "¿Qué pasa al comer una fruta coral del End?",
+      "options": [
+        "Te da alas",
+        "Te teletransporta",
+        "Te cura todo",
+        "Te hace flotar"
+      ],
+      "answer": 1,
+      "why": "Te teletransporta a un lugar cercano al azar. Útil para escapar.",
+      "dificultad": 2,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Chorus_Fruit",
+      "estado": "revisada"
+    },
+    {
+      "id": "ancla-reaparicion",
+      "q": "¿Con qué se carga un ancla de reaparición?",
+      "options": [
+        "Redstone",
+        "Lava",
+        "Piedra luminosa",
+        "Oro"
+      ],
+      "answer": 2,
+      "why": "Con piedra luminosa. Úsala en el Nether: en el mundo normal explota.",
+      "dificultad": 3,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Respawn_Anchor",
+      "estado": "revisada"
+    },
+    {
+      "id": "esqueleto-wither",
+      "q": "¿Dónde aparecen los esqueletos wither?",
+      "options": [
+        "Fortalezas del Nether",
+        "Ciudades del End",
+        "Cuevas profundas",
+        "Templos de la selva"
+      ],
+      "answer": 0,
+      "why": "En las fortalezas del Nether. A veces sueltan su cráneo, clave para el wither.",
+      "dificultad": 2,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Wither_Skeleton",
+      "estado": "revisada"
+    },
+    {
+      "id": "strider",
+      "q": "¿Qué mob del Nether camina sobre la lava?",
+      "options": [
+        "El hoglin",
+        "El ghast",
+        "El piglin",
+        "El strider"
+      ],
+      "answer": 3,
+      "why": "El strider. Con silla y caña con hongo distorsionado lo puedes montar.",
+      "dificultad": 2,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Strider",
+      "estado": "revisada"
+    },
+    {
+      "id": "hoglin-hongo",
+      "q": "¿A qué le tienen miedo los hoglin?",
+      "options": [
+        "Al oro",
+        "Al hongo distorsionado",
+        "A los gatos",
+        "Al agua"
+      ],
+      "answer": 1,
+      "why": "Huyen del hongo distorsionado, el azul de los bosques distorsionados.",
+      "dificultad": 3,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Hoglin",
+      "estado": "revisada"
+    },
+    {
+      "id": "ghast-lagrima",
+      "q": "La lágrima de ghast sirve para la poción de…",
+      "options": [
+        "Fuerza",
+        "Velocidad",
+        "Regeneración",
+        "Invisibilidad"
+      ],
+      "answer": 2,
+      "why": "Regeneración: te va curando corazones poco a poco.",
+      "dificultad": 3,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Ghast_Tear",
+      "estado": "revisada"
+    },
+    {
+      "id": "piglin-trueque",
+      "q": "¿Qué le das a un piglin para que te dé cosas a cambio?",
+      "options": [
+        "Lingotes de oro",
+        "Esmeraldas",
+        "Diamantes",
+        "Carne"
+      ],
+      "answer": 0,
+      "why": "Lingotes de oro: los mira un rato y te lanza algo al azar.",
+      "dificultad": 1,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Bartering",
+      "estado": "revisada"
+    },
+    {
+      "id": "vacio-end",
+      "q": "¿Qué pasa si caes al vacío del End?",
+      "options": [
+        "Vuelves a la isla",
+        "Flotas",
+        "Llegas al Nether",
+        "Mueres"
+      ],
+      "answer": 3,
+      "why": "Mueres y pierdes lo que llevas. Mucho cuidado con los bordes.",
+      "dificultad": 1,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/The_Void",
+      "estado": "revisada"
+    },
+    {
+      "id": "bloque-magma",
+      "q": "¿Cómo pisas un bloque de magma sin quemarte?",
+      "options": [
+        "Saltando",
+        "Agachado",
+        "Corriendo",
+        "No se puede"
+      ],
+      "answer": 1,
+      "why": "Agachado no te hace daño; caminando normal, sí.",
+      "dificultad": 2,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Magma_Block",
+      "estado": "revisada"
+    },
+    {
+      "id": "arena-almas",
+      "q": "¿Qué hace la arena de almas al caminar sobre ella?",
+      "options": [
+        "Te acelera",
+        "Te cura",
+        "Te hace lento",
+        "Te quema"
+      ],
+      "answer": 2,
+      "why": "Te frena, salvo con botas encantadas con Velocidad de alma.",
+      "dificultad": 2,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Soul_Sand",
+      "estado": "revisada"
+    },
+    {
+      "id": "shulker-levitacion",
+      "q": "¿Qué te hace el proyectil de un shulker?",
+      "options": [
+        "Te hace levitar",
+        "Te envenena",
+        "Te ciega",
+        "Te congela"
+      ],
+      "answer": 0,
+      "why": "Te hace levitar. Cuidado: cuando se acaba el efecto, caes.",
+      "dificultad": 3,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/Shulker",
+      "estado": "revisada"
+    },
+    {
+      "id": "cama-receta",
+      "q": "¿Qué lleva una cama?",
+      "options": [
+        "3 lanas y 3 piedras",
+        "4 lanas",
+        "2 lanas y 1 palo",
+        "3 lanas y 3 tablones"
+      ],
+      "answer": 3,
+      "why": "3 lanas del mismo color arriba y 3 tablones abajo.",
+      "dificultad": 1,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Bed",
+      "estado": "revisada"
+    },
+    {
+      "id": "libro-receta",
+      "q": "¿Qué lleva un libro?",
+      "options": [
+        "1 papel y 1 cuero",
+        "3 papeles y 1 cuero",
+        "3 papeles y 1 hilo",
+        "2 cueros"
+      ],
+      "answer": 1,
+      "why": "3 papeles y 1 cuero. El papel sale de la caña de azúcar.",
+      "dificultad": 2,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Book",
+      "estado": "revisada"
+    },
+    {
+      "id": "estanteria",
+      "q": "¿Cuántos libros lleva una estantería (librero)?",
+      "options": [
+        "1",
+        "3",
+        "6",
+        "9"
+      ],
+      "answer": 1,
+      "why": "3 libros y 6 tablones. Cerca de la mesa de encantamiento, la potencian.",
+      "dificultad": 2,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Bookshelf",
+      "estado": "revisada"
+    },
+    {
+      "id": "mesa-encantar",
+      "q": "¿Cuántos diamantes lleva una mesa de encantamiento?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": 1,
+      "why": "2 diamantes, 4 obsidianas y 1 libro.",
+      "dificultad": 3,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Enchanting_Table",
+      "estado": "revisada"
+    },
+    {
+      "id": "yunque",
+      "q": "¿Cuántos lingotes de hierro cuesta un yunque en total?",
+      "options": [
+        "9",
+        "27",
+        "31",
+        "36"
+      ],
+      "answer": 2,
+      "why": "31: 3 bloques de hierro (27 lingotes) y 4 lingotes más.",
+      "dificultad": 3,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Anvil",
+      "estado": "revisada"
+    },
+    {
+      "id": "cubo-receta",
+      "q": "¿Cuántos lingotes de hierro lleva un cubo (balde)?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "5"
+      ],
+      "answer": 2,
+      "why": "3 lingotes en forma de V. Sirve para agua, lava, leche y hasta peces.",
+      "dificultad": 1,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Bucket",
+      "estado": "revisada"
+    },
+    {
+      "id": "escudo",
+      "q": "¿Qué lleva un escudo?",
+      "options": [
+        "3 tablones y 1 palo",
+        "4 lingotes de hierro",
+        "6 tablones y 1 hierro",
+        "6 piedras"
+      ],
+      "answer": 2,
+      "why": "6 tablones y 1 lingote de hierro. Bloquea flechas y explosiones.",
+      "dificultad": 2,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Shield",
+      "estado": "revisada"
+    },
+    {
+      "id": "tnt-receta",
+      "q": "¿Qué lleva la dinamita (TNT)?",
+      "options": [
+        "5 pólvoras y 4 arenas",
+        "9 pólvoras",
+        "4 pólvoras y 5 arenas",
+        "Pólvora y carbón"
+      ],
+      "answer": 0,
+      "why": "5 pólvoras en X y 4 de arena. Úsala lejos de tu casa.",
+      "dificultad": 2,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/TNT",
+      "estado": "revisada"
+    },
+    {
+      "id": "pastel",
+      "q": "¿Cuántos cubos de leche lleva un pastel?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": 2,
+      "why": "3 de leche, 2 de azúcar, 1 huevo y 3 de trigo. Te devuelve los cubos.",
+      "dificultad": 3,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Cake",
+      "estado": "revisada"
+    },
+    {
+      "id": "manzana-oro",
+      "q": "¿Cuántos lingotes de oro lleva una manzana dorada?",
+      "options": [
+        "1",
+        "4",
+        "8",
+        "9"
+      ],
+      "answer": 2,
+      "why": "8 lingotes alrededor de una manzana. Da absorción y regeneración.",
+      "dificultad": 2,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Golden_Apple",
+      "estado": "revisada"
+    },
+    {
+      "id": "brujula-receta",
+      "q": "¿Qué lleva una brújula además de 4 lingotes de hierro?",
+      "options": [
+        "Un diamante",
+        "Una perla",
+        "Un palo",
+        "Polvo de redstone"
+      ],
+      "answer": 3,
+      "why": "Un polvo de redstone en el centro. El reloj es igual, pero con oro.",
+      "dificultad": 2,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Compass",
+      "estado": "revisada"
+    },
+    {
+      "id": "linterna",
+      "q": "Una linterna lleva una antorcha rodeada de…",
+      "options": [
+        "Vidrio",
+        "Pepitas de hierro",
+        "Palos",
+        "Carbón"
+      ],
+      "answer": 1,
+      "why": "8 pepitas de hierro alrededor de una antorcha.",
+      "dificultad": 3,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Lantern",
+      "estado": "revisada"
+    },
+    {
+      "id": "carbon-vegetal",
+      "q": "No tienes carbón. ¿Qué cocinas en el horno para hacer antorchas?",
+      "options": [
+        "Tierra",
+        "Arena",
+        "Troncos",
+        "Hojas"
+      ],
+      "answer": 2,
+      "why": "Al cocinar troncos sale carbón vegetal, que sirve igual para antorchas.",
+      "dificultad": 2,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Charcoal",
+      "estado": "revisada"
+    },
+    {
+      "id": "vidrio",
+      "q": "¿Qué cocinas en el horno para obtener vidrio?",
+      "options": [
+        "Arena",
+        "Piedra",
+        "Grava",
+        "Arcilla"
+      ],
+      "answer": 0,
+      "why": "Arena. La bola de arcilla, en cambio, se vuelve ladrillo.",
+      "dificultad": 1,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Glass",
+      "estado": "revisada"
+    },
+    {
+      "id": "cuadricula",
+      "q": "¿De qué tamaño es la cuadrícula de crafteo del inventario?",
+      "options": [
+        "1 × 1",
+        "4 × 4",
+        "3 × 3",
+        "2 × 2"
+      ],
+      "answer": 3,
+      "why": "2 × 2. Para recetas grandes necesitas la mesa de crafteo, de 3 × 3.",
+      "dificultad": 2,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Crafting",
+      "estado": "revisada"
+    },
+    {
+      "id": "palos",
+      "q": "¿Cuántos palos salen de 2 tablones?",
+      "options": [
+        "1",
+        "2",
+        "4",
+        "8"
+      ],
+      "answer": 2,
+      "why": "4 palos, poniendo un tablón encima del otro.",
+      "dificultad": 1,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Stick",
+      "estado": "revisada"
+    },
+    {
+      "id": "catalejo",
+      "q": "¿Qué mineral lleva el catalejo, además del cobre?",
+      "options": [
+        "Diamante",
+        "Amatista",
+        "Esmeralda",
+        "Cuarzo"
+      ],
+      "answer": 1,
+      "why": "Un fragmento de amatista sobre 2 lingotes de cobre.",
+      "dificultad": 3,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Spyglass",
+      "estado": "revisada"
+    },
+    {
+      "id": "faro",
+      "q": "¿Qué objeto del wither necesitas para fabricar un faro?",
+      "options": [
+        "Su cráneo",
+        "Una vara",
+        "La estrella del Nether",
+        "Una lágrima"
+      ],
+      "answer": 2,
+      "why": "La estrella del Nether, con 5 vidrios y 3 obsidianas.",
+      "dificultad": 3,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Beacon",
+      "estado": "revisada"
+    },
+    {
+      "id": "palanca",
+      "q": "¿Qué lleva una palanca?",
+      "options": [
+        "Palo y piedra labrada",
+        "Palo y redstone",
+        "Hierro y palo",
+        "Dos palos"
+      ],
+      "answer": 0,
+      "why": "Un palo encima de piedra labrada. Da señal mientras esté activada.",
+      "dificultad": 1,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Lever",
+      "estado": "revisada"
+    },
+    {
+      "id": "boton-flecha",
+      "q": "¿Qué botón se activa si le disparas una flecha?",
+      "options": [
+        "El de piedra",
+        "Ninguno",
+        "Los dos",
+        "El de madera"
+      ],
+      "answer": 3,
+      "why": "Solo el de madera. El de piedra hay que presionarlo.",
+      "dificultad": 2,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Button",
+      "estado": "revisada"
+    },
+    {
+      "id": "placa-piedra",
+      "q": "¿Qué activa una placa de presión de piedra?",
+      "options": [
+        "Solo objetos",
+        "Jugadores y mobs",
+        "Solo flechas",
+        "Solo de día"
+      ],
+      "answer": 1,
+      "why": "Jugadores y mobs. Los objetos tirados solo activan la de madera.",
+      "dificultad": 3,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Pressure_Plate",
+      "estado": "revisada"
+    },
+    {
+      "id": "piston-obsidiana",
+      "q": "¿Cuál de estos bloques NO puede mover un pistón?",
+      "options": [
+        "Tierra",
+        "Arena",
+        "Obsidiana",
+        "Madera"
+      ],
+      "answer": 2,
+      "why": "La obsidiana no se mueve, igual que la piedra base.",
+      "dificultad": 2,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Piston",
+      "estado": "revisada"
+    },
+    {
+      "id": "lampara",
+      "q": "Una lámpara de redstone lleva 4 de redstone y…",
+      "options": [
+        "Piedra luminosa",
+        "Una antorcha",
+        "Vidrio",
+        "Oro"
+      ],
+      "answer": 0,
+      "why": "Piedra luminosa en el centro. Solo se enciende cuando recibe señal.",
+      "dificultad": 2,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Redstone_Lamp",
+      "estado": "revisada"
+    },
+    {
+      "id": "dispensador-soltador",
+      "q": "¿Qué diferencia hay entre dispensador y soltador?",
+      "options": [
+        "Ninguna",
+        "Solo el color",
+        "El soltador dispara",
+        "El dispensador dispara"
+      ],
+      "answer": 3,
+      "why": "El dispensador lanza flechas y usa objetos; el soltador solo los suelta.",
+      "dificultad": 2,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Dispenser",
+      "estado": "revisada"
+    },
+    {
+      "id": "repetidor-retardo",
+      "q": "¿Cuántas posiciones de retardo tiene un repetidor?",
+      "options": [
+        "2",
+        "3",
+        "4",
+        "8"
+      ],
+      "answer": 2,
+      "why": "4: cada clic suma un poco de retardo, hasta volver a empezar.",
+      "dificultad": 3,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Redstone_Repeater",
+      "estado": "revisada"
+    },
+    {
+      "id": "bloque-redstone",
+      "q": "¿Qué hace un bloque de redstone?",
+      "options": [
+        "Absorbe la señal",
+        "Da energía siempre",
+        "Explota",
+        "Nada"
+      ],
+      "answer": 1,
+      "why": "Es una fuente de energía que nunca se apaga. Sale de 9 polvos de redstone.",
+      "dificultad": 1,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Block_of_Redstone",
+      "estado": "revisada"
+    },
+    {
+      "id": "sensor-luz",
+      "q": "¿Qué hace un sensor de luz solar si lo tocas?",
+      "options": [
+        "Se apaga para siempre",
+        "Cambia de color",
+        "Funciona de noche",
+        "Se rompe"
+      ],
+      "answer": 2,
+      "why": "Se invierte: deja de activarse de día y se activa de noche.",
+      "dificultad": 2,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Daylight_Detector",
+      "estado": "revisada"
+    },
+    {
+      "id": "mena-redstone",
+      "q": "¿Qué hace la mena de redstone cuando la tocas o la pisas?",
+      "options": [
+        "Brilla",
+        "Explota",
+        "Suena",
+        "Desaparece"
+      ],
+      "answer": 0,
+      "why": "Se ilumina un momento. Así es fácil verla en una cueva.",
+      "dificultad": 1,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Redstone_Ore",
+      "estado": "revisada"
+    },
+    {
+      "id": "antorcha-redstone-receta",
+      "q": "¿Qué lleva una antorcha de redstone?",
+      "options": [
+        "Oro y palo",
+        "Carbón y palo",
+        "Redstone y hierro",
+        "Redstone y palo"
+      ],
+      "answer": 3,
+      "why": "Un polvo de redstone encima de un palo.",
+      "dificultad": 1,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Redstone_Torch",
+      "estado": "revisada"
+    },
+    {
+      "id": "diana",
+      "q": "¿Qué hace el bloque diana al recibir una flecha?",
+      "options": [
+        "Se rompe",
+        "Da señal de redstone",
+        "Explota",
+        "Toca una campana"
+      ],
+      "answer": 1,
+      "why": "Da señal: más fuerte mientras más al centro le pegues.",
+      "dificultad": 3,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Target",
+      "estado": "revisada"
+    },
+    {
+      "id": "riel-propulsor",
+      "q": "¿Qué metal lleva el riel propulsor, el que acelera vagonetas?",
+      "options": [
+        "Hierro",
+        "Cobre",
+        "Oro",
+        "Netherita"
+      ],
+      "answer": 2,
+      "why": "Oro. Y solo acelera si le llega señal de redstone.",
+      "dificultad": 2,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Powered_Rail",
+      "estado": "revisada"
+    },
+    {
+      "id": "comparador",
+      "q": "Un comparador detrás de un cofre, ¿qué mide?",
+      "options": [
+        "Qué tan lleno está",
+        "La hora",
+        "Si hay mobs",
+        "La luz"
+      ],
+      "answer": 0,
+      "why": "Da más señal mientras más lleno esté el cofre.",
+      "dificultad": 3,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Redstone_Comparator",
+      "estado": "revisada"
+    },
+    {
+      "id": "tolva",
+      "q": "Una tolva lleva un cofre y…",
+      "options": [
+        "4 lingotes de oro",
+        "3 piedras",
+        "8 tablones",
+        "5 lingotes de hierro"
+      ],
+      "answer": 3,
+      "why": "5 lingotes de hierro en forma de embudo, con el cofre en el centro.",
+      "dificultad": 3,
+      "subtema": "redstone",
+      "fuente": "https://minecraft.wiki/w/Hopper",
+      "estado": "revisada"
+    },
+    {
+      "id": "pico-diamante",
+      "q": "¿Qué pico necesitas, como mínimo, para minar diamante?",
+      "options": [
+        "Madera",
+        "Hierro",
+        "Piedra",
+        "Oro"
+      ],
+      "answer": 1,
+      "why": "El de hierro. Con uno de piedra o de oro, la mena no suelta nada.",
+      "dificultad": 1,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Diamond_Ore",
+      "estado": "revisada"
+    },
+    {
+      "id": "pico-hierro",
+      "q": "¿Con qué pico, como mínimo, sacas hierro?",
+      "options": [
+        "Madera",
+        "Hierro",
+        "Piedra",
+        "Diamante"
+      ],
+      "answer": 2,
+      "why": "Con el de piedra ya puedes minar mena de hierro.",
+      "dificultad": 1,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Iron_Ore",
+      "estado": "revisada"
+    },
+    {
+      "id": "arena-cae",
+      "q": "¿Cuál de estos bloques cae si quitas lo que tiene debajo?",
+      "options": [
+        "Arena",
+        "Tierra",
+        "Piedra",
+        "Madera"
+      ],
+      "answer": 0,
+      "why": "La arena y la grava caen. Cuidado al picar hacia arriba.",
+      "dificultad": 1,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Falling_Block",
+      "estado": "revisada"
+    },
+    {
+      "id": "carne-podrida",
+      "q": "¿Qué comida puede darte el efecto Hambre?",
+      "options": [
+        "Pan",
+        "Manzana",
+        "Zanahoria",
+        "Carne podrida"
+      ],
+      "answer": 3,
+      "why": "La carne podrida casi siempre te da Hambre, aunque llena un poco.",
+      "dificultad": 2,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Rotten_Flesh",
+      "estado": "revisada"
+    },
+    {
+      "id": "leche-efectos",
+      "q": "¿Qué quita todos los efectos de poción de golpe?",
+      "options": [
+        "Agua",
+        "Leche",
+        "Pan",
+        "Miel"
+      ],
+      "answer": 1,
+      "why": "Un cubo de leche borra todos los efectos, los buenos y los malos.",
+      "dificultad": 2,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Milk_Bucket",
+      "estado": "revisada"
+    },
+    {
+      "id": "esponja",
+      "q": "¿Cómo secas una esponja mojada?",
+      "options": [
+        "Al sol",
+        "Con lava",
+        "En el horno",
+        "Con lana"
+      ],
+      "answer": 2,
+      "why": "En el horno. En el Nether se seca sola apenas la pones.",
+      "dificultad": 2,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Sponge",
+      "estado": "revisada"
+    },
+    {
+      "id": "brujula-apunta",
+      "q": "¿Hacia dónde apunta una brújula normal?",
+      "options": [
+        "Al punto de aparición",
+        "A tu cama",
+        "Al norte",
+        "A la aldea"
+      ],
+      "answer": 0,
+      "why": "Al punto de aparición del mundo, no a tu cama ni al norte.",
+      "dificultad": 3,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Compass",
+      "estado": "revisada"
+    },
+    {
+      "id": "nieve-polvo",
+      "q": "¿Qué botas te dejan caminar sobre nieve polvo sin hundirte?",
+      "options": [
+        "De hierro",
+        "De diamante",
+        "De oro",
+        "De cuero"
+      ],
+      "answer": 3,
+      "why": "Las de cuero. Con otras te hundes y te congelas.",
+      "dificultad": 3,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Powder_Snow",
+      "estado": "revisada"
+    },
+    {
+      "id": "cofre-ender",
+      "q": "¿Qué tiene de especial el cofre de ender?",
+      "options": [
+        "Es más grande",
+        "Comparte lo guardado",
+        "Tiene llave",
+        "No se rompe"
+      ],
+      "answer": 1,
+      "why": "Todos tus cofres de ender guardan lo mismo, y cada jugador ve solo lo suyo.",
+      "dificultad": 2,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Ender_Chest",
+      "estado": "revisada"
+    },
+    {
+      "id": "cama-noche",
+      "q": "¿Para qué sirve dormir en una cama en el mundo normal?",
+      "options": [
+        "Ganar vida",
+        "Subir de nivel",
+        "Saltarte la noche",
+        "Ver mobs"
+      ],
+      "answer": 2,
+      "why": "Te saltas la noche y la cama queda como tu punto de reaparición.",
+      "dificultad": 1,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Bed",
+      "estado": "revisada"
+    },
+    {
+      "id": "diamantes-donde",
+      "q": "¿Dónde es más fácil encontrar diamantes?",
+      "options": [
+        "Muy en lo profundo",
+        "En la superficie",
+        "En las montañas",
+        "En el agua"
+      ],
+      "answer": 0,
+      "why": "Abundan en las capas más profundas, cerca de la piedra base.",
+      "dificultad": 2,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Diamond_Ore",
+      "estado": "revisada"
+    },
+    {
+      "id": "gallina-huevo",
+      "q": "Lanzas un huevo de gallina. ¿Qué puede pasar?",
+      "options": [
+        "Crece un árbol",
+        "Sale una tortilla",
+        "Explota",
+        "Nace un pollito"
+      ],
+      "answer": 3,
+      "why": "A veces nace un pollito: 1 de cada 8 huevos lanzados.",
+      "dificultad": 2,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Egg",
+      "estado": "revisada"
+    },
+    {
+      "id": "hambre-llena",
+      "q": "¿Qué pasa si tienes la barra de comida llena?",
+      "options": [
+        "Corres más",
+        "Recuperas vida",
+        "Pierdes vida",
+        "Nada"
+      ],
+      "answer": 1,
+      "why": "Con la barra llena (o casi) recuperas vida poco a poco.",
+      "dificultad": 2,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Hunger",
+      "estado": "revisada"
+    },
+    {
+      "id": "esmeralda-montana",
+      "q": "¿En qué tipo de lugar aparece la mena de esmeralda?",
+      "options": [
+        "Desiertos",
+        "Pantanos",
+        "Montañas",
+        "Océanos"
+      ],
+      "answer": 2,
+      "why": "Solo en biomas de montaña. Es de las menas más raras del juego.",
+      "dificultad": 3,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Emerald_Ore",
+      "estado": "revisada"
+    },
+    {
+      "id": "azada",
+      "q": "¿Qué herramienta convierte la tierra en tierra de cultivo?",
+      "options": [
+        "Azada",
+        "Pala",
+        "Pico",
+        "Hacha"
+      ],
+      "answer": 0,
+      "why": "La azada. Luego siembras, y con agua cerca los cultivos crecen mejor.",
+      "dificultad": 1,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Hoe",
+      "estado": "revisada"
+    },
+    {
+      "id": "totem",
+      "q": "¿Qué hace el tótem de la inmortalidad?",
+      "options": [
+        "Te hace invisible",
+        "Duplica tu vida",
+        "Te da alas",
+        "Te salva de morir"
+      ],
+      "answer": 3,
+      "why": "Si lo tienes en la mano cuando vas a morir, te salva y se gasta.",
+      "dificultad": 2,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Totem_of_Undying",
+      "estado": "revisada"
+    },
+    {
+      "id": "creeper-origen",
+      "q": "¿De qué error nació el creeper?",
+      "options": [
+        "De un árbol",
+        "De un cerdo mal hecho",
+        "De un zombi",
+        "De un arbusto"
+      ],
+      "answer": 1,
+      "why": "Al modelar un cerdo se cambiaron las medidas: salió alto y flaco.",
+      "dificultad": 2,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Creeper",
+      "estado": "revisada"
+    },
+    {
+      "id": "cave-game",
+      "q": "¿Cómo se llamó el juego en su primerísima versión?",
+      "options": [
+        "Block World",
+        "Mine Land",
+        "Cave Game",
+        "Craft Box"
+      ],
+      "answer": 2,
+      "why": "«Cave Game», en 2009. Luego tomó el nombre que todos conocemos.",
+      "dificultad": 3,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Java_Edition_pre-Classic",
+      "estado": "revisada"
+    },
+    {
+      "id": "jeb-oveja",
+      "q": "Si nombras a una oveja «jeb_» con una etiqueta, ¿qué pasa?",
+      "options": [
+        "Cambia de colores",
+        "Explota",
+        "Se hace gigante",
+        "Vuela"
+      ],
+      "answer": 0,
+      "why": "Se vuelve arcoíris: cambia de color sin parar.",
+      "dificultad": 2,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Sheep",
+      "estado": "revisada"
+    },
+    {
+      "id": "dinnerbone",
+      "q": "¿Qué le pasa a un mob si lo nombras «Dinnerbone»?",
+      "options": [
+        "Baila",
+        "Se vuelve bebé",
+        "Se hace dorado",
+        "Se pone al revés"
+      ],
+      "answer": 3,
+      "why": "Queda de cabeza. Pasa lo mismo con el nombre «Grumm».",
+      "dificultad": 2,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Name_Tag",
+      "estado": "revisada"
+    },
+    {
+      "id": "bloque-metro",
+      "q": "En el juego, ¿cuánto mide un bloque?",
+      "options": [
+        "10 centímetros",
+        "1 metro",
+        "2 metros",
+        "1 kilómetro"
+      ],
+      "answer": 1,
+      "why": "Un bloque equivale a un metro cúbico.",
+      "dificultad": 1,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Block",
+      "estado": "revisada"
+    },
+    {
+      "id": "piedra-base",
+      "q": "¿Qué bloque no se puede romper en supervivencia?",
+      "options": [
+        "Obsidiana",
+        "Netherita",
+        "Piedra base (bedrock)",
+        "Diamante"
+      ],
+      "answer": 2,
+      "why": "La piedra base forma el fondo del mundo y no se rompe con ningún pico.",
+      "dificultad": 1,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Bedrock",
+      "estado": "revisada"
+    },
+    {
+      "id": "ghast-gato",
+      "q": "¿De dónde salieron los sonidos del ghast?",
+      "options": [
+        "Del gato del músico",
+        "De un bebé",
+        "De una ballena",
+        "De un violín"
+      ],
+      "answer": 0,
+      "why": "Los grabó el compositor del juego con su gato, que hacía ruidos raros.",
+      "dificultad": 3,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Ghast",
+      "estado": "revisada"
+    },
+    {
+      "id": "herobrine",
+      "q": "¿Qué personaje sale como «eliminado» en las notas de versión, aunque nunca existió?",
+      "options": [
+        "Steve",
+        "El aldeano",
+        "Alex",
+        "Herobrine"
+      ],
+      "answer": 3,
+      "why": "Herobrine es una leyenda; esas notas de «eliminado» son una broma.",
+      "dificultad": 2,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Herobrine",
+      "estado": "revisada"
+    },
+    {
+      "id": "steve-alex",
+      "q": "¿Cómo se llaman los dos personajes clásicos del jugador?",
+      "options": [
+        "Sam y Max",
+        "Steve y Alex",
+        "Tom y Ana",
+        "Herobrine y Bob"
+      ],
+      "answer": 1,
+      "why": "Steve y Alex son las apariencias clásicas; hoy hay más para elegir.",
+      "dificultad": 1,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Player",
+      "estado": "revisada"
+    },
+    {
+      "id": "camello-dos",
+      "q": "¿Cuántos jugadores pueden montar un camello a la vez?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": 1,
+      "why": "Dos: el que maneja y un pasajero.",
+      "dificultad": 2,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Camel",
+      "estado": "revisada"
+    },
+    {
+      "id": "armadillo",
+      "q": "Las escamas de armadillo sirven para hacer armadura para…",
+      "options": [
+        "El caballo",
+        "El jugador",
+        "El lobo",
+        "El gólem"
+      ],
+      "answer": 2,
+      "why": "Para el lobo: lo protege del daño mientras te acompaña.",
+      "dificultad": 3,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Armadillo_Scute",
+      "estado": "revisada"
+    },
+    {
+      "id": "sniffer",
+      "q": "¿Qué hace el sniffer (husmeador)?",
+      "options": [
+        "Desentierra semillas",
+        "Encuentra diamantes",
+        "Pone huevos de oro",
+        "Detecta creepers"
+      ],
+      "answer": 0,
+      "why": "Olfatea y saca semillas antiguas, de plantas que no hay en otro lado.",
+      "dificultad": 3,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Sniffer",
+      "estado": "revisada"
+    },
+    {
+      "id": "oro-rapido",
+      "q": "¿Qué pico mina más rápido, sin encantamientos?",
+      "options": [
+        "El de diamante",
+        "El de netherita",
+        "El de hierro",
+        "El de oro"
+      ],
+      "answer": 3,
+      "why": "El de oro, aunque dura poquísimo y no saca minerales valiosos.",
+      "dificultad": 3,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Pickaxe",
+      "estado": "revisada"
+    },
+    {
+      "id": "templo-tnt",
+      "q": "En el templo del desierto, ¿qué esconde la placa del cuarto secreto?",
+      "options": [
+        "Un tesoro falso",
+        "Dinamita (TNT)",
+        "Lava",
+        "Un zombi"
+      ],
+      "answer": 1,
+      "why": "Una trampa de TNT. Rompe la placa de presión antes de tocar los cofres.",
+      "dificultad": 3,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Desert_Pyramid",
+      "estado": "revisada"
+    }
+  ],
+  "taps": [
+    {
+      "id": "mc-gancho",
+      "titulo": "¿Cuánto sabes de bloques?",
+      "nivel": "facil",
+      "subtema": "mixto",
+      "gancho": true,
+      "preguntas": [
+        "creeper-polvora",
+        "steve-alex",
+        "aldeano-moneda",
+        "piedra-base",
+        "rayo-cerdo"
+      ]
+    },
+    {
+      "id": "mc-crafteo-1",
+      "titulo": "Mesa de crafteo básica",
+      "nivel": "facil",
+      "subtema": "crafteos",
+      "preguntas": [
+        "palos",
+        "cubo-receta",
+        "cama-receta",
+        "escudo",
+        "manzana-oro"
+      ]
+    },
+    {
+      "id": "mc-mascotas",
+      "titulo": "Mascotas y compañeros",
+      "nivel": "media",
+      "subtema": "mobs",
+      "preguntas": [
+        "lobo-hueso",
+        "gato-pescado",
+        "loro-galleta",
+        "delfin",
+        "ajolote-cria"
+      ]
+    },
+    {
+      "id": "mc-nether-2",
+      "titulo": "Criaturas del Nether y el End",
+      "nivel": "dificil",
+      "subtema": "nether-end",
+      "preguntas": [
+        "esqueleto-wither",
+        "strider",
+        "arena-almas",
+        "hoglin-hongo",
+        "shulker-levitacion"
+      ]
+    },
+    {
+      "id": "mc-secretos",
+      "titulo": "Secretos del juego",
+      "nivel": "media",
+      "subtema": "curiosidades",
+      "preguntas": [
+        "bloque-metro",
+        "creeper-origen",
+        "jeb-oveja",
+        "dinnerbone",
+        "cave-game"
+      ]
+    },
+    {
+      "id": "mc-nether-1",
+      "titulo": "Primer viaje al Nether",
+      "nivel": "media",
+      "subtema": "nether-end",
+      "preguntas": [
+        "agua-nether",
+        "piglin-trueque",
+        "netherita-lava",
+        "blaze-vara",
+        "ghast-lagrima"
+      ]
+    },
+    {
+      "id": "mc-mundo",
+      "titulo": "Mobs del mundo",
+      "nivel": "dificil",
+      "subtema": "mobs",
+      "preguntas": [
+        "aldeano-bibliotecario",
+        "zorro-boca",
+        "tortuga-casco",
+        "golem-flor",
+        "guardian-fatiga"
+      ]
+    },
+    {
+      "id": "mc-crafteo-2",
+      "titulo": "Crafteos de experto",
+      "nivel": "dificil",
+      "subtema": "crafteos",
+      "preguntas": [
+        "carbon-vegetal",
+        "cuadricula",
+        "tnt-receta",
+        "yunque",
+        "pastel"
+      ]
+    },
+    {
+      "id": "mc-monstruos",
+      "titulo": "Monstruos de la noche",
+      "nivel": "media",
+      "subtema": "mobs",
+      "preguntas": [
+        "arana-hilo",
+        "enderman-agua",
+        "abeja-pica",
+        "jinete-arana",
+        "evocador-totem"
+      ]
+    },
+    {
+      "id": "mc-redstone-1",
+      "titulo": "Redstone desde cero",
+      "nivel": "facil",
+      "subtema": "redstone",
+      "preguntas": [
+        "mena-redstone",
+        "antorcha-redstone-receta",
+        "bloque-redstone",
+        "piston-obsidiana",
+        "boton-flecha"
+      ]
+    },
+    {
+      "id": "mc-end",
+      "titulo": "El End y el dragón",
+      "nivel": "media",
+      "subtema": "nether-end",
+      "preguntas": [
+        "vacio-end",
+        "elitros",
+        "coral-fruta",
+        "ojo-ender",
+        "huevo-dragon"
+      ]
+    },
+    {
+      "id": "mc-redstone-3",
+      "titulo": "Crack de redstone",
+      "nivel": "dificil",
+      "subtema": "redstone",
+      "preguntas": [
+        "riel-propulsor",
+        "placa-piedra",
+        "diana",
+        "tolva",
+        "comparador"
+      ]
+    },
+    {
+      "id": "mc-encantamientos",
+      "titulo": "Biblioteca y encantamientos",
+      "nivel": "media",
+      "subtema": "crafteos",
+      "preguntas": [
+        "vidrio",
+        "libro-receta",
+        "estanteria",
+        "brujula-receta",
+        "mesa-encantar"
+      ]
+    },
+    {
+      "id": "mc-mineria",
+      "titulo": "Minería profunda",
+      "nivel": "media",
+      "subtema": "supervivencia",
+      "preguntas": [
+        "pico-diamante",
+        "diamantes-donde",
+        "esponja",
+        "leche-efectos",
+        "esmeralda-montana"
+      ]
+    },
+    {
+      "id": "mc-nether-3",
+      "titulo": "Nether de experto",
+      "nivel": "dificil",
+      "subtema": "nether-end",
+      "preguntas": [
+        "brujula-nether",
+        "escombros-pico",
+        "bloque-magma",
+        "ojo-romper",
+        "ancla-reaparicion"
+      ]
+    },
+    {
+      "id": "mc-rayos",
+      "titulo": "Rayos y transformaciones",
+      "nivel": "media",
+      "subtema": "mobs",
+      "preguntas": [
+        "golem-nieve",
+        "rayo-creeper",
+        "vaca-champinon",
+        "rayo-aldeano",
+        "golem-nieve-calor"
+      ]
+    },
+    {
+      "id": "mc-noche-1",
+      "titulo": "Tu primera noche",
+      "nivel": "facil",
+      "subtema": "supervivencia",
+      "preguntas": [
+        "cama-noche",
+        "azada",
+        "arena-cae",
+        "pico-hierro",
+        "carne-podrida"
+      ]
+    },
+    {
+      "id": "mc-nuevos",
+      "titulo": "Criaturas nuevas",
+      "nivel": "dificil",
+      "subtema": "mixto",
+      "preguntas": [
+        "camello-dos",
+        "warden-ciego",
+        "allay",
+        "rana-ranaluz",
+        "armadillo"
+      ]
+    },
+    {
+      "id": "mc-redstone-2",
+      "titulo": "Circuitos de redstone",
+      "nivel": "media",
+      "subtema": "redstone",
+      "preguntas": [
+        "palanca",
+        "lampara",
+        "sensor-luz",
+        "dispensador-soltador",
+        "repetidor-retardo"
+      ]
+    },
+    {
+      "id": "mc-leyendas",
+      "titulo": "Leyendas y trucos",
+      "nivel": "dificil",
+      "subtema": "mixto",
+      "preguntas": [
+        "dia",
+        "herobrine",
+        "templo-tnt",
+        "ghast-gato",
+        "oro-rapido"
+      ]
+    },
+    {
+      "id": "mc-noche-2",
+      "titulo": "Sobrevivir como pro",
+      "nivel": "media",
+      "subtema": "supervivencia",
+      "preguntas": [
+        "gallina-huevo",
+        "hambre-llena",
+        "cofre-ender",
+        "totem",
+        "nieve-polvo"
+      ]
+    },
+    {
+      "id": "mc-mezcla",
+      "titulo": "Un poco de todo",
+      "nivel": "media",
+      "subtema": "mixto",
+      "preguntas": [
+        "creeper",
+        "perlas",
+        "carbon",
+        "brujula-apunta",
+        "sniffer"
+      ]
+    },
+    {
+      "id": "mc-taller",
+      "titulo": "Taller avanzado",
+      "nivel": "dificil",
+      "subtema": "crafteos",
+      "preguntas": [
+        "antorcha",
+        "horno",
+        "linterna",
+        "catalejo",
+        "faro"
+      ]
+    }
+  ]
+}

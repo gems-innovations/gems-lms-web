@@ -2,7 +2,7 @@
 // Zonas (experiencia-ux.md §3): barra arriba (se toca poco), mundo + riel en el centro, pregunta y opciones abajo (pulgar).
 // Tipografía: la familia de interfaz del sitio (--tap-font) para todo lo que se lee y se toca; la del tema
 // (--tap-display-font, p. ej. la pixelada de Minecraft) solo como acento en el nombre del tema.
-:host { display: block; --tap-font: var(--font-texto, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif); --safe-b: max(12px, calc(env(safe-area-inset-bottom) + 8px)); --bar-h: calc(max(8px, env(safe-area-inset-top)) + 56px); }
+:host { display: block; --tap-font: var(--font-interfaz, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif); --safe-b: max(12px, calc(env(safe-area-inset-bottom) + 8px)); --bar-h: calc(max(8px, env(safe-area-inset-top)) + 56px); }
 
 .visually-hidden { font-weight: 700; position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 
@@ -33,20 +33,20 @@
   &__world { position: relative; z-index: 2; flex: 1; min-height: 96px; }
   &__pill, &__pre { position: absolute; left: 50%; top: 10px; display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 8px 16px; border-radius: 999px;
     font-size: 1.2rem; font-weight: 800; white-space: nowrap; color: #06210f; background: #2FBF71; box-shadow: 0 4px 0 rgba(0, 0, 0, .25);
-    transform: translateX(-50%); animation: pill-in .32s cubic-bezier(.2, 1.4, .4, 1) .08s backwards; pointer-events: none;
+    transform: translateX(-50%); animation: pill-in .32s var(--curva-rebote) .08s backwards; pointer-events: none;
     &.is-bad { color: #fff; background: #D1343A; } }
   &__pre { display: none; }
   &__streak { position: absolute; left: 50%; top: 58px; margin: 0; padding: 4px 12px; border-radius: 999px; transform: translateX(-50%); font-size: 1rem; font-weight: 800; font-variant-numeric: tabular-nums;
-    color: #1b1300; background: #F5B83D; animation: pill-in .3s cubic-bezier(.2, 1.4, .4, 1) .3s backwards; }
+    color: #1b1300; background: #F5B83D; animation: pill-in .3s var(--curva-rebote) .3s backwards; }
 
   &__toast { position: absolute; left: 12px; right: 72px; bottom: 12px; margin: 0; padding: 8px 12px; border-radius: 12px; font-size: 1rem; overflow-wrap: anywhere; background: rgba(8, 10, 14, .8); }
 
   // ── panel inferior: pregunta + opciones en la zona del pulgar ──
   &__panel { position: relative; z-index: 3; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: 10px 12px var(--safe-b); background: linear-gradient(to bottom, rgba(10, 12, 16, 0), rgba(10, 12, 16, .7) 26px, rgba(10, 12, 16, .9)); }
-  &__bubble, &__card { position: relative; margin: 0 0 10px; padding: 10px 14px 12px; border-radius: 16px; background: #fff; color: #11151c; box-shadow: 0 4px 0 rgba(0, 0, 0, .25);
+  &__bubble, &__card { position: relative; margin: 0 0 10px; padding: 10px 14px 12px; border-radius: var(--radio-tarjeta); background: #fff; color: #11151c; box-shadow: 0 4px 0 rgba(0, 0, 0, .25);
     &::before { content: ''; position: absolute; left: 34%; top: -8px; width: 16px; height: 16px; background: inherit; transform: rotate(45deg); border-radius: 3px; } }
-  &__bubble { animation: pop .22s ease-in-out; }
-  &__card { background: #1d2430; color: #fff; border: 1px solid rgba(255, 255, 255, .12); &::before { display: none; } animation: pop .22s ease-out .3s backwards; }
+  &__bubble { animation: gm-pop var(--dur-base) var(--curva-estandar); }
+  &__card { background: #1d2430; color: #fff; border: 1px solid rgba(255, 255, 255, .12); &::before { display: none; } animation: gm-pop var(--dur-base) var(--curva-salida) var(--dur-enfasis) backwards; }
   &__over { margin: 0 0 3px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #5b6575; }
   &__card &__over { color: #aab4c4; }
   &__theme { font-family: var(--tap-display-font, inherit); font-size: 1.15em; letter-spacing: .02em; text-transform: none; }
@@ -60,8 +60,8 @@
   &__opt {
     --c: #D1343A; --ink: #fff;
     position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 6px; min-height: clamp(64px, 10.6dvh, 86px);
-    padding: 10px 12px; border: 0; border-radius: 16px; cursor: pointer; font: inherit; font-size: 1.25rem; font-weight: 800; line-height: 1.12; text-align: left;
-    color: var(--ink); background: var(--c); box-shadow: 0 4px 0 rgba(0, 0, 0, .3); transition: transform .08s, box-shadow .08s, opacity .15s, background .12s;
+    padding: 10px 12px; border: 0; border-radius: var(--radio-tarjeta); cursor: pointer; font: inherit; font-size: 1.25rem; font-weight: 800; line-height: 1.12; text-align: left;
+    color: var(--ink); background: var(--c); box-shadow: 0 4px 0 rgba(0, 0, 0, .3); transition: transform var(--dur-instante), box-shadow var(--dur-instante), opacity var(--dur-rapida), background var(--dur-rapida);
     &[data-k='1'] { --c: #2F6BE0; }
     &[data-k='2'] { --c: #F5B83D; --ink: #1B1300; }
     &[data-k='3'] { --c: #2FBF71; --ink: #06210f; }
@@ -72,8 +72,8 @@
   &__opts.is-answered &__opt:not(.is-ok):not(.is-bad) { opacity: .25; }
   &__shape { flex: none; color: var(--ink); opacity: .95; }
   &__label { min-width: 0; overflow-wrap: anywhere; }
-  &__mark-ok { position: absolute; top: 8px; right: 8px; animation: pop .2s ease-out; }
-  &__touch { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; animation: fade-in .3s ease-out .8s backwards;
+  &__mark-ok { position: absolute; top: 8px; right: 8px; animation: gm-pop var(--dur-base) var(--curva-salida); }
+  &__touch { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; animation: gm-fundido var(--dur-enfasis) var(--curva-salida) .8s backwards;
     i { width: 56px; height: 56px; border-radius: 50%; border: 3px solid #fff; animation: ring 1.4s ease-out infinite; }
     b { position: absolute; top: 8px; right: 8px; padding: 3px 9px; border-radius: 999px; font-size: 13px; white-space: nowrap; color: #11151c; background: #fff; } }
 
@@ -98,8 +98,6 @@
 a, button { &:focus-visible { outline: 3px solid #fff; outline-offset: 2px; } }
 
 @keyframes pill-in { from { opacity: 0; transform: translateX(-50%) scale(.8); } }
-@keyframes pop { from { opacity: 0; transform: scale(.94); } }
-@keyframes fade-in { from { opacity: 0; } }
 @keyframes ring { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
 @keyframes drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 @keyframes peek-bounce { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-14px); } }

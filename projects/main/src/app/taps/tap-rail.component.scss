@@ -1,0 +1,12 @@
+// Riel lateral de Taps. Los iconos son `gm-icono gm-icono--flotante` del sistema visual (48 px, redondos, vidrio con blur
+// solo si el navegador lo soporta); aquí solo se posiciona el riel y se apaga el blur cuando el motor pasa a modo ligero.
+@use 'piezas';
+@include piezas.iconos;
+
+:host { position: absolute; right: 8px; bottom: 12px; transition: opacity var(--dur-base) var(--curva-estandar); }
+.rail { display: grid; gap: 10px; }
+.rail__btn { display: grid; justify-items: center; gap: 2px; width: 56px; min-height: 66px; padding: 0; border: 0; background: none; color: #fff; font: inherit; cursor: pointer; }
+.rail__label { font-size: 11px; font-weight: 700; text-shadow: 0 1px 2px #000; }
+button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+// Taps degradó el 3D (html[data-glass='off']): sin blur sobre el canvas.
+:host-context(html[data-glass='off']) .gm-icono--flotante { background: var(--glass-flotante-solido); -webkit-backdrop-filter: none; backdrop-filter: none; }

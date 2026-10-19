@@ -17,7 +17,7 @@ const TAPS_SEO: IRouteSeo = {
   imageAlt: 'Un Tap de GEMS: una pregunta de Minecraft con el personaje en vivo',
 };
 /** El Tap de un enlace compartido (/t/:id); import diferido para no sumar las preguntas al bundle inicial. */
-const sharedTap = (id: string | null) => import('./taps/taps.data').then(m => m.TAPS.find(t => t.id === id) ?? null);
+const sharedTap = (id: string | null) => import('./taps/taps.data').then(m => m.findTap(id));
 
 export const routes: Routes = [
   // ── Público: cursos gratis sin registro (gancho) e instituciones ──────────

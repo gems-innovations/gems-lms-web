@@ -1,5 +1,5 @@
-import { TAP_LIMITS, choose, feedTopics, next, optionLayout, orderFeed, startRun, streak, topicOf, validateTap } from './taps.logic';
-import { HOOK_TAP_ID, TAP_TOPICS, TAPS } from './taps.data';
+import { MAX_SAME_TOPIC_IN_A_ROW, TAP_LIMITS, choose, feedTopics, mixFeed, next, optionLayout, orderFeed, sawtoothOrder, startRun, streak, topicOf, validateTap } from './taps.logic';
+import { HOOK_TAP_IDS, RETIRED_TAP_IDS, TAP_TOPICS, TAPS, findTap } from './taps.data';
 import { ITap } from './taps.types';
 
 const tap: ITap = {
@@ -31,8 +31,8 @@ describe('orderFeed', () => {
   const logica: ITap = { ...tap, id: 'l', topic: 'logica' };
   const todos = [a, gancho, logica];
 
-  it('alguien nuevo empieza por el Tap de gancho', () => {
-    expect(orderFeed(todos, {}).map(t => t.id)).toEqual(['gancho', 'a', 'l']);
+  it('alguien nuevo empieza por el Tap de gancho y luego se alternan las categorías', () => {
+    expect(orderFeed(todos, {}).map(t => t.id)).toEqual(['gancho', 'l', 'a']);
   });
   it('quien ya lo jugó lo encuentra al final', () => {
     expect(orderFeed(todos, { hookDone: true }).map(t => t.id)).toEqual(['a', 'l', 'gancho']);
@@ -44,13 +44,108 @@ describe('orderFeed', () => {
     expect(orderFeed(todos, { topic: 'logica' }).map(t => t.id)).toEqual(['l', 'gancho', 'a']);
   });
   it('un ?tema= sin Taps deja el orden normal', () => {
-    expect(orderFeed(todos, { topic: 'nada' }).map(t => t.id)).toEqual(['gancho', 'a', 'l']);
+    expect(orderFeed(todos, { topic: 'nada' }).map(t => t.id)).toEqual(['gancho', 'l', 'a']);
   });
   it('sin topic la categoría es el tema del motor', () => {
     expect(topicOf(a)).toBe('minecraft');
     expect(topicOf(logica)).toBe('logica');
   });
 });
+
+describe('mixFeed (feed «Para ti»)', () => {
+  const NIVELES = ['facil', 'media', 'dificil'] as const;
+  const maker = (topic: string, n: number, hook = true): ITap[] =>
+    Array.from({ length: n }, (_, i) => ({ ...tap, id: `${topic}-${i}`, topic, hook: hook && i === 0, level: NIVELES[(i * 2) % 3] }));
+  const sample = [...maker('mc', 9), ...maker('lg', 5), ...maker('cu', 6)];
+
+  it('conserva todos los Taps, sin repetir ni perder ninguno', () => {
+    const out = mixFeed(sample);
+    expect(out.length).toBe(sample.length);
+    expect(new Set(out.map(t => t.id)).size).toBe(sample.length);
+  });
+  it('nunca pone más de 2 seguidos de la misma categoría', () => {
+    expect(maxRun(mixFeed(sample))).toBeLessThanOrEqual(MAX_SAME_TOPIC_IN_A_ROW);
+    expect(maxRun(mixFeed(sample, { hookDone: true }).slice(0, -3))).toBeLessThanOrEqual(MAX_SAME_TOPIC_IN_A_ROW);
+  });
+  it('empieza por un gancho y el gancho de cada categoría es lo primero que sale de ella', () => {
+    const out = mixFeed(sample);
+    expect(out[0].hook).toBeTrue();
+    for (const topic of ['mc', 'lg', 'cu']) expect(out.find(t => topicOf(t) === topic)!.hook).toBeTrue();
+  });
+  it('con hookDone los ganchos van al final', () => {
+    const out = mixFeed(sample, { hookDone: true });
+    expect(out.slice(-3).every(t => t.hook)).toBeTrue();
+    expect(out.slice(0, -3).some(t => t.hook)).toBeFalse();
+  });
+  it('es determinista: el servidor y el navegador dan el mismo orden', () => {
+    expect(mixFeed(sample).map(t => t.id)).toEqual(mixFeed([...sample]).map(t => t.id));
+  });
+  it('sawtoothOrder: el gancho primero y la dificultad no sube en línea recta', () => {
+    const base = ['facil', 'media', 'dificil'] as const;
+    const list = Array.from({ length: 12 }, (_, i): ITap => ({ ...tap, id: 'x' + i, topic: 'x', hook: i === 0, level: base[i % 3] }));
+    const out = sawtoothOrder(list);
+    expect(out.length).toBe(12);
+    expect(out[0].hook).toBeTrue();
+    const rank = out.slice(1).map(t => base.indexOf(t.level!));
+    expect(rank.some((r, i) => i > 0 && r < rank[i - 1])).toBeTrue();     // alguna bajada
+    expect(rank.some((r, i) => i > 0 && r > rank[i - 1])).toBeTrue();     // alguna subida
+  });
+  it('si queda una sola categoría, no se detiene', () => {
+    expect(mixFeed(maker('solo', 5)).length).toBe(5);
+  });
+});
+
+describe('el feed con los Taps reales', () => {
+  const feed = orderFeed(TAPS, {});
+  it('hay 53 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
+    expect(TAPS.length).toBe(53);
+    expect(new Set(TAPS.map(t => t.id)).size).toBe(TAPS.length);
+    const questionIds = TAPS.flatMap(t => t.questions.map(q => q.id));
+    expect(questionIds.length).toBe(53 * 5);
+    expect(new Set(questionIds).size).toBe(questionIds.length);
+  });
+  it('el feed los trae todos, con un gancho primero y nunca más de 2 seguidos del mismo tema', () => {
+    expect(feed.length).toBe(TAPS.length);
+    expect(feed[0].hook).toBeTrue();
+    expect(maxRun(feed)).toBeLessThanOrEqual(MAX_SAME_TOPIC_IN_A_ROW);
+  });
+  it('cada tema tiene su Tap de gancho y es el primero de ese tema en el feed', () => {
+    expect(HOOK_TAP_IDS.length).toBe(3);
+    for (const topic of ['minecraft', 'logica', 'cultura']) expect(feed.find(t => topicOf(t) === topic)!.hook).toBeTrue();
+  });
+  it('un enlace a un Tap lo pone primero y sigue sin pasar de 2 seguidos', () => {
+    const f = orderFeed(TAPS, { first: TAPS[30].id });
+    expect(f[0].id).toBe(TAPS[30].id);
+    expect(f.length).toBe(TAPS.length);
+  });
+  it('con ?tema= salen primero los de ese tema (con su gancho al frente)', () => {
+    const f = orderFeed(TAPS, { topic: 'cultura' });
+    const n = TAPS.filter(t => topicOf(t) === 'cultura').length;
+    expect(f.slice(0, n).every(t => topicOf(t) === 'cultura')).toBeTrue();
+    expect(f[0].hook).toBeTrue();
+  });
+  it('la dificultad sube y baja: nunca 3 difíciles seguidos y hay fáciles repartidos hasta el final', () => {
+    const levels = feed.map(t => t.level);
+    for (let i = 2; i < levels.length; i++) expect(levels[i] === 'dificil' && levels[i - 1] === 'dificil' && levels[i - 2] === 'dificil').withContext('posición ' + i).toBeFalse();
+    expect(levels.slice(30).includes('facil')).toBeTrue();
+  });
+  it('mezcla Minecraft (3D) con estudio (2D) desde los primeros 12 Taps', () => {
+    expect(new Set(feed.slice(0, 12).map(t => t.theme)).size).toBe(2);
+  });
+  it('los ids antiguos llevan a su equivalente y un id retirado o inexistente no devuelve nada', () => {
+    expect(findTap('primeros-pasos')?.hook).toBeTrue();
+    expect(findTap('nether')?.subtopic).toBe('nether-end');
+    expect(findTap('redstone')?.subtopic).toBe('redstone');
+    expect(findTap('no-existe')).toBeNull();
+    for (const id of RETIRED_TAP_IDS) expect(findTap(id)).toBeNull();
+  });
+});
+
+function maxRun(list: ITap[]): number {
+  let best = 0, run = 0;
+  list.forEach((t, i) => { run = i && topicOf(t) === topicOf(list[i - 1]) ? run + 1 : 1; best = Math.max(best, run); });
+  return best;
+}
 
 describe('feedTopics', () => {
   const catalogo = [
@@ -66,10 +161,9 @@ describe('feedTopics', () => {
     expect(list[0]).toEqual(jasmine.objectContaining({ count: 1, soon: false }));
     expect(list[0].topic.name).toBe('Ciencias');
   });
-  it('con los Taps reales Minecraft es jugable', () => {
+  it('con los Taps reales los tres temas son jugables, con sus conteos, y ninguno dice «pronto»', () => {
     const real = feedTopics(TAPS, TAP_TOPICS);
-    expect(real[0].topic.id).toBe('minecraft');
-    expect(real[0].soon).toBeFalse();
+    expect(real.map(t => [t.topic.id, t.count, t.soon])).toEqual([['minecraft', 23, false], ['logica', 14, false], ['cultura', 16, false]]);
   });
 });
 
@@ -82,18 +176,33 @@ describe('optionLayout', () => {
 });
 
 describe('textos de los Taps reales', () => {
-  it('explicaciones de 90 caracteres o menos y preguntas de 70 o menos', () => {
+  it('explicaciones de 90 caracteres o menos, preguntas de 120 o menos y opciones de 22', () => {
     for (const t of TAPS) for (const q of t.questions) {
       expect(q.why.length).withContext(t.id + '/' + q.id).toBeLessThanOrEqual(TAP_LIMITS.why);
       expect(q.q.length).withContext(t.id + '/' + q.id).toBeLessThanOrEqual(TAP_LIMITS.question);
+      expect(q.options.length).withContext(t.id + '/' + q.id).toBe(4);
+      for (const o of q.options) expect(o.length).withContext(t.id + '/' + q.id).toBeLessThanOrEqual(TAP_LIMITS.optionGrid);
     }
   });
 
-  it('hay un Tap de gancho con la primera respuesta abajo a la derecha (donde pulsa la pista)', () => {
-    const gancho = TAPS.find(t => t.id === HOOK_TAP_ID)!;
-    expect(gancho.hook).toBeTrue();
-    expect(gancho.questions[0].answer).toBe(3);
-    expect(gancho.questions[0].options.length).toBe(4);
+  it('cada tema tiene un Tap de gancho con una primera pregunta de 4 opciones', () => {
+    for (const id of HOOK_TAP_IDS) {
+      const gancho = TAPS.find(t => t.id === id)!;
+      expect(gancho.hook).toBeTrue();
+      expect(gancho.questions[0].options.length).toBe(4);
+    }
+  });
+
+  it('cada Tap usa un mundo, un personaje y un objeto de su tema', () => {
+    const permitido: Record<string, { hosts: string[]; items: string[] }> = {
+      minecraft: { hosts: ['leo', 'sofi', 'mateo', 'dani'], items: ['sword', 'pick', 'axe', 'torch', 'diamond', 'apple', 'grass', 'tnt'] },
+      estudio: { hosts: ['chispa', 'nube'], items: ['matraz', 'lupa', 'libro'] },
+    };
+    for (const t of TAPS) {
+      expect(permitido[t.theme].hosts).withContext(t.id).toContain(t.scene.host);
+      expect(permitido[t.theme].items).withContext(t.id).toContain(t.scene.item!);
+    }
+    expect(new Set(TAPS.map(t => t.scene.world)).size).toBeGreaterThanOrEqual(8);
   });
 
   it('ningún título es negativo, ni con 0 aciertos', () => {
