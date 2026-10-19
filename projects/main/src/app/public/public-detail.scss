@@ -27,7 +27,7 @@
 .perks { display: grid; gap: 10px; margin: 20px 0 0; padding: 0; list-style: none;
   li { padding: 14px 16px; border-radius: 12px; background: var(--color-superficie); border: 1px solid var(--color-borde-principal); font-size: var(--font-size-sm); }
   strong { display: block; color: var(--color-texto-principal); font-size: var(--font-size-base); } }
-.start a { color: var(--color-primario-texto, var(--color-primario)); }
+.start a { color: var(--color-texto-acento); } // --color-primario-texto no existe: caía en #7B6FF0 (3,9:1 en tema claro)
 .mobile-cta { display: none; }
 
 @media (max-width: 860px) {
