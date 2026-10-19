@@ -591,6 +591,7 @@
 }
 
 .quiz-option {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -611,8 +612,12 @@
 
   // Presión como en Taps: se hunde un poco al tocar.
   &:active { transform: scale(var(--presion-escala)); transition-duration: var(--dur-instante); }
+  @media (prefers-reduced-motion: reduce) { &:active { transform: none; } }
+  :host-context(.reduce-motion) &:active { transform: none; }
 
-  input { display: none; }
+  // Oculto a la vista pero no al teclado ni al lector de pantalla (con display: none no se podía llegar con Tab).
+  input { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+  &:has(input:focus-visible) { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
 
   &:hover {
     border-color: color-mix(in srgb, var(--color-primario) 40%, transparent);
@@ -785,9 +790,9 @@
   background: color-mix(in srgb, var(--color-error) 10%, transparent);
   color: var(--color-error);
   flex-shrink: 0;
+  animation: gm-pop var(--dur-enfasis) var(--curva-rebote) both;
 
   &--pass { background: color-mix(in srgb, var(--color-exito) 10%, transparent); color: var(--color-exito); }
-  animation: gm-pop var(--dur-enfasis) var(--curva-rebote) both;
 }
 
 .quiz-result__label {
