@@ -67,7 +67,7 @@ export const routes: Routes = [
     // Enlace para compartir un Tap: ese Tap va primero y su tarjeta lleva su nombre (se prerenderiza uno por Tap).
     path: 't/:id',
     title: (route: ActivatedRouteSnapshot) => sharedTap(route.paramMap.get('id'))
-      .then(tap => tap ? `Tap de ${tap.title}: ¿cuánto sabes?` : 'Taps: quizzes que juegas con un personaje en vivo'),
+      .then(tap => tap ? (tap.title.trim().endsWith('?') ? `Tap: ${tap.title}` : `Tap de ${tap.title}: ¿cuánto sabes?`) : 'Taps: quizzes que juegas con un personaje en vivo'),
     resolve: {
       seo: (route: ActivatedRouteSnapshot) => Promise.all([sharedTap(route.paramMap.get('id')), sharedTapImage(route.paramMap.get('id'))]).then(([tap, imagen]): IRouteSeo => tap ? {
         ...TAPS_SEO,

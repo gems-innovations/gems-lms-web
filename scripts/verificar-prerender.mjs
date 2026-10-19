@@ -3,7 +3,7 @@
 //
 // Uso (tras `ng build main --configuration production,static`):  node scripts/verificar-prerender.mjs [carpeta]
 // Por defecto revisa dist/main/browser. Se corre en CI (.github/workflows/ci.yml).
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
 const raiz = resolve(process.argv[2] ?? 'dist/main/browser');
@@ -41,6 +41,12 @@ for (const f of archivos) {
 const portada = readFileSync(join(raiz, 'index.html'), 'utf8');
 for (const esperado of ['Aprende lo que necesitas', 'Cursos gratis', 'card--skeleton', 'href="/taps"', 'href="/instituciones"']) {
   if (!portada.includes(esperado)) { fallos++; console.error(`FALLO index.html: falta «${esperado}»`); }
+}
+// Los enlaces compartidos con ids antiguos deben conservar su tarjeta: título propio, no el genérico de la shell.
+for (const id of ['primeros-pasos', 'redstone', 'nether']) {
+  const f = join(raiz, 't', id, 'index.html');
+  const html = existsSync(f) ? readFileSync(f, 'utf8') : '';
+  if (!/<title>Tap/.test(html)) { fallos++; console.error(`FALLO t/${id}/index.html: no está prerenderizado con su título (enlaces viejos sin tarjeta)`); }
 }
 
 if (fallos) { console.error(`\n${fallos} problema(s): el prerender no debe depender del API (ver scripts/verificar-prerender.mjs).`); process.exit(1); }

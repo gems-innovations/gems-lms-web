@@ -1,5 +1,5 @@
 import { PrerenderFallback, RenderMode, ServerRoute } from '@angular/ssr';
-import { TAPS } from './taps/taps.data';
+import { LEGACY_TAP_IDS, TAPS } from './taps/taps.data';
 
 /**
  * Cómo se entrega cada ruta. Producción es estática (nginx, `--configuration production,static`): no hay Node que
@@ -25,7 +25,7 @@ export const serverRoutes: ServerRoute[] = [
   {
     path: 't/:id',
     renderMode: RenderMode.Prerender,
-    getPrerenderParams: async () => TAPS.map(tap => ({ id: tap.id })),
+    getPrerenderParams: async () => [...TAPS.map(tap => tap.id), ...LEGACY_TAP_IDS].map(id => ({ id })),
     fallback: PrerenderFallback.Client,
   },
   { path: 'not-found',      renderMode: RenderMode.Prerender },
