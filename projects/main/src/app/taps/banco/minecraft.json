@@ -27,19 +27,33 @@
       "id": "dia",
       "origen": "BLOQUES",
       "subtema": "supervivencia",
-      "dificultad": 1
+      "dificultad": 1,
+      "visual": {
+        "objeto": "reloj",
+        "accion": "dia"
+      }
     },
     {
       "id": "antorcha",
       "origen": "BLOQUES",
       "subtema": "crafteos",
-      "dificultad": 1
+      "dificultad": 1,
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "antorcha"
+      }
     },
     {
       "id": "horno",
       "origen": "BLOQUES",
       "subtema": "crafteos",
-      "dificultad": 2
+      "dificultad": 2,
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "horno"
+      }
     },
     {
       "id": "creeper",
@@ -811,7 +825,12 @@
       "dificultad": 1,
       "subtema": "crafteos",
       "fuente": "https://minecraft.wiki/w/Bed",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "cama"
+      }
     },
     {
       "id": "libro-receta",
@@ -827,7 +846,12 @@
       "dificultad": 2,
       "subtema": "crafteos",
       "fuente": "https://minecraft.wiki/w/Book",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "libro"
+      }
     },
     {
       "id": "estanteria",
@@ -843,7 +867,12 @@
       "dificultad": 2,
       "subtema": "crafteos",
       "fuente": "https://minecraft.wiki/w/Bookshelf",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "estanteria"
+      }
     },
     {
       "id": "mesa-encantar",
@@ -859,7 +888,12 @@
       "dificultad": 3,
       "subtema": "crafteos",
       "fuente": "https://minecraft.wiki/w/Enchanting_Table",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "mesa-encantar"
+      }
     },
     {
       "id": "yunque",
@@ -891,7 +925,12 @@
       "dificultad": 1,
       "subtema": "crafteos",
       "fuente": "https://minecraft.wiki/w/Bucket",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "cubo"
+      }
     },
     {
       "id": "escudo",
@@ -907,7 +946,12 @@
       "dificultad": 2,
       "subtema": "crafteos",
       "fuente": "https://minecraft.wiki/w/Shield",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "escudo"
+      }
     },
     {
       "id": "tnt-receta",
@@ -923,7 +967,12 @@
       "dificultad": 2,
       "subtema": "crafteos",
       "fuente": "https://minecraft.wiki/w/TNT",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "tnt"
+      }
     },
     {
       "id": "pastel",
@@ -955,7 +1004,12 @@
       "dificultad": 2,
       "subtema": "crafteos",
       "fuente": "https://minecraft.wiki/w/Golden_Apple",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "manzana-oro"
+      }
     },
     {
       "id": "brujula-receta",
@@ -971,7 +1025,12 @@
       "dificultad": 2,
       "subtema": "crafteos",
       "fuente": "https://minecraft.wiki/w/Compass",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "brujula"
+      }
     },
     {
       "id": "linterna",
@@ -987,7 +1046,12 @@
       "dificultad": 3,
       "subtema": "crafteos",
       "fuente": "https://minecraft.wiki/w/Lantern",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "linterna"
+      }
     },
     {
       "id": "carbon-vegetal",
@@ -1051,7 +1115,12 @@
       "dificultad": 1,
       "subtema": "crafteos",
       "fuente": "https://minecraft.wiki/w/Stick",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "palos"
+      }
     },
     {
       "id": "catalejo",
@@ -1099,7 +1168,12 @@
       "dificultad": 1,
       "subtema": "redstone",
       "fuente": "https://minecraft.wiki/w/Lever",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "palanca"
+      }
     },
     {
       "id": "boton-flecha",
@@ -1147,7 +1221,11 @@
       "dificultad": 2,
       "subtema": "redstone",
       "fuente": "https://minecraft.wiki/w/Piston",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "piston",
+        "accion": "bloquea"
+      }
     },
     {
       "id": "lampara",
@@ -1163,7 +1241,12 @@
       "dificultad": 2,
       "subtema": "redstone",
       "fuente": "https://minecraft.wiki/w/Redstone_Lamp",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "lampara"
+      }
     },
     {
       "id": "dispensador-soltador",
@@ -1259,7 +1342,12 @@
       "dificultad": 1,
       "subtema": "redstone",
       "fuente": "https://minecraft.wiki/w/Redstone_Torch",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "antorcha-redstone"
+      }
     },
     {
       "id": "diana",
@@ -1307,7 +1395,11 @@
       "dificultad": 3,
       "subtema": "redstone",
       "fuente": "https://minecraft.wiki/w/Redstone_Comparator",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "comparador",
+        "accion": "cofre"
+      }
     },
     {
       "id": "tolva",
@@ -1323,7 +1415,12 @@
       "dificultad": 3,
       "subtema": "redstone",
       "fuente": "https://minecraft.wiki/w/Hopper",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "receta",
+        "accion": "crafteo",
+        "valor": "tolva"
+      }
     },
     {
       "id": "pico-diamante",
@@ -1483,7 +1580,11 @@
       "dificultad": 1,
       "subtema": "supervivencia",
       "fuente": "https://minecraft.wiki/w/Bed",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "reloj",
+        "accion": "cama"
+      }
     },
     {
       "id": "diamantes-donde",

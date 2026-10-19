@@ -29,7 +29,8 @@ import { keyAction, typingTarget } from './taps.keys';
 import { panelCards, panelState } from './taps.panel';
 import { WheelGate } from './taps.wheel';
 import { TapsSonidoService } from './taps-sonido.service';
-import { ITap, ITapRun, ITapsStage } from './taps.types';
+import { ITap, ITapRun, ITapVisual, ITapsStage } from './taps.types';
+import { visualSide } from './taps.escena';
 
 const SOUND_KEY = 'gems-taps-sound';
 const VOZ_KEY = 'gems-taps-voz';
@@ -64,7 +65,7 @@ interface IPreAnswer { id: string; k: number; t: number }
   selector: 'gems-taps',
   imports: [TapResultComponent, TapsBarComponent, TapRailComponent, TapPanelComponent, TapsMenuComponent, TapsRankingComponent, SkeletonComponent],
   templateUrl: './taps-feed.component.html',
-  styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.escritorio.scss'],
+  styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.escritorio.scss', './taps-feed.escena.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [TapsSonidoService],
 })
@@ -198,6 +199,8 @@ export class TapsFeedComponent {
   private stageErrorCounted = false;
   /** Ya se agregó una entrada al historial al dejar el primer Tap (Atrás vuelve a él una vez y luego sale). */
   private pushed = false;
+  /** Tocar el objeto que explica pausa la cuenta atrás; se reanuda sola tras un rato sin tocarlo. */
+  private visualTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     const html = this.document.documentElement;
@@ -208,6 +211,7 @@ export class TapsFeedComponent {
       html.removeAttribute('data-glass');
       this.clock.cancel();
       this.clearHold();
+      this.clearVisualTimer();
       this.revokeDownload();
       this.stages.forEach(stage => stage.destroy());
       this.stages.clear();
@@ -287,6 +291,22 @@ export class TapsFeedComponent {
   protected topicColor(tap: ITap): string { return this.topics.find(t => t.topic.id === topicOf(tap))?.topic.color ?? '#8b93a7'; }
   protected displayFont(tap: ITap): string | null { return TAP_DISPLAY_FONTS[tap.theme] ?? null; }
   protected topicLabel(tap: ITap): string { return this.topics.find(t => t.topic.id === topicOf(tap))?.topic.name ?? tap.kicker; }
+  /** Objeto para explicar de la pregunta a la vista: solo tras fallar (junto a la explicación) y con escenario (el motor lo dibuja). */
+  protected visualOf(tap: ITap, run: ITapRun): ITapVisual | null {
+    if (run.finished || run.chosen === null) return null;
+    const q = tap.questions[run.index];
+    if (!q?.visual || run.chosen === q.answer) return null;
+    const mode = this.stageMode();
+    return mode === '3d' || mode === 'light' || mode === 'poster' ? q.visual : null;
+  }
+  protected visualSide(tap: ITap): 'izq' | 'der' { return visualSide(tap.scene); }
+  /** Teclado o lector de pantalla (clic sin puntero): repite la animación del objeto. Con puntero ya la maneja el motor. */
+  protected replayVisual(event: MouseEvent): void {
+    if (event.detail !== 0) return;
+    this.stage?.replayVisual?.();
+    this.onVisualTouch();                                          // como al tocarlo: la cuenta atrás espera mientras se mira
+  }
+
   /** «Toca tu respuesta»: solo en la primera pregunta del Tap de gancho, hasta el primer toque. */
   protected showTouchHint(tap: ITap): boolean { const run = this.run(tap); return !!tap.hook && run.index === 0 && run.chosen === null && !run.finished; }
 
@@ -319,9 +339,36 @@ export class TapsFeedComponent {
       const section = this.sections()[this.taps().indexOf(tap)]?.nativeElement;
       const go = section?.querySelector<HTMLElement>('.tap__go');
       this.reveal(section, go);
+      this.mountVisual(tap, section);
       if (this.wide()) go?.focus({ preventScroll: true });          // escritorio: Enter o Espacio adelantan sin código especial
     }, { injector: this.injector });
   }
+
+  /** Pide al motor el objeto que explica la pregunta (si la vista lo pintó). Si el tema no lo tiene, el hueco se oculta. */
+  private mountVisual(tap: ITap, section: HTMLElement | undefined): void {
+    const el = section?.querySelector<HTMLElement>('.tap__visual');
+    const spec = this.visualOf(tap, this.run(tap));
+    if (!el || !spec || !this.stage?.visual || tap.id !== this.activeId()) return;
+    void this.stage.visual(spec, el, { side: this.visualSide(tap) }).then(label => {
+      if (!label) { el.hidden = true; return; }
+      // el lienzo va dentro del botón (hijos de presentación): la descripción del objeto va en el nombre accesible del botón
+      el.setAttribute('aria-label', `Explicación con un objeto: ${label.trim()} Pulsa para verla otra vez.`);
+    }, () => { el.hidden = true; });
+  }
+
+  /** El objeto se tocó o se arrastró: la cuenta atrás espera mientras se explora y sigue sola 2,5 s después. */
+  private onVisualTouch(): void {
+    if (!this.clock.active) return;
+    this.clock.pause();
+    this.waitPaused.set(true);
+    this.clearVisualTimer();
+    this.visualTimer = setTimeout(() => {
+      this.visualTimer = null;
+      if (!this.held && !this.sheetOpen() && !this.document.hidden) { this.clock.resume(); this.waitPaused.set(false); }
+    }, 2500);
+  }
+
+  private clearVisualTimer(): void { if (this.visualTimer) clearTimeout(this.visualTimer); this.visualTimer = null; }
 
   /** Adelantar con el botón «Seguir» (teclado y lector de pantalla). */
   protected skip(): void { this.clock.flush(); }
@@ -358,6 +405,8 @@ export class TapsFeedComponent {
     const tap = this.clockTap;
     this.clockTap = null;
     this.wait.set(null);
+    this.clearVisualTimer();
+    this.stage?.clearVisual?.();
     if (!tap) return;
     const run = next(this.run(tap), tap);
     if (run === this.run(tap)) return;
@@ -373,6 +422,7 @@ export class TapsFeedComponent {
     } else {
       this.questionShownAt = performance.now();
       if (tap.id === this.activeId()) { this.stage?.react('ask', { say: false }); this.readQuestion(tap); }
+      if (tap.questions[run.index]?.visual) void this.stage?.preloadVisuals?.();
       this.focusLater(tap, '.tap__q');
       if (run.index === 2) this.preloadAhead(this.activeIndex);   // llega a la pregunta 3: se adelanta el escenario de los siguientes
     }
@@ -838,6 +888,7 @@ export class TapsFeedComponent {
       const run = this.run(tap);
       if (run.finished) this.celebrateResult(tap, run); else { stage.say(''); stage.react('ask', { say: false }); this.readQuestion(tap); }
       this.audio.precalentar(tap.theme);
+      if (tap.questions.some(q => q.visual)) void stage.preloadVisuals?.();
       this.preloadAhead(index);
     } catch {
       // Sin tema ni motor el Tap se juega sobre su degradado (--bg-top/--bg-bottom), sin personaje y sin aviso: es el mínimo garantizado.
@@ -910,7 +961,8 @@ export class TapsFeedComponent {
         this.track(null, `taps/poster-solo/${this.posterReason(data.reason)}`);
       }
     });
-    stage.on('degrade', () => this.glassOff());                     // el 3D va justo: el blur sobre el canvas cuesta fps
+    stage.on('degrade', () => this.glassOff());
+    stage.on('visual', () => { if (stage === this.stage) this.onVisualTouch(); });                     // el 3D va justo: el blur sobre el canvas cuesta fps
     // La promesa del 3D puede rechazar si el tema falla: siempre se atiende, o sería un error sin capturar.
     const ready3d = stage.ready3d.then(mode => { this.pending3d.delete(stage); if (stage === this.stage) this.setStageMode(mode); }, () => undefined);
     try {

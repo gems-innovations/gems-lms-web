@@ -245,7 +245,11 @@
       "dificultad": 1,
       "subtema": "espacio",
       "fuente": "https://science.nasa.gov/mercury/facts/",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "planetas",
+        "accion": "cercano"
+      }
     },
     {
       "id": "venus-caliente",
@@ -293,7 +297,11 @@
       "dificultad": 1,
       "subtema": "espacio",
       "fuente": "https://science.nasa.gov/jupiter/facts/",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "planetas",
+        "accion": "grande"
+      }
     },
     {
       "id": "luz-8min",
@@ -468,7 +476,11 @@
       "dificultad": 1,
       "subtema": "espacio",
       "fuente": "https://es.wikipedia.org/wiki/Planeta_enano",
-      "estado": "revisada"
+      "estado": "revisada",
+      "visual": {
+        "objeto": "planetas",
+        "accion": "ocho"
+      }
     },
     {
       "id": "pulpo-corazones",

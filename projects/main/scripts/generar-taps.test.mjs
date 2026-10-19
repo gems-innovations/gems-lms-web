@@ -176,7 +176,7 @@ test('la asignación de escena es determinista y variada', () => {
   assert.equal(a.item, 'pick');
   assert.equal(asignarEscena('minecraft', 'nether-end', 0, 0, false).world, 'nether');
   assert.equal(asignarEscena('minecraft', 'nether-end', 0, 0, false).item, 'sword');
-  assert.deepEqual(asignarEscena('logica', 'mixto', 0, 0, true), { world: 'aula', host: 'chispa', item: 'lupa' });
+  assert.deepEqual(asignarEscena('logica', 'mixto', 0, 0, true), { world: 'aula', host: 'chispa', item: 'lupa', shot: 'centro', enter: 'saluda' });
   assert.deepEqual(asignarEscena('cultura', 'cuerpo-humano', 0, 0, false).item, 'matraz');
   assert.notEqual(asignarEscena('minecraft', 'mobs', 0, 0, false).world + asignarEscena('minecraft', 'mobs', 1, 1, false).world,
     asignarEscena('minecraft', 'mobs', 0, 0, false).world.repeat(2));
@@ -192,6 +192,37 @@ test('en el banco real la escena varía: varios mundos, objetos y personajes por
   }
   assert.ok(taps.filter(t => t.subtopic === 'nether-end').every(t => ['nether', 'end'].includes(t.scene.world)));
   assert.ok(taps.filter(t => t.subtopic === 'redstone').every(t => t.scene.world === 'cueva' || t.scene.world === 'noche'));
+});
+
+test('cada Tap publicado tiene su lugar propio y el personaje no queda siempre igual al deslizar', () => {
+  const { taps } = construir();
+  assert.equal(taps.find(t => t.id === 'mc-nether-1').scene.world, 'nether', 'el viaje al Nether pasa en el Nether');
+  assert.equal(taps.find(t => t.id === 'mc-end').scene.world, 'end');
+  for (const theme of ['minecraft', 'estudio']) {
+    const del = taps.filter(t => t.theme === theme);
+    assert.ok(new Set(del.map(t => t.scene.shot)).size >= 5, theme + ': pocos encuadres');
+    assert.ok(new Set(del.map(t => t.scene.enter)).size >= 3, theme + ': pocas entradas');
+    assert.ok(del.filter(t => t.scene.props).length >= 8, theme + ': pocos decorados');
+    // en el orden del banco, dos Taps seguidos del mismo tema nunca repiten encuadre
+    del.forEach((t, i) => i && assert.notEqual(t.scene.shot, del[i - 1].scene.shot, t.id + ' repite el encuadre del Tap anterior'));
+  }
+  assert.ok(new Set(taps.filter(t => t.theme === 'estudio').map(t => t.scene.world)).size >= 7, 'estudio usa sus mundos nuevos');
+  assert.ok(taps.every(t => typeof t.ground === 'string'), 'cada Tap trae el color de su suelo');
+});
+
+test('objetos para explicar: se copian a la pregunta y se validan contra el catálogo del tema', () => {
+  const { taps } = construir();
+  const conObjeto = taps.flatMap(t => t.questions.filter(q => q.visual).map(q => [t.theme, q.visual.objeto]));
+  assert.ok(conObjeto.length >= 25, 'hay preguntas reales con objeto');
+  assert.ok(new Set(conObjeto.map(([, o]) => o)).size >= 8, 'al menos 8 objetos distintos');
+  const b = bancosMinimos();
+  b.minecraft.preguntas[0].visual = { objeto: 'piston', accion: 'bloquea' };
+  b.logica.preguntas[0].visual = { objeto: 'no-existe', accion: 'x' };
+  b.cultura.preguntas[0].visual = { objeto: 'planetas', accion: 'volar' };
+  const r = correr(b), e = r.errores.join(' | ');
+  assert.match(e, /el objeto «no-existe» no existe en el tema/);
+  assert.match(e, /no tiene la acción «volar»/);
+  assert.deepEqual(r.taps[0].questions[0].visual, { objeto: 'piston', accion: 'bloquea' });
 });
 
 test('emitir produce el mismo texto para los mismos datos', () => {

@@ -30,6 +30,23 @@
     "worlds": { "cueva": { "dist": 100, "height": 6 }, "nether": { "dist": 100 } }
   },
 
+  "shots": {
+    "centro":          { "x": 0 },
+    "izquierda":       { "x": -0.2, "zoom": 0.92, "yaw": 0.32 },
+    "derecha":         { "x": 0.2, "zoom": 0.92, "yaw": -0.32 },
+    "cerca-izquierda": { "x": -0.12, "zoom": 1.12, "yaw": 0.18, "height": -4 },
+    "cerca-derecha":   { "x": 0.12, "zoom": 1.12, "yaw": -0.18, "height": -4 },
+    "lejos":           { "x": 0.1, "zoom": 0.74, "yaw": -0.12, "height": 6 }
+  },
+  "enters": ["camina", "salta", "gira", "saluda"],
+  "props": { "taller": {}, "biblioteca": {}, "circuito": {}, "corral": {}, "portal": {}, "campamento": {}, "mina": {} },
+  "visuals": {
+    "module": "visuals.js",
+    "objects": {
+      "receta": ["crafteo"], "piston": ["bloquea"], "reloj": ["dia", "cama"], "comparador": ["cofre"]
+    }
+  },
+
   "scenes": {
     "pradera":   { "sky": ["#3f8fe0", "#cfeaff"], "ground": "#5da83a", "groundDark": "#865a36" },
     "bosque":    { "sky": ["#4d97d6", "#cfe6d8"], "ground": "#4f9a35", "groundDark": "#7a5330" },
@@ -38,7 +55,10 @@
     "nether":    { "sky": ["#1a0303", "#7a2410"], "sun": false, "ground": "#8a2f2f", "groundDark": "#5e2020" },
     "end":       { "sky": ["#05020b", "#241338"], "sun": false, "ground": "#e2e2a8", "groundDark": "#b9b985" },
     "nieve":     { "sky": ["#8fb0d6", "#e7f0fa"], "ground": "#f4f9ff", "groundDark": "#865a36" },
-    "desierto":  { "sky": ["#5ea8e8", "#f3e2b8"], "ground": "#e3d39b", "groundDark": "#c9b27a" }
+    "desierto":  { "sky": ["#5ea8e8", "#f3e2b8"], "ground": "#e3d39b", "groundDark": "#c9b27a" },
+    "aldea":     { "sky": ["#3f8fe0", "#cfeaff"], "ground": "#5da83a", "groundDark": "#96754a" },
+    "casa":      { "sky": ["#6b4a2b", "#a0784a"], "sun": false, "ground": "#b08a5a", "groundDark": "#7a5a36" },
+    "playa":     { "sky": ["#ff9b63", "#ffe0b0"], "ground": "#e8d79e", "groundDark": "#cdb67c" }
   },
 
   "sounds": {

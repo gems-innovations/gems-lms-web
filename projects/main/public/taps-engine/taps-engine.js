@@ -3,8 +3,9 @@
 //   import { create } from './taps-engine.js';
 //   const stage = create(contenedor, { theme: '/taps-engine/themes/minecraft/theme.json' });
 //   await stage.ready;                                   // el tema cargó y se pintó la versión ligera
-//   await stage.setScene({ world: 'cueva', host: 'sofi', item: 'pick' });
+//   await stage.setScene({ world: 'cueva', host: 'sofi', item: 'pick', shot: 'izquierda', enter: 'camina', props: 'circuito' });
 //   stage.react('ask');  stage.say('¿Listo?');  stage.react('celebrate');
+//   await stage.visual({ objeto: 'piston', accion: 'bloquea' }, hueco, { side: 'der' });   // objeto para explicar (tocar / arrastrar)
 //
 // Dos capas, siempre en el mismo contenedor:
 //   · LIGERA (DOM + CSS): fondo, personaje 2D y animaciones CSS. Se pinta casi al instante y es lo que ve quien tiene un
@@ -223,6 +224,15 @@ export function create(container, opts = {}) {
     root.style.setProperty('--te-ground', sc.ground || '#4a8f2a'); root.style.setProperty('--te-ground-dark', sc.groundDark || '#6b4a2b');
     root.style.setProperty('--te-sun', sc.sun === false ? '0' : '.9'); root.dataset.world = world;
   }
+  /** Encuadre en la capa ligera: el personaje se corre de lado y cambia de tamaño (variables que lee el CSS del motor). */
+  function paintShot(shot) {
+    root.style.setProperty('--te-x', (50 + shot.x * 100).toFixed(1) + '%');
+    root.style.setProperty('--te-s', String(shot.zoom));
+  }
+  function paintNudge(dx) {
+    root.style.setProperty('--te-nudge', (dx * 100).toFixed(1) + '%');                       // el globo (sin animar)
+    root.style.setProperty('--te-dx', Math.round(dx * (root.clientWidth || 0)) + 'px');         // el personaje (translate animado)
+  }
   async function paintCharacter(spec = {}) {
     const t = S.theme, chars = t.characters || {}, id = chars[spec.host] ? spec.host : Object.keys(chars)[0]; if (!id) return;
     const key = id + '|' + (spec.item || ''); if (lastSkinKey === key) return; lastSkinKey = key;
@@ -255,7 +265,11 @@ export function create(container, opts = {}) {
   }
   function placeBubble() {
     if (!bubbleEl.classList.contains('on')) return;
-    if (S.mode === '3d' && renderer) { const [ax, ay] = renderer.anchor(bubbleAnchor || 'top'); const [x, y] = toCss(ax, ay); bubbleEl.style.left = x + 'px'; bubbleEl.style.top = y + 'px'; bubbleEl.style.bottom = 'auto'; }
+    if (S.mode === '3d' && renderer) {
+      const [ax, ay] = renderer.anchor(bubbleAnchor || 'top'), [x0, y] = toCss(ax, ay), cw = root.clientWidth || 1;
+      const half = Math.min(cw / 2, (bubbleEl.offsetWidth || 120) / 2 + 8), x = Math.max(half, Math.min(cw - half, x0));   // con el personaje de lado, el globo no se sale
+      bubbleEl.style.left = x + 'px'; bubbleEl.style.top = y + 'px'; bubbleEl.style.bottom = 'auto';
+    }
     else { bubbleEl.style.left = ''; bubbleEl.style.top = ''; bubbleEl.style.bottom = ''; }
   }
 
@@ -284,7 +298,8 @@ export function create(container, opts = {}) {
       renderer = await mod.createRenderer({ canvas: glEl, width: size.w, height: size.h, theme: t, resolve: resolveTheme, skinview3d: globalThis.skinview3d, vendor, reducedMotion: reduced });
       if (S.destroyed) { renderer.dispose(); return; } performance.mark?.('te-renderer'); await yieldMain();
       
-      if (S.scene) await renderer.setScene(S.scene);
+      if (sceneSpec) await renderer.setScene(sceneSpec);
+      if (nudge) renderer.nudge?.(nudge, true);
       performance.mark?.('te-scene'); await yieldMain(); 
       renderer.play(loopReact || 'idle');
       renderer.frame(.016);
@@ -331,16 +346,108 @@ export function create(container, opts = {}) {
   /** Se cumple cuando el 3D ya se ve o se decidió quedarse en modo ligero. */
   S.ready3d = readyTheme.then(() => start3d()).then(() => S.mode);
 
-  /** Cambia mundo / personaje / objeto. En modo ligero cambia fondo y personaje 2D. */
+  /**
+   * Resuelve las claves de la escena contra el tema: el encuadre (`shot`) pasa a ser un objeto {x, zoom, yaw, height, flip}
+   * y los campos que el tema no conoce se ignoran (así un Tap viejo o un tema sin encuadres sigue igual que antes).
+   */
+  function resolveScene(spec = {}) {
+    const t = S.theme || {}, shots = t.shots || {}, props = t.props || {};
+    const shotKey = shots[spec.shot] ? spec.shot : null;
+    return {
+      world: spec.world || t.defaultWorld, host: spec.host, item: spec.item || null,
+      props: props[spec.props] ? spec.props : null, shotKey,
+      shot: { x: 0, zoom: 1, yaw: 0, height: 0, flip: false, ...(shotKey ? shots[shotKey] : {}) },
+      enter: (t.enters || []).includes(spec.enter) ? spec.enter : null,
+    };
+  }
+  let sceneSpec = null, sceneTok = 0, nudge = 0, enterTimer = 0;
+
+  /**
+   * Cambia mundo / personaje / objeto / encuadre / decorado. En modo ligero cambia fondo, posición y personaje 2D.
+   * Si el lugar cambia, el escenario se oculta al instante (se ve el fondo plano del nuevo mundo) y aparece con un fundido
+   * corto cuando el nuevo mundo ya está dibujado; con movimiento reducido el cambio es directo.
+   */
   S.setScene = async function setScene(spec = {}) {
-    await readyTheme; S.scene = { ...spec };
-    paintBackdrop(spec.world || S.theme.defaultWorld);
+    await readyTheme;
+    const tok = ++sceneTok, prev = sceneSpec, next = resolveScene(spec);
+    const moved = !prev || prev.world !== next.world || prev.host !== next.host || prev.shotKey !== next.shotKey || prev.props !== next.props;
+    S.scene = { ...spec }; sceneSpec = next;
+    if (moved && prev && !reduced) root.dataset.cambio = '1';
+    paintBackdrop(next.world); paintShot(next.shot);
+    if (moved && next.enter && !reduced) {
+      clearTimeout(enterTimer); root.dataset.entra = next.enter; enterTimer = setTimeout(() => delete root.dataset.entra, 900);
+    }
     const jobs = [paintCharacter(spec)];
-    if (renderer) jobs.push(renderer.setScene(S.scene));
-    await Promise.all(jobs); winT = 0; frames = 0; slowFrames = 0; wake(1200);
+    if (renderer) jobs.push(renderer.setScene({ ...next, enter: moved && !reduced ? next.enter : null }));
+    try { await Promise.all(jobs); }
+    finally {
+      if (tok === sceneTok) {
+        winT = 0; frames = 0; slowFrames = 0;
+        if (renderer && root.dataset.cambio) try { renderer.frame(0.016); } catch { /* se dibuja en el siguiente fotograma */ }
+        if (root.dataset.cambio) requestAnimationFrame(() => { if (tok === sceneTok) delete root.dataset.cambio; });
+        wake(1500);
+      }
+    }
   };
+
+  // ── objetos para explicar (themes/<id>/visuals.js, se pide la primera vez que hace falta) ──
+  let visualsMod = null, visual = null, visualTok = null;
+  const loadVisuals = () => {
+    const def = S.theme?.visuals; if (!def?.module) return Promise.resolve(null);
+    return (visualsMod ??= import(resolveTheme(def.module)).catch(e => { visualsMod = null; throw e; }));
+  };
+  function setNudge(dx) { nudge = dx; paintNudge(dx); renderer?.nudge?.(dx, reduced); wake(900); }
+  /** Monta el objeto `v` (de createVisual) en un lienzo dentro de `el`: anima su acción, tocar repite, arrastrar la recorre. */
+  function mountVisual(v, el) {
+    const cv = document.createElement('canvas'), ctx = cv.getContext('2d'), dpr = Math.min(2, globalThis.devicePixelRatio || 1);
+    cv.className = 'te-visual'; cv.setAttribute('aria-hidden', 'true');   // la descripción la lleva el contenedor (S.visual la devuelve)
+    el.appendChild(cv);
+    let w = 1, h = 1, t = reduced ? v.duration : 0, raf = 0, last = 0, dead = false, down = null;
+    const draw = () => { if (!ctx) return; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h); try { v.draw(ctx, w, h, Math.min(t, v.duration)); } catch { /* un objeto roto no tumba el Tap */ } };
+    const tick = now => { raf = 0; if (dead) return; t += last ? Math.min(0.1, (now - last) / 1000) : 0; last = now; draw(); if (t < v.duration) raf = requestAnimationFrame(tick); };
+    const play = () => { cancelAnimationFrame(raf); raf = 0; last = 0; if (reduced) { t = v.duration; draw(); return; } t = 0; raf = requestAnimationFrame(tick); };
+    const size = () => { const r = el.getBoundingClientRect(); w = Math.max(1, Math.round(r.width)); h = Math.max(1, Math.round(r.height)); cv.width = w * dpr; cv.height = h * dpr; draw(); };
+    const at = e => { const r = cv.getBoundingClientRect(); return [clamp01((e.clientX - r.left) / (r.width || 1)), clamp01((e.clientY - r.top) / (r.height || 1))]; };
+    const onDown = e => { down = { x: e.clientX, y: e.clientY, moved: false }; try { cv.setPointerCapture(e.pointerId); } catch { /* sin captura */ } emit('visual', { type: 'touch' }); };
+    const onMove = e => {
+      if (!down) return;
+      if (!down.moved && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 6) return;
+      down.moved = true; cancelAnimationFrame(raf); raf = 0; t = v.duration;
+      try { v.drag?.(...at(e)); } catch { /* arrastre opcional */ } draw(); emit('visual', { type: 'drag' });
+    };
+    const onUp = e => { const d = down; down = null; if (!d || d.moved) return; let again = true; try { again = v.tap ? v.tap(...at(e)) !== false : true; } catch { /* toque opcional */ } if (again) play(); else draw(); sound?.play('pop'); };
+    cv.addEventListener('pointerdown', onDown); cv.addEventListener('pointermove', onMove); cv.addEventListener('pointerup', onUp);
+    cv.addEventListener('pointercancel', () => { down = null; });
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(size) : null; ro?.observe(el);
+    size(); play();
+    return { replay: play, destroy() { dead = true; cancelAnimationFrame(raf); ro?.disconnect(); cv.remove(); } };
+  }
+  /**
+   * Muestra un objeto para explicar (`{objeto, accion, valor?}`, catálogo en theme.visuals.objects) dentro de `el`.
+   * `side` ('izq' | 'der') = lado donde la app puso el objeto: el personaje se corre al otro lado para hacerle espacio.
+   * Devuelve la descripción del objeto (texto para lectores de pantalla: la app la pone en el aria-label de su botón, porque
+   * dentro de un botón el lienzo es solo presentación) o false si el tema no tiene ese objeto (la explicación queda en texto).
+   */
+  S.visual = async function showVisual(spec, el, o = {}) {
+    S.clearVisual();
+    if (!spec?.objeto || !el) return false;
+    const tok = visualTok = {};
+    let mod;
+    try { await readyTheme; mod = await loadVisuals(); } catch { return false; }
+    if (visualTok !== tok || !mod?.createVisual || !el.isConnected) return false;
+    let v = null; try { v = mod.createVisual(spec, { reducedMotion: reduced, theme: S.theme }); } catch { v = null; }
+    if (!v) return false;
+    visual = mountVisual(v, el);
+    // el personaje termina en la mitad libre (a un 20 % del centro), venga del encuadre que venga
+    if (o.side) setNudge((o.side === 'izq' ? 0.2 : -0.2) - (sceneSpec?.shot.x || 0));
+    return v.label || ' ';
+  };
+  S.replayVisual = () => visual?.replay();
+  S.clearVisual = () => { visualTok = null; visual?.destroy(); visual = null; if (nudge) setNudge(0); };
+  /** Pide en reposo el módulo de objetos del tema (lo llama la app cuando viene una pregunta que lo usa). */
+  S.preloadVisuals = () => readyTheme.then(loadVisuals).then(() => undefined, () => undefined);
   /** Precalienta el siguiente escenario sin mostrarlo (se llama en reposo mientras el usuario responde). */
-  S.preload = async function preload(spec = {}) { await readyTheme; try { await renderer?.preload?.(spec); } catch { /* es solo una optimización */ } };
+  S.preload = async function preload(spec = {}) { await readyTheme; try { await renderer?.preload?.(resolveScene(spec)); } catch { /* es solo una optimización */ } };
 
   /**
    * Voz de los personajes (opcional, voz/voz.js → paraMotor()): `{ hablar(texto, personaje), callar() }`. Con voz, `say()`
@@ -394,9 +501,10 @@ export function create(container, opts = {}) {
   S.resume = function resume() { if (!S.paused && raf) return; S.paused = false; delete root.dataset.paused; if (sound?.ac?.state === 'suspended' && !document.hidden) sound.ac.resume().catch(() => {}); if (renderer) { wake(300); loop(); } };
   S.setMuted = function setMuted(m) { sound?.setMuted(m); readyTheme.then(() => sound?.setMuted(m)); S.muted = !!m; };
   /** Mueve el escenario entero a otro contenedor (el feed usa UN escenario para todos los Taps). */
-  S.attachTo = function attachTo(el) { if (root.parentElement !== el) el.appendChild(root); if (renderer) wake(500); };
+  S.attachTo = function attachTo(el) { if (root.parentElement !== el) { S.clearVisual(); el.appendChild(root); } if (renderer) wake(500); };
   S.sfx = name => sound?.play(name);
   S.destroy = function destroy() {
+    S.clearVisual(); clearTimeout(enterTimer);
     S.destroyed = true; voice?.callar?.(); voice = null; clearTimeout(slowTimer); cancelAnimationFrame(raf); clearInterval(typeTimer); clearTimeout(bubbleTimer); clearTimeout(reactTimer);
     document.removeEventListener('visibilitychange', onVis); window.removeEventListener('pointerdown', unlock); window.removeEventListener('keydown', unlock);
     try { renderer?.dispose(); } catch { /* ya liberado */ } renderer = null; try { sound?.ac?.close(); } catch { /* sin audio */ } root.remove();

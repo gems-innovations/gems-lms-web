@@ -124,7 +124,7 @@ function skinCanvas(img){const c=document.createElement('canvas');c.width=c.heig
 function isSlim(c){const d=c.getContext('2d').getImageData(54,20,2,12).data;for(let i=3;i<d.length;i+=4)if(d[i]>0)return false;return true}
 const host=(()=>{const wrap=new Group(),player=new A.PlayerObject();player.backEquipment=null;player.ears.visible=false;wrap.add(player);
  const shadow=new MeshC(new BoxG(10,.2,6),new MatC({color:0x000000,transparent:true,opacity:.3,depthWrite:false}));shadow.position.y=FEET+.15;wrap.add(shadow);
- viewer.playerWrapper.add(wrap);return{wrap,player,tex:null,anim:null,animKey:'',item:null,itemKey:null,hurt:0,slim:false}})();
+ viewer.playerWrapper.add(wrap);return{wrap,player,shadow,tex:null,anim:null,animKey:'',item:null,itemKey:null,hurt:0,slim:false}})();
 const skinCache={};
 async function loadSkin(key){const chars=theme.characters||{},ch=chars[key]||Object.values(chars)[0];if(!ch)return null;
  const src=resolve(ch.skin);if(!skinCache[src]){const img=await loadImg(src);const cv=skinCanvas(img);skinCache[src]={src,canvas:cv,slim:typeof ch.slim==='boolean'?ch.slim:isSlim(cv)}}return skinCache[src]}
@@ -138,7 +138,7 @@ function tint(p,red){if(p.tint===red)return;p.tint=red;const sk=p.player.skin;['
 // Blocks are 16 units (a player is two blocks tall); the ground top sits at the players' feet.
 const BK=16,GY=FEET,ColC=viewer.globalLight.color.constructor;
 const easeIO=x=>{x=clamp(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
-const TILE_ORDER=['grassTop','grass','dirt','stone','sand','nether','end','obsidian','plank','snowTop','snow','log','leaves','floor','lava','water','glass','glow','crystal','spruce','oreD','oreG','path','cactus','sandstone','bookshelf','chestF','chestS','chestT','furnF','furnS','furnT','brick','jungle','aspen','woolR','woolW','pumpS','pumpF','pumpT','cobble'];
+const TILE_ORDER=['grassTop','grass','dirt','stone','sand','nether','end','obsidian','plank','snowTop','snow','log','leaves','floor','lava','water','glass','glow','crystal','spruce','oreD','oreG','path','cactus','sandstone','bookshelf','chestF','chestS','chestT','furnF','furnS','furnT','brick','jungle','aspen','woolR','woolW','pumpS','pumpF','pumpT','cobble','craftT','craftS','tntS','tntT','pistS','pistT','lampOn'];
 let ATL=null;
 // Block textures: Pixel Perfection (XSSheep / Nova Wostra, CC BY-SA 4.0, via Mineclonia) in vendor/texturas-pp,
 // a few from Minetest Game (CC BY-SA 3.0). "name*#hex" tints a greyscale texture (grass and leaves get their biome green).
@@ -168,13 +168,20 @@ function atlasTex(){if(ATL)return ATL;makeTiles();
   const pumpC=(i,q)=>i%5===0?[176,82,10]:shade([232,128,28],.86+q*.2);tex.pumpS=tile((i,j,q)=>pumpC(i,q));tex.pumpT=tile((i,j,q)=>i>=7&&i<=8&&j>=6&&j<=9?[86,60,24]:pumpC(i+j%2,q));
   const FACE=['................','................','...##......##...','..####....####..','..####....####..','................','.......##.......','......####......','................','..############..','..#..######..#..','...##########...','....#..##..#....','................','................','................'];
   tex.pumpF=tile((i,j,q)=>FACE[j][i]==='#'?(j>8?[255,214,80]:[255,232,120]):pumpC(i,q));
+  // Bloques de los decorados (taller, circuito): diseño propio en píxeles, sin texturas nuevas.
+  tex.craftT=tile((i,j,q)=>i===0||j===0||i===15||j===15?[90,60,30]:i%5===0||j%5===0?[110,80,44]:shade([168,128,78],.88+q*.18));
+  tex.craftS=tile((i,j,q)=>j<3?shade([168,128,78],.9+q*.1):i>3&&i<12&&j>5&&j<12?(q>.5?[150,150,150]:[90,60,30]):shade([140,100,60],.85+q*.2));
+  tex.tntS=tile((i,j,q)=>j>=6&&j<=9?((j===7||j===8)&&i>2&&i<13&&i%4!==0?[20,20,20]:[235,235,235]):shade([200,50,40],.85+q*.2));
+  tex.tntT=tile((i,j,q)=>Math.hypot(i-7.5,j-7.5)<3?[40,40,40]:shade([200,50,40],.85+q*.2));
+  tex.pistS=tile((i,j,q)=>j<4?shade([168,128,78],.9+q*.1):shade([125,125,125],.8+q*.3));tex.pistT=tile((i,j,q)=>shade([168,128,78],.88+q*.18));
+  tex.lampOn=tile((i,j,q)=>i%5===0||j%5===0?[140,70,20]:shade([255,190,80],.9+q*.15));
   atlasCanvas=document.createElement('canvas');atlasCanvas.width=512;atlasCanvas.height=512;paintAtlas(new Set(TILE_ORDER));
  const t=new Tex(atlasCanvas);t.magFilter=t.minFilter=1003;t.generateMipmaps=false;t.needsUpdate=true;return ATL=t}
 const BT={grass:{t:['grassTop','grass','dirt'],g:'solid'},dirt:{t:['dirt','dirt','dirt'],g:'solid'},stone:{t:['stone','stone','stone'],g:'solid'},sand:{t:['sand','sand','sand'],g:'solid'},
  nether:{t:['nether','nether','nether'],g:'solid'},end:{t:['end','end','end'],g:'solid'},obsidian:{t:['obsidian','obsidian','obsidian'],g:'solid'},plank:{t:['plank','plank','plank'],g:'solid'},
  snow:{t:['snowTop','snow','dirt'],g:'solid'},snowstone:{t:['snowTop','stone','stone'],g:'solid'},log:{t:['log','log','log'],g:'solid'},leaves:{t:['leaves','leaves','leaves'],g:'solid'},spruce:{t:['spruce','spruce','spruce'],g:'solid'},
  floor:{t:['floor','floor','floor'],g:'solid'},lava:{t:['lava','lava','lava'],g:'glow'},glow:{t:['glow','glow','glow'],g:'glow'},glass:{t:['glass','glass','glass'],g:'glow'},crystal:{t:['crystal','crystal','crystal'],g:'glow'},water:{t:['water','water','water'],g:'water'},oreD:{t:['oreD','oreD','oreD'],g:'glow'},oreG:{t:['oreG','oreG','oreG'],g:'solid'},path:{t:['path','dirt','dirt'],g:'solid'},cactus:{t:['cactus','cactus','cactus'],g:'solid'},sandstone:{t:['sandstone','sandstone','sandstone'],g:'solid'},bookshelf:{t:['plank','bookshelf','plank'],g:'solid'},chest:{t:['chestT','chestS','chestT','chestF'],g:'solid'},furnace:{t:['furnT','furnS','furnT','furnF'],g:'solid'},
- brick:{t:['brick','brick','brick'],g:'solid'},jungle:{t:['jungle','jungle','jungle'],g:'solid'},aspen:{t:['aspen','aspen','aspen'],g:'solid'},woolR:{t:['woolR','woolR','woolR'],g:'solid'},woolW:{t:['woolW','woolW','woolW'],g:'solid'},cobble:{t:['cobble','cobble','cobble'],g:'solid'},pumpkin:{t:['pumpT','pumpS','pumpT'],g:'solid'},jack:{t:['pumpT','pumpS','pumpT','pumpF'],g:'glow'}};
+ brick:{t:['brick','brick','brick'],g:'solid'},jungle:{t:['jungle','jungle','jungle'],g:'solid'},aspen:{t:['aspen','aspen','aspen'],g:'solid'},woolR:{t:['woolR','woolR','woolR'],g:'solid'},woolW:{t:['woolW','woolW','woolW'],g:'solid'},cobble:{t:['cobble','cobble','cobble'],g:'solid'},pumpkin:{t:['pumpT','pumpS','pumpT'],g:'solid'},craft:{t:['craftT','craftS','plank'],g:'solid'},tnt:{t:['tntT','tntS','tntT'],g:'solid'},piston:{t:['pistT','pistS','cobble'],g:'solid'},lamp:{t:['lampOn','lampOn','lampOn'],g:'glow'},jack:{t:['pumpT','pumpS','pumpT','pumpF'],g:'glow'}};
 function worldMesh(m){const G={solid:{p:[],n:[],u:[],c:[]},glow:{p:[],n:[],u:[],c:[]},water:{p:[],n:[],u:[],c:[]}},e=.5/512;
  for(const [key,type] of m){const [x,y,z]=key.split(',').map(Number),bt=BT[type],g=G[bt.g];
   FACES.forEach(([n,q])=>{const nb=m.get((x+n[0])+','+(y+n[1])+','+(z+n[2]));if(nb&&(BT[nb].g!=='water'||bt.g==='water'))return;
@@ -244,10 +251,14 @@ const WORLDS={
    w.deco=flowers(w,30,['#ff8a1f','#7a2f9a']);return w},
   estudio:()=>{const m=new Map();for(let x=-26;x<=25;x++)for(let z=-40;z<=30;z++){m.set(x+',-1,'+z,'floor');m.set(x+',-2,'+z,'floor')}return m}};
 // Sky dome (equirectangular): the camera looks at u=0.25; the horizon is the middle row.
+// Cielo por franjas planas (como el cielo por capas del juego), no un degradado suave; el sol es un cuadrado con un
+// halo de dos escalones duros.
+const mixHex=(a,b,k)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),A=p(a),B=p(b);return`rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*k)).join(',')})`};
 function skyCanvas(o){const c=document.createElement('canvas');c.width=2048;c.height=1024;const x=c.getContext('2d');
- const g=x.createLinearGradient(0,0,0,512);g.addColorStop(0,o.top);g.addColorStop(.72,o.mid||o.hor);g.addColorStop(1,o.hor);x.fillStyle=g;x.fillRect(0,0,2048,512);x.fillStyle=o.hor;x.fillRect(0,512,2048,512);
+ const bands=[[0,o.top],[.34,mixHex(o.top,o.mid||o.hor,.5)],[.56,o.mid||o.hor],[.78,mixHex(o.mid||o.hor,o.hor,.5)],[.9,o.hor]];
+ bands.forEach(([y0,col],i)=>{x.fillStyle=col;const y1=i+1<bands.length?bands[i+1][0]:1;x.fillRect(0,Math.round(y0*512),2048,Math.ceil((y1-y0)*512))});x.fillStyle=o.hor;x.fillRect(0,512,2048,512);
  if(o.stars)for(let i=0;i<420;i++){x.globalAlpha=.4+rnd(i+7)*.6;x.fillStyle=o.stars;x.fillRect(rnd(i)*2048|0,rnd(i+99)*470|0,2,2)}x.globalAlpha=1;
- if(o.sun){const [u,v,sz,col,halo]=o.sun,cx=u*2048,cy=v*1024,gr=x.createRadialGradient(cx,cy,0,cx,cy,sz*3);gr.addColorStop(0,halo);gr.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gr;x.fillRect(cx-sz*3,cy-sz*3,sz*6,sz*6);x.fillStyle=col;x.fillRect(cx-sz/2,cy-sz/2,sz,sz)}
+ if(o.sun){const [u,v,sz,col,halo]=o.sun,cx=u*2048,cy=v*1024;x.fillStyle=halo;x.globalAlpha=.45;x.fillRect(cx-sz*1.5,cy-sz*1.5,sz*3,sz*3);x.globalAlpha=.7;x.fillRect(cx-sz,cy-sz,sz*2,sz*2);x.globalAlpha=1;x.fillStyle=col;x.fillRect(cx-sz/2,cy-sz/2,sz,sz)}
  if(o.clouds)for(let i=0;i<26;i++){const cx=rnd(i+3)*2048,cy=372+rnd(i+41)*48,w=26+rnd(i+13)*50;x.fillStyle=o.clouds;x.fillRect(cx,cy,w,8);x.fillRect(cx+8,cy-5,w*.55,6)}
  if(o.mount)o.mount.forEach(([col,amp,off],L)=>{x.fillStyle=col;for(let u=0;u<2048;u+=4){const h=Math.max(2,Math.round((Math.sin(u*.011+off)+Math.sin(u*.027+off*2)+1.4)*amp))|0;x.fillRect(u,512-h,4,h)}});
  return c}
@@ -308,11 +319,62 @@ const proj=(x,y,z=0)=>{const v=new V3(x,y,z).project(viewer.camera);return[(v.x+
 function keepCam(pos){const u=worldCache[worldShown]?.userData;if(!u)return pos;if(u.box){pos[0]=Math.max(u.box[0],Math.min(u.box[1],pos[0]));pos[2]=Math.max(u.box[2],Math.min(u.box[3],pos[2]))}
  const bx=Math.floor(pos[0]/BK),bz=Math.floor(pos[2]/BK);let top=GY+(u.h?u.h(bx,bz):0)*BK;if(u.m){for(let y=12;y>=-1;y--){const t=u.m.get(bx+','+y+','+bz);if(t&&t!=='water'&&GY+(y+1)*BK<=(u.ceil??1e9)){top=Math.max(top,GY+(y+1)*BK);break}}}
  pos[1]=Math.max(pos[1],top+5);if(u.ceil!=null)pos[1]=Math.min(pos[1],u.ceil);return pos}
-let camT=0,shake=0,push=0;
+// Encuadre (scene.shot): x = dónde queda el personaje en pantalla (fracción del ancho, + derecha), zoom (1 = normal),
+// yaw = ángulo de la cámara alrededor del personaje (rad), height = cámara más alta o más baja. La cámara se desplaza de
+// lado (no el personaje), así el globo y las partículas siguen anclados a él. `nudge` lo corre un poco más para
+// hacerle espacio a un objeto que explica.
+let camT=0,shake=0,push=0,shot={x:0,zoom:1,yaw:0,height:0},nudgeX=0,nudgeTo=0,reduced=!!opts.reducedMotion;
 function camera(dt){const cfg=Object.assign({dist:92,height:2,lookY:-8,sway:.12,swaySpeed:.5},theme.camera||{},((theme.camera||{}).worlds||{})[worldShown]||{}),c=viewer.camera;
- camT+=dt;push=Math.max(0,push-dt*1.4);const a=Math.sin(camT*cfg.swaySpeed)*cfg.sway,dist=cfg.dist*(1-.1*easeOut(push)),
-  pos=keepCam([Math.sin(a)*dist,cfg.height,Math.cos(a)*dist]);
- c.up.set(0,1,0);c.position.set(...pos);c.lookAt(0,cfg.lookY,0);if(shake>0){shake=Math.max(0,shake-dt);c.position.x+=(Math.random()-.5)*shake*5;c.position.y+=(Math.random()-.5)*shake*5}c.updateMatrixWorld()}
+ camT+=dt;push=Math.max(0,push-dt*1.4);nudgeX+=(nudgeTo-nudgeX)*(reduced?1:1-Math.exp(-dt*8));
+ const yaw=shot.yaw||0,a=Math.sin(camT*cfg.swaySpeed)*cfg.sway+yaw,dist=cfg.dist/(shot.zoom||1)*(1-.1*easeOut(push)),hgt=cfg.height+(shot.height||0);
+ const hw=dist*Math.tan(c.fov*Math.PI/360)*c.aspect,off=-((shot.x||0)+nudgeX)*2*hw,rx=Math.cos(a),rz=-Math.sin(a);
+ const pos=keepCam([Math.sin(a)*dist+rx*off,hgt,Math.cos(a)*dist+rz*off]);
+ c.up.set(0,1,0);c.position.set(...pos);c.lookAt(rx*off,cfg.lookY+(shot.height||0)*.35,rz*off);if(shake>0){shake=Math.max(0,shake-dt);c.position.x+=(Math.random()-.5)*shake*5;c.position.y+=(Math.random()-.5)*shake*5}c.updateMatrixWorld();
+ if(!enter||enter.kind!=='gira')host.wrap.rotation.y=yaw*.85-((shot.x||0)+nudgeX)*.9}
+
+// ===== entrada al llegar a un lugar nuevo (scene.enter): camina desde el lado, cae de arriba, gira o saluda =====
+let enter=null;
+const ENTER_DUR={camina:.9,salta:.65,gira:.7,saluda:1.3};
+function stepEnter(dt){if(!enter)return;enter.t+=dt;const p=Math.min(1,enter.t/ENTER_DUR[enter.kind]),k=easeOut(p),s=host.player.skin,side=(shot.x||0)<0?-1:1;
+ host.wrap.position.set(0,0,0);
+ if(enter.kind==='camina'){host.wrap.position.x=(1-k)*36*side;const sw=Math.sin(enter.t*13)*(1-p)*.9;s.rightLeg.rotation.x=sw;s.leftLeg.rotation.x=-sw;s.leftArm.rotation.x=-sw*.8}
+ else if(enter.kind==='salta'){host.wrap.position.y=(1-k)*46-Math.sin(clamp((p-.7)/.3)*Math.PI)*1.5}
+ else if(enter.kind==='gira'){host.wrap.rotation.y=(shot.yaw||0)*.85-(shot.x||0)*.9+(1-k)*Math.PI*2}
+ else if(enter.kind==='saluda'){s.leftArm.rotation.z=(2.5+Math.sin(enter.t*14)*.35)*Math.sin(Math.min(1,p*1.2)*Math.PI);s.leftArm.rotation.x=0}
+ host.shadow.position.y=FEET+.15-host.wrap.position.y;
+ if(p>=1){enter=null;host.wrap.position.set(0,0,0);host.shadow.position.y=FEET+.15}}
+
+// ===== decorados (scene.props): bloques detrás del personaje, del lado libre del encuadre =====
+// Coordenadas en bloques: x hacia el lado libre (0 = detrás del personaje), y hacia arriba, z hacia atrás (0 = fila del decorado).
+const PROPS={
+ taller:{b:[[1,0,0,'craft'],[2,0,0,'furnace'],[2,0,-1,'chest'],[0,0,-1,'chest']]},
+ biblioteca:{b:[[0,0,-1,'bookshelf'],[1,0,-1,'bookshelf'],[2,0,-1,'bookshelf'],[0,1,-1,'bookshelf'],[1,1,-1,'bookshelf'],[2,1,-1,'bookshelf']],x:'mesa'},
+ circuito:{b:[[1,0,0,'piston'],[2,0,0,'lamp'],[2,0,-1,'tnt'],[0,0,-1,'lamp']],x:'polvo'},
+ corral:{b:[[2,0,0,'pumpkin'],[0,0,-1,'woolW']],x:'cerca'},
+ portal:{b:[[0,0,-1,'obsidian'],[1,0,-1,'obsidian'],[2,0,-1,'obsidian'],[3,0,-1,'obsidian'],[0,1,-1,'obsidian'],[0,2,-1,'obsidian'],[0,3,-1,'obsidian'],[3,1,-1,'obsidian'],[3,2,-1,'obsidian'],[3,3,-1,'obsidian'],[0,4,-1,'obsidian'],[1,4,-1,'obsidian'],[2,4,-1,'obsidian'],[3,4,-1,'obsidian']],x:'portal'},
+ campamento:{b:[[2,0,-1,'chest']],x:'campamento'},
+ mina:{b:[[0,0,-1,'stone'],[1,0,-1,'oreD'],[1,1,-1,'stone'],[2,0,-1,'oreG'],[2,1,-1,'stone'],[2,2,-1,'stone'],[0,1,-1,'oreG']],x:'antorcha'},
+};
+const PROP_Z={cueva:-6,casa:-5,playa:-4,end:-6,nether:-6};
+const propCache={};let propShown=null;
+/** Piezas sueltas de cada decorado (cajas de color). bx(i) = borde izquierdo del bloque i ya reflejado hacia el lado libre. */
+function propExtras(kind,Y,Z,s){const L=[],G=[],bx=i=>s>0?i*BK:-(i+1)*BK;
+ if(kind==='mesa'){const x=bx(1);L.push([x,Y,Z,16,12,16,'#1b1029'],[x,Y+12,Z,16,2,16,'#b02e26'],[x+5,Y+17,Z+5,6,2,6,'#8b4a2b']);G.push([x+1,Y+12,Z+1,3,3,3,'#2fd3c9'],[x+12,Y+12,Z+12,3,3,3,'#2fd3c9'])}
+ if(kind==='polvo')G.push([Math.min(bx(1),bx(2))+8,Y+.2,Z+7,16,.8,2,'#ff3020']);
+ if(kind==='cerca'){for(let i=0;i<3;i++)L.push([bx(i)+6,Y,Z+6,4,16,4,'#a0784a']);L.push([Math.min(bx(0),bx(2))+6,Y+6,Z+7,36,2,2,'#8a643a'],[Math.min(bx(0),bx(2))+6,Y+12,Z+7,36,2,2,'#8a643a'])}
+ if(kind==='portal')G.push([Math.min(bx(1),bx(2)),Y+16,Z-10,32,48,4,'#8a3cff']);
+ if(kind==='campamento'){const x=bx(1);L.push([x,Y,Z,16,5,32,'#7a5a36'],[x,Y+5,Z+8,16,3,24,'#b02e26'],[x,Y+5,Z,16,3,8,'#e9ecec']);const f=bx(0);L.push([f+2,Y,Z+20,12,3,3,'#5c3d1e'],[f+6,Y,Z+16,3,3,12,'#5c3d1e']);G.push([f+5,Y+3,Z+18,6,8,6,'#ffb040'])}
+ if(kind==='antorcha'){const x=bx(0)+6;L.push([x,Y+16,Z-10,3,10,3,'#8a5a2b']);G.push([x-.5,Y+26,Z-10.5,4,4,4,'#ffd35c'])}
+ return[L,G]}
+async function showProps(key,world,side){
+ const want=key&&PROPS[key]?`${key}|${side}|${world}`:null;if(propShown===want)return;
+ for(const g of Object.values(propCache))g.visible=false;propShown=want;if(!want)return;
+ if(!propCache[want]){const def=PROPS[key],z0=PROP_Z[world]??-6,m=new Map();
+  for(const [x,y,z,t] of def.b)m.set((side*x+(side<0?-1:0))+','+y+','+(z0+z),t);
+  await ensureBlockTextures(m);if(propShown!==want)return;
+  const g=worldMesh(m),[L,G]=propExtras(def.x,GY,z0*BK,side);if(L.length)g.add(boxesMesh(L));if(G.length)g.add(boxesMesh(G,0xff8040));
+  propCache[want]=g;viewer.scene.add(g)}
+ propCache[want].visible=true}
 
 // ===== bucle por fotograma =====
 let simT=0;
@@ -322,7 +384,7 @@ function frame(dt){simT+=dt;
  const arm=host.player.skin.rightArm;
  if(host.item){const hold=HOLD.has(host.animKey),up=hold||host.animKey==='point';if(hold){arm.rotation.x=-1.05+.05*Math.sin(simT*2.38);arm.rotation.z=.42}
   if(up){host.item.rotation.order='ZYX';host.item.rotation.set(-arm.rotation.x,0,-arm.rotation.z)}else{host.item.rotation.order='XYZ';host.item.rotation.set(host.item.userData.block?.3:1.2,0,0)}}
- host.hurt=Math.max(0,host.hurt-dt);tint(host,host.hurt>0);
+ stepEnter(reduced?0:dt);host.hurt=Math.max(0,host.hurt-dt);tint(host,host.hurt>0);
  const g=worldCache[worldShown];if(g)g.children.forEach(m=>{if(m.userData.drift)m.position.x=((simT*5)%1600)-800});
  camera(dt);viewer.render();oc.drawImage(glc,0,0,W,H);
  const amb=AMBIENT[worldShown];if(amb){oc.save();oc.scale(W/VW,H/VH);amb(oc,simT);oc.restore()}}
@@ -331,18 +393,21 @@ function frame(dt){simT+=dt;
 play('idle');
 return {
  /** Carga lo que haga falta (mundo, skin, objeto) y lo muestra. */
- async setScene({world,host:who,item}={}){const tok=++sceneTok;
-  const jobs=[useSkin(who),showWorld(world||theme.defaultWorld||'pradera',tok)];
+ async setScene({world,host:who,item,props,shot:sh,enter:en}={}){const tok=++sceneTok,wk=worldKey(world||theme.defaultWorld||'pradera');
+  shot={x:0,zoom:1,yaw:0,height:0,...(sh||{})};const side=(shot.x||0)>.02?-1:1;
+  const jobs=[useSkin(who),showWorld(wk,tok),showProps(props,wk,side)];
   if(item&&(ITEM_TEX[item]||BLOCK_TEX[item]))jobs.push(ensureItem(item));
   await Promise.all(jobs);if(tok!==sceneTok)return;
-  setItem(host,item&&(ITEM_TEX[item]||BLOCK_TEX[item])?item:'');if(host.item&&host.item.children[0])host.item.position.x=host.slim?-.5:-1},
+  setItem(host,item&&(ITEM_TEX[item]||BLOCK_TEX[item])?item:'');enter=en&&ENTER_DUR[en]&&!reduced?{kind:en,t:0}:null;if(!enter){host.wrap.position.set(0,0,0);host.shadow.position.y=FEET+.15}if(host.item&&host.item.children[0])host.item.position.x=host.slim?-.5:-1},
  play(name){play(name)},
  /** Deja listo (sin mostrar) el siguiente escenario: skin, objeto y malla del mundo. Se llama en reposo. */
  async preload({world,host:who,item}={}){await Promise.all([loadSkin(who),ensureWorld(worldKey(world||theme.defaultWorld||'pradera')),item&&(ITEM_TEX[item]||BLOCK_TEX[item])?ensureItem(item):0])},
  /** Efectos de cámara/cuerpo que el motor dispara con las reacciones. */
  fx(name){if(name==='hurt'){host.hurt=.4;shake=Math.max(shake,.22)}else if(name==='push')push=1;else if(name==='shake')shake=Math.max(shake,.2)},
  frame,
- anchor(name){const y={head:12,top:20,chest:4,feet:-16}[name]??12;return proj(0,y+host.player.position.y,0)},
+ anchor(name){const y={head:12,top:20,chest:4,feet:-16}[name]??12,p=host.wrap.position;return proj(p.x,y+host.player.position.y+p.y,p.z)},
+ /** Corre al personaje en pantalla (fracción del ancho) para hacerle sitio a un objeto que explica. */
+ nudge(dx,now){nudgeTo=dx||0;if(now||reduced)nudgeX=nudgeTo},
  setSize(w,h){W=Math.round(w);H=Math.round(h);out.width=W;out.height=H;viewer.setSize(W,H)},
  dispose(){try{viewer.dispose()}catch{}try{viewer.renderer.forceContextLoss()}catch{}}
 };
