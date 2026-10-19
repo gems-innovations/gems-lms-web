@@ -36,8 +36,9 @@ export class TapsFeedComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(this.platform);
 
-  /** Si el enlace trae `?t=<id>` (compartido), ese Tap va primero. */
-  protected readonly taps: ITap[] = orderTaps(TAPS, inject(ActivatedRoute).snapshot.queryParamMap.get('t'));
+  /** Si el enlace es de un Tap compartido (`/t/<id>` o el antiguo `?t=<id>`), ese Tap va primero. */
+  private readonly route = inject(ActivatedRoute).snapshot;
+  protected readonly taps: ITap[] = orderTaps(TAPS, this.route.paramMap.get('id') ?? this.route.queryParamMap.get('t'));
   protected readonly runs = signal<Record<string, ITapRun>>(Object.fromEntries(this.taps.map(t => [t.id, startRun(t)])));
   protected readonly activeId = signal(this.taps[0].id);
   protected readonly muted = signal(false);
@@ -125,7 +126,7 @@ export class TapsFeedComponent {
   protected async share(tap: ITap): Promise<void> {
     const run = this.run(tap);
     const text = `Saqué «${this.result(tap).title}» en el Tap de ${tap.title} (${run.score} de ${tap.questions.length}). ¿Te animas?`;
-    const url = `${location.origin}/taps?t=${tap.id}`;
+    const url = `${location.origin}/t/${tap.id}`;                // prerenderizada: la tarjeta lleva el nombre del Tap
     try {
       if (navigator.share) { await navigator.share({ title: 'Taps de GEMS', text, url }); return; }
       await navigator.clipboard.writeText(`${text} ${url}`);
