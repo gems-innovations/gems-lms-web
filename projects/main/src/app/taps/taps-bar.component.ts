@@ -63,10 +63,10 @@ import { ITapTopic } from './taps.types';
     .bar { position: fixed; z-index: 7; top: 0; left: 50%; width: 100%; max-width: 480px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px;
       padding: max(8px, env(safe-area-inset-top)) 10px 4px; pointer-events: none; color: #fff;
       > * { pointer-events: auto; } }
-    .bar__brand { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding-right: 4px; color: #fff; text-decoration: none; font-size: 13px; font-weight: 800;
+    .bar__brand { display: inline-flex; align-items: center; gap: 6px; min-height: 48px; padding-right: 4px; color: #fff; text-decoration: none; font-size: 13px; font-weight: 800;
       letter-spacing: .02em; text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
       img { border-radius: 8px; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .4)); } }
-    .bar__pill { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 40px; min-height: 40px; padding: 0 9px; border-radius: 999px;
+    .bar__pill { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 48px; min-height: 48px; padding: 0 12px; border-radius: 999px;
       font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
     .bar__sound { position: relative; }
     /* Aviso «Toca para sonido» bajo el botón (fuera del flujo: la barra cabe en 320 px) y bajo la barra de progreso. */
@@ -82,7 +82,7 @@ import { ITapTopic } from './taps.types';
     .sheet__list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
     .sheet__item { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 8px 14px; border-radius: 14px; font: inherit; text-align: left; cursor: pointer;
       &:disabled { cursor: default; opacity: .55; } }
-    .sheet__item.is-on { color: #0d1020; small, .sheet__count { color: #1d2340; } }
+    .sheet__item.is-on { color: #fff; small, .sheet__count { color: #fff; } }
     .sheet__dot { flex: none; width: 14px; height: 14px; border-radius: 4px; background: var(--c); }
     .sheet__name { flex: 1; font-size: 16px; font-weight: 800; small { display: block; font-size: 12px; font-weight: 700; color: #aab4c4; } }
     .sheet__count { font-size: 12px; font-weight: 700; color: #c8d1de; }

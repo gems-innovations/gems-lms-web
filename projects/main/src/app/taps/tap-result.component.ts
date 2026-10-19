@@ -63,7 +63,7 @@ import { ITap, ITapRun } from './taps.types';
     .res__grid { display: flex; justify-content: center; gap: 8px; margin: 0 0 10px; padding: 0; list-style: none;
       li { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 8px; background: #3a4150; color: #fff; }
       .is-ok { background: #2FBF71; color: #06210f; }
-      .is-bad { background: #E5484D; } }
+      .is-bad { background: #D1343A; } }
     .res__line { margin: 0 0 14px; font-size: 1rem; line-height: 1.4; color: #dfe6ef; }
     .res__main, .res__ghost, .res__next { font: inherit; cursor: pointer; }
     .res__main { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; border: 0; border-radius: 16px;

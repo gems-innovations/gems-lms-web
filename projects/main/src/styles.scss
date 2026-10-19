@@ -822,7 +822,7 @@ body:has([aria-modal='true'], .cbm__overlay, .modal-overlay) .app-tour-button { 
 }
 
 // Taps (/taps): el aviso «Sin conexión» del LMS baja bajo la barra del Tap (antes tapaba volver y sonido).
-html.taps-page .connection-notice { top: calc(max(8px, env(safe-area-inset-top)) + 58px); max-width: calc(100vw - 24px); font-size: 13px; }
+html.taps-page .connection-notice { top: calc(max(8px, env(safe-area-inset-top)) + 66px); max-width: calc(100vw - 24px); font-size: 13px; }
 
 // Botones de icono «glass» de GEMS (Taps: barra superior, riel lateral y selector de temas). Nombres simples
 // (.glass, --glass-*) para unificarlos con el sistema visual del sitio. Sin blur cuando el navegador no lo soporta,
@@ -834,7 +834,7 @@ html.taps-page {
   --glass-shine: inset 0 1px 0 rgba(255, 255, 255, .3);
   --glass-shadow: 0 6px 18px rgba(0, 0, 0, .28);
   --glass-blur: blur(14px) saturate(160%);
-  --gems-grad: linear-gradient(135deg, #7b6ff0, #4de1ff);
+  --gems-grad: linear-gradient(135deg, #5646d8, #1a77ad);
   --gems-glow: 0 0 18px rgba(196, 113, 237, .5);
 }
 html.taps-page .glass {
@@ -869,11 +869,11 @@ html.taps-page[data-glass='off'] .glass:not(.is-on):not([aria-pressed='true']) {
 
 // Taps: respuesta dada antes de que Angular hidrate (script de index.html). Global porque esas clases las pone ese script.
 html.taps-page .tap__opt.pre-ok { --c: #2FBF71; --ink: #06210f; opacity: 1; }
-html.taps-page .tap__opt.pre-bad { --c: #E5484D; --ink: #fff; opacity: 1; }
+html.taps-page .tap__opt.pre-bad { --c: #D1343A; --ink: #fff; opacity: 1; }
 html.taps-page .tap[data-pre] .tap__opt:not(.pre-ok):not(.pre-bad) { opacity: .25; }
 html.taps-page .tap[data-pre] .tap__touch { display: none; }
 html.taps-page .tap[data-pre] .tap__pre { display: inline-flex; }
-html.taps-page .tap[data-pre='bad'] .tap__pre { color: #fff; background: #E5484D; }
+html.taps-page .tap[data-pre='bad'] .tap__pre { color: #fff; background: #D1343A; }
 html.taps-page .tap[data-pre='ok'] .tap__pre-bad, html.taps-page .tap[data-pre='bad'] .tap__pre-ok { display: none; }
 
 // Taps con el celular en horizontal: aviso «Gira el celular» (experiencia-ux.md §9). En escritorio con zoom se juega con scroll.

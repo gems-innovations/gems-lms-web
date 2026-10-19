@@ -2,7 +2,7 @@
 // Zonas (experiencia-ux.md §3): barra arriba (se toca poco), mundo + riel en el centro, pregunta y opciones abajo (pulgar).
 // Tipografía: la familia de interfaz del sitio (--tap-font) para todo lo que se lee y se toca; la del tema
 // (--tap-display-font, p. ej. la pixelada de Minecraft) solo como acento en el nombre del tema.
-:host { display: block; --tap-font: var(--font-texto, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif); --safe-b: max(12px, calc(env(safe-area-inset-bottom) + 8px)); --bar-h: calc(max(8px, env(safe-area-inset-top)) + 48px); }
+:host { display: block; --tap-font: var(--font-texto, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif); --safe-b: max(12px, calc(env(safe-area-inset-bottom) + 8px)); --bar-h: calc(max(8px, env(safe-area-inset-top)) + 56px); }
 
 .visually-hidden { font-weight: 700; position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 
@@ -26,7 +26,7 @@
   &__steps { position: relative; z-index: 2; display: flex; gap: 4px; padding: var(--bar-h) 14px 0;
     i { flex: 1; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, .3); transition: background .2s;
       &.is-ok { background: #2FBF71; }
-      &.is-bad { background: #E5484D; }
+      &.is-bad { background: #D1343A; }
       &.is-now { background: rgba(255, 255, 255, .85); } } }
 
   // ── mundo: reacción + riel (nunca encima de las opciones) ──
@@ -34,7 +34,7 @@
   &__pill, &__pre { position: absolute; left: 50%; top: 10px; display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 8px 16px; border-radius: 999px;
     font-size: 1.2rem; font-weight: 800; white-space: nowrap; color: #06210f; background: #2FBF71; box-shadow: 0 4px 0 rgba(0, 0, 0, .25);
     transform: translateX(-50%); animation: pill-in .32s cubic-bezier(.2, 1.4, .4, 1) .08s backwards; pointer-events: none;
-    &.is-bad { color: #fff; background: #E5484D; } }
+    &.is-bad { color: #fff; background: #D1343A; } }
   &__pre { display: none; }
   &__streak { position: absolute; left: 50%; top: 58px; margin: 0; padding: 4px 12px; border-radius: 999px; transform: translateX(-50%); font-size: 1rem; font-weight: 800; font-variant-numeric: tabular-nums;
     color: #1b1300; background: #F5B83D; animation: pill-in .3s cubic-bezier(.2, 1.4, .4, 1) .3s backwards; }
@@ -58,16 +58,16 @@
     &[data-layout='list'] { grid-template-columns: 1fr; .tap__opt { min-height: 54px; flex-direction: row; align-items: center; } }
     &[data-layout='pair'] { grid-template-columns: 1fr; } }
   &__opt {
-    --c: #E5484D; --ink: #fff;
+    --c: #D1343A; --ink: #fff;
     position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 6px; min-height: clamp(64px, 10.6dvh, 86px);
     padding: 10px 12px; border: 0; border-radius: 16px; cursor: pointer; font: inherit; font-size: 1.25rem; font-weight: 800; line-height: 1.12; text-align: left;
     color: var(--ink); background: var(--c); box-shadow: 0 4px 0 rgba(0, 0, 0, .3); transition: transform .08s, box-shadow .08s, opacity .15s, background .12s;
-    &[data-k='1'] { --c: #3D8BFD; }
+    &[data-k='1'] { --c: #2F6BE0; }
     &[data-k='2'] { --c: #F5B83D; --ink: #1B1300; }
     &[data-k='3'] { --c: #2FBF71; --ink: #06210f; }
     &:active:not([aria-disabled='true']) { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, .3); }
     &.is-ok { --c: #2FBF71; --ink: #06210f; opacity: 1; }
-    &.is-bad { --c: #E5484D; --ink: #fff; opacity: 1; }
+    &.is-bad { --c: #D1343A; --ink: #fff; opacity: 1; }
   }
   &__opts.is-answered &__opt:not(.is-ok):not(.is-bad) { opacity: .25; }
   &__shape { flex: none; color: var(--ink); opacity: .95; }
@@ -80,7 +80,7 @@
   &__wait { height: 4px; margin: 10px 2px 0; border-radius: 2px; background: rgba(255, 255, 255, .18); overflow: hidden;
     i { display: block; height: 100%; background: #fff; transform-origin: left; animation: drain var(--wait, 1.4s) linear forwards; }
     &.is-paused i { animation-play-state: paused; } }
-  &__go { display: block; margin: 6px auto 0; min-height: 40px; padding: 0 18px; border: 0; border-radius: 999px; font: inherit; font-size: 1rem; font-weight: 700;
+  &__go { display: block; margin: 6px auto 0; min-height: 48px; padding: 0 18px; border: 0; border-radius: 999px; font: inherit; font-size: 1rem; font-weight: 700;
     color: #fff; background: rgba(255, 255, 255, .12); cursor: pointer; }
 
   // El siguiente Tap «asoma» 24 px abajo y rebota una vez (enseña a deslizar sin tutorial).

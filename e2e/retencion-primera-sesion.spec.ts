@@ -191,6 +191,22 @@ test.describe('Retención · primera sesión en celular (Taps)', () => {
     await expectCount(page, 'taps/hito/1', 1);
   });
 
+  test('antes de hidratar, tocar una opción ya marca la respuesta y un segundo toque no la cambia', async ({ page }) => {
+    // Sin el JavaScript de Angular (se bloquea): solo el script mínimo de index.html sobre el HTML prerenderizado.
+    await page.route(/\/(main|chunk|polyfills)[^/]*\.js$/, route => route.abort());
+    await page.goto('/taps');
+    const tap = page.locator('.tap').first();
+    const answer = Number(await tap.locator('.tap__opts').getAttribute('data-ans'));
+    const wrong = answer === 0 ? 1 : 0;
+    await tap.locator('.tap__opt').nth(wrong).click();
+    await expect(tap).toHaveAttribute('data-pre', 'bad');
+    await expect(tap.locator('.tap__opt').nth(wrong)).toHaveClass(/pre-bad/);
+    await expect(tap.locator('.tap__opt').nth(answer)).toHaveClass(/pre-ok/);
+    await tap.locator('.tap__opt').nth(answer).click();                      // el primer toque manda
+    await expect(tap).toHaveAttribute('data-pre', 'bad');
+    await expect(tap.locator('.tap__opt').nth(answer)).not.toHaveClass(/pre-bad/);
+  });
+
   test.fixme('invitación a registro tras el 3.er Tap: ofrecido y rechazado', async ({ page }) => {
     // Pendiente: la hoja de registro con «Ahora no» aún no existe (experiencia-ux.md §2.6).
     await page.goto('/taps');

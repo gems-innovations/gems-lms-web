@@ -110,6 +110,8 @@ export class TapsFeedComponent {
   private held = false;
   private teachShown = false;
   private readonly shareFiles = new Map<string, File>();
+  /** Enlace de descarga de la imagen (blob:) del aviso actual: se libera al reemplazarlo y al salir del feed. */
+  private downloadUrl: string | null = null;
   private readonly clock = new AdvanceClock(browserClockHost, () => this.advance());
   private clockTap: ITap | null = null;
   private completedThisSession = 0;
@@ -126,6 +128,8 @@ export class TapsFeedComponent {
       html.removeAttribute('data-taps-live');
       html.removeAttribute('data-glass');
       this.clock.cancel();
+      this.clearHold();
+      this.revokeDownload();
       this.stage?.destroy();
       this.stage = null;
     });
@@ -364,7 +368,9 @@ export class TapsFeedComponent {
   private async copy(tap: ITap, text: string, url: string, file?: File): Promise<void> {
     let copied = false;
     try { await navigator.clipboard.writeText(text); copied = true; this.track(null, 'taps/compartir-ok/copiado'); } catch { /* sin portapapeles: se muestra el enlace */ }
+    this.revokeDownload();
     const download = file ? URL.createObjectURL(file) : undefined;
+    this.downloadUrl = download ?? null;
     this.notice.set({ tapId: tap.id, text: copied ? 'Copiado. Pégalo en WhatsApp o donde quieras.' : `Copia y envía este enlace: ${url}`, download });
   }
 
@@ -587,6 +593,8 @@ export class TapsFeedComponent {
     this.stageErrorCounted = true;
     this.track(null, path);
   }
+
+  private revokeDownload(): void { if (this.downloadUrl) URL.revokeObjectURL(this.downloadUrl); this.downloadUrl = null; }
 
   private glassOff(): void { this.document.documentElement.setAttribute('data-glass', 'off'); }
 
