@@ -190,6 +190,54 @@ test('música: 5/5 → fragmento con letra sin bucle y luego la instrumental de 
   assert.equal(await m.alResultado({}), 'prize-parade-loop');
 });
 
+test('música: callar u ocultar mientras suena la canción → al volver entra la instrumental de premios (no se queda muda)', async () => {
+  for (const callar of [m => m.silenciar(true), m => m.pausar('oculta'), m => m.encender(false)]) {
+    const e = entorno(), m = nuevo(e), ac = new e.AC();
+    m.conectar(ac); m.encender(true); m.silenciar(false);
+    await m.alTap(cueva); await esperar(); await esperar();
+    await m.alResultado({ perfecto: true }); await esperar(); await esperar();
+    assert.equal(m.pistaActual, 'tap-tap-aprende');
+    callar(m);
+    assert.equal(m.pistaActual, null);
+    m.silenciar(false); m.reanudar('oculta'); m.encender(true);
+    await esperar(); await esperar(); await esperar();
+    assert.equal(m.pistaActual, 'prize-parade-loop', 'antes no volvía nada hasta el Tap siguiente');
+    assert.ok(!e.fuentes.some(x => x.buffer.id === 'tap-tap-aprende' && x.sonando), 'la canción no se repite');
+  }
+});
+
+test('música: apagarla y volverla a encender en el mismo Tap sigue donde iba (no vuelve a empezar)', async () => {
+  const e = entorno(), m = nuevo(e), ac = new e.AC();
+  m.conectar(ac); m.encender(true); m.silenciar(false);
+  await m.alTap(cueva); await esperar(); await esperar();
+  ac.currentTime = 12;
+  m.encender(false);
+  assert.equal(m.pistaActual, null);
+  m.encender(true);
+  await m.alTap(cueva); await esperar(); await esperar();                // el feed pide la del Tap a la vista al encenderla
+  assert.equal(m.pistaActual, P_CUEVA);
+  const arranques = e.fuentes.filter(x => x.buffer.id === P_CUEVA);
+  assert.ok(Math.abs(arranques.at(-1).inicio - 12) < 0.1, `retoma en ${arranques.at(-1).inicio}, no en 0`);
+});
+
+test('música: anticipar en el resultado baja la pista que de verdad sonará en el Tap siguiente', async () => {
+  const e = entorno(), m = nuevo(e), ac = new e.AC();
+  m.conectar(ac); m.encender(true); m.silenciar(false);
+  await m.alTap(cueva); await esperar(); await esperar();
+  await m.alResultado({ perfecto: true }); await esperar(); await esperar();
+  // Varios Taps de Minecraft: lo anticipado (con la canción sonando) es lo que alTap elige después.
+  let pedidas = 0;
+  for (let i = 0; i < 12; i++) {
+    const otro = { id: `mc-${i}`, mundo: 'pradera', tema: 'minecraft', motor: 'minecraft' };
+    e.pedidos.length = 0;
+    await m.anticipar(otro); await esperar();
+    const esperada = pistaPara(MAPA, otro, P_CUEVA), pistas = e.pedidos.filter(p => /\.(webm|m4a)$/.test(p));
+    for (const p of pistas) assert.ok(p.includes(`/${esperada}.`), `${otro.id}: se pidió ${p} y sonará ${esperada}`);
+    pedidas += pistas.length;
+  }
+  assert.ok(pedidas > 0);
+});
+
 test('música: apagada o en silencio, ninguna celebración suena', async () => {
   const e = entorno(), m = nuevo(e), ac = new e.AC();
   m.conectar(ac); m.silenciar(false);

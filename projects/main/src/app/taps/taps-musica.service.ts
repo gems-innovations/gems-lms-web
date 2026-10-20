@@ -5,7 +5,7 @@ import { TapsSonidoService } from './taps-sonido.service';
 import { ITap } from './taps.types';
 
 /** Súbela cuando cambie taps-engine/audio/musica.js (la query evita que una caché vieja entregue el módulo anterior). */
-export const TAPS_MUSICA_VERSION = '3';
+export const TAPS_MUSICA_VERSION = '4';
 export const TAPS_MUSICA_URL = `/taps-engine/audio/musica.js?v=${TAPS_MUSICA_VERSION}`;
 /** Manifiesto de las pistas (scripts/procesar-musica-taps.mjs). nginx lo revalida siempre; el audio lleva hash en el nombre. */
 export const TAPS_MUSICA_MANIFIESTO = '/taps-musica/musica.json';

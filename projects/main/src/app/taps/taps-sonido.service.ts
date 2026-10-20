@@ -186,7 +186,13 @@ export class TapsSonidoService {
     if (!this.browser || this.destruido) return;
     if (opciones.musica !== false) this.arranca = true;
     // El contexto creado de antemano (con la música ya decodificada) es el que se reanuda: no se crea otro.
-    if (!this.ctx && this.ctxPrevio) { this.ctx = this.ctxPrevio; this.ctxPrevio = null; }
+    // Siempre se reanuda, aunque diga 'running': si nació en este mismo gesto (la intención llega con el pointerdown del
+    // toque), su suspend() aún está en curso y sin este resume() quedaría suspendido: la primera respuesta, sin efecto ni
+    // música hasta el toque siguiente. Las órdenes de un AudioContext se aplican en orden: suspend → resume = en marcha.
+    if (!this.ctx && this.ctxPrevio) {
+      this.ctx = this.ctxPrevio; this.ctxPrevio = null;
+      this.ctx.resume().catch(() => undefined);
+    }
     if (this.sonido) { this.sonido.desbloquear(this.ctx ?? undefined); this.avisarContexto(); return; }
     // iOS 16.4+: «ambient» antes de crear el contexto, para que el interruptor de silencio calle Taps (y no corte la música
     // de la persona) también si el primer gesto llega antes que sonido.js, que lo declara igual al cargar.

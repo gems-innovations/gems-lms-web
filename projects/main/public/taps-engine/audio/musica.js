@@ -292,7 +292,7 @@ export function crearMusica(opciones = {}) {
 
   /** Arranca `id` con fundido de entrada y suelta la anterior (fundido cruzado). `una` = sin bucle (celebración). */
   async function poner(id, { una = false, luego = null, offset = 0 } = {}) {
-    deseada = { id, una, luego };
+    deseada = { id, una, luego, offset };
     if (!suena()) return false;
     if (actual?.id === id && !una && !actual.una) return true;
     // Una canción de celebración no espera a que se decodifique lo siguiente: se va ya (250 ms) y no vuelve.
@@ -315,7 +315,8 @@ export function crearMusica(opciones = {}) {
     const desde = Math.max(b.inicio, Math.min(b.fin - 0.05, b.inicio + offset));
     src.start(t, desde);
     const anterior = actual;
-    actual = { id, src, gain, una, t0: t - (desde - b.inicio), b, sonandoDesde: ahora() };
+    // `luego` va con la canción: si se pausa o se calla mientras suena, al volver entra la instrumental que la sigue.
+    actual = { id, src, gain, una, luego, t0: t - (desde - b.inicio), b, sonandoDesde: ahora() };
     soltar(anterior, anterior && pista(anterior.id)?.letra ? 250 : CRUCE_MS);   // una canción no sigue sobre la pregunta
     clearTimeout(finCelebracion); finCelebracion = null;
     if (una) {
@@ -412,8 +413,10 @@ export function crearMusica(opciones = {}) {
       if (!id) { deseada = null; tapPendiente = info; return null; }
       ultimaFondo = id;
       tapPendiente = null;
-      if (!suena()) { deseada = { id, una: false }; return id; }
-      await poner(id);
+      // Misma pista que estaba parada (música apagada y vuelta a encender, silencio): sigue donde iba, no desde el principio.
+      const offset = !actual && deseada?.id === id && !deseada.una ? deseada.offset ?? 0 : 0;
+      if (!suena()) { deseada = { id, una: false, offset }; return id; }
+      await poner(id, { offset });
       return id;
     },
     /** Resultado del Tap: 5/5 o racha nueva → fragmento de una canción y luego la instrumental de resultado; si no, solo esta. */
@@ -457,7 +460,9 @@ export function crearMusica(opciones = {}) {
       if (!m) return;
       // Solo se calcula (no se guarda): la elección de verdad la hace alTap. Se precarga aunque la pista actual pudiera
       // quedarse (regla de los 20 s): para cuando llegue el Tap, puede que ya hayan pasado.
-      const id = info?.id && elegidas.has(info.id) ? elegidas.get(info.id) : pistaPara(m.mapa, info, actual?.id ?? ultimaFondo);
+      // Contra la misma «anterior» que usará alTap (la de fondo del último Tap): en el resultado suena la canción o la de
+      // premios, que no cuentan; con `actual` se predecía otra pista y se bajaba la que no iba a sonar.
+      const id = info?.id && elegidas.has(info.id) ? elegidas.get(info.id) : pistaPara(m.mapa, info, ultimaFondo ?? actual?.id);
       if (id && id !== actual?.id && !decodificadas.has(id)) void traer(id);
     },
     /** Mientras habla un personaje la música baja al 30 %. */

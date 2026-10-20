@@ -848,6 +848,10 @@ export class TapsFeedComponent {
       this.audio.tocar('resultado', { tema: tap.theme, puntaje: run.score / tap.questions.length });
       // Canción con letra solo aquí (5/5 o racha nueva), nunca sobre una pregunta; si no, la instrumental de premios.
       this.musica.alResultado({ perfecto: run.score === tap.questions.length, racha: this.resumen().racha > rachaAntes });
+      // Portada: «Siguiente» lleva a /taps y su primer Tap cambia de pista. Se baja ya; si no, al cortar la canción quedaban
+      // segundos de silencio en 4G mientras llegaba (en /taps lo hace preloadAhead).
+      const siguiente = this.portada ? this.nextTap(tap) : null;
+      if (siguiente) this.musica.anticipar(siguiente);
     }
     this.writeHookCookie();
     this.sendToRanking(tap, run);
