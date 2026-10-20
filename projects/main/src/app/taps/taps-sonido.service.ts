@@ -90,6 +90,14 @@ export class TapsSonidoService {
   private atenuarBase: ((on: boolean) => void) | null = null;
   /** AudioContext creado sin gesto (suspendido) para decodificar la música de antemano; el gesto lo adopta. */
   private ctxPrevio: AudioContext | null = null;
+  /**
+   * El suspend() de `contextoPrevio` mientras no se aplica. WebKit (Safari, todo navegador en iOS) no pone en fila suspend y
+   * resume: si el gesto reanuda antes de que el suspend() termine, el resume() se cumple en el acto (el contexto aún dice
+   * «running») y el suspend() llega después y lo deja dormido. Sin música ni efectos hasta otro gesto (el trofeo, p. ej.).
+   */
+  private suspension: Promise<void> | null = null;
+  /** Pestaña oculta (`pausar`): el audio no se reanuda solo. */
+  private pausado = false;
   /** Al destruirse, entregar el sonido al feed siguiente (portada → /taps) en vez de cerrarlo. */
   private relevar = false;
   private carga: Promise<ISonido | null> | null = null;
@@ -170,7 +178,11 @@ export class TapsSonidoService {
         ?? (globalThis as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       try { this.ctxPrevio = C ? new C({ latencyHint: 'interactive' }) : null; } catch { this.ctxPrevio = null; }
       // Siempre suspendido (aunque diga 'suspended', Chrome puede pasarlo a 'running' una microtarea después): nada antes del gesto.
-      this.ctxPrevio?.suspend().catch(() => undefined);
+      const previo = this.ctxPrevio;
+      if (previo) {
+        const p: Promise<void> = previo.suspend().catch(() => undefined).then(() => { if (this.suspension === p) this.suspension = null; });
+        this.suspension = p;
+      }
     }
     return this.ctxPrevio;
   }
@@ -185,6 +197,7 @@ export class TapsSonidoService {
   desbloquear(opciones: { musica?: boolean } = {}): void {
     if (!this.browser || this.destruido) return;
     if (opciones.musica !== false) this.arranca = true;
+    this.pausado = false;
     // El contexto creado de antemano (con la música ya decodificada) es el que se reanuda: no se crea otro.
     // Siempre se reanuda, aunque diga 'running': si nació en este mismo gesto (la intención llega con el pointerdown del
     // toque), su suspend() aún está en curso y sin este resume() quedaría suspendido: la primera respuesta, sin efecto ni
@@ -193,7 +206,7 @@ export class TapsSonidoService {
       this.ctx = this.ctxPrevio; this.ctxPrevio = null;
       this.ctx.resume().catch(() => undefined);
     }
-    if (this.sonido) { this.sonido.desbloquear(this.ctx ?? undefined); this.avisarContexto(); return; }
+    if (this.sonido) { this.sonido.desbloquear(this.ctx ?? undefined); this.avisarContexto(); this.reanudarTrasSuspension(); return; }
     // iOS 16.4+: «ambient» antes de crear el contexto, para que el interruptor de silencio calle Taps (y no corte la música
     // de la persona) también si el primer gesto llega antes que sonido.js, que lo declara igual al cargar.
     try {
@@ -208,7 +221,24 @@ export class TapsSonidoService {
     const estado = this.ctx?.state as string | undefined;
     if (estado === 'suspended' || estado === 'interrupted') this.ctx?.resume().catch(() => undefined);   // «interrupted»: iOS
     this.avisarContexto();
+    this.reanudarTrasSuspension();
     void this.precargar();
+  }
+
+  /**
+   * Si el suspend() del contexto previo aún no se aplicó cuando llegó el gesto, al aplicarse se reanuda otra vez (WebKit no
+   * los pone en fila; ver `suspension`). Ya fuera del gesto vale: el gesto de antes dejó el contexto desbloqueado (WebKit
+   * levanta la restricción para ese contexto y Chrome mira la activación de la página). No si entretanto se ocultó la pestaña.
+   */
+  private reanudarTrasSuspension(): void {
+    const p = this.suspension;
+    if (!p) return;
+    void p.then(() => {
+      const ctx = this.contexto();
+      const estado = ctx?.state as string | undefined;
+      if (this.destruido || this.pausado || !ctx) return;
+      if (estado === 'suspended' || estado === 'interrupted') ctx.resume().catch(() => undefined);
+    });
   }
 
   /** El AudioContext compartido; null hasta el primer gesto (nunca se crea fuera de uno). */
@@ -273,8 +303,8 @@ export class TapsSonidoService {
   /** Sintetiza en reposo los efectos de un tema para que el primer toque no espere ni 1 ms. */
   precalentar(tema: string): void { this.sonido?.precalentar(tema); }
 
-  pausar(): void { this.callar(); this.sonido?.pausar(); }
-  reanudar(): void { this.sonido?.reanudar(); }
+  pausar(): void { this.pausado = true; this.callar(); this.sonido?.pausar(); }
+  reanudar(): void { this.pausado = false; this.sonido?.reanudar(); }
 
   // ───────────── voz ─────────────
   /** Carga el módulo de voz y averigua si hay alguna voz utilizable (voces locales del sistema o audios pregenerados). */
