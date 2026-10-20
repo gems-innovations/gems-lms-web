@@ -335,7 +335,12 @@
       "dificultad": 1,
       "subtema": "mobs",
       "fuente": "https://minecraft.wiki/w/Wolf",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "objeto",
+        "cosa": "lobo",
+        "texto": "Lobo salvaje"
+      }
     },
     {
       "id": "gato-pescado",
@@ -383,7 +388,12 @@
       "dificultad": 1,
       "subtema": "mobs",
       "fuente": "https://minecraft.wiki/w/Creeper",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "objeto",
+        "cosa": "creeper",
+        "texto": "Creeper derrotado"
+      }
     },
     {
       "id": "arana-hilo",
@@ -399,7 +409,12 @@
       "dificultad": 1,
       "subtema": "mobs",
       "fuente": "https://minecraft.wiki/w/Spider",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "objeto",
+        "cosa": "arco",
+        "texto": "Arco = palos + hilo"
+      }
     },
     {
       "id": "rayo-cerdo",
@@ -463,7 +478,12 @@
       "dificultad": 2,
       "subtema": "mobs",
       "fuente": "https://minecraft.wiki/w/Mooshroom",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "objeto",
+        "cosa": "vaca-champinon",
+        "texto": "Tazón + vaca champiñón"
+      }
     },
     {
       "id": "enderman-agua",
@@ -479,7 +499,12 @@
       "dificultad": 1,
       "subtema": "mobs",
       "fuente": "https://minecraft.wiki/w/Enderman",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "objeto",
+        "cosa": "enderman",
+        "texto": "Enderman"
+      }
     },
     {
       "id": "abeja-pica",
@@ -511,7 +536,12 @@
       "dificultad": 1,
       "subtema": "mobs",
       "fuente": "https://minecraft.wiki/w/Snow_Golem",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "objeto",
+        "cosa": "golem-nieve",
+        "texto": "Calabaza + 2 nieves"
+      }
     },
     {
       "id": "golem-nieve-calor",
@@ -975,7 +1005,12 @@
       "dificultad": 3,
       "subtema": "nether-end",
       "fuente": "https://minecraft.wiki/w/Ghast_Tear",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "objeto",
+        "cosa": "ghast",
+        "texto": "Lágrima de ghast"
+      }
     },
     {
       "id": "piglin-trueque",
@@ -1366,6 +1401,13 @@
         "objeto": "receta",
         "accion": "crafteo",
         "valor": "palos"
+      },
+      "escena": {
+        "tipo": "operacion",
+        "lineas": [
+          "2 tablones",
+          "= ? palos"
+        ]
       }
     },
     {
@@ -1471,6 +1513,11 @@
       "visual": {
         "objeto": "piston",
         "accion": "bloquea"
+      },
+      "escena": {
+        "tipo": "objeto",
+        "cosa": "piston",
+        "texto": "¿Cuál no se mueve?"
       }
     },
     {
@@ -1974,7 +2021,16 @@
       "dificultad": 2,
       "subtema": "curiosidades",
       "fuente": "https://minecraft.wiki/w/Sheep",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "js",
+        "lineas": [
+          "oveja = new Oveja();",
+          "oveja.nombre = \"jeb_\";",
+          "mirar(oveja); // ¿?"
+        ]
+      }
     },
     {
       "id": "dinnerbone",
@@ -1990,7 +2046,16 @@
       "dificultad": 2,
       "subtema": "curiosidades",
       "fuente": "https://minecraft.wiki/w/Name_Tag",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "js",
+        "lineas": [
+          "mob = new Cerdo();",
+          "mob.nombre = \"Dinnerbone\";",
+          "mirar(mob); // ¿qué ves?"
+        ]
+      }
     },
     {
       "id": "bloque-metro",

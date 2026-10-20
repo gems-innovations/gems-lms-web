@@ -8,7 +8,10 @@
 //
 // Interfaz que devuelve createRenderer(opts):
 //   setSize(w, h)            cambia la resolución interna
-//   setScene({world,host,item})  mundo (clave de WORLDS), personaje (clave de theme.characters) y objeto en la mano
+//   setScene({world,host,item,props,shot,enter,plano,hora,clima,fauna})  mundo (clave de WORLDS), personaje (clave de
+//                            theme.characters), objeto en la mano, decorado, encuadre, entrada y modo cine (plano de cámara,
+//                            hora del día, clima y animales de fondo)
+//   plano(n, seed)           pequeño cambio de plano entre preguntas (la cámara viaja hasta la variante)
 //   play(anim)               'idle' | 'talk' | 'think' | 'celebrate' | 'hurt' | 'scared' | 'sad' | 'dance' | 'wave' | 'jump'
 //   frame(dt, t)             avanza la animación y dibuja en el canvas 2D de salida (ctx) con ambiente incluido
 //   anchor(name)             posición en píxeles ('head' | 'top' | 'feet') para burbujas y partículas
@@ -180,7 +183,7 @@ function atlasTex(){if(ATL)return ATL;makeTiles();
 const BT={grass:{t:['grassTop','grass','dirt'],g:'solid'},dirt:{t:['dirt','dirt','dirt'],g:'solid'},stone:{t:['stone','stone','stone'],g:'solid'},sand:{t:['sand','sand','sand'],g:'solid'},
  nether:{t:['nether','nether','nether'],g:'solid'},end:{t:['end','end','end'],g:'solid'},obsidian:{t:['obsidian','obsidian','obsidian'],g:'solid'},plank:{t:['plank','plank','plank'],g:'solid'},
  snow:{t:['snowTop','snow','dirt'],g:'solid'},snowstone:{t:['snowTop','stone','stone'],g:'solid'},log:{t:['log','log','log'],g:'solid'},leaves:{t:['leaves','leaves','leaves'],g:'solid'},spruce:{t:['spruce','spruce','spruce'],g:'solid'},
- floor:{t:['floor','floor','floor'],g:'solid'},lava:{t:['lava','lava','lava'],g:'glow'},glow:{t:['glow','glow','glow'],g:'glow'},glass:{t:['glass','glass','glass'],g:'glow'},crystal:{t:['crystal','crystal','crystal'],g:'glow'},water:{t:['water','water','water'],g:'water'},oreD:{t:['oreD','oreD','oreD'],g:'glow'},oreG:{t:['oreG','oreG','oreG'],g:'solid'},path:{t:['path','dirt','dirt'],g:'solid'},cactus:{t:['cactus','cactus','cactus'],g:'solid'},sandstone:{t:['sandstone','sandstone','sandstone'],g:'solid'},bookshelf:{t:['plank','bookshelf','plank'],g:'solid'},chest:{t:['chestT','chestS','chestT','chestF'],g:'solid'},furnace:{t:['furnT','furnS','furnT','furnF'],g:'solid'},
+ snowblock:{t:['snowTop','snowTop','snowTop'],g:'solid'},floor:{t:['floor','floor','floor'],g:'solid'},lava:{t:['lava','lava','lava'],g:'glow'},glow:{t:['glow','glow','glow'],g:'glow'},glass:{t:['glass','glass','glass'],g:'glow'},crystal:{t:['crystal','crystal','crystal'],g:'glow'},water:{t:['water','water','water'],g:'water'},oreD:{t:['oreD','oreD','oreD'],g:'glow'},oreG:{t:['oreG','oreG','oreG'],g:'solid'},path:{t:['path','dirt','dirt'],g:'solid'},cactus:{t:['cactus','cactus','cactus'],g:'solid'},sandstone:{t:['sandstone','sandstone','sandstone'],g:'solid'},bookshelf:{t:['plank','bookshelf','plank'],g:'solid'},chest:{t:['chestT','chestS','chestT','chestF'],g:'solid'},furnace:{t:['furnT','furnS','furnT','furnF'],g:'solid'},
  brick:{t:['brick','brick','brick'],g:'solid'},jungle:{t:['jungle','jungle','jungle'],g:'solid'},aspen:{t:['aspen','aspen','aspen'],g:'solid'},woolR:{t:['woolR','woolR','woolR'],g:'solid'},woolW:{t:['woolW','woolW','woolW'],g:'solid'},cobble:{t:['cobble','cobble','cobble'],g:'solid'},pumpkin:{t:['pumpT','pumpS','pumpT'],g:'solid'},craft:{t:['craftT','craftS','plank'],g:'solid'},tnt:{t:['tntT','tntS','tntT'],g:'solid'},piston:{t:['pistT','pistS','cobble'],g:'solid'},lamp:{t:['lampOn','lampOn','lampOn'],g:'glow'},jack:{t:['pumpT','pumpS','pumpT','pumpF'],g:'glow'}};
 function worldMesh(m){const G={solid:{p:[],n:[],u:[],c:[]},glow:{p:[],n:[],u:[],c:[]},water:{p:[],n:[],u:[],c:[]}},e=.5/512;
  for(const [key,type] of m){const [x,y,z]=key.split(',').map(Number),bt=BT[type],g=G[bt.g];
@@ -199,6 +202,13 @@ function boxesMesh(list,glowCol){const p=[],n=[],c=[];list.forEach(([x,y,z,w,h,d
  const g=new BufG();g.setAttribute('position',new Attr(new Float32Array(p),3));g.setAttribute('normal',new Attr(new Float32Array(n),3));g.setAttribute('color',new Attr(new Float32Array(c),3));return new MeshC(g,new MatC(glowCol?{vertexColors:true,emissive:new ColC(glowCol),emissiveIntensity:.9}:{vertexColors:true}))}
 function flowers(w,count,cols){const L=[];for(let i=0;i<count;i++){const x=Math.round(rnd(i*3.1)*44-22),z=Math.round(rnd(i*7.7)*44-30);if(Math.abs(x)<6&&z>-5&&z<7)continue;const h=w.h(x,z),bx=x*BK+4+rnd(i)*6,bz=z*BK+4+rnd(i+9)*6,by=GY+h*BK;
  if(i%3){L.push([bx,by,bz,2,6,2,'#3f8a2a'],[bx-1.5,by+6,bz-1.5,5,4,5,cols[i%cols.length]])}else L.push([bx,by,bz,6,4,6,'#4f9e36'])}return L}
+// Más vida en el suelo (van en la misma malla de adornos: no suman llamadas de dibujo): matas de pasto, arbustos secos, algas.
+function tufts(w,count,cols,seed=0){const L=[];for(let i=0;i<count;i++){const x=Math.round(rnd(i*5.3+seed)*46-23),z=Math.round(rnd(i*2.9+seed+.4)*50-36);if(Math.abs(x)<6&&z>-5&&z<7)continue;const h=w.h?w.h(x,z):0,bx=x*BK+2+rnd(i+seed)*10,bz=z*BK+2+rnd(i+seed+5)*10,by=GY+h*BK,c=cols[i%cols.length];
+ L.push([bx,by,bz,1.6,4+rnd(i+1)*4,1.6,c],[bx+2.4,by,bz+1,1.6,3+rnd(i+2)*3,1.6,c],[bx+1,by,bz+2.6,1.6,5+rnd(i+3)*3,1.6,c])}return L}
+/** Palmera de bloques (tronco inclinado y cuatro hojas largas) para la playa. */
+function palm(L,x,z,h){const bx=x*BK,bz=z*BK;for(let k=0;k<h;k++)L.push([bx+5+k*.9,GY+k*10,bz+5,6,10,6,'#8a6a3a']);const cx=bx+8+h*.9,cy=GY+h*10,cz=bz+8;
+ L.push([cx-4,cy,cz-4,8,4,8,'#4f9e36'],[cx-2,cy-6,cz+1,4,4,4,'#6b4a2b']);
+ for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){const w=dx?20:6,d=dz?20:6;L.push([cx-w/2+dx*12,cy-1,cz-d/2+dz*12,w,3,d,'#3f8a2a'],[cx-2+dx*24,cy-5,cz-2+dz*24,4,4,4,'#4f9e36'])}}
 function clouds(n){const L=[];for(let i=0;i<n;i++){const x=rnd(i+.5)*1600-800,z=rnd(i+2.5)*1200-900,w=60+rnd(i+4)*120,d=40+rnd(i+6)*90;L.push([x,GY+330,z,w,10,d,'#ffffff'])}const m=boxesMesh(L);m.material.transparent=true;m.material.opacity=.92;m.material.emissive=new ColC(0x9a9a9a);m.userData.drift=true;return m}
 const noise=(x,z)=>(Math.sin(x*.55+z*.3)+Math.sin(z*.47-x*.21)+Math.sin((x+z)*.23+1.7))/3;
 // Flat stage where the players stand (x -5..5, z -4..6); hills and props grow behind it.
@@ -211,21 +221,21 @@ function tree3(w,x,z,spruce){const b=w.h(x,z);for(let y=b;y<b+4;y++)w.put(x,y,z,
  for(let i=-1;i<=1;i++)for(let k=-1;k<=1;k++)w.put(x+i,b+5,z+k,L);w.put(x,b+6,z,L)}
 const TREES=[[-12,-9],[11,-10],[-15,-15],[14,-17],[4,-19],[-6,-22],[10,-26],[-12,-29],[1,-33],[-18,2],[19,-2],[-8,18],[9,20],[-20,14],[18,16],[0,25]];
 const WORLDS={
- pradera:()=>{const w=land('grass','dirt');TREES.forEach(([x,z])=>tree3(w,x,z));w.deco=flowers(w,70,['#e8323a','#ffd84a','#8fd3ff','#ffffff']);w.sky=12;return w},
+ pradera:()=>{const w=land('grass','dirt');TREES.forEach(([x,z])=>tree3(w,x,z));w.deco=[...flowers(w,70,['#e8323a','#ffd84a','#8fd3ff','#ffffff']),...tufts(w,60,['#5aa83a','#4f9e36','#6fbf45'])];w.sky=12;return w},
  bosque:()=>{const w=land('grass','dirt',.8,5);const T=[];for(let i=0;i<40;i++){const x=Math.round(rnd(i*1.7)*48-24),z=Math.round(rnd(i*4.3)*60-38);if(Math.abs(x)<7&&z>-6&&z<8)continue;T.push([x,z,i%3===0])}
-  T.forEach(([x,z,sp])=>tree3(w,x,z,sp));w.deco=flowers(w,90,['#ff8ad0','#ffd84a','#ffffff','#b58cff']);w.sky=8;return w},
+  T.forEach(([x,z,sp])=>tree3(w,x,z,sp));w.deco=[...flowers(w,90,['#ff8ad0','#ffd84a','#ffffff','#b58cff']),...tufts(w,70,['#4a8f2f','#3f7f2a','#5aa83a'],7)];w.sky=8;return w},
  cueva:()=>{const m=new Map(),put=(x,y,z,t)=>m.set(x+','+y+','+z,t);for(let x=-10;x<=9;x++)for(let z=-8;z<=8;z++){put(x,-1,z,'stone');put(x,-2,z,'stone')}
   for(let x=-10;x<=9;x++)for(let y=0;y<=6;y++){const q=rnd(x*13+y*7);put(x,y,-8,q>.9?'oreD':q>.82?'oreG':'stone')}
   for(const x of [-10,9])for(let z=-8;z<=6;z++)for(let y=0;y<=6;y++){const q=rnd(z*11+y*5+x);put(x,y,z,q>.92?'oreD':q>.85?'oreG':'stone')}
   for(let x=-10;x<=9;x++)for(let z=-8;z<=6;z++)put(x,7,z,'stone');for(let x=-3;x<=2;x++)put(x,-1,-6,'lava');put(-9,2,-3,'glow');put(8,2,-2,'glow');put(-4,3,-7,'glow');put(5,3,-7,'glow');
   for(let y=0;y<=2;y++){put(-6,y,-5,'stone');put(6,y,-4,'stone')}m.box=[-132,132,-100,132];m.ceil=86;return m},
  desierto:()=>{const w=land('sand','sand',.7,4);[[-10,-9],[9,-11],[-15,-18],[15,-6],[4,-22],[-20,4],[18,12]].forEach(([x,z],i)=>{const b=w.h(x,z);for(let y=b;y<b+2+(i%2);y++)w.put(x,y,z,'cactus')});
-  for(let k=0;k<7;k++)for(let x=-7+k;x<=7-k;x++)for(let z=-34+k;z<=-20-k;z++)w.put(x,w.h(0,-27)+k,z,'sandstone');w.sky=4;return w},
+  for(let k=0;k<7;k++)for(let x=-7+k;x<=7-k;x++)for(let z=-34+k;z<=-20-k;z++)w.put(x,w.h(0,-27)+k,z,'sandstone');w.deco=tufts(w,26,['#8a6a3a','#a07a40','#6b4a2b'],3);w.sky=4;return w},
  aldea:()=>{const w=land('grass','dirt',.6,4);for(let z=-20;z<=7;z++)for(const x of [-1,0])w.put(x,-1,z,'path');
   const house=(cx,cz)=>{for(let x=cx-2;x<=cx+2;x++)for(let z=cz-2;z<=cz+2;z++)for(let y=0;y<=3;y++){const edge=Math.abs(x-cx)===2||Math.abs(z-cz)===2;if(!edge)continue;const corner=Math.abs(x-cx)===2&&Math.abs(z-cz)===2;
     w.put(x,y,z,corner?'log':(y===1||y===2)&&(x===cx||z===cz)&&!(z===cz+2&&x===cx&&y<3&&false)?'glass':'plank')}for(let k=0;k<3;k++)for(let x=cx-3+k;x<=cx+3-k;x++)for(let z=cz-3;z<=cz+3;z++)w.put(x,4+k,z,'plank');w.put(cx,0,cz+2,'path')};
-  house(-8,-8);house(8,-10);house(-9,-19);house(10,-21);TREES.slice(2).forEach(([x,z])=>tree3(w,x,z));w.deco=flowers(w,40,['#e8323a','#ffd84a']);w.sky=10;return w},
- noche:()=>{const w=land('grass','dirt');TREES.forEach(([x,z])=>tree3(w,x,z));w.put(-7,0,-2,'log');w.put(-7,1,-2,'glow');w.put(7,0,-3,'log');w.put(7,1,-3,'glow');w.deco=flowers(w,40,['#8fd3ff','#ffffff']);return w},
+  house(-8,-8);house(8,-10);house(-9,-19);house(10,-21);TREES.slice(2).forEach(([x,z])=>tree3(w,x,z));w.deco=[...flowers(w,40,['#e8323a','#ffd84a']),...tufts(w,40,['#5aa83a','#4f9e36'],11)];w.sky=10;return w},
+ noche:()=>{const w=land('grass','dirt');TREES.forEach(([x,z])=>tree3(w,x,z));w.put(-7,0,-2,'log');w.put(-7,1,-2,'glow');w.put(7,0,-3,'log');w.put(7,1,-3,'glow');w.deco=[...flowers(w,40,['#8fd3ff','#ffffff']),...tufts(w,40,['#2f5a2a','#3a6a32'],5)];return w},
  casa:()=>{const w=land('grass','dirt',.8,5),put=w.put,X0=-9,X1=8,Z0=-6,Z1=7;TREES.forEach(([x,z])=>{if(Math.abs(x)>11||z<-9)tree3(w,x,z)});
   for(let x=X0;x<=X1;x++)for(let z=Z0;z<=Z1;z++){put(x,-1,z,'aspen');for(let y=0;y<=7;y++)w.m.delete(x+','+y+','+z)}
   const wall=(x,y,z,pillar)=>put(x,y,z,y===0?'brick':pillar?'log':'jungle');
@@ -243,7 +253,12 @@ const WORLDS={
   [[-11,-14],[9,-17],[2,-22]].forEach(([x,z])=>{for(let y=0;y<w.h(x,z);y++)w.put(x,y,z+1,'lava')});for(let x=-26;x<=25;x++)for(const z of [-10,-11])if(w.h(x,z)===0)w.put(x,-1,z,'lava');return w},
  end:()=>{const w=land('end','end',.35,2);[[-11,-10,11],[9,-12,14],[-4,-20,17],[14,-22,9],[-16,-18,13]].forEach(([x,z,h])=>{for(let y=0;y<h;y++)for(const [i,k] of [[0,0],[1,0],[0,1],[1,1]])w.put(x+i,y,z+k,'obsidian');w.put(x,h,z,'crystal')});return w},
  nieve:()=>{const w=land('snow','dirt',1.3,9);for(const [k,t] of [...w.m])if(t==='snow'){const [x,y,z]=k.split(',').map(Number);if(y>=2)w.m.set(k,'snowstone')}TREES.forEach(([x,z])=>tree3(w,x,z,true));w.sky=6;return w},
- playa:()=>{const m=new Map(),put=(x,y,z,t)=>m.set(x+','+y+','+z,t);m.skyN=1;for(let x=-26;x<=25;x++)for(let z=-42;z<=30;z++){if(z>=-4){put(x,-1,z,'sand');put(x,-2,z,'sand')}else{put(x,-1,z,'water');put(x,-2,z,'sand')}}return m},
+ playa:()=>{const m=new Map(),put=(x,y,z,t)=>m.set(x+','+y+','+z,t);m.skyN=1;for(let x=-26;x<=25;x++)for(let z=-42;z<=30;z++){if(z>=-4){put(x,-1,z,'sand');put(x,-2,z,'sand')}else{put(x,-1,z,'water');put(x,-2,z,'sand')}}
+  // palmeras a los lados, algas bajo el agua y conchas en la arena
+  const D=[];palm(D,-12,2,6);palm(D,13,-1,7);palm(D,-19,9,5);palm(D,20,7,6);
+  for(let i=0;i<26;i++){const x=rnd(i*3.3)*700-350,z=-80-rnd(i*1.9)*420;if(Math.abs(x)<90&&z>-110)continue;D.push([x,GY-15,z,3,9+rnd(i)*5,3,i%2?'#2f7a3a':'#3f8a4a'])}
+  for(let i=0;i<10;i++){const x=rnd(i*7.1)*560-280,z=rnd(i*4.7)*120-30;if(Math.abs(x)<80)continue;D.push([x,GY,z,3,1.2,3,i%2?'#ffd1c4':'#f4e6c8'])}
+  m.deco=D;return m},
   halloween:()=>{const w=land('grass','dirt',.9,6);
    [[-12,-9],[11,-10],[-15,-17],[14,-18],[4,-21],[-6,-24],[18,-4],[-19,3]].forEach(([x,z],i)=>{const b=w.h(x,z),h=4+i%3;for(let y=b;y<b+h;y++)w.put(x,y,z,'log');w.put(x+1,b+h-1,z,'log');w.put(x+2,b+h,z,'log');w.put(x-1,b+h-2,z,'log');w.put(x-2,b+h-1,z,'log');w.put(x,b+h,z+1,'log')});
    [[-9,-6],[-6,-8],[7,-7],[10,-5],[-2,-12],[3,-13],[-12,-3],[13,-2]].forEach(([x,z],i)=>{const b=w.h(x,z);w.put(x,b,z,'cobble');w.put(x,b+1,z,'cobble');if(i%2)w.put(x+1,b+1,z,'cobble')});
@@ -254,7 +269,7 @@ const WORLDS={
 // Cielo por franjas planas (como el cielo por capas del juego), no un degradado suave; el sol es un cuadrado con un
 // halo de dos escalones duros.
 const mixHex=(a,b,k)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),A=p(a),B=p(b);return`rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*k)).join(',')})`};
-function skyCanvas(o){const c=document.createElement('canvas');c.width=2048;c.height=1024;const x=c.getContext('2d');
+function skyCanvas(o){const c=document.createElement('canvas');c.width=1024;c.height=512;const x=c.getContext('2d');x.scale(.5,.5);
  const bands=[[0,o.top],[.34,mixHex(o.top,o.mid||o.hor,.5)],[.56,o.mid||o.hor],[.78,mixHex(o.mid||o.hor,o.hor,.5)],[.9,o.hor]];
  bands.forEach(([y0,col],i)=>{x.fillStyle=col;const y1=i+1<bands.length?bands[i+1][0]:1;x.fillRect(0,Math.round(y0*512),2048,Math.ceil((y1-y0)*512))});x.fillStyle=o.hor;x.fillRect(0,512,2048,512);
  if(o.stars)for(let i=0;i<420;i++){x.globalAlpha=.4+rnd(i+7)*.6;x.fillStyle=o.stars;x.fillRect(rnd(i)*2048|0,rnd(i+99)*470|0,2,2)}x.globalAlpha=1;
@@ -292,13 +307,43 @@ const AMBIENT={
  cueva(c,t){bits.slice(0,12).forEach(b=>{const x=b.x+Math.sin(t*b.v+b.p)*30,y=900+(b.y%700);sq(c,x,y,6,'#ffcf6a',.25+.25*Math.sin(t*2+b.p))})},
  halloween(c,t){bits.slice(0,14).forEach(b=>{const x=b.x+Math.sin(t*b.v+b.p)*50,y=VH-((b.y+t*60*b.v)%VH);glow(c,x,y,22,'rgba(255,140,40,.3)');sq(c,x,y,6,'#ffb347',.5+.4*Math.sin(t*3+b.p))})}
 };
+// ===== clima (scene.clima): partículas 2D baratas encima del 3D, en las mismas coordenadas virtuales. Sin mallas ni texturas:
+// cada fotograma son a lo sumo ~80 rectángulos o un solo trazo. En nivel bajo (360x640 o degradado) va la mitad. =====
+const lite=()=>W<=360;
+const wrap=(v,m)=>((v%m)+m)%m;
+const CLIMA={
+ lluvia(c,t){const n=lite()?40:80;c.strokeStyle='rgba(205,222,255,.5)';c.lineWidth=3;c.beginPath();
+  for(let i=0;i<n;i++){const b=bits[i%40],x=wrap(b.x+i*53-t*240,VW+200)-100,y=wrap(b.y+i*97+t*1650*(.8+b.v*.3),VH+200)-100;c.moveTo(x,y);c.lineTo(x-14,y+46)}c.stroke()},
+ polen(c,t){const n=lite()?12:24;for(let i=0;i<n;i++){const b=bits[i],x=b.x+Math.sin(t*.4*b.v+b.p)*80,y=480+wrap(b.y*.6+Math.cos(t*.3*b.v+b.p)*60-t*12,900);sq(c,x,y,6,'#fff3a0',.5+.3*Math.sin(t*2+b.p))}},
+ hojas(c,t){const n=lite()?10:20,cols=['#6fae3a','#4f9e36','#d98b2b','#c6a13a'];for(let i=0;i<n;i++){const b=bits[i],y=wrap(b.y+t*70*b.v,VH+100)-50,x=b.x+Math.sin(t*1.2*b.v+b.p)*90;
+  c.save();c.translate(x,y);c.rotate(Math.sin(t*2+b.p)*.8);c.globalAlpha=.85;c.fillStyle=cols[i%4];c.fillRect(-7,-5,14,10);c.restore()}c.globalAlpha=1},
+ arena(c,t){const n=lite()?14:28;c.fillStyle='rgba(235,210,150,.42)';for(let i=0;i<n;i++){const b=bits[i],x=wrap(b.x-t*520*b.v,VW+300)-150,y=700+(b.y%1000);c.fillRect(x,y,60+b.s*4,3)}},
+ nevada(c,t){AMBIENT.nieve(c,t)},
+ luciernagas(c,t){AMBIENT.noche(c,t)},
+ goteo(c,t){for(let i=0;i<(lite()?4:8);i++){const b=bits[i],p=wrap(t*.5*b.v+b.p,1.4),x=120+(b.x*.8)%840;if(p<1)sq(c,x,600+p*p*900,8,'#8fc8ff',.7);else{const k=(p-1)/.4;sq(c,x-14*k,1500,6,'#8fc8ff',.6*(1-k));sq(c,x+14*k,1500,6,'#8fc8ff',.6*(1-k))}}},
+ polvo(c,t){c.fillStyle='rgba(255,236,190,.07)';c.beginPath();c.moveTo(620,0);c.lineTo(860,0);c.lineTo(560,1500);c.lineTo(260,1500);c.closePath();c.fill();
+  for(let i=0;i<(lite()?10:20);i++){const b=bits[i],y=wrap(b.y*.7+t*20*b.v,1400),x=300+wrap(b.x*.4+Math.sin(t*.5+b.p)*40,300)+(1400-y)*.2;sq(c,x,y,5,'#fff2c8',.5)}},
+ ceniza(c,t){AMBIENT.nether(c,t)}
+};
 
-// ===== mundo: bloques, cielo, niebla y luz por escenario =====
-const worldCache={},skyCache={};let worldShown=null;
+// ===== mundo: bloques, cielo, niebla y luz por escenario (y por hora del día / lluvia) =====
+const worldCache={},skyCache=new Map();let worldShown=null,lookShown=null;
 const sun=new (viewer.cameraLight.constructor)(0xfff1d6,1.1,0,0);sun.position.set(420,760,520);viewer.scene.add(sun);
 const SUN={pradera:1.15,bosque:1,aldea:1.15,desierto:.85,playa:.8,nieve:.7,noche:.25,halloween:.3,casa:.55,cueva:0,nether:.45,end:.3,estudio:.6};
 const LIGHT={pradera:[1,[1,1,1]],noche:[.7,[.75,.8,1]],casa:[1.05,[1,.93,.84]],nether:[.9,[1,.78,.62]],end:[.85,[.9,.84,1]],nieve:[1,[.92,.96,1]],playa:[1,[1,.93,.84]],
  bosque:[.95,[.95,1,.92]],cueva:[.6,[1,.9,.8]],desierto:[1.05,[1,.95,.85]],aldea:[1,[1,1,1]],halloween:[.72,[1,.78,.9]],estudio:[1,[1,1,1]]};
+// Hora del día (scene.hora) para los lugares al aire libre: cambia el cielo (franjas planas), el sol/luna, la luz, la niebla y el
+// color de las nubes. Sin hora (o «dia») se ve como siempre.
+const HORAS={
+ tarde:{top:'#2c3e8f',mid:'#e0785a',hor:'#ffb36b',sun:[.27,.47,30,'#ffb347','rgba(255,170,80,.6)'],light:[.86,[1,.8,.62]],sunI:.75,grade:[1.05,1.2,1.07,1.9,.55],cloud:0xffc8a8},
+ amanecer:{top:'#4a6fc0',mid:'#f4a9b8',hor:'#ffe1b0',sun:[.33,.48,24,'#fff1c4','rgba(255,220,190,.6)'],light:[.95,[1,.9,.86]],sunI:.9,grade:[1.06,1.12,1.05,.9,.5],cloud:0xfff0f0},
+ noche:{top:'#03061a',mid:'#101a45',hor:'#1c2a5a',stars:'#ffffff',sun:[.21,.44,18,'#eef2ff','rgba(200,215,255,.35)'],light:[.62,[.72,.78,1]],sunI:.22,grade:GRADE.noche,cloud:0x39436a},
+};
+const LLUVIA={top:'#59677a',mid:'#7d8a98',hor:'#a6b0ba',light:[.8,[.86,.9,.96]],sunI:.35,grade:[.98,.85,1.02,-.4,.55],cloud:0x8a939c};
+function skyFor(key,hora,lluvia){const base=SKIES[key],h=HORAS[hora],o={...base};
+ if(h){Object.assign(o,{top:h.top,mid:h.mid,hor:h.hor,sun:h.sun,stars:h.stars||null});if(base.mount)o.mount=base.mount.map(([c,a,f])=>[mixHex(c,h.top,.55),a,f]);if(base.clouds)o.clouds=hora==='noche'?'rgba(120,130,170,.35)':'rgba(255,214,190,.85)'}
+ if(lluvia){Object.assign(o,{top:LLUVIA.top,mid:LLUVIA.mid,hor:hora==='noche'?'#2a3346':LLUVIA.hor,sun:null,stars:null,clouds:'rgba(220,225,232,.9)'});if(hora==='noche'){o.top='#0d1220';o.mid='#1d2638'}if(base.mount)o.mount=base.mount.map(([c,a,f])=>[mixHex(c,'#5a6573',.6),a,f]);o.near=base.near*.7;o.far=base.far*.75}
+ return o}
 let sceneTok=0;
 const worldKey=k=>WORLDS[k]?k:(theme.defaultWorld&&WORLDS[theme.defaultWorld]?theme.defaultWorld:'pradera');
 // Crea (una sola vez) la malla del mundo; las texturas de bloques se piden aquí. Oculta hasta que showWorld la muestre.
@@ -306,15 +351,24 @@ async function ensureWorld(key,tok){
  if(worldCache[key])return true;
  performance.mark?.('te-world-start');const w=WORLDS[key](),bm=w instanceof Map?w:w.m;performance.mark?.('te-world-data');await ensureBlockTextures(bm);performance.mark?.('te-world-textures');if(tok!==undefined&&tok!==sceneTok)return false;if(worldCache[key])return true;
  const g=worldMesh(bm);performance.mark?.('te-world-mesh');g.userData={h:w.h,box:(w.box||bm.box),ceil:(w.ceil??bm.ceil),m:bm};if(w.deco)g.add(boxesMesh(w.deco));if(w.glowDeco)g.add(boxesMesh(w.glowDeco,0xffb040));if(w.sky)g.add(clouds(w.sky));g.visible=false;worldCache[key]=g;viewer.scene.add(g);return true}
-async function showWorld(key,tok){
- key=worldKey(key);if(worldShown===key)return;
+/** Lienzo del cielo (1024x512, 2 MB: son franjas planas, no pierde nada): se guardan como mucho 3 (el actual, el anterior y el precargado). */
+function skyCanvasFor(key,hora,lluvia){const k=key+'|'+(hora||'')+'|'+(lluvia?1:0);let c=skyCache.get(k);if(c){skyCache.delete(k);skyCache.set(k,c);return c}
+ c=skyCanvas(skyFor(key,hora,lluvia));skyCache.set(k,c);while(skyCache.size>3)skyCache.delete(skyCache.keys().next().value);return c}
+async function showWorld(key,tok,hora=null,clima=null){
+ key=worldKey(key);const lluvia=clima==='lluvia',look=key+'|'+(hora||'')+'|'+(lluvia?1:0);if(lookShown===look)return;
  if(!(await ensureWorld(key,tok)))return;
- for(const g of Object.values(worldCache))g.visible=false;worldCache[key].visible=true;worldShown=key;
- const sk=SKIES[key];viewer.loadBackground(skyCache[key]||(skyCache[key]=skyCanvas(sk)),303);performance.mark?.('te-sky');const bt=viewer.scene.background;bt.magFilter=bt.minFilter=1003;bt.generateMipmaps=false;
+ if(tok!==undefined&&tok!==sceneTok)return;
+ if(worldShown!==key){for(const g of Object.values(worldCache))g.visible=false;worldCache[key].visible=true;worldShown=key}
+ lookShown=look;
+ const sk=skyFor(key,hora,lluvia),h=HORAS[hora];viewer.loadBackground(skyCanvasFor(key,hora,lluvia),303);performance.mark?.('te-sky');const bt=viewer.scene.background;bt.magFilter=bt.minFilter=1003;bt.generateMipmaps=false;
  viewer.scene.fog={isFog:true,name:'',color:new ColC(sk.hor),near:sk.near*1.4,far:sk.far*1.35};
- const[g,[rr,gg,b]]=LIGHT[key]||LIGHT.pradera,si=SUN[key]??.8;sun.intensity=si*1.3;setGrade(key);sun.color.setRGB(rr,gg,b);viewer.globalLight.intensity=L0.g*g;viewer.globalLight.color.setRGB(rr,gg,b);viewer.cameraLight.intensity=L0.c*(.5+.3*g)}
+ const[g,[rr,gg,b]]=(lluvia?LLUVIA.light:h?.light)||LIGHT[key]||LIGHT.pradera,si=(lluvia?LLUVIA.sunI:h?.sunI)??SUN[key]??.8;sun.intensity=si*1.3;setGrade(key);
+ const gr=lluvia?LLUVIA.grade:h?.grade;if(gr){const u=gradeFX.uniforms;[u.exposure.value,u.sat.value,u.con.value,u.warm.value,u.vig.value]=gr}
+ sun.color.setRGB(rr,gg,b);viewer.globalLight.intensity=L0.g*g;viewer.globalLight.color.setRGB(rr,gg,b);viewer.cameraLight.intensity=L0.c*(.5+.3*g);
+ const cloud=(lluvia?LLUVIA.cloud:h?.cloud)??0x9a9a9a;worldCache[key].children.forEach(m=>{if(m.userData.drift)m.material.emissive.setHex(cloud)})}
 
-// ===== cámara: orbita despacio alrededor del anfitrión; el fondo se mueve con ella =====
+// ===== cámara =====
+// Sin plano de cine (scene.camara): orbita despacio alrededor del anfitrión como siempre. Con plano: modo cine (abajo).
 const proj=(x,y,z=0)=>{const v=new V3(x,y,z).project(viewer.camera);return[(v.x+1)/2*W,(1-v.y)/2*H]};
 function keepCam(pos){const u=worldCache[worldShown]?.userData;if(!u)return pos;if(u.box){pos[0]=Math.max(u.box[0],Math.min(u.box[1],pos[0]));pos[2]=Math.max(u.box[2],Math.min(u.box[3],pos[2]))}
  const bx=Math.floor(pos[0]/BK),bz=Math.floor(pos[2]/BK);let top=GY+(u.h?u.h(bx,bz):0)*BK;if(u.m){for(let y=12;y>=-1;y--){const t=u.m.get(bx+','+y+','+bz);if(t&&t!=='water'&&GY+(y+1)*BK<=(u.ceil??1e9)){top=Math.max(top,GY+(y+1)*BK);break}}}
@@ -324,13 +378,41 @@ function keepCam(pos){const u=worldCache[worldShown]?.userData;if(!u)return pos;
 // lado (no el personaje), así el globo y las partículas siguen anclados a él. `nudge` lo corre un poco más para
 // hacerle espacio a un objeto que explica.
 let camT=0,shake=0,push=0,shot={x:0,zoom:1,yaw:0,height:0},nudgeX=0,nudgeTo=0,reduced=!!opts.reducedMotion;
+// ── modo cine (theme.cine.planos, como los 7 planos de SkinLibre Clips): cada plano es
+//   el (elevación de la cámara en grados: + desde arriba, − desde abajo), az (giro extra alrededor del personaje, rad),
+//   zoom, ty (altura a la que mira), roll (inclinación «holandesa», rad), orbit (amplitud de una órbita lenta, rad),
+//   travel (amplitud de un travelling lateral lento, fracción del ancho) y oy (sube el encuadre: fracción del alto; deja al
+//   personaje en la mitad de arriba, sobre el panel de la pregunta).
+// Entre preguntas el plano cambia un poco (VARIANTES) y la cámara viaja hasta él en ~1,5 s; la variante 4 es el plano
+// detalle del objeto en la mano. Con movimiento reducido no hay órbita, travelling ni variantes: el plano base, quieto.
+const VARIANTES=[{},{zoom:1.12,az:.12},{az:-.18,el:6},{zoom:.9,el:-4,az:.07},{foco:1,zoom:1.25,el:4}];
+const CAM0={el:10,az:0,zoom:1,ty:-5,roll:0,orbit:0,travel:0,oy:0,foco:0};
+let plano=null,variante=0,camCur=null;
+function camGoal(){if(!plano)return null;const g={...CAM0,...plano},v=reduced?{}:VARIANTES[variante]||{};
+ return{...g,el:g.el+(v.el||0),az:g.az+(v.az||0),zoom:g.zoom*(v.zoom||1),foco:v.foco||0,orbit:reduced?0:g.orbit,travel:reduced?0:g.travel}}
+const tmpV=new V3();
+let viewOy=0;
+function setOy(oy){if(Math.abs(oy-viewOy)<1e-3)return;viewOy=oy;const c=viewer.camera;if(Math.abs(oy)<1e-3)c.clearViewOffset();else c.setViewOffset(W,H,0,Math.round(oy*H),W,H);c.updateProjectionMatrix()}
 function camera(dt){const cfg=Object.assign({dist:92,height:2,lookY:-8,sway:.12,swaySpeed:.5},theme.camera||{},((theme.camera||{}).worlds||{})[worldShown]||{}),c=viewer.camera;
  camT+=dt;push=Math.max(0,push-dt*1.4);nudgeX+=(nudgeTo-nudgeX)*(reduced?1:1-Math.exp(-dt*8));
- const yaw=shot.yaw||0,a=Math.sin(camT*cfg.swaySpeed)*cfg.sway+yaw,dist=cfg.dist/(shot.zoom||1)*(1-.1*easeOut(push)),hgt=cfg.height+(shot.height||0);
- const hw=dist*Math.tan(c.fov*Math.PI/360)*c.aspect,off=-((shot.x||0)+nudgeX)*2*hw,rx=Math.cos(a),rz=-Math.sin(a);
- const pos=keepCam([Math.sin(a)*dist+rx*off,hgt,Math.cos(a)*dist+rz*off]);
- c.up.set(0,1,0);c.position.set(...pos);c.lookAt(rx*off,cfg.lookY+(shot.height||0)*.35,rz*off);if(shake>0){shake=Math.max(0,shake-dt);c.position.x+=(Math.random()-.5)*shake*5;c.position.y+=(Math.random()-.5)*shake*5}c.updateMatrixWorld();
- if(!enter||enter.kind!=='gira')host.wrap.rotation.y=yaw*.85-((shot.x||0)+nudgeX)*.9}
+ const goal=camGoal();
+ if(!goal){setOy(0);
+  const yaw=shot.yaw||0,a=Math.sin(camT*cfg.swaySpeed)*cfg.sway+yaw,dist=cfg.dist/(shot.zoom||1)*(1-.1*easeOut(push)),hgt=cfg.height+(shot.height||0);
+  const hw=dist*Math.tan(c.fov*Math.PI/360)*c.aspect,off=-((shot.x||0)+nudgeX)*2*hw,rx=Math.cos(a),rz=-Math.sin(a);
+  const pos=keepCam([Math.sin(a)*dist+rx*off,hgt,Math.cos(a)*dist+rz*off]);
+  c.up.set(0,1,0);c.position.set(...pos);c.lookAt(rx*off,cfg.lookY+(shot.height||0)*.35,rz*off);
+  if(!enter||enter.kind!=='gira')host.wrap.rotation.y=yaw*.85-((shot.x||0)+nudgeX)*.9}
+ else{
+  if(!camCur||reduced)camCur={...goal};else{const k=1-Math.exp(-dt*1.6);for(const p in goal)camCur[p]+=(goal[p]-camCur[p])*k}
+  const q=camCur,orb=q.orbit*Math.sin(camT*.11),az=(shot.yaw||0)*.5+q.az+orb,el=q.el*Math.PI/180;
+  let dist=cfg.dist/((shot.zoom||1)*q.zoom)*(1-.1*easeOut(push)),tx=0,ty=q.ty,tz=0;
+  if(q.foco>.01){const it=host.item;if(it)it.getWorldPosition(tmpV);else tmpV.set(0,12,0);const f=clamp(q.foco)*.6;tx+=(tmpV.x-tx)*f;ty+=(tmpV.y-ty)*f;tz+=(tmpV.z-tz)*f;dist*=1-.35*clamp(q.foco)}
+  dist=Math.max(26,dist);
+  const hw=dist*Math.tan(c.fov*Math.PI/360)*c.aspect,off=-((shot.x||0)+nudgeX)*2*hw*(1-.5*clamp(q.foco))+q.travel*Math.sin(camT*.09)*2*hw,rx=Math.cos(az),rz=-Math.sin(az);
+  const pos=keepCam([tx+Math.sin(az)*Math.cos(el)*dist+rx*off,ty+Math.sin(el)*dist,tz+Math.cos(az)*Math.cos(el)*dist+rz*off]);
+  c.up.set(0,1,0);c.position.set(...pos);c.lookAt(tx+rx*off,ty,tz+rz*off);if(q.roll)c.rotateZ(q.roll);setOy(q.oy);
+  if(!enter||enter.kind!=='gira')host.wrap.rotation.y=az*.55-((shot.x||0)+nudgeX)*.9}
+ if(shake>0){shake=Math.max(0,shake-dt);c.position.x+=(Math.random()-.5)*shake*5;c.position.y+=(Math.random()-.5)*shake*5}c.updateMatrixWorld()}
 
 // ===== entrada al llegar a un lugar nuevo (scene.enter): camina desde el lado, cae de arriba, gira o saluda =====
 let enter=null;
@@ -346,6 +428,8 @@ function stepEnter(dt){if(!enter)return;enter.t+=dt;const p=Math.min(1,enter.t/E
 
 // ===== decorados (scene.props): bloques detrás del personaje, del lado libre del encuadre =====
 // Coordenadas en bloques: x hacia el lado libre (0 = detrás del personaje), y hacia arriba, z hacia atrás (0 = fila del decorado).
+const iglu=(()=>{const L=[];for(let x=0;x<=4;x++)for(let z=-5;z<=-1;z++){const dx=x-2,dz=z+3,ring=Math.max(Math.abs(dx),Math.abs(dz))===2&&!(Math.abs(dx)===2&&Math.abs(dz)===2);
+ if(ring&&!(x===2&&z===-1)){L.push([x,0,z,'snowblock']);L.push([x,1,z,'snowblock'])}if(Math.abs(dx)<=1&&Math.abs(dz)<=1)L.push([x,2,z,'snowblock'])}return L})();
 const PROPS={
  taller:{b:[[1,0,0,'craft'],[2,0,0,'furnace'],[2,0,-1,'chest'],[0,0,-1,'chest']]},
  biblioteca:{b:[[0,0,-1,'bookshelf'],[1,0,-1,'bookshelf'],[2,0,-1,'bookshelf'],[0,1,-1,'bookshelf'],[1,1,-1,'bookshelf'],[2,1,-1,'bookshelf']],x:'mesa'},
@@ -354,6 +438,12 @@ const PROPS={
  portal:{b:[[0,0,-1,'obsidian'],[1,0,-1,'obsidian'],[2,0,-1,'obsidian'],[3,0,-1,'obsidian'],[0,1,-1,'obsidian'],[0,2,-1,'obsidian'],[0,3,-1,'obsidian'],[3,1,-1,'obsidian'],[3,2,-1,'obsidian'],[3,3,-1,'obsidian'],[0,4,-1,'obsidian'],[1,4,-1,'obsidian'],[2,4,-1,'obsidian'],[3,4,-1,'obsidian']],x:'portal'},
  campamento:{b:[[2,0,-1,'chest']],x:'campamento'},
  mina:{b:[[0,0,-1,'stone'],[1,0,-1,'oreD'],[1,1,-1,'stone'],[2,0,-1,'oreG'],[2,1,-1,'stone'],[2,2,-1,'stone'],[0,1,-1,'oreG']],x:'antorcha'},
+ // nuevos (modo cine): granja de trigo, iglú, cristales del End, ruinas con pararrayos y muelle con bote
+ granja:{b:[[3,0,1,'plank']],x:'granja'},
+ iglu:{b:iglu,x:'iglu'},
+ cristales:{b:[[2,0,-2,'obsidian'],[2,1,-2,'obsidian'],[2,2,-2,'obsidian'],[3,0,-2,'obsidian'],[3,1,-2,'obsidian'],[2,3,-2,'crystal']],x:'coro'},
+ ruinas:{b:[[0,0,-1,'sandstone'],[0,1,-1,'sandstone'],[0,2,-1,'sandstone'],[0,3,-1,'sandstone'],[2,0,-2,'sandstone'],[2,1,-2,'sandstone'],[3,0,0,'sandstone'],[1,0,-2,'cobble']],x:'pararrayos'},
+ muelle:{b:[],x:'muelle'},
 };
 const PROP_Z={cueva:-6,casa:-5,playa:-4,end:-6,nether:-6};
 const propCache={};let propShown=null;
@@ -362,22 +452,77 @@ function propExtras(kind,Y,Z,s){const L=[],G=[],bx=i=>s>0?i*BK:-(i+1)*BK;
  if(kind==='mesa'){const x=bx(1);L.push([x,Y,Z,16,12,16,'#1b1029'],[x,Y+12,Z,16,2,16,'#b02e26'],[x+5,Y+17,Z+5,6,2,6,'#8b4a2b']);G.push([x+1,Y+12,Z+1,3,3,3,'#2fd3c9'],[x+12,Y+12,Z+12,3,3,3,'#2fd3c9'])}
  if(kind==='polvo')G.push([Math.min(bx(1),bx(2))+8,Y+.2,Z+7,16,.8,2,'#ff3020']);
  if(kind==='cerca'){for(let i=0;i<3;i++)L.push([bx(i)+6,Y,Z+6,4,16,4,'#a0784a']);L.push([Math.min(bx(0),bx(2))+6,Y+6,Z+7,36,2,2,'#8a643a'],[Math.min(bx(0),bx(2))+6,Y+12,Z+7,36,2,2,'#8a643a'])}
- if(kind==='portal')G.push([Math.min(bx(1),bx(2)),Y+16,Z-10,32,48,4,'#8a3cff']);
+ if(kind==='portal')L.portal=[Math.min(bx(1),bx(2)),Y+16,Z-8,32,48];
  if(kind==='campamento'){const x=bx(1);L.push([x,Y,Z,16,5,32,'#7a5a36'],[x,Y+5,Z+8,16,3,24,'#b02e26'],[x,Y+5,Z,16,3,8,'#e9ecec']);const f=bx(0);L.push([f+2,Y,Z+20,12,3,3,'#5c3d1e'],[f+6,Y,Z+16,3,3,12,'#5c3d1e']);G.push([f+5,Y+3,Z+18,6,8,6,'#ffb040'])}
  if(kind==='antorcha'){const x=bx(0)+6;L.push([x,Y+16,Z-10,3,10,3,'#8a5a2b']);G.push([x-.5,Y+26,Z-10.5,4,4,4,'#ffd35c'])}
+ if(kind==='granja'){for(let r=0;r<3;r++){const x0=bx(r);L.push([x0+1,Y,Z-22,14,1.6,40,'#5c3d1e']);for(let k=0;k<5;k++){const z=Z-20+k*8,c=(r+k)%3?'#c9b23a':'#7fae3a';
+   L.push([x0+3,Y+1.6,z,2,6+((r*7+k*3)%4),2,c],[x0+7,Y+1.6,z+3,2,5+((r*5+k)%4),2,c],[x0+11,Y+1.6,z+1,2,7+((r+k)%3),2,c])}}
+  const hx=bx(3);L.push([hx+2,Y,Z-20,12,10,12,'#d8b84a'],[hx+2,Y+4,Z-20,12,2,12,'#a08a30'])}
+ if(kind==='iglu'){const x=bx(2)+5;G.push([x,Y,Z-14,6,6,3,'#ffcf6a'])}
+ if(kind==='coro'){const x=bx(0)+6;L.push([x,Y,Z-20,4,26,4,'#7a5a8a'],[x-8,Y+14,Z-20,12,4,4,'#7a5a8a'],[x-8,Y+18,Z-20,4,10,4,'#7a5a8a'],[x+4,Y+20,Z-20,10,4,4,'#7a5a8a'],[x+10,Y+24,Z-20,4,8,4,'#7a5a8a']);
+  G.push([x-1,Y+26,Z-21,6,5,6,'#d9a0ff'],[x-9,Y+28,Z-21,6,5,6,'#d9a0ff'],[x+9,Y+32,Z-21,6,5,6,'#d9a0ff'])}
+ if(kind==='pararrayos'){const x=bx(0)+6;L.push([bx(1),Y,Z-6,40,12,12,'#d8c08a'],[bx(1)+4,Y+12,Z-6,8,4,12,'#c9b07a']);G.push([x+1,Y+64,Z-10,3,20,3,'#e0864a'],[x,Y+84,Z-11,5,3,5,'#f0a060'])}
+ if(kind==='muelle'){const x=bx(0)+2;L.push([x,Y-2,Z-110,28,3,118,'#a0784a']);for(let k=0;k<5;k++){L.push([x-2,Y-16,Z-104+k*26,4,16,4,'#6b4f2a'],[x+26,Y-16,Z-104+k*26,4,16,4,'#6b4f2a']);L.push([x,Y+1,Z-108+k*24,28,.4,2,'#7a5a36'])}
+  const b=s>0?x+40:x-30;L.push([b,Y-6,Z-90,16,6,30,'#8a643a'],[b+2,Y-3,Z-88,12,3.2,26,'#5c3d1e']);G.push([x+26,Y+1,Z-6,4,5,4,'#ffd35c'])}
  return[L,G]}
+// Interior del portal del Nether: velo morado translúcido con remolino de píxeles que se desplaza (como en el juego), con
+// una textura de 16x16 generada aquí (sin archivo ni casilla nueva en el atlas) y un solo material para todos los portales.
+let portalTex=null;const portals=[];
+function portalMesh(x,y,z,w,h){if(!portalTex){const c=document.createElement('canvas');c.width=c.height=16;const k=c.getContext('2d');
+  for(let j=0;j<16;j++)for(let i=0;i<16;i++){const v=.5+.5*Math.sin(i*.9+Math.sin(j*.7)*2.2+j*.35),q=rnd(i*13+j*7);k.fillStyle=`rgb(${(90+90*v+30*q)|0},${(20+40*v*q)|0},${(170+80*v)|0})`;k.fillRect(i,j,1,1)}
+  portalTex=new Tex(c);portalTex.magFilter=portalTex.minFilter=1003;portalTex.generateMipmaps=false;portalTex.wrapS=portalTex.wrapT=1000;portalTex.repeat.set(w/16,h/16);portalTex.needsUpdate=true}
+ const p=[[x,y,z],[x+w,y,z],[x+w,y+h,z],[x,y+h,z]],uv=[[0,0],[1,0],[1,1],[0,1]],pos=[],nor=[],uvs=[];for(const i of [0,1,2,0,2,3]){pos.push(...p[i]);nor.push(0,0,1);uvs.push(...uv[i])}
+ const g=new BufG();g.setAttribute('position',new Attr(new Float32Array(pos),3));g.setAttribute('normal',new Attr(new Float32Array(nor),3));g.setAttribute('uv',new Attr(new Float32Array(uvs),2));
+ const m=new MatC({map:portalTex,transparent:true,opacity:.78,emissive:new ColC(0x7a2cff),emissiveMap:portalTex,emissiveIntensity:.9,depthWrite:false});m.side=2;const mesh=new MeshC(g,m);portals.push(m);return mesh}
 async function showProps(key,world,side){
  const want=key&&PROPS[key]?`${key}|${side}|${world}`:null;if(propShown===want)return;
  for(const g of Object.values(propCache))g.visible=false;propShown=want;if(!want)return;
  if(!propCache[want]){const def=PROPS[key],z0=PROP_Z[world]??-6,m=new Map();
   for(const [x,y,z,t] of def.b)m.set((side*x+(side<0?-1:0))+','+y+','+(z0+z),t);
   await ensureBlockTextures(m);if(propShown!==want)return;
-  const g=worldMesh(m),[L,G]=propExtras(def.x,GY,z0*BK,side);if(L.length)g.add(boxesMesh(L));if(G.length)g.add(boxesMesh(G,0xff8040));
+  const g=m.size?worldMesh(m):new Group(),[L,G]=propExtras(def.x,GY,z0*BK,side);if(L.length)g.add(boxesMesh(L));if(G.length)g.add(boxesMesh(G,0xff8040));if(L.portal)g.add(portalMesh(...L.portal));
   propCache[want]=g;viewer.scene.add(g)}
  propCache[want].visible=true}
 
+// ===== fauna de fondo (scene.fauna): animales de bloques que pasean detrás del personaje =====
+// Una malla por animal (cajas de color fusionadas, sin texturas): 2-3 llamadas de dibujo más por escena; en nivel bajo, 2 como
+// mucho. Cajas [x, y, z, ancho, alto, fondo, color] en unidades del juego (16 = un bloque), el animal mirando hacia +z.
+const legs4=(w,d,h,c)=>[[-w/2,0,-d/2,3,h,3,c],[w/2-3,0,-d/2,3,h,3,c],[-w/2,0,d/2-3,3,h,3,c],[w/2-3,0,d/2-3,3,h,3,c]];
+const MOBS={
+ ovejas:{n:3,walk:5,body:[...legs4(8,12,6,'#d9c8b4'),[-5,6,-7,10,8,14,'#e9ecec'],[-3,9,6,6,6,6,'#d9c8b4'],[-3.5,12,6.5,7,3,4,'#e9ecec'],[-2,11,12.1,1.5,1.5,.2,'#222222'],[.5,11,12.1,1.5,1.5,.2,'#222222']]},
+ vacas:{n:2,walk:4,body:[...legs4(10,14,8,'#3a2a20'),[-6,8,-8,12,9,16,'#4a3426'],[-3,9,-4,6,9.2,6,'#e9e6e0'],[-4,11,7,8,7,6,'#4a3426'],[-3,11,12.6,6,3,.6,'#d9b8a8'],[-5,17,9,2,2,1,'#e0d8c8'],[3,17,9,2,2,1,'#e0d8c8']]},
+ gallinas:{n:3,walk:6,body:[[-2,0,0,1,4,1,'#e8b030'],[1,0,0,1,4,1,'#e8b030'],[-3,4,-3,6,5,7,'#f4f4f4'],[-2,8,3,4,5,3,'#f4f4f4'],[-1,9.5,6,2,1.5,2,'#e8a030'],[-1,8,6,2,1.5,1,'#d02020']]},
+ lobos:{n:2,walk:7,body:[...legs4(6,10,6,'#c8c8c8'),[-3,6,-6,6,6,12,'#d8d8d8'],[-3,7,6,6,6,5,'#d8d8d8'],[-1.5,7,11,3,3,3,'#b0b0b0'],[-3,13,8,2,2,1,'#d8d8d8'],[1,13,8,2,2,1,'#d8d8d8'],[-1,9,-10,2,2,4,'#d8d8d8']]},
+ zorros:{n:2,walk:7,body:[...legs4(6,9,4,'#3a2a20'),[-3,4,-5,6,5,10,'#e07a2a'],[-3,5,5,6,5,4,'#e07a2a'],[-1.5,5,9,3,2,3,'#f4f4f4'],[-3,10,6,2,2,1,'#e07a2a'],[1,10,6,2,2,1,'#e07a2a'],[-2,4,-11,4,4,6,'#e07a2a'],[-1.5,4.5,-13,3,3,2,'#f4f4f4']]},
+ conejos:{n:3,walk:9,hop:1,body:[[-2,0,-3,4,4,6,'#a07a50'],[-1.5,3,2,3,3,3,'#a07a50'],[-1.2,6,3,1,3,1,'#a07a50'],[.2,6,3,1,3,1,'#a07a50'],[-1,2,-4,2,2,1,'#f4f4f4']]},
+ tortugas:{n:2,walk:1.5,body:[[-5,0,-5,10,3,10,'#3f8a4a'],[-4,3,-4,8,2,8,'#5aa05a'],[-1.5,1,5,3,3,3,'#7fbf6a'],[-6,0,-4,2,1,2,'#7fbf6a'],[4,0,-4,2,1,2,'#7fbf6a'],[-6,0,2,2,1,2,'#7fbf6a'],[4,0,2,2,1,2,'#7fbf6a']]},
+ murcielagos:{n:3,fly:1,walk:30,body:[[-1.5,0,-1.5,3,4,3,'#3a2a20'],[-6,2,-1,4.5,.8,3,'#2a1e16'],[1.5,2,-1,4.5,.8,3,'#2a1e16']]},
+ ghasts:{n:2,fly:1,walk:5,scale:2.2,body:[[-8,0,-8,16,16,16,'#f0f0f0'],[-6,-8,-6,2,8,2,'#e0e0e0'],[-1,-10,-6,2,10,2,'#e0e0e0'],[4,-7,-6,2,7,2,'#e0e0e0'],[-6,-9,3,2,9,2,'#e0e0e0'],[3,-8,3,2,8,2,'#e0e0e0'],[-5,8,8.1,3,1,.3,'#555555'],[2,8,8.1,3,1,.3,'#555555'],[-2,3,8.1,4,2,.3,'#555555']]},
+ endermans:{n:2,walk:2,body:[[-2,0,-1,1.5,14,1.5,'#141414'],[1,0,-1,1.5,14,1.5,'#141414'],[-3,14,-2,6,9,4,'#1b1b1b'],[-6,8,-1,1.5,14,1.5,'#141414'],[4.5,8,-1,1.5,14,1.5,'#141414'],[-4,23,-4,8,8,8,'#1b1b1b']],glow:[[-3,26,4.1,2.5,1,.3,'#d27aff'],[.5,26,4.1,2.5,1,.3,'#d27aff']]},
+ gatos:{n:1,walk:3,body:[...legs4(4,8,4,'#e8a050'),[-2,4,-4,4,4,8,'#e8a050'],[-2.5,5,4,5,4,4,'#e8a050'],[-2,9,5,1.5,1.5,1,'#e8a050'],[.5,9,5,1.5,1.5,1,'#e8a050'],[-.5,6,-10,1,1,6,'#e8a050']]},
+};
+// Zona de paseo por mundo, en bloques: [x mínimo de distancia al centro, x máximo, z de, z a, altura de vuelo de, a]
+const FAUNA_ZONA={_:[1.5,7,-11,-6,2,4],cueva:[1,7,-6,-1,2,5],casa:[2,6,-4,-3,0,0],nether:[3,10,-15,-10,8,11],playa:[8,15,-2,5,0,0],end:[2,8,-12,-7,0,0],noche:[1.5,7,-11,-6,3,6]};
+const faunaCache=new Map();let faunaShown=null,faunaList=[];
+/** Como mucho 3 grupos de animales en memoria: el más viejo se quita de la escena y libera su geometría y material. */
+function podarFauna(){while(faunaCache.size>3){const [k,list]=faunaCache.entries().next().value;faunaCache.delete(k);for(const m of list){viewer.scene.remove(m.g);m.g.traverse(o=>{o.geometry?.dispose?.();o.material?.dispose?.()})}}}
+function groundAt(x,z){const u=worldCache[worldShown]?.userData;return GY+(u?.h?u.h(Math.floor(x/BK),Math.floor(z/BK)):0)*BK}
+function showFauna(key,world,lado=1){
+ const want=key&&MOBS[key]?key+'|'+world+'|'+lado:null;if(faunaShown===want)return;
+ for(const f of faunaCache.values())f.forEach(m=>m.g.visible=false);faunaShown=want;faunaList=[];if(!want)return;
+ if(!faunaCache.has(want)){const def=MOBS[key],z=FAUNA_ZONA[world]||FAUNA_ZONA._,list=[];
+  for(let i=0;i<def.n;i++){const g=new Group(),r=n=>rnd(i*7.3+n+key.length*3.1);g.add(boxesMesh(def.body));if(def.glow)g.add(boxesMesh(def.glow,0xc060ff));g.scale.setScalar(def.scale||1);
+   const side=i%3===2?-lado:+lado;list.push({g,def,cx:side*(z[0]+r(1)*(z[1]-z[0]))*BK,cz:(z[2]+r(2)*(z[3]-z[2]))*BK,fy:(z[4]+r(3)*(z[5]-z[4]))*BK,ph:r(4)*6.28,range:(1.5+r(5)*2)*BK,rot:0});viewer.scene.add(g)}
+  faunaCache.set(want,list);podarFauna()}else{const l=faunaCache.get(want);faunaCache.delete(want);faunaCache.set(want,l)}
+ faunaList=faunaCache.get(want).slice(0,lite()?2:3);faunaList.forEach(m=>m.g.visible=true)}
+function stepFauna(t){for(const m of faunaList){const d=m.def;
+ if(d.fly){const a=t*(d.walk/(m.range*1.4))+m.ph,x=m.cx+Math.cos(a)*m.range,z=m.cz+Math.sin(a)*m.range*.6;m.g.position.set(x,GY+m.fy+Math.sin(t*1.3+m.ph)*6,z);m.g.rotation.y=-a;if(d.walk>10)m.g.scale.x=(d.scale||1)*(1+.3*Math.sin(t*20+m.ph));continue}
+ const a=t*(d.walk/m.range)*.5+m.ph+.6*Math.sin(t*.21+m.ph),x=m.cx+Math.sin(a)*m.range,z=m.cz+Math.sin(a*.5)*BK*.6,vx=Math.cos(a),vz=Math.cos(a*.5)*.3,want=Math.atan2(vx,vz);
+ let dr=want-m.rot;dr=Math.atan2(Math.sin(dr),Math.cos(dr));m.rot+=dr*.12;m.g.rotation.y=m.rot;
+ const mov=Math.abs(vx),bob=d.hop?Math.abs(Math.sin(a*9))*4*mov:Math.abs(Math.sin(a*14))*.7*mov;m.g.position.set(x,groundAt(x,z)+bob,z)}}
+
 // ===== bucle por fotograma =====
-let simT=0;
+let simT=0,clima=null;
 function play(name){const def=ANIMS[name]||ANIMS.idle,pl=host.player;pl.skin.resetJoints();pl.position.set(0,0,0);pl.rotation.set(0,0,0);host.anim=def[1]();host.animKey=ANIMS[name]?name:'idle'}
 function frame(dt){simT+=dt;
  if(host.anim)host.anim.update(host.player,dt);
@@ -386,29 +531,34 @@ function frame(dt){simT+=dt;
   if(up){host.item.rotation.order='ZYX';host.item.rotation.set(-arm.rotation.x,0,-arm.rotation.z)}else{host.item.rotation.order='XYZ';host.item.rotation.set(host.item.userData.block?.3:1.2,0,0)}}
  stepEnter(reduced?0:dt);host.hurt=Math.max(0,host.hurt-dt);tint(host,host.hurt>0);
  const g=worldCache[worldShown];if(g)g.children.forEach(m=>{if(m.userData.drift)m.position.x=((simT*5)%1600)-800});
- camera(dt);viewer.render();oc.drawImage(glc,0,0,W,H);
- const amb=AMBIENT[worldShown];if(amb){oc.save();oc.scale(W/VW,H/VH);amb(oc,simT);oc.restore()}}
+ stepFauna(simT);if(portalTex&&propShown?.startsWith('portal')){portalTex.offset.y=(simT*.35)%1;portalTex.offset.x=Math.sin(simT*.8)*.06;for(const m of portals)m.opacity=.7+.1*Math.sin(simT*2.3)}camera(dt);viewer.render();oc.drawImage(glc,0,0,W,H);
+ const amb=AMBIENT[worldShown],cl=clima&&CLIMA[clima],noct=lookShown?.includes('|noche|')&&!cl&&!amb;
+ if(amb||cl||noct){oc.save();oc.scale(W/VW,H/VH);if(amb)amb(oc,simT);if(cl)cl(oc,simT);if(noct)AMBIENT.noche(oc,simT);oc.restore()}}
 
 // ===== interfaz hacia el motor =====
 play('idle');
 return {
- /** Carga lo que haga falta (mundo, skin, objeto) y lo muestra. */
- async setScene({world,host:who,item,props,shot:sh,enter:en}={}){const tok=++sceneTok,wk=worldKey(world||theme.defaultWorld||'pradera');
+ /** Carga lo que haga falta (mundo, skin, objeto, decorado, fauna) y lo muestra con su plano, hora y clima. */
+ async setScene({world,host:who,item,props,shot:sh,enter:en,plano:pl,hora,clima:cl,fauna}={}){const tok=++sceneTok,wk=worldKey(world||theme.defaultWorld||'pradera');
   shot={x:0,zoom:1,yaw:0,height:0,...(sh||{})};const side=(shot.x||0)>.02?-1:1;
-  const jobs=[useSkin(who),showWorld(wk,tok),showProps(props,wk,side)];
+  const jobs=[useSkin(who),showWorld(wk,tok,hora,cl),showProps(props,wk,side)];
   if(item&&(ITEM_TEX[item]||BLOCK_TEX[item]))jobs.push(ensureItem(item));
   await Promise.all(jobs);if(tok!==sceneTok)return;
+  plano=pl||null;camCur=null;variante=0;clima=cl||null;showFauna(fauna,wk,-side);
   setItem(host,item&&(ITEM_TEX[item]||BLOCK_TEX[item])?item:'');enter=en&&ENTER_DUR[en]&&!reduced?{kind:en,t:0}:null;if(!enter){host.wrap.position.set(0,0,0);host.shadow.position.y=FEET+.15}if(host.item&&host.item.children[0])host.item.position.x=host.slim?-.5:-1},
  play(name){play(name)},
- /** Deja listo (sin mostrar) el siguiente escenario: skin, objeto y malla del mundo. Se llama en reposo. */
- async preload({world,host:who,item}={}){await Promise.all([loadSkin(who),ensureWorld(worldKey(world||theme.defaultWorld||'pradera')),item&&(ITEM_TEX[item]||BLOCK_TEX[item])?ensureItem(item):0])},
+ /** Pequeño cambio de plano entre preguntas (determinista: n = pregunta, seed = número del Tap). La pregunta 3 de la mitad de los
+  *  Taps con objeto en la mano es un plano detalle del objeto. */
+ plano(n,seed=0){variante=!n?0:(n===2&&host.item&&seed%2===0)?4:1+((seed+n)%3)},
+ /** Deja listo (sin mostrar) el siguiente escenario: skin, objeto, malla del mundo y su cielo. Se llama en reposo. */
+ async preload({world,host:who,item,hora,clima:cl}={}){const wk=worldKey(world||theme.defaultWorld||'pradera');await Promise.all([loadSkin(who),ensureWorld(wk),item&&(ITEM_TEX[item]||BLOCK_TEX[item])?ensureItem(item):0]);skyCanvasFor(wk,hora,cl==='lluvia')},
  /** Efectos de cámara/cuerpo que el motor dispara con las reacciones. */
  fx(name){if(name==='hurt'){host.hurt=.4;shake=Math.max(shake,.22)}else if(name==='push')push=1;else if(name==='shake')shake=Math.max(shake,.2)},
  frame,
  anchor(name){const y={head:12,top:20,chest:4,feet:-16}[name]??12,p=host.wrap.position;return proj(p.x,y+host.player.position.y+p.y,p.z)},
  /** Corre al personaje en pantalla (fracción del ancho) para hacerle sitio a un objeto que explica. */
  nudge(dx,now){nudgeTo=dx||0;if(now||reduced)nudgeX=nudgeTo},
- setSize(w,h){W=Math.round(w);H=Math.round(h);out.width=W;out.height=H;viewer.setSize(W,H)},
+ setSize(w,h){W=Math.round(w);H=Math.round(h);out.width=W;out.height=H;viewer.setSize(W,H);viewOy=-1;setOy(camCur?.oy||0);if(faunaShown){const k=faunaShown;faunaShown=null;showFauna(...k.split('|'))}},
  dispose(){try{viewer.dispose()}catch{}try{viewer.renderer.forceContextLoss()}catch{}}
 };
 }

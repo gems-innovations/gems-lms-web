@@ -46,10 +46,50 @@
     "lejos":           { "x": 0.12, "zoom": 0.74 }
   },
   "enters": ["vuela", "cae", "aparece", "saluda"],
-  "props": { "reloj": {}, "planta": {}, "globo": {}, "libros": {} },
+  "props": { "reloj": {}, "planta": {}, "globo": {}, "libros": {}, "telescopio": {}, "cohete": {}, "microscopio": {}, "mapa": {} },
   "visuals": {
     "module": "visuals.js",
     "objects": { "balanza": ["compara"], "calendario": ["febrero", "atras", "manana"], "palabra": ["contar", "ultima", "medio"], "planetas": ["cercano", "grande", "ocho"] }
+  },
+  "escenas": {
+    "module": "visuals.js",
+    "objects": ["esqueleto", "pulpo", "vaso-hielo", "tormenta", "olla-altura", "sol-tierra", "gaseosa"]
+  },
+
+  "cine": {
+    "planos": {
+      "general":      { "s": 1, "host": 0.72, "ligero": { "s": 0.78 } },
+      "cenital":      { "s": 1.04, "floor": 0.66, "host": 0.76, "ligero": { "s": 0.76, "suelo": 66 } },
+      "picado":       { "s": 1.02, "floor": 0.84, "host": 0.88, "ligero": { "s": 0.88, "suelo": 58 } },
+      "contrapicado": { "s": 1.04, "floor": 1.2, "host": 1.18, "ligero": { "s": 1.16, "suelo": 40 } },
+      "primer-plano": { "s": 1.55, "host": 1, "ligero": { "s": 1.38 } },
+      "travelling":   { "s": 1.16, "pan": 0.06, "ligero": { "s": 1.04 } },
+      "orbita":       { "s": 1.1, "breathe": 0.05, "ligero": { "s": 0.96 } },
+      "diagonal":     { "s": 1.12, "rot": -0.06, "ligero": { "s": 1.08 } }
+    },
+    "horas": {
+      "dia": {},
+      "tarde": { "sky": ["#5B2A4E", "#C2563A"] },
+      "amanecer": { "sky": ["#3D3A7A", "#E89AB0"] },
+      "noche": { "sky": ["#0B0A24", "#1E1B4B"] }
+    },
+    "horasMundos": ["laboratorio", "aula", "biblioteca", "observatorio", "jardin", "cocina", "museo"],
+    "climas": {
+      "polvo": ["aula", "biblioteca", "museo"],
+      "burbujas": ["laboratorio", "cocina"],
+      "chispas": ["laboratorio", "espacio", "observatorio"],
+      "hojas": ["jardin"],
+      "lluvia": ["jardin"],
+      "notas": ["aula", "museo", "cocina"]
+    },
+    "fauna": {
+      "pajaros": ["jardin", "observatorio"],
+      "gato": ["aula", "biblioteca", "cocina", "museo"],
+      "dron": ["laboratorio", "espacio", "aula", "observatorio"],
+      "peces": ["laboratorio", "cocina", "jardin", "biblioteca"],
+      "mariposas": ["jardin"]
+    },
+    "transiciones": ["corte", "barrido", "zoom", "fundido"]
   },
 
   "sounds": {

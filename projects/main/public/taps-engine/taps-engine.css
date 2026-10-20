@@ -9,7 +9,7 @@
 .te-bg::before { content: ''; position: absolute; right: 12%; top: 8%; width: 14vmin; height: 14vmin; max-width: 90px; max-height: 90px; background: #fff6b0;
   box-shadow: 0 0 0 8px rgba(255, 246, 176, .35); opacity: var(--te-sun, .9); }
 /* suelo de bloques: franja de pasto y tierra con rejilla de cubos */
-.te-bg::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 46%;
+.te-bg::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: var(--te-suelo, 46%);
   background:
     linear-gradient(to bottom, var(--te-ground, #4a8f2a) 0 7%, transparent 7%),
     repeating-linear-gradient(90deg, rgba(0, 0, 0, .14) 0 2px, transparent 2px 9vmin),
@@ -17,8 +17,13 @@
     var(--te-ground-dark, #6b4a2b); box-shadow: inset 0 3px 0 rgba(255, 255, 255, .16); }
 /* Encuadre: el motor pone --te-x (centro del personaje) y --te-s (tamaño); al mostrar un objeto, --te-dx (px) corre al personaje
    con la propiedad translate (compuesta en la GPU, no anima left y no choca con las animaciones de transform). */
-.te-light { position: absolute; left: var(--te-x, 50%); translate: var(--te-dx, 0px) 0; top: calc(13% + 36% * (1 - var(--te-s, 1))); height: calc(36% * var(--te-s, 1)); aspect-ratio: 1 / 2;
-  transform: translateX(-50%); transform-origin: 50% 100%; will-change: transform; }
+.te-light { position: absolute; left: var(--te-x, 50%); translate: var(--te-dx, 0px) 0; top: calc(95% - var(--te-suelo, 46%) - 36% * var(--te-s, 1)); height: calc(36% * var(--te-s, 1)); aspect-ratio: 1 / 2;
+  transform: translateX(-50%); transform-origin: 50% 100%; will-change: transform; scale: var(--te-k, 1); }
+/* Pequeño cambio de plano entre preguntas (stage.plano): el personaje se acerca o se aleja un poco, con transición suave. */
+.te-stage[data-plano='1'] { --te-k: 1.08; }
+.te-stage[data-plano='2'] { --te-k: .94; }
+.te-stage[data-plano='3'] { --te-k: 1.04; }
+.te-stage .te-light { transition: opacity 280ms var(--curva-salida, ease-out), translate var(--dur-enfasis, 320ms) var(--curva-estandar, ease), scale .9s var(--curva-estandar, ease); }
 .te-char { width: 100%; height: 100%; image-rendering: pixelated; display: block; filter: drop-shadow(0 6px 0 rgba(0, 0, 0, .25)); animation: te-idle 2.6s ease-in-out infinite; }
 .te-gl { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity var(--dur-base, 200ms) var(--curva-estandar, ease), transform var(--dur-enfasis, 320ms) var(--curva-salida, ease-out); pointer-events: none; }
 .te-gl.on { opacity: 1; }
@@ -26,12 +31,23 @@
 .te-stage[data-mode='3d'] .te-bg { opacity: 0; transition: opacity var(--dur-base, 200ms) var(--curva-estandar, ease); }
 .te-stage[data-paused] .te-char { animation-play-state: paused; }
 
-/* Cambio de lugar entre Taps: el escenario se oculta al instante (queda el color plano del mundo nuevo) y vuelve en 280 ms
-   con un leve acercamiento, como un corte de cámara. Con movimiento reducido el motor no pone data-cambio. */
+/* Cambio de lugar entre Taps: el escenario se oculta al instante (queda el color plano del mundo nuevo) y, ya dibujado en su
+   lugar nuevo, vuelve con la transición del Tap (data-revela): fundido (280 ms con leve acercamiento), corte (de golpe con un
+   destello de un instante), zoom (entra desde un acercamiento fuerte) o barrido (se destapa de lado a lado tras una franja del
+   color del tema). Con movimiento reducido el motor no pone data-cambio: el cambio es directo. */
 .te-stage[data-cambio] .te-gl.on { opacity: 0; transform: scale(1.04); transition: none; }
-.te-stage[data-cambio] .te-light, .te-stage[data-cambio] .te-bg::before { opacity: 0; transition: none; }
+.te-stage[data-cambio] .te-light, .te-stage[data-cambio] .te-bg::before, .te-stage[data-cambio] .te-clima { opacity: 0; transition: none; }
 .te-stage .te-gl.on { transition-duration: 280ms, 320ms; }
-.te-light, .te-bg::before { transition: opacity 280ms var(--curva-salida, ease-out), translate var(--dur-enfasis, 320ms) var(--curva-estandar, ease); }
+.te-bg::before { transition: opacity 280ms var(--curva-salida, ease-out); }
+.te-stage[data-revela='corte'] .te-gl.on, .te-stage[data-revela='corte'] .te-light { transition: none; animation: te-rv-corte 160ms steps(2, end); }
+.te-stage[data-revela='zoom'] .te-gl.on, .te-stage[data-revela='zoom'] .te-bg, .te-stage[data-revela='zoom'] .te-light { transition: none; animation: te-rv-zoom 460ms cubic-bezier(.16, .84, .3, 1); }
+.te-stage[data-revela='barrido'] .te-gl.on, .te-stage[data-revela='barrido'] .te-bg, .te-stage[data-revela='barrido'] .te-light { transition: none; animation: te-rv-barrido 420ms cubic-bezier(.6, 0, .2, 1); }
+.te-stage[data-revela='barrido']::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 14%; z-index: 1; pointer-events: none; background: var(--te-accent, #fff);
+  animation: te-rv-franja 420ms cubic-bezier(.6, 0, .2, 1) both; }
+@keyframes te-rv-corte { 0% { filter: brightness(1.7) contrast(1.15); } }
+@keyframes te-rv-zoom { 0% { transform: scale(1.32); opacity: .2; } 60% { opacity: 1; } }
+@keyframes te-rv-barrido { 0% { clip-path: inset(0 100% 0 0); } 100% { clip-path: inset(0 0 0 0); } }
+@keyframes te-rv-franja { 0% { transform: translateX(-100%); } 100% { transform: translateX(720%); } }
 /* Entrada del personaje en la capa ligera (el 3D hace la suya en el renderizador). */
 .te-stage[data-entra='camina'] .te-char, .te-stage[data-entra='vuela'] .te-char { animation: te-entra-lado .6s var(--curva-salida, ease-out) both; }
 .te-stage[data-entra='salta'] .te-char, .te-stage[data-entra='cae'] .te-char { animation: te-entra-arriba .55s cubic-bezier(.3, 1.4, .5, 1) both; }
@@ -69,7 +85,93 @@
 .te-visual { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; -webkit-user-select: none; user-select: none; }
 .te-visual:active { cursor: grabbing; }
 
+/* ── Escena de la PREGUNTA (stage.escena, escena.js): llena el hueco que pone la app. Código, operación y serie son texto
+   (nítido, escalado con el ancho de la tarjeta: unidades cq); objeto y diagrama, un lienzo del tema. Sin emojis ni imágenes. */
+.te-escena { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 6px; container-type: size; pointer-events: none;
+  font-family: ui-monospace, 'Cascadia Mono', 'SF Mono', Consolas, monospace; animation: te-esc-in 320ms cubic-bezier(.3, 1.3, .5, 1) both; }
+/* código, operación y serie: el alto sale del contenido (la tarjeta no queda medio vacía); el ancho manda en la letra */
+.te-escena--codigo, .te-escena--operacion, .te-escena--serie { position: relative; inset: auto; container-type: inline-size; }
+@keyframes te-esc-in { from { opacity: 0; transform: translateY(8px) scale(.94); } }
+@keyframes te-esc-ln { from { opacity: 0; transform: translateX(-6px); } }
+.te-esc-canvas { position: relative; flex: 1; min-height: 0; }
+.te-esc-canvas canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.te-esc-cap { align-self: center; max-width: 100%; margin: 0; padding: 3px 10px; border-radius: 999px; font: 800 12px/1.25 system-ui, sans-serif; color: #fff; background: rgba(8, 10, 14, .8);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* código: ventana con barra (tres puntos y el lenguaje) y resaltado por clases */
+.te-esc-code { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 14px; color: #E8EDF4; background: #141826; box-shadow: 0 6px 0 rgba(0, 0, 0, .35); }
+.te-esc-bar { display: flex; align-items: center; gap: 5px; padding: 6px 10px; font: 800 10px/1 system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #9AA4B8; background: rgba(255, 255, 255, .06); }
+.te-esc-bar i { width: 8px; height: 8px; border-radius: 50%; background: #F87171; }
+.te-esc-bar i:nth-child(2) { background: #FFD166; } .te-esc-bar i:nth-child(3) { background: #34D399; }
+.te-esc-bar span { margin-left: auto; }
+.te-esc-code pre { flex: 1; margin: 0; padding: 7px 11px 9px; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; font-weight: 700; font-size: clamp(11px, calc((100cqw - 24px) / (var(--largo, 22) * .61)), 17px); line-height: 1.45; }
+.te-esc-ln { display: block; animation: te-esc-ln 240ms ease-out both; animation-delay: calc(var(--i, 0) * 90ms + 140ms); }
+.te-k { color: #C792EA; } .te-s { color: #C3E88D; } .te-n { color: #F78C6C; } .te-o { color: #89DDFF; } .te-c { color: #8A94AA; font-style: italic; }
+/* operación: grande, alineada a la derecha, la última fila bajo una raya (como en el cuaderno) */
+.te-esc-op { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; padding: 12px 16px; border-radius: 14px;
+  font-weight: 800; font-size: clamp(14px, calc((100cqw - 34px) / (var(--largo, 8) * .62)), 34px); line-height: 1.18; font-variant-numeric: tabular-nums; color: #1E1B4B; background: #FBF7EE; box-shadow: 0 6px 0 rgba(0, 0, 0, .3); }
+.te-esc-op > div { white-space: pre; animation: te-esc-ln 240ms ease-out both; animation-delay: calc(var(--i, 0) * 110ms + 140ms); }
+.te-esc-op > .te-esc-total { align-self: stretch; text-align: right; margin-top: 4px; padding-top: 4px; border-top: 4px solid currentColor; color: #7B6FF0; }
+/* serie: fichas en fila; la del «?» resaltada */
+.te-esc-serie { flex: 1; min-height: 0; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 6px; margin: 0; padding: 14px 10px; list-style: none; border-radius: 14px;
+  background: #FBF7EE; box-shadow: 0 6px 0 rgba(0, 0, 0, .3); }
+.te-esc-serie li { min-width: 1.9em; padding: .32em .4em; border-radius: 10px; text-align: center; font-weight: 800; font-size: clamp(15px, 10.5cqw, 30px); line-height: 1; color: #1E1B4B; background: #fff;
+  box-shadow: 0 3px 0 rgba(30, 27, 75, .25); animation: te-esc-in 260ms cubic-bezier(.3, 1.4, .5, 1) both; animation-delay: calc(var(--i, 0) * 80ms + 120ms); }
+.te-esc-serie li.is-q { color: #fff; background: #C471ED; }
+/* tema estudio: hoja de cuaderno */
+.te-escena[data-theme='estudio'] .te-esc-code { color: #1E1B4B; background: #FBF7EE; }
+.te-escena[data-theme='estudio'] .te-esc-bar { color: #5B5680; background: rgba(30, 27, 75, .06); }
+.te-escena[data-theme='estudio'] .te-k { color: #6A5AE0; } .te-escena[data-theme='estudio'] .te-s { color: #1F9D6B; } .te-escena[data-theme='estudio'] .te-n { color: #D9480F; }
+.te-escena[data-theme='estudio'] .te-o { color: #1A8FB0; } .te-escena[data-theme='estudio'] .te-c { color: #5F5A80; }
+/* tema minecraft: bloque de comandos y casillas de inventario (esquinas rectas, biseles duros) */
+.te-escena[data-theme='minecraft'] .te-esc-code { border-radius: 0; background: #1D1D1D; box-shadow: inset 0 0 0 3px #555, 0 6px 0 rgba(0, 0, 0, .45); }
+.te-escena[data-theme='minecraft'] .te-esc-bar i { border-radius: 0; }
+.te-escena[data-theme='minecraft'] .te-esc-op, .te-escena[data-theme='minecraft'] .te-esc-serie { border-radius: 0; color: #3F3F3F; background: #C6C6C6;
+  box-shadow: inset 3px 3px 0 #fff, inset -3px -3px 0 #555, 0 6px 0 rgba(0, 0, 0, .45); }
+.te-escena[data-theme='minecraft'] .te-esc-total { color: #2F6F1F; }
+.te-escena[data-theme='minecraft'] .te-esc-serie li { border-radius: 0; color: #fff; background: #8B8B8B; box-shadow: inset 2px 2px 0 #373737, inset -2px -2px 0 #fff; }
+.te-escena[data-theme='minecraft'] .te-esc-serie li.is-q { color: #1B2A06; background: var(--te-accent, #C6F66A); }
+.te-escena[data-theme='minecraft'] .te-esc-cap { border-radius: 0; }
+.te-escena[data-reduced], .te-escena[data-reduced] * { animation: none !important; }
+/* descripción de la escena para lectores de pantalla (el dibujo va aria-hidden; esto incluye los datos del pie) */
+.te-esc-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* ── Capa ligera enriquecida: hora del día y clima (el 3D dibuja los suyos; esto es lo que ve quien queda en modo ligero) ──
+   Hora: un velo plano encima del fondo (sin degradados suaves) y, de noche, estrellas cuadradas. Clima: UNA capa con dos
+   fondos repetidos que se desplazan (lluvia, nieve, polen, hojas, arena, polvo): cero JavaScript y compuesto en la GPU. */
+.te-clima { position: absolute; inset: 0; pointer-events: none; background-color: var(--te-velo, transparent); }
+.te-stage[data-hora='tarde'] { --te-velo: rgba(255, 120, 40, .14); }
+.te-stage[data-hora='amanecer'] { --te-velo: rgba(255, 170, 200, .12); }
+.te-stage[data-hora='noche'] { --te-velo: rgba(6, 10, 40, .36); }
+.te-stage[data-clima='lluvia'] { --te-velo: rgba(40, 50, 70, .26); }
+.te-stage[data-hora='noche'][data-clima] { --te-velo: rgba(6, 10, 40, .4); }
+/* de noche: luna (el sol cuadrado, más pálido) y estrellas cuadradas solo en el cielo (el suelo, ::after, las tapa) */
+.te-stage[data-hora='noche'] .te-bg { background-image: conic-gradient(at 2px 2px, transparent 75%, rgba(255, 255, 255, .8) 0), conic-gradient(at 2px 2px, transparent 75%, rgba(255, 255, 255, .5) 0);
+  background-size: 47px 53px, 71px 37px; background-position: 0 0, 23px 11px; }
+.te-stage[data-hora='noche'] .te-bg::before { background: #eef2ff; box-shadow: 0 0 0 6px rgba(200, 215, 255, .25); width: 9vmin; height: 9vmin; }
+.te-stage[data-clima='lluvia'] .te-clima { background-image: repeating-linear-gradient(105deg, transparent 0 22px, rgba(200, 220, 255, .45) 22px 24px, transparent 24px 46px);
+  background-size: 60px 90px; animation: te-clima-cae .45s linear infinite; }
+.te-stage[data-clima='nevada'] .te-clima, .te-stage[data-clima='polen'] .te-clima, .te-stage[data-clima='luciernagas'] .te-clima, .te-stage[data-clima='ceniza'] .te-clima {
+  background-image: radial-gradient(circle, var(--te-copo, #fff) 0 2px, transparent 2.5px), radial-gradient(circle, var(--te-copo, #fff) 0 1.5px, transparent 2px), radial-gradient(circle, var(--te-copo, #fff) 0 1px, transparent 1.5px);
+  background-size: 97px 113px, 59px 71px, 41px 89px; background-position: 0 0, 23px 37px, 61px 13px; animation: te-clima-cae 6s linear infinite; }
+.te-stage[data-clima='polen'] .te-clima { --te-copo: rgba(255, 236, 140, .8); animation-duration: 14s; }
+.te-stage[data-clima='luciernagas'] .te-clima { --te-copo: rgba(255, 242, 122, .75); animation: te-clima-flota 9s ease-in-out infinite alternate; }
+.te-stage[data-clima='ceniza'] .te-clima { --te-copo: #ffb13b; animation: te-clima-sube 7s linear infinite; }
+.te-stage[data-clima='hojas'] .te-clima, .te-stage[data-clima='arena'] .te-clima, .te-stage[data-clima='polvo'] .te-clima, .te-stage[data-clima='goteo'] .te-clima {
+  background-image: conic-gradient(at 7px 7px, transparent 75%, var(--te-copo, #6fae3a) 0), conic-gradient(at 5px 5px, transparent 75%, var(--te-copo2, #d98b2b) 0);
+  background-size: 83px 67px, 59px 97px; background-position: 0 0, 31px 23px; animation: te-clima-cae 9s linear infinite; }
+.te-stage[data-clima='arena'] .te-clima { --te-copo: rgba(230, 205, 150, .7); --te-copo2: rgba(200, 170, 110, .6); animation: te-clima-lado 3s linear infinite; }
+.te-stage[data-clima='polvo'] .te-clima, .te-stage[data-clima='goteo'] .te-clima { --te-copo: rgba(255, 230, 170, .55); --te-copo2: rgba(255, 255, 255, .35); animation-duration: 20s; }
+.te-stage[data-mode='3d'] .te-clima { display: none; }               /* el renderizador dibuja su propio clima */
+.te-stage[data-paused] .te-clima { animation-play-state: paused; }
+@keyframes te-clima-cae { to { background-position: -60px 90px, -45px 120px; } }
+@keyframes te-clima-sube { to { background-position: 20px -122px, -10px -111px; } }
+@keyframes te-clima-lado { to { background-position: -106px 10px, -93px 6px; } }
+@keyframes te-clima-flota { to { background-position: 26px -30px, -20px 18px; } }
+
 @media (prefers-reduced-motion: reduce) {
+  .te-clima, .te-escena, .te-escena * { animation: none !important; }
+  .te-stage[data-revela] .te-gl.on, .te-stage[data-revela] .te-light, .te-stage[data-revela] .te-bg { animation: none; }
+  .te-stage[data-revela]::after { display: none; }
   .te-char, .te-light.te-celebrate, .te-light.te-hurt, .te-light.te-think, .te-light.te-talk { animation: none; }
   .te-gl, .te-bubble, .te-light, .te-bg::before { transition: none; }
   .te-fx { display: none; }

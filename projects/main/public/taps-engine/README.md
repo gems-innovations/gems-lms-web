@@ -10,7 +10,8 @@ videojuego se cambia el **tema**; para crear un Tap nuevo se agrega un archivo d
 ```
 public/taps-engine/
 ├─ taps-engine.js            motor (módulo ES, sin dependencias): capas, bucle, partículas, sonido, degradación
-├─ taps-engine.css           estilos de la capa ligera y del globo de diálogo (usan variables --te-* del tema)
+├─ taps-engine.css           estilos de la capa ligera, del globo, de las transiciones y de la escena de pregunta (variables --te-*)
+├─ escena.js                 escena de la PREGUNTA (código, operación, serie; objeto/diagrama los dibuja el tema). Se pide al usarse
 ├─ demo.html                 demo estática: un quiz de 50 líneas manejando el motor  (…/taps-engine/demo.html?tap=redstone&debug)
 ├─ taps/*.json               Taps de ejemplo en formato de datos (los usa la demo; ?tap=<id>)
 ├─ audio/                  efectos de sonido sintetizados por código (efectos.js, puro), reproductor Web Audio (sonido.js) y música de fondo (musica.js, pistas en /taps-musica)
@@ -48,7 +49,7 @@ public/taps-engine/
 | **Ligera** | DOM + CSS: fondo de bloques, personaje 2D hecho con el PNG de la skin, animaciones CSS, globo de diálogo | De inmediato (solo necesita `theme.json`, ~3 KB). Es lo único que ve quien tiene un dispositivo flojo, ahorro de datos o WebGL caído |
 | **3D** | `<canvas>`: el renderizador del tema. Se carga en segundo plano y aparece con un fundido encima de la ligera | Cuando termina de cargar (~0,3-1 s en un celular normal) |
 
-Nunca hay pantalla en blanco ni error: si el 3D falla se queda la capa ligera (evento `mode` con `reason`).
+Nunca hay pantalla en blanco ni error: si el 3D falla o llega tarde se queda la capa ligera (evento `mode` con `reason`) y el renderizador se libera: su bucle nunca corre escondido.
 
 **Decisión de calidad** (`pickTier`): `light` si `navigator.connection.saveData`, red 2G, `deviceMemory <= 1` o `hardwareConcurrency <= 2`;
 `low` (360×640, 24 fps) si `deviceMemory <= 3`; `normal` (540×960, 30 fps) en celulares; `high` (720×1280, 30 fps) en escritorio.
@@ -75,7 +76,9 @@ stage.say('¡Hola!');                                 // globo de diálogo (stag
 | `create(container, {theme, mode?, reducedMotion?, onEvent?})` | Crea el escenario dentro de `container` (que debe tener tamaño). `theme`: URL del `theme.json` u objeto. `mode`: `'auto'` (defecto), `'3d'` o `'light'`. `degrade: false` desactiva la degradación automática (útil para medir/capturar en equipos sin GPU; la demo lo toma de `?degrade=0`). `slowMs` (4000 por defecto, `0` lo desactiva): si el 3D no se ve en ese tiempo se queda la capa ligera |
 | `stage.ready` / `stage.ready3d` | `ready`: tema listo. `ready3d`: se cumple con `'3d'` o `'light'` cuando ya se decidió |
 | `stage.mode`, `stage.stats()` | Modo actual y `{mode, tier, size, fpsCap, fps, degraded, canvas}`. `mode: '3d'` significa «capa animada del renderizador» aunque el tema dibuje en 2D; `canvas` dice cuál (`'webgl'` o `'2d'`) |
-| `setScene({world, host, item, shot?, enter?, props?})` | Cambia mundo, personaje, objeto, encuadre, entrada y decorado (claves del tema; las que el tema no conoce se ignoran). Si cambia el lugar, el escenario se oculta al instante (queda el color plano del mundo nuevo) y vuelve con un fundido de 280 ms; con movimiento reducido el cambio es directo |
+| `setScene({world, host, item, shot?, enter?, props?, camara?, hora?, clima?, fauna?, transicion?})` | Cambia mundo, personaje, objeto, encuadre, entrada y decorado y, con el **modo cine** (`theme.cine`), el plano de cámara, la hora del día, el clima, la fauna de fondo y la transición (claves del tema; las que el tema no conoce, o que ese mundo no admite, se ignoran). Si cambia el lugar, el escenario se oculta al instante (queda el color plano del mundo nuevo) y vuelve con la transición del Tap: `corte` (de golpe, con un destello de un instante), `fundido` (280 ms), `zoom` (desde un acercamiento fuerte) o `barrido` (se destapa de lado a lado tras una franja del color del tema). Solo CSS sobre capas ya pintadas. Con movimiento reducido el cambio es directo |
+| `plano(n, seed?)` | Pequeño cambio de plano entre preguntas sin cambiar de lugar: `n` = pregunta (0 = plano base), `seed` = número estable del Tap. La cámara viaja ~1,5 s hasta la variante (más cerca, de lado, más alta, o el plano detalle del objeto en la mano). Determinista; con movimiento reducido no se mueve |
+| `escena(spec, el, {side?})` | Muestra dentro de `el` un elemento de la PREGUNTA (ver «Escenas de pregunta»). Carga `escena.js` la primera vez. Devuelve una descripción o `false`. `clearEscena()` la quita; `preloadEscenas()` pide el módulo en reposo |
 | `preload(sceneSpec)` | Deja listo, sin mostrar, el siguiente escenario (llamar en reposo) |
 | `react(name)` | Anim + efecto + sonido + partículas + frase de `theme.reactions[name]` |
 | `say(text, {ms, hold, tone, voz, globo})` | Globo sobre la cabeza. Con voz conectada (`setVoz`) también lo dice en voz alta con el perfil del personaje en escena; `voz: false` = solo globo, `globo: false` = solo voz |
@@ -112,7 +115,7 @@ Un tema es una carpeta `themes/<id>/` con un `theme.json`. Hay dos ejemplos que 
 3. Escribe el renderizador (si hay) con la interfaz de abajo, el `light.js` y, si hace falta, un `theme.css`.
 4. Agrega reacciones con al menos `idle`, `think`, `ask`, `celebrate`, `hurt`, `win`, `lose` (la app y la demo usan esas).
 5. Pon un Tap de prueba en `taps/<id>.json` y ábrelo en `demo.html?tap=<id>&debug`; prueba también `&mode=light` y `&reduced=1`.
-   `&world=…&host=…&item=…` cambian la escena sin tocar el archivo.
+   `&world=…&host=…&item=…&shot=…&props=…&camara=…&hora=…&clima=…&fauna=…&transicion=…` cambian la escena sin tocar el archivo.
 6. `node --test projects/main/taps-engine-tests/*.mjs` revisa el contrato de **todos** los temas (reacciones que apuntan a
    animaciones, sonidos y partículas que existen, archivos referenciados, escenas de los Taps de ejemplo).
 7. Para usarlo en la app: `theme: '<id>'` y una `scene` con claves de ese tema. **No se toca el motor.**
@@ -151,6 +154,12 @@ Un tema es una carpeta `themes/<id>/` con un `theme.json`. Hay dos ejemplos que 
 - `props`: decorados de fondo `{ clave: {} }` que dibuja el renderizador del lado libre del encuadre (minecraft: taller, biblioteca, circuito, corral, portal,
   campamento, mina; estudio: reloj, planta, globo, libros). *(nuevo)*
 - `visuals`: `{ module, objects: { objeto: [acciones] } }` objetos para explicar (ver abajo). El generador de Taps valida el banco contra este catálogo. *(nuevo)*
+- `escenas`: `{ module, objects: [cosas] }` objetos o diagramas de la PREGUNTA que dibuja el tema (`createEscena` del módulo). *(v10)*
+- `cine`: modo cine *(v10)*, todo opcional:
+  - `planos`: `{ general, cenital, picado, contrapicado, primer-plano, travelling, orbita, diagonal }` (mismas claves en todos los temas; cada
+    renderizador interpreta sus números) con `ligero: { s, suelo }` = tamaño del personaje y alto del suelo (%) en la capa ligera.
+  - `horas` (`dia`, `tarde`, `amanecer`, `noche`, con `sky` para la capa ligera) y `horasMundos` (los lugares que la admiten: una cueva no tiene hora).
+  - `climas` y `fauna`: `{ clave: [mundos donde aplica] }`. `transiciones`: `['corte', 'barrido', 'zoom', 'fundido']`.
 
 Todo lo marcado *(nuevo)* es opcional y retrocompatible: el tema `minecraft` funciona sin cambios.
 
@@ -158,8 +167,43 @@ Todo lo marcado *(nuevo)* es opcional y retrocompatible: el tema `minecraft` fun
 
 `createRenderer(opts)` (puede ser async) recibe `{canvas, width, height, theme, resolve, vendor, skinview3d, reducedMotion}`, donde `canvas` es el lienzo de
 salida (el renderizador dibuja ahí cada fotograma; el motor pinta las partículas encima con su contexto 2D) y `resolve(rel)` convierte rutas del tema en URLs. Devuelve:
-`setScene({world,host,item,props,shot,enter})` (`shot` llega ya resuelto como objeto; `enter` solo cuando cambia el lugar), `preload(spec)`, `play(anim)`, `fx(name)`,
-`frame(dt)`, `anchor('head'|'top'|'chest'|'feet') → [px, py]`, `setSize(w,h)`, `dispose()` y, opcional, `nudge(dx, ahora)` (correr al personaje para hacerle sitio a un objeto).
+`setScene({world,host,item,props,shot,enter,plano,hora,clima,fauna})` (`shot` y `plano` llegan ya resueltos como objetos; `enter` solo cuando cambia el lugar), `preload(spec)`, `play(anim)`, `fx(name)`,
+`frame(dt)`, `anchor('head'|'top'|'chest'|'feet') → [px, py]`, `setSize(w,h)`, `dispose()` y, opcionales, `nudge(dx, ahora)` (correr al personaje para hacerle sitio a un objeto)
+y `plano(n, seed)` (pequeño cambio de plano entre preguntas).
+
+### Modo cine (v10)
+
+Inspirado en los 7 planos de cámara de SkinLibre Clips (acercamiento, contrapicado, picado, giro, diagonal…), pero en vivo y sin grabar:
+
+| | `minecraft` (3D) | `estudio` (2D) |
+|---|---|---|
+| Plano | La cámara se coloca por elevación (`el`), giro (`az`), acercamiento (`zoom`), altura a la que mira (`ty`), inclinación (`roll`), órbita lenta (`orbit`) o travelling (`travel`); `oy` sube el encuadre para que el personaje quede sobre el panel de la pregunta | Transformación del cuadro entero: acercamiento (`s`), línea del piso (`floor`: desde arriba se ve más piso, desde abajo más pared), tamaño del personaje (`host`), inclinación (`rot`), travelling (`pan`), respiración (`breathe`). Nunca deja ver los bordes del fondo |
+| Entre preguntas | Variantes suaves (más cerca, de lado, más alto) y, en la pregunta 3 de la mitad de los Taps con objeto, plano detalle del objeto en la mano | Las mismas variantes, como movimiento de cámara 2D |
+| Hora | Cielo en franjas, sol/luna, luz, niebla y color de nubes por hora (en lugares al aire libre) | Un velo plano y, de noche, la luz dura de una lámpara (pintado una vez en el fondo cacheado) |
+| Clima | Lluvia (cielo nublado y niebla cercana), polen, hojas, arena, luciérnagas, goteo, polvo en un rayo de luz, ceniza: partículas 2D sobre el 3D | Polvo, burbujas, chispas, hojas, lluvia, notas musicales (≤ 24 figuras planas) |
+| Fauna | Ovejas, vacas, gallinas, lobos, zorros, conejos, tortugas, murciélagos, ghasts, endermans, gatos: animales de cajas que pasean detrás | Pájaros, gato dormido, dron, pecera, mariposas |
+| Decorados nuevos | granja, iglú, cristales del End, ruinas con pararrayos, muelle con bote (y palmeras, matas y algas en los mundos) | telescopio, cohete, microscopio, mapa |
+
+**Rendimiento** (celular de gama media): los animales son UNA malla por animal (cajas fusionadas, sin texturas: +2 o 3 llamadas de dibujo; en nivel
+bajo como mucho 2); matas, palmeras y algas van dentro de la malla de adornos que ya existía (0 llamadas nuevas); el clima son partículas 2D (≤ 80
+rectángulos o un solo trazo; la mitad en nivel bajo); los cielos por hora se guardan como mucho 3 (1024×512 cada uno: 2 MB; antes uno de 8 MB por mundo); ninguna textura nueva en el
+atlas (los bloques nuevos reutilizan sus casillas). Las transiciones son CSS sobre capas ya compuestas. La capa ligera también se enriquece con CSS:
+plano (tamaño del personaje y alto del horizonte), hora (velo, luna y estrellas cuadradas) y clima (una capa con fondos repetidos que se desplazan).
+
+### Escenas de pregunta (`escena.js`, v10)
+
+Algo de lo que se PREGUNTA, a la vista mientras se piensa (nunca la respuesta: el generador lo revisa). La app pone el hueco (arriba a la izquierda del
+mundo) y el motor lo llena; el personaje se corre a la otra mitad.
+
+| `tipo` | Datos | Cómo se ve |
+|---|---|---|
+| `codigo` | `lineas` (≤ 7 de ≤ 30 caracteres), `lenguaje?` (`pseudo`, `python`, `js`) | Ventana de código con resaltado por clases (palabras clave, textos, números, operadores, comentarios); en `minecraft`, un bloque de comandos |
+| `operacion` | `lineas` (≤ 4 de ≤ 16) | Cuenta grande alineada a la derecha; la última línea bajo una raya, como en el cuaderno |
+| `serie` | `items` (3 a 8 fichas de ≤ 4 caracteres, con un `?`) | Fichas en fila, la del `?` resaltada |
+| `objeto` / `diagrama` | `cosa` (theme.json → `escenas.objects`) | minecraft: creeper, enderman, lobo, golem-nieve, piston, ghast, vaca-champinon, arco (pixel art + casilla «?»). estudio: esqueleto, pulpo, vaso-hielo, tormenta, olla-altura, sol-tierra, gaseosa (diagramas de cuaderno) |
+
+Todas aceptan `texto` (≤ 28 caracteres) como pie. Código, operación y serie son DOM (texto nítido, `textContent`, sin HTML del banco); objeto y diagrama
+son un lienzo que entra en menos de un segundo y queda quieto (no gasta fotogramas mientras se responde).
 
 ### Objetos para explicar (`visuals.js`)
 
@@ -209,7 +253,8 @@ Un Tap es un objeto de datos (tipos en `src/app/taps/taps.types.ts`; ejemplos en
   "backdrop": ["#0b0a09", "#3a322b"],                 // franjas planas del cielo mientras carga (solo en la app)
   "ground": "#6b6b6b",                                // suelo del fondo inmediato
   "questions": [{ "id": "piston", "q": "…", "options": ["…"], "answer": 2, "why": "Explicación corta.",
-                  "visual": { "objeto": "piston", "accion": "bloquea" } }],   // opcional: objeto para explicar
+                  "visual": { "objeto": "piston", "accion": "bloquea" },     // opcional: objeto para explicar (tras fallar)
+                  "escena": { "tipo": "objeto", "cosa": "piston", "texto": "¿Cuál no se mueve?" } }],   // opcional: escena de la pregunta
   "results": [                                         // se elige el de mayor `min` que no supere los aciertos
     { "min": 0, "title": "Aprendiz de antorchas", "line": "…" },
     { "min": 5, "title": "Crack de redstone", "line": "…" }

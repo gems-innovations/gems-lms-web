@@ -14,7 +14,20 @@ export interface ITapQuestion {
   more?: string;
   /** Objeto para explicar tras responder (catálogo del tema: theme.json → visuals.objects). Sin él, la explicación es solo texto. */
   visual?: ITapVisual;
+  /**
+   * Elemento visual de la PREGUNTA (no de la respuesta): se ve mientras se piensa, en una tarjeta arriba a la izquierda del
+   * mundo. Un fragmento de código, una operación grande, una serie en fichas o un objeto / diagrama del tema
+   * (theme.json → escenas.objects). Nunca contiene la respuesta (el generador lo revisa).
+   */
+  escena?: ITapEscena;
 }
+
+/** Escena de la pregunta (public/taps-engine/escena.js la dibuja). */
+export type ITapEscena =
+  | { tipo: 'codigo'; lineas: string[]; lenguaje?: 'pseudo' | 'python' | 'js'; texto?: string }
+  | { tipo: 'operacion'; lineas: string[]; texto?: string }
+  | { tipo: 'serie'; items: string[]; texto?: string }
+  | { tipo: 'objeto' | 'diagrama'; cosa: string; texto?: string };
 
 /** Objeto que el motor muestra y anima junto a la explicación (p. ej. un pistón que no mueve la obsidiana). Se toca y se arrastra. */
 export interface ITapVisual {
@@ -47,6 +60,19 @@ export interface ITapScene {
   enter?: string;
   /** Decorado de fondo (theme.json → props). */
   props?: string;
+  /**
+   * Modo cine (theme.json → cine; todo opcional y determinista por Tap). Plano de cámara: 'general', 'cenital', 'picado',
+   * 'contrapicado', 'primer-plano', 'travelling', 'orbita' o 'diagonal'. Entre preguntas cambia un poco (stage.plano).
+   */
+  camara?: string;
+  /** Hora del día: 'dia', 'tarde', 'amanecer' o 'noche' (solo en los lugares que la admiten: cine.horasMundos). */
+  hora?: string;
+  /** Clima o partículas del ambiente: lluvia, polen, hojas, arena, luciérnagas, polvo, burbujas, chispas… (cine.climas). */
+  clima?: string;
+  /** Animales o criaturas de fondo: ovejas, gallinas, murciélagos, gato, peces… (cine.fauna). */
+  fauna?: string;
+  /** Transición al llegar a este Tap: 'corte', 'barrido', 'zoom' o 'fundido'. */
+  transicion?: string;
 }
 
 export interface ITap {
@@ -117,6 +143,12 @@ export interface ITapsStage {
   clearVisual?(): void;
   replayVisual?(): void;
   preloadVisuals?(): Promise<void>;
+  /** Escena de la pregunta dentro de `el` (motor v10). Devuelve su descripción o false si el tema no la dibuja. */
+  escena?(spec: ITapEscena, el: HTMLElement, opts?: { side?: 'izq' | 'der' }): Promise<string | false>;
+  clearEscena?(): void;
+  preloadEscenas?(): Promise<void>;
+  /** Pequeño cambio de plano entre preguntas (motor v10): n = pregunta (0 = plano base), seed = número estable del Tap. */
+  plano?(n: number, seed?: number): void;
   attachTo(el: HTMLElement): void;
   destroy(): void;
   on(name: 'mode' | 'degrade' | 'visual', fn: (data: { mode?: 'light' | '3d'; reason?: string; step?: string; type?: string }) => void): () => void;

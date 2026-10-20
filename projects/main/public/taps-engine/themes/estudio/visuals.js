@@ -233,3 +233,118 @@ export function createVisual(spec = {}, opts = {}) {
   const v = make({ accion: spec.accion, valor: spec.valor }, opts);
   return v && typeof v.draw === 'function' ? v : null;
 }
+
+// ═════════════════════════ escenas de PREGUNTA (theme.json → escenas) ═════════════════════════
+// Diagramas de cuaderno de lo que se pregunta (nunca la respuesta): un esqueleto con «?», un vaso con hielo, una tormenta…
+// Entran en menos de un segundo y quedan quietos (no gastan fotogramas mientras se piensa).
+//   createEscena({ tipo: 'diagrama', cosa }, { reducedMotion }) → { label, duration, draw(ctx, w, h, t) } | null
+const BONE = '#F4F1E8';
+function hueso(c, x1, y1, x2, y2, r = 5) {
+  c.strokeStyle = INK; c.lineCap = 'round'; c.lineWidth = r * 2 + 3; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
+  c.strokeStyle = BONE; c.lineWidth = r * 2 - 1; c.stroke();
+  for (const [x, y] of [[x1, y1], [x2, y2]]) { circle(c, x, y, r + 1.5); c.fillStyle = INK; c.fill(); circle(c, x, y, r); c.fillStyle = BONE; c.fill(); }
+}
+function interroga(c, x, y, color = C.magenta, r = 15) { c.fillStyle = 'rgba(30,27,75,.22)'; circle(c, x + 2, y + 3, r); c.fill(); c.fillStyle = color; circle(c, x, y, r); c.fill(); text(c, '?', x, y + 1, r * 1.3, '#fff'); }
+const entra = (t, d = 0) => ease((t - d) / 0.45);
+function corazon(c, x, y, s, color) { c.fillStyle = color; c.beginPath(); c.moveTo(x, y + s * 0.9); c.bezierCurveTo(x - s * 1.4, y - s * 0.1, x - s * 0.6, y - s * 1.1, x, y - s * 0.35); c.bezierCurveTo(x + s * 0.6, y - s * 1.1, x + s * 1.4, y - s * 0.1, x, y + s * 0.9); c.fill(); }
+
+const ESCENAS = {
+  esqueleto: () => ({
+    label: 'Un esqueleto humano',
+    draw(c, w, h, t) {
+      sheet(c, w, h); const k = entra(t);
+      c.save(); c.translate(100, 104); c.scale(0.85 + 0.15 * k, 0.85 + 0.15 * k); c.translate(-100, -104); c.globalAlpha = clamp(k * 1.5);
+      hueso(c, 100, 52, 100, 122, 4);
+      for (let i = 0; i < 4; i++) { const y = 66 + i * 11; c.strokeStyle = INK; c.lineWidth = 5; c.beginPath(); c.arc(100, y + 14, 24 - i * 2, -2.6, -0.54); c.stroke(); c.strokeStyle = BONE; c.lineWidth = 2.4; c.stroke(); }
+      hueso(c, 84, 64, 64, 96); hueso(c, 64, 96, 58, 126); hueso(c, 116, 64, 136, 96); hueso(c, 136, 96, 142, 126);
+      c.fillStyle = INK; rr(c, 82, 120, 36, 14, 6); c.fill(); c.fillStyle = BONE; rr(c, 84, 122, 32, 10, 5); c.fill();
+      hueso(c, 90, 134, 86, 166); hueso(c, 86, 166, 86, 186); hueso(c, 110, 134, 114, 166); hueso(c, 114, 166, 114, 186);
+      circle(c, 100, 36, 19); c.fillStyle = INK; c.fill(); circle(c, 100, 36, 16.5); c.fillStyle = BONE; c.fill();
+      c.fillStyle = INK; circle(c, 93, 34, 4.5); c.fill(); circle(c, 107, 34, 4.5); c.fill(); c.fillRect(96, 46, 8, 2);
+      c.restore();
+      if (t > 0.45) interroga(c, 162, 52);
+    },
+  }),
+  pulpo: () => ({
+    label: 'Un pulpo y un corazón con signo de pregunta',
+    draw(c, w, h, t) {
+      sheet(c, w, h); const k = entra(t), sw = Math.sin(t * 5) * (1 - k) * 6;
+      c.strokeStyle = C.magenta; c.lineWidth = 9; c.lineCap = 'round';
+      for (let i = 0; i < 8; i++) { const x0 = 70 + i * 8.5, dir = i < 4 ? -1 : 1; c.beginPath(); c.moveTo(x0, 110); c.bezierCurveTo(x0 + dir * 10, 140, x0 - dir * 14 + sw, 160, x0 + dir * (6 + i % 3 * 6), 182); c.stroke(); }
+      c.fillStyle = C.magenta; c.beginPath(); c.ellipse(100, 82, 38, 44, 0, 0, TAU); c.fill();
+      c.fillStyle = '#fff'; circle(c, 86, 88, 8); c.fill(); circle(c, 114, 88, 8); c.fill(); c.fillStyle = INK; circle(c, 88, 90, 4); c.fill(); circle(c, 116, 90, 4); c.fill();
+      c.globalAlpha = clamp((t - 0.3) / 0.3); corazon(c, 160, 40, 16, C.rojo); chip(c, 136, 64, 50, 22, INK, '× ?', '#fff', 14); c.globalAlpha = 1;
+    },
+  }),
+  'vaso-hielo': () => ({
+    label: 'Un vaso de agua con un cubo de hielo',
+    draw(c, w, h, t) {
+      sheet(c, w, h); const k = entra(t), cy = 74 + (1 - k) * -50;
+      c.fillStyle = 'rgba(77,163,255,.45)'; c.beginPath(); c.moveTo(56, 88); c.lineTo(144, 88); c.lineTo(136, 180); c.lineTo(64, 180); c.closePath(); c.fill();
+      c.fillStyle = '#DDF6FF'; rr(c, 82, cy, 36, 30, 6); c.fill(); c.strokeStyle = C.cian; c.lineWidth = 2.5; rr(c, 82, cy, 36, 30, 6); c.stroke();
+      c.fillStyle = '#fff'; c.fillRect(88, cy + 5, 8, 4);
+      c.strokeStyle = INK; c.lineWidth = 4; c.lineJoin = 'round'; c.beginPath(); c.moveTo(50, 40); c.lineTo(64, 184); c.lineTo(136, 184); c.lineTo(150, 40); c.stroke();
+      c.strokeStyle = C.cian; c.lineWidth = 2; c.beginPath(); c.moveTo(54, 88); c.lineTo(146, 88); c.stroke();
+      if (t > 0.5) interroga(c, 162, 66);
+    },
+  }),
+  tormenta: () => ({
+    label: 'Una tormenta: un relámpago, un ojo y un oído',
+    draw(c, w, h, t) {
+      sheet(c, w, h);
+      c.fillStyle = C.gris; for (const [x, y, r] of [[52, 52, 22], [78, 42, 26], [104, 54, 20], [70, 62, 20]]) { circle(c, x, y, r); c.fill(); }
+      c.globalAlpha = Math.sin(clamp(t / 0.9) * Math.PI * 3) > 0 || t >= 0.9 ? 1 : 0.35;
+      c.fillStyle = C.amarillo; c.beginPath(); c.moveTo(80, 76); c.lineTo(64, 116); c.lineTo(78, 116); c.lineTo(66, 152); c.lineTo(96, 104); c.lineTo(82, 104); c.lineTo(94, 76); c.closePath(); c.fill(); c.globalAlpha = 1;
+      // ojo (1) y oído (2)
+      c.fillStyle = '#fff'; c.strokeStyle = INK; c.lineWidth = 3; c.beginPath(); c.ellipse(152, 70, 22, 12, 0, 0, TAU); c.fill(); c.stroke(); c.fillStyle = INK; circle(c, 152, 70, 6); c.fill();
+      c.strokeStyle = INK; c.lineWidth = 5; c.beginPath(); c.arc(150, 136, 16, -2.6, 1.6); c.stroke(); c.lineWidth = 3; c.beginPath(); c.arc(152, 136, 6, -2.4, 1.2); c.stroke();
+      chip(c, 112, 60, 22, 22, C.morado, '1', '#fff', 13); chip(c, 112, 126, 22, 22, C.morado, '2', '#fff', 13);
+    },
+  }),
+  'olla-altura': () => ({
+    label: 'Una olla hirviendo en lo alto de una montaña, con un termómetro',
+    draw(c, w, h, t) {
+      sheet(c, w, h);
+      c.fillStyle = '#8FCBA6'; c.beginPath(); c.moveTo(14, 186); c.lineTo(84, 70); c.lineTo(154, 186); c.closePath(); c.fill();
+      c.fillStyle = '#E9F4FF'; c.beginPath(); c.moveTo(70, 93); c.lineTo(84, 70); c.lineTo(98, 93); c.lineTo(90, 88); c.lineTo(84, 96); c.lineTo(77, 88); c.closePath(); c.fill();
+      c.fillStyle = INK; c.fillRect(83, 40, 2.5, 32); c.fillStyle = C.rojo; c.beginPath(); c.moveTo(85.5, 40); c.lineTo(112, 47); c.lineTo(85.5, 54); c.closePath(); c.fill();
+      text(c, '2.600 m', 118, 30, 13);
+      c.fillStyle = '#5C5C78'; rr(c, 60, 130, 48, 30, 6); c.fill(); c.fillRect(54, 128, 60, 6);
+      c.fillStyle = 'rgba(255,255,255,.85)'; for (let i = 0; i < 3; i++) { const p = (t * 1.2 + i / 3) % 1; circle(c, 72 + i * 12, 122 - p * 20, 4 * (1 - p * 0.5)); c.fill(); }
+      c.fillStyle = '#fff'; rr(c, 158, 70, 18, 96, 9); c.fill(); c.strokeStyle = INK; c.lineWidth = 3; rr(c, 158, 70, 18, 96, 9); c.stroke();
+      c.fillStyle = C.rojo; circle(c, 167, 164, 12); c.fill(); c.fillRect(163.5, 100 + (1 - entra(t)) * 50, 7, 64 - (1 - entra(t)) * 50);
+      chip(c, 140, 40, 54, 22, INK, '? °C', '#fff', 13);
+    },
+  }),
+  'sol-tierra': () => ({
+    label: 'La luz que sale del Sol hacia la Tierra, con un cronómetro',
+    draw(c, w, h, t) {
+      sheet(c, w, h);
+      c.fillStyle = C.amarillo; circle(c, 38, 110, 32); c.fill(); c.strokeStyle = C.amarillo; c.lineWidth = 4; c.lineCap = 'round';
+      for (let i = 0; i < 8; i++) { const a = i / 8 * TAU; c.beginPath(); c.moveTo(38 + Math.cos(a) * 38, 110 + Math.sin(a) * 38); c.lineTo(38 + Math.cos(a) * 46, 110 + Math.sin(a) * 46); c.stroke(); }
+      c.fillStyle = '#4DA3FF'; circle(c, 172, 110, 12); c.fill(); c.fillStyle = C.verde; c.beginPath(); c.ellipse(168, 106, 5, 4, 0.4, 0, TAU); c.fill();
+      const p = entra(t); c.strokeStyle = C.amarillo; c.lineWidth = 3; c.setLineDash([6, 6]); c.beginPath(); c.moveTo(88, 110); c.lineTo(88 + (68 * p), 110); c.stroke(); c.setLineDash([]);
+      c.fillStyle = '#fff'; c.strokeStyle = INK; c.lineWidth = 3; circle(c, 120, 58, 20); c.fill(); c.stroke(); c.fillStyle = INK; c.fillRect(116, 32, 8, 6);
+      text(c, '?', 120, 59, 22, C.magenta);
+    },
+  }),
+  gaseosa: () => ({
+    label: 'Una botella de gaseosa con burbujas',
+    draw(c, w, h, t) {
+      sheet(c, w, h);
+      c.fillStyle = 'rgba(31,157,107,.25)'; rr(c, 72, 70, 56, 116, 14); c.fill(); rr(c, 88, 30, 24, 44, 6); c.fill();
+      c.fillStyle = 'rgba(196,113,237,.55)'; rr(c, 74, 96, 52, 88, 12); c.fill();
+      c.strokeStyle = INK; c.lineWidth = 3.5; rr(c, 72, 70, 56, 116, 14); c.stroke(); rr(c, 88, 30, 24, 44, 6); c.stroke(); c.fillStyle = C.rojo; rr(c, 86, 22, 28, 10, 3); c.fill();
+      c.fillStyle = 'rgba(255,255,255,.85)'; for (let i = 0; i < 9; i++) { const p = (t * 0.9 + i / 9) % 1; circle(c, 84 + (i * 37 % 34), 180 - p * 80, 2.5 + (i % 3)); c.fill(); }
+      interroga(c, 156, 64, C.morado);
+    },
+  }),
+};
+export const ESCENA_NAMES = Object.freeze(Object.keys(ESCENAS));
+
+export function createEscena(spec = {}, opts = {}) {
+  const make = ESCENAS[spec.cosa];
+  if (!make || (spec.tipo !== 'objeto' && spec.tipo !== 'diagrama')) return null;
+  const v = make(spec, opts);
+  return v && typeof v.draw === 'function' ? { duration: 1, ...v } : null;
+}

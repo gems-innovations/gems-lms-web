@@ -30,8 +30,8 @@ import { panelCards, panelState } from './taps.panel';
 import { WheelGate } from './taps.wheel';
 import { TapsSonidoService } from './taps-sonido.service';
 import { TapsMusicaService } from './taps-musica.service';
-import { ITap, ITapRun, ITapVisual, ITapsStage } from './taps.types';
-import { visualSide } from './taps.escena';
+import { ITap, ITapEscena, ITapRun, ITapVisual, ITapsStage } from './taps.types';
+import { planoSeed, questionEscena, visualSide } from './taps.escena';
 import { fraseActual } from './taps.frases';
 import {
   IPausaSesion, ISesionGuardada, PARTIDAS_KEY, PAUSA_KEY, SESION_KEY, TPartidaGuardada, emptySesion, freshHead, greeting, hasProgress, nuevaPausa,
@@ -645,6 +645,11 @@ export class TapsFeedComponent {
     return mode === '3d' || mode === 'light' || mode === 'poster' ? q.visual : null;
   }
   protected visualSide(tap: ITap): 'izq' | 'der' { return visualSide(tap.scene); }
+  /** Escena de la pregunta a la vista (código, operación, serie, objeto o diagrama): la dibuja el motor en `.tap__escena`. */
+  protected escenaOf(tap: ITap, run: ITapRun): ITapEscena | null {
+    const mode = this.stageMode();
+    return questionEscena(tap, run, mode === '3d' || mode === 'light' || mode === 'poster', !!this.visualOf(tap, run));
+  }
   /** Teclado o lector de pantalla (clic sin puntero): repite la animación del objeto. Con puntero ya la maneja el motor. */
   protected replayVisual(event: MouseEvent): void {
     if (event.detail !== 0) return;
@@ -696,11 +701,34 @@ export class TapsFeedComponent {
     const el = section?.querySelector<HTMLElement>('.tap__visual');
     const spec = this.visualOf(tap, this.run(tap));
     if (!el || !spec || !this.stage?.visual || tap.id !== this.activeId()) return;
+    this.stage.clearEscena?.();                                    // tras fallar, el objeto que explica ocupa el sitio de la escena
     void this.stage.visual(spec, el, { side: this.visualSide(tap) }).then(label => {
       if (!label) { el.hidden = true; return; }
       // el lienzo va dentro del botón (hijos de presentación): la descripción del objeto va en el nombre accesible del botón
       el.setAttribute('aria-label', `Explicación con un objeto: ${label.trim()} Pulsa para verla otra vez.`);
     }, () => { el.hidden = true; });
+  }
+
+  /**
+   * Pregunta nueva a la vista (o el resultado): pequeño cambio de plano de cámara (modo cine, determinista por Tap y pregunta)
+   * y, si la pregunta trae escena, la pide al motor cuando la vista ya pintó su hueco.
+   */
+  private showQuestionScene(tap: ITap): void {
+    const stage = this.stage;
+    if (!stage || tap.id !== this.activeId()) return;
+    const run = this.run(tap);
+    stage.plano?.(run.finished ? 0 : run.index, planoSeed(tap.id));
+    stage.clearEscena?.();
+    if (!run.finished && tap.questions[run.index]?.escena) afterNextRender(() => this.mountEscena(tap), { injector: this.injector });
+  }
+
+  private mountEscena(tap: ITap): void {
+    const section = this.sections()[this.taps().indexOf(tap)]?.nativeElement;
+    const el = section?.querySelector<HTMLElement>('.tap__escena');
+    const spec = this.escenaOf(tap, this.run(tap));
+    if (!el || !spec || !this.stage?.escena || tap.id !== this.activeId()) return;
+    el.hidden = false;
+    void this.stage.escena(spec, el, { side: 'izq' }).then(label => { if (!label) el.hidden = true; }, () => { el.hidden = true; });
   }
 
   /** El objeto se tocó o se arrastró: la cuenta atrás espera mientras se explora y sigue sola 2,5 s después. */
@@ -733,6 +761,7 @@ export class TapsFeedComponent {
     this.stage?.say('');
     this.stage?.react('ask');
     this.readQuestion(tap);
+    this.showQuestionScene(tap);
     this.focusLater(tap, '.tap__q');
   }
 
@@ -762,6 +791,7 @@ export class TapsFeedComponent {
     const run = next(this.run(tap), tap);
     if (run === this.run(tap)) return;
     this.setRun(tap, run);
+    this.showQuestionScene(tap);
     if (run.finished) {
       const rachaAntes = this.resumen().racha;
       this.track('taps-completar', `taps/completar/${eventSlug(tap.id)}`);
@@ -1361,8 +1391,10 @@ export class TapsFeedComponent {
       if (token !== this.token) return;
       const run = this.run(tap);
       if (run.finished) this.celebrateResult(tap, run); else { stage.say(''); stage.react('ask', { say: false }); this.readQuestion(tap); }
+      this.showQuestionScene(tap);
       this.audio.precalentar(tap.theme);
       if (tap.questions.some(q => q.visual)) void stage.preloadVisuals?.();
+      if (tap.questions.some(q => q.escena)) void stage.preloadEscenas?.();
       this.preloadAhead(index);
     } catch {
       // Sin tema ni motor el Tap se juega sobre su degradado (--bg-top/--bg-bottom), sin personaje y sin aviso: es el mínimo garantizado.

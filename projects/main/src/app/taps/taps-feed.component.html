@@ -92,6 +92,9 @@
             <span class="tap__visual-tip" aria-hidden="true">Tócalo o arrástralo</span>
           </button>
         }
+        <!-- Escena de la pregunta (si la trae): código, operación, serie u objeto del tema, arriba a la izquierda; la dibuja el motor.
+             Nunca la respuesta. El dibujo va oculto a lectores de pantalla y el motor deja su descripción en texto. -->
+        @if (escenaOf(tap, run); as esc) { <div class="tap__escena" [attr.data-tipo]="esc.tipo"></div> }
         <!-- Reto del día: solo en el navegador (el HTML prerenderizado no sabe qué día se abre) y nunca en la portada. -->
         @if (retoId() === tap.id && !feedback && !run.finished) {
           <p class="tap__reto">

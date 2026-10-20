@@ -19,3 +19,4 @@
 /* En 3D el fondo sigue siendo esta imagen por CSS (el renderizador dibuja solo al personaje, en un lienzo WebGL transparente
    debajo del lienzo de partículas del motor): no se copia nada de WebGL a 2D en cada fotograma. */
 .te-stage[data-theme='aventura'][data-mode='3d'] .te-bg { opacity: 1; }
+.te-stage[data-theme='aventura'][data-mode='3d'] .te-clima { display: block; }   /* el 3D es transparente: hora y clima van entre el fondo y el personaje */
