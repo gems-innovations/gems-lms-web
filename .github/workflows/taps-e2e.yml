@@ -1,0 +1,61 @@
+name: Taps (e2e completo) sobre el build estático
+
+# Las pruebas largas de Taps (escritorio, banco, ranking, permanencia, primera sesión) que no entran en el humo. Corren aquí,
+# en GitHub, para no cargar el equipo de desarrollo: en local basta con las pruebas rápidas (unitarias, taps:test, build) y
+# el humo de lo que se tocó. Mismo build y mismo API simulado que el humo (no toca producción). No bloquea el despliegue:
+# es una señal más en el PR; si falla, se revisa el reporte antes de mezclar.
+on:
+  pull_request:
+    branches: [develop, qa, main]
+    paths:
+      - 'projects/main/src/app/taps/**'
+      - 'projects/main/public/taps-engine/**'
+      - 'projects/main/public/taps-musica/**'
+      - 'projects/main/scripts/**'
+      - 'e2e/**'
+      - 'playwright.config.ts'
+      - '.github/workflows/taps-e2e.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: taps-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  taps-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Build estático (el mismo del Dockerfile)
+        run: npm run build:all && npx ng build main --configuration production,static
+
+      - name: Install Chromium y WebKit
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: E2E completo de Taps (Chromium + iPhone WebKit donde aplica)
+        env:
+          E2E_ESTATICO: '1'
+        run: npx playwright test e2e/taps- e2e/retencion-primera-sesion --timeout=90000
+
+      - name: Reporte si falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-taps-e2e
+          path: playwright-report
+          retention-days: 7
