@@ -222,6 +222,33 @@ describe('TapsSonidoService', () => {
     }
   });
 
+  it('contextoPrevio creado en el mismo gesto (intención con el pointerdown del toque): el gesto lo reanuda aunque aún diga «running»', async () => {
+    const ordenes: string[] = [];
+    class ACFalso {
+      // Creado dentro del gesto: nace 'running' y el suspend() se aplica más tarde (como en Chrome). Las órdenes van en fila.
+      state = 'running';
+      private fila: Promise<void> = Promise.resolve();
+      suspend() { ordenes.push('suspend'); return (this.fila = this.fila.then(() => { this.state = 'suspended'; })); }
+      resume() { ordenes.push('resume'); return (this.fila = this.fila.then(() => { this.state = 'running'; })); }
+      close() { return Promise.resolve(); }
+    }
+    const w = window as unknown as { AudioContext: unknown };
+    const original = w.AudioContext;
+    w.AudioContext = ACFalso;
+    try {
+      const { service } = crear();
+      const previo = service.contextoPrevio() as unknown as { state: string };   // pointerdown: señal de intención
+      expect(previo.state).toBe('running', 'el suspend() aún no se aplicó');
+      service.desbloquear();                                              // pointerup del mismo toque
+      await new Promise(r => setTimeout(r, 0));
+      expect(ordenes).toEqual(['suspend', 'resume']);
+      expect(previo.state).toBe('running', 'antes quedaba suspendido: la primera respuesta sin efecto ni música');
+      service.destruir();
+    } finally {
+      w.AudioContext = original;
+    }
+  });
+
   it('relevo portada → /taps: el feed nuevo sigue con el mismo sonido (no lo destruye ni crea otro contexto)', async () => {
     const relevo = nuevoRelevo();
     TestBed.configureTestingModule({ providers: [{ provide: TapsAudioRelevo, useValue: relevo }] });
