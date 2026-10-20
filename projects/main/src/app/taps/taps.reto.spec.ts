@@ -5,7 +5,7 @@ import {
   avanceColeccion, coleccionDe, colecciones, emptyColecciones, gradoDe, parseColecciones, registrarPuntaje, sembrarInsignias,
 } from './taps.coleccion';
 import {
-  IPausaSesion, PAUSA_HUECO_MAX_MS, PAUSA_INACTIVA_MS, PAUSA_TAPS, nuevaPausa, parsePausa, pauseSummary, reanudarPausa, registrarActividad,
+  IPausaSesion, PAUSA_HUECO_MAX_MS, PAUSA_INACTIVA_MS, nuevaPausa, parsePausa, pauseSummary, reanudarPausa, registrarActividad,
   shouldSuggestPause,
 } from './taps.sesion';
 import { TAPS_RETO_CALENDARIO } from './taps.banco.generated';
@@ -181,13 +181,13 @@ describe('Pausa sana (tiempo activo)', () => {
     return q;
   };
 
-  it('se sugiere a los 20 Taps o a los 30 min de juego activo, una sola vez por sesión', () => {
+  it('se sugiere solo a los 30 min de juego activo (no por cantidad de Taps), una sola vez por sesión', () => {
     const p = nuevaPausa(T0);
     expect(shouldSuggestPause(p)).toBeFalse();
     let q = p;
-    for (let k = 1; k <= PAUSA_TAPS; k++) q = registrarActividad(q, T0 + k * 1000, true);
-    expect(q.taps).toBe(PAUSA_TAPS);
-    expect(shouldSuggestPause(q)).toBeTrue();
+    for (let k = 1; k <= 40; k++) q = registrarActividad(q, T0 + k * 20_000, true);
+    expect(q.taps).toBe(40);
+    expect(shouldSuggestPause(q)).toBeFalse();
     expect(shouldSuggestPause(jugar(p, T0, 29))).toBeFalse();
     expect(shouldSuggestPause(jugar(p, T0, 30))).toBeTrue();
     expect(shouldSuggestPause({ ...jugar(p, T0, 40), sugerida: true })).toBeFalse();
