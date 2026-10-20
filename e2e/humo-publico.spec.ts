@@ -69,19 +69,35 @@ test.describe('Humo · visitante', () => {
     });
     const musica: string[] = [];
     page.on('request', r => { if (/\/taps-musica\/|\/audio\/musica\.js/.test(r.url())) musica.push(new URL(r.url()).pathname); });
+    // Fuentes de audio largas (música) que arrancan: ninguna antes de responder.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __musicaFuentes: number };
+      w.__musicaFuentes = 0;
+      const start = AudioBufferSourceNode.prototype.start;
+      AudioBufferSourceNode.prototype.start = function (...a: Parameters<typeof start>) {
+        if ((this.buffer?.duration ?? 0) > 10) w.__musicaFuentes++;
+        return start.apply(this, a);
+      };
+    });
     await page.reload();
     await page.waitForTimeout(4_000);                              // la voz se decide en reposo (requestIdleCallback, hasta 3 s)
+    expect(await page.evaluate(() => (window as unknown as { __musicaFuentes: number }).__musicaFuentes), 'nada de música antes de responder').toBe(0);
     // El altavoz (silencio general) está y la voz no está activa. Sin exigir el estado del altavoz ni la ausencia del botón
     // de voz de antes: el workflow iphone.yml corre esta prueba contra producción, que puede ir una versión atrás.
     await expect(page.locator('gems-taps .bar__sound')).toBeVisible();
     await expect(page.locator('gems-taps .bar__voice[aria-pressed="true"]')).toHaveCount(0);
-    // Responder (la partida guardada sigue en la pregunta siguiente): suenan los efectos, pero ni voz ni música.
+    // Responder (la partida guardada sigue en la pregunta siguiente): suenan los efectos y la música, pero no la voz.
     const opcion = page.locator('gems-taps .tap.tap--active .tap__opt:not([disabled])').first();
     await expect(opcion).toBeVisible();
     await opcion.click();
     await page.waitForTimeout(3_000);                              // respuesta y paso a la pregunta siguiente
     expect(await page.evaluate(() => (window as unknown as { __habla?: string[] }).__habla ?? []), 'la voz no habla en la portada').toEqual([]);
-    expect(musica, 'la portada no pide música ni tras responder').toEqual([]);
+    // Antes la portada no tenía música; desde fix/taps-musica-primer-tap la tiene (misma preferencia que /taps) y se prueba
+    // en humo-taps-musica.spec.ts. Aquí solo que no baje de más: como mucho la pista del Tap a la vista. Sin exigir que la
+    // pida: iphone.yml corre esta prueba contra producción, que puede ir una versión atrás.
+    expect(musica.filter(p => /\.(webm|m4a)$/.test(p)).length, 'la portada baja como mucho una pista').toBeLessThanOrEqual(1);
+    expect(musica.filter(p => p.endsWith('/musica.js')).length, 'musica.js como mucho una vez').toBeLessThanOrEqual(1);
+    expect(musica.filter(p => p.endsWith('/musica.json')).length, 'musica.json como mucho una vez').toBeLessThanOrEqual(1);
     await expect(page.locator('gems-taps .tap__toast')).toHaveCount(0);
     await expect(page.locator('gems-taps .bar__brand')).toBeHidden();
     await expect(page.locator('gems-tap-sesion-hoja')).toHaveCount(0);

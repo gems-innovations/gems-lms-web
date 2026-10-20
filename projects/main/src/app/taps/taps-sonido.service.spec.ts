@@ -1,6 +1,10 @@
-import { PLATFORM_ID } from '@angular/core';
+import { Injector, PLATFORM_ID, runInInjectionContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TAPS_AUDIO_URL, TAPS_VOZ_URL, TapsSonidoService } from './taps-sonido.service';
+import { TapsAudioRelevo } from './taps-audio-relevo';
+
+/** Relevo fuera de TestBed (sobrevive a resetTestingModule, como el de raíz entre dos feeds). */
+const nuevoRelevo = () => runInInjectionContext(Injector.create({ providers: [] }), () => new TapsAudioRelevo());
 
 /** Sonido falso con la forma de taps-engine/audio/sonido.js: registra lo que se le pide. */
 function sonidoFalso() {
@@ -180,6 +184,64 @@ describe('TapsSonidoService', () => {
     window.dispatchEvent(new KeyboardEvent('keydown', { key: '1' }));
     expect(log).toEqual(['contexto']);
     service.destruir();
+  });
+
+  it('contextoPrevio: se crea suspendido sin gesto (nadie lo recibe) y el gesto reanuda ese mismo, sin crear otro', async () => {
+    const creados: string[] = [];
+    class ACFalso {
+      // Nace 'suspended' y pasa solo a 'running' una microtarea después (Chrome con autoplay permitido): por eso se suspende siempre.
+      state = 'suspended';
+      private suspendido = false;
+      constructor() { creados.push('nuevo'); queueMicrotask(() => { if (!this.suspendido) this.state = 'running'; }); }
+      suspend() { this.suspendido = true; this.state = 'suspended'; creados.push('suspend'); return Promise.resolve(); }
+      resume() { this.state = 'running'; creados.push('resume'); return Promise.resolve(); }
+      close() { creados.push('close'); return Promise.resolve(); }
+    }
+    const w = window as unknown as { AudioContext: unknown };
+    const original = w.AudioContext;
+    w.AudioContext = ACFalso;
+    try {
+      const { service } = crear();
+      const log: string[] = [];
+      service.escuchar({ contexto: () => log.push('contexto') });
+      const previo = service.contextoPrevio();
+      expect(previo).not.toBeNull();
+      expect(creados).toEqual(['nuevo', 'suspend'], 'se suspende siempre, mire lo que mire su estado');
+      await Promise.resolve();
+      expect((previo as unknown as { state: string }).state).toBe('suspended', 'no arranca solo tras la microtarea');
+      expect(service.contexto()).toBeNull('antes del gesto no hay contexto «desbloqueado»');
+      expect(log).toEqual([]);
+      service.desbloquear();                                              // el gesto
+      expect(service.contexto()).toBe(previo as unknown as AudioContext);
+      expect(creados).toEqual(['nuevo', 'suspend', 'resume']);
+      expect(log).toEqual(['contexto']);
+      expect(service.contextoPrevio()).toBeNull('tras el gesto vale contexto()');
+      service.destruir();
+    } finally {
+      w.AudioContext = original;
+    }
+  });
+
+  it('relevo portada → /taps: el feed nuevo sigue con el mismo sonido (no lo destruye ni crea otro contexto)', async () => {
+    const relevo = nuevoRelevo();
+    TestBed.configureTestingModule({ providers: [{ provide: TapsAudioRelevo, useValue: relevo }] });
+    const a = crear();
+    await a.service.precargar();
+    (a.sonido as { contexto: unknown }).contexto = { state: 'running' };
+    a.service.desbloquear();
+    a.service.relevarAlSalir();
+    a.service.destruir();
+    expect(a.sonido.log).not.toContain('destruir');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: TapsAudioRelevo, useValue: relevo }] });
+    const b = crear();
+    const log: string[] = [];
+    b.service.escuchar({ contexto: () => log.push('contexto') });
+    expect(log).toEqual(['contexto'], 'la música del feed nuevo recibe el contexto en marcha sin otro gesto');
+    expect(await b.service.precargar()).toBe(a.sonido as never);
+    expect(b.pedidos).toEqual([]);
+    b.service.destruir();
+    expect(a.sonido.log).toContain('destruir');
   });
 
   it('pausar calla la voz y suspende el audio; destruir libera todo', async () => {

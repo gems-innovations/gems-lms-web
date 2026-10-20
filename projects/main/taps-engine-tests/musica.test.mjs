@@ -227,9 +227,11 @@ test('música: si el navegador no decodifica Opus/WebM, cae al AAC', async () =>
   assert.ok(e.log.some(l => l.startsWith(`decode:${P_CUEVA}.`) && /\.[0-9a-f]{8}\.m4a$/.test(l)), e.log.join(' '));
 });
 
-test('música: anticipar baja la pista siguiente sin decodificarla ni sonar', async () => {
+test('música: anticipar baja la pista siguiente sin decodificarla ni sonar (y no antes de que suene la primera)', async () => {
   const e = entorno(), m = nuevo(e), ac = new e.AC();
   m.conectar(ac); m.encender(true); m.silenciar(false);
+  await m.anticipar(aula); await esperar();
+  assert.ok(!e.pedidos.some(p => p.includes(P_AULA)), 'sin nada sonando aún, la siguiente no compite por la red');
   await m.alTap(cueva); await esperar(); await esperar();
   await m.anticipar(aula); await esperar();
   assert.ok(e.pedidos.some(p => p.includes(P_AULA)));
@@ -313,7 +315,53 @@ test('música: entra con un fundido de entrada (no de golpe) y el cambio de pist
   const m = nuevo(e);
   m.conectar(ac); m.encender(true); m.silenciar(false);
   await m.alTap(cueva); await esperar(); await esperar();
-  assert.deepEqual(rampas[0], { v: VOLUMEN_MUSICA, t: 1.5 }, 'primera pista: de 0 al volumen en 1,5 s');
+  assert.deepEqual(rampas[0], { v: VOLUMEN_MUSICA, t: 0.6 }, 'primera pista de la visita: fundido corto (600 ms), que se note ya en la primera respuesta');
   await m.alTap(aula); await esperar(); await esperar();
   assert.ok(rampas.some(r => r.v === VOLUMEN_MUSICA && r.t === 0.8), 'cambio de pista: 800 ms');
+  m.pausar('oculta'); await esperar();
+  rampas.length = 0;
+  m.reanudar('oculta'); await esperar(); await esperar();
+  assert.ok(rampas.some(r => r.v === VOLUMEN_MUSICA && r.t === 1.5), 'al volver de una pausa: de 0 al volumen en 1,5 s');
+});
+
+test('música: preparar baja y decodifica antes del gesto con un contexto suspendido; al conectar suena sin esperar', async () => {
+  const e = entorno(), m = nuevo(e), ac = new e.AC();
+  ac.state = 'suspended';
+  m.encender(true); m.silenciar(false);
+  assert.equal(await m.preparar(cueva, ac), P_CUEVA, 'la misma pista que elegirá alTap');
+  assert.deepEqual(e.pedidos.map(p => p.split('/').pop().replace(/\.[0-9a-f]{8}\./, '.')), ['musica.json', `${P_CUEVA}.webm`]);
+  assert.equal(e.log.filter(l => l.startsWith('decode:')).length, 1, 'decodificada de antemano');
+  assert.deepEqual(m.listas, [P_CUEVA]);
+  assert.equal(e.fuentes.length, 0, 'nada suena antes del gesto');
+  // El gesto: el mismo contexto se conecta y el Tap pide su pista. Arranca sin red ni decodificar otra vez.
+  m.conectar(ac);
+  await m.alTap(cueva);
+  assert.equal(m.pistaActual, P_CUEVA);
+  assert.equal(e.fuentes.length, 1);
+  assert.equal(e.pedidos.length, 2, 'sin pedir nada más');
+  assert.equal(e.log.filter(l => l.startsWith('decode:')).length, 1, 'sin decodificar otra vez');
+});
+
+test('música: preparar con la música apagada no pide nada; sin contexto solo baja los bytes', async () => {
+  const e = entorno(), m = nuevo(e);
+  assert.equal(await m.preparar(cueva, new e.AC()), null);
+  assert.deepEqual(e.pedidos, []);
+  m.encender(true);
+  await m.preparar(cueva, null);
+  assert.equal(e.pedidos.length, 2);
+  assert.equal(e.log.filter(l => l.startsWith('decode:')).length, 0);
+});
+
+test('música: al pasar de la portada a /taps (continuar) la pista sigue si le vale al Tap, aunque lleve más de 20 s', async () => {
+  let reloj = 0;
+  const e = entorno(), ac = new e.AC();
+  const m = crearMusica({ manifiesto: 'http://x/taps-musica/musica.json', fetch: e.fetch, puede: () => 'maybe', reloj: () => reloj });
+  m.conectar(ac); m.encender(true); m.silenciar(false);
+  const tap = i => ({ id: `mc-${i}`, mundo: 'pradera', tema: 'minecraft', motor: 'minecraft' });
+  await m.alTap(tap(0)); await esperar(); await esperar();
+  const primera = m.pistaActual;
+  reloj = PERMANENCIA_MS * 3;
+  assert.equal(await m.alTap(tap(1), { continuar: true }), primera);
+  assert.equal(e.fuentes.length, 1, 'no se reinicia');
+  assert.notEqual(await m.alTap(aula, { continuar: true }), primera, 'si no le vale, cambia (con fundido cruzado)');
 });

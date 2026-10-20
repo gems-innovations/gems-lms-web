@@ -99,7 +99,7 @@ export class TapsFeedComponent {
   private readonly isBrowser = isPlatformBrowser(this.platform);
   /** Efectos (sintetizados por código) y voz de los personajes: taps-engine/audio y taps-engine/voz, cargados bajo demanda. */
   private readonly audio = inject(TapsSonidoService);
-  /** Música de fondo (taps-engine/audio/musica.js + public/taps-musica): encendida por defecto en /taps; se apaga en «Tu día» o el menú. */
+  /** Música de fondo (taps-engine/audio/musica.js + public/taps-musica): encendida por defecto en /taps y en la portada; se apaga en «Tu día» o el menú. */
   protected readonly musica = inject(TapsMusicaService);
 
   private readonly snapshot = inject(ActivatedRoute).snapshot;
@@ -356,7 +356,7 @@ export class TapsFeedComponent {
       this.sound.set(this.readStorage(SOUND_KEY) === 'off' ? 'off' : 'on');
       this.stage?.setMuted(this.sound() !== 'on');
       this.startAudio();
-      this.musica.iniciar(this.portada);
+      this.musica.iniciar();
       this.interest.set(parseInterest(this.readStorage(INTEREST_KEY), Date.now()));
       this.sesion = parseSesion(this.readStorage(SESION_KEY));
       this.loadColecciones();
@@ -620,9 +620,18 @@ export class TapsFeedComponent {
     return [first];
   }
 
-  /** Portada: seguir jugando es pasar al feed completo, que retoma lo jugado (sessionStorage) y abre en ese Tap o tema. */
+  /**
+   * Portada: seguir jugando es pasar al feed completo, que retoma lo jugado (sessionStorage) y abre en ese Tap o tema. El
+   * audio pasa al feed nuevo (taps-audio-relevo.ts): la música que suena no se corta ni vuelve a empezar.
+   */
   private toFeed(queryParams: { t?: string; tema?: string | null }): void {
-    void this.router.navigate(['/taps'], { queryParams });
+    this.audio.relevarAlSalir();
+    this.musica.relevarAlSalir();
+    void this.router.navigate(['/taps'], { queryParams }).then(ok => {
+      if (ok) return;
+      this.audio.relevarAlSalir(false);                            // no se navegó: el audio sigue siendo de este feed
+      this.musica.relevarAlSalir(false);
+    }, () => { this.audio.relevarAlSalir(false); this.musica.relevarAlSalir(false); });
   }
 
   /** Portada: las teclas (1-4, Espacio, M) solo juegan mientras la tarjeta se ve; quien bajó a leer no responde sin querer. */
@@ -1073,15 +1082,51 @@ export class TapsFeedComponent {
   /**
    * Tras hidratar: módulo de sonido en reposo, desbloqueo con el primer gesto y la voz si la persona la dejó encendida.
    * En /taps cualquier gesto real (toque, clic, tecla; deslizar no cuenta para el navegador) arranca efectos y música en ese
-   * momento. En la portada no: allí el audio se desbloquea solo al responder (choose), porque un toque en otra parte de la
-   * página (un enlace, el menú) no es jugar, y la portada no tiene música.
+   * momento. En la portada no: allí el audio (efectos y música) se desbloquea solo al responder (choose), porque un toque en
+   * otra parte de la página (un enlace, el menú) no es jugar.
+   * En reposo se deja lista la música del Tap a la vista (bajada y decodificada, sin sonar): el primer gesto la arranca ya.
    */
+  /**
+   * Primera señal de que la persona va a jugar: toca la tarjeta (pointerdown/touchstart), la tiene a la vista 2 s o desplaza.
+   * Entonces se decodifica la música ya bajada (antes solo se bajaron los bytes): quien abre y se va no gasta CPU ni memoria.
+   */
+  private vigilarIntencion(): void {
+    const host = this.host.nativeElement;
+    const opts = { capture: true, passive: true } as const;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let obs: IntersectionObserver | null = null;
+    const quitar = () => {
+      if (timer) clearTimeout(timer);
+      obs?.disconnect();
+      host.removeEventListener('pointerdown', ya, opts);
+      host.removeEventListener('touchstart', ya, opts);
+      removeEventListener('scroll', ya, opts);
+    };
+    function ya(this: unknown) { quitar(); musica.intencion(); }
+    const musica = this.musica;
+    if (typeof IntersectionObserver !== 'undefined') {
+      obs = new IntersectionObserver(([e]) => {
+        if (timer) { clearTimeout(timer); timer = null; }
+        if (e?.isIntersecting) timer = setTimeout(ya, 2000);
+      }, { threshold: 0.01 });
+      obs.observe(host);
+    }
+    host.addEventListener('pointerdown', ya, opts);
+    host.addEventListener('touchstart', ya, opts);
+    addEventListener('scroll', ya, opts);                         // en captura: también el desplazamiento del feed
+    this.destroyRef.onDestroy(quitar);
+  }
+
   private startAudio(): void {
     this.audio.silenciar(this.sound() !== 'on');
     if (!this.portada) this.audio.escucharGestos(() => this.sound() === 'on');
     const idle = (globalThis as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
     const go = () => {
-      void this.audio.precargar().then(() => this.audio.precalentar(this.activeTap().theme));
+      void this.audio.precargar().then(() => {
+        const tap = this.activeTap();
+        this.audio.precalentar(tap.theme);
+        if (this.sound() === 'on' && !this.run(tap).finished) { this.musica.precargar(tap); this.vigilarIntencion(); }
+      });
       void this.audio.prepararVoz().then(ok => {
         // En la portada la voz arranca apagada aunque se haya dejado encendida en /taps: solo habla si la activan aquí.
         const on = ok && !this.portada && this.readStorage(VOZ_KEY) === 'on';
