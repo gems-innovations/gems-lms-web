@@ -23,6 +23,8 @@
   --kc-red: #e8574a;
   --kc-ink: #14161f;
   --kc-max: 1160px;
+  /** Alto de la cabecera fija (48 px de marca + relleno + borde), para que el Tap llene lo que queda de pantalla. */
+  --kc-h: 75px;
 
   position: relative;
   min-height: 100vh;
@@ -36,12 +38,13 @@
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
 
+  // El Tap incrustado (gems-taps) trae su propio sistema visual: las reglas de etiqueta de la marca no lo tocan.
   *, *::before, *::after { box-sizing: border-box; }
-  a { color: var(--kc-cyan); }
-  a:hover { color: var(--kc-cyan-soft); }
-  a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--kc-gold); outline-offset: 3px; }
-  h1, h2, h3 { margin: 0; font-family: var(--kc-pixel); font-weight: 400; line-height: 1.4; }
-  p { margin: 0; }
+  a:where(:not(gems-taps *)) { color: var(--kc-cyan); }
+  a:where(:not(gems-taps *)):hover { color: var(--kc-cyan-soft); }
+  :is(a, button, summary):where(:not(gems-taps *)):focus-visible { outline: 3px solid var(--kc-gold); outline-offset: 3px; }
+  :is(h1, h2, h3):where(:not(gems-taps *)) { margin: 0; font-family: var(--kc-pixel); font-weight: 400; line-height: 1.4; }
+  p:where(:not(gems-taps *)) { margin: 0; }
 }
 
 .kc-skip {
@@ -95,8 +98,8 @@
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
 .kc-hero {
-  position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 48px; align-items: center;
-  max-width: var(--kc-max); margin: 0 auto; padding: 72px 20px 88px;
+  position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 56px; align-items: center;
+  max-width: var(--kc-max); min-height: calc(100svh - var(--kc-h)); margin: 0 auto; padding: 24px 20px;
 
   h1 { font-size: clamp(22px, 4.6vw, 44px); line-height: 1.35; margin: 18px 0 22px; text-wrap: balance; }
   .kc-hl { color: var(--kc-cyan); text-shadow: 4px 4px 0 var(--kc-cyan-deep); }
@@ -108,8 +111,19 @@
 .kc-lead { max-width: 52ch; font-size: 19px; color: var(--kc-cream); }
 .kc-hero__cta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 28px; }
 .kc-trust { margin-top: 18px; font-size: 14px; color: var(--kc-muted); }
-.kc-facts { display: flex; flex-wrap: wrap; gap: 12px 26px; margin: 26px 0 0; padding: 0; list-style: none; color: var(--kc-muted); font-size: 14px;
-  strong { display: block; font: 400 15px/1.6 var(--kc-pixel); color: var(--kc-green); } }
+// Temas a un toque, como en la portada de GEMS: cada uno abre el feed con esa categoría primero (/taps?tema=<id>).
+.kc-temas { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 0; padding: 0; list-style: none;
+  a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 14px; text-decoration: none;
+    font: 700 15px/1 var(--kc-body); color: var(--kc-cream) !important; background: var(--kc-surface); border: 2px solid var(--kc-line);
+    &::before { content: ''; width: 10px; height: 10px; background: var(--c); box-shadow: inset -3px -3px 0 rgb(0 0 0 / 0.25); }
+    &:hover { border-color: var(--c); } } }
+
+// Tap jugable (`<gems-taps modo="portada">`): en escritorio, una tarjeta 9:16 a la derecha con borde y sombra dura de bloque.
+.kc-hero__tap {
+  height: min(calc(100svh - var(--kc-h) - 48px), 800px); aspect-ratio: 9 / 16; overflow: hidden; background: #0e1116;
+  border: 3px solid var(--kc-line); box-shadow: 8px 8px 0 var(--kc-cyan-deep);
+}
+.kc-hero__mas { display: none; }
 
 .kc-pixels { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
 .kc-px {
@@ -118,7 +132,7 @@
   &--cyan { --c: var(--kc-cyan); } &--gold { --c: var(--kc-gold); } &--green { --c: var(--kc-green); }
   &--sm { width: 22px; height: 22px; animation-delay: -2s; box-shadow: inset -6px -6px 0 rgb(0 0 0 / 0.22), 4px 4px 0 #0d0f16; }
 }
-.kc-hero__copy, .kc-hero__card { position: relative; z-index: 1; }
+.kc-hero__copy, .kc-hero__tap { position: relative; z-index: 1; }
 @keyframes kc-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
 // Franja de pasto y tierra, como el banner del canal.

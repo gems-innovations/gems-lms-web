@@ -98,11 +98,27 @@
 // ── Pantallas pequeñas ────────────────────────────────────────────────────────
 @media (max-width: 900px) {
   .kc-pixels { display: none; }
-  .kc-hero { grid-template-columns: minmax(0, 1fr); gap: 40px; padding: 48px 20px 64px; }
+  // Celular: el Tap va primero, de borde a borde, y ocupa la pantalla menos una franja que invita a bajar (svh: no salta al desplazarse).
+  .kc-hero { grid-template-columns: minmax(0, 1fr); gap: 0; min-height: 0; padding: 0 20px 48px; }
+  .kc-hero__copy { padding-top: 32px; }
+  .kc-hero__tap { order: -2; width: auto; height: calc(100svh - var(--kc-h) - 44px); min-height: 520px; max-height: 940px; aspect-ratio: auto;
+    margin-inline: -20px; border: 0; box-shadow: none; }
+  .kc-hero__mas {
+    order: -1; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; margin-inline: -20px;
+    font-size: 14px; font-weight: 700; color: var(--kc-muted) !important; text-decoration: none;
+    background: var(--kc-bg-alt); border-bottom: 3px solid var(--kc-line);
+  }
   .kc-bento { grid-template-columns: minmax(0, 1fr); }
   .kc-tile--wide { grid-column: auto; }
 }
+// Tableta: el Tap deja de ir de borde a borde y se ve como un celular centrado.
+@media (min-width: 600px) and (max-width: 900px) {
+  .kc-hero__tap { width: min(440px, 100%); height: min(calc(100svh - var(--kc-h) - 72px), 820px); margin: 16px auto 0;
+    border: 3px solid var(--kc-line); box-shadow: 8px 8px 0 var(--kc-cyan-deep); }
+  .kc-hero__mas { margin: 12px auto 0; padding-inline: 16px; border: 0; }
+}
 @media (max-width: 760px) {
+  .kc { --kc-h: 71px; }
   .kc-nav { display: none; }
   .kc-header { gap: 10px; padding: 10px 14px; }
   .kc-brand__name { font-size: 10px; }

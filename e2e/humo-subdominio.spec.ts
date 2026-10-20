@@ -52,6 +52,9 @@ test.describe('Humo · subdominio de institución', () => {
     const api = await apiFalsa(page, { reglas: institucion('knowledgecraft', '#3a7d2c') });
     await page.goto(enSubdominio(baseURL, 'knowledgecraft'));
     await expect(page.locator('h1').first()).toContainText('Juega, aprende y');
+    // Como la portada de GEMS, abre con un Tap jugable (de Minecraft, su tema).
+    await expect(page.locator('gems-taps[modo="portada"][tema="minecraft"]')).toHaveCount(1);
+    await expect(page.locator('gems-taps .tap__opt').first()).toBeVisible();
     expect(api.veces(/^\/public\/home\/knowledgecraft$/, 'GET')).toBe(1);
     // La tarjeta para compartir de Taps es solo del dominio principal.
     await expect(page.locator('meta[property="og:image"]')).not.toHaveAttribute('content', /taps/);
