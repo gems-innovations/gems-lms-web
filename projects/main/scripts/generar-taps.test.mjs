@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import {
-  LIMITES, RETO, RUTAS, asignarEscena, calendarioReto, construir, emitir, generar, hashAvalancha, leerBancos, leerRetos, leerTemas, validarPregunta,
+  FONDOS_SUBTEMA, LIMITES, RETO, RUTAS, asignarEscena, calendarioReto, construir, emitir, generar, hashAvalancha, leerBancos, leerRetos, leerTemas, validarPregunta,
 } from './generar-taps.mjs';
 
 const clonar = o => structuredClone(o);
@@ -57,6 +57,7 @@ test('un banco mínimo válido genera sus Taps', () => {
   assert.equal(r.taps[0].hook, true);
   assert.equal(r.taps[0].topic, 'minecraft');
   assert.equal(r.taps[2].theme, 'estudio');
+  assert.equal(r.taps[4].theme, 'aventura');
 });
 
 test('rechaza una pregunta de más de 120 caracteres', () => {
@@ -179,7 +180,12 @@ test('la asignación de escena es determinista y variada', () => {
   assert.equal(asignarEscena('minecraft', 'nether-end', 0, 0, false).world, 'nether');
   assert.equal(asignarEscena('minecraft', 'nether-end', 0, 0, false).item, 'sword');
   assert.deepEqual(asignarEscena('logica', 'mixto', 0, 0, true), { world: 'aula', host: 'chispa', item: 'lupa', shot: 'centro', enter: 'saluda' });
-  assert.deepEqual(asignarEscena('cultura', 'cuerpo-humano', 0, 0, false).item, 'matraz');
+  const cu = asignarEscena('cultura', 'cuerpo-humano', 0, 3, false);
+  assert.equal(cu.item, undefined, 'aventura: sin objeto en la mano');
+  assert.equal(cu.host, asignarEscena('cultura', 'otro-subtema', 5, 3, false).host, 'aventura: el personaje lo da el orden');
+  assert.equal(asignarEscena('cultura', 'espacio', 0, 3, false).world, 'noche-estrellada', 'el espacio pasa de noche');
+  assert.equal(asignarEscena('cultura', 'espacio', 0, 3, false, 'x', 'noche-estrellada').world, 'piramides-noche', 'sin repetir el fondo anterior');
+  assert.deepEqual(asignarEscena('cultura', 'mixto', 0, 0, true), { world: 'cielo-nublado', host: 'zorro', shot: 'centro', enter: 'saluda' });
   assert.notEqual(asignarEscena('minecraft', 'mobs', 0, 0, false).world + asignarEscena('minecraft', 'mobs', 1, 1, false).world,
     asignarEscena('minecraft', 'mobs', 0, 0, false).world.repeat(2));
 });
@@ -189,7 +195,7 @@ test('en el banco real la escena varía: varios mundos, objetos y personajes por
   for (const theme of ['minecraft', 'estudio']) {
     const del = taps.filter(t => t.theme === theme);
     assert.ok(new Set(del.map(t => t.scene.world)).size >= 3, `${theme}: pocos mundos`);
-    assert.ok(new Set(del.map(t => t.scene.item)).size >= 3, `${theme}: pocos objetos`);
+    assert.ok(new Set(del.map(t => t.scene.item)).size >= (theme === 'minecraft' ? 3 : 2), `${theme}: pocos objetos`);
     assert.ok(new Set(del.map(t => t.scene.host)).size >= 2, `${theme}: pocos personajes`);
   }
   assert.ok(taps.filter(t => t.subtopic === 'nether-end').every(t => ['nether', 'end'].includes(t.scene.world)));
@@ -204,11 +210,23 @@ test('cada Tap publicado tiene su lugar propio y el personaje no queda siempre i
     const del = taps.filter(t => t.theme === theme);
     assert.ok(new Set(del.map(t => t.scene.shot)).size >= 5, theme + ': pocos encuadres');
     assert.ok(new Set(del.map(t => t.scene.enter)).size >= 3, theme + ': pocas entradas');
-    assert.ok(del.filter(t => t.scene.props).length >= 8, theme + ': pocos decorados');
+    assert.ok(del.filter(t => t.scene.props).length >= (theme === 'minecraft' ? 8 : 6), theme + ': pocos decorados');
     // en el orden del banco, dos Taps seguidos del mismo tema nunca repiten encuadre
     del.forEach((t, i) => i && assert.notEqual(t.scene.shot, del[i - 1].scene.shot, t.id + ' repite el encuadre del Tap anterior'));
   }
   assert.ok(new Set(taps.filter(t => t.theme === 'estudio').map(t => t.scene.world)).size >= 7, 'estudio usa sus mundos nuevos');
+  // aventura (personajes y fondos del registro): todos aparecen, y dos Taps seguidos no repiten personaje ni fondo
+  const av = taps.filter(t => t.theme === 'aventura' && !t.hook);
+  assert.ok(av.length >= 9, 'cultura usa el tema aventura');
+  assert.ok(new Set(av.map(t => t.scene.host)).size >= 9, 'aventura: aparecen todos los personajes');
+  assert.ok(new Set(av.map(t => t.scene.world)).size >= 7, 'aventura: aparecen casi todos los fondos');
+  assert.ok(av.filter(t => t.subtopic === 'espacio').every(t => FONDOS_SUBTEMA.espacio.includes(t.scene.world)), 'los Taps del espacio pasan de noche');
+  av.forEach((t, i) => {
+    if (!i) return;
+    assert.notEqual(t.scene.host, av[i - 1].scene.host, t.id + ' repite el personaje del Tap anterior');
+    assert.notEqual(t.scene.world, av[i - 1].scene.world, t.id + ' repite el fondo del Tap anterior');
+  });
+  assert.ok(av.every(t => t.scene.item === undefined && t.backdrop.length === 2));
   assert.ok(taps.every(t => typeof t.ground === 'string'), 'cada Tap trae el color de su suelo');
 });
 

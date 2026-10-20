@@ -120,7 +120,7 @@ export interface ITapsStage {
   attachTo(el: HTMLElement): void;
   destroy(): void;
   on(name: 'mode' | 'degrade' | 'visual', fn: (data: { mode?: 'light' | '3d'; reason?: string; step?: string; type?: string }) => void): () => void;
-  stats(): { mode: string; tier: string; size: { w: number; h: number }; fpsCap: number; fps: number; degraded: number };
+  stats(): { mode: string; tier: string; size: { w: number; h: number }; fpsCap: number; fps: number; degraded: number; canvas?: 'webgl' | '2d' | null };
 }
 
 /** Voz que el motor usa en `say()` (taps-engine/voz/voz.js → paraMotor()). */

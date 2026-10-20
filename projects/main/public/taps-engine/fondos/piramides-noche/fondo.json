@@ -1,0 +1,26 @@
+{
+  "id": "piramides-noche",
+  "nombre": "Pirámides de noche",
+  "tipo": "imagen",
+  "archivo": "fondo.png",
+  "cielo": [
+    "#141a3d",
+    "#2a376e"
+  ],
+  "suelo": "#3b3466",
+  "sueloOscuro": "#2a2450",
+  "horizonte": 0.66,
+  "sol": false,
+  "luz": {
+    "color": "#c9d4ff",
+    "intensidad": 0.8
+  },
+  "licencia": {
+    "nombre": "CC0 1.0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "autor": "Kenney Vleugels (www.kenney.nl)",
+    "fuente": "https://kenney.nl/assets/background-elements",
+    "original": "Background Elements · Samples/uncolored_piramids.png",
+    "cambios": "Recoloreado a paleta nocturna con estrellas, PNG con paleta."
+  }
+}

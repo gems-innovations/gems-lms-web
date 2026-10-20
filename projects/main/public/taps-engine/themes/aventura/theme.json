@@ -1,0 +1,65 @@
+{
+  "id": "aventura",
+  "name": "Aventura",
+  "version": 1,
+
+  "renderer": "renderer-gltf.js",
+  "light": "light.js",
+  "css": "theme.css",
+  "vendor": { "TapsThree": "vendor/three-gltf.js" },
+  "defaultWorld": "cielo-nublado",
+
+  "personajes": ["zorro", "cientifica", "robot", "panda", "pirata", "exploradora", "pinguino", "ninja", "hana"],
+  "fondos": ["cielo-nublado", "castillo", "atardecer", "bosque", "nevado", "desierto", "colinas-atardecer", "arboleda", "piramides-noche", "noche-estrellada"],
+
+  "font": { "family": "Rubik", "src": "../../../fonts/rubik-latin-700-normal.woff2" },
+  "palette": {
+    "accent": "#FFD166",
+    "good": "#3CCF7A",
+    "bad": "#FF6B5E",
+    "confetti": ["#FFD166", "#4DE1FF", "#FF6B9A", "#3CCF7A", "#9B8FF8"],
+    "hit": ["#FF6B5E", "#FFD166", "#FFFFFF"],
+    "poof": ["#FFFFFF", "#E6EEF7", "#C9D6E6"]
+  },
+  "particles": { "shape": "mixed" },
+
+  "characters": {},
+  "scenes": {},
+
+  "shots": {
+    "centro":          { "x": 0 },
+    "izquierda":       { "x": -0.15, "zoom": 0.92, "yaw": 0.35 },
+    "derecha":         { "x": 0.15, "zoom": 0.92, "yaw": -0.35 },
+    "cerca-izquierda": { "x": -0.1, "zoom": 1.12, "yaw": 0.2 },
+    "cerca-derecha":   { "x": 0.1, "zoom": 1.12, "yaw": -0.2 },
+    "lejos":           { "x": 0.08, "zoom": 0.78, "yaw": -0.15 }
+  },
+  "enters": ["camina", "salta", "gira", "saluda"],
+  "props": {},
+  "visuals": {
+    "module": "../estudio/visuals.js",
+    "objects": { "balanza": ["compara"], "calendario": ["febrero", "atras", "manana"], "palabra": ["contar", "ultima", "medio"], "planetas": ["cercano", "grande", "ocho"] }
+  },
+
+  "sounds": {
+    "pop":    { "tones": [["sine", 420, 840, 0.09, 0.12]] },
+    "ding":   { "tones": [["sine", 988, 988, 0.2, 0.14], ["sine", 1319, 1319, 0.22, 0.11, 0.08], ["triangle", 1976, 1976, 0.14, 0.04, 0.08]] },
+    "bonk":   { "tones": [["triangle", 300, 130, 0.2, 0.16], ["sine", 150, 75, 0.24, 0.12, 0.02]] },
+    "result": { "tones": [["triangle", 523, 523, 0.16, 0.12], ["triangle", 659, 659, 0.16, 0.12, 0.1], ["triangle", 784, 784, 0.16, 0.12, 0.2], ["sine", 1046, 1046, 0.35, 0.14, 0.3]] },
+    "aww":    { "tones": [["sine", 440, 330, 0.3, 0.12], ["sine", 330, 247, 0.4, 0.12, 0.25]] },
+    "blip":   { "tones": [["sine", 860, 860, 0.035, 0.035]] },
+    "whoosh": { "noise": [0.25, 0.18, 500, 2400] }
+  },
+
+  "reactions": {
+    "idle":      { "anim": "idle" },
+    "think":     { "anim": "think" },
+    "ask":       { "anim": "talk", "reducedAnim": "idle", "sfx": ["pop"], "duration": 1.5, "then": "think", "say": [] },
+    "celebrate": { "anim": "celebrate", "reducedAnim": "idle", "fx": ["push"], "sfx": ["ding"], "particles": "confetti", "duration": 2.2, "then": "idle", "tone": "celebrate",
+                   "say": ["¡Eso!", "¡Exacto!", "¡Bien pensado!", "¡Lo sabías!", "¡Qué crack!"] },
+    "hurt":      { "anim": "hurt", "reducedAnim": "idle", "fx": ["hurt"], "sfx": ["bonk"], "particles": "hit", "duration": 1.6, "then": "think", "tone": "hurt",
+                   "say": ["¡Uy!", "Casi…", "Esa no", "Mmm, no", "¡Era trampa!"] },
+    "win":       { "anim": "dance", "reducedAnim": "idle", "fx": ["push"], "sfx": ["result"], "particles": "confetti", "tone": "celebrate", "say": [] },
+    "lose":      { "anim": "sad", "reducedAnim": "idle", "sfx": ["aww"], "tone": "hurt", "say": [] }
+  }
+}

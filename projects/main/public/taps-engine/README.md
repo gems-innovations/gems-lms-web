@@ -15,7 +15,16 @@ public/taps-engine/
 ├─ taps/*.json               Taps de ejemplo en formato de datos (los usa la demo; ?tap=<id>)
 ├─ audio/                  efectos de sonido sintetizados por código (efectos.js, puro), reproductor Web Audio (sonido.js) y música de fondo (musica.js, pistas en /taps-musica)
 ├─ voz/                    voz de los personajes: perfiles por personaje, efectos de voz y motores (Web Speech, audios pregenerados, modelo local)
+├─ registro.js            registro de personajes y fondos: lee personajes/<id>/personaje.json y fondos/<id>/fondo.json
+├─ personajes/<id>/        un personaje = un manifiesto + su modelo (.glb, skin PNG o sprite) + miniatura · LEEME.md: cómo añadir uno
+├─ fondos/<id>/            un fondo = un manifiesto + su imagen
+├─ ATRIBUCIONES.md         licencia, autor y fuente de cada personaje y fondo importado (lo revisan las pruebas)
 └─ themes/
+   ├─ aventura/              tema 3 · 3D glTF: personajes y fondos libres del registro (Kenney, Poly Haven; CC0)
+   │  ├─ theme.json          "personajes": [ids], "fondos": [ids] + reacciones, encuadres, sonidos (tonos sintetizados)
+   │  ├─ renderer-gltf.js    renderizador genérico: carga el .glb del manifiesto, mapea reacciones a clips, fondo plano detrás
+   │  ├─ light.js            capa ligera: la miniatura PNG del personaje
+   │  └─ vendor/             three.js r186 + GLTFLoader (scripts/vendor/construir-three.mjs)
    ├─ minecraft/             tema 1 · 3D con WebGL: personajes de bloques
    │  ├─ theme.json          datos: personajes, mundos, colores, sonidos, reacciones, cámara
    │  ├─ light.js            dibuja el personaje 2D de la capa ligera
@@ -118,6 +127,11 @@ Un tema es una carpeta `themes/<id>/` con un `theme.json`. Hay dos ejemplos que 
   que el motor llama en cada reacción en modo ligero (con movimiento reducido recibe `reducedAnim`). `opciones` = `{ id, character, item, world, theme, slim }`.
 - `css`: hoja de estilos del tema (opcional), cargada una vez sin bloquear. Debe limitarse a `.te-stage[data-theme='<id>']`. *(nuevo)*
 - `characters`: `{ clave: { name, skin?, slim?, look? } }`. `skin` es opcional: un tema dibujado por código no usa imágenes (`look` es libre para el tema).
+- `personajes` / `fondos`: listas de ids del **registro** (`personajes/<id>/personaje.json`, `fondos/<id>/fondo.json`). Al cargar el tema el motor
+  los convierte en entradas de `characters` / `scenes` (rutas absolutas; no pisa las escritas a mano; un manifiesto roto se salta con un aviso).
+  Un `skin-blocky` sirve tal cual al tema minecraft; un `glb` necesita un renderizador glTF como el de `aventura`. Los fondos con imagen ponen
+  `--te-bg-img` y `--te-bg-pos` en el escenario para que la capa ligera los muestre (CSS del tema). El generador de Taps reparte personaje y
+  fondo por orden con `elegirParaTap` (sin repetir entre Taps seguidos). Guía: `personajes/LEEME.md`. *(nuevo)*
 - `defaultWorld`. `scenes`: colores CSS de la capa ligera por mundo (`sky:[arriba,abajo]`, `ground`, `groundDark`, `sun:false`); el mundo activo queda en `data-world`.
 - `palette`: colores (`accent`, `good`, `bad` y los que quieras) y listas de partículas (`confetti`, `hit`, `poof`). Los colores sueltos se exponen como `--te-*`.
 - `particles`: `{ shape: 'square' | 'round' | 'mixed' }` forma de las partículas de la capa animada (defecto `square`). *(nuevo)*
@@ -214,6 +228,8 @@ En la app: agrega el objeto a `TAPS` en `taps.data.ts` (las preguntas pueden sal
 - El servidor Node del SSR no comprime; el bundle de skinview3d (477 KB) baja a ~118 KB con gzip: conviene que el proxy (nginx/Cloudflare) comprima `.js`/`.json`.
 - Sonidos `.ogg`: Safari antiguo no los decodifica en WebAudio; el motor cae al sonido sintetizado del tema. Convertir a `.m4a`/`.mp3` los dejaría idénticos en todos los navegadores.
 - Tema `estudio`: arte y sonidos originales generados por código; fuente Rubik (OFL). Ver `themes/estudio/LICENSE.txt`.
+- Tema `aventura`: personajes y fondos CC0 (Kenney, Poly Haven; ver `ATRIBUCIONES.md`) y three.js (MIT). El bundle de three
+  (`vendor/three-gltf.js`, 633 KB, ~160 KB gzip) y cada `.glb` (65-130 KB, 20-30 KB gzip) se piden solo con el 3D de ese tema, nunca en el bundle de Angular.
 - Licencias: texturas Pixel Perfection / Minetest Game (CC BY-SA, ver `textures*/LICENSE*`), sonidos Minetest Game, skinview3d (MIT), fuente Pixelify Sans (OFL).
   «No es un producto oficial de Minecraft. No está aprobado por Mojang ni Microsoft.»
 - Música de fondo (`/taps-musica`, la reproduce `audio/musica.js`): Eleven Music, plan Creator, 2026-10-19. Ver `taps-musica/LICENCIA.md`.

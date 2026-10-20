@@ -203,6 +203,10 @@ export function create(container, opts = {}) {
       t = await r.json();
     }
     else { themeUrl = new URL(t.__url || location.href); }
+    // personajes/fondos del registro (registro.js): solo si el tema los lista; un manifiesto roto se salta
+    if (Array.isArray(t.personajes) || Array.isArray(t.fondos)) {
+      try { await (await import(new URL('registro.js', BASE).href)).expandirTema(t); } catch (e) { console.warn('[taps-engine] registro:', e?.message || e); }
+    }
     S.theme = t;
     if (t.id) root.dataset.theme = t.id;
     if (t.css) ensureThemeCss(resolveTheme(t.css));
@@ -223,6 +227,9 @@ export function create(container, opts = {}) {
     root.style.setProperty('--te-sky-top', sc.sky[0]); root.style.setProperty('--te-sky-bottom', sc.sky[1]);
     root.style.setProperty('--te-ground', sc.ground || '#4a8f2a'); root.style.setProperty('--te-ground-dark', sc.groundDark || '#6b4a2b');
     root.style.setProperty('--te-sun', sc.sun === false ? '0' : '.9'); root.dataset.world = world;
+    // fondos del registro con imagen: la capa ligera la usa vía CSS del tema (--te-bg-img, --te-bg-pos)
+    if (sc.imagen) { root.style.setProperty('--te-bg-img', `url("${sc.imagen}")`); root.style.setProperty('--te-bg-pos', sc.posicionLigera || '50% 100%'); }
+    else root.style.removeProperty('--te-bg-img');
   }
   /** Encuadre en la capa ligera: el personaje se corre de lado y cambia de tamaño (variables que lee el CSS del motor). */
   function paintShot(shot) {

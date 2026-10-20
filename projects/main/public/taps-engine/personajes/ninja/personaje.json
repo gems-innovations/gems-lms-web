@@ -1,0 +1,28 @@
+{
+  "id": "ninja",
+  "nombre": "Sombra",
+  "descripcion": "Ninja",
+  "tipo": "glb",
+  "archivo": "modelo.glb",
+  "miniatura": "miniatura.png",
+  "escala": 1,
+  "giro": 0,
+  "animaciones": {
+    "idle": "idle",
+    "pensar": "interact-left",
+    "hablar": "interact-right",
+    "acierto": "emote-yes",
+    "fallo": "emote-no",
+    "celebrar": "attack-melee-left",
+    "triste": "sit",
+    "caminar": "walk"
+  },
+  "licencia": {
+    "nombre": "CC0 1.0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "autor": "Kenney (www.kenney.nl)",
+    "fuente": "https://kenney.nl/assets/blocky-characters",
+    "original": "Blocky Characters 2.0 · Models/GLB format/character-r.glb",
+    "cambios": "Solo los clips usados; cuantizado KHR_mesh_quantization (gltf-transform 4.5.1). Miniatura renderizada del modelo."
+  }
+}

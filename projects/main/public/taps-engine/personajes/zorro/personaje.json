@@ -1,0 +1,28 @@
+{
+  "id": "zorro",
+  "nombre": "Fito",
+  "descripcion": "Zorro cúbico",
+  "tipo": "glb",
+  "archivo": "modelo.glb",
+  "miniatura": "miniatura.png",
+  "escala": 0.62,
+  "giro": 0,
+  "animaciones": {
+    "idle": "idle",
+    "pensar": "idle",
+    "hablar": "eat",
+    "acierto": "gesture-positive",
+    "fallo": "gesture-negative",
+    "celebrar": "dance",
+    "triste": "gesture-negative",
+    "caminar": "walk"
+  },
+  "licencia": {
+    "nombre": "CC0 1.0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "autor": "Kenney (www.kenney.nl)",
+    "fuente": "https://kenney.nl/assets/cube-pets",
+    "original": "Cube Pets 2.0 · Models/GLB format/animal-fox.glb",
+    "cambios": "Solo los clips usados; cuantizado KHR_mesh_quantization (gltf-transform 4.5.1). Miniatura renderizada del modelo."
+  }
+}

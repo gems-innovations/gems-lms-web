@@ -71,8 +71,10 @@ export function drawShareCard(data: IShareCardData, canvas: HTMLCanvasElement = 
 
   // Personaje
   if (data.character) {
-    x.imageSmoothingEnabled = false;
-    const h = 520, w = h / 2;
+    // 1:2 = personaje de bloques en píxeles (sin suavizar); otra proporción = miniatura ilustrada (p. ej. 4:5 del registro)
+    const ratio = data.character.width / data.character.height || 0.5, pixel = Math.abs(ratio - 0.5) < 0.01;
+    x.imageSmoothingEnabled = !pixel;
+    const h = pixel ? 520 : 440, w = h * ratio;
     x.fillStyle = 'rgba(0, 0, 0, .35)';
     x.beginPath(); x.ellipse(CARD_W / 2, 330 + h + 10, 150, 26, 0, 0, Math.PI * 2); x.fill();
     x.drawImage(data.character, CARD_W / 2 - w / 2, 330, w, h);
@@ -119,7 +121,21 @@ export function drawShareCard(data: IShareCardData, canvas: HTMLCanvasElement = 
 export async function paintThemeCharacter(themeUrl: string, host: string): Promise<HTMLCanvasElement | null> {
   try {
     const base = new URL(themeUrl, location.href);
-    const theme = await (await fetch(base.href)).json() as { light?: string; characters?: Record<string, { skin: string; slim?: boolean }> };
+    const theme = await (await fetch(base.href)).json() as {
+      light?: string; characters?: Record<string, { skin: string; slim?: boolean }>; personajes?: string[];
+    };
+    // Personaje del registro (taps-engine/personajes/<id>/personaje.json): su miniatura ya es la imagen 2D.
+    if (!theme.characters?.[host] && theme.personajes?.length) {
+      const id = theme.personajes.includes(host) ? host : theme.personajes[0];
+      const url = new URL(`../../personajes/${id}/personaje.json`, base);
+      const m = await (await fetch(url.href)).json() as { miniatura?: string };
+      if (!m.miniatura) return null;
+      const img = await loadImage(new URL(m.miniatura, url).href);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width; canvas.height = img.height;
+      canvas.getContext('2d')?.drawImage(img, 0, 0);
+      return canvas;
+    }
     const char = theme.characters?.[host] ?? Object.values(theme.characters ?? {})[0];
     if (!theme.light || !char) return null;
     const [mod, img] = await Promise.all([

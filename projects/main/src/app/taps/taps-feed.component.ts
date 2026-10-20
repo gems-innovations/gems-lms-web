@@ -272,7 +272,10 @@ export class TapsFeedComponent {
   /** Escenarios cuyo 3D aún no decidió si llega (póster visible). */
   private readonly pending3d = new Set<ITapsStage>();
   private readonly stages = new Map<string, ITapsStage>();
+  /** Último uso de cada escenario (para retirar el 3D en pausa más antiguo). */
+  private readonly stageUse = new Map<ITapsStage, number>();
   private activeIndex = -1;
+  private stageClock = 0;
   private token = 0;
   private waitKey = 0;
   private seen = new Set<string>();
@@ -320,6 +323,7 @@ export class TapsFeedComponent {
       this.revokeDownload();
       this.stages.forEach(stage => stage.destroy());
       this.stages.clear();
+      this.stageUse.clear();
       this.stage = null;
       this.gate?.dispose();
       this.audio.destruir();
@@ -1408,8 +1412,10 @@ export class TapsFeedComponent {
 
   /**
    * Un escenario por tema (videojuego), creado al primer Tap de ese tema y reutilizado en todos los siguientes: el feed
-   * alterna Minecraft (3D) y estudio (2D), y recrear el motor en cada deslizada sería lento. Solo el del Tap a la vista
-   * dibuja; el otro queda en pausa (a lo sumo hay dos).
+   * alterna Minecraft (3D), estudio (2D) y aventura (3D glTF), y recrear el motor en cada deslizada sería lento. Solo el del
+   * Tap a la vista dibuja; los demás quedan en pausa. Como mucho se mantiene UN escenario WebGL en pausa además del activo:
+   * al crear uno nuevo (o cuando su 3D resulta ser WebGL) se destruye el WebGL en pausa más antiguo, para no tener a la vez
+   * dos contextos WebGL y dos copias de three/skinview3d en memoria. Volver a ese tema lo crea de nuevo.
    */
   private async ensureStage(tap: ITap): Promise<ITapsStage | null> {
     const known = this.stages.get(tap.theme);
@@ -1422,6 +1428,8 @@ export class TapsFeedComponent {
     this.stages.set(tap.theme, stage);
     this.stage?.pause();
     this.stage = stage;
+    this.stageUse.set(stage, ++this.stageClock);
+    this.retireWebglStages(stage, 1);
     this.pending3d.add(stage);
     stage.setMuted(this.sound() !== 'on');
     stage.on('mode', data => {
@@ -1437,7 +1445,11 @@ export class TapsFeedComponent {
     stage.on('degrade', () => this.glassOff());
     stage.on('visual', () => { if (stage === this.stage) this.onVisualTouch(); });                     // el 3D va justo: el blur sobre el canvas cuesta fps
     // La promesa del 3D puede rechazar si el tema falla: siempre se atiende, o sería un error sin capturar.
-    const ready3d = stage.ready3d.then(mode => { this.pending3d.delete(stage); if (stage === this.stage) this.setStageMode(mode); }, () => undefined);
+    const ready3d = stage.ready3d.then(mode => {
+      this.pending3d.delete(stage);
+      if (stage === this.stage) this.setStageMode(mode);
+      if (mode === '3d' && stage.stats().canvas === 'webgl') this.retireWebglStages(stage, 0);   // ya hay un WebGL vivo: el otro en pausa sobra
+    }, () => undefined);
     try {
       await stage.ready;
     } catch (error) {
@@ -1458,8 +1470,23 @@ export class TapsFeedComponent {
   private switchStage(stage: ITapsStage): ITapsStage {
     if (this.stage && this.stage !== stage) this.stage.pause();
     this.stage = stage;
+    this.stageUse.set(stage, ++this.stageClock);
     this.setStageMode(stage.mode === '3d' ? '3d' : this.pending3d.has(stage) ? 'poster' : 'light');
     return stage;
+  }
+
+  /**
+   * Destruye los escenarios WebGL en pausa más antiguos hasta dejar `keep` (sin contar `current` ni el activo). Uno que aún
+   * no decidió su modo cuenta como WebGL salvo que sea 2D.
+   */
+  private retireWebglStages(current: ITapsStage, keep: number): void {
+    const paused = [...this.stages.entries()]
+      .filter(([, s]) => s !== current && s !== this.stage && s.stats().canvas !== '2d' && (s.mode === '3d' || this.pending3d.has(s)))
+      .sort((a, b) => (this.stageUse.get(a[1]) ?? 0) - (this.stageUse.get(b[1]) ?? 0));
+    for (const [theme, s] of paused.slice(0, Math.max(0, paused.length - keep))) {
+      this.stages.delete(theme); this.pending3d.delete(s); this.stageUse.delete(s);
+      try { s.destroy(); } catch { /* ya destruido */ }
+    }
   }
 
   /** Cambia el estado del escenario y avisa al LoadingGate: el esqueleto solo vive mientras no hay nada que mostrar. */

@@ -1,0 +1,25 @@
+{
+  "id": "atardecer",
+  "nombre": "Dunas al atardecer",
+  "tipo": "imagen",
+  "archivo": "fondo.jpg",
+  "cielo": [
+    "#5d7fae",
+    "#f2c48a"
+  ],
+  "suelo": "#a86e48",
+  "sueloOscuro": "#8c5a3a",
+  "horizonte": 0.66,
+  "luz": {
+    "color": "#ffd2a6",
+    "intensidad": 0.95
+  },
+  "licencia": {
+    "nombre": "CC0 1.0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "autor": "Greg Zaal y Jarod Guest (Poly Haven)",
+    "fuente": "https://polyhaven.com/a/qwantani_sunset_puresky",
+    "original": "Qwantani Sunset (Pure Sky) · Tonemapped JPG",
+    "cambios": "Franja de cielo sobre el horizonte (64° de ancho), reducida a 864×1296; colinas planas dibujadas encima (propias)."
+  }
+}

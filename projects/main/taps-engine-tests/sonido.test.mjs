@@ -119,7 +119,7 @@ test('sonido: el motor solo traduce pop y blip; el «aparece» justo después de
 
 // ───────────── voz ─────────────
 test('perfiles: cada personaje de los temas tiene voz propia y distinta', () => {
-  for (const id of ['leo', 'sofi', 'mateo', 'dani', 'chispa', 'nube']) assert.equal(perfilDe(id).id, id);
+  for (const id of ['leo', 'sofi', 'mateo', 'dani', 'chispa', 'nube', 'zorro', 'panda', 'pinguino', 'robot', 'pirata', 'ninja', 'hana', 'cientifica', 'exploradora']) assert.equal(perfilDe(id).id, id);
   assert.equal(perfilDe('Chispa').id, 'chispa');
   assert.equal(perfilDe('desconocido').id, 'narrador');
   const firmas = new Set(Object.values(PERFILES).map(p => JSON.stringify([p.semitonos, p.velocidad, p.efectos])));

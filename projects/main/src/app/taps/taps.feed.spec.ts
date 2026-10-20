@@ -129,8 +129,8 @@ describe('el feed con los Taps reales', () => {
     for (let i = 2; i < levels.length; i++) expect(levels[i] === 'dificil' && levels[i - 1] === 'dificil' && levels[i - 2] === 'dificil').withContext('posición ' + i).toBeFalse();
     expect(levels.slice(30).includes('facil')).toBeTrue();
   });
-  it('mezcla Minecraft (3D) con estudio (2D) desde los primeros 12 Taps', () => {
-    expect(new Set(feed.slice(0, 12).map(t => t.theme)).size).toBe(2);
+  it('mezcla temas visuales (Minecraft, estudio, aventura) desde los primeros 12 Taps', () => {
+    expect(new Set(feed.slice(0, 12).map(t => t.theme)).size).toBeGreaterThanOrEqual(2);
   });
   it('los ids antiguos llevan a su equivalente y un id retirado o inexistente no devuelve nada', () => {
     expect(findTap('primeros-pasos')?.hook).toBeTrue();
@@ -197,10 +197,14 @@ describe('textos de los Taps reales', () => {
     const permitido: Record<string, { hosts: string[]; items: string[] }> = {
       minecraft: { hosts: ['leo', 'sofi', 'mateo', 'dani'], items: ['sword', 'pick', 'axe', 'torch', 'diamond', 'apple', 'grass', 'tnt'] },
       estudio: { hosts: ['chispa', 'nube'], items: ['matraz', 'lupa', 'libro'] },
+      // aventura: personajes del registro (public/taps-engine/personajes), sin objeto en la mano
+      aventura: { hosts: ['zorro', 'cientifica', 'robot', 'panda', 'pirata', 'exploradora', 'pinguino', 'ninja', 'hana'], items: [] },
     };
     for (const t of TAPS) {
+      expect(permitido[t.theme]).withContext(t.id + ': tema conocido').toBeDefined();
       expect(permitido[t.theme].hosts).withContext(t.id).toContain(t.scene.host);
-      expect(permitido[t.theme].items).withContext(t.id).toContain(t.scene.item!);
+      if (permitido[t.theme].items.length) expect(permitido[t.theme].items).withContext(t.id).toContain(t.scene.item!);
+      else expect(t.scene.item).withContext(t.id).toBeUndefined();
     }
     expect(new Set(TAPS.map(t => t.scene.world)).size).toBeGreaterThanOrEqual(8);
   });

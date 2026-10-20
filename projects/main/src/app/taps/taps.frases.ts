@@ -56,6 +56,69 @@ export const FRASES: Readonly<Record<string, IFrasesPersonaje>> = {
     fallo: ['Casi...', 'Tranqui, se aprende', 'Esa tenía truco', 'Por poquito', 'Buen intento', 'Esa cuesta a todos',
       'Ahora ya la sabes', 'Uy, por poco', 'Respira, la próxima', 'Seguimos juntos'],
   },
+  // Aventura (personajes del registro, public/taps-engine/personajes): Fito, el zorro listo.
+  zorro: {
+    acierto: ['¡Qué astuto!', '¡Olfato fino!', '¡Eso es!', '¡Zorro listo!', '¡Directo!', '¡Bien olido!', '¡Exacto!', '¡Ni lo dudaste!',
+      '¡Rapidísimo!', '¡Bien visto!'],
+    fallo: ['Casi...', 'Se me escapó', 'Esa era trampa', 'Buen intento', 'Por un bigote', 'Otra pista y ya',
+      'Ahora la sabes', 'Uy, por poco', 'Esa engaña', 'A la próxima'],
+  },
+  // Lupe, la científica.
+  cientifica: {
+    acierto: ['¡Hipótesis correcta!', '¡Experimento logrado!', '¡Exacto!', '¡Bien razonado!', '¡Dato confirmado!', '¡Eso es!',
+      '¡Qué precisión!', '¡Lo comprobaste!', '¡Brillante!', '¡Correcto!'],
+    fallo: ['Casi...', 'A repetir el ensayo', 'Esa tenía truco', 'Buen intento', 'Así se aprende', 'Error útil',
+      'Ahora ya la sabes', 'Por poquito', 'Revisemos el dato', 'A la próxima'],
+  },
+  // Tuerca, el robot.
+  robot: {
+    acierto: ['¡Cálculo correcto!', '¡Bip bip, bien!', '¡Exacto!', '¡Sistema feliz!', '¡Eso es!', '¡Respuesta válida!',
+      '¡Engranaje perfecto!', '¡Directo!', '¡Procesado!', '¡Qué nivel!'],
+    fallo: ['Error 404...', 'Casi...', 'Reiniciando...', 'Buen intento', 'Esa era trampa', 'Ajustando tuercas',
+      'Por un bit', 'Ahora ya la sabes', 'Recalculando', 'A la próxima'],
+  },
+  // Bambú, el panda tranquilo.
+  panda: {
+    acierto: ['¡Muy bien!', '¡Sin prisa y bien!', '¡Eso es!', '¡Tranquilo y exacto!', '¡Correcto!', '¡Qué calma!',
+      '¡Lo sabías!', '¡Exacto!', '¡Bien pensado!', '¡Dulce victoria!'],
+    fallo: ['Casi...', 'Sin estrés', 'Esa tenía truco', 'Buen intento', 'Respira y sigue', 'Por poquito',
+      'Ahora la sabes', 'Uy, por poco', 'Con calma sale', 'A la próxima'],
+  },
+  // Parche, el pirata.
+  pirata: {
+    acierto: ['¡Tesoro encontrado!', '¡Al abordaje!', '¡Eso es!', '¡Rumbo correcto!', '¡Exacto, grumete!', '¡Bien navegado!',
+      '¡Cofre abierto!', '¡Directo!', '¡Qué puntería!', '¡Lo sabías!'],
+    fallo: ['Casi...', 'Ancla fuera de sitio', 'Esa era trampa', 'Buen intento', 'Mar picado', 'Por un pelo de barba',
+      'Ahora la sabes', 'Uy, por poco', 'Vira y sigue', 'A la próxima'],
+  },
+  // Vale, la exploradora.
+  exploradora: {
+    acierto: ['¡Descubierto!', '¡Buen hallazgo!', '¡Eso es!', '¡Mapa correcto!', '¡Exacto!', '¡Camino abierto!',
+      '¡Lo encontraste!', '¡Directo!', '¡Qué ojo!', '¡Bien explorado!'],
+    fallo: ['Casi...', 'Otro sendero', 'Esa era trampa', 'Buen intento', 'Por poquito', 'Seguimos buscando',
+      'Ahora la sabes', 'Uy, por poco', 'Esa engaña', 'A la próxima'],
+  },
+  // Pingo, el pingüino.
+  pinguino: {
+    acierto: ['¡Bien deslizado!', '¡Fresquísimo!', '¡Eso es!', '¡Exacto!', '¡Qué frío de bueno!', '¡Directo!',
+      '¡Correcto!', '¡Lo sabías!', '¡Bien pensado!', '¡Pingüinazo!'],
+    fallo: ['Casi...', 'Resbalé un poco', 'Esa era trampa', 'Buen intento', 'Por poquito', 'Hielo traicionero',
+      'Ahora la sabes', 'Uy, por poco', 'Esa engaña', 'A la próxima'],
+  },
+  // Sombra, el ninja.
+  ninja: {
+    acierto: ['¡Golpe certero!', '¡Silencioso y bien!', '¡Eso es!', '¡Exacto!', '¡Rápido como sombra!', '¡Directo!',
+      '¡Técnica perfecta!', '¡Lo sabías!', '¡Impecable!', '¡Ni se oyó!'],
+    fallo: ['Casi...', 'Me vieron', 'Esa era trampa', 'Buen intento', 'Por poquito', 'A entrenar',
+      'Ahora la sabes', 'Uy, por poco', 'Esa engaña', 'A la próxima'],
+  },
+  // Hana, amable y observadora.
+  hana: {
+    acierto: ['¡Precioso!', '¡Muy bien!', '¡Eso es!', '¡Exacto!', '¡Qué buena mente!', '¡Lo tenías!',
+      '¡Bien observado!', '¡Correcto!', '¡Elegante!', '¡Brillante!'],
+    fallo: ['Casi...', 'Tranqui, se aprende', 'Esa tenía truco', 'Buen intento', 'Por poquito', 'Paso a paso',
+      'Ahora la sabes', 'Uy, por poco', 'Esa engaña', 'A la próxima'],
+  },
 };
 
 /** Para un personaje que aún no tenga frases propias (un tema nuevo): el banco general. */
@@ -70,6 +133,7 @@ export const FRASES_GENERALES: IFrasesPersonaje = {
 export const FRASES_RACHA: Readonly<Record<string, { tres: readonly string[]; cinco: readonly string[] }>> = {
   minecraft: { tres: ['¡Racha de bloques!', '¡En llamas!', '¡Imparable!', '¡Qué racha!'], cinco: ['¡Perfecto total!', '¡Leyenda!', '¡Cinco de cinco!'] },
   estudio: { tres: ['¡En racha!', '¡Mente encendida!', '¡Qué ritmo!', '¡No paras!'], cinco: ['¡Perfecto!', '¡Cinco de cinco!', '¡Sin un error!'] },
+  aventura: { tres: ['¡En racha!', '¡Aventura total!', '¡Qué ritmo!', '¡No paras!'], cinco: ['¡Perfecto!', '¡Cinco de cinco!', '¡Expedición perfecta!'] },
 };
 const RACHA_GENERAL = { tres: ['¡En racha!', '¡Qué racha!', '¡No paras!'], cinco: ['¡Perfecto!', '¡Cinco de cinco!'] };
 

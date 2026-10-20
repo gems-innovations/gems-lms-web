@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Miniatura de personaje · Taps Engine</title>
+<style>
+  body { margin: 0; padding: 16px; background: #3a4352; color: #fff; font: 15px system-ui, sans-serif; }
+  canvas { display: block; background: repeating-conic-gradient(#556 0 25%, #667 0 50%) 0 0 / 20px 20px; }
+  a { color: #ffd166; }
+</style>
+</head>
+<body>
+<!-- Herramienta de desarrollo: render de la miniatura (capa ligera y tarjeta de compartir) de un personaje glb del
+     registro: pose idle, 3/4, fondo transparente, 320×400. Uso: personajes/miniatura.html?id=<id> → «Descargar PNG» y
+     guardarla como personajes/<id>/miniatura.png. -->
+<canvas id="c" width="320" height="400"></canvas>
+<p id="msg">Cargando…</p>
+<script src="../themes/aventura/vendor/three-gltf.js"></script>
+<script type="module">
+const T = globalThis.TapsThree, id = new URLSearchParams(location.search).get('id') || 'zorro', msg = document.getElementById('msg');
+try {
+  const base = new URL(`${encodeURIComponent(id)}/`, location.href);
+  const m = await (await fetch(new URL('personaje.json', base))).json();
+  const gl = new T.WebGLRenderer({ canvas: document.getElementById('c'), alpha: true, antialias: true, preserveDrawingBuffer: true });
+  gl.setPixelRatio(1); gl.setSize(320, 400, false); gl.setClearColor(0, 0);
+  const sc = new T.Scene(), sun = new T.DirectionalLight(0xffffff, 1.9); sun.position.set(2.5, 4, 3); sc.add(new T.HemisphereLight(0xffffff, 0x8a7a66, 1.6), sun);
+  const { sinFetchDeBlobs } = await import('../themes/aventura/renderer-gltf.js');
+  const L = sinFetchDeBlobs(new T.GLTFLoader(), T);
+  const g = await L.loadAsync(new URL(m.archivo, base).href), model = g.scene;
+  model.traverse(o => { if (o.isMesh && o.material) { o.material.metalness = 0; o.material.roughness = 1; } });
+  const mix = new T.AnimationMixer(model), idle = g.animations.find(a => a.name === m.animaciones?.idle);
+  if (idle) { mix.clipAction(idle).play(); mix.update(0.2); }
+  const b = new T.Box3().setFromObject(model, true), s = b.getSize(new T.Vector3()), c = b.getCenter(new T.Vector3());
+  const wrap = new T.Group(); model.position.set(-c.x, -b.min.y, -c.z); wrap.add(model); wrap.scale.setScalar(1 / s.y); wrap.rotation.y = 0.35 + (m.giro || 0); sc.add(wrap);
+  const cam = new T.PerspectiveCamera(30, 320 / 400, 0.01, 50); cam.position.set(0, 0.62, 2.75); cam.lookAt(0, 0.5, 0);
+  gl.render(sc, cam);
+  const a = Object.assign(document.createElement('a'), { href: gl.domElement.toDataURL('image/png'), download: 'miniatura.png', textContent: 'Descargar PNG' });
+  msg.replaceChildren(`${m.nombre} (${id}): `, a, ' → guárdala como personajes/', id, '/miniatura.png');
+  document.title = 'listo';
+} catch (e) { msg.textContent = 'No se pudo: ' + (e?.message || e); }
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "id": "bosque",
+  "nombre": "Bosque de pinos",
+  "tipo": "imagen",
+  "archivo": "fondo.png",
+  "cielo": [
+    "#d5edf7",
+    "#e6f4fa"
+  ],
+  "suelo": "#a89a90",
+  "sueloOscuro": "#8a7c72",
+  "horizonte": 0.66,
+  "licencia": {
+    "nombre": "CC0 1.0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "autor": "Kenney Vleugels (www.kenney.nl)",
+    "fuente": "https://kenney.nl/assets/background-elements",
+    "original": "Background Elements · Samples/colored_forest.png",
+    "cambios": "Recorte 1024×1024, PNG con paleta."
+  }
+}

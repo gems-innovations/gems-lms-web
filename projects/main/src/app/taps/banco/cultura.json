@@ -169,12 +169,12 @@
         "line": "Ya explicas cosas que pasan en tu cocina.",
         "lineas": [
           "Vas entendiendo cómo funciona el mundo.",
-          "Unos datos más y montas tu laboratorio."
+          "Unos datos más y armas tu propia expedición."
         ]
       },
       {
         "min": 4,
-        "title": "Mente de laboratorio",
+        "title": "Mente exploradora",
         "line": "Ves la ciencia en todas partes.",
         "lineas": [
           "A un experimento de la perfección.",
@@ -186,7 +186,7 @@
         "title": "Genio de la ciencia",
         "line": "Cinco de cinco: la ciencia te sale natural.",
         "lineas": [
-          "Perfecto. Tu laboratorio no tiene fallos.",
+          "Perfecto. Tu expedición no tuvo ni un tropiezo.",
           "Cero errores con la ciencia."
         ]
       }

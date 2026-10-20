@@ -26,6 +26,25 @@ export const PERFILES = Object.freeze({
             efectos: [{ tipo: 'robot', frecuencia: 55, mezcla: 0.55 }, { tipo: 'bits', niveles: 32, retener: 1, mezcla: 0.2 }] },
   nube:   { id: 'nube', nombre: 'Nube', genero: 'f', semitonos: -1, velocidad: 0.92, descripcion: 'Robot sereno: grave, pausado y con eco de nube.',
             efectos: [{ tipo: 'robot', frecuencia: 30, mezcla: 0.25 }, { tipo: 'eco', retardo: 0.14, realimentacion: 0.35, mezcla: 0.32 }] },
+  // Aventura (personajes del registro, taps-engine/personajes): animales y robot con efecto; humanos casi limpios.
+  zorro:       { id: 'zorro', nombre: 'Fito', genero: 'm', semitonos: 6, velocidad: 1.14, descripcion: 'Zorro listo: agudo, rápido y con un chasquido de dibujo animado.',
+                 efectos: [{ tipo: 'bits', niveles: 40, retener: 1, mezcla: 0.22 }] },
+  panda:       { id: 'panda', nombre: 'Bambú', genero: 'm', semitonos: -3, velocidad: 0.88, descripcion: 'Panda tranquilo: grave, lento y con eco de bosque.',
+                 efectos: [{ tipo: 'eco', retardo: 0.18, realimentacion: 0.3, mezcla: 0.28 }] },
+  pinguino:    { id: 'pinguino', nombre: 'Pingo', genero: 'm', semitonos: 7, velocidad: 1.1, descripcion: 'Pingüino: muy agudo, con un temblor de frío.',
+                 efectos: [{ tipo: 'robot', frecuencia: 12, mezcla: 0.3 }] },
+  robot:       { id: 'robot', nombre: 'Tuerca', genero: 'm', semitonos: 1, velocidad: 0.96, descripcion: 'Robot de bloques: metálico y cuadrado.',
+                 efectos: [{ tipo: 'robot', frecuencia: 80, mezcla: 0.6 }, { tipo: 'bits', niveles: 24, retener: 2, mezcla: 0.25 }] },
+  pirata:      { id: 'pirata', nombre: 'Parche', genero: 'm', semitonos: -2, velocidad: 0.95, descripcion: 'Pirata: grave, con un poco de eco de barco.',
+                 efectos: [{ tipo: 'eco', retardo: 0.09, realimentacion: 0.2, mezcla: 0.2 }] },
+  ninja:       { id: 'ninja', nombre: 'Sombra', genero: 'm', semitonos: -1, velocidad: 1.04, descripcion: 'Ninja: voz baja y seca, casi sin eco.',
+                 efectos: [{ tipo: 'eco', retardo: 0.03, realimentacion: 0.05, mezcla: 0.1 }] },
+  hana:        { id: 'hana', nombre: 'Hana', genero: 'f', semitonos: 3, velocidad: 0.97, descripcion: 'Hana: amable y pausada, con un eco suave.',
+                 efectos: [{ tipo: 'eco', retardo: 0.05, realimentacion: 0.12, mezcla: 0.14 }] },
+  cientifica:  { id: 'cientifica', nombre: 'Lupe', genero: 'f', semitonos: 1, velocidad: 1.0, descripcion: 'Científica: clara y precisa, con un poco de sala de laboratorio.',
+                 efectos: [{ tipo: 'eco', retardo: 0.07, realimentacion: 0.18, mezcla: 0.16 }] },
+  exploradora: { id: 'exploradora', nombre: 'Vale', genero: 'f', semitonos: 2, velocidad: 1.1, descripcion: 'Exploradora: enérgica y rápida, con eco de montaña.',
+                 efectos: [{ tipo: 'eco', retardo: 0.22, realimentacion: 0.22, mezcla: 0.2 }] },
 });
 
 /** Perfil de un personaje (id del tema, sin importar mayúsculas). Sin perfil propio: el narrador. Acepta un perfil ya armado. */

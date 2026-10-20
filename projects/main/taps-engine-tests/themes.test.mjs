@@ -8,6 +8,9 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 const ENGINE = new URL('../public/taps-engine/', import.meta.url);
 const { resolveSound, SYNTH_NAMES } = await import(new URL('taps-engine.js', ENGINE).href);
 const readJson = url => JSON.parse(readFileSync(url, 'utf8'));
+const { expandirTema } = await import(new URL('registro.js', ENGINE).href);
+/** theme.json con sus personajes y fondos del registro ya expandidos (lo mismo que hace el motor al cargarlo). */
+const readTheme = async url => (await expandirTema(readJson(url), { leer: async u => readJson(u) })).theme;
 const themeUrl = id => new URL(`themes/${id}/theme.json`, ENGINE);
 const THEMES = readdirSync(new URL('themes/', ENGINE)).filter(id => existsSync(themeUrl(id)));
 const BASE_REACTIONS = ['idle', 'think', 'ask', 'celebrate', 'hurt', 'win', 'lose'];
@@ -29,8 +32,8 @@ function fakeCanvas(w = 540, h = 960) {
 globalThis.OffscreenCanvas ??= class { constructor(w, h) { return fakeCanvas(w, h); } };
 
 for (const id of THEMES) {
-  test(`tema «${id}»: theme.json cumple el contrato`, () => {
-    const t = readJson(themeUrl(id));
+  test(`tema «${id}»: theme.json cumple el contrato`, async () => {
+    const t = await readTheme(themeUrl(id));
     assert.equal(t.id, id, 'el id coincide con la carpeta');
     assert.ok(Object.keys(t.characters || {}).length > 0, 'tiene personajes');
     assert.ok(t.scenes?.[t.defaultWorld], 'defaultWorld es una escena');
@@ -104,10 +107,10 @@ test('tema «estudio»: la capa ligera dibuja el personaje y cambia de pose', as
   assert.ok(canvas.calls.fill > before);
 });
 
-test('Taps de ejemplo: formato válido y escenas que existen en su tema', () => {
+test('Taps de ejemplo: formato válido y escenas que existen en su tema', async () => {
   const dir = new URL('taps/', ENGINE);
   for (const f of readdirSync(dir).filter(x => x.endsWith('.json'))) {
-    const tap = readJson(new URL(f, dir)), theme = readJson(themeUrl(tap.theme));
+    const tap = readJson(new URL(f, dir)), theme = await readTheme(themeUrl(tap.theme));
     assert.equal(`${tap.id}.json`, f, 'el archivo se llama como el id (la demo lo abre con ?tap=<id>)');
     assert.ok(theme.scenes[tap.scene.world], `${f}: mundo ${tap.scene.world}`);
     assert.ok(theme.characters[tap.scene.host], `${f}: personaje ${tap.scene.host}`);
