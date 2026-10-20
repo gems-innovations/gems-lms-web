@@ -14,7 +14,7 @@
   <gems-tap-sesion-hoja [resumen]="resumen()" [temas]="avancesLista()" [reto]="retoVista()" [colecciones]="avancesCol()" [foco]="hojaFoco()"
                         (cerrar)="closeDay()" (jugarReto)="goToReto('dia')" (compartirReto)="shareReto()" />
 }
-<!-- Pausa sana: tras 20 Taps o 30 min, una sola vez por sesión y nunca en la portada. «Seguir jugando» cierra en un toque. -->
+<!-- Pausa sana: tras 30 min de juego activo, una sola vez por sesión y nunca en la portada. «Seguir jugando» cierra en un toque. -->
 @if (pausaAbierta()) { <gems-tap-pausa [resumen]="pausaTexto()" (descanso)="onPausaDescanso()" (cerrar)="closePausa($event)" /> }
 <gems-taps-bar [sound]="sound()" [voice]="voice()" [topic]="topic()" [topicName]="topicName()" [topics]="topics" [desktop]="wide()" [insignias]="insigniasTema()"
                (toggleSound)="toggleSound()" (toggleVoice)="toggleVoice()" (topicChange)="selectTopic($event)" (sheetChange)="onSheet($event)"

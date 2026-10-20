@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, Injector, afterNextRender, inject, input, output, signal, viewChild } from '@angular/core';
 
 /**
- * Pausa sana (auditoria-permanencia.md, mejora 11; competencia-y-recompensas.md §6.3). Tras 20 Taps o 30 minutos, una hoja
+ * Pausa sana (auditoria-permanencia.md, mejora 11; competencia-y-recompensas.md §6.3). Tras 30 minutos de juego activo, una hoja
  * inferior amable sugiere un descanso con un resumen de lo logrado. Sin culpa, sin cuenta atrás y sin bloquear: «Seguir
  * jugando» y «Tomar un descanso» pesan lo mismo, y seguir cierra en un toque (también Esc o tocar fuera). El foco empieza en
  * el título. Sale una sola vez por sesión (tiempo activo, taps.sesion.ts) y nunca en la portada.

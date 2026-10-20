@@ -178,8 +178,10 @@ export function storeRun(saved: Record<string, TPartidaGuardada>, run: ITapRun, 
 }
 
 // ───────────── pausa sana (mejora 11, competencia-y-recompensas.md §6.3) ─────────────
-/** Tras 20 Taps seguidos o 30 minutos de juego activo el personaje sugiere un descanso (una sola vez por sesión). */
-export const PAUSA_TAPS = 20;
+/**
+ * Tras 30 minutos de juego activo el personaje sugiere un descanso (una sola vez por sesión), a todos: no sabemos la edad.
+ * Solo por tiempo: un Tap dura ~20 s, así que contar Taps (antes 20) la sacaba a los ~7 min, cuando apenas engancha.
+ */
 export const PAUSA_MS = 30 * 60 * 1000;
 /** 30 minutos o más sin actividad (o un día nuevo) cierran la sesión: el contador, el tiempo y la sugerencia vuelven a cero. */
 export const PAUSA_INACTIVA_MS = 30 * 60 * 1000;
@@ -235,7 +237,7 @@ export function registrarActividad(p: IPausaSesion, now: number, tap = false): I
 
 /** ¿Toca sugerir el descanso? Solo en un momento natural (al terminar un Tap o al pasar al siguiente), una vez por sesión. */
 export function shouldSuggestPause(p: IPausaSesion): boolean {
-  return !p.sugerida && (p.taps >= PAUSA_TAPS || p.activoMs >= PAUSA_MS);
+  return !p.sugerida && p.activoMs >= PAUSA_MS;
 }
 
 /** Resumen amable de lo logrado («Hoy: 20 Taps. Llevas 3 insignias y una racha de 4 días»), sin cifras de tiempo. */

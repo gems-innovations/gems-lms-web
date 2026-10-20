@@ -536,7 +536,7 @@ export class TapsFeedComponent {
   }
 
   /**
-   * En un momento natural (al terminar un Tap o al pasar a otro), tras 20 Taps o 30 min: el personaje sugiere un descanso.
+   * En un momento natural (al terminar un Tap o al pasar a otro), tras 30 min de juego activo: el personaje sugiere un descanso.
    * Una vez por sesión de la pestaña; nunca en la portada. Llega un instante después para no tapar el título recién ganado.
    */
   private checkPause(): void {
