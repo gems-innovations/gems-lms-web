@@ -13,7 +13,7 @@ public/taps-engine/
 ├─ taps-engine.css           estilos de la capa ligera y del globo de diálogo (usan variables --te-* del tema)
 ├─ demo.html                 demo estática: un quiz de 50 líneas manejando el motor  (…/taps-engine/demo.html?tap=redstone&debug)
 ├─ taps/*.json               Taps de ejemplo en formato de datos (los usa la demo; ?tap=<id>)
-├─ audio/                  efectos de sonido sintetizados por código (efectos.js, puro) y reproductor Web Audio (sonido.js)
+├─ audio/                  efectos de sonido sintetizados por código (efectos.js, puro), reproductor Web Audio (sonido.js) y música de fondo (musica.js, pistas en /taps-musica)
 ├─ voz/                    voz de los personajes: perfiles por personaje, efectos de voz y motores (Web Speech, audios pregenerados, modelo local)
 └─ themes/
    ├─ minecraft/             tema 1 · 3D con WebGL: personajes de bloques
@@ -216,3 +216,4 @@ En la app: agrega el objeto a `TAPS` en `taps.data.ts` (las preguntas pueden sal
 - Tema `estudio`: arte y sonidos originales generados por código; fuente Rubik (OFL). Ver `themes/estudio/LICENSE.txt`.
 - Licencias: texturas Pixel Perfection / Minetest Game (CC BY-SA, ver `textures*/LICENSE*`), sonidos Minetest Game, skinview3d (MIT), fuente Pixelify Sans (OFL).
   «No es un producto oficial de Minecraft. No está aprobado por Mojang ni Microsoft.»
+- Música de fondo (`/taps-musica`, la reproduce `audio/musica.js`): Eleven Music, plan Creator, 2026-10-19. Ver `taps-musica/LICENCIA.md`.

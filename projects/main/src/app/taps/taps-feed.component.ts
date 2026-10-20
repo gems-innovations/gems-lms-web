@@ -29,6 +29,7 @@ import { keyAction, typingTarget } from './taps.keys';
 import { panelCards, panelState } from './taps.panel';
 import { WheelGate } from './taps.wheel';
 import { TapsSonidoService } from './taps-sonido.service';
+import { TapsMusicaService } from './taps-musica.service';
 import { ITap, ITapRun, ITapVisual, ITapsStage } from './taps.types';
 import { visualSide } from './taps.escena';
 import { fraseActual } from './taps.frases';
@@ -78,7 +79,7 @@ interface IPreAnswer { id: string; k: number; t: number }
   templateUrl: './taps-feed.component.html',
   styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.escritorio.scss', './taps-feed.escena.scss', './taps-feed.portada.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [TapsSonidoService],
+  providers: [TapsSonidoService, TapsMusicaService],
 })
 export class TapsFeedComponent {
   private readonly platform = inject(PLATFORM_ID);
@@ -95,6 +96,8 @@ export class TapsFeedComponent {
   private readonly isBrowser = isPlatformBrowser(this.platform);
   /** Efectos (sintetizados por código) y voz de los personajes: taps-engine/audio y taps-engine/voz, cargados bajo demanda. */
   private readonly audio = inject(TapsSonidoService);
+  /** Música de fondo (taps-engine/audio/musica.js + public/taps-musica): apagada por defecto, se enciende en «Tu día» o el menú. */
+  protected readonly musica = inject(TapsMusicaService);
 
   private readonly snapshot = inject(ActivatedRoute).snapshot;
   private readonly query = this.snapshot.queryParamMap;
@@ -333,6 +336,7 @@ export class TapsFeedComponent {
       this.live.set(true);
       this.sound.set(this.readStorage(SOUND_KEY) === 'off' ? 'off' : this.readStorage(SOUND_KEY) === 'on' ? 'on' : 'pending');
       this.startAudio();
+      this.musica.iniciar(this.portada);
       this.interest.set(parseInterest(this.readStorage(INTEREST_KEY), Date.now()));
       this.sesion = parseSesion(this.readStorage(SESION_KEY));
       this.loadColecciones();
@@ -557,6 +561,7 @@ export class TapsFeedComponent {
       this.sheetOpen.set(true);
       this.clock.pause();
       this.audio.callar();
+      this.musica.pausar('pausa-sana');
       this.stage?.say('¿Un descanso?', { ms: 3500, voz: false });
       this.track(null, 'taps/pausa/sugerida');
     };
@@ -569,6 +574,7 @@ export class TapsFeedComponent {
     if (!this.pausaAbierta()) return;
     this.pausaAbierta.set(false);
     this.sheetOpen.set(false);
+    this.musica.reanudar('pausa-sana');
     if (!descanso) this.track(null, 'taps/pausa/seguir');
     if (!this.held && !this.document.hidden) this.clock.resume();
   }
@@ -719,6 +725,7 @@ export class TapsFeedComponent {
     this.tapStart.set(tap.id, Date.now());
     this.questionShownAt = performance.now();
     this.audio.tocar('toque', { tema: tap.theme });
+    this.musica.alTap(tap);                                        // la canción del resultado no sigue sobre la pregunta
     this.stage?.say('');
     this.stage?.react('ask');
     this.readQuestion(tap);
@@ -752,6 +759,7 @@ export class TapsFeedComponent {
     if (run === this.run(tap)) return;
     this.setRun(tap, run);
     if (run.finished) {
+      const rachaAntes = this.resumen().racha;
       this.track('taps-completar', `taps/completar/${eventSlug(tap.id)}`);
       this.completedThisSession++;
       this.updateInterest(i => markCompleted(i, tap, Date.now()));
@@ -764,7 +772,7 @@ export class TapsFeedComponent {
       this.checkPause();
       this.reorderTail();
       if ([1, 2, 3, 4, 6, 10].includes(this.completedThisSession)) this.track(null, `taps/hito/${this.completedThisSession}`);
-      this.onFinished(tap, run);
+      this.onFinished(tap, run, rachaAntes);
       this.focusLater(tap, '.res__title');
     } else {
       this.questionShownAt = performance.now();
@@ -775,10 +783,12 @@ export class TapsFeedComponent {
     }
   }
 
-  private onFinished(tap: ITap, run: ITapRun): void {
+  private onFinished(tap: ITap, run: ITapRun, rachaAntes = this.resumen().racha): void {
     if (tap.id === this.activeId()) {
       this.celebrateResult(tap, run);
       this.audio.tocar('resultado', { tema: tap.theme, puntaje: run.score / tap.questions.length });
+      // Canción con letra solo aquí (5/5 o racha nueva), nunca sobre una pregunta; si no, la instrumental de premios.
+      this.musica.alResultado({ perfecto: run.score === tap.questions.length, racha: this.resumen().racha > rachaAntes });
     }
     this.writeHookCookie();
     this.sendToRanking(tap, run);
@@ -873,8 +883,11 @@ export class TapsFeedComponent {
 
   private readonly onVisibility = () => {
     if (this.document.hidden) { this.clock.pause(); this.audio.pausar(); this.actividad(); }
-    else if (!this.portada && this.live()) { this.pausa = reanudarPausa(this.pausa, Date.now()); this.savePausa(); }   // lo oculto no cuenta
-    else { this.audio.reanudar(); if (!this.held && !this.sheetOpen()) this.clock.resume(); }
+    else {
+      if (!this.portada && this.live()) { this.pausa = reanudarPausa(this.pausa, Date.now()); this.savePausa(); }   // lo oculto no cuenta
+      this.audio.reanudar();
+      if (!this.held && !this.sheetOpen()) this.clock.resume();
+    }
     if (this.document.hidden && !this.sharing) this.countSession();
     if (!this.document.hidden) { this.ahora.set(Date.now()); this.refreshReto(); }
   };
@@ -947,6 +960,22 @@ export class TapsFeedComponent {
     if (on) this.audio.desbloquear();
     this.audio.silenciar(!on);
     if (on) this.audio.tocar('toque', { tema: this.activeTap().theme });
+  }
+
+  /**
+   * «Música de fondo» (hoja «Tu día» en el celular, menú en escritorio): apagada por defecto y se recuerda. Encenderla también
+   * enciende el sonido (la música suena solo con el sonido activo). Dentro del gesto: desbloquea el audio en ese toque.
+   */
+  protected toggleMusica(): void {
+    const on = this.musica.alternar();
+    if (on && this.sound() !== 'on') this.toggleSound();
+    if (on) this.musicaDe(this.activeTap());
+    this.track(null, on ? 'taps/musica/on' : 'taps/musica/off');
+  }
+
+  /** La pista del Tap a la vista: la de su mundo o, si ya se terminó (se volvió a su resultado), la instrumental de premios. */
+  private musicaDe(tap: ITap): void {
+    if (this.run(tap).finished) this.musica.alResultado({ perfecto: false, racha: false }); else this.musica.alTap(tap);
   }
 
   /** «Voz»: el personaje lee la pregunta en voz alta. Encenderla también enciende el sonido (sin sonido no hay voz). */
@@ -1310,6 +1339,7 @@ export class TapsFeedComponent {
     this.ahora.set(Date.now());
     this.refreshReto();                                               // pasada la medianoche de Colombia, el reto cambia
     if (previous >= 0) { this.audio.callar(); this.audio.tocar('deslizar', { tema: tap.theme }); }
+    this.musicaDe(tap);
     if (this.run(tap).answers.length === 0 && !this.tapStart.has(tap.id)) this.tapStart.set(tap.id, Date.now());
     if (this.notice()?.tapId !== tap.id) this.notice.set(null);
     this.syncUrl(tap, previous);
@@ -1472,6 +1502,7 @@ export class TapsFeedComponent {
       const run = () => {
         if (target) void target.preload(upcoming.scene).catch(() => undefined);
         else this.prefetchTheme(upcoming.theme);
+        if (offset === 1) this.musica.anticipar(upcoming);          // solo con la música encendida; sin decodificar
       };
       if (idle) idle(run, { timeout: 4000 }); else setTimeout(run, 2500);
     }
