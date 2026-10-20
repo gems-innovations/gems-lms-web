@@ -24,7 +24,7 @@ export const serverRoutes: ServerRoute[] = [
   // jugar queda horneado. No es una redirección: nginx la sirve como cualquier página (try_files $uri/index.html).
   { path: 'hoy',            renderMode: RenderMode.Prerender },
   // Un Tap compartido (/t/mc-nether-1): su propia tarjeta (título, descripción con la primera pregunta, imagen) y ese Tap
-  // primero. Se prerenderizan los 53 del banco (~81 KB c/u: el feed solo pinta el Tap pedido y el siguiente, no los 53).
+  // primero. Se prerenderizan todos los del banco (98; ~81 KB c/u: el feed solo pinta el Tap pedido y el siguiente, no todos).
   // Un id que no se prerenderizó (un Tap nuevo) recibe la shell y se pinta en el navegador.
   {
     path: 't/:id',

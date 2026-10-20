@@ -32,10 +32,10 @@ function bancoMinimo(prefijo, subtema = 'mixto') {
 const bancosMinimos = () => ({ minecraft: bancoMinimo('mc'), logica: bancoMinimo('lg'), cultura: bancoMinimo('cu') });
 const correr = bancos => generar(bancos, retos, temas);
 
-test('el banco real genera 53 Taps de 5 preguntas sin errores', () => {
+test('el banco real genera 98 Taps de 5 preguntas sin errores', () => {
   const r = construir();
   assert.deepEqual(r.errores, []);
-  assert.equal(r.taps.length, 53);
+  assert.equal(r.taps.length, 98);
   assert.ok(r.taps.every(t => t.questions.length === LIMITES.preguntasPorTap));
 });
 
@@ -305,8 +305,16 @@ test('calendario del reto: rota temas, sin Taps de gancho, todos los del tema an
     ultimo.set(t.topic, t.subtopic ?? 'mixto');
     vistos.set(t.topic, [...(vistos.get(t.topic) ?? []), id]);
   });
+  // Todos los Taps del tema (sin gancho) salen al menos una vez en el calendario.
   for (const [tema, lista] of vistos) {
-    const n = taps.filter(t => t.topic === tema && !t.hook).length;
+    const delTema = taps.filter(t => t.topic === tema && !t.hook).map(t => t.id);
+    assert.deepEqual(delTema.filter(id => !lista.includes(id)), [], `${tema}: Taps que no entran al reto`);
+  }
+  // Recién armado (sin días fijos), recorre todos los del tema antes de repetir. En el calendario real los días ya fijados
+  // no se reordenan: los Taps agregados después entran en los días que se suman al final.
+  const nuevo = calendarioReto(taps, null);
+  for (const tema of new Set(taps.map(t => t.topic))) {
+    const lista = nuevo.dias.filter(id => porId.get(id).topic === tema), n = taps.filter(t => t.topic === tema && !t.hook).length;
     assert.equal(new Set(lista.slice(0, n)).size, n, tema);
   }
 });

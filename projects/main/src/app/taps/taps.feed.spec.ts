@@ -97,11 +97,11 @@ describe('mixFeed (feed «Para ti»)', () => {
 
 describe('el feed con los Taps reales', () => {
   const feed = orderFeed(TAPS, {});
-  it('hay 53 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
-    expect(TAPS.length).toBe(53);
+  it('hay 98 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
+    expect(TAPS.length).toBe(98);
     expect(new Set(TAPS.map(t => t.id)).size).toBe(TAPS.length);
     const questionIds = TAPS.flatMap(t => t.questions.map(q => q.id));
-    expect(questionIds.length).toBe(53 * 5);
+    expect(questionIds.length).toBe(98 * 5);
     expect(new Set(questionIds).size).toBe(questionIds.length);
   });
   it('el feed los trae todos, con un gancho primero y nunca más de 2 seguidos del mismo tema', () => {
@@ -163,7 +163,7 @@ describe('feedTopics', () => {
   });
   it('con los Taps reales los tres temas son jugables, con sus conteos, y ninguno dice «pronto»', () => {
     const real = feedTopics(TAPS, TAP_TOPICS);
-    expect(real.map(t => [t.topic.id, t.count, t.soon])).toEqual([['minecraft', 23, false], ['logica', 14, false], ['cultura', 16, false]]);
+    expect(real.map(t => [t.topic.id, t.count, t.soon])).toEqual([['minecraft', 41, false], ['logica', 28, false], ['cultura', 29, false]]);
   });
 });
 

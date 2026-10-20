@@ -27,10 +27,13 @@ export interface IColeccion {
 /** Nombres visibles de cada subtema (los que no estén aquí se muestran con su id en mayúscula inicial). */
 export const SUBTEMA_NOMBRES: Record<string, string> = {
   'minecraft-mixto': 'Mezcla de bloques', 'minecraft-crafteos': 'Crafteos', 'minecraft-mobs': 'Mobs', 'minecraft-nether-end': 'Nether y End',
-  'minecraft-redstone': 'Redstone', 'minecraft-supervivencia': 'Supervivencia',
+  'minecraft-redstone': 'Redstone', 'minecraft-supervivencia': 'Supervivencia', 'minecraft-curiosidades': 'Curiosidades',
+  'minecraft-biomas': 'Biomas y estructuras', 'minecraft-aldeas': 'Aldeas',
   'logica-mixto': 'Trampas de lectura', 'logica-adivinanzas': 'Adivinanzas', 'logica-silogismos': 'Silogismos', 'logica-series': 'Series',
+  'logica-lee-bien': 'Lee bien', 'logica-lateral': 'Piensa de lado', 'logica-azar-y-numeros': 'Azar y números', 'logica-codigo': 'Piensa como computador',
   'cultura-mixto': 'Rarezas y mitos', 'cultura-cuerpo-humano': 'Cuerpo humano', 'cultura-espacio': 'Espacio', 'cultura-animales': 'Animales',
   'cultura-ciencia-cotidiana': 'Ciencia cotidiana', 'cultura-geografia': 'Geografía',
+  'cultura-datos-sorprendentes': 'Datos sorprendentes', 'cultura-dinosaurios': 'Dinosaurios', 'cultura-plantas': 'Plantas',
 };
 
 const MIXTO = 'mixto';

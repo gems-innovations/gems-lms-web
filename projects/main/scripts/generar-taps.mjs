@@ -48,7 +48,8 @@ export const RUTAS = {
 
 /**
  * Reto del día (auditoria-permanencia.md, mejora 4): calendario fijo, generado aquí y guardado en git.
- * - `inicio` es el reto #1 (un lunes); `dias` es cuántos días cubre. El tema de cada día rota por `rotacion` (lunes primero).
+ * - `inicio` es el reto #1 (un lunes); `dias` es cuántos días cubre (366 al publicar el reto; 420 desde la ronda 2 del
+ *   banco, para que sus 45 Taps entren en los días agregados: del 2027-10-20 al 2027-12-11). El tema de cada día rota por `rotacion` (lunes primero).
  * - Solo crece hacia el futuro: los días que ya están en reto-calendario.json no se tocan nunca, así que agregar Taps al
  *   banco no cambia ni los días pasados ni el de hoy. Para que los Taps nuevos entren al reto se sube `dias` (se agregan
  *   días al final). Un Tap retirado se reemplaza solo en los días que lo tenían.
@@ -58,7 +59,7 @@ export const RUTAS = {
  */
 export const RETO = {
   inicio: '2026-10-19',
-  dias: 366,
+  dias: 420,
   rotacion: ['minecraft', 'logica', 'cultura', 'minecraft', 'logica', 'cultura', 'minecraft'],
 };
 
@@ -116,7 +117,9 @@ export function calendarioReto(taps, previo = null, reto = RETO) {
       const i = e.cola.findIndex(t => t.id === fijo);
       if (i >= 0) e.cola.splice(i, 1);
     } else {
-      tap = e.cola.shift();
+      // Tras los días fijos la cola puede empezar con el subtema del último día fijo: se toma el primero que no lo repita.
+      const i = e.cola.findIndex(t => (t.subtopic ?? 'mixto') !== e.ultimoSub);
+      tap = e.cola.splice(i >= 0 ? i : 0, 1)[0];
     }
     e.ultimoSub = tap.subtopic ?? 'mixto';
     estado.set(tema, e);
@@ -205,12 +208,18 @@ export const ESCENAS = {
     redstone: [['cueva', 'pick'], ['cueva', 'torch'], ['noche', 'pick']],
     supervivencia: [['pradera', 'apple'], ['nieve', 'torch'], ['desierto', 'axe'], ['noche', 'torch']],
     curiosidades: [['pradera', 'diamond'], ['nieve', 'apple']],
+    biomas: [['desierto', 'pick'], ['playa', 'apple'], ['nieve', 'axe']],
+    aldeas: [['aldea', 'apple'], ['aldea', 'sword']],
     _: [['bosque', 'axe'], ['noche', 'torch'], ['pradera', 'apple'], ['desierto', 'pick'], ['nieve', 'sword']],
   },
   logica: {
     adivinanzas: [['aula', 'libro'], ['laboratorio', 'libro']],
     silogismos: [['aula', 'lupa'], ['aula', 'libro']],
     series: [['laboratorio', 'lupa'], ['espacio', 'lupa']],
+    'lee-bien': [['biblioteca', 'libro'], ['aula', 'lupa']],
+    lateral: [['observatorio', 'lupa'], ['museo', 'lupa']],
+    'azar-y-numeros': [['jardin', 'lupa'], ['cocina', 'libro']],
+    codigo: [['laboratorio', 'libro'], ['espacio', 'lupa']],
     _: [['aula', 'lupa'], ['espacio', 'lupa'], ['aula', 'libro'], ['laboratorio', 'lupa']],
   },
   cultura: {
@@ -480,6 +489,8 @@ export const FONDOS_SUBTEMA = {
   animales: ['bosque', 'arboleda', 'nevado', 'cielo-nublado'],
   geografia: ['desierto', 'nevado', 'castillo', 'colinas-atardecer'],
   'ciencia-cotidiana': ['cielo-nublado', 'atardecer'],
+  dinosaurios: ['desierto', 'arboleda', 'colinas-atardecer'],
+  plantas: ['arboleda', 'bosque', 'atardecer'],
 };
 
 export function asignarEscena(clave, subtema, n, orden, esGancho, id, fondoPrevio = null) {
