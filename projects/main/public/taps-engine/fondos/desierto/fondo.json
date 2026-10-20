@@ -1,0 +1,25 @@
+{
+  "id": "desierto",
+  "nombre": "Desierto de pirámides",
+  "tipo": "imagen",
+  "archivo": "fondo.png",
+  "cielo": [
+    "#d5edf7",
+    "#e6f4fa"
+  ],
+  "suelo": "#e0cfa6",
+  "sueloOscuro": "#c9b27a",
+  "horizonte": 0.66,
+  "luz": {
+    "color": "#fff3dc",
+    "intensidad": 1.05
+  },
+  "licencia": {
+    "nombre": "CC0 1.0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "autor": "Kenney Vleugels (www.kenney.nl)",
+    "fuente": "https://kenney.nl/assets/background-elements",
+    "original": "Background Elements · Samples/colored_desert.png",
+    "cambios": "Recorte 1024×1024, PNG con paleta."
+  }
+}

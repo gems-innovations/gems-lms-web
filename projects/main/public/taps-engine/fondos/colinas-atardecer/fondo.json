@@ -1,0 +1,25 @@
+{
+  "id": "colinas-atardecer",
+  "nombre": "Colinas al atardecer",
+  "tipo": "imagen",
+  "archivo": "fondo.png",
+  "cielo": [
+    "#ff9f6e",
+    "#ffd3a3"
+  ],
+  "suelo": "#7a4f8c",
+  "sueloOscuro": "#5c3a6b",
+  "horizonte": 0.66,
+  "luz": {
+    "color": "#ffd9b8",
+    "intensidad": 0.95
+  },
+  "licencia": {
+    "nombre": "CC0 1.0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "autor": "Kenney Vleugels (www.kenney.nl)",
+    "fuente": "https://kenney.nl/assets/background-elements",
+    "original": "Background Elements · Samples/uncolored_hills.png",
+    "cambios": "Recoloreado a paleta de atardecer (3 tonos), PNG con paleta."
+  }
+}

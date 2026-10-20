@@ -30,6 +30,7 @@ export const TAP_TOPICS: ITapTopic[] = [
 export const TAP_DISPLAY_FONTS: Record<string, string> = {
   minecraft: "'Pixelify Sans', var(--tap-font)",
   estudio: "'Rubik', var(--tap-font)",
+  aventura: "'Rubik', var(--tap-font)",
 };
 
 /** Taps de gancho (uno por tema, el primero de cada banco): la primera pregunta es facilísima. */

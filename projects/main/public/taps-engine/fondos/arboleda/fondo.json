@@ -1,0 +1,21 @@
+{
+  "id": "arboleda",
+  "nombre": "Arboleda",
+  "tipo": "imagen",
+  "archivo": "fondo.png",
+  "cielo": [
+    "#d5edf7",
+    "#e6f4fa"
+  ],
+  "suelo": "#b6d1a5",
+  "sueloOscuro": "#8fb07c",
+  "horizonte": 0.66,
+  "licencia": {
+    "nombre": "CC0 1.0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "autor": "Kenney Vleugels (www.kenney.nl)",
+    "fuente": "https://kenney.nl/assets/background-elements",
+    "original": "Background Elements · Samples/colored_talltrees.png",
+    "cambios": "Recorte 1024×1024, PNG con paleta."
+  }
+}

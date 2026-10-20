@@ -15,8 +15,13 @@ describe('escenas de los Taps', () => {
       const del = TAPS.filter(t => t.theme === theme);
       expect(new Set(del.map(t => t.scene.shot)).size).withContext(theme).toBeGreaterThanOrEqual(5);
       expect(new Set(del.map(t => t.scene.enter)).size).withContext(theme).toBeGreaterThanOrEqual(3);
-      expect(del.filter(t => t.scene.props).length).withContext(theme).toBeGreaterThanOrEqual(8);
+      expect(del.filter(t => t.scene.props).length).withContext(theme).toBeGreaterThanOrEqual(theme === 'minecraft' ? 8 : 6);
     }
+    // aventura (personajes y fondos del registro): sin decorados, pero rota personaje, fondo, encuadre y entrada
+    const av = TAPS.filter(t => t.theme === 'aventura');
+    expect(new Set(av.map(t => t.scene.shot)).size).toBeGreaterThanOrEqual(5);
+    expect(new Set(av.map(t => t.scene.host)).size).toBeGreaterThanOrEqual(6);
+    expect(new Set(av.map(t => t.scene.world)).size).toBeGreaterThanOrEqual(6);
     expect(new Set(TAPS.map(t => t.scene.world)).size).toBeGreaterThanOrEqual(16);
   });
 

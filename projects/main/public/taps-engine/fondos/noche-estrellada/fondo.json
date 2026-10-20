@@ -1,0 +1,26 @@
+{
+  "id": "noche-estrellada",
+  "nombre": "Noche estrellada",
+  "tipo": "imagen",
+  "archivo": "fondo.jpg",
+  "cielo": [
+    "#3a3448",
+    "#6b6170"
+  ],
+  "suelo": "#253049",
+  "sueloOscuro": "#1c2538",
+  "horizonte": 0.66,
+  "sol": false,
+  "luz": {
+    "color": "#c4cfff",
+    "intensidad": 0.8
+  },
+  "licencia": {
+    "nombre": "CC0 1.0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "autor": "Greg Zaal y Jarod Guest (Poly Haven)",
+    "fuente": "https://polyhaven.com/a/qwantani_night_puresky",
+    "original": "Qwantani Night (Pure Sky) · Tonemapped JPG",
+    "cambios": "Franja de cielo sobre el horizonte (64° de ancho), reducida a 864×1296; colinas planas dibujadas encima (propias)."
+  }
+}

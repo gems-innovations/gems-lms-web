@@ -1,0 +1,21 @@
+{
+  "id": "cielo-nublado",
+  "nombre": "Pradera con nubes",
+  "tipo": "imagen",
+  "archivo": "fondo.jpg",
+  "cielo": [
+    "#4f7fc4",
+    "#cfe0f2"
+  ],
+  "suelo": "#6fb04f",
+  "sueloOscuro": "#5a9a3e",
+  "horizonte": 0.66,
+  "licencia": {
+    "nombre": "CC0 1.0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "autor": "Greg Zaal y Jarod Guest (Poly Haven)",
+    "fuente": "https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky",
+    "original": "Kloofendal 48d Partly Cloudy (Pure Sky) · Tonemapped JPG",
+    "cambios": "Franja de cielo sobre el horizonte (64° de ancho), reducida a 864×1296; colinas planas dibujadas encima (propias)."
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "nevado",
+  "nombre": "Picos nevados",
+  "tipo": "imagen",
+  "archivo": "fondo.png",
+  "cielo": [
+    "#9cc3ea",
+    "#dfeaf7"
+  ],
+  "suelo": "#f2f7fd",
+  "sueloOscuro": "#c9d8ea",
+  "horizonte": 0.66,
+  "luz": {
+    "color": "#eef5ff",
+    "intensidad": 1.05
+  },
+  "licencia": {
+    "nombre": "CC0 1.0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "autor": "Kenney Vleugels (www.kenney.nl)",
+    "fuente": "https://kenney.nl/assets/background-elements",
+    "original": "Background Elements · Samples/uncolored_peaks.png",
+    "cambios": "Recoloreado a paleta de nieve (3 tonos), PNG con paleta."
+  }
+}

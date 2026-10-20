@@ -1,0 +1,15 @@
+Cielos de Poly Haven (https://polyhaven.com) usados en cielo-nublado, atardecer y noche-estrellada.
+
+Licencia: CC0 1.0 Universal (dominio público)
+https://creativecommons.org/publicdomain/zero/1.0/
+Términos de Poly Haven: https://polyhaven.com/license
+"All assets on Poly Haven are licensed as CC0 and are free to use for any purpose, commercial or not, without attribution."
+
+- Kloofendal 48d Partly Cloudy (Pure Sky): Greg Zaal (original), Jarod Guest (edición del cielo)
+  https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky
+- Qwantani Sunset (Pure Sky): Greg Zaal (fotografía), Jarod Guest (procesado)
+  https://polyhaven.com/a/qwantani_sunset_puresky
+- Qwantani Night (Pure Sky): Greg Zaal (fotografía), Jarod Guest (procesado)
+  https://polyhaven.com/a/qwantani_night_puresky
+
+Descargado del CDN oficial (dl.polyhaven.org, versión «Tonemapped JPG»); recortado, reducido y con colinas planas propias encima.

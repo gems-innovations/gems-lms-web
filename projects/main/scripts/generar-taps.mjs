@@ -21,9 +21,13 @@
 // orden del Tap dentro de su tema. El Tap de gancho usa siempre la escena de ESCENA_GANCHO, centrado y saludando.
 // Una pregunta puede traer "visual": { objeto, accion, valor? } (objeto para explicar tras responder; catálogo en el
 // theme.json de su tema → visuals.objects). El generador lo copia tal cual y falla si el objeto o la acción no existen.
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+// Temas con registro (theme.json → "personajes"/"fondos", p. ej. «aventura»): personaje y fondo salen de elegirParaTap()
+// (public/taps-engine/registro.js) por el orden del Tap: deterministas, sin repetir entre Taps seguidos, sin objeto en la mano.
+// Añadir un personaje o fondo al theme.json basta para que entre en la rotación (ver taps-engine/personajes/LEEME.md).
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { elegirParaTap, fondoComoTema, personajeComoTema, urlFondo, urlPersonaje, validarFondo, validarPersonaje } from '../public/taps-engine/registro.js';
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const APP = join(AQUI, '../src/app');
@@ -34,6 +38,8 @@ export const RUTAS = {
   salida: join(APP, 'taps/taps.banco.generated.ts'),
   /** Calendario del reto del día (versionado): los días ya asignados nunca cambian. */
   calendario: join(AQUI, 'reto-calendario.json'),
+  /** Índice agregado de personajes y fondos del registro: el motor lo pide en UNA petición al abrir un tema. */
+  registro: join(AQUI, '../public/taps-engine/registro.json'),
 };
 
 /**
@@ -132,13 +138,16 @@ export const LIMITES = { pregunta: 120, opcion: 22, explicacion: 90, opciones: 4
 export const TEMAS = {
   minecraft: { archivo: 'minecraft.json', theme: 'minecraft', topic: 'minecraft', kicker: 'Quiz de bloques', prefijo: 'mc-', personajes: ['leo', 'sofi', 'mateo', 'dani'] },
   logica: { archivo: 'logica.json', theme: 'estudio', topic: 'logica', kicker: 'Lógica y trampas', prefijo: 'lg-', personajes: ['chispa', 'nube'] },
-  cultura: { archivo: 'cultura.json', theme: 'estudio', topic: 'cultura', kicker: 'Cultura general', prefijo: 'cu-', personajes: ['nube', 'chispa'] },
+  // Cultura usa el tema «aventura» (personajes y fondos del registro). Para volver a los robots: theme: 'estudio' (LUGARES y
+  // ESCENA_GANCHO de cultura siguen escritos para estudio) y personajes: ['nube', 'chispa'].
+  cultura: { archivo: 'cultura.json', theme: 'aventura', topic: 'cultura', kicker: 'Cultura general', prefijo: 'cu-', personajes: null },
 };
 
 /** Objetos que cada tema dibuja en la mano (renderer3d.js ITEMS / rig.js ITEMS). */
 export const OBJETOS = {
   minecraft: ['sword', 'pick', 'axe', 'torch', 'diamond', 'apple', 'grass', 'tnt'],
   estudio: ['matraz', 'lupa', 'libro'],
+  aventura: [],
 };
 
 /** Escena del Tap de gancho de cada tema (la primera impresión: clara y conocida). */
@@ -180,7 +189,7 @@ export const LUGARES = {
  * El Tap de gancho va centrado y saluda. Todo es determinista: el servidor y el navegador ven la misma escena.
  */
 export const ENCUADRES = ['izquierda', 'derecha', 'cerca-izquierda', 'lejos', 'cerca-derecha', 'centro'];
-export const ENTRADAS = { minecraft: ['camina', 'salta', 'gira', 'saluda'], estudio: ['vuela', 'cae', 'aparece', 'saluda'] };
+export const ENTRADAS = { minecraft: ['camina', 'salta', 'gira', 'saluda'], estudio: ['vuela', 'cae', 'aparece', 'saluda'], aventura: ['camina', 'salta', 'gira', 'saluda'] };
 const DESFASE = { minecraft: 0, logica: 0, cultura: 3 };
 
 /** Por tema y subtema: [mundo, objeto] que se reparten por orden. `_` es la lista de cualquier subtema sin regla propia. */
@@ -224,14 +233,40 @@ export function leerRetos(ruta = RUTAS.retos) {
 export function leerTemas(carpeta = RUTAS.temas) {
   const salida = {};
   for (const id of Object.keys(OBJETOS)) {
-    const t = JSON.parse(readFileSync(join(carpeta, id, 'theme.json'), 'utf8'));
+    const t = expandirRegistro(JSON.parse(readFileSync(join(carpeta, id, 'theme.json'), 'utf8')), join(carpeta, '..'));
     salida[id] = {
       mundos: t.scenes, personajes: new Set(Object.keys(t.characters)), encuadres: new Set(Object.keys(t.shots ?? {})),
       entradas: new Set(t.enters ?? []), decorados: new Set(Object.keys(t.props ?? {})), objetos: t.visuals?.objects ?? {},
+      registro: Array.isArray(t.personajes) ? { personajes: t.personajes, fondos: t.fondos ?? [] } : null,
     };
   }
   return salida;
 }
+
+/**
+ * Versión síncrona de expandirTema() (registro.js) para el generador: lee personajes/<id>/personaje.json y
+ * fondos/<id>/fondo.json de disco. Aquí un manifiesto roto SÍ es un error (en el navegador solo se salta).
+ */
+export function expandirRegistro(t, motor = join(RUTAS.temas, '..')) {
+  if (!Array.isArray(t.personajes) && !Array.isArray(t.fondos)) return t;
+  const base = pathToFileURL(motor + '/'), errores = [];
+  const cargar = (ids, url, validar, convertir, destino, tipo) => {
+    for (const id of ids ?? []) {
+      const u = url(id, base);
+      if (!existsSync(u)) { errores.push(`${tipo} «${id}»: falta ${fileURLToPath(u)}`); continue; }
+      const m = JSON.parse(readFileSync(u, 'utf8')), e = validar(m, id);
+      if (e.length) errores.push(`${tipo} «${id}»: ${e.join('; ')}`); else destino[id] = convertir(m, u);
+    }
+  };
+  t.characters = { ...(t.characters ?? {}) }; t.scenes = { ...(t.scenes ?? {}) };
+  cargar(t.personajes, urlPersonaje, validarPersonaje, personajeComoTema, t.characters, 'personaje');
+  cargar(t.fondos, urlFondo, validarFondo, fondoComoTema, t.scenes, 'fondo');
+  if (errores.length) throw new Error(`registro del tema «${t.id}»: ${errores.join(' | ')}`);
+  return t;
+}
+
+let temasCache = null;
+const registroDe = theme => (temasCache ??= leerTemas())[theme]?.registro ?? null;
 
 export function leerBancos(carpeta = RUTAS.banco) {
   return Object.fromEntries(Object.entries(TEMAS).map(([clave, t]) => {
@@ -291,8 +326,29 @@ function validarResultados(resultados, donde) {
  * Escoge la escena de un Tap: mundo, personaje, objeto, encuadre, entrada y decorado. `n` = lugar del Tap dentro de su
  * subtema; `orden` = dentro de su tema; `id` = id del Tap (si está en LUGARES manda su lugar).
  */
-export function asignarEscena(clave, subtema, n, orden, esGancho, id) {
+/**
+ * Temas con registro: fondos que encajan con un subtema (el n-ésimo Tap del subtema usa el n-ésimo, dando la vuelta). Los
+ * subtemas sin entrada (o si el elegido repite el fondo del Tap anterior) usan la rotación de elegirParaTap.
+ */
+export const FONDOS_SUBTEMA = {
+  espacio: ['noche-estrellada', 'piramides-noche'],
+  animales: ['bosque', 'arboleda', 'nevado', 'cielo-nublado'],
+  geografia: ['desierto', 'nevado', 'castillo', 'colinas-atardecer'],
+  'ciencia-cotidiana': ['cielo-nublado', 'atardecer'],
+};
+
+export function asignarEscena(clave, subtema, n, orden, esGancho, id, fondoPrevio = null) {
   const entradas = ENTRADAS[TEMAS[clave].theme];
+  const reg = registroDe(TEMAS[clave].theme);
+  if (reg) {
+    if (esGancho) return { world: reg.fondos[0], host: reg.personajes[0], shot: 'centro', enter: 'saluda' };
+    const k = orden + DESFASE[clave];
+    const elegido = elegirParaTap(orden, reg.personajes, reg.fondos), host = elegido.host;
+    const propios = (FONDOS_SUBTEMA[subtema] ?? []).filter(f => reg.fondos.includes(f));
+    const candidatos = propios.length ? [propios[n % propios.length], ...propios] : [];
+    const world = candidatos.find(f => f !== fondoPrevio) ?? (elegido.world !== fondoPrevio ? elegido.world : reg.fondos.find(f => f !== fondoPrevio));
+    return { world, host, shot: ENCUADRES[k % ENCUADRES.length], enter: entradas[(k * 3 + 1) % entradas.length] };
+  }
   if (esGancho) return { ...ESCENA_GANCHO[clave], shot: 'centro', enter: 'saluda' };
   const reglas = ESCENAS[clave];
   const lista = reglas[subtema] ?? reglas._;
@@ -354,7 +410,7 @@ export function generar(bancos, retos, temas) {
       porId.set(x.id, { ...original, ...x, origen: x.origen });
     }
 
-    let orden = 0;
+    let orden = 0, fondoPrevio = null;
     const porSubtema = new Map();
     for (const t of banco.taps) {
       const donde = `${archivo} · Tap «${t.id}»`;
@@ -386,10 +442,11 @@ export function generar(bancos, retos, temas) {
       const subtema = t.subtema ?? 'mixto';
       const n = porSubtema.get(subtema) ?? 0;
       porSubtema.set(subtema, n + 1);
-      const escena = asignarEscena(clave, subtema, n, orden, t.gancho === true, t.id);
+      const escena = asignarEscena(clave, subtema, n, orden, t.gancho === true, t.id, fondoPrevio);
+      fondoPrevio = escena.world;
       orden++;
       const tema = temas[def.theme];
-      if (!OBJETOS[def.theme].includes(escena.item)) err(`Tap «${t.id}»: el objeto «${escena.item}» no existe en el tema ${def.theme}`);
+      if (escena.item !== undefined && !OBJETOS[def.theme].includes(escena.item)) err(`Tap «${t.id}»: el objeto «${escena.item}» no existe en el tema ${def.theme}`);
       if (!tema.mundos[escena.world]) err(`Tap «${t.id}»: el mundo «${escena.world}» no existe en el tema ${def.theme}`);
       if (!tema.personajes.has(escena.host)) err(`Tap «${t.id}»: el personaje «${escena.host}» no existe en el tema ${def.theme}`);
       if (escena.shot && !tema.encuadres.has(escena.shot)) err(`Tap «${t.id}»: el encuadre «${escena.shot}» no existe en el tema ${def.theme}`);
@@ -443,11 +500,32 @@ export const TAPS_RETO_CALENDARIO: { inicio: string; dias: string[] } = ${lit(ca
 }
 
 /** Lee todo, valida y devuelve el resultado (sin escribir). */
+/**
+ * Índice del registro (public/taps-engine/registro.json): todos los personajes/<id>/personaje.json y fondos/<id>/fondo.json
+ * en un solo archivo, ordenados por id. Se valida cada manifiesto (uno roto es un error).
+ */
+export function emitirRegistro(motor = join(RUTAS.temas, '..')) {
+  const leer = (sub, archivo, validar) => {
+    const dir = join(motor, sub), out = {};
+    for (const id of readdirSync(dir, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name).sort()) {
+      const ruta = join(dir, id, archivo);
+      if (!existsSync(ruta)) continue;
+      const m = JSON.parse(readFileSync(ruta, 'utf8')), e = validar(m, id);
+      if (e.length) throw new Error(`registro: ${sub}/${id}: ${e.join('; ')}`);
+      out[id] = m;
+    }
+    return out;
+  };
+  const indice = { personajes: leer('personajes', 'personaje.json', validarPersonaje), fondos: leer('fondos', 'fondo.json', validarFondo) };
+  return '{\n  "nota": "ARCHIVO GENERADO por npm run taps:generar a partir de personajes/*/personaje.json y fondos/*/fondo.json. No lo edites a mano.",\n'
+    + `  "personajes": ${JSON.stringify(indice.personajes)},\n  "fondos": ${JSON.stringify(indice.fondos)}\n}\n`;
+}
+
 export function construir(rutas = RUTAS) {
   const resultado = generar(leerBancos(rutas.banco), leerRetos(rutas.retos), leerTemas(rutas.temas));
   if (resultado.errores.length) return { ...resultado, calendario: null, texto: '', textoCalendario: '' };
   const calendario = calendarioReto(resultado.taps, rutas.calendario ? leerCalendario(rutas.calendario) : null);
-  return { ...resultado, calendario, texto: emitir({ ...resultado, calendario }), textoCalendario: emitirCalendario(calendario) };
+  return { ...resultado, calendario, texto: emitir({ ...resultado, calendario }), textoCalendario: emitirCalendario(calendario), textoRegistro: emitirRegistro(join(rutas.temas, '..')) };
 }
 
 function main() {
@@ -463,6 +541,8 @@ function main() {
   if (comprobar) {
     // Con autocrlf (Windows) el archivo puede traer CRLF: se compara sin saltos de Windows.
     const cal = existsSync(RUTAS.calendario) ? readFileSync(RUTAS.calendario, 'utf8').split('\r\n').join('\n') : '';
+    const reg = existsSync(RUTAS.registro) ? readFileSync(RUTAS.registro, 'utf8').split('\r\n').join('\n') : '';
+    if (reg !== r.textoRegistro) { console.error('taps:generar --check: taps-engine/registro.json está desactualizado. Corre `npm run taps:generar` y súbelo.'); process.exit(1); }
     if (cal !== r.textoCalendario) { console.error('taps:generar --check: reto-calendario.json está desactualizado. Corre `npm run taps:generar` y súbelo.'); process.exit(1); }
     if (actual.split('\r\n').join('\n') !== r.texto) { console.error('taps:generar --check: taps.banco.generated.ts está desactualizado. Corre `npm run taps:generar` y súbelo.'); process.exit(1); }
     console.log(`taps:generar --check: al día (${r.taps.length} Taps).`);
@@ -471,6 +551,7 @@ function main() {
   mkdirSync(dirname(RUTAS.salida), { recursive: true });
   writeFileSync(RUTAS.salida, r.texto, 'utf8');
   writeFileSync(RUTAS.calendario, r.textoCalendario, 'utf8');
+  writeFileSync(RUTAS.registro, r.textoRegistro, 'utf8');
   const preguntas = r.taps.reduce((n, t) => n + t.questions.length, 0);
   console.log(`taps:generar: ${r.taps.length} Taps, ${preguntas} preguntas${r.retirados.length ? `, ${r.retirados.length} retirados` : ''} → ${RUTAS.salida}`);
 }

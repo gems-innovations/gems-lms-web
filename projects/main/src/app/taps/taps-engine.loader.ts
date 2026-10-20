@@ -5,7 +5,7 @@ import { ITapsEngineModule } from './taps.types';
  * nginx sirve taps-engine/ con `no-cache` + ETag (siempre revalida). Súbelo igual cuando cambie el motor: la query evita
  * que un service worker o una caché intermedia viejos sigan entregando el módulo anterior.
  */
-const TAPS_ENGINE_VERSION = '7';
+const TAPS_ENGINE_VERSION = '9';
 export const TAPS_ENGINE_URL = `/taps-engine/taps-engine.js?v=${TAPS_ENGINE_VERSION}`;
 export const tapsThemeUrl = (theme: string): string => `/taps-engine/themes/${theme}/theme.json`;
 
