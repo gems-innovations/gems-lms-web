@@ -18,6 +18,11 @@ export const TAPS_VOZ_MANIFIESTO: string | null = null;
 export type TTapsEfecto = 'toque' | 'acierto' | 'fallo' | 'racha' | 'resultado' | 'deslizar' | 'tic';
 /** Efectos de respuesta: bajo ellos la música hace ducking un instante. */
 const EFECTOS_RESPUESTA: ReadonlySet<TTapsEfecto> = new Set<TTapsEfecto>(['acierto', 'fallo', 'racha', 'resultado']);
+/** Un efecto pedido antes de que cargara sonido.js suena al llegar solo si fue hace menos que esto. */
+export const EFECTO_TARDIO_MS = 300;
+/** Teclas de moverse por la página: desbloquean los efectos, pero no arrancan la música. */
+const TECLAS_SIN_MUSICA: ReadonlySet<string> = new Set(['Tab', 'Shift', 'Control', 'Alt', 'AltGraph', 'Meta', 'OS', 'CapsLock', 'Escape']);
+const ahoraMs = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
 
 /**
  * Quien comparte el audio con este servicio (la música de fondo, taps-musica.service.ts): recibe el AudioContext cuando
@@ -63,9 +68,13 @@ interface IVoz {
  *
  * · Nada en el servidor (SSR/prerender): todo es no-op fuera del navegador.
  * · El AudioContext se crea DENTRO del gesto (`desbloquear`, síncrono). Si el módulo aún no llegó, se crea aquí y se le
- *   pasa cuando llegue; así el primer acierto suena aunque el toque haya sido antes de la carga.
+ *   pasa cuando llegue. El efecto pedido antes de que llegue el módulo no tiene con qué sonar: se guarda el último y se toca
+ *   al cargar solo si fue hace menos de EFECTO_TARDIO_MS (más tarde ya no acompaña al toque y es mejor perderlo).
+ * · Tab y las teclas modificadoras (y los atajos con Ctrl, Alt o Cmd) desbloquean el audio para los efectos pero no
+ *   arrancan la música: moverse con el teclado por la página no es empezar a jugar.
  * · Un solo AudioContext para todo: los escenarios del motor reciben `motorAudio` y no crean el suyo.
  * · La voz solo habla si la persona la encendió y el sonido está activo.
+ * · Efectos y música encendidos por defecto, voz apagada (producto/taps/voz-y-sonido.md §2.1): el feed decide el silencio.
  */
 @Injectable()
 export class TapsSonidoService {
@@ -81,6 +90,10 @@ export class TapsSonidoService {
   private quitarGestos: (() => void) | null = null;
   private gesto = false;
   private oyente: ITapsAudioOyente | null = null;
+  /** Hubo un gesto «de jugar» (toque, clic, tecla que no sea Tab ni modificadora): recién entonces la música recibe el contexto. */
+  private arranca = false;
+  /** El último efecto pedido antes de que cargara sonido.js (se toca al cargar si fue hace poco). */
+  private pendiente: { nombre: TTapsEfecto; opciones: ITapsEfectoOpciones; t: number } | null = null;
 
   /** Este dispositivo tiene alguna voz utilizable (se sabe tras `prepararVoz`). */
   readonly vozDisponible = signal(false);
@@ -106,14 +119,27 @@ export class TapsSonidoService {
       s.atenuar = (on: boolean) => { atenuar(on); this.oyente?.voz?.(on); };
       this.sonido = s;
       this.avisarContexto();
+      const p = this.pendiente;
+      this.pendiente = null;
+      if (p && ahoraMs() - p.t < EFECTO_TARDIO_MS) this.tocar(p.nombre, p.opciones);
       return s;
     }).catch(() => { this.carga = null; return null; }));
   }
 
-  /** Llamar DENTRO de un gesto (toque, clic, tecla): crea o reanuda el audio. */
-  desbloquear(): void {
+  /**
+   * Llamar DENTRO de un gesto (toque, clic, tecla): crea o reanuda el audio. `musica: false` (Tab, modificadoras) lo
+   * desbloquea para los efectos sin arrancar la música.
+   */
+  desbloquear(opciones: { musica?: boolean } = {}): void {
     if (!this.browser || this.destruido) return;
+    if (opciones.musica !== false) this.arranca = true;
     if (this.sonido) { this.sonido.desbloquear(); this.avisarContexto(); return; }
+    // iOS 16.4+: «ambient» antes de crear el contexto, para que el interruptor de silencio calle Taps (y no corte la música
+    // de la persona) también si el primer gesto llega antes que sonido.js, que lo declara igual al cargar.
+    try {
+      const nav = globalThis.navigator as Navigator & { audioSession?: { type: string } };
+      if (nav?.audioSession) nav.audioSession.type = 'ambient';
+    } catch { /* sin Audio Session API */ }
     if (!this.ctx) {
       const C = (globalThis as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext }).AudioContext
         ?? (globalThis as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -137,7 +163,7 @@ export class TapsSonidoService {
 
   private avisarContexto(): void {
     const ctx = this.contexto();
-    if (ctx) this.oyente?.contexto?.(ctx);
+    if (ctx && this.arranca) this.oyente?.contexto?.(ctx);
   }
 
   /**
@@ -147,7 +173,13 @@ export class TapsSonidoService {
    */
   escucharGestos(permitido: () => boolean): void {
     if (!this.browser || this.quitarGestos) return;
-    const alGesto = () => { this.gesto = true; if (permitido()) this.desbloquear(); };
+    const alGesto = (e: Event) => {
+      this.gesto = true;
+      if (!permitido()) return;
+      const k = e as KeyboardEvent;
+      const navegar = e.type === 'keydown' && (TECLAS_SIN_MUSICA.has(k.key) || k.ctrlKey || k.metaKey || k.altKey);
+      this.desbloquear({ musica: !navegar });
+    };
     const opts = { capture: true, passive: true };
     const tipos = ['pointerup', 'click', 'keydown'] as const;
     tipos.forEach(t => addEventListener(t, alGesto, opts));
@@ -168,10 +200,14 @@ export class TapsSonidoService {
     if (muted) this.callar();
   }
 
-  /** Toca un efecto si el sonido está activo. Antes de cargar el módulo no suena (y no espera: el ritmo manda). */
+  /**
+   * Toca un efecto si el sonido está activo. Antes de cargar el módulo se guarda (solo el último) y suena al llegar si fue
+   * hace menos de EFECTO_TARDIO_MS; nunca se espera ni se acumulan varios (el ritmo manda y no hay ráfagas).
+   */
   tocar(nombre: TTapsEfecto, opciones: ITapsEfectoOpciones = {}): void {
-    if (this.silencio) return;
-    if (this.sonido?.tocar(nombre, opciones) && EFECTOS_RESPUESTA.has(nombre)) this.oyente?.efecto?.(nombre);
+    if (this.silencio || !this.browser) return;
+    if (!this.sonido) { this.pendiente = { nombre, opciones, t: ahoraMs() }; return; }
+    if (this.sonido.tocar(nombre, opciones) && EFECTOS_RESPUESTA.has(nombre)) this.oyente?.efecto?.(nombre);
   }
 
   /** Sintetiza en reposo los efectos de un tema para que el primer toque no espere ni 1 ms. */

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { sinAudio } from './humo-soporte';
 
 /**
  * Taps con el banco de preguntas (53 Taps): selector de temas con conteos reales (Cultura general ya no es «Pronto»),
@@ -6,6 +7,9 @@ import { expect, test } from '@playwright/test';
  *
  * Uso: npx playwright test e2e/taps-banco.spec.ts
  */
+// Taps suena por defecto tras el primer gesto: ninguna prueba debe sonar (ganancia 0 y voz anotada).
+test.beforeEach(async ({ page }) => { await sinAudio(page); });
+
 test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: 'block' });
 
 const hydrated = (page: import('@playwright/test').Page) =>

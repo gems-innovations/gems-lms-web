@@ -18,7 +18,10 @@ export type TEventPath =
   // `taps/reto-dia/<ver|completar|repetir|compartir|llegada-hoy|abrir/<dia|fin|menu>>`,
   // `taps/coleccion/<tema-subtema>/<bronce|plata|oro>`, `taps/coleccion/abrir/<resultado|fin|menu>`,
   // `taps/fin-feed/<reto|colecciones|temas|cursos>`, `taps/revancha/<id>` y `taps/pausa/<sugerida|aceptada|seguir>`.
-  // Música de fondo (taps-musica.service.ts): `taps/musica/<on|off>` al usar el control (hoja «Tu día» o menú).
+  // Audio: `taps/sonido/<on|off>/<barra|tecla|dia>` al usar el silencio general (altavoz de la barra, tecla M o «Todo el
+  // sonido» en «Tu día»); `taps/musica/<on|off>` al usar el control de música (hoja «Tu día» o menú) y
+  // `taps/voz/<encender|apagar>` el de la voz. Encender música o voz con el sonido apagado también lo enciende, sin evento
+  // `taps/sonido` aparte. Nada se mide por el estado por defecto (sonido y música encendidos, voz apagada).
   // Desde la portada salen como `portada/tap/...` (p. ej. `portada/tap/coleccion/minecraft-mobs/bronce`).
   // Portada: qué puerta abre la gente (`portada/opcion/<taps|temas/<tema>|retos|bloques|cursos|instituciones|entrar>`).
   | `portada/${string}`

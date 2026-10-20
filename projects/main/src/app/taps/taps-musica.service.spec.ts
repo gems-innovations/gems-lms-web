@@ -60,7 +60,8 @@ describe('TapsMusicaService', () => {
     expect(pedidos).toEqual([]);
   });
 
-  it('apagada por defecto: no carga el reproductor aunque haya gestos', async () => {
+  it('apagada a propósito (guardado «off»): sigue apagada y no carga el reproductor aunque haya gestos', async () => {
+    localStorage.setItem(MUSICA_KEY, 'off');
     const { service, sonido, pedidos } = crear();
     service.iniciar(false);
     expect(service.encendida()).toBeFalse();
@@ -70,30 +71,37 @@ describe('TapsMusicaService', () => {
     expect(pedidos).toEqual([]);
   });
 
-  it('encendida y guardada: espera al primer gesto (AudioContext) para cargar y suena la pista del Tap', async () => {
-    localStorage.setItem(MUSICA_KEY, 'on');
-    const { service, sonido, musica, pedidos } = crear();
-    service.iniciar(false);
-    expect(service.encendida()).toBeTrue();
-    service.alTap(tapCueva);
-    await espera();
-    expect(pedidos).toEqual([]);                                      // sin gesto, nada
-    sonido.desbloquear();
-    await espera(); await espera();
-    expect(pedidos).toEqual([TAPS_MUSICA_URL]);
-    expect(musica.log).toContain('encender:true');
-    expect(musica.log).toContain('conectar');
-    expect(musica.log).toContain(`tap:${tapCueva.scene.world}`);
-  });
+  for (const guardado of [null, 'on']) {
+    it(`encendida (${guardado ?? 'sin preferencia: por defecto'}): espera al primer gesto (AudioContext) para cargar y suena la pista del Tap`, async () => {
+      if (guardado) localStorage.setItem(MUSICA_KEY, guardado);
+      const { service, sonido, musica, pedidos } = crear();
+      service.iniciar(false);
+      expect(service.encendida()).toBeTrue();
+      service.alTap(tapCueva);
+      await espera();
+      expect(pedidos).toEqual([]);                                      // sin gesto, nada
+      sonido.desbloquear();
+      await espera(); await espera();
+      expect(pedidos).toEqual([TAPS_MUSICA_URL]);
+      expect(musica.log).toContain('encender:true');
+      expect(musica.log).toContain('conectar');
+      expect(musica.log).toContain(`tap:${tapCueva.scene.world}`);
+      expect(localStorage.getItem(MUSICA_KEY)).toBe(guardado, 'el defecto no se escribe: solo lo que decide la persona');
+    });
+  }
 
-  it('en la portada arranca apagada aunque en /taps se dejara encendida', () => {
-    localStorage.setItem(MUSICA_KEY, 'on');
-    const { service } = crear();
-    service.iniciar(true);
-    expect(service.encendida()).toBeFalse();
+  it('en la portada no suena aunque en /taps esté encendida (o sin preferencia)', () => {
+    for (const guardado of ['on', null]) {
+      TestBed.resetTestingModule();
+      if (guardado) localStorage.setItem(MUSICA_KEY, guardado); else localStorage.removeItem(MUSICA_KEY);
+      const { service } = crear();
+      service.iniciar(true);
+      expect(service.encendida()).toBeFalse();
+    }
   });
 
   it('alternar: desbloquea en el gesto, carga, recuerda la preferencia y apaga', async () => {
+    localStorage.setItem(MUSICA_KEY, 'off');
     const { service, sonido, musica } = crear();
     service.iniciar(false);
     service.alTap(tapCueva);
@@ -110,7 +118,7 @@ describe('TapsMusicaService', () => {
   it('reenvía silencio, efectos y voz del audio compartido; resultado y anticipar', async () => {
     const { service, sonido, musica } = crear();
     service.iniciar(false);
-    service.alternar();
+    sonido.desbloquear();                                             // encendida por defecto: el gesto la carga
     await espera(); await espera();
     sonido.oyente?.silencio?.(false);
     sonido.oyente?.efecto?.('acierto');
@@ -123,7 +131,7 @@ describe('TapsMusicaService', () => {
       'pausar:pausa-sana', 'reanudar:pausa-sana']));
   });
 
-  it('musicaDe: mundo, categoría y motor del Tap', () => {
-    expect(musicaDe(tapCueva)).toEqual({ mundo: 'cueva', tema: tapCueva.topic ?? tapCueva.theme, motor: tapCueva.theme });
+  it('musicaDe: id, mundo, categoría y motor del Tap', () => {
+    expect(musicaDe(tapCueva)).toEqual({ id: tapCueva.id, mundo: 'cueva', tema: tapCueva.topic ?? tapCueva.theme, motor: tapCueva.theme });
   });
 });

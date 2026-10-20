@@ -6,7 +6,44 @@
   "audio/mp4; codecs=mp4a.40.2"
  ],
  "mapa": {
+  "grupos": {
+   "minecraft": [
+    "pixel-quest-loop",
+    "cave-quiz-crawl",
+    "magma-quest-loop",
+    "village-morning-loop",
+    "island-quiz-loop"
+   ],
+   "logica": [
+    "puzzle-tick-loop",
+    "cozy-study-loop",
+    "orbit-quiz-drift"
+   ],
+   "cultura": [
+    "wonder-loop",
+    "orbit-quiz-drift",
+    "island-quiz-loop",
+    "village-morning-loop",
+    "cozy-study-loop"
+   ],
+   "estudio": [
+    "puzzle-tick-loop",
+    "cozy-study-loop",
+    "orbit-quiz-drift"
+   ],
+   "aventura": [
+    "wonder-loop",
+    "orbit-quiz-drift",
+    "island-quiz-loop",
+    "village-morning-loop",
+    "cozy-study-loop"
+   ]
+  },
   "mundos": {
+   "pradera": "pixel-quest-loop",
+   "bosque": "pixel-quest-loop",
+   "nieve": "pixel-quest-loop",
+   "desierto": "pixel-quest-loop",
    "cueva": "cave-quiz-crawl",
    "noche": "cave-quiz-crawl",
    "nether": "magma-quest-loop",
@@ -16,19 +53,11 @@
    "playa": "island-quiz-loop",
    "espacio": "orbit-quiz-drift",
    "observatorio": "orbit-quiz-drift",
-   "biblioteca": "cozy-study-loop"
-  },
-  "temas": {
-   "minecraft": "pixel-quest-loop",
-   "logica": "puzzle-tick-loop",
-   "cultura": "wonder-loop"
-  },
-  "temaPrimero": [
-   "logica"
-  ],
-  "motores": {
-   "minecraft": "pixel-quest-loop",
-   "estudio": "cozy-study-loop"
+   "noche-estrellada": "orbit-quiz-drift",
+   "piramides-noche": "orbit-quiz-drift",
+   "biblioteca": "cozy-study-loop",
+   "aula": "puzzle-tick-loop",
+   "laboratorio": "puzzle-tick-loop"
   },
   "defecto": "cozy-study-loop",
   "resultado": "prize-parade-loop",

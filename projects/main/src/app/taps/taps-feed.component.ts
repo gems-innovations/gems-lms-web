@@ -59,7 +59,10 @@ type TStageMode = 'loading' | 'poster' | '3d' | 'light' | 'none';
 const HOOK_COOKIE = 'gems_taps_gancho';
 const SHAPES = ['triángulo', 'rombo', 'círculo', 'cuadrado'];
 
-type TSound = 'pending' | 'on' | 'off';
+/** Sonido general (efectos, música y voz): encendido por defecto; 'off' solo si la persona lo apagó (se recuerda). */
+export type TSound = 'on' | 'off';
+/** Antes de hidratar no se sabe lo guardado: el altavoz se pinta neutro (sin ondas ni tachado) y no dice si está activo. */
+export type TSoundEstado = TSound | null;
 interface IPreAnswer { id: string; k: number; t: number }
 
 /**
@@ -96,7 +99,7 @@ export class TapsFeedComponent {
   private readonly isBrowser = isPlatformBrowser(this.platform);
   /** Efectos (sintetizados por código) y voz de los personajes: taps-engine/audio y taps-engine/voz, cargados bajo demanda. */
   private readonly audio = inject(TapsSonidoService);
-  /** Música de fondo (taps-engine/audio/musica.js + public/taps-musica): apagada por defecto, se enciende en «Tu día» o el menú. */
+  /** Música de fondo (taps-engine/audio/musica.js + public/taps-musica): encendida por defecto en /taps; se apaga en «Tu día» o el menú. */
   protected readonly musica = inject(TapsMusicaService);
 
   private readonly snapshot = inject(ActivatedRoute).snapshot;
@@ -133,8 +136,18 @@ export class TapsFeedComponent {
   protected readonly topics = feedTopics(TAPS, TAP_TOPICS);
   protected readonly runs = signal<Record<string, ITapRun>>(Object.fromEntries(TAPS.map(t => [t.id, startRun(t)])));
   protected readonly activeId = signal(this.taps()[0].id);
-  /** Sonido: arranca en silencio con el aviso «Toca para sonido»; el primer toque en una opción lo enciende (salvo que la persona lo haya apagado). */
-  protected readonly sound = signal<TSound>('pending');
+  /**
+   * Sonido general (el altavoz de la barra y la tecla M): encendido por defecto, sin aviso previo. El navegador no deja sonar
+   * nada antes de un gesto, así que el primer toque, clic o tecla en la página arranca efectos y música (con fundido). Si la
+   * persona lo apagó, sigue apagado (clave sin versionar: antes solo se escribía al tocar el botón, así que 'off' siempre es
+   * una decisión suya; el «pendiente» anterior era la ausencia de clave y ahora cae en el nuevo defecto).
+   */
+  protected readonly sound = signal<TSoundEstado>(null);
+  /** Instante (performance.now) en que el feed empezó a responder: un clic anterior (repetido al hidratar) no enciende. */
+  private vivoDesde = Infinity;
+  /** Lo que muestran los controles de música y voz: con el silencio general activo, ninguna suena, así que se ven apagadas. */
+  protected readonly musicaEfectiva = computed(() => this.musica.encendida() && this.sound() === 'on');
+  protected readonly vozEfectiva = computed(() => { const v = this.voice(); return v === 'on' && this.sound() !== 'on' ? 'off' : v; });
   /** Voz del personaje (lee la pregunta): apagada por defecto y se recuerda. `null` = aún no se sabe; `'none'` = sin voz utilizable. */
   protected readonly voice = signal<'on' | 'off' | 'none' | null>(null);
   /** Estado del escenario: cargando → poster (capa ligera ya visible, el 3D aún no) → 3d | light (ligero) | none (sin tema ni motor: el quiz sigue en DOM sobre el degradado). */
@@ -338,7 +351,9 @@ export class TapsFeedComponent {
       html.setAttribute('data-taps-live', '');                    // desde aquí responde Angular (el script previo se retira)
       performance.mark?.('taps-interactive');
       this.live.set(true);
-      this.sound.set(this.readStorage(SOUND_KEY) === 'off' ? 'off' : this.readStorage(SOUND_KEY) === 'on' ? 'on' : 'pending');
+      this.vivoDesde = performance.now();
+      this.sound.set(this.readStorage(SOUND_KEY) === 'off' ? 'off' : 'on');
+      this.stage?.setMuted(this.sound() !== 'on');
       this.startAudio();
       this.musica.iniciar(this.portada);
       this.interest.set(parseInterest(this.readStorage(INTEREST_KEY), Date.now()));
@@ -676,8 +691,7 @@ export class TapsFeedComponent {
     this.track('taps-responder', `taps/responder/${eventSlug(tap.id)}/${run.answers.length}`);
     this.countFirstTouch(pre);
     this.actividad();
-    if (this.sound() !== 'off') this.audio.desbloquear();          // dentro del gesto: el navegador solo deja sonar así
-    if (this.sound() === 'pending') { this.sound.set('on'); this.stage?.setMuted(false); this.audio.silenciar(false); }   // el primer toque enciende el sonido
+    if (this.sound() === 'on') this.audio.desbloquear();           // dentro del gesto: el navegador solo deja sonar así
     this.audio.callar();
     this.answerSound(tap, run, correct);
     if (!pre) this.vibrate(correct);
@@ -986,8 +1000,20 @@ export class TapsFeedComponent {
   }
 
   // ───────────── sonido ─────────────
-  protected toggleSound(): void {
-    const on = this.sound() !== 'on';
+  /**
+   * Silencio general (altavoz de la barra, tecla M o «Sonido» en «Tu día»): calla o devuelve TODO (efectos, música y voz)
+   * sin tocar las preferencias de música y voz, que vuelven tal como estaban. Mide `taps/sonido/<on|off>/<origen>`.
+   */
+  protected toggleSound(origen: 'barra' | 'tecla' | 'dia' = 'barra', t?: number): void {
+    // Un clic sobre el altavoz neutro, antes de hidratar (Angular lo repite al hidratar), nunca termina encendiendo: quien
+    // lo tocó sin saber el estado probablemente quería silencio.
+    const aCiegas = this.sound() === null || (t !== undefined && t < this.vivoDesde);
+    const on = aCiegas ? false : this.sound() !== 'on';
+    this.setSound(on);
+    this.track(null, `taps/sonido/${on ? 'on' : 'off'}/${origen}`);
+  }
+
+  private setSound(on: boolean): void {
     this.sound.set(on ? 'on' : 'off');
     this.stage?.setMuted(!on);
     this.writeStorage(SOUND_KEY, on ? 'on' : 'off');
@@ -997,12 +1023,21 @@ export class TapsFeedComponent {
   }
 
   /**
-   * «Música de fondo» (hoja «Tu día» en el celular, menú en escritorio): apagada por defecto y se recuerda. Encenderla también
-   * enciende el sonido (la música suena solo con el sonido activo). Dentro del gesto: desbloquea el audio en ese toque.
+   * «Música de fondo» (hoja «Tu día» en el celular, menú en escritorio): encendida por defecto y se recuerda si la apagan.
+   * Encenderla con el sonido general apagado también lo enciende (quien pide música quiere oírla). Dentro del gesto:
+   * desbloquea el audio en ese toque.
    */
   protected toggleMusica(): void {
+    // Con el silencio general activo el interruptor se ve apagado aunque la preferencia sea «encendida»: tocarlo la hace
+    // sonar (enciende el sonido) en vez de apagarla.
+    if (this.sound() !== 'on' && this.musica.encendida()) {
+      this.setSound(true);
+      this.musicaDe(this.activeTap());
+      this.track(null, 'taps/musica/on');
+      return;
+    }
     const on = this.musica.alternar();
-    if (on && this.sound() !== 'on') this.toggleSound();
+    if (on && this.sound() !== 'on') this.setSound(true);
     if (on) this.musicaDe(this.activeTap());
     this.track(null, on ? 'taps/musica/on' : 'taps/musica/off');
   }
@@ -1016,20 +1051,32 @@ export class TapsFeedComponent {
   protected toggleVoice(): void {
     const now = this.voice();
     if (now !== 'on' && now !== 'off') return;
+    // Igual que la música: en silencio general la voz se ve apagada; tocarla la hace sonar sin cambiar la preferencia.
+    if (now === 'on' && this.sound() !== 'on') {
+      this.setSound(true);
+      this.readQuestion(this.activeTap());
+      this.track(null, 'taps/voz/encender');
+      return;
+    }
     const on = now !== 'on';
     this.voice.set(on ? 'on' : 'off');
     this.writeStorage(VOZ_KEY, on ? 'on' : 'off');
     this.audio.activarVoz(on);
     this.syncStageVoice();
-    if (on && this.sound() !== 'on') this.toggleSound();
+    if (on && this.sound() !== 'on') this.setSound(true);
     if (on) this.readQuestion(this.activeTap());                // dentro del gesto: iOS solo deja hablar así la primera vez
     this.track(null, on ? 'taps/voz/encender' : 'taps/voz/apagar');
   }
 
-  /** Tras hidratar: módulo de sonido en reposo, desbloqueo con el primer gesto y la voz si la persona la dejó encendida. */
+  /**
+   * Tras hidratar: módulo de sonido en reposo, desbloqueo con el primer gesto y la voz si la persona la dejó encendida.
+   * En /taps cualquier gesto real (toque, clic, tecla; deslizar no cuenta para el navegador) arranca efectos y música en ese
+   * momento. En la portada no: allí el audio se desbloquea solo al responder (choose), porque un toque en otra parte de la
+   * página (un enlace, el menú) no es jugar, y la portada no tiene música.
+   */
   private startAudio(): void {
     this.audio.silenciar(this.sound() !== 'on');
-    this.audio.escucharGestos(() => this.sound() !== 'off');
+    if (!this.portada) this.audio.escucharGestos(() => this.sound() === 'on');
     const idle = (globalThis as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
     const go = () => {
       void this.audio.precargar().then(() => this.audio.precalentar(this.activeTap().theme));
@@ -1191,7 +1238,7 @@ export class TapsFeedComponent {
       case 'continue':
         if (onControl || !this.clock.active) return;
         event.preventDefault(); this.skip(); break;
-      case 'sound': this.toggleSound(); break;
+      case 'sound': this.toggleSound('tecla'); break;
       case 'challenge': if (desktop) this.shareActive(); break;
       case 'topics': if (desktop) this.openTopics(); break;
       case 'focus': if (desktop) this.focusMode.update(v => !v); break;

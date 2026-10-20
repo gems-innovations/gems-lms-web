@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
+import { sinAudio } from './humo-soporte';
 
 /**
  * Rankings de Taps (web) con el API simulado: tarjeta de XP en el resultado, hoja del ranking en móvil y cajón en escritorio,
@@ -6,6 +7,9 @@ import { expect, test, type Page, type Route } from '@playwright/test';
  *
  * Uso: npx playwright test e2e/taps-ranking.spec.ts  (con E2E_ESTATICO=1 contra el build estático)
  */
+// Taps suena por defecto tras el primer gesto: ninguna prueba debe sonar (ganancia 0 y voz anotada).
+test.beforeEach(async ({ page }) => { await sinAudio(page); });
+
 test.use({ serviceWorkers: 'block' });
 
 const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

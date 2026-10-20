@@ -1,5 +1,5 @@
 import { expect, Page, test } from '@playwright/test';
-import { omitirSiPortadaAnterior } from './humo-soporte';
+import { omitirSiPortadaAnterior, sinAudio } from './humo-soporte';
 
 /**
  * Recorrido en celular de lo que ve un visitante: landing, ficha del curso, entrar como invitado,
@@ -24,6 +24,9 @@ async function smallTapTargets(page: Page, scope: string) {
     .filter(e => e.getBoundingClientRect().height < 40)
     .map(e => `${(e.textContent ?? '').trim().slice(0, 30)} (${Math.round(e.getBoundingClientRect().height)}px)`), scope);
 }
+
+// Taps suena por defecto tras el primer gesto: ninguna prueba debe sonar (ganancia 0 y voz anotada).
+test.beforeEach(async ({ page }) => { await sinAudio(page); });
 
 // Las pruebas no deben contar como visitas en GoatCounter (también se corren contra producción).
 test.beforeEach(async ({ page }) => {

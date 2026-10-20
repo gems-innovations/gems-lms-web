@@ -6,38 +6,72 @@
 //   musica.encender(true);
 //   musica.alTap({ mundo: 'cueva', tema: 'minecraft', motor: 'minecraft' });
 //
-// Reglas (producto/taps/musica, LEEME.md):
-//   · Apagada por defecto y nada se pide a la red hasta que está encendida Y hay contexto (que solo existe tras un gesto).
+// Reglas (producto/taps/musica, LEEME.md; producto/taps/voz-y-sonido.md §2.1):
+//   · Encendida por defecto (la app guarda la preferencia), pero nada se pide a la red hasta que está encendida Y hay
+//     contexto (que solo existe tras un gesto). Entra con un fundido de 1,5 s, nunca de golpe.
+//   · Variedad: cada categoría tiene un grupo de pistas compatibles y cada Tap elige una de forma determinista (por su id),
+//     sin repetir la del Tap anterior; el mundo solo sesga la elección (Nether → magma, cueva → cave). Si la pista que suena
+//     también vale para el Tap nuevo y lleva menos de 20 s, sigue sin cortarse.
 //   · Solo se descarga la pista que va a sonar; `anticipar` baja la siguiente (sin decodificar) cuando el feed la prevé.
 //   · Cambio de pista con fundido cruzado de 800 ms; ducking al 30 % mientras habla un personaje o suena un efecto de
 //     respuesta; pausa con la pestaña oculta y en la pausa sana.
 //   · Las canciones con letra solo suenan como fragmento de celebración (una vez) y luego vuelve la instrumental indicada.
 //   · Las pistas (taps-musica/*.webm|m4a) ya vienen con el bucle cerrado y el volumen igualado (scripts/procesar-musica-taps.mjs).
 
-/** Ganancia del bus de música (las pistas vienen a −20 LUFS): fondo sobrio, por debajo de la voz y los efectos. */
-export const VOLUMEN_MUSICA = 0.55;
-/** Las canciones de celebración vienen a −16 LUFS: un poco menos de ganancia para que no salten. */
-export const VOLUMEN_CELEBRACION = 0.8;
-/** Ganancia relativa mientras habla un personaje o suena un efecto de acierto o fallo. */
+/**
+ * Ganancia del bus de música. Las pistas vienen a −20 LUFS; con 0,5 (−6 dB) quedan cerca de −26 LUFS: un fondo moderado,
+ * unos 10 dB por debajo de los efectos (picos ≈ −11 dBFS tras el compresor de sonido.js) y de la voz.
+ */
+export const VOLUMEN_MUSICA = 0.5;
+/** Las canciones de celebración vienen a −16 LUFS: con 0,7 (−3 dB) quedan cerca de −19 LUFS, un momento, aún bajo los efectos. */
+export const VOLUMEN_CELEBRACION = 0.7;
+/** Ganancia relativa mientras habla un personaje o suena un efecto de acierto o fallo (−10,5 dB). */
 export const DUCKING = 0.3;
 export const CRUCE_MS = 800;
+/** Fundido de entrada cuando no sonaba nada (primer gesto, al volver de una pausa o al encenderla). */
+export const ENTRADA_MS = 1500;
 /** Cuánto dura el ducking de un efecto (los efectos duran ≤ 400 ms). */
 export const DUCK_EFECTO_MS = 650;
+/** Si la pista que suena vale para el Tap nuevo y lleva menos que esto, no se cambia (deslizar rápido no corta la música). */
+export const PERMANENCIA_MS = 20_000;
+/** Peso de la pista propia del mundo dentro del grupo (las demás pesan 1): sesga sin forzar. */
+export const PESO_MUNDO = 2;
 /**
  * Buffers vivos como máximo (~11 MB por minuto en mono): los decodificados guardados más los que se están decodificando.
  * La pista que suena nunca se descarta.
  */
 export const MAX_BUFFERS = 3;
 
+/** Hash FNV-1a de 32 bits: la misma entrada da siempre la misma elección (en el navegador y en las pruebas). */
+function hash(texto) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < texto.length; i++) { h ^= texto.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h >>> 0;
+}
+
+/** Pistas que valen para un Tap: el grupo de su categoría, si no el de su motor; sin grupo, la del mundo o la de defecto. */
+export function candidatas(mapa, { mundo, tema, motor } = {}) {
+  if (!mapa) return [];
+  const grupo = mapa.grupos?.[tema] ?? mapa.grupos?.[motor];
+  if (grupo?.length) return grupo;
+  const una = mapa.mundos?.[mundo] ?? mapa.defecto;
+  return una ? [una] : [];
+}
+
 /**
- * Qué pista toca en un Tap: por mundo, luego categoría, luego motor; si nada coincide, la de defecto. Excepción: en las
- * categorías de `temaPrimero` (Lógica) manda la pista de la categoría aunque el mundo tenga una propia (espacio,
- * observatorio, biblioteca…): así todo Lógica suena a lógica.
+ * Qué pista toca en un Tap: una del grupo de su categoría elegida por el id del Tap (determinista), nunca la `anterior`
+ * (la del Tap previo) si hay otra, y con la del mundo pesando el doble (Nether suena más a magma, sin ser siempre magma).
  */
-export function pistaPara(mapa, { mundo, tema, motor } = {}) {
-  if (!mapa) return null;
-  if (mapa.temaPrimero?.includes(tema) && mapa.temas?.[tema]) return mapa.temas[tema];
-  return mapa.mundos?.[mundo] ?? mapa.temas?.[tema] ?? mapa.motores?.[motor] ?? mapa.defecto ?? null;
+export function pistaPara(mapa, info = {}, anterior = null) {
+  const todas = candidatas(mapa, info);
+  if (!todas.length) return null;
+  const lista = todas.length > 1 && todas.includes(anterior) ? todas.filter(id => id !== anterior) : todas;
+  // Pesan el doble la pista del mundo y la primera del grupo (la que da carácter a la categoría: wonder en Cultura).
+  const sesgo = mapa.mundos?.[info.mundo], firma = todas[0];
+  const pesos = lista.map(id => (id === sesgo || id === firma ? PESO_MUNDO : 1));
+  let r = hash(`${info.id ?? ''}|${info.mundo ?? ''}|${info.tema ?? ''}`) % pesos.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < lista.length; i++) { r -= pesos[i]; if (r < 0) return lista[i]; }
+  return lista[0];
 }
 
 /**
@@ -90,7 +124,25 @@ export function crearMusica(opciones = {}) {
   let enVuelo = 0;
   /** Quienes esperan turno para decodificar (el tope cuenta también lo que se está decodificando). */
   const esperando = [];
-  const ahora = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+  const ahora = opciones.reloj ?? (() => (typeof performance !== 'undefined' ? performance.now() : Date.now()));
+  /** Pista elegida para cada Tap (id del Tap → pista): al volver a un Tap suena la misma. */
+  const elegidas = new Map();
+  /** La pista de fondo del último Tap a la vista (la de premios no cuenta): el siguiente no la repite. */
+  let ultimaFondo = null;
+
+  /** La pista de un Tap: la que ya tenía o una nueva del grupo, distinta de la del Tap anterior. */
+  function elegir(m, info) {
+    if (info?.id && elegidas.has(info.id)) return elegidas.get(info.id);
+    const id = pistaPara(m?.mapa, info, ultimaFondo);
+    if (id && info?.id) elegidas.set(info.id, id);
+    return id;
+  }
+
+  /** La pista que suena vale para este Tap y lleva menos de PERMANENCIA_MS: se queda (no se corta al deslizar rápido). */
+  function seQueda(m, info) {
+    if (!actual || actual.una || ahora() - actual.sonandoDesde >= PERMANENCIA_MS) return false;
+    return candidatas(m?.mapa, info).includes(actual.id);
+  }
 
   const suena = () => !!ac && encendida && !silencio && !pausas.size && !destruida;
 
@@ -242,13 +294,15 @@ export function crearMusica(opciones = {}) {
     src.buffer = b.audio;
     if (!una) { src.loop = true; src.loopStart = b.inicio; src.loopEnd = b.fin; }
     const t = ac.currentTime, vol = p?.letra ? VOLUMEN_CELEBRACION : VOLUMEN_MUSICA;
+    // Sin nada sonando (primer gesto, vuelta de una pausa) entra más despacio; sobre otra pista, fundido cruzado.
+    const entrada = (actual ? CRUCE_MS : ENTRADA_MS) / 1000;
     gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(vol, t + CRUCE_MS / 1000);
+    gain.gain.linearRampToValueAtTime(vol, t + entrada);
     src.connect(gain); gain.connect(bus);
     const desde = Math.max(b.inicio, Math.min(b.fin - 0.05, b.inicio + offset));
     src.start(t, desde);
     const anterior = actual;
-    actual = { id, src, gain, una, t0: t - (desde - b.inicio), b };
+    actual = { id, src, gain, una, t0: t - (desde - b.inicio), b, sonandoDesde: ahora() };
     soltar(anterior, anterior && pista(anterior.id)?.letra ? 250 : CRUCE_MS);   // una canción no sigue sobre la pregunta
     clearTimeout(finCelebracion); finCelebracion = null;
     if (una) {
@@ -291,7 +345,7 @@ export function crearMusica(opciones = {}) {
     nivelBus();
     if (suena()) {
       if (!actual && (deseada || tapPendiente)) void leerManifiesto().then(m => {
-        if (!deseada && tapPendiente) { const id = pistaPara(m?.mapa, tapPendiente); deseada = id ? { id, una: false } : null; }
+        if (!deseada && tapPendiente) { const id = elegir(m, tapPendiente); if (id) ultimaFondo = id; deseada = id ? { id, una: false } : null; }
         tapPendiente = null;
         if (deseada && suena() && !actual) void poner(deseada.id, { una: deseada.una, luego: deseada.luego, offset: deseada.offset ?? 0 });
       });
@@ -326,12 +380,22 @@ export function crearMusica(opciones = {}) {
     /** Pausa por un motivo ('oculta', 'pausa-sana'…); vuelve a sonar cuando no queda ningún motivo. */
     pausar(motivo = 'pausa') { pausas.add(motivo); sincronizar(); },
     reanudar(motivo = 'pausa') { pausas.delete(motivo); sincronizar(); },
-    /** El Tap a la vista: su pista de fondo (si es la misma que suena, sigue sin cortes). */
+    /**
+     * El Tap a la vista (`info.id` = id del Tap): su pista de fondo. Si es la misma que suena, o la que suena también le vale
+     * y lleva menos de PERMANENCIA_MS, sigue sin cortes.
+     */
     async alTap(info) {
       if (!encendida) { deseada = null; tapPendiente = null; return null; }
       const m = manifiesto ?? (ac ? await leerManifiesto() : null);
-      const id = pistaPara(m?.mapa, info);
+      if (!m) { deseada = null; tapPendiente = info; return null; }
+      if (seQueda(m, info)) {
+        if (info?.id) elegidas.set(info.id, actual.id);
+        ultimaFondo = actual.id; tapPendiente = null; deseada = { id: actual.id, una: false };
+        return actual.id;
+      }
+      const id = elegir(m, info);
       if (!id) { deseada = null; tapPendiente = info; return null; }
+      ultimaFondo = id;
       tapPendiente = null;
       if (!suena()) { deseada = { id, una: false }; return id; }
       await poner(id);
@@ -359,7 +423,10 @@ export function crearMusica(opciones = {}) {
     async anticipar(info) {
       if (!encendida || !ac || destruida) return;
       const m = manifiesto ?? await leerManifiesto();
-      const id = pistaPara(m?.mapa, info);
+      if (!m) return;
+      // Solo se calcula (no se guarda): la elección de verdad la hace alTap. Se precarga aunque la pista actual pudiera
+      // quedarse (regla de los 20 s): para cuando llegue el Tap, puede que ya hayan pasado.
+      const id = info?.id && elegidas.has(info.id) ? elegidas.get(info.id) : pistaPara(m.mapa, info, actual?.id ?? ultimaFondo);
       if (id && id !== actual?.id && !decodificadas.has(id)) void traer(id);
     },
     /** Mientras habla un personaje la música baja al 30 %. */
@@ -383,4 +450,4 @@ export function crearMusica(opciones = {}) {
   return M;
 }
 
-export default { crearMusica, pistaPara, ordenarArchivos, limitesBucle, elegirCelebracion, VOLUMEN_MUSICA, VOLUMEN_CELEBRACION, DUCKING, CRUCE_MS };
+export default { crearMusica, pistaPara, candidatas, ordenarArchivos, limitesBucle, elegirCelebracion, VOLUMEN_MUSICA, VOLUMEN_CELEBRACION, DUCKING, CRUCE_MS, ENTRADA_MS, PERMANENCIA_MS };

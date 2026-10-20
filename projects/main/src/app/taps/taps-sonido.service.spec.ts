@@ -132,6 +132,56 @@ describe('TapsSonidoService', () => {
     expect(log).not.toContain('efecto:toque');
   });
 
+  it('iOS: declara audioSession «ambient» en el gesto, aunque sonido.js aún no haya cargado (el interruptor de silencio calla Taps)', () => {
+    const previo = Object.getOwnPropertyDescriptor(navigator, 'audioSession');
+    const sesion = { type: 'auto' };
+    Object.defineProperty(navigator, 'audioSession', { value: sesion, configurable: true });
+    try {
+      const { service } = crear();
+      service.desbloquear();                                              // primer gesto, antes de que llegue sonido.js
+      expect(sesion.type).toBe('ambient');
+      service.destruir();
+    } finally {
+      if (previo) Object.defineProperty(navigator, 'audioSession', previo); else delete (navigator as unknown as { audioSession?: unknown }).audioSession;
+    }
+  });
+
+  it('el efecto pedido antes de cargar sonido.js suena al llegar si fue hace menos de 300 ms (y solo el último)', async () => {
+    const { service, sonido } = crear();
+    service.silenciar(false);
+    service.tocar('toque');
+    service.tocar('acierto', { tema: 'minecraft' });
+    await service.precargar();
+    expect(sonido.log.filter(l => l.startsWith('tocar:'))).toEqual(['tocar:acierto:minecraft']);
+  });
+
+  it('un efecto pedido antes de cargar que ya quedó viejo (≥ 300 ms) no suena tarde', async () => {
+    const { service, sonido } = crear();
+    let t = 1000;
+    spyOn(performance, 'now').and.callFake(() => t);
+    service.silenciar(false);
+    service.tocar('acierto');
+    t = 1400;
+    await service.precargar();
+    expect(sonido.log.some(l => l.startsWith('tocar:'))).toBeFalse();
+  });
+
+  it('Tab y las modificadoras desbloquean los efectos pero no arrancan la música; un toque o una tecla sí', async () => {
+    const { service, sonido } = crear();
+    const log: string[] = [];
+    service.escuchar({ contexto: () => log.push('contexto') });
+    await service.precargar();
+    (sonido as { contexto: unknown }).contexto = {};
+    service.escucharGestos(() => true);
+    for (const key of ['Tab', 'Shift', 'Control']) window.dispatchEvent(new KeyboardEvent('keydown', { key }));
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'c', ctrlKey: true }));
+    expect(sonido.log).toContain('desbloquear');
+    expect(log).toEqual([]);
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: '1' }));
+    expect(log).toEqual(['contexto']);
+    service.destruir();
+  });
+
   it('pausar calla la voz y suspende el audio; destruir libera todo', async () => {
     const { service, sonido, voz } = crear();
     await service.prepararVoz();

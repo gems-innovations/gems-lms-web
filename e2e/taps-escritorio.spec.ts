@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { sinAudio } from './humo-soporte';
 
 /**
  * Taps en escritorio y tablet (ronda 2): armazón con menú, escenario 9:16, riel y panel; rueda, teclado y modo enfoque;
@@ -6,6 +7,9 @@ import { expect, test, type Page } from '@playwright/test';
  *
  * Uso: npx playwright test e2e/taps-escritorio.spec.ts  (con E2E_ESTATICO=1 contra el build estático)
  */
+// Taps suena por defecto tras el primer gesto: ninguna prueba debe sonar (ganancia 0 y voz anotada).
+test.beforeEach(async ({ page }) => { await sinAudio(page); });
+
 test.use({ serviceWorkers: 'block' });
 
 /** Hidratado y, desde 768 px, con el menú, el riel y el panel ya pedidos (@defer) y pintados. */
