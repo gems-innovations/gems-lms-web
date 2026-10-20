@@ -4,7 +4,7 @@ import { IResumenSesion, sessionLabel } from './taps.sesion';
 import { ITapTopic } from './taps.types';
 
 /**
- * Barra superior del feed de Taps: marca GEMS LMS, sonido, voz del personaje y selector de temas.
+ * Barra superior del feed de Taps: marca GEMS LMS, sonido (silencio general), ranking y selector de temas.
  * La marca no saca del juego (hallazgo 5 de la auditoría de permanencia): abre «Tu día en Taps» (racha, meta y avance), desde
  * donde la portada queda a un toque. Cuando ya hay progreso, el nombre de la marca cede su sitio a la racha y la meta del día.
  * El selector es una hoja inferior (nunca un modal centrado, experiencia-ux.md §8.5) con «Para ti» y las categorías;
@@ -21,29 +21,22 @@ import { ITapTopic } from './taps.types';
         <img src="/logo-64.png" width="28" height="28" alt="" decoding="async">
         @if (resumen(); as r) { <gems-tap-sesion [resumen]="r" /> } @else { <span>GEMS LMS</span> }
       </button>
-      <button type="button" class="glass bar__pill bar__sound" (click)="toggleSound.emit()" [attr.aria-pressed]="sound() === 'on'"
-              aria-label="Sonido">
-        @if (sound() === 'on') {
+      <!-- Silencio general: un solo botón calla o devuelve TODO (efectos, música y voz). Nombre fijo y el estado en aria-pressed;
+           el title (escritorio) dice qué pasará. Música y voz, por separado, en «Tu día» (celular) o el menú (escritorio). -->
+      <!-- Antes de hidratar (sound null) no se sabe lo guardado: altavoz neutro, sin ondas ni tachado y sin aria-pressed, para
+           que quien lo dejó apagado no vea un altavoz encendido que luego salta. -->
+      <button type="button" class="glass bar__pill bar__sound" (click)="toggleSound.emit($event.timeStamp)"
+              [attr.aria-pressed]="sound() === null ? null : sound() === 'on'"
+              aria-label="Sonido" [attr.aria-keyshortcuts]="desktop() ? 'M' : null"
+              [attr.title]="desktop() && sound() !== null ? (sound() === 'on' ? 'Silenciar todo (M)' : 'Activar el sonido (M)') : null">
+        @if (sound() === null) {
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z" fill="currentColor"/></svg>
+        } @else if (sound() === 'on') {
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
         } @else {
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z" fill="currentColor"/><path d="m22 9-6 6M16 9l6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-          @if (sound() === 'pending') { <span class="bar__tip">{{ desktop() ? 'Clic o M para sonido' : 'Toca para sonido' }}</span> }
         }
       </button>
-      <!-- «Voz»: el personaje lee la pregunta (apagada por defecto). Su lugar está reservado desde el primer pintado (sin saltos
-           al hidratar); mientras no se sabe si hay voz, o si el dispositivo no tiene, el botón ocupa espacio pero no se ve ni se enfoca. -->
-      @let v = voice();
-      <button type="button" class="glass bar__pill bar__voice" [class.is-reserved]="v !== 'on' && v !== 'off'" (click)="toggleVoice.emit()"
-              [attr.aria-pressed]="v === 'on'" [attr.aria-hidden]="v !== 'on' && v !== 'off' ? 'true' : null"
-              [attr.tabindex]="v !== 'on' && v !== 'off' ? -1 : null" aria-label="Voz del personaje" aria-describedby="taps-voz-nota">
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-            <!-- Cabeza que habla (de perfil); encendida, con ondas de voz; apagada, la misma cabeza tachada. -->
-            <path d="M4 21v-3.5A7 7 0 1 1 14.6 11.5l1.6 3h-1.7V17a2 2 0 0 1-2 2H10v2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            @if (v === 'on') { <path d="M18 7.5a4 4 0 0 1 0 5M20.5 5a7.5 7.5 0 0 1 0 10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/> }
-            @else { <path d="M3 3l18 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/> }
-          </svg>
-      </button>
-      <span id="taps-voz-nota" class="visually-hidden">Lee las preguntas en voz alta. Si usas lector de pantalla, puedes dejarla apagada.</span>
       <button type="button" class="glass bar__pill bar__rank" (click)="openRanking.emit()" aria-haspopup="dialog" aria-label="Ranking">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 14v3.5M8.5 20.5h7M9.5 17.5h5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
@@ -98,22 +91,16 @@ import { ITapTopic } from './taps.types';
       img { border-radius: 8px; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .4)); } }
     .bar__pill { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 48px; min-height: 48px; padding: 0 12px; border-radius: 999px;
       font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
-    .bar__sound { position: relative; }
-    /* Con voz y ranking no caben marca, sonido, voz, trofeo y temas por debajo de 400 px (375 incluido): el nombre de la marca se
+    /* Por debajo de 400 px (375 incluido) no caben marca, racha, sonido, trofeo y temas con texto: el nombre de la marca se
        oculta y queda el logo, para que «Temas» no se recorte. */
-    .bar__voice.is-reserved { visibility: hidden; pointer-events: none; }
     @media (max-width: 399px) { .bar__brand span { display: none; } }
-    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-    /* Aviso «Toca para sonido» bajo el botón (fuera del flujo: la barra cabe en 320 px) y bajo la barra de progreso. */
-    .bar__tip { position: absolute; top: calc(100% + 16px); left: 0; padding: 4px 10px; border-radius: 999px; font-size: 13px; white-space: nowrap;
-      background: rgba(8, 10, 14, .72); border: 1px solid rgba(255, 255, 255, .18); pointer-events: none; }
     .bar__brand, .bar__pill { white-space: nowrap; flex: none; }
     .bar__rank { padding: 0; }
-    /* Con logo, sonido, voz y ranking, «Temas» es lo único que cede: un tema largo («Lógica y trampas») se recorta con «…». */
+    /* Con logo, sonido y ranking, «Temas» es lo único que cede: un tema largo («Lógica y trampas») se recorta con «…». */
     .bar__topics { flex: 0 1 auto; min-width: 48px; margin-left: auto; padding: 0 12px 0 10px; overflow: hidden;
       svg { flex: none; } span { min-width: 0; overflow: hidden; text-overflow: ellipsis; } }
     /* Por debajo de 400 px «Temas» queda solo con su icono (y su etiqueta accesible): así caben logo (28 px, siempre), racha,
-       sonido, voz y ranking. Va siempre, con o sin racha, para que nada salte al hidratar. Fuera de la portada (#45). */
+       sonido y ranking. Va siempre, con o sin racha, para que nada salte al hidratar. Fuera de la portada (#45). */
     @media (max-width: 399px) { :host-context(gems-taps:not([modo='portada'])) .bar__topics span { display: none; } }
     .bar__chip { display: none; margin-left: auto; color: #0d1117; background: #4de1ff; border: 0; }
     /* Escritorio y tablet: la barra vive dentro del escenario; la marca y «Temas» están en el menú. */
@@ -147,9 +134,8 @@ import { ITapTopic } from './taps.types';
 })
 export class TapsBarComponent {
   private readonly injector = inject(Injector);
-  readonly sound = input<'pending' | 'on' | 'off'>('pending');
-  /** Voz del personaje; `null` = aún no se sabe y `'none'` = sin voz utilizable (el botón reserva su lugar pero no se ve). */
-  readonly voice = input<'on' | 'off' | 'none' | null>(null);
+  /** Sonido general (efectos, música y voz): encendido por defecto; `null` antes de hidratar (aún no se sabe lo guardado). */
+  readonly sound = input<'on' | 'off' | null>(null);
   readonly topic = input<string | null>(null);
   readonly topicName = input('Para ti');
   readonly desktop = input(false);
@@ -159,8 +145,8 @@ export class TapsBarComponent {
   /** Insignias de colección por tema (vacío en el servidor): «Colecciones: 1 de 6 insignias» en la hoja de temas. */
   readonly insignias = input<Record<string, { ganadas: number; total: number }>>({});
 
-  readonly toggleSound = output<void>();
-  readonly toggleVoice = output<void>();
+  /** Clic en el altavoz, con el instante del evento (un clic de antes de hidratar, repetido al hidratar, nunca enciende). */
+  readonly toggleSound = output<number>();
   readonly topicChange = output<string | null>();
   /** Abierta o cerrada: el feed pausa la cuenta atrás mientras se elige. */
   readonly sheetChange = output<boolean>();

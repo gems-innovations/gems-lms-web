@@ -92,11 +92,18 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
           <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
           <span class="side__txt">Atajos: {{ shortcuts() ? 'activados' : 'apagados' }}</span>
         </button>
-        <!-- Música de fondo: apagada por defecto; suena solo con el sonido activado. Nombre fijo y el estado en aria-pressed. -->
-        <button type="button" class="side__keys side__musica" (click)="toggleMusica.emit()" [attr.aria-pressed]="musica()" aria-label="Música de fondo" aria-describedby="taps-menu-musica-nota">
+        <!-- Música y voz: opciones de detalle (encendida y apagada por defecto). El silencio general es el altavoz del escenario
+             (o M). Nombre fijo y el estado en aria-pressed y en el texto. -->
+        <button type="button" class="side__keys side__musica" (click)="toggleMusica.emit()" [attr.aria-pressed]="musica()" aria-label="Música de fondo" title="Música de fondo (el altavoz o M silencian todo)">
           <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/></svg></span>
-          <span class="side__txt">Música de fondo<small id="taps-menu-musica-nota">Activa también el sonido</small></span>
+          <span class="side__txt">Música de fondo<small aria-hidden="true">{{ musica() ? 'Encendida' : 'Apagada' }}</small></span>
         </button>
+        @if (voz() === 'on' || voz() === 'off') {
+          <button type="button" class="side__keys side__musica" (click)="toggleVoz.emit()" [attr.aria-pressed]="voz() === 'on'" aria-label="Voz del personaje" title="Voz del personaje: lee las preguntas en voz alta">
+            <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 21v-3.5A7 7 0 1 1 14.6 11.5l1.6 3h-1.7V17a2 2 0 0 1-2 2H10v2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 7.5a4 4 0 0 1 0 5M20.5 5a7.5 7.5 0 0 1 0 10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+            <span class="side__txt">Voz del personaje<small aria-hidden="true">{{ voz() === 'on' ? 'Encendida' : 'Apagada' }}</small></span>
+          </button>
+        }
         <p class="side__legal side__txt"><a routerLink="/terminos">Términos</a> · <a routerLink="/privacidad">Privacidad</a></p>
       </div>
     </nav>
@@ -120,7 +127,10 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
           <a routerLink="/">Cursos gratis</a>
           <a routerLink="/instituciones">Para instituciones</a>
           <button type="button" (click)="toggleShortcuts.emit(); moreOpen.set(false)">Atajos de teclado: {{ shortcuts() ? 'apagar' : 'encender' }}</button>
-          <button type="button" class="top__musica" (click)="toggleMusica.emit()" [attr.aria-pressed]="musica()" aria-label="Música de fondo" aria-describedby="taps-top-musica-nota">Música de fondo<span id="taps-top-musica-nota" class="top__nota"> (activa también el sonido)</span></button>
+          <button type="button" class="top__musica" (click)="toggleMusica.emit()" [attr.aria-pressed]="musica()" aria-label="Música de fondo">Música de fondo<span class="top__nota" aria-hidden="true">: {{ musica() ? 'encendida' : 'apagada' }}</span></button>
+          @if (voz() === 'on' || voz() === 'off') {
+            <button type="button" class="top__musica" (click)="toggleVoz.emit()" [attr.aria-pressed]="voz() === 'on'" aria-label="Voz del personaje">Voz del personaje<span class="top__nota" aria-hidden="true">: {{ voz() === 'on' ? 'encendida' : 'apagada' }}</span></button>
+          }
           <a routerLink="/auth/signin">Entrar</a>
         </div>
       }
@@ -150,6 +160,9 @@ export class TapsMenuComponent {
   /** Música de fondo encendida (preferencia guardada; en la portada no hay menú). */
   readonly musica = input(false);
   readonly toggleMusica = output<void>();
+  /** Voz que lee las preguntas; `null`/`'none'`: aún no se sabe o no hay voz en el dispositivo (no se muestra). */
+  readonly voz = input<'on' | 'off' | 'none' | null>(null);
+  readonly toggleVoz = output<void>();
 
   protected readonly moreOpen = signal(false);
 

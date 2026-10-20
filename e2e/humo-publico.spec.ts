@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { apiFalsa, CURSOS, erroresDePagina, omitirSiPortadaAnterior, sinAnalitica, sinScrollHorizontal } from './humo-soporte';
+import { apiFalsa, CURSOS, erroresDePagina, omitirSiPortadaAnterior, sinAnalitica, sinAudio, sinScrollHorizontal } from './humo-soporte';
 
 /**
  * Humo · lo que ve un visitante sin cuenta: portada, ficha de curso, retos, bloques, Taps, legales, instituciones y 404.
@@ -15,6 +15,7 @@ let errores: string[] = [];
 test.beforeEach(async ({ page }) => {
   errores = erroresDePagina(page);
   await sinAnalitica(page);
+  await sinAudio(page);                                            // Taps suena tras el primer gesto: nada sale por los altavoces
 });
 
 test.afterEach(() => {
@@ -66,9 +67,21 @@ test.describe('Humo · visitante', () => {
       localStorage.setItem('gems-taps-interes', JSON.stringify({ score: {}, blocked: {}, done: {}, days: [dia(3), dia(2)] }));
       localStorage.setItem('gems-taps-sesion', JSON.stringify({ ultima: Date.now() - 2 * 86_400_000, puntajes: {} }));
     });
+    const musica: string[] = [];
+    page.on('request', r => { if (/\/taps-musica\/|\/audio\/musica\.js/.test(r.url())) musica.push(new URL(r.url()).pathname); });
     await page.reload();
     await page.waitForTimeout(4_000);                              // la voz se decide en reposo (requestIdleCallback, hasta 3 s)
-    await expect(page.locator('gems-taps .bar__voice')).not.toHaveAttribute('aria-pressed', 'true');
+    // El altavoz (silencio general) está y la voz no está activa. Sin exigir el estado del altavoz ni la ausencia del botón
+    // de voz de antes: el workflow iphone.yml corre esta prueba contra producción, que puede ir una versión atrás.
+    await expect(page.locator('gems-taps .bar__sound')).toBeVisible();
+    await expect(page.locator('gems-taps .bar__voice[aria-pressed="true"]')).toHaveCount(0);
+    // Responder (la partida guardada sigue en la pregunta siguiente): suenan los efectos, pero ni voz ni música.
+    const opcion = page.locator('gems-taps .tap.tap--active .tap__opt:not([disabled])').first();
+    await expect(opcion).toBeVisible();
+    await opcion.click();
+    await page.waitForTimeout(3_000);                              // respuesta y paso a la pregunta siguiente
+    expect(await page.evaluate(() => (window as unknown as { __habla?: string[] }).__habla ?? []), 'la voz no habla en la portada').toEqual([]);
+    expect(musica, 'la portada no pide música ni tras responder').toEqual([]);
     await expect(page.locator('gems-taps .tap__toast')).toHaveCount(0);
     await expect(page.locator('gems-taps .bar__brand')).toBeHidden();
     await expect(page.locator('gems-tap-sesion-hoja')).toHaveCount(0);

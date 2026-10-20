@@ -47,7 +47,7 @@
 .tap--visual .tap__world gems-tap-rail { visibility: hidden; }
 @keyframes visual-in { from { opacity: 0; transform: translateY(10px) scale(.92); } }
 
-// ── Escena de la pregunta (motor: stage.escena): arriba a la izquierda del mundo, bajo el aviso de sonido; el personaje se
+// ── Escena de la pregunta (motor: stage.escena): arriba a la izquierda del mundo, bajo la barra; el personaje se
 // corre a la mitad derecha. Nunca toca el panel de la pregunta (alto acotado al mundo) ni el riel. El motor pone el contenido.
 .tap__escena { position: absolute; z-index: 2; left: 12px; top: 104px; width: min(50%, 228px); height: min(calc(100% - 116px), 200px); pointer-events: none;
   &[hidden] { display: none; }

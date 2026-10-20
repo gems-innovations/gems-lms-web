@@ -50,7 +50,7 @@ import { IPanelCard, TPanelState } from './taps.panel';
             <div><dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>Cambiar de Tap</dd></div>
             <div><dt><kbd>Espacio</kbd></dt><dd>Seguir</dd></div>
             <div><dt><kbd>R</kbd></dt><dd>Retar a un amigo</dd></div>
-            <div><dt><kbd>M</kbd></dt><dd>Sonido</dd></div>
+            <div><dt><kbd>M</kbd></dt><dd>Sonido (todo)</dd></div>
             <div><dt><kbd>F</kbd></dt><dd>Modo enfoque</dd></div>
             <div><dt><kbd>[</kbd></dt><dd>Menú</dd></div>
           </dl>

@@ -1,4 +1,5 @@
 import { expect, Page, test } from '@playwright/test';
+import { sinAudio } from './humo-soporte';
 
 /**
  * Retención · primera sesión en celular por Taps: llegar desde un Short (enlace con utm), primera pregunta visible y
@@ -26,6 +27,9 @@ const COUNT_JS_STUB = `
   window.__gc = [];
   window.goatcounter = Object.assign(window.goatcounter || {}, { count: function (v) { window.__gc.push(v); } });
 `;
+
+// Taps suena por defecto tras el primer gesto: ninguna prueba debe sonar (ganancia 0 y voz anotada).
+test.beforeEach(async ({ page }) => { await sinAudio(page); });
 
 test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: 'block' });
 

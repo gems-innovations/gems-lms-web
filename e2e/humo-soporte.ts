@@ -132,8 +132,10 @@ function reglasBase(): IRegla[] {
 /**
  * Instala la API falsa en la página. `reglas` va antes que las de base (para cambiar una respuesta).
  * `caida: true` simula el API caído (toda llamada falla por red), para probar que nada queda en blanco.
+ * También deja la página sin audio (sinAudio): ninguna prueba de humo suena por los altavoces.
  */
 export async function apiFalsa(page: Page, opciones: { reglas?: IRegla[]; caida?: boolean } = {}): Promise<IApiFalsa> {
+  await sinAudio(page);
   const llamadas: string[] = [];
   const reglas = [...(opciones.reglas ?? []), ...reglasBase()];
   await page.route(API, async (route: Route) => {
@@ -168,6 +170,32 @@ export async function apiFalsa(page: Page, opciones: { reglas?: IRegla[]; caida?
 export async function sinAnalitica(page: Page): Promise<void> {
   await page.route(/gc\.zgo\.at\/count\.js/, r => r.fulfill({ contentType: 'text/javascript', body: 'window.goatcounter = { count: function () {} };' }));
   await page.route(/goatcounter\.com/, r => r.abort());
+}
+
+/**
+ * Ningún sonido sale de las pruebas: el destino de cada AudioContext pasa a ser una ganancia 0 y la voz del sistema
+ * (speechSynthesis.speak) no habla, solo anota lo que habría dicho en `window.__habla`. Taps suena por defecto tras el
+ * primer gesto (efectos y música), así que cualquier prueba que toque el feed debería llamarla antes de navegar.
+ */
+export async function sinAudio(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __habla: string[]; AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext };
+    w.__habla = [];
+    for (const nombre of ['AudioContext', 'webkitAudioContext'] as const) {
+      const C = w[nombre];
+      if (!C || (C as unknown as { __mudo?: boolean }).__mudo) continue;
+      class Mudo extends C {
+        static __mudo = true;
+        constructor(o?: AudioContextOptions) {
+          super(o);
+          const cero = super.createGain(); cero.gain.value = 0; cero.connect(super.destination);
+          Object.defineProperty(this, 'destination', { value: cero });
+        }
+      }
+      w[nombre] = Mudo as typeof AudioContext;
+    }
+    try { if (globalThis.speechSynthesis) globalThis.speechSynthesis.speak = (u: SpeechSynthesisUtterance) => { w.__habla.push(u.text); }; } catch { /* sin Web Speech */ }
+  });
 }
 
 /** Junta los errores de JavaScript no atrapados (una pantalla en blanco suele empezar por uno). */

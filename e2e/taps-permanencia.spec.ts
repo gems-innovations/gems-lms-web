@@ -1,4 +1,5 @@
 import { expect, Page, test } from '@playwright/test';
+import { sinAudio } from './humo-soporte';
 
 /**
  * Permanencia en Taps (producto/retencion/auditoria-permanencia.md, mejoras 1, 2, 3 y hallazgo 5), en celular (375 px):
@@ -17,6 +18,9 @@ declare global { interface Window { __gc?: IHit[] } }
 const HORA = 3600_000;
 /** Tarde del día 0 (hora local): el regreso es al día siguiente a la misma hora. */
 const DIA0 = new Date(2026, 9, 19, 18, 0, 0);
+
+// Taps suena por defecto tras el primer gesto: ninguna prueba debe sonar (ganancia 0 y voz anotada).
+test.beforeEach(async ({ page }) => { await sinAudio(page); });
 
 test.use({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true, serviceWorkers: 'block' });
 

@@ -63,21 +63,29 @@ export const PISTAS = [
 ];
 
 /**
- * Qué pista suena en cada Tap: primero por su mundo (scene.world), luego por su categoría (topic) y luego por su motor
- * (theme); salvo en las categorías de `temaPrimero` (Lógica), donde la de la categoría va antes que la del mundo.
- * Un mundo o tema nuevo sin entrada cae en `defecto`. El resultado normal usa `resultado`; 5/5 y racha nueva,
- * un fragmento de una canción de `celebraciones`.
+ * Qué pista suena en cada Tap (taps-engine/audio/musica.js → pistaPara): una del grupo de su categoría (topic) o, si la
+ * categoría no tiene grupo, del de su motor (theme). Se elige por el id del Tap (determinista), sin repetir la del Tap
+ * anterior; la pista de su mundo (scene.world) en `mundos` pesa el doble dentro del grupo (sesga, no fuerza). Sin grupo,
+ * la del mundo o `defecto`. El resultado normal usa `resultado`; 5/5 y racha nueva, un fragmento de `celebraciones`.
+ * Antes había una sola pista por mundo/tema y casi todo Minecraft sonaba a pixel-quest: 3 canciones en toda una sesión.
  */
+const GRUPO_MINECRAFT = ['pixel-quest-loop', 'cave-quiz-crawl', 'magma-quest-loop', 'village-morning-loop', 'island-quiz-loop'];
+const GRUPO_LOGICA = ['puzzle-tick-loop', 'cozy-study-loop', 'orbit-quiz-drift'];
+const GRUPO_CULTURA = ['wonder-loop', 'orbit-quiz-drift', 'island-quiz-loop', 'village-morning-loop', 'cozy-study-loop'];
 export const MAPA = {
+  grupos: {
+    minecraft: GRUPO_MINECRAFT, logica: GRUPO_LOGICA, cultura: GRUPO_CULTURA,
+    // Por motor, para una categoría nueva sin grupo propio.
+    estudio: GRUPO_LOGICA, aventura: GRUPO_CULTURA,
+  },
+  /** Sesgo por mundo: solo cuenta si la pista está en el grupo del Tap (la cueva de Minecraft suena más a cueva). */
   mundos: {
+    pradera: 'pixel-quest-loop', bosque: 'pixel-quest-loop', nieve: 'pixel-quest-loop', desierto: 'pixel-quest-loop',
     cueva: 'cave-quiz-crawl', noche: 'cave-quiz-crawl', nether: 'magma-quest-loop', end: 'magma-quest-loop',
     aldea: 'village-morning-loop', casa: 'village-morning-loop', playa: 'island-quiz-loop',
-    espacio: 'orbit-quiz-drift', observatorio: 'orbit-quiz-drift', biblioteca: 'cozy-study-loop',
+    espacio: 'orbit-quiz-drift', observatorio: 'orbit-quiz-drift', 'noche-estrellada': 'orbit-quiz-drift', 'piramides-noche': 'orbit-quiz-drift',
+    biblioteca: 'cozy-study-loop', aula: 'puzzle-tick-loop', laboratorio: 'puzzle-tick-loop',
   },
-  temas: { minecraft: 'pixel-quest-loop', logica: 'puzzle-tick-loop', cultura: 'wonder-loop' },
-  /** Categorías cuya pista manda sobre la del mundo: Lógica suena a lógica también en espacio, observatorio o biblioteca. */
-  temaPrimero: ['logica'],
-  motores: { minecraft: 'pixel-quest-loop', estudio: 'cozy-study-loop' },
   defecto: 'cozy-study-loop',
   resultado: 'prize-parade-loop',
   celebraciones: { perfecto: ['tap-tap-aprende', 'piensa-bien'], racha: ['racha-en-racha'] },
@@ -244,8 +252,13 @@ export function verificar(dir = DESTINO) {
       if (!a.src.includes(`.${hash}.`)) errores.push(`${a.src}: el hash del nombre no coincide (${hash})`);
     }
   }
-  const usadas = [...Object.values(m.mapa.mundos), ...Object.values(m.mapa.temas), ...Object.values(m.mapa.motores), m.mapa.defecto, m.mapa.resultado,
+  const usadas = [...Object.values(m.mapa.mundos), ...Object.values(m.mapa.grupos).flat(), m.mapa.defecto, m.mapa.resultado,
     ...Object.values(m.mapa.celebraciones).flat()];
+  const fondo = new Set(m.pistas.filter(p => p.tipo === 'fondo').map(p => p.id));
+  for (const [grupo, lista] of Object.entries(m.mapa.grupos)) {
+    if (lista.length < 2) errores.push(`el grupo ${grupo} necesita al menos 2 pistas (si no, siempre suena la misma)`);
+    for (const id of lista) if (ids.has(id) && !fondo.has(id)) errores.push(`el grupo ${grupo} usa ${id}, que no es de fondo`);
+  }
   for (const id of usadas) if (!ids.has(id)) errores.push(`el mapa usa ${id}, que no está en las pistas`);
   const sobrantes = readdirSync(dir).filter(f => /\.(webm|m4a|mp3|ogg)$/.test(f) && !m.pistas.some(p => p.archivos.some(a => a.src === f)));
   for (const f of sobrantes) errores.push(`${f} sobra (no está en musica.json)`);

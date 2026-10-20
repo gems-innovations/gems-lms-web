@@ -107,15 +107,29 @@ export class TapSesionComponent {
         <h2 id="taps-hoja-dia" class="hoja__title" tabindex="-1" #titulo>Tu día en Taps</h2>
         <gems-tap-sesion vista="franja" [resumen]="resumen()" />
         <p class="hoja__nota">{{ nota() }}</p>
-        <!-- Música de fondo: apagada por defecto; suena solo con el sonido activado (la barra del celular ya no tiene sitio). -->
-        <div class="musica-caja">
-        <button type="button" class="musica" (click)="alternarMusica.emit()" [attr.aria-pressed]="musica()" aria-describedby="taps-musica-nota">
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
-          <span class="musica__txt">Música de fondo</span>
-          <span class="musica__sw" aria-hidden="true"><i></i></span>
-        </button>
-        <p class="musica__nota" id="taps-musica-nota">Encender la música también activa el sonido. Se guarda en este navegador.</p>
-        </div>
+        <!-- Sonido: el primer interruptor es el mismo silencio general del altavoz de la barra (todo); música y voz, debajo, son
+             opciones de detalle. Sin sonido general, música y voz se ven atenuadas y encender una lo enciende. -->
+        <section class="musica-caja" [class.is-mudo]="!sonidoOn()" aria-labelledby="taps-hoja-sonido">
+          <h3 class="hoja__sub" id="taps-hoja-sonido">Sonido</h3>
+          <button type="button" class="musica" (click)="alternarSonido.emit()" [attr.aria-pressed]="sonidoOn()" aria-label="Todo el sonido" aria-describedby="taps-sonido-nota">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+            <span class="musica__txt">Todo el sonido<small id="taps-sonido-nota">Efectos, música y voz. Igual que el altavoz de arriba.</small></span>
+            <span class="musica__sw" aria-hidden="true"><i></i></span>
+          </button>
+          <button type="button" class="musica musica--sub" (click)="alternarMusica.emit()" [attr.aria-pressed]="musica()" [attr.aria-describedby]="sonidoOn() ? null : 'taps-sonido-apagado'">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
+            <span class="musica__txt">Música de fondo</span>
+            <span class="musica__sw" aria-hidden="true"><i></i></span>
+          </button>
+          @if (voz() === 'on' || voz() === 'off') {
+            <button type="button" class="musica musica--sub" (click)="alternarVoz.emit()" [attr.aria-pressed]="voz() === 'on'" aria-label="Voz del personaje" aria-describedby="taps-voz-nota">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 21v-3.5A7 7 0 1 1 14.6 11.5l1.6 3h-1.7V17a2 2 0 0 1-2 2H10v2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 7.5a4 4 0 0 1 0 5M20.5 5a7.5 7.5 0 0 1 0 10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+              <span class="musica__txt">Voz del personaje<small id="taps-voz-nota">Lee las preguntas en voz alta. Con lector de pantalla, mejor apagada.</small></span>
+              <span class="musica__sw" aria-hidden="true"><i></i></span>
+            </button>
+          }
+          @if (!sonidoOn()) { <p class="musica__nota" id="taps-sonido-apagado">El sonido está apagado. Encender la música o la voz también lo activa.</p> }
+        </section>
         @if (reto(); as r) {
           <section class="reto" aria-labelledby="taps-hoja-reto">
             <p class="reto__over" id="taps-hoja-reto">{{ etiquetaReto(r.numero) }} · {{ r.temaNombre }}</p>
@@ -186,12 +200,17 @@ export class TapSesionComponent {
     .cols__todas { width: 100%; min-height: 44px; margin-top: 6px; border-radius: 12px; font: inherit; font-weight: 700; color: #fff; background: transparent; border: 1.5px solid rgba(255, 255, 255, .22); cursor: pointer; }
     .cols__lista { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
     .hoja__title { margin: 0 0 12px; font-size: 18px; }
-    .musica-caja { margin: 0 0 14px; padding: 4px 12px 8px; border-radius: 14px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .14); }
-    .musica { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 0; border: 0; border-radius: 10px; font: inherit; text-align: left;
+    .musica-caja { margin: 0 0 14px; padding: 10px 12px 6px; border-radius: 14px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .14);
+      .hoja__sub { margin: 0 0 2px; } }
+    .musica { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 4px 0; border: 0; border-radius: 10px; font: inherit; text-align: left;
       color: #fff; background: none; cursor: pointer;
       svg { flex: none; } }
-    .musica__txt { flex: 1; font-weight: 800; }
-    .musica__nota { margin: 0 0 0 32px; font-size: 12px; font-weight: 600; line-height: 1.35; color: #aab4c4; }
+    .musica--sub { border-top: 1px solid rgba(255, 255, 255, .1); border-radius: 0; }
+    /* Sin sonido general, música y voz se ven atenuadas (siguen siendo tocables: encender una enciende el sonido). */
+    .is-mudo .musica--sub { opacity: .6; }
+    .musica__txt { flex: 1; font-weight: 800;
+      small { display: block; margin-top: 1px; font-size: 12px; font-weight: 600; line-height: 1.35; color: #aab4c4; } }
+    .musica__nota { margin: 2px 0 6px 32px; font-size: 12px; font-weight: 600; line-height: 1.35; color: #f2c94c; }
     .musica__sw { flex: none; width: 44px; height: 26px; padding: 3px; border-radius: 999px; background: rgba(255, 255, 255, .22); transition: background .2s;
       i { display: block; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .2s; } }
     .musica[aria-pressed='true'] .musica__sw { background: #4de1ff; i { transform: translateX(18px); } }
@@ -224,9 +243,16 @@ export class TapSesionHojaComponent {
   readonly cerrar = output<void>();
   readonly jugarReto = output<void>();
   readonly compartirReto = output<void>();
+  /** Sonido general (el mismo del altavoz de la barra). */
+  readonly sonido = input<'on' | 'off' | null>(null);
+  readonly alternarSonido = output<void>();
   /** Música de fondo encendida (preferencia guardada). */
   readonly musica = input(false);
   readonly alternarMusica = output<void>();
+  /** Voz que lee las preguntas; `null`/`'none'`: aún no se sabe o el dispositivo no tiene voz (no se muestra). */
+  readonly voz = input<'on' | 'off' | 'none' | null>(null);
+  readonly alternarVoz = output<void>();
+  protected readonly sonidoOn = computed(() => this.sonido() === 'on');
   private readonly hoja = viewChild.required<ElementRef<HTMLDialogElement>>('hoja');
   private readonly cols = viewChild<ElementRef<HTMLElement>>('cols');
   private readonly titulo = viewChild<ElementRef<HTMLElement>>('titulo');

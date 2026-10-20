@@ -4,15 +4,18 @@ import { TapsSonidoService } from './taps-sonido.service';
 import { ITap } from './taps.types';
 
 /** Súbela cuando cambie taps-engine/audio/musica.js (la query evita que una caché vieja entregue el módulo anterior). */
-export const TAPS_MUSICA_VERSION = '1';
+export const TAPS_MUSICA_VERSION = '2';
 export const TAPS_MUSICA_URL = `/taps-engine/audio/musica.js?v=${TAPS_MUSICA_VERSION}`;
 /** Manifiesto de las pistas (scripts/procesar-musica-taps.mjs). nginx lo revalida siempre; el audio lleva hash en el nombre. */
 export const TAPS_MUSICA_MANIFIESTO = '/taps-musica/musica.json';
 export const MUSICA_KEY = 'gems-taps-musica';
 
-/** De qué depende la pista de un Tap: su mundo (scene.world), su categoría (topic) y su motor (theme). */
-export interface ITapMusica { mundo: string; tema: string; motor: string }
-export const musicaDe = (tap: ITap): ITapMusica => ({ mundo: tap.scene.world, tema: tap.topic ?? tap.theme, motor: tap.theme });
+/**
+ * De qué depende la pista de un Tap: su id (la elección dentro del grupo es determinista por Tap), su mundo (scene.world,
+ * sesga la elección), su categoría (topic, elige el grupo) y su motor (theme, grupo de respaldo).
+ */
+export interface ITapMusica { id: string; mundo: string; tema: string; motor: string }
+export const musicaDe = (tap: ITap): ITapMusica => ({ id: tap.id, mundo: tap.scene.world, tema: tap.topic ?? tap.theme, motor: tap.theme });
 
 /** Lo que usa este servicio de taps-engine/audio/musica.js (módulo ES servido aparte, fuera del bundle). */
 interface IMusicaModulo { crearMusica(opciones: { manifiesto: string }): IMusica }
@@ -34,11 +37,13 @@ interface IMusica {
  * Música de fondo del feed de Taps (instrumentales de Eleven Music en public/taps-musica). Fina a propósito: el reproductor
  * vive en public/taps-engine/audio/musica.js y se carga por URL (0 bytes en el bundle).
  *
- * · Apagada por defecto; la preferencia se recuerda (localStorage). En la portada arranca apagada siempre.
+ * · Encendida por defecto en /taps (producto/taps/voz-y-sonido.md §2.1); si la persona la apaga, se recuerda (localStorage)
+ *   y sigue apagada. La clave no se versiona: antes solo se escribía al tocar el control (el «apagada» de antes era la
+ *   ausencia de clave), así que un 'off' guardado siempre es una decisión de la persona. En la portada no suena.
  * · Nada antes del primer gesto ni en el servidor: el módulo, el manifiesto y las pistas se piden solo con la música
  *   encendida y con el AudioContext compartido (que TapsSonidoService crea dentro de un gesto).
  * · Suena solo si el sonido general está activo (el botón de sonido y M la callan con todo lo demás).
- * · Una pista por mundo/tema con fundido cruzado al cambiar; canciones con letra solo al celebrar (5/5 o racha nueva) y la
+ * · Una pista del grupo de la categoría por Tap (variada, sin repetir la del anterior), con fundido cruzado al cambiar; canciones con letra solo al celebrar (5/5 o racha nueva) y la
  *   instrumental de premios en el resultado. Ducking con la voz y los efectos de respuesta; pausa con la pestaña oculta.
  */
 @Injectable()
@@ -56,18 +61,21 @@ export class TapsMusicaService {
   private pedido: ((m: IMusica) => void) | null = null;
   private readonly pausas = new Set<string>();
 
-  /** Preferencia de música (el control muestra este estado con aria-pressed). */
+  /** Preferencia de música (el control muestra este estado con aria-pressed). Suena solo si además el sonido está activo. */
   readonly encendida = signal(false);
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.destruir());
   }
 
-  /** Tras hidratar. `portada`: la música arranca apagada aunque se haya dejado encendida en /taps. */
+  /**
+   * Tras hidratar. `portada`: sin música aunque en /taps esté encendida (la portada es una página con más cosas y suele
+   * abrirse en cualquier parte; la música de fondo es de /taps, adonde la persona entra a jugar).
+   */
   iniciar(portada: boolean): void {
     if (!this.browser || this.iniciado) return;
     this.iniciado = true;
-    this.encendida.set(!portada && this.leer() === 'on');
+    this.encendida.set(!portada && this.leer() !== 'off');
     this.sonido.escuchar({
       contexto: ctx => { this.ctx = ctx; if (this.encendida()) void this.cargar(); else this.musica?.conectar(ctx); },
       silencio: m => { this.silencio = m; this.musica?.silenciar(m); },

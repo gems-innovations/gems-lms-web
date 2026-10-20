@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const ENGINE = new URL('../public/taps-engine/', import.meta.url);
 const MUSICA_DIR = new URL('../public/taps-musica/', import.meta.url);
-const { crearMusica, pistaPara, ordenarArchivos, limitesBucle, elegirCelebracion, DUCKING, VOLUMEN_MUSICA, MAX_BUFFERS } = await import(new URL('audio/musica.js', ENGINE).href);
+const { crearMusica, pistaPara, candidatas, ordenarArchivos, limitesBucle, elegirCelebracion, DUCKING, VOLUMEN_MUSICA, MAX_BUFFERS, PERMANENCIA_MS } = await import(new URL('audio/musica.js', ENGINE).href);
 const { verificar, PISTAS, MAPA, LICENCIA } = await import(new URL('../scripts/procesar-musica-taps.mjs', import.meta.url).href);
 const manifiesto = JSON.parse(readFileSync(new URL('musica.json', MUSICA_DIR), 'utf8'));
 const banco = readFileSync(new URL('../src/app/taps/taps.banco.generated.ts', import.meta.url), 'utf8');
@@ -49,16 +49,29 @@ test('mapa: cada mundo y tema del banco tiene una pista de fondo (instrumental)'
   const taps = [...banco.matchAll(/"theme":"([\w-]+)".*?"world":"([\w-]+)".*?"topic":"([\w-]+)"/g)].map(m => ({ motor: m[1], mundo: m[2], tema: m[3] }));
   assert.ok(taps.length > 20);
   for (const t of taps) assert.ok(fondo.has(pistaPara(manifiesto.mapa, t)), `${t.motor}/${t.mundo}/${t.tema}`);
-  assert.equal(pistaPara(MAPA, { mundo: 'cueva', tema: 'minecraft', motor: 'minecraft' }), 'cave-quiz-crawl');
-  assert.equal(pistaPara(MAPA, { mundo: 'nether', tema: 'minecraft', motor: 'minecraft' }), 'magma-quest-loop');
-  assert.equal(pistaPara(MAPA, { mundo: 'pradera', tema: 'minecraft', motor: 'minecraft' }), 'pixel-quest-loop');
-  assert.equal(pistaPara(MAPA, { mundo: 'aula', tema: 'logica', motor: 'estudio' }), 'puzzle-tick-loop');
-  assert.equal(pistaPara(MAPA, { mundo: 'espacio', tema: 'cultura', motor: 'estudio' }), 'orbit-quiz-drift');
-  // Lógica manda sobre el mundo (temaPrimero): espacio, observatorio y biblioteca suenan a lógica.
-  for (const mundo of ['espacio', 'observatorio', 'biblioteca']) assert.equal(pistaPara(MAPA, { mundo, tema: 'logica', motor: 'estudio' }), 'puzzle-tick-loop', mundo);
-  assert.equal(pistaPara(MAPA, { mundo: 'biblioteca', tema: 'cultura', motor: 'estudio' }), 'cozy-study-loop');
+  // Cada categoría tiene su grupo (las pistas que pidió el dueño) y todas son instrumentales de fondo.
+  assert.deepEqual(MAPA.grupos.minecraft, ['pixel-quest-loop', 'cave-quiz-crawl', 'magma-quest-loop', 'village-morning-loop', 'island-quiz-loop']);
+  assert.deepEqual(MAPA.grupos.logica, ['puzzle-tick-loop', 'cozy-study-loop', 'orbit-quiz-drift']);
+  assert.deepEqual(MAPA.grupos.cultura, ['wonder-loop', 'orbit-quiz-drift', 'island-quiz-loop', 'village-morning-loop', 'cozy-study-loop']);
+  for (const g of Object.values(MAPA.grupos)) for (const id of g) assert.ok(fondo.has(id), id);
+  assert.deepEqual(candidatas(MAPA, { mundo: 'x', tema: 'nuevo', motor: 'estudio' }), MAPA.grupos.estudio, 'categoría sin grupo: el de su motor');
   assert.equal(pistaPara(MAPA, { mundo: 'otro', tema: 'nuevo', motor: 'otro' }), MAPA.defecto);
+  assert.equal(pistaPara(MAPA, { mundo: 'cueva', tema: 'nuevo', motor: 'otro' }), 'cave-quiz-crawl', 'sin grupo: la del mundo');
   assert.equal(pistaPara(null, {}), null);
+});
+
+test('mapa: elección determinista, nunca la del Tap anterior y el mundo sesga sin forzar', () => {
+  const info = { id: 'mc-nether-1', mundo: 'nether', tema: 'minecraft', motor: 'minecraft' };
+  assert.equal(pistaPara(MAPA, info), pistaPara(MAPA, { ...info }), 'mismo Tap, misma pista');
+  for (const anterior of MAPA.grupos.minecraft) assert.notEqual(pistaPara(MAPA, info, anterior), anterior, anterior);
+  // 400 Taps falsos del Nether: magma (su mundo) pesa 2 de 7, como pixel-quest (la firma del grupo); las demás, 1. Sale
+  // más que las de peso 1, pero no siempre.
+  const cuenta = {};
+  for (let i = 0; i < 400; i++) { const id = pistaPara(MAPA, { ...info, id: `n-${i}` }); cuenta[id] = (cuenta[id] ?? 0) + 1; }
+  assert.equal(Object.keys(cuenta).length, 5, JSON.stringify(cuenta));
+  const magma = cuenta['magma-quest-loop'];
+  assert.ok(magma > 80 && magma < 170, `magma ${magma} de 400`);
+  for (const id of ['cave-quiz-crawl', 'village-morning-loop', 'island-quiz-loop']) assert.ok(cuenta[id] < magma, `${id} ${cuenta[id]}`);
 });
 
 test('utilidades: orden de formatos, límites del bucle y rotación de canciones', () => {
@@ -108,8 +121,10 @@ function entorno({ fallaWebm = false, lento = 0 } = {}) {
 }
 const esperar = () => new Promise(r => setTimeout(r, 5));
 const nuevo = e => crearMusica({ manifiesto: 'http://x/taps-musica/musica.json', fetch: e.fetch, puede: () => 'maybe' });
-const cueva = { mundo: 'cueva', tema: 'minecraft', motor: 'minecraft' };
-const aula = { mundo: 'aula', tema: 'logica', motor: 'estudio' };
+const cueva = { id: 't-cueva', mundo: 'cueva', tema: 'minecraft', motor: 'minecraft' };
+const aula = { id: 't-aula', mundo: 'aula', tema: 'logica', motor: 'estudio' };
+/** Lo que el mapa elige para cada uno (la cueva primero; el aula, después de ella). */
+const P_CUEVA = pistaPara(MAPA, cueva), P_AULA = pistaPara(MAPA, aula, P_CUEVA);
 
 test('música: apagada no pide nada; encendida sin AudioContext (sin gesto) tampoco', async () => {
   const e = entorno(), m = nuevo(e);
@@ -121,8 +136,8 @@ test('música: apagada no pide nada; encendida sin AudioContext (sin gesto) tamp
   await m.alTap(cueva); await esperar();
   assert.deepEqual(e.pedidos, [], 'sin contexto (antes del primer gesto) no se pide nada');
   m.conectar(new e.AC()); await esperar(); await esperar();
-  assert.deepEqual(e.pedidos.map(p => p.split('/').pop().replace(/\.[0-9a-f]{8}\./, '.')), ['musica.json', 'cave-quiz-crawl.webm'], 'solo el manifiesto y la pista necesaria');
-  assert.equal(m.pistaActual, 'cave-quiz-crawl');
+  assert.deepEqual(e.pedidos.map(p => p.split('/').pop().replace(/\.[0-9a-f]{8}\./, '.')), ['musica.json', `${P_CUEVA}.webm`], 'solo el manifiesto y la pista necesaria');
+  assert.equal(m.pistaActual, P_CUEVA);
   const f = e.fuentes.at(-1);
   assert.equal(f.loop, true);
   assert.ok(f.loopEnd > f.loopStart);
@@ -134,12 +149,12 @@ test('música: silenciada no suena; fundido cruzado al cambiar de mundo y la mis
   await m.alTap(cueva); await esperar();
   assert.equal(e.fuentes.length, 0, 'con el sonido apagado no arranca ninguna pista');
   m.silenciar(false); await esperar(); await esperar();
-  assert.equal(m.pistaActual, 'cave-quiz-crawl');
-  await m.alTap({ ...cueva, mundo: 'noche' });
-  assert.equal(e.fuentes.length, 1, 'cueva y noche comparten pista: no se reinicia');
+  assert.equal(m.pistaActual, P_CUEVA);
+  await m.alTap({ ...cueva, id: 't-noche', mundo: 'noche' });
+  assert.equal(e.fuentes.length, 1, 'otro Tap de Minecraft antes de 20 s: la pista que suena le vale y no se reinicia');
   await m.alTap(aula); await esperar();
-  assert.equal(m.pistaActual, 'puzzle-tick-loop');
-  assert.ok(e.log.includes('stop:cave-quiz-crawl'), 'la anterior se suelta (con fundido)');
+  assert.equal(m.pistaActual, P_AULA);
+  assert.ok(e.log.includes(`stop:${P_CUEVA}`), 'la anterior se suelta (con fundido)');
 });
 
 test('música: pausa por pestaña oculta o pausa sana y vuelve donde iba; apagar para', async () => {
@@ -152,7 +167,7 @@ test('música: pausa por pestaña oculta o pausa sana y vuelve donde iba; apagar
   m.pausar('pausa-sana'); m.reanudar('oculta'); await esperar();
   assert.equal(m.pistaActual, null, 'sigue en pausa mientras quede un motivo');
   m.reanudar('pausa-sana'); await esperar(); await esperar();
-  assert.equal(m.pistaActual, 'cave-quiz-crawl');
+  assert.equal(m.pistaActual, P_CUEVA);
   assert.ok(Math.abs(e.fuentes.at(-1).inicio - 10) < 0.1, 'retoma en el mismo punto del bucle');
   m.encender(false);
   assert.equal(m.pistaActual, null);
@@ -171,7 +186,7 @@ test('música: 5/5 → fragmento con letra sin bucle y luego la instrumental de 
   assert.equal(m.pistaActual, 'prize-parade-loop');
   assert.equal(await m.alResultado({ racha: true }), 'racha-en-racha', 'la racha manda');
   await m.alTap(aula); await esperar();
-  assert.equal(m.pistaActual, 'puzzle-tick-loop', 'al volver a una pregunta la canción se va');
+  assert.equal(m.pistaActual, P_AULA, 'al volver a una pregunta la canción se va');
   assert.equal(await m.alResultado({}), 'prize-parade-loop');
 });
 
@@ -208,8 +223,8 @@ test('música: si el navegador no decodifica Opus/WebM, cae al AAC', async () =>
   const e = entorno({ fallaWebm: true }), m = nuevo(e), ac = new e.AC();
   m.conectar(ac); m.encender(true); m.silenciar(false);
   await m.alTap(cueva); await esperar(); await esperar(); await esperar();
-  assert.equal(m.pistaActual, 'cave-quiz-crawl');
-  assert.ok(e.log.some(l => /^decode:cave-quiz-crawl\.[0-9a-f]{8}\.m4a$/.test(l)), e.log.join(' '));
+  assert.equal(m.pistaActual, P_CUEVA);
+  assert.ok(e.log.some(l => l.startsWith(`decode:${P_CUEVA}.`) && /\.[0-9a-f]{8}\.m4a$/.test(l)), e.log.join(' '));
 });
 
 test('música: anticipar baja la pista siguiente sin decodificarla ni sonar', async () => {
@@ -217,16 +232,16 @@ test('música: anticipar baja la pista siguiente sin decodificarla ni sonar', as
   m.conectar(ac); m.encender(true); m.silenciar(false);
   await m.alTap(cueva); await esperar(); await esperar();
   await m.anticipar(aula); await esperar();
-  assert.ok(e.pedidos.some(p => p.includes('puzzle-tick-loop')));
-  assert.ok(!e.log.some(l => l.startsWith('decode:puzzle')), 'sin decodificar');
-  assert.equal(m.pistaActual, 'cave-quiz-crawl');
+  assert.ok(e.pedidos.some(p => p.includes(P_AULA)));
+  assert.ok(!e.log.some(l => l.startsWith(`decode:${P_AULA}`)), 'sin decodificar');
+  assert.equal(m.pistaActual, P_CUEVA);
 });
 
 test('música: al pasar a la pregunta, la canción se va ya aunque la pista siguiente tarde en decodificar, y no vuelve la de premios', async () => {
   const e = entorno({ lento: 300 }), m = nuevo(e), ac = new e.AC();
   m.conectar(ac); m.encender(true); m.silenciar(false);
   await m.alTap(cueva); await new Promise(r => setTimeout(r, 350));
-  assert.equal(m.pistaActual, 'cave-quiz-crawl');
+  assert.equal(m.pistaActual, P_CUEVA);
   await m.alResultado({ perfecto: true });
   assert.equal(m.pistaActual, 'tap-tap-aprende');
   const cancion = e.fuentes.at(-1);
@@ -236,9 +251,9 @@ test('música: al pasar a la pregunta, la canción se va ya aunque la pista sigu
   assert.ok(e.log.includes('stop:tap-tap-aprende'));
   cancion.onended?.();                                                  // el fin de la canción ya no pone nada
   await pendiente; await esperar();
-  assert.equal(m.pistaActual, 'puzzle-tick-loop');
+  assert.equal(m.pistaActual, P_AULA);
   await new Promise(r => setTimeout(r, 350));
-  assert.equal(m.pistaActual, 'puzzle-tick-loop', 'prize-parade no pisa la pista del mundo');
+  assert.equal(m.pistaActual, P_AULA, 'prize-parade no pisa la pista del mundo');
   assert.ok(!e.fuentes.some(x => x.buffer.id === 'prize-parade-loop' && x.sonando), 'la de premios no arrancó');
 });
 
@@ -246,11 +261,11 @@ test('música: si WebM no decodifica, se recuerda y las siguientes pistas (y ant
   const e = entorno({ fallaWebm: true }), m = nuevo(e), ac = new e.AC();
   m.conectar(ac); m.encender(true); m.silenciar(false);
   await m.alTap(cueva); await esperar(); await esperar(); await esperar();
-  assert.equal(m.pistaActual, 'cave-quiz-crawl');
+  assert.equal(m.pistaActual, P_CUEVA);
   e.pedidos.length = 0;
   await m.anticipar(aula); await esperar();
   await m.alTap(aula); await esperar(); await esperar();
-  assert.equal(m.pistaActual, 'puzzle-tick-loop');
+  assert.equal(m.pistaActual, P_AULA);
   assert.ok(e.pedidos.length > 0 && e.pedidos.every(p => p.endsWith('.m4a')), e.pedidos.join(' '));
   e.pedidos.length = 0;
   await m.alTap(cueva); await esperar();
@@ -269,4 +284,36 @@ test('música: nunca hay más de ' + MAX_BUFFERS + ' buffers vivos (guardados + 
   clearInterval(vigilar);
   assert.ok(max <= MAX_BUFFERS, `máximo ${max}`);
   assert.ok(m.buffersVivos <= MAX_BUFFERS);
+});
+
+test('música: deslizar rápido no corta la pista; pasados 20 s, el Tap siguiente trae otra; al volver, la misma de antes', async () => {
+  let reloj = 0;
+  const e = entorno(), ac = new e.AC();
+  const m = crearMusica({ manifiesto: 'http://x/taps-musica/musica.json', fetch: e.fetch, puede: () => 'maybe', reloj: () => reloj });
+  m.conectar(ac); m.encender(true); m.silenciar(false);
+  const tap = i => ({ id: `mc-${i}`, mundo: 'pradera', tema: 'minecraft', motor: 'minecraft' });
+  await m.alTap(tap(0)); await esperar(); await esperar();
+  const primera = m.pistaActual;
+  assert.ok(primera);
+  reloj = 5_000;
+  assert.equal(await m.alTap(tap(1)), primera, 'a los 5 s la pista sigue (también vale para Minecraft)');
+  assert.equal(e.fuentes.length, 1);
+  reloj = PERMANENCIA_MS + 1;
+  const otra = await m.alTap(tap(2)); await esperar(); await esperar();
+  assert.notEqual(otra, primera, 'pasados 20 s, el Tap nuevo no repite la del anterior');
+  assert.equal(m.pistaActual, otra);
+  reloj += PERMANENCIA_MS + 1;
+  assert.equal(await m.alTap(tap(0)), primera, 'volver a un Tap trae su misma pista');
+});
+
+test('música: entra con un fundido de entrada (no de golpe) y el cambio de pista es un fundido cruzado', async () => {
+  const e = entorno(), ac = new e.AC();
+  const rampas = [], crear = ac.createGain.bind(ac);
+  ac.createGain = () => { const g = crear(); const r = g.gain.linearRampToValueAtTime; g.gain.linearRampToValueAtTime = (v, t) => { rampas.push({ v, t }); return r.call(g.gain, v, t); }; return g; };
+  const m = nuevo(e);
+  m.conectar(ac); m.encender(true); m.silenciar(false);
+  await m.alTap(cueva); await esperar(); await esperar();
+  assert.deepEqual(rampas[0], { v: VOLUMEN_MUSICA, t: 1.5 }, 'primera pista: de 0 al volumen en 1,5 s');
+  await m.alTap(aula); await esperar(); await esperar();
+  assert.ok(rampas.some(r => r.v === VOLUMEN_MUSICA && r.t === 0.8), 'cambio de pista: 800 ms');
 });
