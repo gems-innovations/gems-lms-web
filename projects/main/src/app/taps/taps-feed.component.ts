@@ -287,6 +287,18 @@ export class TapsFeedComponent {
   private readonly stages = new Map<string, ITapsStage>();
   /** Último uso de cada escenario (para retirar el 3D en pausa más antiguo). */
   private readonly stageUse = new Map<ITapsStage, number>();
+  /** Capa ligera de espera (sin 3D ni sonido) en un Tap vecino: al deslizar ya se ve su fondo y su personaje. */
+  private readonly anticipos = new Map<string, ITapsStage>();
+  /** Foto fija que deja el escenario al irse de un Tap: el Tap que sale (o al que se vuelve) no queda vacío. Por id de Tap. */
+  private readonly huellas = new Map<string, HTMLElement>();
+  /** Escenarios creados en pausa por la precarga que aún no se vieron (su espera del 3D empieza al verse). */
+  private readonly precargados = new Set<ITapsStage>();
+  /** Tareas en reposo pendientes (se cancelan al salir del feed). */
+  private readonly reposos = new Set<() => void>();
+  /** El 3D ya tuvo que bajar calidad en este equipo: no se precarga otro WebGL. */
+  private degradado = false;
+  /** Hacia dónde desliza (1 abajo, -1 arriba): se prepara primero el Tap de ese lado. */
+  private direction = 1;
   private activeIndex = -1;
   private stageClock = 0;
   private token = 0;
@@ -337,10 +349,18 @@ export class TapsFeedComponent {
       this.safeObserver?.disconnect();
       this.stages.forEach(stage => stage.destroy());
       this.stages.clear();
+      this.reposos.forEach(cancel => cancel());
+      this.reposos.clear();
+      this.vaciarCapas();
       this.stageUse.clear();
       this.stage = null;
       this.gate?.dispose();
       this.audio.destruir();
+    });
+    // Cambió la lista de Taps (orden, filtro): las fotos fijas y capas de espera se retiran (van por id, pero su ranura cambia).
+    effect(() => {
+      this.taps();
+      untracked(() => this.vaciarCapas());
     });
     // Vuelve la red: se reintenta solo lo que falló (el tema del escenario), sin recargar la página.
     effect(() => {
@@ -1502,6 +1522,7 @@ export class TapsFeedComponent {
       const r = this.run(left);
       if (!r.finished && r.answers.length > 0 && r.answers[r.answers.length - 1] === false) this.signal(left, 'leave-after-error');
     }
+    if (previous >= 0) this.direction = index < previous ? -1 : 1;
     this.activeIndex = index;
     this.activeId.set(tap.id);
     this.ahora.set(Date.now());
@@ -1519,10 +1540,16 @@ export class TapsFeedComponent {
     try {
       const stage = await this.ensureStage(tap);
       if (token !== this.token || !stage) return;
-      stage.attachTo(this.slots()[index].nativeElement);
+      const slot = this.slots()[index].nativeElement, root = stage.root;
+      // Llega desde otro Tap: deja su foto fija allá y, si aquí ya se ve algo (foto o capa de espera), entra con un fundido
+      // cuando su escena ya está puesta, en vez de aparecer de golpe sobre el degradado.
+      const llega = !!root && root.parentElement !== slot, tapado = llega && (this.huellas.has(tap.id) || this.anticipos.has(tap.id));
+      if (llega) this.dejarHuella(stage);
+      if (tapado) root!.style.opacity = '0';
+      stage.attachTo(slot);
       this.watchSafeArea(index);
       stage.resume();
-      await stage.setScene(tap.scene);
+      try { await stage.setScene(tap.scene); } finally { this.mostrar(stage, index, tapado && token === this.token); }
       if (token !== this.token) return;
       const run = this.run(tap);
       if (run.finished) this.celebrateResult(tap, run); else { stage.say(''); stage.react('ask', { say: false }); this.readQuestion(tap); }
@@ -1588,15 +1615,40 @@ export class TapsFeedComponent {
     const known = this.stages.get(tap.theme);
     if (known) return this.switchStage(known);
     const { create } = await loadTapsEngine();
-    if (this.stages.has(tap.theme)) return this.switchStage(this.stages.get(tap.theme)!);   // otro activate lo creó mientras cargaba el motor
+    if (this.stages.has(tap.theme)) return this.switchStage(this.stages.get(tap.theme)!);   // otro activate (o la precarga) lo creó mientras cargaba el motor
     // Modo ligero o ahorro de datos: póster fijo, sin pedir el motor 3D.
     const stage = create(this.slots()[this.activeIndex].nativeElement, { theme: tapsThemeUrl(tap.theme), mode: this.lightOnly() ? 'light' : 'auto', audio: this.audio.motorAudio });
-    stage.setVoz?.(this.voice() === 'on' ? this.audio.motorVoz : null);
-    this.stages.set(tap.theme, stage);
     this.stage?.pause();
     this.stage = stage;
-    this.stageUse.set(stage, ++this.stageClock);
     this.retireWebglStages(stage, 1);
+    this.wireStage(tap, stage);
+    try {
+      await stage.ready;
+    } catch (error) {
+      // theme.json no llegó (red, 500, JSON inválido): se retira ese escenario y el Tap sigue sobre su degradado.
+      // El siguiente Tap del mismo tema vuelve a intentarlo.
+      this.dropStage(tap.theme, stage);
+      throw error;
+    }
+    performance.mark?.('taps-poster');                              // la capa ligera (póster) ya se ve; el 3D se prepara detrás
+    if (this.stage === stage) this.setStageMode(this.pending3d.has(stage) ? 'poster' : stage.mode);
+    return stage;
+  }
+
+  private dropStage(theme: string, stage: ITapsStage): void {
+    this.pending3d.delete(stage);
+    this.precargados.delete(stage);
+    if (this.stages.get(theme) === stage) this.stages.delete(theme);
+    this.stageUse.delete(stage);
+    if (this.stage === stage) this.stage = null;
+    try { stage.destroy(); } catch { /* ya destruido */ }
+  }
+
+  /** Registra un escenario nuevo (activo o precargado) y atiende su modo y su 3D. */
+  private wireStage(tap: ITap, stage: ITapsStage): void {
+    stage.setVoz?.(this.voice() === 'on' ? this.audio.motorVoz : null);
+    this.stages.set(tap.theme, stage);
+    this.stageUse.set(stage, ++this.stageClock);
     this.pending3d.add(stage);
     stage.setMuted(this.sound() !== 'on');
     stage.on('mode', data => {
@@ -1609,50 +1661,52 @@ export class TapsFeedComponent {
         this.track(null, `taps/poster-solo/${this.posterReason(data.reason)}`);
       }
     });
-    stage.on('degrade', () => this.glassOff());
+    stage.on('degrade', () => { this.degradado = true; this.glassOff(); });
     stage.on('visual', () => { if (stage === this.stage) this.onVisualTouch(); });                     // el 3D va justo: el blur sobre el canvas cuesta fps
+    // Un escenario en pausa que pierde su contexto WebGL (el sistema recupera memoria) se retira; deja su foto fija.
+    stage.root?.addEventListener('webglcontextlost', () => {
+      if (stage === this.stage || this.stages.get(tap.theme) !== stage) return;
+      this.dejarHuella(stage);
+      this.dropStage(tap.theme, stage);
+    }, true);
     // La promesa del 3D puede rechazar si el tema falla: siempre se atiende, o sería un error sin capturar.
-    const ready3d = stage.ready3d.then(mode => {
+    void stage.ready3d.then(mode => {
       this.pending3d.delete(stage);
       if (stage === this.stage) this.setStageMode(mode);
-      if (mode === '3d' && stage.stats().canvas === 'webgl') this.retireWebglStages(stage, 0);   // ya hay un WebGL vivo: el otro en pausa sobra
+      // Tope: el activo + UN WebGL en pausa. Antes se dejaban 0 en pausa y el tema recién dejado se destruía y se recreaba
+      // al volver (otra vez la capa ligera y el salto al 3D). Uno precargado deja otro en pausa solo si el activo no es WebGL.
+      if (mode === '3d' && stage.stats().canvas === 'webgl') this.retireWebglStages(stage, stage === this.stage || !this.esWebgl(this.stage) ? 1 : 0);
     }, () => undefined);
-    try {
-      await stage.ready;
-    } catch (error) {
-      // theme.json no llegó (red, 500, JSON inválido): se retira ese escenario y el Tap sigue sobre su degradado.
-      // El siguiente Tap del mismo tema vuelve a intentarlo.
-      this.pending3d.delete(stage);
-      this.stages.delete(tap.theme);
-      if (this.stage === stage) this.stage = null;
-      stage.destroy();
-      throw error;
-    }
-    performance.mark?.('taps-poster');                              // la capa ligera (póster) ya se ve; el 3D se prepara detrás
-    if (this.pending3d.has(stage)) this.setStageMode('poster'); else this.setStageMode(stage.mode);
-    void ready3d;
-    return stage;
   }
 
   private switchStage(stage: ITapsStage): ITapsStage {
     if (this.stage && this.stage !== stage) this.stage.pause();
     this.stage = stage;
     this.stageUse.set(stage, ++this.stageClock);
+    // el precargado se creó en silencio y sin espera del 3D: al verse recibe el sonido, la voz y sus 4 s de espera
+    stage.setMuted(this.sound() !== 'on');
+    stage.setVoz?.(this.voice() === 'on' ? this.audio.motorVoz : null);
+    if (this.precargados.delete(stage) && this.pending3d.has(stage)) stage.setSlow?.(4000);
     this.setStageMode(stage.mode === '3d' ? '3d' : this.pending3d.has(stage) ? 'poster' : 'light');
     return stage;
   }
 
+  /** Cuenta como WebGL: 3D que no es 2D, o uno que aún no decidió su modo. */
+  private esWebgl(s: ITapsStage | null): boolean {
+    return !!s && s.stats().canvas !== '2d' && (s.mode === '3d' || this.pending3d.has(s));
+  }
+
   /**
-   * Destruye los escenarios WebGL en pausa más antiguos hasta dejar `keep` (sin contar `current` ni el activo). Uno que aún
-   * no decidió su modo cuenta como WebGL salvo que sea 2D.
+   * Destruye los escenarios WebGL en pausa menos usados hasta dejar `keep` (sin contar `current` ni el activo): se conserva el
+   * del Tap recién dejado (el más reciente). Uno que aún no decidió su modo cuenta como WebGL salvo que sea 2D.
    */
   private retireWebglStages(current: ITapsStage, keep: number): void {
     const paused = [...this.stages.entries()]
-      .filter(([, s]) => s !== current && s !== this.stage && s.stats().canvas !== '2d' && (s.mode === '3d' || this.pending3d.has(s)))
+      .filter(([, s]) => s !== current && s !== this.stage && this.esWebgl(s))
       .sort((a, b) => (this.stageUse.get(a[1]) ?? 0) - (this.stageUse.get(b[1]) ?? 0));
     for (const [theme, s] of paused.slice(0, Math.max(0, paused.length - keep))) {
-      this.stages.delete(theme); this.pending3d.delete(s); this.stageUse.delete(s);
-      try { s.destroy(); } catch { /* ya destruido */ }
+      this.dejarHuella(s);                                            // su Tap no queda vacío si se vuelve a él
+      this.dropStage(theme, s);
     }
   }
 
@@ -1682,23 +1736,235 @@ export class TapsFeedComponent {
     void this.activate(index);
   }
 
+  /** Tarea en reposo con prioridad baja, cancelable (al salir del feed se cancelan las pendientes). */
+  private enReposo(fn: () => void, timeout: number): void {
+    const g = globalThis as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+    let cancel: () => void;
+    const run = () => { this.reposos.delete(cancel); fn(); };
+    if (g.requestIdleCallback) { const id = g.requestIdleCallback(run, { timeout }); cancel = () => g.cancelIdleCallback?.(id); }
+    else { const id = setTimeout(run, Math.min(timeout, 2500)); cancel = () => clearTimeout(id); }
+    this.reposos.add(cancel);
+  }
+
   /**
-   * Precarga en reposo de los 2 Taps siguientes (experiencia-ux.md §7.1): si su tema ya tiene escenario se prepara su escena; si
-   * es otro tema, solo se pide su `theme.json` (el motor del otro tema no). Nunca con ahorro de datos, 2G o modo ligero.
+   * Precarga en reposo de los Taps de al lado (experiencia-ux.md §7.1), hacia donde desliza. Todo se corta si cambia de Tap o
+   * de dirección (token) o si deja de estar permitida (`precargaPermitida`).
    */
   private preloadAhead(index: number): void {
-    if (this.lightOnly()) return;
-    const idle = (globalThis as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
+    this.limpiarVecinos(index);
+    if (!this.precargaPermitida()) return;
+    const token = this.token, dir = this.direction;
+    this.enReposo(() => {
+      if (token !== this.token || !this.precargaPermitida()) return;
+      void this.prepararVecino(index + dir, true);
+      void this.prepararVecino(index - dir, false);
+    }, 900);
     for (const offset of [1, 2]) {
-      const upcoming = this.taps()[index + offset];
+      const upcoming = this.taps()[index + offset * dir];
       if (!upcoming) continue;
-      const target = this.stages.get(upcoming.theme);
-      const run = () => {
+      this.enReposo(() => {
+        if (token !== this.token || !this.precargaPermitida()) return;
+        const target = this.stages.get(upcoming.theme);
         if (target) void target.preload(upcoming.scene).catch(() => undefined);
         else this.prefetchTheme(upcoming.theme);
         if (offset === 1) this.musica.anticipar(upcoming);          // solo con la música encendida; sin decodificar
-      };
-      if (idle) idle(run, { timeout: 4000 }); else setTimeout(run, 2500);
+      }, 4000);
+    }
+  }
+
+  /** Única regla de la precarga: sin ahorro de datos, 2G ni 3G, con red y con la pestaña a la vista. */
+  private precargaPermitida(): boolean {
+    if (this.lightOnly() || this.document.hidden || !this.status.online()) return false;
+    const c = (navigator as Navigator & { connection?: { effectiveType?: string } }).connection;
+    return !/(^|-)3g$/.test(c?.effectiveType ?? '');
+  }
+
+  /** Equipo justo (≤ 4 GB, calidad baja o ya degradó): la precarga nunca crea otro WebGL, solo la capa de espera. */
+  private equipoJusto(): boolean {
+    const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+    const st = this.stage?.stats();
+    return this.degradado || (mem !== undefined && mem <= 4) || st?.tier === 'low' || st?.tier === 'light' || (st?.degraded ?? 0) > 0;
+  }
+
+  /**
+   * Deja listo el Tap `i` antes de que llegue (adiós al «teletransporte»: antes su ranura quedaba vacía mientras se
+   * deslizaba y el escenario aparecía de golpe al pasar el 60 %):
+   * · si su tema ya tiene escenario en pausa, se lleva ya a su ranura con su escena puesta (el 3D se ve al deslizar);
+   * · hacia adelante, si su tema no tiene escenario y cabe (2D, o ningún otro WebGL en pausa y equipo no justo), se crea
+   *   ahí en pausa: tope de contextos intacto (el activo + uno);
+   * · si no, una capa ligera de espera (DOM + CSS, sin 3D ni sonido) con su fondo y su personaje en el mismo encuadre.
+   */
+  private async prepararVecino(i: number, adelante: boolean): Promise<void> {
+    const tap = this.taps()[i], slot = this.slots()[i]?.nativeElement;
+    if (!tap || !slot || i === this.activeIndex) return;
+    const token = this.token, own = this.stages.get(tap.theme);
+    const sigue = () => token === this.token && this.precargaPermitida();
+    if (own && (own === this.stage || (!adelante && own.root?.parentElement !== slot))) {
+      if (!this.huellas.has(tap.id)) await this.crearAnticipo(tap, token);
+      return;
+    }
+    if (own) {
+      if (own.root && own.root.parentElement !== slot) { this.dejarHuella(own); own.attachTo(slot); }
+      this.ponerArea(own, i);
+      await own.setScene(tap.scene).catch(() => undefined);
+      if (own.root?.parentElement === slot) this.quitarCapas(tap.id);
+      return;
+    }
+    if (adelante && !this.huellas.has(tap.id)) {
+      const sin3d = await this.temaSin3d(tap.theme);
+      if (!sigue()) return;
+      if (sin3d || (!this.equipoJusto() && ![...this.stages.values()].some(s => s !== this.stage && this.esWebgl(s)))) {
+        const { create } = await loadTapsEngine();
+        if (!sigue() || this.stages.has(tap.theme) || i === this.activeIndex) return;
+        // en pausa y en silencio: el 3D se arma detrás sin dibujar en bucle; su espera de 4 s empieza al verse (switchStage)
+        const stage = create(slot, { theme: tapsThemeUrl(tap.theme), mode: 'auto', audio: this.audio.motorAudio, slowMs: 0 });
+        stage.pause('precarga');
+        this.wireStage(tap, stage);
+        stage.setMuted(true);
+        this.precargados.add(stage);
+        try { await stage.ready; } catch { this.dropStage(tap.theme, stage); return; }
+        if (stage !== this.stages.get(tap.theme) || stage === this.stage) return;
+        if (!sigue()) { if (this.precargados.has(stage)) this.dropStage(tap.theme, stage); return; }   // dejó de estar permitida: se cancela
+        this.ponerArea(stage, i);
+        await stage.setScene(tap.scene).catch(() => undefined);
+        return;
+      }
+    }
+    if (!this.huellas.has(tap.id)) await this.crearAnticipo(tap, token);
+  }
+
+  /** El tema dibuja con Canvas 2D (`canvas: '2d'`, sin WebGL): precargarlo no gasta un contexto WebGL. Lee su theme.json (en caché). */
+  private temaSin3d(theme: string): Promise<boolean> {
+    let p = this.temas2d.get(theme);
+    if (!p) {
+      p = fetch(tapsThemeUrl(theme), { priority: 'low' } as RequestInit).then(r => (r.ok ? r.json() : null)).then(t => t?.canvas === '2d', () => false);
+      this.temas2d.set(theme, p);
+    }
+    return p;
+  }
+  private readonly temas2d = new Map<string, Promise<boolean>>();
+
+  private ranura(id: string): HTMLElement | undefined {
+    return this.slots()[this.taps().findIndex(t => t.id === id)]?.nativeElement;
+  }
+
+  private async crearAnticipo(tap: ITap, token: number): Promise<void> {
+    const slot = this.ranura(tap.id), ocupada = () => !!slot?.querySelector('.te-stage, .te-huella');
+    if (!slot || this.anticipos.has(tap.id) || ocupada()) return;
+    const { create } = await loadTapsEngine();
+    if (token !== this.token || !this.precargaPermitida() || this.anticipos.has(tap.id) || ocupada() || this.ranura(tap.id) !== slot) return;
+    const a = create(slot, { theme: tapsThemeUrl(tap.theme), mode: 'light', audio: { play: () => undefined }, slowMs: 0 });
+    this.marcarCapa(a.root, 'te-anticipo');
+    this.anticipos.set(tap.id, a);
+    try {
+      await a.ready;
+      if (this.anticipos.get(tap.id) !== a) return;
+      this.ponerArea(a, this.taps().findIndex(t => t.id === tap.id));
+      await a.setScene(tap.scene);
+    } catch { if (this.anticipos.get(tap.id) === a) this.quitarAnticipo(tap.id); }
+  }
+
+  /** Foto o capa de espera: no es «el» escenario (clase te-huella, no te-stage), sin foco, sin ids ni lector de pantalla. */
+  private marcarCapa(el: HTMLElement | undefined, extra: string): void {
+    if (!el) return;
+    el.classList.replace('te-stage', 'te-huella');
+    el.classList.add(extra);
+    el.setAttribute('aria-hidden', 'true');
+    el.inert = true;
+    el.style.pointerEvents = 'none';
+    el.removeAttribute('id');
+    el.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+  }
+
+  /** Zona segura del Tap `i` (la misma que usa el activo), para que la capa de espera quede en el mismo encuadre. */
+  private ponerArea(stage: ITapsStage, i: number): void {
+    const slot = this.slots()[i]?.nativeElement, world = this.sections()[i]?.nativeElement.querySelector<HTMLElement>('.tap__world');
+    if (!stage.setSafeArea || !slot || !world) return;
+    const s = slot.getBoundingClientRect(), w = world.getBoundingClientRect();
+    if (s.height < 1 || w.height < 1) return;
+    stage.setSafeArea({ top: Math.max(0, Math.round(w.top - s.top)), bottom: Math.max(0, Math.round(s.bottom - w.bottom)) });
+  }
+
+  /**
+   * Foto fija del escenario donde está ahora (copia del DOM + sus lienzos), antes de llevárselo a otro Tap o destruirlo.
+   * Barata: un nodo y drawImage; el lienzo animado a ¼ de resolución (la mitad de ancho y de alto), sin red ni WebGL.
+   */
+  private dejarHuella(stage: ITapsStage): void {
+    const root = stage.root, slot = root?.parentElement;
+    if (!root || !slot) return;
+    const tap = this.taps()[this.slots().findIndex(s => s.nativeElement === slot)];
+    if (!tap) return;
+    try {
+      const foto = root.cloneNode(true) as HTMLElement;
+      foto.querySelectorAll('.te-bubble, .te-fx').forEach(n => n.remove());
+      const src = root.querySelectorAll('canvas'), dst = foto.querySelectorAll('canvas');
+      src.forEach((c, k) => {
+        const d = dst[k];
+        if (!d || !c.width || !c.height) return;
+        if (c.classList.contains('te-gl')) { d.width = Math.max(1, c.width >> 1); d.height = Math.max(1, c.height >> 1); }
+        d.getContext('2d')?.drawImage(c, 0, 0, d.width, d.height);
+      });
+      this.marcarCapa(foto, 'te-foto');
+      foto.style.removeProperty('opacity');
+      this.huellas.get(tap.id)?.remove();
+      this.quitarAnticipo(tap.id);
+      slot.insertBefore(foto, root);
+      this.huellas.set(tap.id, foto);
+    } catch { /* sin foto: el Tap se ve sobre su degradado, como antes */ }
+  }
+
+  /** El escenario ya se ve en el Tap `index` (con fundido si había algo debajo): fuera la foto y la capa de espera. */
+  private mostrar(stage: ITapsStage, index: number, fundido: boolean): void {
+    const root = stage.root, slot = this.slots()[index]?.nativeElement, id = this.taps()[index]?.id;
+    if (!root || !id) return;
+    const aqui = root.parentElement === slot;
+    root.style.removeProperty('opacity');
+    if (!fundido || !aqui || this.reducedMotion() || typeof root.animate !== 'function') { if (aqui) this.quitarCapas(id); return; }
+    this.acercarAnticipo(id, stage);
+    const anim = root.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: 'ease-out' });
+    anim.finished.then(() => { if (root.parentElement === slot) this.quitarCapas(id); }, () => undefined);
+  }
+
+  /**
+   * Mientras el escenario entra con su fundido, el personaje de la capa de espera viaja (desde los pies) a donde está el del
+   * 3D y se desvanece: mismo sitio y mismo tamaño al terminar, sin dos personajes en lugares distintos.
+   */
+  private acercarAnticipo(id: string, stage: ITapsStage): void {
+    const a = this.anticipos.get(id)?.root, luz = a?.querySelector<HTMLElement>('.te-light'), caja = stage.caja?.();
+    if (!a || !luz || !caja || caja.modo !== '3d') return;
+    const r = a.getBoundingClientRect(), b = luz.getBoundingClientRect();
+    const s = (caja.pies - caja.top) / (b.height || 1), dx = caja.x - ((b.left + b.right) / 2 - r.left), dy = caja.pies - (b.bottom - r.top);
+    if (![s, dx, dy].every(Number.isFinite) || s < .3 || s > 3) return;
+    luz.style.transformOrigin = '50% 100%';
+    luz.style.transition = 'transform 240ms ease-out, opacity 240ms ease-out';
+    luz.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${s.toFixed(3)})`;
+    luz.style.opacity = '0';
+  }
+
+  private quitarCapas(id: string): void {
+    this.huellas.get(id)?.remove();
+    this.huellas.delete(id);
+    this.quitarAnticipo(id);
+  }
+
+  private quitarAnticipo(id: string): void {
+    const a = this.anticipos.get(id);
+    if (!a) return;
+    this.anticipos.delete(id);
+    try { a.destroy(); } catch { /* ya destruido */ }
+  }
+
+  /** Retira todas las fotos y capas de espera (cambió la lista de Taps o se sale del feed). */
+  private vaciarCapas(): void {
+    for (const id of [...this.huellas.keys(), ...this.anticipos.keys()]) this.quitarCapas(id);
+  }
+
+  /** Solo se guardan fotos y capas de espera cerca del Tap a la vista (memoria acotada en el celular). */
+  private limpiarVecinos(index: number): void {
+    const taps = this.taps();
+    for (const id of [...this.huellas.keys(), ...this.anticipos.keys()]) {
+      const i = taps.findIndex(t => t.id === id);
+      if (i < 0 || Math.abs(i - index) > 2) this.quitarCapas(id);
     }
   }
 
