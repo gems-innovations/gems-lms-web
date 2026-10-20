@@ -1,29 +1,29 @@
-/* Tema «aventura» · capa ligera. Solo aplica dentro de .te-stage[data-theme='aventura'].
+/* Tema «aventura» · capa ligera. Solo aplica dentro de :is(.te-stage, .te-huella)[data-theme='aventura'].
    El fondo es la imagen del fondo del registro (el motor pone --te-bg-img y --te-bg-pos desde fondo.json); sin imagen,
    el degradado del cielo. El personaje es su miniatura (render 4:5 del modelo), con sombra suave en el piso. */
-.te-stage[data-theme='aventura'] { background: linear-gradient(var(--te-sky-top, #4aa3e8), var(--te-sky-bottom, #c4e9ff)); }
+:is(.te-stage, .te-huella)[data-theme='aventura'] { background: linear-gradient(var(--te-sky-top, #4aa3e8), var(--te-sky-bottom, #c4e9ff)); }
 /* Zona segura (v11): la ilustración sube con el personaje (--te-f-y en ligero, --te-g-y en 3D) para que siga parado en su suelo;
    la franja que queda abajo cae bajo la tarjeta de la pregunta.
    En ligero viaja igual que el personaje (translate de .te-light); en 3D, como el encaje del renderizador (~0,9 s). */
-.te-stage[data-theme='aventura'] .te-bg { background: var(--te-bg-img, none) var(--te-bg-pos, 50% 100%) / cover no-repeat; translate: 0 var(--te-f-y, 0px);
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-bg { background: var(--te-bg-img, none) var(--te-bg-pos, 50% 100%) / cover no-repeat; translate: 0 var(--te-f-y, 0px);
   transition: translate var(--dur-enfasis, 320ms) var(--curva-estandar, ease); }
-.te-stage[data-theme='aventura'][data-mode='3d'] .te-bg { translate: 0 var(--te-g-y, 0px); transition-duration: .9s; }
-.te-stage[data-theme='aventura'][data-reduced] .te-bg { transition: none; }
-@media (prefers-reduced-motion: reduce) { .te-stage[data-theme='aventura'] .te-bg { transition: none; } }
-.te-stage[data-theme='aventura'] .te-bg::before { display: none; }
-.te-stage[data-theme='aventura'] .te-bg::after { height: 22%; background: linear-gradient(transparent, rgba(0, 0, 0, .08)); box-shadow: none; }
-.te-stage[data-theme='aventura'] .te-light { top: calc(30% + 38% * (1 - var(--te-s, 1))); height: calc(38% * var(--te-s, 1)); aspect-ratio: 4 / 5; }
-.te-stage[data-theme='aventura'] .te-char { image-rendering: auto; filter: drop-shadow(0 8px 6px rgba(0, 0, 0, .28)); }
-.te-stage[data-theme='aventura'] .te-light.te-hurt .te-char { filter: drop-shadow(0 8px 6px rgba(0, 0, 0, .28)) sepia(1) saturate(5) hue-rotate(-30deg); }
-.te-stage[data-theme='aventura'] .te-fx i { border-radius: 50%; }
-.te-stage[data-theme='aventura'] .te-fx i:nth-child(3n) { border-radius: 2px; height: 5px; width: 13px; }
-.te-stage[data-theme='aventura'] .te-bubble { border: 0; border-radius: 16px; color: #1d2433; background: #fff; box-shadow: 0 4px 0 rgba(0, 0, 0, .22); }
-.te-stage[data-theme='aventura'] .te-bubble::after { border: 0; bottom: -6px; width: 14px; height: 14px; border-radius: 0 0 4px 0; }
-.te-stage[data-theme='aventura'] .te-bubble[data-tone='celebrate'] { background: var(--te-good, #3ccf7a); color: #06301a; }
-.te-stage[data-theme='aventura'] .te-bubble[data-tone='celebrate']::after { background: var(--te-good, #3ccf7a); }
-.te-stage[data-theme='aventura'] .te-bubble[data-tone='hurt'] { background: var(--te-bad, #ff6b5e); color: #3a0b0b; }
-.te-stage[data-theme='aventura'] .te-bubble[data-tone='hurt']::after { background: var(--te-bad, #ff6b5e); }
+:is(.te-stage, .te-huella)[data-theme='aventura'][data-mode='3d'] .te-bg { translate: 0 var(--te-g-y, 0px); transition-duration: .9s; }
+:is(.te-stage, .te-huella)[data-theme='aventura'][data-reduced] .te-bg { transition: none; }
+@media (prefers-reduced-motion: reduce) { :is(.te-stage, .te-huella)[data-theme='aventura'] .te-bg { transition: none; } }
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-bg::before { display: none; }
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-bg::after { height: 22%; background: linear-gradient(transparent, rgba(0, 0, 0, .08)); box-shadow: none; }
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-light { top: calc(30% + 38% * (1 - var(--te-s, 1))); height: calc(38% * var(--te-s, 1)); aspect-ratio: 4 / 5; }
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-char { image-rendering: auto; filter: drop-shadow(0 8px 6px rgba(0, 0, 0, .28)); }
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-light.te-hurt .te-char { filter: drop-shadow(0 8px 6px rgba(0, 0, 0, .28)) sepia(1) saturate(5) hue-rotate(-30deg); }
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-fx i { border-radius: 50%; }
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-fx i:nth-child(3n) { border-radius: 2px; height: 5px; width: 13px; }
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-bubble { border: 0; border-radius: 16px; color: #1d2433; background: #fff; box-shadow: 0 4px 0 rgba(0, 0, 0, .22); }
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-bubble::after { border: 0; bottom: -6px; width: 14px; height: 14px; border-radius: 0 0 4px 0; }
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-bubble[data-tone='celebrate'] { background: var(--te-good, #3ccf7a); color: #06301a; }
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-bubble[data-tone='celebrate']::after { background: var(--te-good, #3ccf7a); }
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-bubble[data-tone='hurt'] { background: var(--te-bad, #ff6b5e); color: #3a0b0b; }
+:is(.te-stage, .te-huella)[data-theme='aventura'] .te-bubble[data-tone='hurt']::after { background: var(--te-bad, #ff6b5e); }
 /* En 3D el fondo sigue siendo esta imagen por CSS (el renderizador dibuja solo al personaje, en un lienzo WebGL transparente
    debajo del lienzo de partículas del motor): no se copia nada de WebGL a 2D en cada fotograma. */
-.te-stage[data-theme='aventura'][data-mode='3d'] .te-bg { opacity: 1; }
-.te-stage[data-theme='aventura'][data-mode='3d'] .te-clima { display: block; }   /* el 3D es transparente: hora y clima van entre el fondo y el personaje */
+:is(.te-stage, .te-huella)[data-theme='aventura'][data-mode='3d'] .te-bg { opacity: 1; }
+:is(.te-stage, .te-huella)[data-theme='aventura'][data-mode='3d'] .te-clima { display: block; }   /* el 3D es transparente: hora y clima van entre el fondo y el personaje */

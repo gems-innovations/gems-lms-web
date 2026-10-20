@@ -122,6 +122,8 @@ export interface ITapRun {
 
 /** Contrato mínimo del escenario del motor (ver public/taps-engine/README.md). */
 export interface ITapsStage {
+  /** Nodo raíz del escenario (foto fija que deja al irse de un Tap y fundido al llegar). */
+  readonly root?: HTMLElement;
   readonly mode: 'light' | '3d';
   readonly ready: Promise<void>;
   readonly ready3d: Promise<'light' | '3d'>;
@@ -155,6 +157,10 @@ export interface ITapsStage {
    */
   setSafeArea?(area: { top: number; bottom: number } | null): void;
   attachTo(el: HTMLElement): void;
+  /** Motor v12: (re)programa la espera máxima del 3D en ms (el precargado la empieza al verse). */
+  setSlow?(ms: number): void;
+  /** Dónde está el personaje ahora (px del escenario). */
+  caja?(): { modo: 'light' | '3d'; top: number; pecho: number; pies: number; x: number };
   destroy(): void;
   on(name: 'mode' | 'degrade' | 'visual', fn: (data: { mode?: 'light' | '3d'; reason?: string; step?: string; type?: string }) => void): () => void;
   stats(): { mode: string; tier: string; size: { w: number; h: number }; fpsCap: number; fps: number; degraded: number; canvas?: 'webgl' | '2d' | null };
@@ -172,5 +178,5 @@ export interface ITapsAudioMotor {
 }
 
 export interface ITapsEngineModule {
-  create(container: HTMLElement, opts: { theme: string; mode?: 'auto' | '3d' | 'light'; audio?: ITapsAudioMotor }): ITapsStage;
+  create(container: HTMLElement, opts: { theme: string; mode?: 'auto' | '3d' | 'light'; audio?: ITapsAudioMotor; slowMs?: number }): ITapsStage;
 }

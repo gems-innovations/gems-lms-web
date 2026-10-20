@@ -1,46 +1,46 @@
-/* Tema «estudio» · capa ligera y globo. Solo aplica dentro de .te-stage[data-theme='estudio'] (no toca otros temas).
+/* Tema «estudio» · capa ligera y globo. Solo aplica dentro de :is(.te-stage, .te-huella)[data-theme='estudio'] (no toca otros temas).
    Los colores salen de theme.json (variables --te-*). Ilustración plana con textura de cuaderno: colores lisos, renglones
    finos y una línea de margen; sombras duras en vez de brillos. */
-.te-stage[data-theme='estudio'] {
+:is(.te-stage, .te-huella)[data-theme='estudio'] {
   background:
     linear-gradient(90deg, transparent 0 11%, rgba(255, 138, 208, .16) 11% calc(11% + 2px), transparent calc(11% + 2px)),
     repeating-linear-gradient(transparent 0 27px, rgba(255, 255, 255, .055) 27px 28px),
     var(--te-sky-top, #1E1B4B); }
 
 /* «sol» → disco plano con un aro duro; «suelo de bloques» → piso liso con borde de color */
-.te-stage[data-theme='estudio'] .te-bg::before { right: 10%; top: 7%; width: 20vmin; height: 20vmin; max-width: 120px; max-height: 120px; border-radius: 50%;
+:is(.te-stage, .te-huella)[data-theme='estudio'] .te-bg::before { right: 10%; top: 7%; width: 20vmin; height: 20vmin; max-width: 120px; max-height: 120px; border-radius: 50%;
   background: var(--te-planet, #9B8FF8); box-shadow: 0 0 0 10px rgba(255, 255, 255, .06), 6px 8px 0 rgba(8, 7, 16, .3); opacity: var(--te-sun, .9); }
-.te-stage[data-theme='estudio'] .te-bg::after { height: calc(var(--te-suelo, 50%) - var(--te-f-y, 0px)); box-shadow: inset 0 6px 0 var(--te-accent, #4DE1FF);
+:is(.te-stage, .te-huella)[data-theme='estudio'] .te-bg::after { height: calc(var(--te-suelo, 50%) - var(--te-f-y, 0px)); box-shadow: inset 0 6px 0 var(--te-accent, #4DE1FF);
   background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .05) 0 4px, transparent 4px 12.5%), var(--te-ground-dark, #2A2566); }
-.te-stage[data-theme='estudio'][data-world='espacio'] .te-bg, .te-stage[data-theme='estudio'][data-world='observatorio'] .te-bg {
+:is(.te-stage, .te-huella)[data-theme='estudio'][data-world='espacio'] .te-bg, :is(.te-stage, .te-huella)[data-theme='estudio'][data-world='observatorio'] .te-bg {
   background: radial-gradient(2px 2px at 12% 18%, #fff 50%, transparent 51%), radial-gradient(2px 2px at 30% 40%, #fff 50%, transparent 51%),
     radial-gradient(1.5px 1.5px at 62% 12%, #fff 50%, transparent 51%), radial-gradient(2px 2px at 84% 34%, #fff 50%, transparent 51%),
     radial-gradient(1.5px 1.5px at 46% 26%, #fff 50%, transparent 51%), radial-gradient(1.5px 1.5px at 8% 48%, #fff 50%, transparent 51%); }
-.te-stage[data-theme='estudio'][data-world='espacio'] .te-bg::before { background: #C471ED; box-shadow: 0 0 0 6px rgba(77, 225, 255, .5), 6px 8px 0 rgba(8, 7, 16, .35); }
-.te-stage[data-theme='estudio'][data-world='espacio'] .te-bg::after { border-radius: 50% 50% 0 0 / 14% 14% 0 0; left: -10%; right: -10%; box-shadow: inset 0 6px 0 #4A4480; background: #3A3566; }
-.te-stage[data-theme='estudio'][data-world='aula'] .te-bg::before { left: 6%; right: 6%; top: 8%; width: auto; height: 38%; max-width: none; max-height: none; border-radius: 12px;
+:is(.te-stage, .te-huella)[data-theme='estudio'][data-world='espacio'] .te-bg::before { background: #C471ED; box-shadow: 0 0 0 6px rgba(77, 225, 255, .5), 6px 8px 0 rgba(8, 7, 16, .35); }
+:is(.te-stage, .te-huella)[data-theme='estudio'][data-world='espacio'] .te-bg::after { border-radius: 50% 50% 0 0 / 14% 14% 0 0; left: -10%; right: -10%; box-shadow: inset 0 6px 0 #4A4480; background: #3A3566; }
+:is(.te-stage, .te-huella)[data-theme='estudio'][data-world='aula'] .te-bg::before { left: 6%; right: 6%; top: 8%; width: auto; height: 38%; max-width: none; max-height: none; border-radius: 12px;
   background: #1F4A44; box-shadow: 0 0 0 10px #E9E6FF, 0 14px 0 6px rgba(8, 7, 16, .25); opacity: 1; }
 
 /* personaje: ilustración (sin pixelado), proporción 4:5, sombra dura en el piso */
-.te-stage[data-theme='estudio'] .te-light { top: calc(99% - var(--te-suelo, 50%) - 32% * var(--te-s, 1)); height: calc(32% * var(--te-s, 1)); aspect-ratio: 4 / 5; }
-.te-stage[data-theme='estudio'] .te-char { image-rendering: auto; filter: drop-shadow(0 10px 0 rgba(8, 7, 16, .28)); animation-name: te-estudio-float; animation-duration: 3s; }
-.te-stage[data-theme='estudio'] .te-light.te-hurt .te-char { filter: drop-shadow(0 10px 0 rgba(8, 7, 16, .28)); }
-.te-stage[data-theme='estudio'][data-entra] .te-char { animation-duration: .6s; animation-iteration-count: 1; }
+:is(.te-stage, .te-huella)[data-theme='estudio'] .te-light { top: calc(99% - var(--te-suelo, 50%) - 32% * var(--te-s, 1)); height: calc(32% * var(--te-s, 1)); aspect-ratio: 4 / 5; }
+:is(.te-stage, .te-huella)[data-theme='estudio'] .te-char { image-rendering: auto; filter: drop-shadow(0 10px 0 rgba(8, 7, 16, .28)); animation-name: te-estudio-float; animation-duration: 3s; }
+:is(.te-stage, .te-huella)[data-theme='estudio'] .te-light.te-hurt .te-char { filter: drop-shadow(0 10px 0 rgba(8, 7, 16, .28)); }
+:is(.te-stage, .te-huella)[data-theme='estudio'][data-entra] .te-char { animation-duration: .6s; animation-iteration-count: 1; }
 @keyframes te-estudio-float { 0%, 100% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(-3%) scale(1.01, .99); } }
 
 /* confeti redondo y en tiras (no cuadritos) */
-.te-stage[data-theme='estudio'] .te-fx i { border-radius: 50%; }
-.te-stage[data-theme='estudio'] .te-fx i:nth-child(2n) { border-radius: 3px; height: 5px; width: 14px; }
+:is(.te-stage, .te-huella)[data-theme='estudio'] .te-fx i { border-radius: 50%; }
+:is(.te-stage, .te-huella)[data-theme='estudio'] .te-fx i:nth-child(2n) { border-radius: 3px; height: 5px; width: 14px; }
 
 /* globo: redondeado, sin borde negro, tipografía del tema, sombra dura */
-.te-stage[data-theme='estudio'] .te-bubble { top: var(--te-globo-y, 15%); border: 0; border-radius: 18px; padding: .5em .9em .55em; color: #1E1B4B; background: #fff;
+:is(.te-stage, .te-huella)[data-theme='estudio'] .te-bubble { top: var(--te-globo-y, 15%); border: 0; border-radius: 18px; padding: .5em .9em .55em; color: #1E1B4B; background: #fff;
   box-shadow: 0 5px 0 rgba(8, 7, 16, .3); }
-.te-stage[data-theme='estudio'] .te-bubble::after { border: 0; border-radius: 0 0 4px 0; bottom: -6px; width: 14px; height: 14px; }
-.te-stage[data-theme='estudio'] .te-bubble[data-tone='celebrate'] { background: var(--te-good, #34D399); color: #062a1e; }
-.te-stage[data-theme='estudio'] .te-bubble[data-tone='celebrate']::after { background: var(--te-good, #34D399); }
-.te-stage[data-theme='estudio'] .te-bubble[data-tone='hurt'] { background: var(--te-bad, #F87171); color: #3a0b0b; }
-.te-stage[data-theme='estudio'] .te-bubble[data-tone='hurt']::after { background: var(--te-bad, #F87171); }
+:is(.te-stage, .te-huella)[data-theme='estudio'] .te-bubble::after { border: 0; border-radius: 0 0 4px 0; bottom: -6px; width: 14px; height: 14px; }
+:is(.te-stage, .te-huella)[data-theme='estudio'] .te-bubble[data-tone='celebrate'] { background: var(--te-good, #34D399); color: #062a1e; }
+:is(.te-stage, .te-huella)[data-theme='estudio'] .te-bubble[data-tone='celebrate']::after { background: var(--te-good, #34D399); }
+:is(.te-stage, .te-huella)[data-theme='estudio'] .te-bubble[data-tone='hurt'] { background: var(--te-bad, #F87171); color: #3a0b0b; }
+:is(.te-stage, .te-huella)[data-theme='estudio'] .te-bubble[data-tone='hurt']::after { background: var(--te-bad, #F87171); }
 
 @media (prefers-reduced-motion: reduce) {
-  .te-stage[data-theme='estudio'] .te-char { animation: none; }
+  :is(.te-stage, .te-huella)[data-theme='estudio'] .te-char { animation: none; }
 }

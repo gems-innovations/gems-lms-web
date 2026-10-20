@@ -66,7 +66,9 @@ export function encajar(banda, zona, sMin = 0.5) {
   const na = alto >= u - t ? t : Math.min(Math.max(s * a, t), u - alto);   // arriba nuevo: lo mínimo para quedar dentro
   return { s: r4(s), ty: r4(na - s * a) };
 }
-function webglWorks() {
+let webglOk = null;                                                  // v12: se prueba una sola vez (cada prueba crea un contexto)
+function webglWorks() { return (webglOk ??= probarWebgl()); }
+function probarWebgl() {
   try { const c = document.createElement('canvas'); const gl = c.getContext('webgl2') || c.getContext('webgl'); const ok = !!gl; gl?.getExtension('WEBGL_lose_context')?.loseContext(); return ok; }
   catch { return false; }
 }
@@ -378,7 +380,14 @@ export function create(container, opts = {}) {
   // ── 3D ──
   let slow = false;
   const slowMs = opts.slowMs ?? 4000;
-  const slowTimer = slowMs > 0 ? setTimeout(() => { if (S.mode !== '3d' && !S.destroyed && !slow) { slow = true; fallback('el 3D tardó más de ' + slowMs + ' ms'); } }, slowMs) : 0;
+  let slowTimer = 0;
+  /** v12: (re)programa la espera máxima del 3D. Un escenario precargado en pausa la arranca al verse (sin 15 s a ciegas). */
+  function setSlow(ms) {
+    clearTimeout(slowTimer); slowTimer = 0;
+    if (!(ms >= 0) || S.mode === '3d' || S.destroyed || slow) return;
+    slowTimer = setTimeout(() => { if (S.mode !== '3d' && !S.destroyed && !slow) { slow = true; fallback('el 3D tardó más de ' + slowMs + ' ms'); } }, ms);
+  }
+  if (slowMs > 0) setSlow(slowMs);
   async function start3d() {
     if (S.destroyed) return;
     const t = await readyTheme; performance.mark?.('te-theme'); 
@@ -411,13 +420,30 @@ export function create(container, opts = {}) {
       r.play(loopReact || 'idle');
       r.frame(.016); fit3dNow(true, r); r.frame(.016);                 // ya encajado en la zona visible desde el primer cuadro
       clearTimeout(slowTimer);
+      morphLight(r);                                                   // la capa ligera se va hacia donde aparece el 3D (sin salto)
       renderer = r; r = null;
       performance.mark?.('te-visible'); root.dataset.mode = '3d'; S.mode = '3d'; glEl.classList.add('on'); emit('mode', { mode: '3d', tier });
       wake(1500); loop();
     } catch (e) { (renderer || r)?.dispose?.(); renderer = null; r = null; fallback('error 3D: ' + (e?.message || e)); }
   }
   let r = null;                                                     // renderizador en preparación (aún no visible)
+  /**
+   * v12: al llegar el 3D, la capa ligera viaja (transform desde los pies) a la caja que ocupa el personaje 3D mientras se
+   * desvanece (CSS, 320 ms): el cambio se lee como un fundido en el mismo sitio y no como un salto. Con movimiento reducido no.
+   */
+  function morphLight(rr) {
+    try {
+      if (reduced || !lightEl.offsetHeight) return;
+      const rb = root.getBoundingClientRect(), b = lightEl.getBoundingClientRect(); if (!b.height || !rb.height) return;
+      const [x, top] = toCss(...rr.anchor('top')), [, pies] = toCss(...rr.anchor('feet'));
+      const lt = b.top - rb.top, lp = b.bottom - rb.top, lx = (b.left + b.right) / 2 - rb.left, s = (pies - top) / (lp - lt);
+      if (![x, top, pies, s].every(Number.isFinite) || s < .3 || s > 3) return;
+      lightEl.style.transformOrigin = '50% 100%';
+      lightEl.style.transform = `translate(${(x - lx).toFixed(1)}px, ${(pies - lp).toFixed(1)}px) scale(${s.toFixed(3)})`;
+    } catch { /* el viaje es un extra */ }
+  }
   function fallback(reason) {
+    lightEl.style.removeProperty('transform'); lightEl.style.removeProperty('transform-origin');
     console.debug('[taps-engine] modo ligero:', reason); S.mode = 'light'; root.dataset.mode = 'light'; glEl.classList.remove('on'); cancelAnimationFrame(raf); raf = 0;
     // en modo ligero el lienzo animado no se ve: se libera (contexto WebGL incluido) y no vuelve a dibujar
     if (renderer) { try { renderer.dispose(); } catch { /* ya liberado */ } renderer = null; }
@@ -680,8 +706,16 @@ export function create(container, opts = {}) {
     if (def.then && def.duration) reactTimer = setTimeout(() => S.react(def.then, { say: false }), def.duration * 1000);
   };
 
-  S.pause = function pause(why) { S.paused = true; cancelAnimationFrame(raf); raf = 0; root.dataset.paused = why || '1'; if (sound?.ac?.state === 'running') sound.ac.suspend().catch(() => {}); };
-  S.resume = function resume() { if (!S.paused && raf) return; S.paused = false; delete root.dataset.paused; if (sound?.ac?.state === 'suspended' && !document.hidden) sound.ac.resume().catch(() => {}); if (renderer) { wake(300); loop(); } };
+  /**
+   * v12: la pausa tiene motivos. Volver a la pestaña (`resume('tab')`) solo quita el motivo 'tab': un escenario en pausa por la
+   * app (precargado, o el del Tap anterior) no vuelve a dibujar ni a sonar. `resume()` de la app quita los suyos, no el de la pestaña.
+   */
+  const pausas = new Set();
+  S.pause = function pause(why) { pausas.add(why || 'app'); S.paused = true; cancelAnimationFrame(raf); raf = 0; root.dataset.paused = [...pausas].join(' '); if (sound?.ac?.state === 'running') sound.ac.suspend().catch(() => {}); };
+  S.resume = function resume(why) {
+    if (why === 'tab') pausas.delete('tab'); else for (const p of [...pausas]) if (p !== 'tab') pausas.delete(p);
+    if (pausas.size) { root.dataset.paused = [...pausas].join(' '); return; }
+    if (!S.paused && raf) return; S.paused = false; delete root.dataset.paused; if (sound?.ac?.state === 'suspended' && !document.hidden) sound.ac.resume().catch(() => {}); if (renderer) { wake(300); loop(); } };
   S.setMuted = function setMuted(m) { sound?.setMuted(m); readyTheme.then(() => sound?.setMuted(m)); S.muted = !!m; };
   /** Mueve el escenario entero a otro contenedor (el feed usa UN escenario para todos los Taps). */
   S.attachTo = function attachTo(el) { if (root.parentElement !== el) { S.clearVisual(); S.clearEscena(); el.appendChild(root); applyFit(true); } if (renderer) wake(500); };
@@ -711,6 +745,7 @@ export function create(container, opts = {}) {
     return { modo: 'light', top: b.top - rr.top, pecho: b.top - rr.top + b.height * 0.45, pies: b.bottom - rr.top, x: (b.left + b.right) / 2 - rr.left };
   };
   S.snapshot = () => (S.mode === '3d' ? glEl.toDataURL('image/png') : null);
+  S.setSlow = setSlow;
   S.stats = () => ({ mode: S.mode, tier: S.tier, size, fpsCap, fps: fpsNow, degraded, canvas: S.canvas || null });
   Object.defineProperty(root, 'tapsStage', { value: S });         // para pruebas y herramientas: el escenario desde su nodo
   return S;
