@@ -113,6 +113,25 @@ describe('TapsSonidoService', () => {
     service.destruir();
   });
 
+  it('el oyente (música) recibe el contexto tras el gesto, el silencio, los efectos de respuesta y la voz', async () => {
+    const { service, sonido } = crear();
+    const log: string[] = [];
+    service.escuchar({
+      contexto: () => log.push('contexto'), silencio: m => log.push(`silencio:${m}`), efecto: n => log.push(`efecto:${n}`), voz: on => log.push(`voz:${on}`),
+    });
+    expect(log).toEqual(['silencio:true']);                               // sin gesto no hay contexto
+    await service.precargar();
+    (sonido as { contexto: unknown }).contexto = {};
+    service.desbloquear();
+    expect(log).toContain('contexto');
+    service.silenciar(false);
+    service.tocar('toque');
+    service.tocar('acierto');
+    (sonido as unknown as { atenuar: (on: boolean) => void }).atenuar(true);   // lo que hace voz.js al hablar
+    expect(log).toEqual(jasmine.arrayContaining(['silencio:false', 'efecto:acierto', 'voz:true']));
+    expect(log).not.toContain('efecto:toque');
+  });
+
   it('pausar calla la voz y suspende el audio; destruir libera todo', async () => {
     const { service, sonido, voz } = crear();
     await service.prepararVoz();

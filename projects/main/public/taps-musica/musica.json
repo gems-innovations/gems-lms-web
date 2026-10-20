@@ -1,0 +1,413 @@
+{
+ "version": 1,
+ "licencia": "Eleven Music, plan Creator, 2026-10-19",
+ "formatos": [
+  "audio/webm; codecs=opus",
+  "audio/mp4; codecs=mp4a.40.2"
+ ],
+ "mapa": {
+  "mundos": {
+   "cueva": "cave-quiz-crawl",
+   "noche": "cave-quiz-crawl",
+   "nether": "magma-quest-loop",
+   "end": "magma-quest-loop",
+   "aldea": "village-morning-loop",
+   "casa": "village-morning-loop",
+   "playa": "island-quiz-loop",
+   "espacio": "orbit-quiz-drift",
+   "observatorio": "orbit-quiz-drift",
+   "biblioteca": "cozy-study-loop"
+  },
+  "temas": {
+   "minecraft": "pixel-quest-loop",
+   "logica": "puzzle-tick-loop",
+   "cultura": "wonder-loop"
+  },
+  "temaPrimero": [
+   "logica"
+  ],
+  "motores": {
+   "minecraft": "pixel-quest-loop",
+   "estudio": "cozy-study-loop"
+  },
+  "defecto": "cozy-study-loop",
+  "resultado": "prize-parade-loop",
+  "celebraciones": {
+   "perfecto": [
+    "tap-tap-aprende",
+    "piensa-bien"
+   ],
+   "racha": [
+    "racha-en-racha"
+   ]
+  }
+ },
+ "pistas": [
+  {
+   "id": "pixel-quest-loop",
+   "nombre": "Aventura pixelada",
+   "tipo": "fondo",
+   "bpm": 120,
+   "letra": false,
+   "temas": [
+    "minecraft"
+   ],
+   "mundos": [
+    "pradera",
+    "bosque",
+    "nieve",
+    "desierto"
+   ],
+   "duracion": 57.9,
+   "bucle": true,
+   "lufs": -20,
+   "archivos": [
+    {
+     "src": "pixel-quest-loop.f9c816d7.webm",
+     "tipo": "audio/webm; codecs=opus",
+     "bytes": 385714
+    },
+    {
+     "src": "pixel-quest-loop.9979bb36.m4a",
+     "tipo": "audio/mp4; codecs=mp4a.40.2",
+     "bytes": 477909
+    }
+   ]
+  },
+  {
+   "id": "cave-quiz-crawl",
+   "nombre": "Cueva y mina",
+   "tipo": "fondo",
+   "bpm": 95,
+   "letra": false,
+   "temas": [
+    "minecraft"
+   ],
+   "mundos": [
+    "cueva",
+    "noche"
+   ],
+   "duracion": 57.9,
+   "bucle": true,
+   "lufs": -20,
+   "archivos": [
+    {
+     "src": "cave-quiz-crawl.d52438b6.webm",
+     "tipo": "audio/webm; codecs=opus",
+     "bytes": 391401
+    },
+    {
+     "src": "cave-quiz-crawl.1de52de8.m4a",
+     "tipo": "audio/mp4; codecs=mp4a.40.2",
+     "bytes": 479076
+    }
+   ]
+  },
+  {
+   "id": "magma-quest-loop",
+   "nombre": "Nether",
+   "tipo": "fondo",
+   "bpm": 128,
+   "letra": false,
+   "temas": [
+    "minecraft"
+   ],
+   "mundos": [
+    "nether",
+    "end"
+   ],
+   "duracion": 57.9,
+   "bucle": true,
+   "lufs": -20,
+   "archivos": [
+    {
+     "src": "magma-quest-loop.59a8808d.webm",
+     "tipo": "audio/webm; codecs=opus",
+     "bytes": 377009
+    },
+    {
+     "src": "magma-quest-loop.1eaa5fb5.m4a",
+     "tipo": "audio/mp4; codecs=mp4a.40.2",
+     "bytes": 480476
+    }
+   ]
+  },
+  {
+   "id": "village-morning-loop",
+   "nombre": "Mañana en la aldea",
+   "tipo": "fondo",
+   "bpm": 95,
+   "letra": false,
+   "temas": [
+    "minecraft"
+   ],
+   "mundos": [
+    "aldea",
+    "casa"
+   ],
+   "duracion": 57.9,
+   "bucle": true,
+   "lufs": -20,
+   "archivos": [
+    {
+     "src": "village-morning-loop.afcb1739.webm",
+     "tipo": "audio/webm; codecs=opus",
+     "bytes": 398986
+    },
+    {
+     "src": "village-morning-loop.5d1de1bc.m4a",
+     "tipo": "audio/mp4; codecs=mp4a.40.2",
+     "bytes": 477120
+    }
+   ]
+  },
+  {
+   "id": "island-quiz-loop",
+   "nombre": "Playa",
+   "tipo": "fondo",
+   "bpm": 100,
+   "letra": false,
+   "temas": [
+    "minecraft"
+   ],
+   "mundos": [
+    "playa"
+   ],
+   "duracion": 57.9,
+   "bucle": true,
+   "lufs": -19.9,
+   "archivos": [
+    {
+     "src": "island-quiz-loop.8f6dc2d5.webm",
+     "tipo": "audio/webm; codecs=opus",
+     "bytes": 390217
+    },
+    {
+     "src": "island-quiz-loop.7314b6cb.m4a",
+     "tipo": "audio/mp4; codecs=mp4a.40.2",
+     "bytes": 477381
+    }
+   ]
+  },
+  {
+   "id": "cozy-study-loop",
+   "nombre": "Estudio tranquilo",
+   "tipo": "fondo",
+   "bpm": 85,
+   "letra": false,
+   "temas": [
+    "estudio"
+   ],
+   "mundos": [
+    "biblioteca"
+   ],
+   "duracion": 55.9,
+   "bucle": true,
+   "lufs": -19.9,
+   "archivos": [
+    {
+     "src": "cozy-study-loop.93da815d.webm",
+     "tipo": "audio/webm; codecs=opus",
+     "bytes": 345147
+    },
+    {
+     "src": "cozy-study-loop.f6a9d1e8.m4a",
+     "tipo": "audio/mp4; codecs=mp4a.40.2",
+     "bytes": 460759
+    }
+   ]
+  },
+  {
+   "id": "puzzle-tick-loop",
+   "nombre": "Lógica",
+   "tipo": "fondo",
+   "bpm": 105,
+   "letra": false,
+   "temas": [
+    "logica"
+   ],
+   "mundos": [],
+   "duracion": 55.7,
+   "bucle": true,
+   "lufs": -19.9,
+   "archivos": [
+    {
+     "src": "puzzle-tick-loop.b2dd7139.webm",
+     "tipo": "audio/webm; codecs=opus",
+     "bytes": 402248
+    },
+    {
+     "src": "puzzle-tick-loop.abafe32a.m4a",
+     "tipo": "audio/mp4; codecs=mp4a.40.2",
+     "bytes": 459397
+    }
+   ]
+  },
+  {
+   "id": "wonder-loop",
+   "nombre": "Asombro",
+   "tipo": "fondo",
+   "bpm": 110,
+   "letra": false,
+   "temas": [
+    "cultura"
+   ],
+   "mundos": [],
+   "duracion": 55.7,
+   "bucle": true,
+   "lufs": -19.9,
+   "archivos": [
+    {
+     "src": "wonder-loop.f2aaaf70.webm",
+     "tipo": "audio/webm; codecs=opus",
+     "bytes": 387388
+    },
+    {
+     "src": "wonder-loop.769fdc1b.m4a",
+     "tipo": "audio/mp4; codecs=mp4a.40.2",
+     "bytes": 460431
+    }
+   ]
+  },
+  {
+   "id": "orbit-quiz-drift",
+   "nombre": "Espacio",
+   "tipo": "fondo",
+   "bpm": 90,
+   "letra": false,
+   "temas": [
+    "cultura"
+   ],
+   "mundos": [
+    "espacio",
+    "observatorio"
+   ],
+   "duracion": 57.9,
+   "bucle": true,
+   "lufs": -20,
+   "archivos": [
+    {
+     "src": "orbit-quiz-drift.c54d9cea.webm",
+     "tipo": "audio/webm; codecs=opus",
+     "bytes": 391456
+    },
+    {
+     "src": "orbit-quiz-drift.349f1976.m4a",
+     "tipo": "audio/mp4; codecs=mp4a.40.2",
+     "bytes": 478261
+    }
+   ]
+  },
+  {
+   "id": "prize-parade-loop",
+   "nombre": "Desfile de premios",
+   "tipo": "celebracion",
+   "bpm": 118,
+   "letra": false,
+   "temas": [],
+   "mundos": [],
+   "duracion": 57.8,
+   "bucle": true,
+   "lufs": -20,
+   "archivos": [
+    {
+     "src": "prize-parade-loop.6c4d1f3e.webm",
+     "tipo": "audio/webm; codecs=opus",
+     "bytes": 383422
+    },
+    {
+     "src": "prize-parade-loop.1fdf09de.m4a",
+     "tipo": "audio/mp4; codecs=mp4a.40.2",
+     "bytes": 478646
+    }
+   ]
+  },
+  {
+   "id": "tap-tap-aprende",
+   "nombre": "Tap, tap, aprende",
+   "tipo": "celebracion",
+   "momento": "perfecto",
+   "bpm": 121,
+   "letra": true,
+   "temas": [],
+   "mundos": [],
+   "duracion": 12,
+   "bucle": false,
+   "lufs": -16,
+   "fragmento": {
+    "inicio": 40,
+    "fin": 52
+   },
+   "archivos": [
+    {
+     "src": "tap-tap-aprende.6d8a9c4b.webm",
+     "tipo": "audio/webm; codecs=opus",
+     "bytes": 72636
+    },
+    {
+     "src": "tap-tap-aprende.64b51786.m4a",
+     "tipo": "audio/mp4; codecs=mp4a.40.2",
+     "bytes": 100334
+    }
+   ]
+  },
+  {
+   "id": "piensa-bien",
+   "nombre": "Piensa bien",
+   "tipo": "celebracion",
+   "momento": "perfecto",
+   "bpm": 123,
+   "letra": true,
+   "temas": [],
+   "mundos": [],
+   "duracion": 12,
+   "bucle": false,
+   "lufs": -16,
+   "fragmento": {
+    "inicio": 40,
+    "fin": 52
+   },
+   "archivos": [
+    {
+     "src": "piensa-bien.cf200822.webm",
+     "tipo": "audio/webm; codecs=opus",
+     "bytes": 80654
+    },
+    {
+     "src": "piensa-bien.0854eeb8.m4a",
+     "tipo": "audio/mp4; codecs=mp4a.40.2",
+     "bytes": 99468
+    }
+   ]
+  },
+  {
+   "id": "racha-en-racha",
+   "nombre": "Racha en racha",
+   "tipo": "celebracion",
+   "momento": "racha",
+   "bpm": 140,
+   "letra": true,
+   "temas": [],
+   "mundos": [],
+   "duracion": 12,
+   "bucle": false,
+   "lufs": -15.9,
+   "fragmento": {
+    "inicio": 37,
+    "fin": 49
+   },
+   "archivos": [
+    {
+     "src": "racha-en-racha.768697e6.webm",
+     "tipo": "audio/webm; codecs=opus",
+     "bytes": 70766
+    },
+    {
+     "src": "racha-en-racha.abf70279.m4a",
+     "tipo": "audio/mp4; codecs=mp4a.40.2",
+     "bytes": 100085
+    }
+   ]
+  }
+ ]
+}

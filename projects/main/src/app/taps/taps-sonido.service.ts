@@ -16,6 +16,19 @@ export const TAPS_VOZ_URL = `/taps-engine/voz/voz.js?v=${TAPS_SONIDO_VERSION}`;
 export const TAPS_VOZ_MANIFIESTO: string | null = null;
 
 export type TTapsEfecto = 'toque' | 'acierto' | 'fallo' | 'racha' | 'resultado' | 'deslizar' | 'tic';
+/** Efectos de respuesta: bajo ellos la música hace ducking un instante. */
+const EFECTOS_RESPUESTA: ReadonlySet<TTapsEfecto> = new Set<TTapsEfecto>(['acierto', 'fallo', 'racha', 'resultado']);
+
+/**
+ * Quien comparte el audio con este servicio (la música de fondo, taps-musica.service.ts): recibe el AudioContext cuando
+ * existe (solo tras un gesto), el silencio, los efectos de respuesta y cuándo habla un personaje.
+ */
+export interface ITapsAudioOyente {
+  contexto?(ctx: AudioContext): void;
+  silencio?(muted: boolean): void;
+  efecto?(nombre: TTapsEfecto): void;
+  voz?(hablando: boolean): void;
+}
 export interface ITapsEfectoOpciones { tema?: string; nivel?: number; puntaje?: number }
 
 /** Lo que usa este servicio de taps-engine/audio/sonido.js (módulo ES servido aparte, fuera del bundle). */
@@ -67,6 +80,7 @@ export class TapsSonidoService {
   private destruido = false;
   private quitarGestos: (() => void) | null = null;
   private gesto = false;
+  private oyente: ITapsAudioOyente | null = null;
 
   /** Este dispositivo tiene alguna voz utilizable (se sabe tras `prepararVoz`). */
   readonly vozDisponible = signal(false);
@@ -87,7 +101,11 @@ export class TapsSonidoService {
       const s = mod.crearSonido();
       s.silenciar(this.silencio);
       if (this.ctx) s.desbloquear(this.ctx, { gesto: false });   // ya no estamos en el gesto
+      // La voz (voz.js) baja los efectos con `atenuar` mientras habla: el mismo aviso baja la música.
+      const atenuar = s.atenuar.bind(s);
+      s.atenuar = (on: boolean) => { atenuar(on); this.oyente?.voz?.(on); };
       this.sonido = s;
+      this.avisarContexto();
       return s;
     }).catch(() => { this.carga = null; return null; }));
   }
@@ -95,7 +113,7 @@ export class TapsSonidoService {
   /** Llamar DENTRO de un gesto (toque, clic, tecla): crea o reanuda el audio. */
   desbloquear(): void {
     if (!this.browser || this.destruido) return;
-    if (this.sonido) { this.sonido.desbloquear(); return; }
+    if (this.sonido) { this.sonido.desbloquear(); this.avisarContexto(); return; }
     if (!this.ctx) {
       const C = (globalThis as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext }).AudioContext
         ?? (globalThis as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -103,7 +121,23 @@ export class TapsSonidoService {
     }
     const estado = this.ctx?.state as string | undefined;
     if (estado === 'suspended' || estado === 'interrupted') this.ctx?.resume().catch(() => undefined);   // «interrupted»: iOS
+    this.avisarContexto();
     void this.precargar();
+  }
+
+  /** El AudioContext compartido; null hasta el primer gesto (nunca se crea fuera de uno). */
+  contexto(): AudioContext | null { return this.sonido?.contexto ?? this.ctx; }
+
+  /** Conecta la música (u otro consumidor) al mismo audio. Un solo oyente. */
+  escuchar(oyente: ITapsAudioOyente | null): void {
+    this.oyente = oyente;
+    oyente?.silencio?.(this.silencio);
+    this.avisarContexto();
+  }
+
+  private avisarContexto(): void {
+    const ctx = this.contexto();
+    if (ctx) this.oyente?.contexto?.(ctx);
   }
 
   /**
@@ -130,13 +164,14 @@ export class TapsSonidoService {
   silenciar(muted: boolean): void {
     this.silencio = muted;
     this.sonido?.silenciar(muted);
+    this.oyente?.silencio?.(muted);
     if (muted) this.callar();
   }
 
   /** Toca un efecto si el sonido está activo. Antes de cargar el módulo no suena (y no espera: el ritmo manda). */
   tocar(nombre: TTapsEfecto, opciones: ITapsEfectoOpciones = {}): void {
     if (this.silencio) return;
-    this.sonido?.tocar(nombre, opciones);
+    if (this.sonido?.tocar(nombre, opciones) && EFECTOS_RESPUESTA.has(nombre)) this.oyente?.efecto?.(nombre);
   }
 
   /** Sintetiza en reposo los efectos de un tema para que el primer toque no espere ni 1 ms. */
@@ -167,6 +202,7 @@ export class TapsSonidoService {
 
   destruir(): void {
     this.destruido = true;
+    this.oyente = null;
     this.quitarGestos?.();
     this.callar();
     this.sonido?.destruir();

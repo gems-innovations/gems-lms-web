@@ -5,14 +5,16 @@
 @defer (when wide()) {
 <gems-taps-menu [topic]="topic()" [temas]="menuTopics()" [inverted]="menuInverted()" [shortcuts]="shortcuts()" [alias]="ranking.alias()"
                 (openRanking)="openRanking()" (forYou)="selectTopic(null)" (openTopics)="openTopics()" (pickTopic)="toggleTopicFilter($event)"
-                (toggleMenu)="toggleMenu()" (toggleShortcuts)="toggleShortcuts()" [reto]="retoVista()" (openReto)="goToReto('menu')" (openCols)="openDay('colecciones', 'menu')" />
+                (toggleMenu)="toggleMenu()" (toggleShortcuts)="toggleShortcuts()" [reto]="retoVista()" (openReto)="goToReto('menu')" (openCols)="openDay('colecciones', 'menu')"
+                [musica]="musica.encendida()" (toggleMusica)="toggleMusica()" />
 }
 <div class="centro">
 <div class="escenario">
 <!-- «Tu día en Taps»: la abre la marca de la barra en el celular (racha, meta y avance; la portada, a un toque). -->
 @if (hojaDia()) {
   <gems-tap-sesion-hoja [resumen]="resumen()" [temas]="avancesLista()" [reto]="retoVista()" [colecciones]="avancesCol()" [foco]="hojaFoco()"
-                        (cerrar)="closeDay()" (jugarReto)="goToReto('dia')" (compartirReto)="shareReto()" />
+                        (cerrar)="closeDay()" (jugarReto)="goToReto('dia')" (compartirReto)="shareReto()"
+                        [musica]="musica.encendida()" (alternarMusica)="toggleMusica()" />
 }
 <!-- Pausa sana: tras 30 min de juego activo, una sola vez por sesión y nunca en la portada. «Seguir jugando» cierra en un toque. -->
 @if (pausaAbierta()) { <gems-tap-pausa [resumen]="pausaTexto()" (descanso)="onPausaDescanso()" (cerrar)="closePausa($event)" /> }
