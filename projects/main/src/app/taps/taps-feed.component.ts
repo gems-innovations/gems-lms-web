@@ -110,10 +110,15 @@ export class TapsFeedComponent {
    * «Más de este tema» y el selector de temas continúan en el feed completo (/taps), que retoma lo jugado.
    */
   protected readonly portada = inject(new HostAttributeToken('modo'), { optional: true }) === 'portada';
+  /**
+   * `<gems-taps modo="portada" tema="minecraft">`: la portada de una institución con landing propia abre con los Taps de
+   * su tema (Knowledge Craft → Minecraft) y «Siguiente» sigue en ese orden. Sin el atributo, «Para ti».
+   */
+  private readonly portadaTopic = this.portada ? inject(new HostAttributeToken('tema'), { optional: true }) : null;
   /** Portada: el orden completo del feed, del que sale el Tap que sigue (`nextTap`). */
   private following: ITap[] = [];
 
-  protected readonly topic = signal<string | null>(this.query.get('tema'));
+  protected readonly topic = signal<string | null>(this.query.get('tema') ?? this.portadaTopic);
   /** Orden deseado: `?t=<id>` (enlace compartido) pone ese Tap primero; `?tema=<id>` pone primero los de esa categoría. */
   private readonly wanted = this.onlyFirstInPortada(orderFeed(TAPS, { first: findTap(this.askedId)?.id, topic: this.topic(), hookDone: this.hookDone }));
   /**
@@ -575,11 +580,15 @@ export class TapsFeedComponent {
     return list.slice(0, 1);
   }
 
-  /** Portada, ya en el navegador: «Para ti» con lo aprendido y, primero, un Tap que esta persona aún no completó. */
+  /**
+   * Portada, ya en el navegador: «Para ti» con lo aprendido (o, con `tema`, los de ese tema primero) y, primero, un Tap que
+   * esta persona aún no completó.
+   */
   private portadaPick(): ITap[] {
     const done = this.interest().done;
     const hookDone = this.hookDone || HOOK_TAP_IDS.some(id => id in done);
-    this.following = personalize(orderFeed(TAPS, { hookDone }), 2, this.interest(), Date.now());
+    const ordered = orderFeed(TAPS, { hookDone, topic: this.portadaTopic });
+    this.following = this.portadaTopic ? ordered : personalize(ordered, 2, this.interest(), Date.now());
     const first = this.following.find(t => !(t.id in done)) ?? this.following[0];
     this.following = [first, ...this.following.filter(t => t !== first)];
     return [first];

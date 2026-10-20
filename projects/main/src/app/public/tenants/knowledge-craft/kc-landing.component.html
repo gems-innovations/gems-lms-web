@@ -21,7 +21,7 @@
     </a>
     <nav class="kc-nav" aria-label="Principal">
       <a routerLink="/" fragment="cursos">Cursos gratis</a>
-      <a routerLink="/" fragment="trivia">Trivia</a>
+      <a routerLink="/" fragment="jugar">Jugar</a>
       <a routerLink="/" fragment="como">Cómo funciona</a>
     </nav>
     <div class="kc-actions">
@@ -37,7 +37,11 @@
   </header>
 
   <main id="contenido">
-    <section class="kc-hero">
+    <!--
+      Primer pantallazo = un Tap jugable de Minecraft, como la portada de GEMS (el mismo feed de /taps en modo «portada»).
+      En celular la tarjeta va primero y llena la pantalla; en escritorio, a la derecha, con la promesa y los temas a la izquierda.
+    -->
+    <section class="kc-hero" aria-labelledby="kc-h1" gemsInView (inView)="heroInView.set($event)">
       <div class="kc-pixels" aria-hidden="true">
         <i class="kc-px kc-px--cyan" style="left: 95%; top: 5%"></i>
         <i class="kc-px kc-px--gold kc-px--sm" style="left: 53%; top: 84%"></i>
@@ -47,24 +51,29 @@
       </div>
 
       <div class="kc-hero__copy">
-        <span class="kc-eyebrow">Cursos gratis · sin registro</span>
-        <h1>Juega, aprende y <span class="kc-hl">craftea</span></h1>
-        <p class="kc-lead">Cursos cortos, trivias y retos para aprender jugando, con el mundo de Minecraft de fondo. Eliges un curso y empiezas ya, sin crear cuenta.</p>
-        <div class="kc-hero__cta" gemsInView (inView)="heroCtaInView.set($event)">
-          <button type="button" class="kc-btn kc-btn--cyan" [disabled]="starter.starting() !== null" (click)="startFirst()">{{ starter.starting() !== null ? 'Cargando mundo…' : 'Empezar gratis ahora' }}</button>
-          <a class="kc-btn kc-btn--ghost" routerLink="/" fragment="cursos">Ver todos los cursos</a>
+        <span class="kc-eyebrow">Gratis · sin registro</span>
+        <h1 id="kc-h1">Juega, aprende y <span class="kc-hl">craftea</span></h1>
+        <p class="kc-lead">Retos cortos con el mundo de Minecraft de fondo: toca tu respuesta, mira cómo reacciona el personaje y entiende el porqué en una línea. Cinco preguntas y un título para presumir. Sin cuenta: solo la creas si quieres guardar lo que llevas.</p>
+        <div class="kc-hero__cta">
+          <a class="kc-btn kc-btn--cyan" routerLink="/taps" [queryParams]="{ tema: 'minecraft' }">Seguir jugando <span aria-hidden="true">→</span></a>
+          <a class="kc-btn kc-btn--ghost" routerLink="/" fragment="cursos">Cursos gratis</a>
         </div>
-        <p class="kc-trust">Sin correo, sin contraseña y sin tarjeta. Entras en un toque.</p>
-        <ul class="kc-facts">
-          <li><strong>$0</strong> para empezar</li>
-          <li><strong>0</strong> formularios</li>
-          <li><strong>10 min</strong> al día</li>
+        <ul class="kc-temas" aria-label="Elige un tema">
+          @for (t of topics; track t.topic.id) {
+            <li><a routerLink="/taps" [queryParams]="{ tema: t.topic.id }" [style.--c]="t.topic.color">{{ t.topic.name }}</a></li>
+          }
+          <li><a routerLink="/retos" style="--c: var(--kc-gold)">Retos de lógica</a></li>
         </ul>
+        <p class="kc-trust">Sin correo, sin contraseña y sin tarjeta. ¿Ya tienes cuenta? <a routerLink="/auth/signin">Entrar</a></p>
       </div>
 
-      <div class="kc-hero__card" id="trivia">
-        <kc-quiz (startCourse)="startFirst()" />
+      <div class="kc-hero__tap" id="jugar">
+        <gems-taps modo="portada" tema="minecraft" />
       </div>
+      <a class="kc-hero__mas" routerLink="/" fragment="cursos">
+        Más abajo: cursos gratis y retos
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/></svg>
+      </a>
     </section>
 
     <div class="kc-ground" aria-hidden="true"></div>
@@ -220,7 +229,7 @@
     <p>Es material educativo y de práctica con preguntas originales. Como invitado no pedimos tu nombre real, correo ni teléfono; si creas una cuenta, tratamos tus datos según la Ley 1581 de 2012. Si tienes menos de 18 años, crea tu cuenta con el acompañamiento de tu madre, tu padre o tu acudiente.</p>
   </footer>
 
-  @if (courses().length && !heroCtaInView() && !gridInView()) {
+  @if (courses().length && !heroInView() && !gridInView()) {
     <div class="kc-sticky">
       <button type="button" class="kc-btn kc-btn--cyan kc-btn--block" [disabled]="starter.starting() !== null" (click)="startFirst()">{{ starter.starting() !== null ? 'Cargando mundo…' : 'Empezar gratis ahora' }}</button>
     </div>

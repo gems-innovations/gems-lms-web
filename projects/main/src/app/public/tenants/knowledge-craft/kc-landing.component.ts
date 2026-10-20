@@ -7,16 +7,18 @@ import { isGuestUser } from '../../guest-access.service';
 import { DIFFICULTY_LABEL } from '../../public-catalog.service';
 import { TenantService } from '../../../tenant.service';
 import { InViewDirective } from '../../in-view.directive';
-import { KcQuizComponent } from './kc-quiz.component';
+import { TapsFeedComponent } from '../../../taps/taps-feed.component';
+import { TAP_TOPICS, TAPS } from '../../../taps/taps.data';
+import { feedTopics } from '../../../taps/taps.logic';
 
 /**
- * Landing de Knowledge Craft (el canal de Minecraft): misma función que la portada de GEMS (cursos gratis
- * sin registro, trivia de prueba, preguntas frecuentes) con la identidad del canal: pixel art, fondo oscuro,
- * cian, verde y oro, tipografías Press Start 2P y Rubik.
+ * Landing de Knowledge Craft (el canal de Minecraft): misma función que la portada de GEMS (un Tap jugable de Minecraft
+ * en el primer pantallazo, temas, cursos gratis sin registro, preguntas frecuentes) con la identidad del canal: pixel art,
+ * fondo oscuro, cian, verde y oro, tipografías Press Start 2P y Rubik.
  */
 @Component({
   selector: 'kc-landing',
-  imports: [RouterLink, KcQuizComponent, InViewDirective],
+  imports: [RouterLink, TapsFeedComponent, InViewDirective],
   templateUrl: './kc-landing.component.html',
   styleUrls: ['./kc-landing.component.scss', './kc-landing-sections.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -32,7 +34,10 @@ export class KcLandingComponent {
   protected readonly error = signal<string | null>(null);
   protected readonly errorFor = signal<number | null>(null);
   protected readonly difficulty = DIFFICULTY_LABEL;
-  protected readonly heroCtaInView = signal(false);
+  /** Temas jugables de Taps (Minecraft primero, como en el catálogo); cada uno abre /taps?tema=<id>. */
+  protected readonly topics = feedTopics(TAPS, TAP_TOPICS).filter(t => !t.soon);
+  /** Mientras el hero (con el Tap) se ve, no aparece la barra fija de «Empezar gratis»: taparía las opciones en celular. */
+  protected readonly heroInView = signal(false);
   protected readonly gridInView = signal(false);
   protected readonly category = signal('todos');
 
