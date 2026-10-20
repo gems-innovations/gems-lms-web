@@ -334,6 +334,7 @@ export class TapsFeedComponent {
       this.clearVisualTimer();
       if (this.pausaTimer) clearTimeout(this.pausaTimer);
       this.revokeDownload();
+      this.safeObserver?.disconnect();
       this.stages.forEach(stage => stage.destroy());
       this.stages.clear();
       this.stageUse.clear();
@@ -733,6 +734,7 @@ export class TapsFeedComponent {
     const run = this.run(tap);
     stage.plano?.(run.finished ? 0 : run.index, planoSeed(tap.id));
     stage.clearEscena?.();
+    this.watchSafeArea(this.activeIndex);
     if (!run.finished && tap.questions[run.index]?.escena) afterNextRender(() => this.mountEscena(tap), { injector: this.injector });
   }
 
@@ -1391,6 +1393,42 @@ export class TapsFeedComponent {
     return pre;
   }
 
+  // ───────────── zona segura del escenario (motor v11) ─────────────
+  private safeObserver: ResizeObserver | null = null;
+  private safeEl: HTMLElement | null = null;
+
+  /**
+   * El personaje se dibuja en lo que queda a la vista: entre la barra (con el progreso) y la tarjeta de la pregunta, que en el
+   * celular ocupa la mitad de abajo. Esa zona es justo `.tap__world` (flex: 1 entre los pasos y el panel): se mide respecto
+   * del escenario y se le pasa al motor, y otra vez cada vez que cambia de alto (pregunta más larga, explicación, resultado).
+   * Donde el panel no tapa al personaje, el motor no cambia nada.
+   */
+  private watchSafeArea(index: number): void {
+    const section = this.sections()[index]?.nativeElement;
+    const world = section?.querySelector<HTMLElement>('.tap__world') ?? null;
+    if (!world) {                                                     // Tap sin montar: nada que observar y el escenario entero a la vista
+      this.safeObserver?.disconnect();
+      this.safeEl = null;
+      this.stage?.setSafeArea?.(null);
+      return;
+    }
+    if (typeof ResizeObserver !== 'undefined' && this.safeEl !== world) {
+      this.safeObserver ??= new ResizeObserver(() => this.syncSafeArea());
+      this.safeObserver.disconnect();
+      this.safeObserver.observe(world);
+    }
+    this.safeEl = world;
+    this.syncSafeArea();
+  }
+
+  private syncSafeArea(): void {
+    const stage = this.stage, world = this.safeEl, slot = this.slots()[this.activeIndex]?.nativeElement;
+    if (!stage?.setSafeArea || !world?.isConnected || !slot) return;
+    const s = slot.getBoundingClientRect(), w = world.getBoundingClientRect();
+    if (s.height < 1 || w.height < 1) return;
+    stage.setSafeArea({ top: Math.max(0, Math.round(w.top - s.top)), bottom: Math.max(0, Math.round(s.bottom - w.bottom)) });
+  }
+
   // ───────────── feed: qué Tap está a la vista ─────────────
   private watchSections(): void {
     if (typeof IntersectionObserver === 'undefined') return;
@@ -1433,6 +1471,7 @@ export class TapsFeedComponent {
       const stage = await this.ensureStage(tap);
       if (token !== this.token || !stage) return;
       stage.attachTo(this.slots()[index].nativeElement);
+      this.watchSafeArea(index);
       stage.resume();
       await stage.setScene(tap.scene);
       if (token !== this.token) return;

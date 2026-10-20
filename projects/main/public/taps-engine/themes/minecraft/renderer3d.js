@@ -391,10 +391,17 @@ let plano=null,variante=0,camCur=null;
 function camGoal(){if(!plano)return null;const g={...CAM0,...plano},v=reduced?{}:VARIANTES[variante]||{};
  return{...g,el:g.el+(v.el||0),az:g.az+(v.az||0),zoom:g.zoom*(v.zoom||1),foco:v.foco||0,orbit:reduced?0:g.orbit,travel:reduced?0:g.travel}}
 const tmpV=new V3();
-let viewOy=0;
-function setOy(oy){if(Math.abs(oy-viewOy)<1e-3)return;viewOy=oy;const c=viewer.camera;if(Math.abs(oy)<1e-3)c.clearViewOffset();else c.setViewOffset(W,H,0,Math.round(oy*H),W,H);c.updateProjectionMatrix()}
+// Encaje en la zona visible (motor v11, renderer.encuadre): la imagen se achica (s) alrededor del personaje y sube (ty, fracción
+// del alto) para que quede entre la barra y la tarjeta de la pregunta: y' = s·y + ty·H. El mundo sigue más allá del borde, así
+// que no aparecen huecos. Se compone con el «oy» del plano en un solo setViewOffset; viaja suave salvo con movimiento reducido.
+let fit={s:1,ty:0},fitTo={s:1,ty:0},viewKey='',lastFit={s:1,ty:0,cx:.5};
+function setOy(oy){const c=viewer.camera,s=fit.s,cx=Math.max(.1,Math.min(.9,.5+(shot.x||0)+nudgeX));
+ const key=oy.toFixed(4)+'|'+s.toFixed(4)+'|'+fit.ty.toFixed(4)+'|'+(s===1?0:cx.toFixed(3))+'|'+W+'x'+H;if(key===viewKey)return;viewKey=key;lastFit={s,ty:fit.ty,cx};
+ if(Math.abs(oy)<1e-3&&Math.abs(s-1)<1e-4&&Math.abs(fit.ty)<1e-4)c.clearViewOffset();
+ else c.setViewOffset(W,H,-(1-s)*cx*W/s,oy*H-fit.ty*H/s,W/s,H/s);c.updateProjectionMatrix()}
 function camera(dt){const cfg=Object.assign({dist:92,height:2,lookY:-8,sway:.12,swaySpeed:.5},theme.camera||{},((theme.camera||{}).worlds||{})[worldShown]||{}),c=viewer.camera;
  camT+=dt;push=Math.max(0,push-dt*1.4);nudgeX+=(nudgeTo-nudgeX)*(reduced?1:1-Math.exp(-dt*8));
+ {const k=reduced?1:1-Math.exp(-dt*3);fit={s:fit.s+(fitTo.s-fit.s)*k,ty:fit.ty+(fitTo.ty-fit.ty)*k};if(Math.abs(fit.s-fitTo.s)<1e-4&&Math.abs(fit.ty-fitTo.ty)<1e-4)fit={...fitTo}}
  const goal=camGoal();
  if(!goal){setOy(0);
   const yaw=shot.yaw||0,a=Math.sin(camT*cfg.swaySpeed)*cfg.sway+yaw,dist=cfg.dist/(shot.zoom||1)*(1-.1*easeOut(push)),hgt=cfg.height+(shot.height||0);
@@ -555,10 +562,15 @@ return {
  /** Efectos de cámara/cuerpo que el motor dispara con las reacciones. */
  fx(name){if(name==='hurt'){host.hurt=.4;shake=Math.max(shake,.22)}else if(name==='push')push=1;else if(name==='shake')shake=Math.max(shake,.2)},
  frame,
- anchor(name){const y={head:12,top:20,chest:4,feet:-16}[name]??12,p=host.wrap.position;return proj(p.x,y+host.player.position.y+p.y,p.z)},
+ /** raw = sin encaje, sin salto y sin la altura de la entrada («salta» cae desde arriba): así el motor mide la banda del
+  *  personaje sin realimentarse y el cuadro no «respira» mientras entra (motor v11). */
+ anchor(name,raw){const y={head:12,top:20,chest:4,feet:-16}[name]??12,p=host.wrap.position;if(!raw)return proj(p.x,y+host.player.position.y+p.y,p.z);
+  const[x,yy]=proj(p.x,y,p.z),f=lastFit;return[(x-(1-f.s)*f.cx*W)/f.s,(yy-f.ty*H)/f.s]},
  /** Corre al personaje en pantalla (fracción del ancho) para hacerle sitio a un objeto que explica. */
  nudge(dx,now){nudgeTo=dx||0;if(now||reduced)nudgeX=nudgeTo},
- setSize(w,h){W=Math.round(w);H=Math.round(h);out.width=W;out.height=H;viewer.setSize(W,H);viewOy=-1;setOy(camCur?.oy||0);if(faunaShown){const k=faunaShown;faunaShown=null;showFauna(...k.split('|'))}},
+ /** Encaje en la zona visible (motor v11): {s, ty}; `now` = sin viaje. */
+ encuadre(f,now){fitTo={s:+f?.s||1,ty:+f?.ty||0};if(now||reduced)fit={...fitTo}},
+ setSize(w,h){W=Math.round(w);H=Math.round(h);out.width=W;out.height=H;viewer.setSize(W,H);viewKey='';setOy(camCur?.oy||0);if(faunaShown){const k=faunaShown;faunaShown=null;showFauna(...k.split('|'))}},
  dispose(){try{viewer.dispose()}catch{}try{viewer.renderer.forceContextLoss()}catch{}}
 };
 }

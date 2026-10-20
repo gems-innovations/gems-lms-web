@@ -2,7 +2,14 @@
    El fondo es la imagen del fondo del registro (el motor pone --te-bg-img y --te-bg-pos desde fondo.json); sin imagen,
    el degradado del cielo. El personaje es su miniatura (render 4:5 del modelo), con sombra suave en el piso. */
 .te-stage[data-theme='aventura'] { background: linear-gradient(var(--te-sky-top, #4aa3e8), var(--te-sky-bottom, #c4e9ff)); }
-.te-stage[data-theme='aventura'] .te-bg { background: var(--te-bg-img, none) var(--te-bg-pos, 50% 100%) / cover no-repeat; }
+/* Zona segura (v11): la ilustración sube con el personaje (--te-f-y en ligero, --te-g-y en 3D) para que siga parado en su suelo;
+   la franja que queda abajo cae bajo la tarjeta de la pregunta.
+   En ligero viaja igual que el personaje (translate de .te-light); en 3D, como el encaje del renderizador (~0,9 s). */
+.te-stage[data-theme='aventura'] .te-bg { background: var(--te-bg-img, none) var(--te-bg-pos, 50% 100%) / cover no-repeat; translate: 0 var(--te-f-y, 0px);
+  transition: translate var(--dur-enfasis, 320ms) var(--curva-estandar, ease); }
+.te-stage[data-theme='aventura'][data-mode='3d'] .te-bg { translate: 0 var(--te-g-y, 0px); transition-duration: .9s; }
+.te-stage[data-theme='aventura'][data-reduced] .te-bg { transition: none; }
+@media (prefers-reduced-motion: reduce) { .te-stage[data-theme='aventura'] .te-bg { transition: none; } }
 .te-stage[data-theme='aventura'] .te-bg::before { display: none; }
 .te-stage[data-theme='aventura'] .te-bg::after { height: 22%; background: linear-gradient(transparent, rgba(0, 0, 0, .08)); box-shadow: none; }
 .te-stage[data-theme='aventura'] .te-light { top: calc(30% + 38% * (1 - var(--te-s, 1))); height: calc(38% * var(--te-s, 1)); aspect-ratio: 4 / 5; }

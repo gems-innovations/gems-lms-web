@@ -149,6 +149,11 @@ export interface ITapsStage {
   preloadEscenas?(): Promise<void>;
   /** Pequeño cambio de plano entre preguntas (motor v10): n = pregunta (0 = plano base), seed = número estable del Tap. */
   plano?(n: number, seed?: number): void;
+  /**
+   * Zona segura (motor v11): px del escenario que tapan arriba la barra y abajo la tarjeta de la pregunta. El personaje se
+   * encaja en lo que queda a la vista. `null` = todo el escenario.
+   */
+  setSafeArea?(area: { top: number; bottom: number } | null): void;
   attachTo(el: HTMLElement): void;
   destroy(): void;
   on(name: 'mode' | 'degrade' | 'visual', fn: (data: { mode?: 'light' | '3d'; reason?: string; step?: string; type?: string }) => void): () => void;

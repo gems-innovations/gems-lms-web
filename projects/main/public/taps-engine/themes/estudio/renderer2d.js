@@ -47,6 +47,12 @@ export function createRenderer({ canvas, width, height, theme, reducedMotion = f
   let shake = 0, ring = -1, flash = 0;
   let enter = null, enterT = 0, nudge = 0, nudgeTo = 0;
   let plano = null, variante = 0, cam = { ...CAM0 };
+  // Encaje en la zona visible (motor v11, encuadre): el cuadro se achica (s) alrededor del personaje y sube (ty, fracción del
+  // alto) para quedar entre la barra y la tarjeta de la pregunta: y' = s·y + ty·H. Viaja suave salvo con movimiento reducido.
+  let fit = { s: 1, ty: 0 }, fitTo = { s: 1, ty: 0 };
+  const fitOn = () => Math.abs(fit.s - 1) > 1e-4 || Math.abs(fit.ty) > 1e-4;
+  const fitCx = () => W * Math.max(0.1, Math.min(0.9, 0.5 + (scene.shot.x || 0) + nudge));
+  const fitPt = ([x, y]) => [fit.s * x + (1 - fit.s) * fitCx(), fit.s * y + fit.ty * H];
 
   const goal = () => {
     if (!plano) return { ...CAM0 };
@@ -124,6 +130,8 @@ export function createRenderer({ canvas, width, height, theme, reducedMotion = f
   function frame(dt) {
     if (!reducedMotion) { T += dt; animT += dt; }
     nudge += (nudgeTo - nudge) * (reducedMotion ? 1 : 1 - Math.exp(-dt * 9));
+    { const kf = reducedMotion ? 1 : 1 - Math.exp(-dt * 3); fit = { s: fit.s + (fitTo.s - fit.s) * kf, ty: fit.ty + (fitTo.ty - fit.ty) * kf };
+      if (Math.abs(fit.s - fitTo.s) < 1e-4 && Math.abs(fit.ty - fitTo.ty) < 1e-4) fit = { ...fitTo }; }
     const g = goal(), k = reducedMotion ? 1 : 1 - Math.exp(-dt * 1.6);
     for (const p in g) cam[p] += (g[p] - cam[p]) * k;
     const target = poseFor(anim, reducedMotion ? 0 : animT, reducedMotion ? 0 : T);
@@ -151,13 +159,24 @@ export function createRenderer({ canvas, width, height, theme, reducedMotion = f
     if (shake > 0) { shake -= dt; const m = 14 * (W / 540) * Math.max(0, shake / 0.35); ox = (Math.random() - 0.5) * m; oy = (Math.random() - 0.5) * m; }
     const v = view(), bg = background(scene.world);
     ctx.fillStyle = theme.scenes?.[scene.world]?.sky?.[0] || '#1E1B4B'; ctx.fillRect(0, 0, W, H);
-    ctx.save(); ctx.translate(ox, oy); apply(ctx, v);
+    ctx.save(); ctx.translate(ox, oy);
+    if (fitOn()) ctx.transform(fit.s, 0, 0, fit.s, (1 - fit.s) * fitCx(), fit.ty * H);
+    apply(ctx, v);
     // pared y piso por separado: así un plano desde arriba muestra más piso y uno desde abajo, más pared (dos drawImage)
     ctx.drawImage(bg, 0, 0, W, gy0, 0, 0, W, gy);
     ctx.drawImage(bg, 0, gy0, W, H - gy0, 0, gy, W, H - gy);
+    if (fitOn()) {                                   // encaje: el borde del dibujo se prolonga (fila/columna estirada), sin huecos
+      ctx.drawImage(bg, 0, H - 1, W, 1, -W, H - 0.5, 3 * W, 2 * H);             // piso hacia abajo (bajo la tarjeta)
+      ctx.drawImage(bg, 0, 0, W, 1, -W, -2 * H, 3 * W, 2 * H + 0.5);            // pared hacia arriba
+      ctx.drawImage(bg, 0, 0, 1, gy0, -W, 0, W + 0.5, gy); ctx.drawImage(bg, 0, gy0, 1, H - gy0, -W, gy, W + 0.5, H - gy);
+      ctx.drawImage(bg, W - 1, 0, 1, gy0, W - 0.5, 0, W, gy); ctx.drawImage(bg, W - 1, gy0, 1, H - gy0, W - 0.5, gy, W, H - gy);
+    }
     if (!reducedMotion) paintAmbient(ctx, W, H, scene.world, T);
     if (scene.fauna) paintFauna(ctx, W, H, scene.fauna, T, gy, propSide());
-    if (scene.clima) paintClima(ctx, W, H, scene.clima, reducedMotion ? 2 : T);
+    // el clima es de pantalla completa: con encaje se dibuja sin la escala (cubre también la franja prolongada del fondo).
+    // El ambiente y la fauna son del lugar (vapor del matraz, estrellas, el gato en el piso): siguen pegados al dibujo.
+    if (scene.clima && fitOn()) { ctx.save(); ctx.setTransform(1, 0, 0, 1, ox, oy); paintClima(ctx, W, H, scene.clima, reducedMotion ? 2 : T); ctx.restore(); }
+    else if (scene.clima) paintClima(ctx, W, H, scene.clima, reducedMotion ? 2 : T);
 
     // sombra dura en el piso (se achica cuando salta)
     const lift = Math.max(0, -(pose.y + ey) - 10) / 80;
@@ -176,12 +195,17 @@ export function createRenderer({ canvas, width, height, theme, reducedMotion = f
     if (flash > 0) { flash = Math.max(0, flash - dt * 3); ctx.fillStyle = '#FFFFFF'; ctx.globalAlpha = flash * 0.35; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
   }
 
-  function anchor(name) {
+  /** `raw` = sin encaje ni pose (motor v11: así mide la banda del personaje sin realimentarse). */
+  function anchor(name, raw = false) {
     const [x, y] = hostXY();
-    return toScreen(anchorOf(name, x, y, S(), pose || poseFor('idle')));
+    if (raw) return toScreen(anchorOf(name, x, y, S(), poseFor('idle')));
+    return fitPt(toScreen(anchorOf(name, x, y, S(), pose || poseFor('idle'))));
   }
   function setSize(w, h) { W = w; H = h; canvas.width = w; canvas.height = h; ctx = canvas.getContext('2d'); bgCache.clear(); }
   function dispose() { bgCache.clear(); pose = null; }
 
-  return { setScene, preload, play, fx, frame, anchor, setSize, dispose, nudge: nudgeTo_, plano: plano_ };
+  /** Encaje en la zona visible (motor v11): {s, ty}; `now` = sin viaje. */
+  function encuadre(f, now) { fitTo = { s: +f?.s || 1, ty: +f?.ty || 0 }; if (now || reducedMotion) fit = { ...fitTo }; }
+
+  return { setScene, preload, play, fx, frame, anchor, setSize, dispose, nudge: nudgeTo_, plano: plano_, encuadre };
 }
