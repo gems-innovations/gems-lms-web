@@ -202,3 +202,68 @@ test('los Taps de «estudio» de la app (taps-estudio.data.ts) coinciden con los
       assert.ok(ts.includes(`'${s}'`), `${id}: falta «${s}» en taps-estudio.data.ts`);
   }
 });
+
+test('modo cine: theme.cine de cada tema (planos, horas, clima, fauna, transiciones) y sus escenas de pregunta', async () => {
+  const cines = THEMES.map(id => [id, readJson(themeUrl(id))]).filter(([, t]) => t.cine);
+  assert.ok(cines.length >= 2, 'los dos temas traen modo cine');
+  const planos = Object.keys(cines[0][1].cine.planos).sort();
+  for (const [id, t] of cines) {
+    const c = t.cine, mundos = new Set([...Object.keys(t.scenes), ...(t.fondos ?? [])]);   // con registro, los fondos son los mundos
+    assert.deepEqual(Object.keys(c.planos).sort(), planos, `${id}: mismos planos en todos los temas (el generador los reparte igual)`);
+    for (const [k, p] of Object.entries(c.planos)) assert.ok(p.ligero && (p.ligero.s ?? 1) >= 0.6 && (p.ligero.s ?? 1) <= 1.5, `${id}: el plano ${k} define su versión ligera`);
+    assert.deepEqual(c.transiciones, ['corte', 'barrido', 'zoom', 'fundido']);
+    for (const w of c.horasMundos) assert.ok(mundos.has(w), `${id}: hora en un mundo que no existe (${w})`);
+    for (const [k, ws] of [...Object.entries(c.climas), ...Object.entries(c.fauna)]) for (const w of ws) assert.ok(mundos.has(w), `${id}: ${k} en un mundo que no existe (${w})`);
+    if (t.escenas) {
+      const mod = await import(new URL(t.escenas.module, themeUrl(id)).href);
+      for (const cosa of t.escenas.objects) {
+        for (const reducedMotion of [false, true]) {
+          const v = mod.createEscena({ tipo: id === 'minecraft' ? 'objeto' : 'diagrama', cosa }, { reducedMotion });
+          assert.ok(v && v.duration > 0 && v.label.length > 4, `${id}: dibuja la escena ${cosa}`);
+          const canvas = fakeCanvas(220, 200), ctx = canvas.getContext();
+          for (const time of [0, v.duration / 2, v.duration]) v.draw(ctx, 220, 200, time);
+          assert.ok(canvas.calls.fill + canvas.calls.fillRect > 10, `${id}: ${cosa} pintó algo`);
+        }
+      }
+      assert.equal(mod.createEscena({ tipo: 'objeto', cosa: 'no-existe' }), null, 'una escena desconocida no rompe nada');
+    }
+  }
+});
+
+test('modo cine (estudio): cada plano, hora, clima, fauna y cambio de plano deja al personaje en pantalla', async () => {
+  const theme = readJson(themeUrl('estudio')), c = theme.cine;
+  const { createRenderer } = await import(new URL('themes/estudio/renderer2d.js', ENGINE).href);
+  for (const reducedMotion of [false, true]) {
+    const canvas = fakeCanvas();
+    const r = await createRenderer({ canvas, width: 540, height: 960, theme, resolve: x => x, reducedMotion });
+    for (const [k, plano] of Object.entries(c.planos)) for (const world of Object.keys(theme.scenes)) {
+      const clima = Object.keys(c.climas).find(x => c.climas[x].includes(world)), fauna = Object.keys(c.fauna).find(x => c.fauna[x].includes(world));
+      await r.setScene({ world, host: 'nube', item: 'lupa', shot: theme.shots.izquierda, plano, hora: c.horasMundos.includes(world) ? 'noche' : null, clima, fauna });
+      for (let n = 0; n < 5; n++) { r.plano(n, 7); for (let i = 0; i < 12; i++) r.frame(1 / 30); }
+      const [x, y] = r.anchor('chest');
+      assert.ok(x > 0 && x < 540 && y > 0 && y < 960 * 0.62, `${k}/${world}: el pecho queda sobre el panel de la pregunta (${x | 0}, ${y | 0})`);
+    }
+    r.dispose();
+  }
+});
+
+test('escena de pregunta: el código se colorea por partes sin interpretar HTML', async () => {
+  const { tokenizar } = await import(new URL('escena.js', ENGINE).href);
+  assert.deepEqual(tokenizar('si llueve:').map(([k]) => k), ['k', '', '', '']);
+  const t = tokenizar('calle == "seca"  # ¿llovió?');
+  assert.deepEqual(t.filter(([k]) => k).map(([k, s]) => [k, s]), [['o', '=='], ['s', '"seca"'], ['c', '# ¿llovió?']]);
+  assert.equal(tokenizar('<b>x</b> = 2').map(([, s]) => s).join(''), '<b>x</b> = 2', 'el texto queda tal cual (se pinta con textContent)');
+});
+
+test('escenas de pregunta del banco: cada objeto o diagrama existe en su tema', async () => {
+  const src = readFileSync(new URL('../src/app/taps/taps.banco.generated.ts', import.meta.url), 'utf8');
+  const taps = src.split('\n').filter(l => l.startsWith('  {')).map(l => JSON.parse(l.trim().replace(/,$/, '')));
+  let n = 0;
+  for (const tap of taps) for (const q of tap.questions.filter(x => x.escena)) {
+    n++;
+    if (q.escena.tipo !== 'objeto' && q.escena.tipo !== 'diagrama') continue;
+    const t = readJson(themeUrl(tap.theme)), mod = await import(new URL(t.escenas.module, themeUrl(tap.theme)).href);
+    assert.ok(mod.createEscena(q.escena), `${tap.id}/${q.id}: el tema dibuja «${q.escena.cosa}»`);
+  }
+  assert.ok(n >= 20, `hay ${n} preguntas con escena`);
+});

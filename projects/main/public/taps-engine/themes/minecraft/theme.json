@@ -39,12 +39,61 @@
     "lejos":           { "x": 0.1, "zoom": 0.74, "yaw": -0.12, "height": 6 }
   },
   "enters": ["camina", "salta", "gira", "saluda"],
-  "props": { "taller": {}, "biblioteca": {}, "circuito": {}, "corral": {}, "portal": {}, "campamento": {}, "mina": {} },
+  "props": { "taller": {}, "biblioteca": {}, "circuito": {}, "corral": {}, "portal": {}, "campamento": {}, "mina": {},
+             "granja": {}, "iglu": {}, "cristales": {}, "ruinas": {}, "muelle": {} },
   "visuals": {
     "module": "visuals.js",
     "objects": {
       "receta": ["crafteo"], "piston": ["bloquea"], "reloj": ["dia", "cama"], "comparador": ["cofre"]
     }
+  },
+  "escenas": {
+    "module": "visuals.js",
+    "objects": ["creeper", "enderman", "lobo", "golem-nieve", "piston", "ghast", "vaca-champinon", "arco"]
+  },
+
+  "cine": {
+    "planos": {
+      "general":      { "el": 14, "zoom": 0.62, "ty": -2, "oy": 0.06, "ligero": { "s": 0.74, "suelo": 40 } },
+      "cenital":      { "el": 52, "zoom": 0.52, "ty": -10, "oy": 0.03, "ligero": { "s": 0.72, "suelo": 62 } },
+      "picado":       { "el": 32, "zoom": 0.95, "ty": -8, "oy": 0.08, "ligero": { "s": 0.86, "suelo": 54 } },
+      "contrapicado": { "el": -7, "zoom": 1.05, "ty": 7, "oy": 0.1, "ligero": { "s": 1.2, "suelo": 34 } },
+      "primer-plano": { "el": 4, "zoom": 1.8, "ty": 9, "oy": 0.08, "ligero": { "s": 1.42, "suelo": 38 } },
+      "travelling":   { "el": 8, "zoom": 1.08, "ty": -4, "oy": 0.04, "travel": 0.2, "ligero": { "s": 1.04 } },
+      "orbita":       { "el": 13, "zoom": 0.95, "ty": -4, "oy": 0.05, "orbit": 0.75, "ligero": { "s": 0.94 } },
+      "diagonal":     { "el": 9, "az": 0.55, "zoom": 1, "ty": -2, "oy": 0.05, "roll": 0.12, "ligero": { "s": 1.1 } }
+    },
+    "horas": {
+      "dia": {},
+      "tarde": { "sky": ["#2c3e8f", "#ffb36b"] },
+      "amanecer": { "sky": ["#4a6fc0", "#ffe1b0"] },
+      "noche": { "sky": ["#03061a", "#1c2a5a"] }
+    },
+    "horasMundos": ["pradera", "bosque", "aldea", "desierto", "nieve", "playa"],
+    "climas": {
+      "lluvia": ["pradera", "bosque", "aldea", "playa", "noche"],
+      "polen": ["pradera", "aldea"],
+      "hojas": ["bosque", "pradera"],
+      "arena": ["desierto"],
+      "luciernagas": ["bosque", "noche"],
+      "goteo": ["cueva"],
+      "polvo": ["casa", "cueva"],
+      "ceniza": ["nether"]
+    },
+    "fauna": {
+      "ovejas": ["pradera", "aldea", "bosque"],
+      "vacas": ["pradera", "aldea"],
+      "gallinas": ["aldea", "pradera"],
+      "lobos": ["bosque", "nieve"],
+      "zorros": ["bosque", "nieve"],
+      "conejos": ["desierto", "nieve"],
+      "tortugas": ["playa"],
+      "murcielagos": ["cueva", "noche"],
+      "ghasts": ["nether"],
+      "endermans": ["end"],
+      "gatos": ["casa"]
+    },
+    "transiciones": ["corte", "barrido", "zoom", "fundido"]
   },
 
   "scenes": {

@@ -25,6 +25,11 @@ No se edita `taps.banco.generated.ts` a mano.
   usuario puede tocar y arrastrar junto a la explicación al fallar. El catálogo está en el `theme.json` del tema
   (`visuals.objects`) y en `public/taps-engine/README.md`; el generador falla si el objeto o la acción no existen.
   Para una pregunta reutilizada de `retos.data.ts`, el campo va en su entrada de `existentes`.
+- En una pregunta: `"escena": { "tipo": "codigo" | "operacion" | "serie" | "objeto" | "diagrama", … }` (opcional) muestra
+  algo de lo que se PREGUNTA mientras se piensa: un fragmento de código (`lineas`, `lenguaje`), una cuenta grande
+  (`lineas`), una serie en fichas con un `?` (`items`) o un objeto/diagrama del tema (`cosa`, catálogo `escenas.objects` del
+  `theme.json`), con un pie opcional (`texto`). El generador falla si el formato no cabe, si la cosa no existe o si la
+  escena muestra escrita la opción correcta (nunca debe delatar la respuesta). Formato completo en `public/taps-engine/README.md`.
 - En el tema: `"titulosPorSubtema": { "<subtema>": [...] }` da títulos propios a cada subtema (mismo formato que
   `titulosResultado`; un subtema sin entrada usa los del tema). Así «Crack de bloques» no sale en todos los Taps de Minecraft.
 - En cada título: `"lineas": ["…", "…"]` (hasta 2 variantes más de su `line`). La app elige una con semilla al mostrar
@@ -37,5 +42,9 @@ Reglas fijas en `projects/main/scripts/generar-taps.mjs`: cada Tap publicado tie
 la mano y decorado de fondo); uno nuevo usa la lista de (mundo, objeto) de su subtema (`ESCENAS`). El personaje, el
 encuadre (`ENCUADRES`: izquierda, derecha, cerca, lejos, centro) y la entrada rotan por orden dentro del tema, así dos Taps
 seguidos no se ven iguales. El gancho (`ESCENA_GANCHO`) va centrado y saluda.
+Modo cine (`asignarCine`): encima de eso cada Tap recibe plano de cámara (general, cenital, picado, contrapicado, primer
+plano, travelling, órbita, diagonal), hora del día, clima, fauna de fondo y transición (corte, barrido, zoom, fundido), y se
+reparten de nuevo personaje, encuadre y entrada. Se simulan los órdenes reales del feed y cada Tap evita lo que ya tienen sus
+vecinos: deslizando 15 seguidos nunca se repite el plano (`taps.cine.spec.ts` lo comprueba). No hay que escribir nada a mano.
 Minecraft usa el tema `minecraft` (3D); Lógica y Cultura el tema `estudio` (2D). Para otro mundo u objeto se cambia
 esa tabla y se vuelve a generar.

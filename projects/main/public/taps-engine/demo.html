@@ -35,7 +35,7 @@ const params = new URLSearchParams(location.search);
 const $ = id => document.getElementById(id);
 const t0 = performance.now();
 const tap = await (await fetch(`taps/${params.get('tap') || 'redstone'}.json`)).json();
-const scene = { ...tap.scene, ...Object.fromEntries(['world', 'host', 'item'].filter(k => params.has(k)).map(k => [k, params.get(k)])) };
+const scene = { ...tap.scene, ...Object.fromEntries(['world', 'host', 'item', 'shot', 'props', 'camara', 'hora', 'clima', 'fauna', 'transicion'].filter(k => params.has(k)).map(k => [k, params.get(k)])) };
 const stage = create($('stage'), { theme: `themes/${tap.theme}/theme.json`, mode: params.get('mode') || 'auto', degrade: params.get('degrade') !== '0',
   ...(params.has('reduced') ? { reducedMotion: params.get('reduced') !== '0' } : {}) });
 window.stage = stage;

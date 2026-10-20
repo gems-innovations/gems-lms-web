@@ -24,6 +24,10 @@
 // Temas con registro (theme.json → "personajes"/"fondos", p. ej. «aventura»): personaje y fondo salen de elegirParaTap()
 // (public/taps-engine/registro.js) por el orden del Tap: deterministas, sin repetir entre Taps seguidos, sin objeto en la mano.
 // Añadir un personaje o fondo al theme.json basta para que entre en la rotación (ver taps-engine/personajes/LEEME.md).
+// Y "escena": { tipo: codigo | operacion | serie | objeto | diagrama, … } (elemento visual de la PREGUNTA, ver validarEscena):
+// se copia si cumple el formato, existe en el tema (escenas.objects) y no muestra escrita la opción correcta.
+// Modo cine (asignarCine): sobre esa escena se reparten plano de cámara, hora, clima, fauna, transición, encuadre y entrada
+// (y el personaje en los temas sin registro) para que los Taps seguidos del feed nunca se vean iguales (ver taps.cine.spec.ts).
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -164,22 +168,22 @@ export const ESCENA_GANCHO = {
  */
 export const LUGARES = {
   'mc-crafteo-1': ['pradera', 'axe', 'taller'], 'mc-mascotas': ['aldea', 'apple', 'corral'], 'mc-nether-2': ['nether', 'sword', 'portal'],
-  'mc-secretos': ['nieve', 'diamond', null], 'mc-nether-1': ['nether', 'sword', 'portal'], 'mc-mundo': ['bosque', 'sword', 'corral'],
+  'mc-secretos': ['nieve', 'diamond', 'iglu'], 'mc-nether-1': ['nether', 'sword', 'portal'], 'mc-mundo': ['bosque', 'sword', 'corral'],
   'mc-crafteo-2': ['aldea', 'pick', 'taller'], 'mc-monstruos': ['noche', 'torch', 'campamento'], 'mc-redstone-1': ['cueva', 'pick', 'circuito'],
-  'mc-end': ['end', 'diamond', null], 'mc-redstone-3': ['cueva', 'torch', 'circuito'], 'mc-encantamientos': ['casa', 'diamond', 'biblioteca'],
-  'mc-mineria': ['cueva', 'pick', 'mina'], 'mc-nether-3': ['nether', 'diamond', 'portal'], 'mc-rayos': ['desierto', 'sword', null],
-  'mc-noche-1': ['noche', 'torch', 'campamento'], 'mc-nuevos': ['playa', 'apple', null], 'mc-redstone-2': ['noche', 'pick', 'circuito'],
-  'mc-leyendas': ['desierto', 'pick', null], 'mc-noche-2': ['nieve', 'axe', 'campamento'], 'mc-mezcla': ['bosque', 'axe', null],
+  'mc-end': ['end', 'diamond', 'cristales'], 'mc-redstone-3': ['cueva', 'torch', 'circuito'], 'mc-encantamientos': ['casa', 'diamond', 'biblioteca'],
+  'mc-mineria': ['cueva', 'pick', 'mina'], 'mc-nether-3': ['nether', 'diamond', 'portal'], 'mc-rayos': ['desierto', 'sword', 'ruinas'],
+  'mc-noche-1': ['noche', 'torch', 'campamento'], 'mc-nuevos': ['playa', 'apple', 'muelle'], 'mc-redstone-2': ['noche', 'pick', 'circuito'],
+  'mc-leyendas': ['desierto', 'pick', 'ruinas'], 'mc-noche-2': ['nieve', 'axe', 'campamento'], 'mc-mezcla': ['bosque', 'axe', 'granja'],
   'mc-taller': ['casa', 'axe', 'taller'],
-  'lg-adivinanzas-1': ['cocina', 'libro', 'reloj'], 'lg-zorgs': ['espacio', 'lupa', null], 'lg-lee-bien-2': ['biblioteca', 'lupa', null],
-  'lg-calendario': ['aula', 'libro', 'reloj'], 'lg-azar': ['jardin', 'lupa', 'planta'], 'lg-series-1': ['laboratorio', 'lupa', null],
-  'lg-lateral': ['observatorio', 'lupa', null], 'lg-series-2': ['aula', 'libro', 'reloj'], 'lg-lluvia': ['jardin', 'libro', 'planta'],
-  'lg-adivinanzas-2': ['biblioteca', 'libro', 'reloj'], 'lg-rapidas': ['cocina', 'lupa', null], 'lg-adivinanzas-3': ['biblioteca', 'libro', 'globo'],
-  'lg-mezcla': ['museo', 'lupa', null],
-  'cu-cuerpo-1': ['laboratorio', 'lupa', null], 'cu-espacio-1': ['observatorio', 'lupa', null], 'cu-datos': ['biblioteca', 'libro', 'globo'],
-  'cu-animales-1': ['jardin', 'lupa', null], 'cu-ciencia-1': ['cocina', 'matraz', null], 'cu-geografia-2': ['museo', 'libro', null],
-  'cu-cuerpo-2': ['laboratorio', 'matraz', 'libros'], 'cu-geografia-1': ['museo', 'lupa', 'globo'], 'cu-mitos': ['biblioteca', 'lupa', null],
-  'cu-animales-2': ['jardin', 'libro', 'planta'], 'cu-espacio-2': ['espacio', 'lupa', null], 'cu-gigantes': ['observatorio', 'libro', 'globo'],
+  'lg-adivinanzas-1': ['cocina', 'libro', 'reloj'], 'lg-zorgs': ['espacio', 'lupa', 'cohete'], 'lg-lee-bien-2': ['biblioteca', 'lupa', 'libros'],
+  'lg-calendario': ['aula', 'libro', 'reloj'], 'lg-azar': ['jardin', 'lupa', 'planta'], 'lg-series-1': ['laboratorio', 'lupa', 'microscopio'],
+  'lg-lateral': ['observatorio', 'lupa', 'telescopio'], 'lg-series-2': ['aula', 'libro', 'reloj'], 'lg-lluvia': ['jardin', 'libro', 'planta'],
+  'lg-adivinanzas-2': ['biblioteca', 'libro', 'reloj'], 'lg-rapidas': ['cocina', 'lupa', 'reloj'], 'lg-adivinanzas-3': ['biblioteca', 'libro', 'globo'],
+  'lg-mezcla': ['museo', 'lupa', 'mapa'],
+  'cu-cuerpo-1': ['laboratorio', 'lupa', 'microscopio'], 'cu-espacio-1': ['observatorio', 'lupa', 'telescopio'], 'cu-datos': ['biblioteca', 'libro', 'globo'],
+  'cu-animales-1': ['jardin', 'lupa', null], 'cu-ciencia-1': ['cocina', 'matraz', null], 'cu-geografia-2': ['museo', 'libro', 'mapa'],
+  'cu-cuerpo-2': ['laboratorio', 'matraz', 'libros'], 'cu-geografia-1': ['museo', 'lupa', 'globo'], 'cu-mitos': ['biblioteca', 'lupa', 'libros'],
+  'cu-animales-2': ['jardin', 'libro', 'planta'], 'cu-espacio-2': ['espacio', 'lupa', 'cohete'], 'cu-gigantes': ['observatorio', 'libro', 'globo'],
   'cu-animales-3': ['aula', 'libro', 'planta'], 'cu-luz-sonido': ['cocina', 'matraz', null], 'cu-rarezas': ['laboratorio', 'lupa', 'planta'],
 };
 
@@ -229,7 +233,10 @@ export function leerRetos(ruta = RUTAS.retos) {
   return { RETOS: new Map(RETOS.map(r => [r.id, r])), BLOQUES: new Map(BLOQUES.map(r => [r.id, r])) };
 }
 
-/** Mundos, personajes, encuadres, entradas, decorados y objetos para explicar de cada tema del motor (y los colores de carga). */
+/**
+ * Mundos, personajes, encuadres, entradas, decorados, objetos para explicar, escenas de pregunta y modo cine de cada tema
+ * del motor (y los colores de carga).
+ */
 export function leerTemas(carpeta = RUTAS.temas) {
   const salida = {};
   for (const id of Object.keys(OBJETOS)) {
@@ -238,6 +245,7 @@ export function leerTemas(carpeta = RUTAS.temas) {
       mundos: t.scenes, personajes: new Set(Object.keys(t.characters)), encuadres: new Set(Object.keys(t.shots ?? {})),
       entradas: new Set(t.enters ?? []), decorados: new Set(Object.keys(t.props ?? {})), objetos: t.visuals?.objects ?? {},
       registro: Array.isArray(t.personajes) ? { personajes: t.personajes, fondos: t.fondos ?? [] } : null,
+      escenas: new Set(t.escenas?.objects ?? []), cine: t.cine ?? null,
     };
   }
   return salida;
@@ -267,6 +275,143 @@ export function expandirRegistro(t, motor = join(RUTAS.temas, '..')) {
 
 let temasCache = null;
 const registroDe = theme => (temasCache ??= leerTemas())[theme]?.registro ?? null;
+
+// ───────────────────────── escena de la pregunta ─────────────────────────
+/** Límites de la tarjeta (que quepa sin achicar demasiado la letra en un celular de 320 px). */
+export const LIMITES_ESCENA = { lineasCodigo: 7, largoCodigo: 30, lineasOperacion: 4, largoOperacion: 16, itemsSerie: [3, 8], largoItem: 4, texto: 28 };
+const quitarTildes = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+/** Todo el texto visible de una escena (para buscar si delata la respuesta). */
+const textoEscena = e => [...(e.lineas ?? []), ...(e.items ?? []), e.texto ?? ''].join(' \n ');
+
+/**
+ * Revisa la escena de una pregunta: formato, tamaños, objetos del catálogo del tema (theme.json → escenas.objects) y que
+ * NO delate la respuesta (la opción correcta no puede aparecer escrita en la escena).
+ */
+export function validarEscena(e, pregunta, catalogo, donde) {
+  if (e === undefined) return [];
+  const L = LIMITES_ESCENA, mal = m => [`${donde}: escena ${m}`];
+  if (!e || typeof e !== 'object') return mal('debe ser un objeto { tipo, … }');
+  const textos = l => Array.isArray(l) && l.every(x => typeof x === 'string' && x.length);
+  if (e.texto !== undefined && (typeof e.texto !== 'string' || !e.texto.trim() || e.texto.length > L.texto)) return mal(`«texto» debe tener de 1 a ${L.texto} caracteres`);
+  if (e.tipo === 'codigo') {
+    if (!textos(e.lineas) || e.lineas.length > L.lineasCodigo) return mal(`«codigo» lleva de 1 a ${L.lineasCodigo} líneas de texto`);
+    const larga = e.lineas.find(l => l.length > L.largoCodigo); if (larga) return mal(`la línea «${larga}» pasa de ${L.largoCodigo} caracteres`);
+    if (e.lenguaje !== undefined && !['pseudo', 'python', 'js'].includes(e.lenguaje)) return mal('«lenguaje» debe ser pseudo, python o js');
+  } else if (e.tipo === 'operacion') {
+    if (!textos(e.lineas) || e.lineas.length > L.lineasOperacion) return mal(`«operacion» lleva de 1 a ${L.lineasOperacion} líneas`);
+    const larga = e.lineas.find(l => l.length > L.largoOperacion); if (larga) return mal(`la línea «${larga}» pasa de ${L.largoOperacion} caracteres`);
+  } else if (e.tipo === 'serie') {
+    if (!textos(e.items) || e.items.length < L.itemsSerie[0] || e.items.length > L.itemsSerie[1]) return mal(`«serie» lleva de ${L.itemsSerie[0]} a ${L.itemsSerie[1]} fichas`);
+    if (e.items.some(x => x.length > L.largoItem)) return mal(`cada ficha de la serie tiene como mucho ${L.largoItem} caracteres`);
+    if (!e.items.includes('?')) return mal('la serie debe tener una ficha «?» (lo que se pregunta)');
+  } else if (e.tipo === 'objeto' || e.tipo === 'diagrama') {
+    if (typeof e.cosa !== 'string' || !catalogo?.has(e.cosa)) return mal(`«${e.cosa}» no existe en el tema (${[...(catalogo ?? [])].join(', ') || 'sin escenas'})`);
+  } else return mal(`tipo «${e.tipo}» desconocido (codigo, operacion, serie, objeto o diagrama)`);
+  // No delatar la respuesta: la opción correcta no puede verse escrita en la tarjeta.
+  const correcta = quitarTildes(pregunta.options?.[pregunta.answer] ?? '').trim(), visto = quitarTildes(textoEscena(e));
+  if (/^\d+([.,]\d+)?$/.test(correcta)) { if (visto.split(/[^0-9.,]+/).includes(correcta)) return mal(`delata la respuesta: muestra «${correcta}»`); }
+  else if (correcta.length >= 3 && new RegExp(`(^|[^a-z0-9])${correcta.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^a-z0-9])`).test(visto)) return mal(`delata la respuesta: muestra «${correcta}»`);
+  return [];
+}
+
+// ───────────────────────── modo cine: variedad entre Taps ─────────────────────────
+/**
+ * Cada Tap recibe un plano de cámara, hora del día, clima, fauna de fondo y transición (claves de theme.json → cine), y su
+ * personaje, encuadre y entrada se reparten de nuevo. Todo es determinista (sin azar). La meta: que al deslizar 15 Taps
+ * seguidos nunca se sientan iguales. Para eso se simulan los órdenes reales del feed (los mismos algoritmos que
+ * taps.logic.ts: «Para ti» con y sin gancho, y cada categoría sola) y se reparte con un coloreo voraz: cada Tap evita lo que
+ * ya tienen sus vecinos (a 1 y a 2 de distancia) y, a igualdad, usa lo menos usado. La prueba taps.cine.spec.ts verifica la
+ * variedad con las funciones reales del feed.
+ */
+export const PLANOS = ['general', 'cenital', 'picado', 'contrapicado', 'primer-plano', 'travelling', 'orbita', 'diagonal'];
+export const HORAS = ['dia', 'tarde', 'amanecer', 'noche'];
+export const TRANSICIONES = ['corte', 'barrido', 'zoom', 'fundido'];
+/** El Tap de gancho (la primera impresión) siempre igual: plano amable, de día y con fundido. */
+export const CINE_GANCHO = { minecraft: { camara: 'orbita', hora: 'dia', transicion: 'fundido' }, logica: { camara: 'travelling', hora: 'dia', transicion: 'fundido' }, cultura: { camara: 'primer-plano', hora: 'dia', transicion: 'fundido' } };
+
+const NIVEL = { facil: 1, media: 2, dificil: 3 };
+const SAWTOOTH = [0.1, 0.4, 0.9, 0.2, 0.55, 0.65, 0.97];
+/** Copia de `sawtoothOrder` de taps.logic.ts (la prueba de Karma confirma que el reparto sirve con el original). */
+export function ordenSierra(taps) {
+  const nivel = t => NIVEL[t.level ?? 'media'];
+  const hooks = taps.filter(t => t.hook), rest = taps.filter(t => !t.hook);
+  const share = n => (rest.length ? rest.filter(t => nivel(t) === n).length / rest.length : 0);
+  const easy = share(1), middle = easy + share(2), out = [...hooks];
+  for (let step = 0; rest.length; step++) {
+    const q = SAWTOOTH[step % SAWTOOTH.length], wanted = q < easy ? 1 : q < middle ? 2 : 3;
+    let pick = 0, best = Infinity;
+    rest.forEach((t, i) => { const d = Math.abs(nivel(t) - wanted); if (d < best) { best = d; pick = i; } });
+    out.push(rest.splice(pick, 1)[0]);
+  }
+  return out;
+}
+/** Copia de `mixFeed` de taps.logic.ts. */
+export function ordenParaTi(taps, hookDone = false) {
+  const hooks = taps.filter(t => t.hook), queued = hookDone ? taps.filter(t => !t.hook) : [...taps];
+  const by = new Map();
+  for (const t of queued) by.set(t.topic, [...(by.get(t.topic) ?? []), t]);
+  const queues = new Map([...by].map(([k, l]) => [k, ordenSierra(l)])), lastSeen = new Map([...by.keys()].map(k => [k, -1])), out = [];
+  while (out.length < queued.length) {
+    const lastTopic = out.length ? out[out.length - 1].topic : null, tail = out.slice(-2);
+    const full = tail.length === 2 && tail.every(t => t.topic === lastTopic);
+    const open = [...queues.entries()].filter(([, q]) => q.length > 0), allowed = open.filter(([k]) => !(full && k === lastTopic));
+    const [topic, queue] = (allowed.length ? allowed : open).sort((a, b) => b[1].length - a[1].length || lastSeen.get(a[0]) - lastSeen.get(b[0]))[0];
+    out.push(queue.shift()); lastSeen.set(topic, out.length);
+  }
+  return hookDone ? [...out, ...hooks] : out;
+}
+
+/** Reparte el modo cine (y personaje, encuadre y entrada) sobre los Taps ya generados. Modifica `taps[i].scene`. */
+export function asignarCine(taps, temas) {
+  const ordenes = [ordenParaTi(taps), ordenParaTi(taps, true), ...[...new Set(taps.map(t => t.topic))].map(k => ordenSierra(taps.filter(t => t.topic === k)))];
+  const cerca = new Map(taps.map(t => [t.id, new Map()]));                   // id → (id vecino → peso: 3 a distancia 1, 1 a distancia 2)
+  for (const o of ordenes) o.forEach((t, i) => {
+    for (const [d, w] of [[1, 3], [2, 1]]) for (const u of [o[i - d], o[i + d]]) if (u) cerca.get(t.id).set(u.id, Math.max(cerca.get(t.id).get(u.id) ?? 0, w));
+  });
+  const porId = new Map(taps.map(t => [t.id, t])), uso = new Map();
+  const usar = (k, v) => uso.set(k + '|' + v, (uso.get(k + '|' + v) ?? 0) + 1);
+  /** Elige para `campo` la opción con menos choques con los vecinos ya asignados (mismo valor y mismo tema pesan más). */
+  const elegir = (t, campo, opciones, extra = () => 0) => {
+    let mejor = null, coste = Infinity;
+    for (const v of opciones) {
+      let c = (uso.get(campo + '|' + v) ?? 0) * 0.35 + extra(v) + (hashAvalancha(t.id + campo + v) % 1000) / 1e5;
+      for (const [id, w] of cerca.get(t.id)) {
+        const u = porId.get(id); if (!u.scene.__cine || u.scene[campo] === undefined) continue;
+        if (u.scene[campo] === v && v !== null) c += w * (u.theme === t.theme ? 4 : 1.5);
+      }
+      if (c < coste) { coste = c; mejor = v; }
+    }
+    usar(campo, mejor);
+    return mejor;
+  };
+  for (const t of ordenes[0]) {
+    const tema = temas[t.theme], cine = tema.cine, s = t.scene, entradas = ENTRADAS[t.theme], personajes = TEMAS[Object.keys(TEMAS).find(k => TEMAS[k].topic === t.topic)].personajes;
+    if (t.hook) {
+      Object.assign(s, CINE_GANCHO[t.topic] ?? { camara: 'orbita', transicion: 'fundido' });
+      if (!cine?.horasMundos?.includes(s.world)) delete s.hora;
+    } else {
+      // temas con registro (aventura): personaje y fondo ya los eligió el registro sin repetir entre Taps seguidos
+      if (personajes) s.host = elegir(t, 'host', personajes); else usar('host', s.host);
+      s.shot = elegir(t, 'shot', ENCUADRES);
+      s.enter = elegir(t, 'enter', entradas);
+      s.camara = elegir(t, 'camara', PLANOS, v => (s.shot === 'lejos' && (v === 'general' || v === 'cenital') ? 3 : 0));
+      // un Tap «de noche» (sobrevivir la noche) se ve de noche si su lugar lo admite
+      if (cine?.horasMundos?.includes(s.world)) s.hora = elegir(t, 'hora', HORAS, v => (/noche/.test(t.id) ? (v === 'noche' ? -3 : 1) : 0)); else delete s.hora;
+      const climas = Object.entries(cine?.climas ?? {}).filter(([k, mundos]) => mundos.includes(s.world)
+        && !(k === 'luciernagas' && !/noche/.test(s.world) && !['noche', 'tarde'].includes(s.hora))
+        && !(k === 'polen' && s.hora === 'noche')).map(([k]) => k);
+      const clima = elegir(t, 'clima', [null, ...climas], v => (v === null ? 0.5 : 0));
+      if (clima) s.clima = clima; else delete s.clima;
+      const fauna = Object.entries(cine?.fauna ?? {}).filter(([k, mundos]) => mundos.includes(s.world) && !(s.props && ['gato', 'peces'].includes(k))).map(([k]) => k);
+      const f = elegir(t, 'fauna', [null, ...fauna], v => (v === null ? 0.6 : 0));
+      if (f) s.fauna = f; else delete s.fauna;
+      s.transicion = elegir(t, 'transicion', TRANSICIONES);
+    }
+    s.__cine = true;
+  }
+  for (const t of taps) delete t.scene.__cine;
+  return taps;
+}
 
 export function leerBancos(carpeta = RUTAS.banco) {
   return Object.fromEntries(Object.entries(TEMAS).map(([clave, t]) => {
@@ -434,7 +579,8 @@ export function generar(bancos, retos, temas) {
         if (p.estado === 'borrador') err(`Tap «${t.id}»: la pregunta «${id}» sigue en borrador; revísala (estado «revisada») antes de publicarla`);
         errores.push(...validarPregunta(p, `${archivo} · pregunta «${id}»`).map(m => m));
         errores.push(...validarVisual(p.visual, temas[def.theme]?.objetos, `${archivo} · pregunta «${id}»`));
-        preguntas.push({ id: p.id, q: p.q, options: p.options, answer: p.answer, why: p.why, ...(p.visual ? { visual: p.visual } : {}) });
+        errores.push(...validarEscena(p.escena, p, temas[def.theme]?.escenas, `${archivo} · pregunta «${id}»`));
+        preguntas.push({ id: p.id, q: p.q, options: p.options, answer: p.answer, why: p.why, ...(p.visual ? { visual: p.visual } : {}), ...(p.escena ? { escena: p.escena } : {}) });
       }
       if (t.gancho && !(banco.taps[0] === t)) err(`Tap «${t.id}»: el Tap de gancho debe ser el primero del archivo`);
       if (banco.taps[0] === t && !t.gancho) err(`Tap «${t.id}»: el primer Tap del tema debe ser el de gancho (gancho: true)`);
@@ -475,6 +621,18 @@ export function generar(bancos, retos, temas) {
   }
   for (const t of taps) {
     if (!['facil', 'media', 'dificil'].includes(t.level ?? 'media')) errores.push(`Tap «${t.id}»: nivel «${t.level}» no válido (facil, media o dificil)`);
+  }
+  if (!errores.length) {
+    asignarCine(taps, temas);
+    for (const t of taps) {
+      const s = t.scene, cine = temas[t.theme]?.cine, mal = m => errores.push(`Tap «${t.id}»: ${m} (tema ${t.theme})`);
+      if (!temas[t.theme].personajes.has(s.host)) mal(`el personaje «${s.host}» no existe`);
+      if (s.camara && !cine?.planos?.[s.camara]) mal(`el plano «${s.camara}» no existe en cine.planos`);
+      if (s.hora && !(cine?.horas?.[s.hora] && cine.horasMundos?.includes(s.world))) mal(`la hora «${s.hora}» no aplica en «${s.world}»`);
+      if (s.clima && !cine?.climas?.[s.clima]?.includes(s.world)) mal(`el clima «${s.clima}» no aplica en «${s.world}»`);
+      if (s.fauna && !cine?.fauna?.[s.fauna]?.includes(s.world)) mal(`la fauna «${s.fauna}» no aplica en «${s.world}»`);
+      if (s.transicion && !cine?.transiciones?.includes(s.transicion)) mal(`la transición «${s.transicion}» no existe`);
+    }
   }
   return { taps, retirados, errores: [...new Set(errores)], avisos };
 }

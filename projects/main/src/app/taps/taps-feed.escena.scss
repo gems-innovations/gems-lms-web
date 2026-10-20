@@ -47,9 +47,17 @@
 .tap--visual .tap__world gems-tap-rail { visibility: hidden; }
 @keyframes visual-in { from { opacity: 0; transform: translateY(10px) scale(.92); } }
 
+// ── Escena de la pregunta (motor: stage.escena): arriba a la izquierda del mundo, bajo el aviso de sonido; el personaje se
+// corre a la mitad derecha. Nunca toca el panel de la pregunta (alto acotado al mundo) ni el riel. El motor pone el contenido.
+.tap__escena { position: absolute; z-index: 2; left: 12px; top: 104px; width: min(50%, 228px); height: min(calc(100% - 116px), 200px); pointer-events: none;
+  &[hidden] { display: none; }
+  // código, operación y serie: el alto lo da el contenido (con tope); objeto y diagrama son un lienzo de alto fijo
+  &[data-tipo='codigo'], &[data-tipo='operacion'], &[data-tipo='serie'] { height: auto; max-height: min(calc(100% - 110px), 206px); padding-bottom: 6px; overflow: hidden; } }
+.tap__world:has(.tap__reto) .tap__escena { top: 132px; height: min(calc(100% - 144px), 184px); }
 @media (max-height: 680px) {
   .tap__visual { top: 52px; max-height: calc(100% - 60px); }
   .tap__visual-tip { display: none; }
+  .tap__escena { top: 92px; width: min(46%, 196px); height: min(calc(100% - 98px), 150px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .tap__visual { animation: none; }

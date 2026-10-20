@@ -284,7 +284,12 @@
       "dificultad": 1,
       "subtema": "cuerpo-humano",
       "fuente": "https://es.wikipedia.org/wiki/Esqueleto_humano",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "diagrama",
+        "cosa": "esqueleto",
+        "texto": "Persona adulta"
+      }
     },
     {
       "id": "bebe-huesos",
@@ -563,7 +568,12 @@
       "dificultad": 2,
       "subtema": "espacio",
       "fuente": "https://science.nasa.gov/sun/facts/",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "diagrama",
+        "cosa": "sol-tierra",
+        "texto": "Del Sol a la Tierra"
+      }
     },
     {
       "id": "saturno-densidad",
@@ -742,7 +752,12 @@
       "dificultad": 2,
       "subtema": "animales",
       "fuente": "https://es.wikipedia.org/wiki/Octopoda",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "diagrama",
+        "cosa": "pulpo",
+        "texto": "¿Cuántos corazones?"
+      }
     },
     {
       "id": "pulpo-sangre",
@@ -1046,7 +1061,12 @@
       "dificultad": 3,
       "subtema": "ciencia-cotidiana",
       "fuente": "https://es.wikipedia.org/wiki/Punto_de_ebullici%C3%B3n",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "diagrama",
+        "cosa": "olla-altura",
+        "texto": "Bogotá: 2.600 m de altura"
+      }
     },
     {
       "id": "hielo-flota",
@@ -1062,7 +1082,12 @@
       "dificultad": 1,
       "subtema": "ciencia-cotidiana",
       "fuente": "https://es.wikipedia.org/wiki/Hielo",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "diagrama",
+        "cosa": "vaso-hielo",
+        "texto": "El hielo flota"
+      }
     },
     {
       "id": "sonido-agua",
@@ -1094,7 +1119,14 @@
       "dificultad": 3,
       "subtema": "ciencia-cotidiana",
       "fuente": "https://www.weather.gov/safety/lightning-temperature",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "operacion",
+        "lineas": [
+          "Rayo:  ? °C",
+          "Sol:   ? °C"
+        ]
+      }
     },
     {
       "id": "rayo-dos-veces",
@@ -1254,7 +1286,12 @@
       "dificultad": 2,
       "subtema": "ciencia-cotidiana",
       "fuente": "https://es.wikipedia.org/wiki/Agua_carbonatada",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "diagrama",
+        "cosa": "gaseosa",
+        "texto": "Burbujas de gaseosa"
+      }
     },
     {
       "id": "relampago-trueno",
@@ -1270,7 +1307,12 @@
       "dificultad": 1,
       "subtema": "ciencia-cotidiana",
       "fuente": "https://es.wikipedia.org/wiki/Trueno",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "diagrama",
+        "cosa": "tormenta",
+        "texto": "Primero se ve, luego se oye"
+      }
     },
     {
       "id": "agua-superficie",

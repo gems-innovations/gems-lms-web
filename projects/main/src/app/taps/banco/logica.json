@@ -675,7 +675,15 @@
       "why": "El cero: 5 × 0, 7 × 0 y 100 × 0 dan 0. Con cualquier otro, el resultado cambia.",
       "dificultad": 2,
       "subtema": "adivinanzas",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "operacion",
+        "lineas": [
+          "? × 5",
+          "= ? × 7",
+          "= ? × 100"
+        ]
+      }
     },
     {
       "id": "vela",
@@ -735,7 +743,17 @@
       "why": "Cada número es el doble del anterior: 16 × 2 = 32.",
       "dificultad": 1,
       "subtema": "series",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "2",
+          "4",
+          "8",
+          "16",
+          "?"
+        ]
+      }
     },
     {
       "id": "serie-letras",
@@ -795,7 +813,17 @@
       "why": "Son 1×1, 2×2, 3×3, 4×4… y sigue 5×5 = 25.",
       "dificultad": 2,
       "subtema": "series",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "1",
+          "4",
+          "9",
+          "16",
+          "?"
+        ]
+      }
     },
     {
       "id": "serie-numeros",
@@ -825,7 +853,19 @@
       "why": "Cada número es la suma de los dos anteriores: 5 + 8 = 13.",
       "dificultad": 2,
       "subtema": "series",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "1",
+          "1",
+          "2",
+          "3",
+          "5",
+          "8",
+          "?"
+        ]
+      }
     },
     {
       "id": "serie-resta",
@@ -945,7 +985,16 @@
       "why": "Sí: si todos los zorgs son azules y Pipo es uno, Pipo es azul.",
       "dificultad": 1,
       "subtema": "silogismos",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lineas": [
+          "para cada zorg:",
+          "  zorg.color = \"azul\"",
+          "pipo es zorg",
+          "# ¿pipo es azul?"
+        ]
+      }
     },
     {
       "id": "zorg-inverso",
@@ -960,7 +1009,16 @@
       "why": "No se sabe: puede haber cosas azules que no sean zorgs.",
       "dificultad": 2,
       "subtema": "silogismos",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lineas": [
+          "para cada zorg:",
+          "  zorg.color = \"azul\"",
+          "lulo.color == \"azul\"",
+          "# ¿lulo es zorg?"
+        ]
+      }
     },
     {
       "id": "ningun-blip",
@@ -975,7 +1033,17 @@
       "why": "No: si ningún blip nada y Tito es un blip, Tito no nada.",
       "dificultad": 1,
       "subtema": "silogismos",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "python",
+        "lineas": [
+          "for blip in blips:",
+          "    blip.nada = False",
+          "tito in blips  # True",
+          "# ¿tito.nada?"
+        ]
+      }
     },
     {
       "id": "lluvia-seca",
@@ -990,7 +1058,17 @@
       "why": "No: si hubiera llovido, la calle estaría mojada.",
       "dificultad": 2,
       "subtema": "silogismos",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lineas": [
+          "si llueve:",
+          "  calle = \"mojada\"",
+          "# hoy:",
+          "calle == \"seca\"",
+          "# ¿llovió?"
+        ]
+      }
     },
     {
       "id": "lluvia-mojada",
@@ -1005,7 +1083,17 @@
       "why": "No se sabe: la pudieron mojar con una manguera o un balde.",
       "dificultad": 3,
       "subtema": "silogismos",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lineas": [
+          "si llueve:",
+          "  calle = \"mojada\"",
+          "# hoy:",
+          "calle == \"mojada\"",
+          "# ¿llovió?"
+        ]
+      }
     },
     {
       "id": "musicos",
@@ -1135,7 +1223,19 @@
       "why": "La moneda no tiene memoria: cara y sello siguen al 50 %.",
       "dificultad": 2,
       "subtema": "azar-y-numeros",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "C",
+          "C",
+          "C",
+          "C",
+          "C",
+          "?"
+        ],
+        "texto": "Cara 5 veces seguidas"
+      }
     },
     {
       "id": "dado-6",

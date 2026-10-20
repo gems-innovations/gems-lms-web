@@ -281,3 +281,123 @@ export function createVisual(spec = {}, opts = {}) {
   const v = make({ accion: spec.accion, valor: spec.valor }, opts);
   return v && typeof v.draw === 'function' ? v : null;
 }
+
+// ═════════════════════════ escenas de PREGUNTA (theme.json → escenas) ═════════════════════════
+// Lo que se pregunta, dibujado en pixel art mientras se piensa: el mob, el bloque o el objeto del enunciado y una casilla con
+// «?» (nunca la respuesta). Mismo panel de inventario que los objetos para explicar. Entra con un pequeño salto (t de 0 a
+// `duration`) y queda quieto: no gasta fotogramas mientras se responde.
+//   createEscena({ tipo: 'objeto', cosa }, { reducedMotion }) → { label, duration, draw(ctx, w, h, t) } | null
+
+/** Rejilla de píxeles: `filas` de caracteres, `pal` = { carácter: color | (i, j) => color }. '.' = vacío. */
+function grid(c, filas, x, y, u, pal) {
+  filas.forEach((fila, j) => { for (let i = 0; i < fila.length; i++) { const p = pal[fila[i]]; if (!p) continue; c.fillStyle = typeof p === 'function' ? p(i, j) : p; c.fillRect(x + i * u, y + j * u, u + 0.4, u + 0.4); } });
+}
+/** Bloque w×h (en píxeles del juego) con ruido de textura. */
+function blk(c, x, y, w, h, u, base, seed = 0, spots = null) {
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { c.fillStyle = spots && rnd(i + seed, j) > 0.86 ? spots : sh(base, 0.82 + rnd(i + seed + 3, j + 7) * 0.3); c.fillRect(x + i * u, y + j * u, u + 0.4, u + 0.4); }
+}
+/** Marco hundido detrás de un mob claro (lobo, ghast, nieve): sin él se perdería contra el gris del panel. */
+function marco(c, x, y, w, h) { c.fillStyle = '#5E5E5E'; c.fillRect(x, y, w, h); c.fillStyle = SLOT_D; c.fillRect(x, y, w, 3); c.fillRect(x, y, 3, h); c.fillStyle = LIGHT; c.fillRect(x, y + h - 3, w, 3); c.fillRect(x + w - 3, y, 3, h); }
+/** Casilla de inventario con un «?» grande: lo que pregunta el Tap. */
+function pregunta(c, x, y, s = 40) { slot(c, x, y, s); text(c, '?', x + s / 2, y + s / 2 + 1, s * 0.62, '#FFFFFF'); }
+function flecha(c, x, y, s = 4) { c.fillStyle = INK; c.fillRect(x, y - s / 2, s * 4, s); for (let k = 0; k < 3; k++) { const hh = (2 - k) * 2 + 1; c.fillRect(x + s * (4 + k), y - hh * s / 2, s, hh * s); } }
+const g = (base, seed = 0) => (i, j) => sh(base, 0.82 + rnd(i + seed + 3, j + 7) * 0.3);
+/** Pequeño salto de entrada: empieza 10 unidades arriba y cae a su sitio en medio segundo. */
+const salto = t => -10 * (1 - ease(t / 0.5));
+const aparece = (t, d) => clamp((t - d) / 0.25);
+
+ICONS.arco = (i, j) => { const d = Math.hypot(i - 2, j - 13); return d > 9.5 && d < 11.5 && i < 13 && j > 1 ? (rnd(i, j) > 0.5 ? '#8A5A2B' : '#6B3F1E') : (i + (15 - j) === 15 && i > 2 && i < 13 ? '#E8E8E8' : null); };
+ICONS.hilo = (i, j) => (Math.abs(j - (8 + Math.sin(i * 0.9) * 3)) < 0.8 && i > 1 && i < 15 ? '#F4F4F4' : null);
+ICONS.tazon = (i, j) => (j >= 8 && j <= 12 && Math.abs(i - 7.5) < 7 - (j - 8) * 0.9 ? (j === 8 ? '#5C3D1E' : '#8A5A2B') : null);
+ICONS.lagrima = (i, j) => { const d = Math.hypot((i - 8) * 1.1, j - 10); return d < 4 || (j < 10 && j > 3 && Math.abs(i - 8) < (j - 3) * 0.6) ? (i < 8 ? '#FFFFFF' : '#BFE8F0') : null; };
+ICONS.pocion = (i, j) => (j >= 2 && j <= 4 && i >= 7 && i <= 8 ? '#8A5A2B' : j >= 5 && j <= 6 && i >= 6 && i <= 9 ? '#D8E8F0' : Math.hypot(i - 7.5, j - 10.5) < 4.6 ? (j < 9 ? '#D8E8F0' : '#6E86C8') : null);
+
+const ESCENAS = {
+  creeper: () => ({
+    label: 'Un creeper',
+    draw(c, w, h, t) {
+      panel(c, w, h); const u = 6, x = 30, y = 20 + salto(t), V = g('#4DB43F');
+      grid(c, ['vvvvvvvv', 'vvvvvvvv', 'vkkvvkkv', 'vkkvvkkv', 'vvvkkvvv', 'vvkkkkvv', 'vvkkkkvv', 'vvkvvkvv'], x, y, u, { v: V, k: '#101010' });
+      blk(c, x, y + 8 * u, 8, 12, u, '#45A93A', 5); blk(c, x, y + 20 * u, 4, 6, u, '#3E9A34', 9); blk(c, x + 4 * u, y + 20 * u, 4, 6, u, '#378E2F', 13);
+      c.globalAlpha = aparece(t, 0.35); flecha(c, 100, 104); pregunta(c, 140, 84); c.globalAlpha = 1;
+    },
+  }),
+  enderman: () => ({
+    label: 'Un enderman',
+    draw(c, w, h, t) {
+      panel(c, w, h); const u = 3.2, x = 44, y = 22 + salto(t), K = g('#1E1E1E');
+      grid(c, ['kkkkkkkk', 'kkkkkkkk', 'kkkkkkkk', 'kkkkkkkk', 'pPpkkpPp', 'kkkkkkkk', 'kkkkkkkk', 'kkkkkkkk'], x, y, u, { k: K, p: '#C964F2', P: '#F2C1FF' });
+      blk(c, x, y + 8 * u, 8, 12, u, '#161616', 2); blk(c, x - 2 * u, y + 8 * u, 2, 30, u, '#141414', 4); blk(c, x + 8 * u, y + 8 * u, 2, 30, u, '#141414', 6);
+      blk(c, x + 1 * u, y + 20 * u, 2, 30, u, '#121212', 8); blk(c, x + 5 * u, y + 20 * u, 2, 30, u, '#121212', 10);
+      c.globalAlpha = aparece(t, 0.35); flecha(c, 100, 104); pregunta(c, 140, 84); c.globalAlpha = 1;
+    },
+  }),
+  lobo: () => ({
+    label: 'Un lobo salvaje',
+    draw(c, w, h, t) {
+      panel(c, w, h); marco(c, 6, 40, 116, 120); const u = 4.4, x = 12, y = 62 + salto(t);
+      blk(c, x + 2 * u, y + 6 * u, 12, 6, u, '#CFCFCF', 1); blk(c, x + 13 * u, y + 3 * u, 6, 6, u, '#D8D8D8', 4); blk(c, x + 19 * u, y + 6 * u, 3, 3, u, '#BDBDBD', 7);
+      c.fillStyle = '#202020'; c.fillRect(x + 21 * u, y + 6 * u, u, u); c.fillRect(x + 16 * u, y + 4 * u, u, u);
+      blk(c, x + 13 * u, y + 1 * u, 2, 2, u, '#C8C8C8', 2); blk(c, x + 17 * u, y + 1 * u, 2, 2, u, '#C8C8C8', 3);
+      for (const lx of [3, 6, 10, 13]) blk(c, x + lx * u, y + 12 * u, 2, 7, u, '#BDBDBD', lx);
+      blk(c, x, y + 4 * u, 2, 6, u, '#C8C8C8', 11);
+      c.globalAlpha = aparece(t, 0.35); pregunta(c, 140, 40); text(c, 'lo doma', 160, 94, 13); c.globalAlpha = 1;
+    },
+  }),
+  'golem-nieve': () => ({
+    label: 'Una calabaza tallada sobre dos bloques de nieve',
+    draw(c, w, h, t) {
+      panel(c, w, h); marco(c, 18, 12, 64, 176); const u = 6, x = 26, y = 22;
+      const caer = 1 - ease(t / 0.55), O = g('#E8801C');
+      blk(c, x, y + 16 * u, 8, 8, u, '#F2F6FA', 1, '#DCE6F0'); blk(c, x, y + 8 * u, 8, 8, u, '#F4F8FC', 5, '#DCE6F0');
+      grid(c, ['oooooooo', 'oooooooo', 'okkookko', 'okkookko', 'oooooooo', 'okkkkkko', 'ookookoo', 'oooooooo'], x, y - caer * 40, u, { o: O, k: '#3A2408' });
+      c.globalAlpha = aparece(t, 0.45); flecha(c, 92, 104); pregunta(c, 134, 84); c.globalAlpha = 1;
+    },
+  }),
+  piston: () => ({
+    label: 'Un pistón empujando un bloque',
+    draw(c, w, h, t) {
+      panel(c, w, h); const u = 5, x = 14, y = 70, ext = ease(t / 0.6) * 8 * u;
+      blk(c, x, y, 8, 2, u, '#A0784A', 1); blk(c, x, y + 2 * u, 8, 6, u, '#7E7E7E', 3);
+      c.fillStyle = '#8A643A'; c.fillRect(x + 8 * u, y + 3 * u, ext, 2 * u); blk(c, x + 8 * u + ext, y, 2, 8, u, '#B08A58', 6);
+      const bx = x + 10 * u + ext; blk(c, bx, y, 8, 8, u, '#6A6A6A', 8); text(c, '?', bx + 4 * u, y + 4 * u + 1, 30, '#FFFFFF');
+    },
+  }),
+  ghast: () => ({
+    label: 'Un ghast y su lágrima',
+    draw(c, w, h, t) {
+      panel(c, w, h); marco(c, 50, 6, 84, 116); const u = 4, x = 60, y = 14 + salto(t) * 0.6;
+      blk(c, x, y, 16, 12, u, '#F0F0F0', 2, '#DADADA');
+      c.fillStyle = '#5A5A5A'; c.fillRect(x + 3 * u, y + 4 * u, 3 * u, u); c.fillRect(x + 10 * u, y + 4 * u, 3 * u, u); c.fillRect(x + 6 * u, y + 7 * u, 4 * u, 2 * u);
+      [5, 3, 6, 4, 7, 3, 5, 6].forEach((len, i) => { c.fillStyle = '#E2E2E2'; c.fillRect(x + (1 + i * 2) * u, y + 12 * u, u, len * u); });
+      c.globalAlpha = aparece(t, 0.35); slot(c, 30, 140, 40); icon(c, 'lagrima', 34, 144, 32); flecha(c, 84, 160); pregunta(c, 128, 140); icon(c, 'pocion', 150, 120, 26); c.globalAlpha = 1;
+    },
+  }),
+  'vaca-champinon': () => ({
+    label: 'Una vaca champiñón y un tazón',
+    draw(c, w, h, t) {
+      panel(c, w, h); const u = 4.6, x = 20, y = 20 + salto(t) * 0.6;
+      blk(c, x, y + 4 * u, 16, 8, u, '#B02E26', 1, '#E9E2D8'); blk(c, x + 16 * u, y + 2 * u, 7, 7, u, '#B02E26', 4, '#E9E2D8');
+      c.fillStyle = '#202020'; c.fillRect(x + 20 * u, y + 4 * u, u, u); c.fillStyle = '#D9B8A8'; c.fillRect(x + 21 * u, y + 6 * u, 2 * u, 3 * u);
+      for (const lx of [1, 4, 11, 14]) blk(c, x + lx * u, y + 12 * u, 2, 5, u, '#9A2620', lx);
+      for (const [mx, my] of [[3, 1], [9, 2]]) { c.fillStyle = '#EDE6D0'; c.fillRect(x + (mx + 1) * u, y + (my + 1) * u, u, 2 * u); c.fillStyle = '#C8241C'; c.fillRect(x + mx * u, y + my * u, 3 * u, u * 1.4); c.fillStyle = '#FFFFFF'; c.fillRect(x + (mx + 1) * u, y + my * u, u * 0.8, u * 0.6); }
+      c.globalAlpha = aparece(t, 0.35); slot(c, 30, 140, 40); icon(c, 'tazon', 34, 144, 32); flecha(c, 84, 160); pregunta(c, 128, 140); c.globalAlpha = 1;
+    },
+  }),
+  arco: () => ({
+    label: 'Un arco y su hilo',
+    draw(c, w, h, t) {
+      panel(c, w, h);
+      slot(c, 22, 40, 48); icon(c, 'arco', 26, 44, 40); text(c, '=', 86, 64, 22); slot(c, 104, 40, 48); icon(c, 'hilo', 108, 44, 40);
+      c.globalAlpha = aparece(t, 0.35); text(c, '¿de qué mob?', 100, 122, 15); pregunta(c, 80, 140); c.globalAlpha = 1;
+    },
+  }),
+};
+export const ESCENA_NAMES = Object.freeze(Object.keys(ESCENAS));
+
+export function createEscena(spec = {}, opts = {}) {
+  const make = ESCENAS[spec.cosa];
+  if (!make || (spec.tipo !== 'objeto' && spec.tipo !== 'diagrama')) return null;
+  const v = make(spec, opts);
+  return v && typeof v.draw === 'function' ? { duration: 0.9, ...v } : null;
+}

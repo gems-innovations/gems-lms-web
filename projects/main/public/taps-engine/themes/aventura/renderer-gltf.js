@@ -152,6 +152,14 @@ export async function createRenderer(opts) {
   // ── cámara: pies a ~68 % del alto y 36 % de alto de personaje (como el tema minecraft: deja sitio a la tarjeta de abajo);
   //    el encuadre corre la cámara de lado (no al personaje) ──
   let shot = { x: 0, zoom: 1, yaw: 0, height: 0 }, nudgeX = 0, nudgeTo = 0, push = 0, shake = 0, hurt = 0, simT = 0;
+  // modo cine: plano del Tap y variante de la pregunta (0 = plano base; 1-3 cambios suaves). Sin movimiento con movimiento reducido.
+  const VARIANTES = [{}, { zoom: 1.1, az: 0.1 }, { az: -0.14, el: 4 }, { zoom: 0.92, el: -3, az: 0.06 }];
+  let plano = null, variante = 0, cine = null;
+  function cineGoal() {
+    if (!plano) return null;
+    const g = { el: 0, az: 0, zoom: 1, ty: 0, roll: 0, orbit: 0, travel: 0, ...plano }, v = reducedMotion ? {} : VARIANTES[variante] || {};
+    return { el: g.el + (v.el || 0), az: g.az + (v.az || 0), zoom: g.zoom * (v.zoom || 1), ty: g.ty, roll: g.roll, orbit: reducedMotion ? 0 : g.orbit, travel: reducedMotion ? 0 : g.travel };
+  }
   const TAN = Math.tan((FOV * Math.PI) / 360), FRAME = 1 / (2 * 0.36);
   function placeCamera(dt) {
     push = Math.max(0, push - dt * 1.4); nudgeX += (nudgeTo - nudgeX) * (reducedMotion ? 1 : 1 - Math.exp(-dt * 8));
@@ -160,8 +168,19 @@ export async function createRenderer(opts) {
     const ty = 0.36 * d * TAN;                              // pies (y = 0) en el 68 % de la pantalla
     const hw = d * TAN * cam.aspect, off = -((shot.x || 0) + nudgeX) * 2 * hw;   // la cámara se corre de lado
     const sway = reducedMotion ? 0 : Math.sin(simT * 0.5) * 0.05;
-    cam.position.set(off + sway * d * 0.1, ty + (shot.height || 0) * 0.02, d);
-    cam.lookAt(off, ty + (shot.height || 0) * 0.01, 0);
+    const goal = cineGoal();
+    if (!goal) {
+      cam.position.set(off + sway * d * 0.1, ty + (shot.height || 0) * 0.02, d);
+      cam.lookAt(off, ty + (shot.height || 0) * 0.01, 0);
+    } else {
+      // modo cine (theme.cine.planos): elevación, giro, acercamiento, inclinación, órbita y travelling lentos; viaja ~1,5 s
+      if (!cine || reducedMotion) cine = { ...goal }; else { const k = 1 - Math.exp(-dt * 1.6); for (const p in goal) cine[p] += (goal[p] - cine[p]) * k; }
+      const q = cine, dz = d / q.zoom, tyz = 0.36 * dz * TAN + q.ty, hwz = dz * TAN * cam.aspect;
+      const az = q.az + q.orbit * Math.sin(simT * 0.11), el = (q.el * Math.PI) / 180;
+      const tx = -((shot.x || 0) + nudgeX) * 2 * hwz + q.travel * Math.sin(simT * 0.09) * 2 * hwz;
+      cam.position.set(tx + Math.sin(az) * Math.cos(el) * dz, tyz + Math.sin(el) * dz, Math.cos(az) * Math.cos(el) * dz);
+      cam.lookAt(tx, tyz, 0); if (q.roll) cam.rotateZ(q.roll);
+    }
     if (shake > 0) { shake = Math.max(0, shake - dt); cam.position.x += (Math.random() - 0.5) * shake * 0.25; cam.position.y += (Math.random() - 0.5) * shake * 0.25; }
     cam.updateMatrixWorld();
   }
@@ -173,7 +192,7 @@ export async function createRenderer(opts) {
     if (!host) return;
     animT += dt;
     const r = host.root, b = host.body, side = (shot.x || 0) < 0 ? -1 : 1;
-    r.position.set(0, 0, 0); r.rotation.set(0, (shot.yaw || 0) * 0.85 - ((shot.x || 0) + nudgeX) * 0.6, 0); b.position.y = 0; b.rotation.z = 0;
+    r.position.set(0, 0, 0); r.rotation.set(0, (shot.yaw || 0) * 0.85 + (cine ? cine.az * 0.5 : 0) - ((shot.x || 0) + nudgeX) * 0.6, 0); b.position.y = 0; b.rotation.z = 0;
     if (!reducedMotion) {
       if (animKey === 'celebrate' || animKey === 'jump') b.position.y = Math.abs(Math.sin(animT * Math.PI * 2.4)) * 0.18 * Math.max(0, 1 - animT / 2.2);
       else if (animKey === 'dance') { b.position.y = Math.abs(Math.sin(animT * Math.PI * 2.2)) * 0.12; r.rotation.y += Math.sin(animT * 2.6) * 0.5; }
@@ -220,15 +239,18 @@ export async function createRenderer(opts) {
   play('idle');
   let tok = 0;
   return {
-    async setScene({ world: w, host: who, shot: sh, enter: en } = {}) {
+    async setScene({ world: w, host: who, shot: sh, enter: en, plano: pl } = {}) {
       if (disposed) return;
       const my = ++tok; shot = { x: 0, zoom: 1, yaw: 0, height: 0, ...(sh || {}) };
+      plano = pl || null; variante = 0; cine = null;
       await Promise.all([useHost(who), useWorld(w || theme.defaultWorld)]);
       if (my !== tok || disposed) return;
       enter = en && ENTER_DUR[en] && !reducedMotion ? { kind: en, t: 0 } : null;
       if (enter?.kind === 'camina' && host?.anims.caminar) playClip(host.clips.get(host.anims.caminar));
     },
     play,
+    /** Pequeño cambio de plano entre preguntas (n = pregunta, seed = número del Tap; determinista). */
+    plano(n, seed = 0) { variante = n ? 1 + ((seed + n) % 3) : 0; },
     async preload({ world: w, host: who } = {}) {
       const def = scenes[worldKey(w)];
       await Promise.all([loadModel(charKey(who)).catch(() => null), def?.tipo === 'imagen' && def.imagen ? loadImg(def.imagen).catch(() => null) : null]);

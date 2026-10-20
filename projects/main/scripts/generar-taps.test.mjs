@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import {
-  FONDOS_SUBTEMA, LIMITES, RETO, RUTAS, asignarEscena, calendarioReto, construir, emitir, generar, hashAvalancha, leerBancos, leerRetos, leerTemas, validarPregunta,
+  FONDOS_SUBTEMA, LIMITES, PLANOS, RETO, RUTAS, TRANSICIONES, asignarEscena, calendarioReto, construir, emitir, generar, hashAvalancha, leerBancos, leerRetos,
+  leerTemas, ordenParaTi, ordenSierra, validarEscena, validarPregunta,
 } from './generar-taps.mjs';
 
 const clonar = o => structuredClone(o);
@@ -211,8 +212,11 @@ test('cada Tap publicado tiene su lugar propio y el personaje no queda siempre i
     assert.ok(new Set(del.map(t => t.scene.shot)).size >= 5, theme + ': pocos encuadres');
     assert.ok(new Set(del.map(t => t.scene.enter)).size >= 3, theme + ': pocas entradas');
     assert.ok(del.filter(t => t.scene.props).length >= (theme === 'minecraft' ? 8 : 6), theme + ': pocos decorados');
-    // en el orden del banco, dos Taps seguidos del mismo tema nunca repiten encuadre
-    del.forEach((t, i) => i && assert.notEqual(t.scene.shot, del[i - 1].scene.shot, t.id + ' repite el encuadre del Tap anterior'));
+  }
+  // en los órdenes reales del feed («Para ti» y cada categoría sola), dos Taps seguidos del mismo tema nunca repiten encuadre
+  for (const orden of [ordenParaTi(taps), ordenParaTi(taps, true), ...['minecraft', 'logica', 'cultura'].map(k => ordenSierra(taps.filter(t => t.topic === k)))]) {
+    // (los ganchos van siempre centrados y saludando: dos ganchos seguidos, al final del feed, no cuentan)
+    orden.forEach((t, i) => i && t.theme === orden[i - 1].theme && !(t.hook && orden[i - 1].hook) && assert.notEqual(t.scene.shot, orden[i - 1].scene.shot, t.id + ' repite el encuadre del Tap anterior'));
   }
   assert.ok(new Set(taps.filter(t => t.theme === 'estudio').map(t => t.scene.world)).size >= 7, 'estudio usa sus mundos nuevos');
   // aventura (personajes y fondos del registro): todos aparecen, y dos Taps seguidos no repiten personaje ni fondo
@@ -326,4 +330,58 @@ test('hashAvalancha: estable y reparte (un carácter distinto cambia muchos bits
   const a = hashAvalancha('mc-noche-1'), b = hashAvalancha('mc-noche-2');
   const bits = (a ^ b).toString(2).split('').filter(x => x === '1').length;
   assert.ok(bits >= 8, `solo cambiaron ${bits} bits`);
+});
+
+test('escenas de pregunta: al menos 20 preguntas reales en los 3 temas, se copian y se validan', () => {
+  const { taps, errores } = construir();
+  assert.deepEqual(errores, []);
+  const con = taps.flatMap(t => t.questions.filter(q => q.escena).map(q => [t.topic, q.escena.tipo]));
+  assert.ok(con.length >= 20, `solo ${con.length} preguntas con escena`);
+  for (const topic of ['minecraft', 'logica', 'cultura']) assert.ok(con.filter(([k]) => k === topic).length >= 5, topic + ': pocas escenas');
+  assert.equal(new Set(con.map(([, tipo]) => tipo)).size, 5, 'se usan los cinco tipos (código, operación, serie, objeto, diagrama)');
+});
+
+test('escenas de pregunta: formato, catálogo del tema y nunca delatan la respuesta', () => {
+  const p = { options: ['Lunes', 'Viernes', 'Ninguno', 'Domingo'], answer: 2 }, cat = new Set(['creeper']);
+  const err = e => validarEscena(e, p, cat, 'x').join(' | ');
+  assert.equal(err({ tipo: 'codigo', lineas: ['si llueve:', '  calle = "mojada"'] }), '');
+  assert.equal(err({ tipo: 'serie', items: ['2', '4', '?'] }), '');
+  assert.equal(err({ tipo: 'objeto', cosa: 'creeper', texto: 'Creeper' }), '');
+  assert.match(err({ tipo: 'objeto', cosa: 'zombi' }), /no existe en el tema/);
+  assert.match(err({ tipo: 'pelicula' }), /desconocido/);
+  assert.match(err({ tipo: 'serie', items: ['1', '2', '3'] }), /ficha «\?»/);
+  assert.match(err({ tipo: 'codigo', lineas: ['x'.repeat(31)] }), /pasa de 30/);
+  assert.match(err({ tipo: 'codigo', lineas: ['dia = "ninguno"'] }), /delata la respuesta/);
+  const num = { options: ['20', '24', '25', '32'], answer: 2 };
+  assert.match(validarEscena({ tipo: 'serie', items: ['1', '4', '25', '?'] }, num, cat, 'x').join(), /delata/);
+  assert.deepEqual(validarEscena({ tipo: 'serie', items: ['1', '4', '9', '16', '?'] }, num, cat, 'x'), []);
+  const b = bancosMinimos();
+  b.cultura.preguntas[0].escena = { tipo: 'diagrama', cosa: 'no-existe' };
+  assert.match(correr(b).errores.join(' | '), /cup0.*no-existe/);
+});
+
+test('modo cine: cada Tap trae plano, transición y su ambiente; el feed nunca repite plano seguido', () => {
+  const { taps } = construir();
+  for (const t of taps) {
+    assert.ok(PLANOS.includes(t.scene.camara), t.id + ' sin plano de cámara');
+    assert.ok(TRANSICIONES.includes(t.scene.transicion), t.id + ' sin transición');
+  }
+  for (const theme of ['minecraft', 'estudio', 'aventura']) {
+    const del = taps.filter(t => t.theme === theme), conFauna = Object.keys(leerTemas()[theme].cine?.fauna ?? {}).length > 0;
+    assert.ok(new Set(del.map(t => t.scene.camara)).size >= (theme === 'minecraft' ? PLANOS.length : 6), theme + ': pocos planos');
+    assert.ok(new Set(del.map(t => t.scene.hora).filter(Boolean)).size >= 3, theme + ': pocas horas del día');
+    assert.ok(del.filter(t => t.scene.clima).length >= del.length * 0.3, theme + ': poco clima');
+    if (conFauna) assert.ok(del.filter(t => t.scene.fauna).length >= del.length * 0.3, theme + ': poca fauna');
+  }
+  for (const orden of [ordenParaTi(taps), ordenParaTi(taps, true), ...['minecraft', 'logica', 'cultura'].map(k => ordenSierra(taps.filter(t => t.topic === k)))]) {
+    orden.forEach((t, i) => {
+      if (!i) return;
+      const a = orden[i - 1].scene, b = t.scene;
+      assert.notEqual(b.camara, a.camara, `${t.id} repite el plano de ${orden[i - 1].id}`);
+      if (t.theme === orden[i - 1].theme) assert.notEqual(b.host, a.host, `${t.id} repite personaje`);
+    });
+  }
+  // el gancho siempre igual (primera impresión) y determinista: dos corridas dan lo mismo
+  assert.equal(taps.find(t => t.id === 'mc-gancho').scene.camara, 'orbita');
+  assert.deepEqual(construir().taps.map(t => t.scene), taps.map(t => t.scene));
 });
