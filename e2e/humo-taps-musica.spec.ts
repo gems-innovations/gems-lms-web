@@ -238,3 +238,55 @@ test('Humo · audio de Taps: en la portada la música entra con la primera respu
   expect(pedidos.filter(p => p.endsWith('/musica.js')), 'el reproductor no se vuelve a cargar').toHaveLength(1);
   expect(errores).toEqual([]);
 });
+
+/**
+ * WebKit (Safari y todo navegador en iOS) no pone en fila suspend() y resume(): si el contexto creado de antemano (con la
+ * intención, en el pointerdown del primer toque) aún no se suspendió cuando el gesto lo reanuda, el resume() se cumple en el
+ * acto y el suspend() llega después y lo deja dormido. Antes: sin música tras la primera respuesta hasta tocar otra cosa
+ * (el trofeo). Aquí se imita ese orden en Chromium.
+ */
+for (const ruta of ['/taps', '/']) {
+  test(`Humo · audio de Taps: con el orden de WebKit la música suena tras la primera respuesta, sin más toques (${ruta})`, async ({ page }) => {
+    test.setTimeout(90_000);
+    const errores = erroresDePagina(page);
+    const pedidos: string[] = [];
+    await preparar(page, pedidos);
+    await page.addInitScript(() => {
+      const w = window as unknown as { __ctx: AudioContext[]; __tarde: string[] };
+      w.__ctx = []; w.__tarde = [];
+      const P = AudioContext.prototype, suspend = P.suspend, resume = P.resume;
+      const anotar = (c: AudioContext) => { if (!w.__ctx.includes(c)) w.__ctx.push(c); };
+      // El suspend() de un contexto en marcha queda pendiente y se aplica justo después del primer resume() (o a los 3 s):
+      // el peor caso de WebKit, sin depender de cuánto tarde el toque.
+      const pendientes = new Map<AudioContext, () => void>();
+      P.suspend = function (this: AudioContext) {
+        anotar(this);
+        if (this.state !== 'running') return suspend.call(this);
+        return new Promise<void>(ok => {
+          const aplicar = () => { if (pendientes.get(this) !== aplicar) return; pendientes.delete(this); w.__tarde.push('suspend'); suspend.call(this).then(ok, ok); };
+          pendientes.set(this, aplicar);
+          setTimeout(aplicar, 3_000);
+        });
+      };
+      P.resume = function (this: AudioContext) {
+        anotar(this); w.__tarde.push('resume');
+        const r = resume.call(this), aplicar = pendientes.get(this);
+        if (aplicar) setTimeout(aplicar, 50);
+        return r;
+      };
+    });
+    await page.goto(ruta);
+    await page.waitForFunction(() => document.documentElement.hasAttribute('data-taps-live'));
+    // Respuesta rápida: la pista ya se pidió, pero la intención (y el contexto previo) llega con el pointerdown de este toque.
+    await expect.poll(() => pedidos.filter(p => /\.(webm|m4a)$/.test(p)).length, { timeout: 15_000 }).toBe(1);
+    expect(await page.evaluate(() => (window.__fuentes ?? []).length), 'nada suena antes de responder').toBe(0);
+    await page.locator('gems-taps .tap.tap--active .tap__opt').first().tap();
+    await expect.poll(() => sonando(page), { timeout: 30_000 }).toHaveLength(1);
+    const orden = await page.evaluate(() => (window as unknown as { __tarde: string[] }).__tarde.join(','));
+    expect(orden, 'el suspend() del contexto previo llegó después del resume() del gesto').toMatch(/resume.*suspend/);
+    // Sin tocar nada más: el contexto queda en marcha (antes se quedaba «suspended» hasta el trofeo).
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __ctx: AudioContext[] }).__ctx.map(c => c.state).join(',')),
+      { timeout: 5_000 }).toBe('running');
+    expect(errores).toEqual([]);
+  });
+}

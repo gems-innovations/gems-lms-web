@@ -249,6 +249,75 @@ describe('TapsSonidoService', () => {
     }
   });
 
+  /** AudioContext con el orden de WebKit: resume() con el contexto aún «running» se cumple ya; el suspend() llega después. */
+  function acWebKit(ordenes: string[]) {
+    return class {
+      state = 'running';
+      private aplicar: (() => void) | null = null;
+      suspend() {
+        ordenes.push('suspend');
+        return new Promise<void>(ok => { this.aplicar = () => { this.state = 'suspended'; ordenes.push('suspendido'); ok(); }; });
+      }
+      resume() { ordenes.push('resume'); this.state = 'running'; return Promise.resolve(); }
+      close() { return Promise.resolve(); }
+      /** El suspend() pendiente se aplica (en la prueba, cuando se quiere). */
+      terminarSuspend() { const a = this.aplicar; this.aplicar = null; a?.(); }
+    };
+  }
+
+  for (const conModulo of [false, true]) {
+    it(`WebKit: el suspend() del contexto previo que se aplica tras el resume() del gesto no lo deja dormido (${conModulo ? 'con' : 'sin'} sonido.js)`, async () => {
+      const ordenes: string[] = [];
+      const w = window as unknown as { AudioContext: unknown };
+      const original = w.AudioContext;
+      w.AudioContext = acWebKit(ordenes);
+      try {
+        const { service } = crear();
+        service.silenciar(false);
+        if (conModulo) await service.precargar();
+        const previo = service.contextoPrevio() as unknown as { state: string; terminarSuspend(): void };   // pointerdown
+        service.desbloquear();                                           // pointerup / click del mismo toque
+        expect(previo.state).toBe('running');
+        previo.terminarSuspend();                                        // el suspend() llega tarde
+        await new Promise(r => setTimeout(r, 0));
+        expect(ordenes.slice(-2)).toEqual(['suspendido', 'resume'], 'se reanuda otra vez al aplicarse el suspend()');
+        expect(previo.state).toBe('running', 'antes quedaba dormido: sin música hasta tocar otra cosa (el trofeo)');
+        service.destruir();
+      } finally {
+        w.AudioContext = original;
+      }
+    });
+  }
+
+  it('WebKit: si la pestaña se oculta antes de que se aplique el suspend(), no se reanuda solo; antes del gesto, tampoco', async () => {
+    const ordenes: string[] = [];
+    const w = window as unknown as { AudioContext: unknown };
+    const original = w.AudioContext;
+    w.AudioContext = acWebKit(ordenes);
+    try {
+      const { service } = crear();
+      const previo = service.contextoPrevio() as unknown as { state: string; terminarSuspend(): void };
+      previo.terminarSuspend();                                          // sin gesto: nada lo reanuda
+      await new Promise(r => setTimeout(r, 0));
+      expect(ordenes).toEqual(['suspend', 'suspendido']);
+      expect(previo.state).toBe('suspended');
+      service.destruir();
+
+      ordenes.length = 0;
+      TestBed.resetTestingModule();
+      const otro = crear().service;
+      const ctx = otro.contextoPrevio() as unknown as { state: string; terminarSuspend(): void };
+      otro.desbloquear();
+      otro.pausar();                                                     // se ocultó la pestaña
+      ctx.terminarSuspend();
+      await new Promise(r => setTimeout(r, 0));
+      expect(ctx.state).toBe('suspended', 'oculta: sigue dormido hasta volver');
+      otro.destruir();
+    } finally {
+      w.AudioContext = original;
+    }
+  });
+
   it('relevo portada → /taps: el feed nuevo sigue con el mismo sonido (no lo destruye ni crea otro contexto)', async () => {
     const relevo = nuevoRelevo();
     TestBed.configureTestingModule({ providers: [{ provide: TapsAudioRelevo, useValue: relevo }] });
