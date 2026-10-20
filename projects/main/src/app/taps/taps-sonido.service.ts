@@ -1,6 +1,7 @@
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ITapsAudioMotor, ITapsVozMotor } from './taps.types';
+import { TapsAudioRelevo } from './taps-audio-relevo';
 
 /**
  * Súbela cuando cambie cualquier archivo de taps-engine/audio o taps-engine/voz, y en los imports internos de esos módulos
@@ -75,11 +76,22 @@ interface IVoz {
  * · Un solo AudioContext para todo: los escenarios del motor reciben `motorAudio` y no crean el suyo.
  * · La voz solo habla si la persona la encendió y el sonido está activo.
  * · Efectos y música encendidos por defecto, voz apagada (producto/taps/voz-y-sonido.md §2.1): el feed decide el silencio.
+ * · `contextoPrevio()`: para decodificar la música antes del primer gesto se crea el AudioContext suspendido (permitido sin
+ *   gesto); nadie lo recibe como «desbloqueado» hasta el gesto, que solo lo reanuda. Si el navegador lo arranca en marcha
+ *   (autoplay permitido), se suspende en el acto: nada suena antes del gesto.
+ * · Relevo (taps-audio-relevo.ts): al pasar de la portada a /taps el sonido, con su contexto en marcha, pasa al feed nuevo.
  */
 @Injectable()
 export class TapsSonidoService {
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly relevo = inject(TapsAudioRelevo);
   private sonido: ISonido | null = null;
+  /** `atenuar` original del módulo (el servicio lo envuelve para avisar a la música). */
+  private atenuarBase: ((on: boolean) => void) | null = null;
+  /** AudioContext creado sin gesto (suspendido) para decodificar la música de antemano; el gesto lo adopta. */
+  private ctxPrevio: AudioContext | null = null;
+  /** Al destruirse, entregar el sonido al feed siguiente (portada → /taps) en vez de cerrarlo. */
+  private relevar = false;
   private carga: Promise<ISonido | null> | null = null;
   private voz: IVoz | null = null;
   private cargaVoz: Promise<IVoz | null> | null = null;
@@ -106,6 +118,17 @@ export class TapsSonidoService {
     callar: () => this.voz?.callar(),
   };
 
+  constructor() {
+    // Viene de la portada con el audio ya en marcha: se sigue con el mismo (la música no se corta).
+    const r = this.browser ? this.relevo.recoger<{ sonido: ISonido; atenuar: (on: boolean) => void }>('sonido') : null;
+    if (r) {
+      this.adoptar(r.sonido, r.atenuar);
+      this.ctx = r.sonido.contexto;
+      this.carga = Promise.resolve(r.sonido);
+      this.arranca = this.gesto = true;
+    }
+  }
+
   /** Pide el módulo de sonido (en reposo, tras hidratar). Pequeño y sin red extra: los efectos se generan por código. */
   precargar(): Promise<ISonido | null> {
     if (!this.browser || this.destruido) return Promise.resolve(null);
@@ -114,10 +137,7 @@ export class TapsSonidoService {
       const s = mod.crearSonido();
       s.silenciar(this.silencio);
       if (this.ctx) s.desbloquear(this.ctx, { gesto: false });   // ya no estamos en el gesto
-      // La voz (voz.js) baja los efectos con `atenuar` mientras habla: el mismo aviso baja la música.
-      const atenuar = s.atenuar.bind(s);
-      s.atenuar = (on: boolean) => { atenuar(on); this.oyente?.voz?.(on); };
-      this.sonido = s;
+      this.adoptar(s, s.atenuar.bind(s));
       this.avisarContexto();
       const p = this.pendiente;
       this.pendiente = null;
@@ -126,6 +146,38 @@ export class TapsSonidoService {
     }).catch(() => { this.carga = null; return null; }));
   }
 
+  /** La voz (voz.js) baja los efectos con `atenuar` mientras habla: el mismo aviso baja la música. */
+  private adoptar(s: ISonido, atenuar: (on: boolean) => void): void {
+    this.atenuarBase = atenuar;
+    s.atenuar = (on: boolean) => { atenuar(on); this.oyente?.voz?.(on); };
+    this.sonido = s;
+  }
+
+  /**
+   * AudioContext para decodificar la música antes del primer gesto: se crea suspendido (crearlo sin gesto está permitido) y
+   * nadie lo usa para sonar hasta que el gesto lo adopte y lo reanude. Null si no hay Web Audio o ya hubo gesto (entonces
+   * vale `contexto()`).
+   */
+  contextoPrevio(): AudioContext | null {
+    if (!this.browser || this.destruido) return null;
+    if (this.contexto()) return null;
+    if (!this.ctxPrevio) {
+      try {
+        const nav = globalThis.navigator as Navigator & { audioSession?: { type: string } };
+        if (nav?.audioSession) nav.audioSession.type = 'ambient';   // iOS: antes de crear el contexto
+      } catch { /* sin Audio Session API */ }
+      const C = (globalThis as { AudioContext?: typeof AudioContext }).AudioContext
+        ?? (globalThis as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      try { this.ctxPrevio = C ? new C({ latencyHint: 'interactive' }) : null; } catch { this.ctxPrevio = null; }
+      // Siempre suspendido (aunque diga 'suspended', Chrome puede pasarlo a 'running' una microtarea después): nada antes del gesto.
+      this.ctxPrevio?.suspend().catch(() => undefined);
+    }
+    return this.ctxPrevio;
+  }
+
+  /** Antes de navegar a otro feed (portada → /taps): al destruirse, entrega el sonido al feed nuevo en vez de cerrarlo. */
+  relevarAlSalir(on = true): void { this.relevar = on; }
+
   /**
    * Llamar DENTRO de un gesto (toque, clic, tecla): crea o reanuda el audio. `musica: false` (Tab, modificadoras) lo
    * desbloquea para los efectos sin arrancar la música.
@@ -133,7 +185,9 @@ export class TapsSonidoService {
   desbloquear(opciones: { musica?: boolean } = {}): void {
     if (!this.browser || this.destruido) return;
     if (opciones.musica !== false) this.arranca = true;
-    if (this.sonido) { this.sonido.desbloquear(); this.avisarContexto(); return; }
+    // El contexto creado de antemano (con la música ya decodificada) es el que se reanuda: no se crea otro.
+    if (!this.ctx && this.ctxPrevio) { this.ctx = this.ctxPrevio; this.ctxPrevio = null; }
+    if (this.sonido) { this.sonido.desbloquear(this.ctx ?? undefined); this.avisarContexto(); return; }
     // iOS 16.4+: «ambient» antes de crear el contexto, para que el interruptor de silencio calle Taps (y no corte la música
     // de la persona) también si el primer gesto llega antes que sonido.js, que lo declara igual al cargar.
     try {
@@ -241,8 +295,17 @@ export class TapsSonidoService {
     this.oyente = null;
     this.quitarGestos?.();
     this.callar();
-    this.sonido?.destruir();
-    if (!this.sonido) this.ctx?.close().catch(() => undefined);
+    const s = this.sonido, atenuar = this.atenuarBase;
+    if (this.relevar && s?.contexto && atenuar) {
+      // Portada → /taps: el feed nuevo sigue con este sonido y su contexto (la música que suena en él no se corta).
+      s.atenuar = atenuar;
+      this.relevo.entregar('sonido', { valor: { sonido: s, atenuar }, cerrar: () => s.destruir() });
+    } else {
+      s?.destruir();
+      if (!s) this.ctx?.close().catch(() => undefined);
+    }
+    if (this.ctxPrevio && this.ctxPrevio !== s?.contexto) this.ctxPrevio.close().catch(() => undefined);
+    this.ctxPrevio = null;
     this.sonido = null;
     this.voz = null;
   }

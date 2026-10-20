@@ -7,8 +7,10 @@
 //   musica.alTap({ mundo: 'cueva', tema: 'minecraft', motor: 'minecraft' });
 //
 // Reglas (producto/taps/musica, LEEME.md; producto/taps/voz-y-sonido.md §2.1):
-//   · Encendida por defecto (la app guarda la preferencia), pero nada se pide a la red hasta que está encendida Y hay
-//     contexto (que solo existe tras un gesto). Entra con un fundido de 1,5 s, nunca de golpe.
+//   · Encendida por defecto (la app guarda la preferencia). Nada suena antes de un gesto: el contexto llega con `conectar`
+//     tras el primer gesto. Antes, `preparar(info, ctx)` puede bajar y decodificar la pista del primer Tap con un
+//     AudioContext suspendido (en reposo, tras cargar): al primer gesto solo falta reanudarlo y suena en el acto. La primera
+//     entrada es un fundido corto (600 ms) para que la música se note desde la primera respuesta; las demás, de 1,5 s.
 //   · Variedad: cada categoría tiene un grupo de pistas compatibles y cada Tap elige una de forma determinista (por su id),
 //     sin repetir la del Tap anterior; el mundo solo sesga la elección (Nether → magma, cueva → cave). Si la pista que suena
 //     también vale para el Tap nuevo y lleva menos de 20 s, sigue sin cortarse.
@@ -30,6 +32,8 @@ export const DUCKING = 0.3;
 export const CRUCE_MS = 800;
 /** Fundido de entrada cuando no sonaba nada (primer gesto, al volver de una pausa o al encenderla). */
 export const ENTRADA_MS = 1500;
+/** La primera entrada de la visita (primer gesto): más corta, para que se note que hay música desde la primera respuesta. */
+export const ENTRADA_PRIMERA_MS = 600;
 /** Cuánto dura el ducking de un efecto (los efectos duran ≤ 400 ms). */
 export const DUCK_EFECTO_MS = 650;
 /** Si la pista que suena vale para el Tap nuevo y lleva menos que esto, no se cambia (deslizar rápido no corta la música). */
@@ -113,6 +117,10 @@ export function crearMusica(opciones = {}) {
   const base = new URL(urlManifiesto, globalThis.location?.href ?? 'http://localhost/');
 
   let ac = null, bus = null, duck = null, encendida = false, silencio = true, destruida = false;
+  /** Contexto (suspendido) con el que `preparar` decodifica antes del primer gesto. Nunca se conecta nada a él desde aquí. */
+  let acPrevio = null;
+  /** Ya arrancó alguna pista en esta visita (la primera entra con ENTRADA_PRIMERA_MS). */
+  let yaSono = false;
   let manifiesto = null, cargaManifiesto = null, actual = null, deseada = null, ultimaCelebracion = null, finCelebracion = null;
   /** El último Tap que pidió música antes de tener el manifiesto (se resuelve al llegar). */
   let tapPendiente = null;
@@ -138,9 +146,12 @@ export function crearMusica(opciones = {}) {
     return id;
   }
 
-  /** La pista que suena vale para este Tap y lleva menos de PERMANENCIA_MS: se queda (no se corta al deslizar rápido). */
-  function seQueda(m, info) {
-    if (!actual || actual.una || ahora() - actual.sonandoDesde >= PERMANENCIA_MS) return false;
+  /**
+   * La pista que suena vale para este Tap y lleva menos de PERMANENCIA_MS: se queda (no se corta al deslizar rápido).
+   * `continuar`: al pasar de la portada a /taps la pista sigue si vale, lleve lo que lleve.
+   */
+  function seQueda(m, info, continuar = false) {
+    if (!actual || actual.una || (!continuar && ahora() - actual.sonandoDesde >= PERMANENCIA_MS)) return false;
     return candidatas(m?.mapa, info).includes(actual.id);
   }
 
@@ -226,7 +237,7 @@ export function crearMusica(opciones = {}) {
     return new Promise((ok, mal) => {
       try {
         const copia = datos.slice(0);
-        const r = ac.decodeAudioData(copia, ok, mal);
+        const r = (ac ?? acPrevio).decodeAudioData(copia, ok, mal);
         if (r?.then) r.then(ok, mal);
       } catch (e) { mal(e); }
     });
@@ -237,10 +248,10 @@ export function crearMusica(opciones = {}) {
     if (decodificadas.has(id)) { const b = decodificadas.get(id); decodificadas.delete(id); decodificadas.set(id, b); return Promise.resolve(b); }
     if (pendientes.has(id)) return pendientes.get(id);
     const pr = traer(id).then(async r => {
-      if (!r || !ac) return null;
+      if (!r || !(ac ?? acPrevio)) return null;
       let { datos, k, lista } = r;
       await turno();
-      if (!ac) { liberarTurno(); return null; }
+      if (!(ac ?? acPrevio)) { liberarTurno(); return null; }
       try {
         for (;;) {
           try {
@@ -294,8 +305,10 @@ export function crearMusica(opciones = {}) {
     src.buffer = b.audio;
     if (!una) { src.loop = true; src.loopStart = b.inicio; src.loopEnd = b.fin; }
     const t = ac.currentTime, vol = p?.letra ? VOLUMEN_CELEBRACION : VOLUMEN_MUSICA;
-    // Sin nada sonando (primer gesto, vuelta de una pausa) entra más despacio; sobre otra pista, fundido cruzado.
-    const entrada = (actual ? CRUCE_MS : ENTRADA_MS) / 1000;
+    // Sin nada sonando (primer gesto, vuelta de una pausa) entra más despacio; sobre otra pista, fundido cruzado. La primera
+    // de la visita, con un fundido corto: que se oiga ya en la primera respuesta.
+    const entrada = (actual ? CRUCE_MS : yaSono ? ENTRADA_MS : ENTRADA_PRIMERA_MS) / 1000;
+    yaSono = true;
     gain.gain.setValueAtTime(0, t);
     gain.gain.linearRampToValueAtTime(vol, t + entrada);
     src.connect(gain); gain.connect(bus);
@@ -363,6 +376,8 @@ export function crearMusica(opciones = {}) {
     get pistaActual() { return actual?.id ?? null; },
     /** Buffers decodificados vivos (guardados + en decodificación). */
     get buffersVivos() { return decodificadas.size + enVuelo; },
+    /** Pistas ya decodificadas (listas para sonar sin esperar). */
+    get listas() { return [...decodificadas.keys()]; },
     get manifiesto() { return manifiesto; },
     /** El AudioContext compartido (creado en un gesto por sonido.js o la app). Sin él no se pide nada. */
     conectar(ctx) {
@@ -384,11 +399,11 @@ export function crearMusica(opciones = {}) {
      * El Tap a la vista (`info.id` = id del Tap): su pista de fondo. Si es la misma que suena, o la que suena también le vale
      * y lleva menos de PERMANENCIA_MS, sigue sin cortes.
      */
-    async alTap(info) {
+    async alTap(info, { continuar = false } = {}) {
       if (!encendida) { deseada = null; tapPendiente = null; return null; }
       const m = manifiesto ?? (ac ? await leerManifiesto() : null);
       if (!m) { deseada = null; tapPendiente = info; return null; }
-      if (seQueda(m, info)) {
+      if (seQueda(m, info, continuar)) {
         if (info?.id) elegidas.set(info.id, actual.id);
         ultimaFondo = actual.id; tapPendiente = null; deseada = { id: actual.id, una: false };
         return actual.id;
@@ -419,9 +434,25 @@ export function crearMusica(opciones = {}) {
       if (fondo) { if (!suena()) deseada = { id: fondo, una: false }; else await poner(fondo); }
       return fondo;
     },
+    /**
+     * Antes del primer gesto (en reposo, tras cargar): elige la pista del Tap, la baja y, con `ctx` (un AudioContext creado
+     * suspendido, sin gesto), la decodifica. No conecta nada ni suena: al primer gesto `conectar(ctx)` con ese mismo
+     * contexto la encuentra lista. Sin `ctx` solo baja los bytes.
+     */
+    async preparar(info, ctx = null) {
+      if (!encendida || destruida) return null;
+      if (ctx && !ac) acPrevio = ctx;
+      const m = manifiesto ?? await leerManifiesto();
+      if (!m || destruida) return null;
+      const id = elegir(m, info);
+      if (!id) return null;
+      if (ac ?? acPrevio) await buffer(id); else await traer(id);
+      return id;
+    },
     /** Baja los bytes de la pista de un Tap que viene (sin decodificar ni sonar). */
     async anticipar(info) {
-      if (!encendida || !ac || destruida) return;
+      // Mientras la primera pista aún no suena, la siguiente no le quita red (en 4G lento llegaría tarde la que importa).
+      if (!encendida || !ac || destruida || !actual) return;
       const m = manifiesto ?? await leerManifiesto();
       if (!m) return;
       // Solo se calcula (no se guarda): la elección de verdad la hace alTap. Se precarga aunque la pista actual pudiera
@@ -444,10 +475,10 @@ export function crearMusica(opciones = {}) {
       destruida = true; detenerTodo(50); clearTimeout(duckTimer);
       decodificadas.clear(); bytes.clear();
       try { duck?.disconnect(); bus?.disconnect(); } catch { /* ya desconectado */ }
-      ac = null;
+      ac = null; acPrevio = null;
     },
   };
   return M;
 }
 
-export default { crearMusica, pistaPara, candidatas, ordenarArchivos, limitesBucle, elegirCelebracion, VOLUMEN_MUSICA, VOLUMEN_CELEBRACION, DUCKING, CRUCE_MS, ENTRADA_MS, PERMANENCIA_MS };
+export default { crearMusica, pistaPara, candidatas, ordenarArchivos, limitesBucle, elegirCelebracion, VOLUMEN_MUSICA, VOLUMEN_CELEBRACION, DUCKING, CRUCE_MS, ENTRADA_MS, ENTRADA_PRIMERA_MS, PERMANENCIA_MS };
