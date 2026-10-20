@@ -46,8 +46,10 @@ describe('Reto del día (dailyTap)', () => {
       expect(r.tap.hook).toBeFalsy();
       vistos.set(r.tema, [...(vistos.get(r.tema) ?? []), r.tap.id]);
     }
+    // Los días ya fijados recorren los Taps que había al fijarlos antes de repetir; los agregados después entran en los días
+    // que se suman al final del calendario (lo comprueba generar-taps.test.mjs con el calendario completo).
     for (const [tema, lista] of vistos) {
-      const n = TAPS.filter(t => topicOf(t) === tema && !t.hook).length;
+      const n = new Set(lista).size;
       expect(new Set(lista.slice(0, n)).size).withContext(tema).toBe(n);
     }
   });
@@ -131,7 +133,8 @@ describe('Colecciones por subtema', () => {
   });
 
   it('registrarPuntaje guarda el mejor puntaje y avisa solo cuando la insignia es nueva o sube', () => {
-    const series = coleccionDe(cols, 'lg-series-1')!;
+    const series = coleccionDe(cols, 'lg-codigo-1')!;                     // una colección de 2 Taps
+    expect(series.tapIds.length).toBe(2);
     const [t1, t2] = series.tapIds.map(id => TAPS.find(t => t.id === id)!);
     let g = emptyColecciones();
     let r = registrarPuntaje(g, t1, 3, cols, TAPS, { [t1.id]: 1 });

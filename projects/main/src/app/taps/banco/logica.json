@@ -152,6 +152,158 @@
           "Cero errores con las series."
         ]
       }
+    ],
+    "lee-bien": [
+      {
+        "min": 0,
+        "title": "Lector con prisa",
+        "line": "Estas trampas se esconden en una sola palabra. ¡Otra!",
+        "lineas": [
+          "Leer despacio también es un superpoder.",
+          "Hoy viste dónde se esconden las trampas."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Lector atento",
+        "line": "Ya lees dos veces antes de tocar.",
+        "lineas": [
+          "Vas cazando las palabras tramposas.",
+          "Un par de trampas más y no caes en ninguna."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Ojo de lince",
+        "line": "Casi ninguna palabra se te escapa.",
+        "lineas": [
+          "A una letra de la perfección.",
+          "Lees lo que dice, no lo que parece."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Maestro de la lectura",
+        "line": "Cinco de cinco: ninguna trampa te engañó.",
+        "lineas": [
+          "Perfecto. Lees cada palabra.",
+          "Cero errores: reta a alguien a ver si cae."
+        ]
+      }
+    ],
+    "lateral": [
+      {
+        "min": 0,
+        "title": "Mente curiosa",
+        "line": "Estos acertijos piden mirar de lado. ¡Otra!",
+        "lineas": [
+          "La respuesta casi nunca es la obvia.",
+          "Hoy entrenaste la imaginación."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Pensador creativo",
+        "line": "Ya buscas la salida que nadie ve.",
+        "lineas": [
+          "Vas dejando de caer en lo obvio.",
+          "Un par más y piensas como detective."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Mente lateral",
+        "line": "Casi siempre encuentras el truco.",
+        "lineas": [
+          "A un acertijo de la perfección.",
+          "Ves lo que otros pasan por alto."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Genio del ingenio",
+        "line": "Cinco de cinco: piensas diferente.",
+        "lineas": [
+          "Perfecto. Ningún acertijo te frena.",
+          "Cero errores con los acertijos."
+        ]
+      }
+    ],
+    "azar-y-numeros": [
+      {
+        "min": 0,
+        "title": "Apostador novato",
+        "line": "Los números engañan a casi todos. ¡Otra ronda!",
+        "lineas": [
+          "El azar tiene sus trucos: ya conoces algunos.",
+          "Hoy aprendiste a contar mejor."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Buen calculador",
+        "line": "Ya ves la cuenta detrás del truco.",
+        "lineas": [
+          "Vas entendiendo cómo funciona la suerte.",
+          "Un par más y no te engaña ningún número."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Mago de los números",
+        "line": "Casi ninguna cuenta se te escapa.",
+        "lineas": [
+          "A un número de la perfección.",
+          "Calculas antes de adivinar."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Genio de la probabilidad",
+        "line": "Cinco de cinco: la suerte no te engaña.",
+        "lineas": [
+          "Perfecto. Los números te obedecen.",
+          "Cero errores con el azar."
+        ]
+      }
+    ],
+    "codigo": [
+      {
+        "min": 0,
+        "title": "Aprendiz de programador",
+        "line": "Leer código se aprende línea por línea. ¡Otra!",
+        "lineas": [
+          "Hoy seguiste tu primer programa.",
+          "Los computadores hacen solo lo que dice el código."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Programador en práctica",
+        "line": "Ya sigues el código paso a paso.",
+        "lineas": [
+          "Vas entendiendo los bucles.",
+          "Un par más y escribes tus propios programas."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Mente de computador",
+        "line": "Casi ninguna línea se te escapa.",
+        "lineas": [
+          "A un error de compilar perfecto.",
+          "Piensas paso a paso, como una máquina."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Genio del código",
+        "line": "Cinco de cinco: tu código corre sin errores.",
+        "lineas": [
+          "Perfecto. Ni un error en la ejecución.",
+          "Cero errores: el programa es tuyo."
+        ]
+      }
     ]
   },
   "existentes": [
@@ -1286,6 +1438,1316 @@
         "accion": "compara",
         "valor": "0,5|0,45"
       }
+    },
+    {
+      "id": "cae-del-cielo",
+      "q": "Cae del cielo sin hacerse daño y moja todo lo que toca. ¿Qué es?",
+      "options": [
+        "El sol",
+        "La lluvia",
+        "La nube",
+        "El viento"
+      ],
+      "answer": 1,
+      "why": "La lluvia: cae y cae, y nunca se lastima.",
+      "dificultad": 1,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "nube",
+      "q": "Vuela sin alas y llora sin ojos. ¿Qué es?",
+      "options": [
+        "La cometa",
+        "El avión",
+        "El pájaro",
+        "La nube"
+      ],
+      "answer": 3,
+      "why": "La nube: flota en el cielo y su «llanto» es la lluvia.",
+      "dificultad": 1,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "coco",
+      "q": "Tiene agua y no la bebe, tiene carne y no la come, y tiene pelos sin ser persona. ¿Qué es?",
+      "options": [
+        "El coco",
+        "La sandía",
+        "La piña",
+        "La naranja"
+      ],
+      "answer": 0,
+      "why": "El coco: agua de coco, pulpa blanca y su cáscara peludita.",
+      "dificultad": 2,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "pera",
+      "q": "Blanca por dentro, verde por fuera; si no lo adivinas, espera. ¿Qué es?",
+      "options": [
+        "El kiwi",
+        "La sandía",
+        "El limón",
+        "La pera"
+      ],
+      "answer": 3,
+      "why": "La pera: la pista está escondida en «es-PERA».",
+      "dificultad": 2,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "ajo",
+      "q": "Cabeza redonda sin nariz ni ojos, y su cuerpo está hecho solo de dientes. ¿Qué es?",
+      "options": [
+        "La cebolla",
+        "La papa",
+        "El maíz",
+        "El ajo"
+      ],
+      "answer": 3,
+      "why": "El ajo: una cabeza de ajo está llena de «dientes».",
+      "dificultad": 3,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "mesa-patas",
+      "q": "Tiene cuatro patas pero no camina. ¿Qué es?",
+      "options": [
+        "La mesa",
+        "El perro",
+        "La puerta",
+        "La ventana"
+      ],
+      "answer": 0,
+      "why": "La mesa: patas tiene, pero no da ni un paso.",
+      "dificultad": 1,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "botella-cuello",
+      "q": "Tiene cuello pero no tiene cabeza. ¿Qué es?",
+      "options": [
+        "La botella",
+        "La jirafa",
+        "El vaso",
+        "La taza"
+      ],
+      "answer": 0,
+      "why": "La botella: su parte angosta de arriba se llama cuello.",
+      "dificultad": 1,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "sombra",
+      "q": "Te sigue a todas partes cuando hay luz y desaparece en la oscuridad. ¿Qué es?",
+      "options": [
+        "Tu perro",
+        "El sol",
+        "El eco",
+        "Tu sombra"
+      ],
+      "answer": 3,
+      "why": "Tu sombra: sin luz, no hay sombra.",
+      "dificultad": 2,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "pina-corona",
+      "q": "Tiene corona pero no es rey, y tiene escamas pero no es pez. ¿Qué es?",
+      "options": [
+        "El pescado",
+        "La reina",
+        "La papaya",
+        "La piña"
+      ],
+      "answer": 3,
+      "why": "La piña: hojas como corona y cáscara como escamas.",
+      "dificultad": 2,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "seis-reves",
+      "q": "¿Qué número vale más si lo pones de cabeza?",
+      "options": [
+        "El 8",
+        "El 0",
+        "El 6",
+        "El 1"
+      ],
+      "answer": 2,
+      "why": "El 6: de cabeza se convierte en 9. El 8, el 0 y el 1 no cambian.",
+      "dificultad": 3,
+      "subtema": "adivinanzas",
+      "estado": "revisada"
+    },
+    {
+      "id": "serie-cinco",
+      "q": "¿Qué número sigue? 5, 10, 15, 20, …",
+      "options": [
+        "21",
+        "22",
+        "25",
+        "30"
+      ],
+      "answer": 2,
+      "why": "Suma 5 cada vez: 20 + 5 = 25.",
+      "dificultad": 1,
+      "subtema": "series",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "5",
+          "10",
+          "15",
+          "20",
+          "?"
+        ]
+      }
+    },
+    {
+      "id": "serie-mitad",
+      "q": "¿Qué número sigue? 64, 32, 16, 8, …",
+      "options": [
+        "0",
+        "2",
+        "4",
+        "6"
+      ],
+      "answer": 2,
+      "why": "Cada número es la mitad del anterior: 8 ÷ 2 = 4.",
+      "dificultad": 1,
+      "subtema": "series",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "64",
+          "32",
+          "16",
+          "8",
+          "?"
+        ]
+      }
+    },
+    {
+      "id": "serie-suma-crece",
+      "q": "¿Qué número sigue? 1, 2, 4, 7, 11, …",
+      "options": [
+        "14",
+        "15",
+        "16",
+        "18"
+      ],
+      "answer": 2,
+      "why": "Suma 1, luego 2, 3, 4… y ahora 5: 11 + 5 = 16.",
+      "dificultad": 2,
+      "subtema": "series",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "1",
+          "2",
+          "4",
+          "7",
+          "11",
+          "?"
+        ]
+      }
+    },
+    {
+      "id": "serie-resta-crece",
+      "q": "¿Qué número sigue? 10, 9, 7, 4, …",
+      "options": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "answer": 0,
+      "why": "Resta 1, luego 2, luego 3… y ahora 4: 4 − 4 = 0.",
+      "dificultad": 2,
+      "subtema": "series",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "10",
+          "9",
+          "7",
+          "4",
+          "?"
+        ]
+      }
+    },
+    {
+      "id": "serie-primos",
+      "q": "¿Qué número sigue? 2, 3, 5, 7, 11, …",
+      "options": [
+        "12",
+        "13",
+        "14",
+        "15"
+      ],
+      "answer": 1,
+      "why": "Son los números primos: solo se dividen entre 1 y sí mismos.",
+      "dificultad": 3,
+      "subtema": "series",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "2",
+          "3",
+          "5",
+          "7",
+          "11",
+          "?"
+        ]
+      }
+    },
+    {
+      "id": "serie-saltando",
+      "q": "¿Qué letra sigue? B, D, F, H, …",
+      "options": [
+        "I",
+        "J",
+        "K",
+        "L"
+      ],
+      "answer": 1,
+      "why": "Salta una letra cada vez: B, (C), D, (E), F… H, (I), J.",
+      "dificultad": 1,
+      "subtema": "series",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "B",
+          "D",
+          "F",
+          "H",
+          "?"
+        ]
+      }
+    },
+    {
+      "id": "serie-dias-salto",
+      "q": "¿Qué sigue? Lunes, miércoles, viernes, …",
+      "options": [
+        "Sábado",
+        "Domingo",
+        "Martes",
+        "Jueves"
+      ],
+      "answer": 1,
+      "why": "Se salta un día cada vez: después del viernes (y el sábado) viene el domingo.",
+      "dificultad": 1,
+      "subtema": "series",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "LUN",
+          "MIÉ",
+          "VIE",
+          "?"
+        ]
+      }
+    },
+    {
+      "id": "serie-meses-salto",
+      "q": "¿Qué mes sigue? Enero, marzo, mayo, …",
+      "options": [
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Abril"
+      ],
+      "answer": 1,
+      "why": "Se salta un mes cada vez: mayo, (junio), julio.",
+      "dificultad": 2,
+      "subtema": "series",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "ENE",
+          "MAR",
+          "MAY",
+          "?"
+        ]
+      }
+    },
+    {
+      "id": "serie-por-tres",
+      "q": "¿Qué número sigue? 1, 3, 9, 27, …",
+      "options": [
+        "36",
+        "54",
+        "81",
+        "90"
+      ],
+      "answer": 2,
+      "why": "Cada número es el triple del anterior: 27 × 3 = 81.",
+      "dificultad": 2,
+      "subtema": "series",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "1",
+          "3",
+          "9",
+          "27",
+          "?"
+        ]
+      }
+    },
+    {
+      "id": "serie-zigzag",
+      "q": "¿Qué letra sigue? A, Z, B, Y, C, …",
+      "options": [
+        "D",
+        "W",
+        "X",
+        "V"
+      ],
+      "answer": 2,
+      "why": "Se turnan el principio y el final del abecedario: A, Z, B, Y, C, X.",
+      "dificultad": 3,
+      "subtema": "series",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "A",
+          "Z",
+          "B",
+          "Y",
+          "C",
+          "?"
+        ]
+      }
+    },
+    {
+      "id": "pajaros-lia",
+      "q": "Todos los pájaros de Lía cantan. Kiwi es un pájaro de Lía. ¿Kiwi canta?",
+      "options": [
+        "Sí",
+        "No",
+        "No se puede saber",
+        "Solo a veces"
+      ],
+      "answer": 0,
+      "why": "Sí: si todos cantan y Kiwi es uno de ellos, Kiwi canta.",
+      "dificultad": 1,
+      "subtema": "silogismos",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "pseudo",
+        "lineas": [
+          "para cada pájaro de Lía:",
+          "  pájaro.canta = sí",
+          "kiwi es pájaro de Lía",
+          "# ¿kiwi canta?"
+        ]
+      }
+    },
+    {
+      "id": "nemo-lago",
+      "q": "Ningún pez del lago es rojo. Nemo es rojo. ¿Nemo es un pez del lago?",
+      "options": [
+        "Sí",
+        "No",
+        "No se puede saber",
+        "Solo a veces"
+      ],
+      "answer": 1,
+      "why": "No: si fuera del lago, no podría ser rojo.",
+      "dificultad": 1,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "robots-bailan",
+      "q": "Algunos robots bailan. Rob es un robot. ¿Rob baila?",
+      "options": [
+        "Sí",
+        "No",
+        "No se puede saber",
+        "Solo a veces"
+      ],
+      "answer": 2,
+      "why": "«Algunos» no son todos: Rob puede ser de los que no bailan.",
+      "dificultad": 2,
+      "subtema": "silogismos",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "pseudo",
+        "lineas": [
+          "algunos robots bailan",
+          "rob es robot",
+          "# ¿rob baila?"
+        ]
+      }
+    },
+    {
+      "id": "flurps",
+      "q": "Todos los flurps son verdes y todo lo verde brilla. ¿Los flurps brillan?",
+      "options": [
+        "Sí",
+        "No",
+        "No se puede saber",
+        "Solo a veces"
+      ],
+      "answer": 0,
+      "why": "Sí: los flurps son verdes, y todo lo verde brilla.",
+      "dificultad": 2,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "grillos-azules",
+      "q": "Ningún grillo es azul, pero algunos insectos son azules. ¿Hay insectos que no son grillos?",
+      "options": [
+        "Sí",
+        "No",
+        "No se puede saber",
+        "Solo a veces"
+      ],
+      "answer": 0,
+      "why": "Sí: los insectos azules no pueden ser grillos.",
+      "dificultad": 3,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "mas-baja",
+      "q": "Ana es más alta que Bea, y Bea es más alta que Caro. ¿Quién es la más baja?",
+      "options": [
+        "Ana",
+        "Bea",
+        "Caro",
+        "Son iguales"
+      ],
+      "answer": 2,
+      "why": "Caro: Ana > Bea > Caro.",
+      "dificultad": 1,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "mayor-leo",
+      "q": "Tomás es mayor que Pía y Pía es mayor que Leo. ¿Leo es mayor que Tomás?",
+      "options": [
+        "Sí",
+        "No",
+        "No se puede saber",
+        "Solo a veces"
+      ],
+      "answer": 1,
+      "why": "No: Tomás es mayor que Pía, y Pía, mayor que Leo.",
+      "dificultad": 1,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "fila-medio",
+      "q": "En una fila de tres, Sol está delante de Tim y Tim delante de Uma. ¿Quién está en el medio?",
+      "options": [
+        "Sol",
+        "Tim",
+        "Uma",
+        "No se sabe"
+      ],
+      "answer": 1,
+      "why": "Tim: Sol va primero, luego Tim y al final Uma.",
+      "dificultad": 2,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "guayos",
+      "q": "Todos los del equipo juegan con guayos. Dani juega sin guayos. ¿Dani es del equipo?",
+      "options": [
+        "Sí",
+        "No",
+        "No se puede saber",
+        "Solo a veces"
+      ],
+      "answer": 1,
+      "why": "No: si fuera del equipo, jugaría con guayos.",
+      "dificultad": 2,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "verdad-miente",
+      "q": "Si Max dice la verdad, entonces Lupe miente. Lupe dice la verdad. ¿Max dice la verdad?",
+      "options": [
+        "Sí",
+        "No",
+        "No se puede saber",
+        "Solo a veces"
+      ],
+      "answer": 1,
+      "why": "No: si Max dijera la verdad, Lupe mentiría. Y Lupe no miente.",
+      "dificultad": 3,
+      "subtema": "silogismos",
+      "estado": "revisada"
+    },
+    {
+      "id": "caballo-blanco",
+      "q": "¿De qué color era el caballo blanco de Bolívar?",
+      "options": [
+        "Blanco",
+        "Negro",
+        "Café",
+        "Gris"
+      ],
+      "answer": 0,
+      "why": "Blanco: la respuesta está en la pregunta.",
+      "dificultad": 1,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "anteayer-jueves",
+      "q": "Si hoy es jueves, ¿qué día fue anteayer?",
+      "options": [
+        "Lunes",
+        "Martes",
+        "Miércoles",
+        "Viernes"
+      ],
+      "answer": 1,
+      "why": "Anteayer es hace 2 días: miércoles, martes.",
+      "dificultad": 1,
+      "subtema": "lee-bien",
+      "estado": "revisada",
+      "visual": {
+        "objeto": "calendario",
+        "accion": "atras",
+        "valor": "ju|2"
+      }
+    },
+    {
+      "id": "dedos-manos",
+      "q": "En una mano hay 5 dedos. ¿Cuántos dedos hay en 10 manos?",
+      "options": [
+        "10",
+        "20",
+        "50",
+        "100"
+      ],
+      "answer": 2,
+      "why": "10 manos × 5 dedos = 50. ¡No 100: eso sería contar 10 personas!",
+      "dificultad": 2,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "meses-31",
+      "q": "¿Cuántos meses del año tienen 31 días?",
+      "options": [
+        "5",
+        "6",
+        "7",
+        "12"
+      ],
+      "answer": 2,
+      "why": "Siete: enero, marzo, mayo, julio, agosto, octubre y diciembre.",
+      "dificultad": 2,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "dividir-medio",
+      "q": "Divide 30 entre un medio y súmale 10. ¿Cuánto da?",
+      "options": [
+        "25",
+        "40",
+        "60",
+        "70"
+      ],
+      "answer": 3,
+      "why": "Dividir entre ½ es multiplicar por 2: 30 ÷ ½ = 60, y 60 + 10 = 70.",
+      "dificultad": 3,
+      "subtema": "lee-bien",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "operacion",
+        "lineas": [
+          "30 ÷ ½",
+          "+ 10",
+          "= ?"
+        ]
+      }
+    },
+    {
+      "id": "mango-medio",
+      "q": "¿Qué letra está justo en el medio de la palabra MANGO?",
+      "options": [
+        "A",
+        "N",
+        "G",
+        "M"
+      ],
+      "answer": 1,
+      "why": "M-A-N-G-O: la N tiene dos letras a cada lado.",
+      "dificultad": 1,
+      "subtema": "lee-bien",
+      "estado": "revisada",
+      "visual": {
+        "objeto": "palabra",
+        "accion": "medio",
+        "valor": "MANGO"
+      }
+    },
+    {
+      "id": "cocodrilo-o",
+      "q": "¿Cuántas veces aparece la letra O en COCODRILO?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": 2,
+      "why": "Tres: c-O-c-O-d-r-i-l-O.",
+      "dificultad": 1,
+      "subtema": "lee-bien",
+      "estado": "revisada",
+      "visual": {
+        "objeto": "palabra",
+        "accion": "contar",
+        "valor": "COCODRILO|O"
+      }
+    },
+    {
+      "id": "oso-reves",
+      "q": "¿Qué palabra se lee igual de izquierda a derecha que al revés?",
+      "options": [
+        "Perro",
+        "Gato",
+        "Loro",
+        "Oso"
+      ],
+      "answer": 3,
+      "why": "OSO al revés sigue siendo OSO. Esas palabras se llaman palíndromos.",
+      "dificultad": 2,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "ferrocarril-r",
+      "q": "¿Cuántas R tiene la palabra FERROCARRIL?",
+      "options": [
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "answer": 2,
+      "why": "Cuatro: fe-RR-oca-RR-il, dos parejas de R.",
+      "dificultad": 2,
+      "subtema": "lee-bien",
+      "estado": "revisada",
+      "visual": {
+        "objeto": "palabra",
+        "accion": "contar",
+        "valor": "FERROCARRIL|R"
+      }
+    },
+    {
+      "id": "murcielago-vocales",
+      "q": "¿Qué tiene de especial la palabra MURCIÉLAGO?",
+      "options": [
+        "Es la más larga",
+        "Tiene las 5 vocales",
+        "No tiene consonantes",
+        "Se lee al revés"
+      ],
+      "answer": 1,
+      "why": "Tiene la A, la E, la I, la O y la U, cada una una vez.",
+      "dificultad": 3,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "barbero",
+      "q": "Un señor se pasa el día afeitando y aun así tiene barba larga. ¿Cómo?",
+      "options": [
+        "Es barbero",
+        "Usa mala cuchilla",
+        "Es un robot",
+        "Se afeita con jabón"
+      ],
+      "answer": 0,
+      "why": "Es barbero: afeita a los demás, no a sí mismo.",
+      "dificultad": 1,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "respiracion",
+      "q": "¿Qué puedes aguantar sin usar las manos ni los brazos?",
+      "options": [
+        "Una caja",
+        "Un libro",
+        "Una pelota",
+        "La respiración"
+      ],
+      "answer": 3,
+      "why": "La respiración: la aguantas, pero sin manos.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "pelota-vuelve",
+      "q": "Lanzas una pelota y vuelve a ti sin rebotar en nada ni que nadie la toque. ¿Cómo?",
+      "options": [
+        "Era muy liviana",
+        "Contra el viento",
+        "Era de goma",
+        "Hacia arriba"
+      ],
+      "answer": 3,
+      "why": "Si la lanzas hacia arriba, sube, se frena y cae de vuelta a ti.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "letra-m",
+      "q": "¿Qué aparece una vez en un minuto, dos veces en un momento y nunca en cien años?",
+      "options": [
+        "El segundo",
+        "La letra O",
+        "El reloj",
+        "La letra M"
+      ],
+      "answer": 3,
+      "why": "La M: Minuto tiene una, MoMento dos y «cien años», ninguna.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada",
+      "visual": {
+        "objeto": "palabra",
+        "accion": "contar",
+        "valor": "MOMENTO|M"
+      }
+    },
+    {
+      "id": "foto-hijo",
+      "q": "Juan mira una foto: «No tengo hermanos, y el papá de ese hombre es el hijo de mi papá». ¿Quién es?",
+      "options": [
+        "Su hijo",
+        "Él mismo",
+        "Su papá",
+        "Su sobrino"
+      ],
+      "answer": 0,
+      "why": "«El hijo de mi papá» es Juan. Así que el de la foto es el hijo de Juan.",
+      "dificultad": 3,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "paraguas-sube",
+      "q": "¿Qué se abre y sube cuando empieza a llover?",
+      "options": [
+        "El paraguas",
+        "El sol",
+        "La ropa",
+        "La nube"
+      ],
+      "answer": 0,
+      "why": "El paraguas: lo abres y lo subes en cuanto caen gotas.",
+      "dificultad": 1,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "rio-congelado",
+      "q": "Un perro cruza un río sin mojarse, sin puente y sin bote. ¿Cómo?",
+      "options": [
+        "Nadó rápido",
+        "Saltó muy alto",
+        "Corrió muy rápido",
+        "Estaba congelado"
+      ],
+      "answer": 3,
+      "why": "El río estaba congelado: cruzó caminando sobre el hielo.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "esponja-huecos",
+      "q": "Está llena de huecos y aun así guarda agua. ¿Qué es?",
+      "options": [
+        "La esponja",
+        "El colador",
+        "La red",
+        "La canasta"
+      ],
+      "answer": 0,
+      "why": "La esponja: sus huequitos atrapan el agua.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "estampilla",
+      "q": "¿Qué puede viajar por todo el mundo quedándose quieta en una esquina?",
+      "options": [
+        "Un avión",
+        "Una maleta",
+        "Un mapa",
+        "Una estampilla"
+      ],
+      "answer": 3,
+      "why": "La estampilla (sello) va en la esquina del sobre y viaja con la carta.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "oso-blanco",
+      "q": "Una casa tiene sus 4 paredes mirando al sur. Pasa un oso. ¿De qué color es?",
+      "options": [
+        "Blanco",
+        "Café",
+        "Negro",
+        "Gris"
+      ],
+      "answer": 0,
+      "why": "Solo en el Polo Norte todas las paredes miran al sur: es un oso polar.",
+      "dificultad": 3,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "ruleta",
+      "q": "Una ruleta tiene 4 partes iguales: 3 rojas y 1 azul. ¿Qué color es más probable?",
+      "options": [
+        "Azul",
+        "Igual",
+        "No se sabe",
+        "Rojo"
+      ],
+      "answer": 3,
+      "why": "Rojo: ocupa 3 de las 4 partes.",
+      "dificultad": 1,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada"
+    },
+    {
+      "id": "dado-par",
+      "q": "Con un dado normal, ¿qué es más probable: sacar par o impar?",
+      "options": [
+        "Par",
+        "Impar",
+        "Igual de probable",
+        "Depende del día"
+      ],
+      "answer": 2,
+      "why": "Igual: hay 3 pares (2, 4, 6) y 3 impares (1, 3, 5).",
+      "dificultad": 1,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada"
+    },
+    {
+      "id": "carta-estrella",
+      "q": "Hay 4 cartas bocabajo y solo una tiene estrella. Sacas una. ¿Qué probabilidad tienes?",
+      "options": [
+        "1 de 2",
+        "1 de 3",
+        "1 de 4",
+        "3 de 4"
+      ],
+      "answer": 2,
+      "why": "1 de 4: una carta buena entre cuatro.",
+      "dificultad": 2,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada"
+    },
+    {
+      "id": "dos-monedas",
+      "q": "Lanzas dos monedas. ¿Qué es más probable: dos caras, o una cara y un sello?",
+      "options": [
+        "Dos caras",
+        "Una cara y un sello",
+        "Igual de probable",
+        "Dos sellos"
+      ],
+      "answer": 1,
+      "why": "Cara-sello sale de 2 formas (CS y SC); dos caras, de 1 sola (CC).",
+      "dificultad": 3,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada"
+    },
+    {
+      "id": "suma-siete",
+      "q": "Lanzas dos dados y sumas. ¿Qué total sale más a menudo?",
+      "options": [
+        "2",
+        "6",
+        "7",
+        "12"
+      ],
+      "answer": 2,
+      "why": "El 7: se forma de 6 maneras (1+6, 2+5, 3+4…). El 2 y el 12, de una.",
+      "dificultad": 3,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada"
+    },
+    {
+      "id": "docenas",
+      "q": "¿Qué es más: 3 docenas o 40?",
+      "options": [
+        "3 docenas",
+        "40",
+        "Son iguales",
+        "No se sabe"
+      ],
+      "answer": 1,
+      "why": "3 docenas son 36, y 40 es más.",
+      "dificultad": 1,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada"
+    },
+    {
+      "id": "cortes-cuerda",
+      "q": "Quieres partir una cuerda estirada, sin doblarla, en 4 pedazos. ¿Cuántos cortes haces?",
+      "options": [
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "answer": 1,
+      "why": "Tres: cada corte suma un pedazo. 1 corte da 2 pedazos.",
+      "dificultad": 2,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada"
+    },
+    {
+      "id": "suma-por",
+      "q": "¿Cuál de estos números da lo mismo sumado consigo mismo que multiplicado por sí mismo?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": 1,
+      "why": "El 2: 2 + 2 = 4 y 2 × 2 = 4.",
+      "dificultad": 2,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "operacion",
+        "lineas": [
+          "? + ?",
+          "= ? × ?"
+        ]
+      }
+    },
+    {
+      "id": "postes",
+      "q": "Una cerca recta de 10 metros lleva un poste cada metro, también en las puntas. ¿Cuántos postes son?",
+      "options": [
+        "9",
+        "10",
+        "11",
+        "20"
+      ],
+      "answer": 2,
+      "why": "11: uno al empezar y uno por cada metro.",
+      "dificultad": 2,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada"
+    },
+    {
+      "id": "nueves-hasta-cien",
+      "q": "Escribes los números del 1 al 100. ¿Cuántas veces escribes el 9?",
+      "options": [
+        "10",
+        "11",
+        "19",
+        "20"
+      ],
+      "answer": 3,
+      "why": "20: diez veces en las unidades (9, 19… 99) y diez en las decenas (90… 99).",
+      "dificultad": 3,
+      "subtema": "azar-y-numeros",
+      "estado": "revisada"
+    },
+    {
+      "id": "codigo-suma",
+      "q": "¿Qué número muestra este programa?",
+      "options": [
+        "2",
+        "3",
+        "5",
+        "32"
+      ],
+      "answer": 2,
+      "why": "x empieza en 3 y le sumas 2: x vale 5.",
+      "dificultad": 1,
+      "subtema": "codigo",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "pseudo",
+        "lineas": [
+          "x = 3",
+          "x = x + 2",
+          "mostrar(x)"
+        ]
+      }
+    },
+    {
+      "id": "codigo-gorra",
+      "q": "Hoy no llueve. ¿Qué lleva la persona, según este programa?",
+      "options": [
+        "Un paraguas",
+        "Los dos",
+        "Nada",
+        "Una gorra"
+      ],
+      "answer": 3,
+      "why": "Como no llueve, se va por el «si no»: lleva gorra.",
+      "dificultad": 1,
+      "subtema": "codigo",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "pseudo",
+        "lineas": [
+          "si llueve:",
+          "  llevar paraguas",
+          "si no:",
+          "  llevar gorra"
+        ]
+      }
+    },
+    {
+      "id": "codigo-pasos",
+      "q": "¿Cuántos pasos da el robot en total?",
+      "options": [
+        "2",
+        "3",
+        "5",
+        "6"
+      ],
+      "answer": 3,
+      "why": "Repite 3 veces «dar 2 pasos»: 3 × 2 = 6.",
+      "dificultad": 2,
+      "subtema": "codigo",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "pseudo",
+        "lineas": [
+          "repetir 3 veces:",
+          "  dar 2 pasos"
+        ]
+      }
+    },
+    {
+      "id": "codigo-copia",
+      "q": "¿Qué número muestra este programa?",
+      "options": [
+        "2",
+        "5",
+        "10",
+        "11"
+      ],
+      "answer": 2,
+      "why": "b se calculó cuando a valía 5: b = 10. Cambiar a después no cambia b.",
+      "dificultad": 3,
+      "subtema": "codigo",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "pseudo",
+        "lineas": [
+          "a = 5",
+          "b = a * 2",
+          "a = 1",
+          "mostrar(b)"
+        ]
+      }
+    },
+    {
+      "id": "codigo-duplica",
+      "q": "¿Qué número muestra este programa?",
+      "options": [
+        "16",
+        "20",
+        "32",
+        "64"
+      ],
+      "answer": 2,
+      "why": "n va 1, 2, 4, 8, 16, 32. Con 32 ya no es menor que 20 y se detiene.",
+      "dificultad": 3,
+      "subtema": "codigo",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "pseudo",
+        "lineas": [
+          "n = 1",
+          "mientras n < 20:",
+          "  n = n * 2",
+          "mostrar(n)"
+        ]
+      }
+    },
+    {
+      "id": "codigo-edad",
+      "q": "¿Qué letra muestra este programa?",
+      "options": [
+        "A",
+        "B",
+        "A y B",
+        "Ninguna"
+      ],
+      "answer": 1,
+      "why": "9 no es mayor o igual a 10, así que va por el «si no»: B.",
+      "dificultad": 1,
+      "subtema": "codigo",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "pseudo",
+        "lineas": [
+          "edad = 9",
+          "si edad >= 10:",
+          "  mostrar(\"A\")",
+          "si no:",
+          "  mostrar(\"B\")"
+        ]
+      }
+    },
+    {
+      "id": "codigo-total",
+      "q": "¿Qué número muestra este programa?",
+      "options": [
+        "4",
+        "5",
+        "10",
+        "14"
+      ],
+      "answer": 2,
+      "why": "Suma 1 + 2 + 3 + 4 = 10.",
+      "dificultad": 2,
+      "subtema": "codigo",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "pseudo",
+        "lineas": [
+          "total = 0",
+          "para i de 1 a 4:",
+          "  total = total + i",
+          "mostrar(total)"
+        ]
+      }
+    },
+    {
+      "id": "codigo-luz",
+      "q": "La luz empieza apagada. ¿Cómo queda al final?",
+      "options": [
+        "Encendida",
+        "Apagada",
+        "Parpadea",
+        "Se daña"
+      ],
+      "answer": 0,
+      "why": "Apagada → encendida → apagada → encendida: 3 cambios.",
+      "dificultad": 2,
+      "subtema": "codigo",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "pseudo",
+        "lineas": [
+          "luz = apagada",
+          "repetir 3 veces:",
+          "  cambiar(luz)",
+          "mostrar(luz)"
+        ]
+      }
+    },
+    {
+      "id": "codigo-cuenta",
+      "q": "¿Qué número muestra este programa?",
+      "options": [
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "answer": 1,
+      "why": "Mayores que 5 hay tres: 7, 9 y 6.",
+      "dificultad": 3,
+      "subtema": "codigo",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "pseudo",
+        "lineas": [
+          "cuenta = 0",
+          "para x en [7, 1, 9, 6, 4]:",
+          "  si x > 5:",
+          "    cuenta = cuenta + 1",
+          "mostrar(cuenta)"
+        ]
+      }
+    },
+    {
+      "id": "codigo-cambio",
+      "q": "¿Qué muestra este programa?",
+      "options": [
+        "2 y 3",
+        "3 y 2",
+        "3 y 3",
+        "2 y 2"
+      ],
+      "answer": 2,
+      "why": "a = b deja a en 3; luego b = a copia ese 3. ¡El 2 se perdió!",
+      "dificultad": 3,
+      "subtema": "codigo",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "codigo",
+        "lenguaje": "pseudo",
+        "lineas": [
+          "a = 2",
+          "b = 3",
+          "a = b",
+          "b = a",
+          "mostrar(a, b)"
+        ]
+      }
     }
   ],
   "taps": [
@@ -1470,6 +2932,188 @@
         "nombre-uso",
         "secreto",
         "serie-resta"
+      ]
+    },
+    {
+      "id": "lg-adivinanzas-4",
+      "titulo": "Adivinanzas de la naturaleza",
+      "nivel": "media",
+      "subtema": "adivinanzas",
+      "preguntas": [
+        "cae-del-cielo",
+        "nube",
+        "coco",
+        "pera",
+        "ajo"
+      ]
+    },
+    {
+      "id": "lg-adivinanzas-5",
+      "titulo": "Adivina, adivinador",
+      "nivel": "media",
+      "subtema": "adivinanzas",
+      "preguntas": [
+        "mesa-patas",
+        "botella-cuello",
+        "sombra",
+        "pina-corona",
+        "seis-reves"
+      ]
+    },
+    {
+      "id": "lg-series-3",
+      "titulo": "Series de números",
+      "nivel": "media",
+      "subtema": "series",
+      "preguntas": [
+        "serie-cinco",
+        "serie-mitad",
+        "serie-suma-crece",
+        "serie-resta-crece",
+        "serie-primos"
+      ]
+    },
+    {
+      "id": "lg-series-4",
+      "titulo": "Series de letras y días",
+      "nivel": "media",
+      "subtema": "series",
+      "preguntas": [
+        "serie-saltando",
+        "serie-dias-salto",
+        "serie-meses-salto",
+        "serie-por-tres",
+        "serie-zigzag"
+      ]
+    },
+    {
+      "id": "lg-silogismos-3",
+      "titulo": "Todos, algunos, ninguno",
+      "nivel": "media",
+      "subtema": "silogismos",
+      "preguntas": [
+        "pajaros-lia",
+        "nemo-lago",
+        "robots-bailan",
+        "flurps",
+        "grillos-azules"
+      ]
+    },
+    {
+      "id": "lg-detectives",
+      "titulo": "Detectives de la lógica",
+      "nivel": "media",
+      "subtema": "silogismos",
+      "preguntas": [
+        "mas-baja",
+        "mayor-leo",
+        "fila-medio",
+        "guayos",
+        "verdad-miente"
+      ]
+    },
+    {
+      "id": "lg-lee-bien-3",
+      "titulo": "Lee la pregunta dos veces",
+      "nivel": "media",
+      "subtema": "lee-bien",
+      "preguntas": [
+        "caballo-blanco",
+        "anteayer-jueves",
+        "dedos-manos",
+        "meses-31",
+        "dividir-medio"
+      ]
+    },
+    {
+      "id": "lg-palabras",
+      "titulo": "Ojo con las palabras",
+      "nivel": "media",
+      "subtema": "lee-bien",
+      "preguntas": [
+        "mango-medio",
+        "cocodrilo-o",
+        "oso-reves",
+        "ferrocarril-r",
+        "murcielago-vocales"
+      ]
+    },
+    {
+      "id": "lg-lateral-2",
+      "titulo": "Piensa diferente",
+      "nivel": "media",
+      "subtema": "lateral",
+      "preguntas": [
+        "barbero",
+        "respiracion",
+        "pelota-vuelve",
+        "letra-m",
+        "foto-hijo"
+      ]
+    },
+    {
+      "id": "lg-lateral-3",
+      "titulo": "Acertijos de detective",
+      "nivel": "media",
+      "subtema": "lateral",
+      "preguntas": [
+        "paraguas-sube",
+        "rio-congelado",
+        "esponja-huecos",
+        "estampilla",
+        "oso-blanco"
+      ]
+    },
+    {
+      "id": "lg-azar-2",
+      "titulo": "Probabilidades sin trampa",
+      "nivel": "media",
+      "subtema": "azar-y-numeros",
+      "preguntas": [
+        "ruleta",
+        "dado-par",
+        "carta-estrella",
+        "dos-monedas",
+        "suma-siete"
+      ]
+    },
+    {
+      "id": "lg-numeros",
+      "titulo": "Números con truco",
+      "nivel": "media",
+      "subtema": "azar-y-numeros",
+      "preguntas": [
+        "docenas",
+        "cortes-cuerda",
+        "suma-por",
+        "postes",
+        "nueves-hasta-cien"
+      ]
+    },
+    {
+      "id": "lg-codigo-1",
+      "titulo": "Piensa como computador",
+      "nivel": "media",
+      "subtema": "codigo",
+      "preguntas": [
+        "codigo-suma",
+        "codigo-gorra",
+        "codigo-pasos",
+        "codigo-copia",
+        "codigo-duplica"
+      ]
+    },
+    {
+      "id": "lg-codigo-2",
+      "titulo": "Bucles y condiciones",
+      "nivel": "media",
+      "subtema": "codigo",
+      "preguntas": [
+        "codigo-edad",
+        "codigo-total",
+        "codigo-luz",
+        "codigo-cuenta",
+        "codigo-cambio"
       ]
     }
   ]

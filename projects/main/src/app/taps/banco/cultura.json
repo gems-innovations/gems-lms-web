@@ -266,6 +266,82 @@
           "Cero errores con las rarezas."
         ]
       }
+    ],
+    "dinosaurios": [
+      {
+        "min": 0,
+        "title": "Cazador de fósiles",
+        "line": "Cada hueso cuenta una historia. ¡Sigue excavando!",
+        "lineas": [
+          "Hoy desenterraste datos nuevos.",
+          "Los paleontólogos también empezaron así."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Explorador jurásico",
+        "line": "Ya conoces bien a los gigantes.",
+        "lineas": [
+          "Vas armando el esqueleto completo.",
+          "Un par de fósiles más y lo terminas."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Paleontólogo",
+        "line": "Casi nada de la prehistoria se te escapa.",
+        "lineas": [
+          "A un hueso de la perfección.",
+          "Hasta el T. rex te respetaría."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Rey de los dinosaurios",
+        "line": "Cinco de cinco: un museo te contrataría.",
+        "lineas": [
+          "Perfecto. Sabes más que un fósil.",
+          "Cero errores en 66 millones de años."
+        ]
+      }
+    ],
+    "plantas": [
+      {
+        "min": 0,
+        "title": "Semilla curiosa",
+        "line": "Toda planta empieza pequeña. ¡Otra ronda!",
+        "lineas": [
+          "Hoy sembraste datos nuevos.",
+          "Riega tu curiosidad y crece."
+        ]
+      },
+      {
+        "min": 2,
+        "title": "Brote verde",
+        "line": "Ya entiendes cómo viven las plantas.",
+        "lineas": [
+          "Tus raíces de datos van creciendo.",
+          "Un par más y das flor."
+        ]
+      },
+      {
+        "min": 4,
+        "title": "Botánico experto",
+        "line": "Casi nada del jardín se te escapa.",
+        "lineas": [
+          "A una hoja de la perfección.",
+          "Sabes por qué las hojas son verdes."
+        ]
+      },
+      {
+        "min": 5,
+        "title": "Maestro del jardín",
+        "line": "Cinco de cinco: tienes mano verde.",
+        "lineas": [
+          "Perfecto. Hasta el bambú se impresiona.",
+          "Cero errores: tu jardín florece."
+        ]
+      }
     ]
   },
   "existentes": [],
@@ -1601,6 +1677,1077 @@
       "subtema": "datos-sorprendentes",
       "fuente": "https://es.wikipedia.org/wiki/Danza_de_las_abejas",
       "estado": "revisada"
+    },
+    {
+      "id": "corazon-bomba",
+      "q": "¿Qué órgano bombea la sangre por todo el cuerpo?",
+      "options": [
+        "El hígado",
+        "El estómago",
+        "El pulmón",
+        "El corazón"
+      ],
+      "answer": 3,
+      "why": "El corazón: es un músculo que nunca descansa.",
+      "dificultad": 1,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/Corazón",
+      "estado": "revisada"
+    },
+    {
+      "id": "olfato",
+      "q": "¿Con qué sentido percibes los olores?",
+      "options": [
+        "El gusto",
+        "El tacto",
+        "El olfato",
+        "El oído"
+      ],
+      "answer": 2,
+      "why": "El olfato, y buena parte del sabor de la comida también sale de él.",
+      "dificultad": 1,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/Olfato",
+      "estado": "revisada"
+    },
+    {
+      "id": "globulos-rojos",
+      "q": "¿Qué parte de la sangre lleva el oxígeno por el cuerpo?",
+      "options": [
+        "Glóbulos rojos",
+        "Glóbulos blancos",
+        "Las plaquetas",
+        "El plasma"
+      ],
+      "answer": 0,
+      "why": "Los glóbulos rojos, gracias a la hemoglobina. Por eso la sangre es roja.",
+      "dificultad": 2,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/Eritrocito",
+      "estado": "revisada"
+    },
+    {
+      "id": "cerebro-energia",
+      "q": "¿Qué órgano gasta cerca de la quinta parte de la energía del cuerpo?",
+      "options": [
+        "El corazón",
+        "La piel",
+        "El estómago",
+        "El cerebro"
+      ],
+      "answer": 3,
+      "why": "El cerebro: pesa poco, pero gasta cerca del 20 % de la energía en reposo.",
+      "dificultad": 2,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://es.wikipedia.org/wiki/Cerebro_humano",
+      "estado": "revisada"
+    },
+    {
+      "id": "gluteo-mayor",
+      "q": "¿Cuál es el músculo más grande del cuerpo humano?",
+      "options": [
+        "El bíceps",
+        "El glúteo mayor",
+        "El corazón",
+        "La lengua"
+      ],
+      "answer": 1,
+      "why": "El glúteo mayor, el de la cola: te sostiene de pie y al subir escaleras.",
+      "dificultad": 3,
+      "subtema": "cuerpo-humano",
+      "fuente": "https://www.guinnessworldrecords.com/world-records/largest-muscle",
+      "estado": "revisada"
+    },
+    {
+      "id": "luna-luz",
+      "q": "¿La Luna tiene luz propia?",
+      "options": [
+        "Sí, como el Sol",
+        "Solo de noche",
+        "No, refleja la del Sol",
+        "Solo en luna llena"
+      ],
+      "answer": 2,
+      "why": "No: la Luna brilla porque refleja la luz del Sol.",
+      "dificultad": 1,
+      "subtema": "espacio",
+      "fuente": "https://science.nasa.gov/moon/facts/",
+      "estado": "revisada"
+    },
+    {
+      "id": "via-lactea",
+      "q": "¿Cómo se llama nuestra galaxia?",
+      "options": [
+        "Andrómeda",
+        "La Osa Mayor",
+        "Orión",
+        "La Vía Láctea"
+      ],
+      "answer": 3,
+      "why": "La Vía Láctea. Andrómeda es la galaxia grande más cercana.",
+      "dificultad": 1,
+      "subtema": "espacio",
+      "fuente": "https://es.wikipedia.org/wiki/Vía_Láctea",
+      "estado": "revisada"
+    },
+    {
+      "id": "estrella-fugaz",
+      "q": "¿Qué es en realidad una estrella fugaz?",
+      "options": [
+        "Una estrella que cae",
+        "Un avión",
+        "Una roca que se quema",
+        "Un satélite"
+      ],
+      "answer": 2,
+      "why": "Una roquita del espacio que se quema al entrar al aire: un meteoro.",
+      "dificultad": 2,
+      "subtema": "espacio",
+      "fuente": "https://es.wikipedia.org/wiki/Meteoro_(astronomía)",
+      "estado": "revisada"
+    },
+    {
+      "id": "armstrong",
+      "q": "¿Quién fue la primera persona en caminar sobre la Luna, en 1969?",
+      "options": [
+        "Yuri Gagarin",
+        "Neil Armstrong",
+        "Buzz Aldrin",
+        "Galileo Galilei"
+      ],
+      "answer": 1,
+      "why": "Neil Armstrong, en la misión Apolo 11. Buzz Aldrin bajó después.",
+      "dificultad": 2,
+      "subtema": "espacio",
+      "fuente": "https://es.wikipedia.org/wiki/Neil_Armstrong",
+      "estado": "revisada"
+    },
+    {
+      "id": "luna-cara",
+      "q": "¿Por qué desde la Tierra siempre vemos la misma cara de la Luna?",
+      "options": [
+        "No gira",
+        "Gira y orbita igual",
+        "La Tierra la tapa",
+        "Es plana"
+      ],
+      "answer": 1,
+      "why": "Tarda lo mismo en girar sobre sí que en darle la vuelta a la Tierra.",
+      "dificultad": 3,
+      "subtema": "espacio",
+      "fuente": "https://es.wikipedia.org/wiki/Rotación_síncrona",
+      "estado": "revisada"
+    },
+    {
+      "id": "saturno-anillos",
+      "q": "¿Qué planeta tiene los anillos más grandes y brillantes?",
+      "options": [
+        "Marte",
+        "Venus",
+        "Mercurio",
+        "Saturno"
+      ],
+      "answer": 3,
+      "why": "Saturno: sus anillos son de hielo y roca.",
+      "dificultad": 1,
+      "subtema": "espacio",
+      "fuente": "https://science.nasa.gov/saturn/facts/",
+      "estado": "revisada"
+    },
+    {
+      "id": "neptuno-lejano",
+      "q": "¿Cuál es el planeta más lejano del Sol?",
+      "options": [
+        "Plutón",
+        "Urano",
+        "Neptuno",
+        "Saturno"
+      ],
+      "answer": 2,
+      "why": "Neptuno. Plutón es un planeta enano desde 2006.",
+      "dificultad": 2,
+      "subtema": "espacio",
+      "fuente": "https://science.nasa.gov/neptune/facts/",
+      "estado": "revisada",
+      "visual": {
+        "objeto": "planetas",
+        "accion": "ocho"
+      }
+    },
+    {
+      "id": "mancha-roja",
+      "q": "¿Qué es la Gran Mancha Roja de Júpiter?",
+      "options": [
+        "Un volcán",
+        "Un océano",
+        "Un cráter",
+        "Una tormenta gigante"
+      ],
+      "answer": 3,
+      "why": "Una tormenta más grande que la Tierra que dura siglos.",
+      "dificultad": 2,
+      "subtema": "espacio",
+      "fuente": "https://science.nasa.gov/jupiter/facts/",
+      "estado": "revisada"
+    },
+    {
+      "id": "luz-luna",
+      "q": "¿Cuánto tarda la luz de la Luna en llegar a la Tierra?",
+      "options": [
+        "Un poco más de 1 s",
+        "Unos 8 minutos",
+        "Una hora",
+        "Un día"
+      ],
+      "answer": 0,
+      "why": "Un poco más de 1 segundo. La del Sol tarda unos 8 minutos.",
+      "dificultad": 3,
+      "subtema": "espacio",
+      "fuente": "https://es.wikipedia.org/wiki/Luna",
+      "estado": "revisada"
+    },
+    {
+      "id": "sol-tierras",
+      "q": "Más o menos, ¿cuántas Tierras cabrían dentro del Sol?",
+      "options": [
+        "Unas 10",
+        "Unas 100",
+        "Unas 1.000",
+        "Más de 1 millón"
+      ],
+      "answer": 3,
+      "why": "Más de un millón: el Sol es gigantesco.",
+      "dificultad": 3,
+      "subtema": "espacio",
+      "fuente": "https://science.nasa.gov/sun/facts/",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "operacion",
+        "lineas": [
+          "Sol = ? Tierras"
+        ]
+      }
+    },
+    {
+      "id": "elefante-africano",
+      "q": "¿Cuál es el animal terrestre más grande?",
+      "options": [
+        "El rinoceronte",
+        "La jirafa",
+        "El hipopótamo",
+        "El elefante africano"
+      ],
+      "answer": 3,
+      "why": "El elefante africano: ¡puede pesar más de 6 toneladas!",
+      "dificultad": 1,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Loxodonta",
+      "estado": "revisada"
+    },
+    {
+      "id": "jirafa-alta",
+      "q": "¿Cuál es el animal más alto del mundo?",
+      "options": [
+        "La jirafa",
+        "El elefante",
+        "El avestruz",
+        "El camello"
+      ],
+      "answer": 0,
+      "why": "La jirafa: algunas pasan de 5 metros de alto.",
+      "dificultad": 1,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Giraffa_camelopardalis",
+      "estado": "revisada"
+    },
+    {
+      "id": "insecto-patas",
+      "q": "¿Cuántas patas tiene un insecto?",
+      "options": [
+        "4",
+        "6",
+        "8",
+        "10"
+      ],
+      "answer": 1,
+      "why": "Seis. Las arañas tienen 8: por eso no son insectos.",
+      "dificultad": 2,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Insecta",
+      "estado": "revisada"
+    },
+    {
+      "id": "avestruz-grande",
+      "q": "¿Cuál es el ave más grande del mundo?",
+      "options": [
+        "El cóndor",
+        "El águila",
+        "El avestruz",
+        "El pingüino"
+      ],
+      "answer": 2,
+      "why": "El avestruz: no vuela, pero corre muy rápido.",
+      "dificultad": 2,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Struthio_camelus",
+      "estado": "revisada"
+    },
+    {
+      "id": "ballena-groenlandia",
+      "q": "¿Qué mamífero puede vivir más de 200 años?",
+      "options": [
+        "El elefante",
+        "Ballena de Groenlandia",
+        "El oso",
+        "El caballo"
+      ],
+      "answer": 1,
+      "why": "La ballena de Groenlandia: es el mamífero que más vive.",
+      "dificultad": 3,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Balaena_mysticetus",
+      "estado": "revisada"
+    },
+    {
+      "id": "condor-andino",
+      "q": "¿Qué ave grande de los Andes aparece en el escudo de Colombia?",
+      "options": [
+        "El colibrí",
+        "El loro",
+        "El tucán",
+        "El cóndor"
+      ],
+      "answer": 3,
+      "why": "El cóndor andino, una de las aves voladoras más grandes del mundo.",
+      "dificultad": 1,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Vultur_gryphus",
+      "estado": "revisada"
+    },
+    {
+      "id": "chiguiro",
+      "q": "¿Cuál es el roedor más grande del mundo, que vive en los Llanos?",
+      "options": [
+        "El chigüiro",
+        "La guagua",
+        "El conejo",
+        "La ardilla"
+      ],
+      "answer": 0,
+      "why": "El chigüiro (capibara): puede pesar tanto como una persona adulta.",
+      "dificultad": 1,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Hydrochoerus_hydrochaeris",
+      "estado": "revisada"
+    },
+    {
+      "id": "oso-anteojos",
+      "q": "¿Cuál es el único oso que vive en Sudamérica?",
+      "options": [
+        "El oso polar",
+        "El oso panda",
+        "El oso pardo",
+        "El oso de anteojos"
+      ],
+      "answer": 3,
+      "why": "El oso de anteojos: tiene manchas claras alrededor de los ojos.",
+      "dificultad": 1,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Tremarctos_ornatus",
+      "estado": "revisada"
+    },
+    {
+      "id": "delfin-rosado",
+      "q": "¿Dónde vive el delfín rosado?",
+      "options": [
+        "En ríos de agua dulce",
+        "En el mar Caribe",
+        "En el Pacífico",
+        "En lagos helados"
+      ],
+      "answer": 0,
+      "why": "En los ríos de la Amazonía y la Orinoquía.",
+      "dificultad": 2,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Inia_geoffrensis",
+      "estado": "revisada"
+    },
+    {
+      "id": "rana-veneno",
+      "q": "¿De dónde sacan su veneno las ranas venenosas de colores?",
+      "options": [
+        "Del sol",
+        "De la lluvia",
+        "De lo que comen",
+        "De las flores"
+      ],
+      "answer": 2,
+      "why": "De los insectos que comen. Criadas en cautiverio, casi no tienen veneno.",
+      "dificultad": 3,
+      "subtema": "animales",
+      "fuente": "https://es.wikipedia.org/wiki/Dendrobatidae",
+      "estado": "revisada"
+    },
+    {
+      "id": "agua-congela",
+      "q": "¿A qué temperatura se congela el agua pura, a nivel del mar?",
+      "options": [
+        "A 0 °C",
+        "A 10 °C",
+        "A 32 °C",
+        "A 100 °C"
+      ],
+      "answer": 0,
+      "why": "A 0 °C. Y hierve a 100 °C (a nivel del mar).",
+      "dificultad": 1,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Agua",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "diagrama",
+        "cosa": "vaso-hielo",
+        "texto": "Agua que se congela"
+      }
+    },
+    {
+      "id": "vinagre-bicarbonato",
+      "q": "¿Qué pasa si mezclas bicarbonato con vinagre?",
+      "options": [
+        "Nada",
+        "Se congela",
+        "Hace muchas burbujas",
+        "Se vuelve azul"
+      ],
+      "answer": 2,
+      "why": "Hace espuma: la mezcla suelta dióxido de carbono.",
+      "dificultad": 1,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Bicarbonato_de_sodio",
+      "estado": "revisada"
+    },
+    {
+      "id": "aceite-flota",
+      "q": "Echas aceite en un vaso con agua. ¿Qué pasa?",
+      "options": [
+        "Se hunde",
+        "Flota encima",
+        "Se mezcla",
+        "Desaparece"
+      ],
+      "answer": 1,
+      "why": "Flota: el aceite es menos denso que el agua y no se mezcla.",
+      "dificultad": 2,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Densidad",
+      "estado": "revisada"
+    },
+    {
+      "id": "manzana-cafe",
+      "q": "¿Por qué una manzana mordida se pone café?",
+      "options": [
+        "Por el oxígeno",
+        "Por la luz",
+        "Por el frío",
+        "Por la saliva"
+      ],
+      "answer": 0,
+      "why": "Por el oxígeno del aire, que reacciona con su pulpa. El limón lo frena.",
+      "dificultad": 2,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Pardeamiento_enzimático",
+      "estado": "revisada"
+    },
+    {
+      "id": "luz-blanca",
+      "q": "Si juntas luz roja, verde y azul en una pared, ¿de qué color se ve?",
+      "options": [
+        "Negra",
+        "Café",
+        "Blanca",
+        "Morada"
+      ],
+      "answer": 2,
+      "why": "Blanca: con luz se suman colores. Así funcionan las pantallas.",
+      "dificultad": 3,
+      "subtema": "ciencia-cotidiana",
+      "fuente": "https://es.wikipedia.org/wiki/Modelo_de_color_RGB",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "operacion",
+        "lineas": [
+          "luz roja",
+          "+ luz verde",
+          "+ luz azul",
+          "= ?"
+        ]
+      }
+    },
+    {
+      "id": "bogota-capital",
+      "q": "¿Cuál es la capital de Colombia?",
+      "options": [
+        "Medellín",
+        "Cali",
+        "Bogotá",
+        "Barranquilla"
+      ],
+      "answer": 2,
+      "why": "Bogotá, a unos 2.600 metros de altura.",
+      "dificultad": 1,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Bogotá",
+      "estado": "revisada"
+    },
+    {
+      "id": "cordilleras",
+      "q": "¿En cuántas cordilleras se dividen los Andes al entrar a Colombia?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": 2,
+      "why": "En tres: la Occidental, la Central y la Oriental.",
+      "dificultad": 2,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Cordillera_de_los_Andes",
+      "estado": "revisada"
+    },
+    {
+      "id": "magdalena",
+      "q": "¿Qué gran río cruza Colombia de sur a norte y llega al mar en Barranquilla?",
+      "options": [
+        "El Cauca",
+        "El Magdalena",
+        "El Amazonas",
+        "El Atrato"
+      ],
+      "answer": 1,
+      "why": "El Magdalena, el río principal del país.",
+      "dificultad": 2,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Río_Magdalena",
+      "estado": "revisada"
+    },
+    {
+      "id": "san-andres",
+      "q": "¿Qué isla colombiana es famosa por su «mar de siete colores»?",
+      "options": [
+        "San Andrés",
+        "Gorgona",
+        "Isla Fuerte",
+        "Malpelo"
+      ],
+      "answer": 0,
+      "why": "San Andrés, en el mar Caribe.",
+      "dificultad": 2,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Isla_de_San_Andrés_(Colombia)",
+      "estado": "revisada"
+    },
+    {
+      "id": "amazonas-depto",
+      "q": "¿Cuál es el departamento más grande de Colombia?",
+      "options": [
+        "Antioquia",
+        "Meta",
+        "Vichada",
+        "Amazonas"
+      ],
+      "answer": 3,
+      "why": "Amazonas: más de 100.000 km², casi todo selva.",
+      "dificultad": 3,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Amazonas_(Colombia)",
+      "estado": "revisada"
+    },
+    {
+      "id": "piramides-egipto",
+      "q": "¿En qué país están las pirámides de Guiza?",
+      "options": [
+        "México",
+        "Egipto",
+        "Perú",
+        "India"
+      ],
+      "answer": 1,
+      "why": "En Egipto, junto a la ciudad de El Cairo.",
+      "dificultad": 1,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Necrópolis_de_Guiza",
+      "estado": "revisada"
+    },
+    {
+      "id": "antartida-fria",
+      "q": "¿Cuál es el continente más frío?",
+      "options": [
+        "Europa",
+        "Asia",
+        "La Antártida",
+        "América"
+      ],
+      "answer": 2,
+      "why": "La Antártida: casi toda está cubierta de hielo.",
+      "dificultad": 1,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Antártida",
+      "estado": "revisada"
+    },
+    {
+      "id": "vaticano",
+      "q": "¿Cuál es el país más pequeño del mundo?",
+      "options": [
+        "Mónaco",
+        "El Vaticano",
+        "San Marino",
+        "Andorra"
+      ],
+      "answer": 1,
+      "why": "El Vaticano: cabe dentro de la ciudad de Roma.",
+      "dificultad": 2,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Ciudad_del_Vaticano",
+      "estado": "revisada"
+    },
+    {
+      "id": "nilo-africa",
+      "q": "¿Cuál es el río más largo de África?",
+      "options": [
+        "El Congo",
+        "El Níger",
+        "El Zambeze",
+        "El Nilo"
+      ],
+      "answer": 3,
+      "why": "El Nilo, que cruza varios países hasta el mar Mediterráneo.",
+      "dificultad": 2,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Nilo",
+      "estado": "revisada"
+    },
+    {
+      "id": "salto-angel",
+      "q": "¿Dónde está la cascada más alta del mundo, el Salto Ángel?",
+      "options": [
+        "En Venezuela",
+        "En Brasil",
+        "En Canadá",
+        "En Perú"
+      ],
+      "answer": 0,
+      "why": "En Venezuela: cae casi 1 kilómetro.",
+      "dificultad": 3,
+      "subtema": "geografia",
+      "fuente": "https://es.wikipedia.org/wiki/Salto_Ángel",
+      "estado": "revisada"
+    },
+    {
+      "id": "gallinas-personas",
+      "q": "¿Qué hay más en el mundo: gallinas o personas?",
+      "options": [
+        "Personas",
+        "Gallinas",
+        "Igual",
+        "No se sabe"
+      ],
+      "answer": 1,
+      "why": "Gallinas: hay varias por cada persona del planeta.",
+      "dificultad": 1,
+      "subtema": "datos-sorprendentes",
+      "fuente": "https://es.wikipedia.org/wiki/Gallus_gallus_domesticus",
+      "estado": "revisada"
+    },
+    {
+      "id": "tierra-ancha",
+      "q": "¿Qué forma tiene la Tierra en realidad?",
+      "options": [
+        "Esfera perfecta",
+        "Más alta que ancha",
+        "Más ancha que alta",
+        "Un cubo"
+      ],
+      "answer": 2,
+      "why": "Un poquito más ancha en el ecuador, por girar sobre sí misma.",
+      "dificultad": 2,
+      "subtema": "datos-sorprendentes",
+      "fuente": "https://es.wikipedia.org/wiki/Figura_de_la_Tierra",
+      "estado": "revisada"
+    },
+    {
+      "id": "corazon-latidos",
+      "q": "Más o menos, ¿cuántas veces late tu corazón en un día?",
+      "options": [
+        "Unas 1.000",
+        "Unas 10.000",
+        "Unas 100.000",
+        "Unos 10 millones"
+      ],
+      "answer": 2,
+      "why": "Unas 100.000 veces al día, sin que se lo pidas.",
+      "dificultad": 2,
+      "subtema": "datos-sorprendentes",
+      "fuente": "https://es.wikipedia.org/wiki/Frecuencia_cardíaca",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "operacion",
+        "lineas": [
+          "1 día = 24 h",
+          "latidos = ?"
+        ]
+      }
+    },
+    {
+      "id": "astronautas-crecen",
+      "q": "¿Qué le pasa a la estatura de un astronauta en el espacio?",
+      "options": [
+        "Crece un poco",
+        "Se encoge",
+        "No cambia",
+        "Se duplica"
+      ],
+      "answer": 0,
+      "why": "Crece unos centímetros: sin gravedad, su columna se estira.",
+      "dificultad": 2,
+      "subtema": "datos-sorprendentes",
+      "fuente": "https://www.scientificamerican.com/article/astronauts-get-taller-in-space/",
+      "estado": "revisada"
+    },
+    {
+      "id": "tiburones-arboles",
+      "q": "¿Qué apareció primero en la Tierra: los tiburones o los árboles?",
+      "options": [
+        "Los árboles",
+        "Los tiburones",
+        "Al mismo tiempo",
+        "Los dinosaurios"
+      ],
+      "answer": 1,
+      "why": "Los tiburones: existen desde hace más de 400 millones de años.",
+      "dificultad": 3,
+      "subtema": "datos-sorprendentes",
+      "fuente": "https://es.wikipedia.org/wiki/Selachimorpha",
+      "estado": "revisada"
+    },
+    {
+      "id": "humanos-dinos",
+      "q": "¿Las personas vivieron al mismo tiempo que los dinosaurios gigantes?",
+      "options": [
+        "Sí",
+        "Solo con los pequeños",
+        "No, nunca",
+        "Solo en América"
+      ],
+      "answer": 2,
+      "why": "No: los humanos llegamos más de 60 millones de años después.",
+      "dificultad": 1,
+      "subtema": "dinosaurios",
+      "fuente": "https://es.wikipedia.org/wiki/Dinosauria",
+      "estado": "revisada"
+    },
+    {
+      "id": "dino-nombre",
+      "q": "¿Qué quiere decir la palabra «dinosaurio»?",
+      "options": [
+        "Lagarto terrible",
+        "Animal gigante",
+        "Pájaro antiguo",
+        "Diente afilado"
+      ],
+      "answer": 0,
+      "why": "Viene del griego: «deinós» (terrible) y «sauros» (lagarto).",
+      "dificultad": 2,
+      "subtema": "dinosaurios",
+      "fuente": "https://es.wikipedia.org/wiki/Dinosauria",
+      "estado": "revisada"
+    },
+    {
+      "id": "aves-dinos",
+      "q": "¿Qué animales de hoy descienden de los dinosaurios?",
+      "options": [
+        "Los cocodrilos",
+        "Las aves",
+        "Los lagartos",
+        "Las tortugas"
+      ],
+      "answer": 1,
+      "why": "Las aves: ¡las gallinas son primas lejanas del T. rex!",
+      "dificultad": 2,
+      "subtema": "dinosaurios",
+      "fuente": "https://es.wikipedia.org/wiki/Aves",
+      "estado": "revisada"
+    },
+    {
+      "id": "asteroide",
+      "q": "¿Qué causó la gran extinción de los dinosaurios?",
+      "options": [
+        "Una era de hielo",
+        "Una gran inundación",
+        "Los primeros humanos",
+        "Un asteroide"
+      ],
+      "answer": 3,
+      "why": "Un asteroide enorme chocó contra la Tierra y cambió el clima.",
+      "dificultad": 2,
+      "subtema": "dinosaurios",
+      "fuente": "https://es.wikipedia.org/wiki/Extinción_masiva_del_Cretácico-Paleógeno",
+      "estado": "revisada"
+    },
+    {
+      "id": "extincion-fecha",
+      "q": "¿Hace cuánto se extinguieron los dinosaurios gigantes?",
+      "options": [
+        "Unos 6.000 años",
+        "Unos 66.000 años",
+        "66 millones de años",
+        "6.000 millones de años"
+      ],
+      "answer": 2,
+      "why": "Hace unos 66 millones de años.",
+      "dificultad": 3,
+      "subtema": "dinosaurios",
+      "fuente": "https://es.wikipedia.org/wiki/Extinción_masiva_del_Cretácico-Paleógeno",
+      "estado": "revisada"
+    },
+    {
+      "id": "trex-carne",
+      "q": "¿Qué comía el tiranosaurio rex?",
+      "options": [
+        "Hojas",
+        "Frutas",
+        "Carne",
+        "Hierba"
+      ],
+      "answer": 2,
+      "why": "Carne: era un gran cazador con dientes enormes.",
+      "dificultad": 1,
+      "subtema": "dinosaurios",
+      "fuente": "https://es.wikipedia.org/wiki/Tyrannosaurus_rex",
+      "estado": "revisada"
+    },
+    {
+      "id": "estegosaurio",
+      "q": "¿Qué dinosaurio tenía placas en la espalda y púas en la cola?",
+      "options": [
+        "El estegosaurio",
+        "El tiranosaurio",
+        "El velocirraptor",
+        "El braquiosaurio"
+      ],
+      "answer": 0,
+      "why": "El estegosaurio, un herbívoro con placas en el lomo.",
+      "dificultad": 1,
+      "subtema": "dinosaurios",
+      "fuente": "https://es.wikipedia.org/wiki/Stegosaurus",
+      "estado": "revisada"
+    },
+    {
+      "id": "pterosaurios",
+      "q": "Los pterosaurios, los reptiles voladores, ¿eran dinosaurios?",
+      "options": [
+        "Sí",
+        "No",
+        "Solo los grandes",
+        "Solo los pequeños"
+      ],
+      "answer": 1,
+      "why": "No: eran primos de los dinosaurios, pero de otro grupo.",
+      "dificultad": 2,
+      "subtema": "dinosaurios",
+      "fuente": "https://es.wikipedia.org/wiki/Pterosauria",
+      "estado": "revisada"
+    },
+    {
+      "id": "crater-mexico",
+      "q": "¿En qué país está el cráter del asteroide que extinguió a los dinosaurios?",
+      "options": [
+        "Colombia",
+        "Estados Unidos",
+        "México",
+        "Chile"
+      ],
+      "answer": 2,
+      "why": "En México: el cráter de Chicxulub, en la península de Yucatán.",
+      "dificultad": 3,
+      "subtema": "dinosaurios",
+      "fuente": "https://es.wikipedia.org/wiki/Cráter_de_Chicxulub",
+      "estado": "revisada"
+    },
+    {
+      "id": "trex-nosotros",
+      "q": "¿Quién vivió más cerca en el tiempo del T. rex: el estegosaurio o nosotros?",
+      "options": [
+        "El estegosaurio",
+        "Nosotros",
+        "Igual de cerca",
+        "Ninguno"
+      ],
+      "answer": 1,
+      "why": "Nosotros: el estegosaurio vivió unos 80 millones de años antes que el T. rex.",
+      "dificultad": 3,
+      "subtema": "dinosaurios",
+      "fuente": "https://es.wikipedia.org/wiki/Stegosaurus",
+      "estado": "revisada"
+    },
+    {
+      "id": "plantas-luz",
+      "q": "¿Qué necesitan las plantas para fabricar su alimento?",
+      "options": [
+        "Oscuridad",
+        "Luz del sol",
+        "Sal",
+        "Leche"
+      ],
+      "answer": 1,
+      "why": "Luz, agua y aire: eso se llama fotosíntesis.",
+      "dificultad": 1,
+      "subtema": "plantas",
+      "fuente": "https://es.wikipedia.org/wiki/Fotosíntesis",
+      "estado": "revisada"
+    },
+    {
+      "id": "plantas-oxigeno",
+      "q": "¿Qué gas sueltan las plantas al hacer fotosíntesis?",
+      "options": [
+        "Oxígeno",
+        "Humo",
+        "Helio",
+        "Nitrógeno"
+      ],
+      "answer": 0,
+      "why": "Oxígeno, el que respiramos.",
+      "dificultad": 1,
+      "subtema": "plantas",
+      "fuente": "https://es.wikipedia.org/wiki/Fotosíntesis",
+      "estado": "revisada"
+    },
+    {
+      "id": "raiz-agua",
+      "q": "¿Qué parte de la planta absorbe el agua del suelo?",
+      "options": [
+        "La flor",
+        "La hoja",
+        "El fruto",
+        "La raíz"
+      ],
+      "answer": 3,
+      "why": "La raíz: chupa el agua y la sube por el tallo.",
+      "dificultad": 1,
+      "subtema": "plantas",
+      "fuente": "https://es.wikipedia.org/wiki/Raíz",
+      "estado": "revisada"
+    },
+    {
+      "id": "clorofila",
+      "q": "¿Qué les da el color verde a las hojas?",
+      "options": [
+        "El agua",
+        "La clorofila",
+        "La tierra",
+        "El sol"
+      ],
+      "answer": 1,
+      "why": "La clorofila: atrapa la luz del sol para la fotosíntesis.",
+      "dificultad": 2,
+      "subtema": "plantas",
+      "fuente": "https://es.wikipedia.org/wiki/Clorofila",
+      "estado": "revisada"
+    },
+    {
+      "id": "bambu-crece",
+      "q": "¿Qué planta puede crecer casi 1 metro en un solo día?",
+      "options": [
+        "El cactus",
+        "El roble",
+        "El girasol",
+        "El bambú"
+      ],
+      "answer": 3,
+      "why": "Algunos bambúes crecen hasta unos 90 cm al día.",
+      "dificultad": 3,
+      "subtema": "plantas",
+      "fuente": "https://es.wikipedia.org/wiki/Bambusoideae",
+      "estado": "revisada"
+    },
+    {
+      "id": "atrapamoscas",
+      "q": "¿Qué planta atrapa insectos cerrando sus hojas?",
+      "options": [
+        "La atrapamoscas",
+        "El girasol",
+        "La rosa",
+        "El helecho"
+      ],
+      "answer": 0,
+      "why": "La venus atrapamoscas: se cierra cuando un insecto toca sus pelitos.",
+      "dificultad": 1,
+      "subtema": "plantas",
+      "fuente": "https://es.wikipedia.org/wiki/Dionaea_muscipula",
+      "estado": "revisada"
+    },
+    {
+      "id": "anillos-arbol",
+      "q": "¿Cómo puedes saber la edad de un árbol cortado?",
+      "options": [
+        "Por su altura",
+        "Por sus hojas",
+        "Contando sus anillos",
+        "Por su color"
+      ],
+      "answer": 2,
+      "why": "Contando los anillos del tronco: casi siempre uno por año.",
+      "dificultad": 1,
+      "subtema": "plantas",
+      "fuente": "https://es.wikipedia.org/wiki/Dendrocronología",
+      "estado": "revisada"
+    },
+    {
+      "id": "girasol-sol",
+      "q": "¿Qué hacen los girasoles jóvenes durante el día?",
+      "options": [
+        "Se cierran",
+        "Siguen al Sol",
+        "Cambian de color",
+        "Se esconden"
+      ],
+      "answer": 1,
+      "why": "Giran siguiendo al Sol. Ya adultos, se quedan mirando al este.",
+      "dificultad": 2,
+      "subtema": "plantas",
+      "fuente": "https://es.wikipedia.org/wiki/Helianthus_annuus",
+      "estado": "revisada"
+    },
+    {
+      "id": "papa-tallo",
+      "q": "Para la botánica, la papa es…",
+      "options": [
+        "Una raíz",
+        "Un fruto",
+        "Un tallo",
+        "Una hoja"
+      ],
+      "answer": 2,
+      "why": "Un tallo subterráneo (tubérculo). ¡Sus «ojos» son yemas!",
+      "dificultad": 3,
+      "subtema": "plantas",
+      "fuente": "https://es.wikipedia.org/wiki/Tubérculo",
+      "estado": "revisada"
+    },
+    {
+      "id": "vainilla-orquidea",
+      "q": "¿De qué planta sale la vainilla?",
+      "options": [
+        "De una orquídea",
+        "De un árbol",
+        "De un cactus",
+        "De una palmera"
+      ],
+      "answer": 0,
+      "why": "De una orquídea: la vainilla es su fruto en forma de vaina.",
+      "dificultad": 3,
+      "subtema": "plantas",
+      "fuente": "https://es.wikipedia.org/wiki/Vanilla_planifolia",
+      "estado": "revisada"
     }
   ],
   "taps": [
@@ -1811,6 +2958,175 @@
         "delfin-dormir",
         "avestruz-ojo",
         "bogota-hierve"
+      ]
+    },
+    {
+      "id": "cu-cuerpo-3",
+      "titulo": "Sentidos y órganos",
+      "nivel": "media",
+      "subtema": "cuerpo-humano",
+      "preguntas": [
+        "corazon-bomba",
+        "olfato",
+        "globulos-rojos",
+        "cerebro-energia",
+        "gluteo-mayor"
+      ]
+    },
+    {
+      "id": "cu-luna",
+      "titulo": "La Luna y las estrellas",
+      "nivel": "media",
+      "subtema": "espacio",
+      "preguntas": [
+        "luna-luz",
+        "via-lactea",
+        "estrella-fugaz",
+        "armstrong",
+        "luna-cara"
+      ]
+    },
+    {
+      "id": "cu-planetas",
+      "titulo": "Planetas extremos",
+      "nivel": "media",
+      "subtema": "espacio",
+      "preguntas": [
+        "saturno-anillos",
+        "neptuno-lejano",
+        "mancha-roja",
+        "luz-luna",
+        "sol-tierras"
+      ]
+    },
+    {
+      "id": "cu-animales-4",
+      "titulo": "Récords animales",
+      "nivel": "media",
+      "subtema": "animales",
+      "preguntas": [
+        "elefante-africano",
+        "jirafa-alta",
+        "insecto-patas",
+        "avestruz-grande",
+        "ballena-groenlandia"
+      ]
+    },
+    {
+      "id": "cu-fauna-colombia",
+      "titulo": "Animales de Colombia",
+      "nivel": "facil",
+      "subtema": "animales",
+      "preguntas": [
+        "condor-andino",
+        "chiguiro",
+        "oso-anteojos",
+        "delfin-rosado",
+        "rana-veneno"
+      ]
+    },
+    {
+      "id": "cu-cocina",
+      "titulo": "Experimentos de cocina",
+      "nivel": "media",
+      "subtema": "ciencia-cotidiana",
+      "preguntas": [
+        "agua-congela",
+        "vinagre-bicarbonato",
+        "aceite-flota",
+        "manzana-cafe",
+        "luz-blanca"
+      ]
+    },
+    {
+      "id": "cu-colombia",
+      "titulo": "Colombia de punta a punta",
+      "nivel": "media",
+      "subtema": "geografia",
+      "preguntas": [
+        "bogota-capital",
+        "cordilleras",
+        "magdalena",
+        "san-andres",
+        "amazonas-depto"
+      ]
+    },
+    {
+      "id": "cu-maravillas",
+      "titulo": "Maravillas del mundo",
+      "nivel": "media",
+      "subtema": "geografia",
+      "preguntas": [
+        "piramides-egipto",
+        "antartida-fria",
+        "vaticano",
+        "nilo-africa",
+        "salto-angel"
+      ]
+    },
+    {
+      "id": "cu-datos-2",
+      "titulo": "Datos para presumir",
+      "nivel": "media",
+      "subtema": "datos-sorprendentes",
+      "preguntas": [
+        "gallinas-personas",
+        "tierra-ancha",
+        "corazon-latidos",
+        "astronautas-crecen",
+        "tiburones-arboles"
+      ]
+    },
+    {
+      "id": "cu-dinosaurios-1",
+      "titulo": "La era de los dinosaurios",
+      "nivel": "media",
+      "subtema": "dinosaurios",
+      "preguntas": [
+        "humanos-dinos",
+        "dino-nombre",
+        "aves-dinos",
+        "asteroide",
+        "extincion-fecha"
+      ]
+    },
+    {
+      "id": "cu-dinosaurios-2",
+      "titulo": "Gigantes prehistóricos",
+      "nivel": "media",
+      "subtema": "dinosaurios",
+      "preguntas": [
+        "trex-carne",
+        "estegosaurio",
+        "pterosaurios",
+        "crater-mexico",
+        "trex-nosotros"
+      ]
+    },
+    {
+      "id": "cu-plantas-1",
+      "titulo": "El mundo de las plantas",
+      "nivel": "facil",
+      "subtema": "plantas",
+      "preguntas": [
+        "plantas-luz",
+        "plantas-oxigeno",
+        "raiz-agua",
+        "clorofila",
+        "bambu-crece"
+      ]
+    },
+    {
+      "id": "cu-plantas-2",
+      "titulo": "Plantas sorprendentes",
+      "nivel": "media",
+      "subtema": "plantas",
+      "preguntas": [
+        "atrapamoscas",
+        "anillos-arbol",
+        "girasol-sol",
+        "papa-tallo",
+        "vainilla-orquidea"
       ]
     }
   ]
