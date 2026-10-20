@@ -85,6 +85,8 @@ stage.say('¡Hola!');                                 // globo de diálogo (stag
 | `setVoz(voz)` (o `null`) | Conecta una voz `{hablar(texto, personaje), callar()}` (p. ej. `crearVoz().paraMotor()` de `voz/voz.js`). Mientras habla, el personaje usa la animación `talk` |
 | `pause()` / `resume()` | Detiene/reanuda el dibujo (el feed lo usa fuera de pantalla) |
 | `attachTo(el)` | Mueve el escenario entero a otro contenedor (el feed usa **un** escenario para todos los Taps) |
+| `setSafeArea({top, bottom})` (o `null`) | **v11.** Zona segura: px del contenedor que tapan arriba la barra y abajo la tarjeta de la pregunta (en el celular, la mitad de abajo). El personaje se encaja en lo que queda a la vista, en todos los temas, planos y en la capa ligera: si ya cabe no se toca (escritorio); si se sale, se achica lo justo (nunca menos de la mitad) y se desplaza lo mínimo para quedar dentro: el encaje es continuo (un desborde pequeño mueve poco) y tiene histéresis (la órbita o el travelling no hacen «respirar» el cuadro). En un plano cerrado (primer plano, plano detalle), donde el personaje mide más de 0,58 del lienzo a propósito, basta con la cabeza, el pecho y parte del torso. La variante del plano (`--te-k`) cuenta en la capa ligera. En 3D/2D el renderizador achica y sube su imagen (`renderer.encuadre`, sin huecos: el mundo sigue más allá del borde); en la capa ligera, variables CSS `--te-f-y`/`--te-f-s` y el piso sube con él. Viaja suave con la cámara; con movimiento reducido el cambio es directo. El feed le pasa la caja de `.tap__world` y la vuelve a pasar cuando cambia de alto |
+| `caja()` | **v11.** Dónde está el personaje ahora: `{modo, top, pecho, pies, x}` en px del contenedor (anclas del renderizador o caja de la capa ligera). Para pruebas; el nodo `.te-stage` expone el escenario en `tapsStage` |
 | `setMuted(bool)`, `sfx(name)` | Sonido (el audio arranca tras el primer gesto del usuario) |
 | `create(…, {audio})` | Opcional: `audio = {play(name, {theme})}` (p. ej. `crearSonido().paraMotor()` de `audio/sonido.js`). El motor no crea su propio AudioContext y le pasa cada sonido de `theme.json` por nombre; silencio, desbloqueo y pausa quedan en manos de la app. Así lo usa el feed: un solo AudioContext y efectos propios generados por código (ver `producto/taps/voz-y-sonido.md`) |
 | `visual({objeto, accion, valor?}, el, {side?})` | Muestra un objeto para explicar dentro de `el` (el hueco lo pone la app). Carga `visuals.js` del tema la primera vez. Tocar repite la animación y arrastrar la recorre. `side` ('izq' / 'der') = dónde está el objeto: el personaje se corre a la mitad libre. Devuelve la descripción del objeto (la app la pone en el `aria-label` de su botón; el lienzo va con `aria-hidden`) o `false` si el tema no tiene ese objeto |
@@ -170,6 +172,11 @@ salida (el renderizador dibuja ahí cada fotograma; el motor pinta las partícul
 `setScene({world,host,item,props,shot,enter,plano,hora,clima,fauna})` (`shot` y `plano` llegan ya resueltos como objetos; `enter` solo cuando cambia el lugar), `preload(spec)`, `play(anim)`, `fx(name)`,
 `frame(dt)`, `anchor('head'|'top'|'chest'|'feet') → [px, py]`, `setSize(w,h)`, `dispose()` y, opcionales, `nudge(dx, ahora)` (correr al personaje para hacerle sitio a un objeto)
 y `plano(n, seed)` (pequeño cambio de plano entre preguntas).
+
+Encaje en la zona visible (v11, opcional): `encuadre({s, ty}, ahora)` aplica a toda la imagen y' = s·y + ty·alto (y en x la misma escala
+alrededor del personaje) —en three.js con `camera.setViewOffset`, en Canvas 2D con la transformación del contexto y los bordes del fondo prolongados—;
+quien lo implementa también acepta `anchor(nombre, true)`: el ancla «cruda», sin encaje ni saltos de animación, con la que el motor mide
+la banda del personaje sin realimentarse. Un renderizador sin `encuadre` se ve como antes.
 
 ### Modo cine (v10)
 

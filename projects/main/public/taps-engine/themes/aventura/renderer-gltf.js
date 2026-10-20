@@ -152,6 +152,20 @@ export async function createRenderer(opts) {
   // ── cámara: pies a ~68 % del alto y 36 % de alto de personaje (como el tema minecraft: deja sitio a la tarjeta de abajo);
   //    el encuadre corre la cámara de lado (no al personaje) ──
   let shot = { x: 0, zoom: 1, yaw: 0, height: 0 }, nudgeX = 0, nudgeTo = 0, push = 0, shake = 0, hurt = 0, simT = 0;
+  // Encaje en la zona visible (motor v11, encuadre): la imagen se achica (s) alrededor del personaje y sube (ty, fracción del
+  // alto) para quedar entre la barra y la tarjeta: y' = s·y + ty·H. Un setViewOffset de la cámara; viaja suave.
+  let fit = { s: 1, ty: 0 }, fitTo = { s: 1, ty: 0 }, viewKey = '', lastFit = { s: 1, ty: 0, cx: 0.5 };
+  function applyView(dt) {
+    const k = reducedMotion ? 1 : 1 - Math.exp(-dt * 3);
+    fit = { s: fit.s + (fitTo.s - fit.s) * k, ty: fit.ty + (fitTo.ty - fit.ty) * k };
+    if (Math.abs(fit.s - fitTo.s) < 1e-4 && Math.abs(fit.ty - fitTo.ty) < 1e-4) fit = { ...fitTo };
+    const s = fit.s, cx = Math.max(0.1, Math.min(0.9, 0.5 + (shot.x || 0) + nudgeX));
+    const key = s.toFixed(4) + '|' + fit.ty.toFixed(4) + '|' + (s === 1 ? 0 : cx.toFixed(3)) + '|' + W + 'x' + H;
+    if (key === viewKey) return; viewKey = key; lastFit = { s, ty: fit.ty, cx };
+    if (Math.abs(s - 1) < 1e-4 && Math.abs(fit.ty) < 1e-4) cam.clearViewOffset();
+    else cam.setViewOffset(W, H, -(1 - s) * cx * W / s, -fit.ty * H / s, W / s, H / s);
+    cam.updateProjectionMatrix();
+  }
   // modo cine: plano del Tap y variante de la pregunta (0 = plano base; 1-3 cambios suaves). Sin movimiento con movimiento reducido.
   const VARIANTES = [{}, { zoom: 1.1, az: 0.1 }, { az: -0.14, el: 4 }, { zoom: 0.92, el: -3, az: 0.06 }];
   let plano = null, variante = 0, cine = null;
@@ -182,6 +196,7 @@ export async function createRenderer(opts) {
       cam.lookAt(tx, tyz, 0); if (q.roll) cam.rotateZ(q.roll);
     }
     if (shake > 0) { shake = Math.max(0, shake - dt); cam.position.x += (Math.random() - 0.5) * shake * 0.25; cam.position.y += (Math.random() - 0.5) * shake * 0.25; }
+    applyView(dt);
     cam.updateMatrixWorld();
   }
 
@@ -230,10 +245,12 @@ export async function createRenderer(opts) {
     obj?.traverse?.(o => { o.geometry?.dispose?.(); const m = o.material; (Array.isArray(m) ? m : m ? [m] : []).forEach(x => { for (const v of Object.values(x)) if (v?.isTexture) v.dispose(); x.dispose?.(); }); });
   }
   const v3 = new T.Vector3();
-  function anchor(name) {
+  /** `raw` = sin encaje ni salto (motor v11: así mide la banda del personaje sin realimentarse). */
+  function anchor(name, raw = false) {
     const y = { head: 1.02, top: 1.18, chest: 0.55, feet: 0 }[name] ?? 1.02, r = host?.root;
-    v3.set(r ? r.position.x : 0, y * (chars[hostId]?.escala || 1) + (host?.body.position.y || 0), r ? r.position.z : 0).project(cam);
-    return [((v3.x + 1) / 2) * W, ((1 - v3.y) / 2) * H];
+    v3.set(r ? r.position.x : 0, y * (chars[hostId]?.escala || 1) + (raw ? 0 : host?.body.position.y || 0), r ? r.position.z : 0).project(cam);
+    const x = ((v3.x + 1) / 2) * W, yy = ((1 - v3.y) / 2) * H, f = lastFit;
+    return raw ? [(x - (1 - f.s) * f.cx * W) / f.s, (yy - f.ty * H) / f.s] : [x, yy];
   }
 
   play('idle');
@@ -259,7 +276,9 @@ export async function createRenderer(opts) {
     frame,
     anchor,
     nudge(dx, now) { nudgeTo = dx || 0; if (now || reducedMotion) nudgeX = nudgeTo; },
-    setSize(w, h) { W = Math.round(w); H = Math.round(h); out.width = W; out.height = H; glc.width = W; glc.height = H; gl.setSize(W, H, false); cam.aspect = W / H; cam.updateProjectionMatrix(); },
+    /** Encaje en la zona visible (motor v11): {s, ty}; `now` = sin viaje. */
+    encuadre(f, now) { fitTo = { s: +f?.s || 1, ty: +f?.ty || 0 }; if (now || reducedMotion) fit = { ...fitTo }; },
+    setSize(w, h) { W = Math.round(w); H = Math.round(h); out.width = W; out.height = H; glc.width = W; glc.height = H; gl.setSize(W, H, false); cam.aspect = W / H; viewKey = ''; cam.updateProjectionMatrix(); },
     dispose() {
       if (disposed) return;
       disposed = true; tok++;

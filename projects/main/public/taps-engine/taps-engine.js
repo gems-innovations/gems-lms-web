@@ -41,6 +41,31 @@ export const TIERS = {
   normal: { w: 540, h: 960,  fps: 30 },
   high:   { w: 720, h: 1280, fps: 30 },
 };
+// ───────────────────────── encaje en la zona visible (v11) ─────────────────────────
+/** Banda vertical del personaje (fracciones del alto del lienzo 9:16) si el renderizador aún no dio sus anclas. */
+export const BANDA_DEFECTO = Object.freeze({ arriba: 0.15, abajo: 0.68 });
+/**
+ * Alto máximo de la banda (fracción del lienzo). Solo cuenta en los planos cerrados (primer plano, plano detalle de una
+ * variante): ahí el personaje mide más que esto a propósito y basta que se vean la cabeza, el pecho y parte del torso. En los
+ * demás planos la banda (cabeza → pies) mide entre 0,1 y 0,56 del lienzo y este tope no la toca.
+ */
+const ALTO_MAX = 0.58;
+const r4 = x => +x.toFixed(4) || 0;
+/**
+ * Encaje del personaje en la zona que se ve (puro, para poder probarlo). `banda` = {arriba, abajo}: lo que ocupa el personaje
+ * tal como se diseñó; `zona` = {arriba, abajo}: lo que queda a la vista entre la barra y la tarjeta de la pregunta (las dos en
+ * fracciones del mismo alto). Devuelve {s, ty}: y' = s·y + ty (y en x, la misma escala s alrededor del personaje).
+ * Continuo: si la banda ya cabe, identidad (escritorio, tablet con sitio); si se sale, primero se achica lo justo (nunca por
+ * debajo de `sMin`) y luego se desplaza lo mínimo para quedar dentro. Un desborde pequeño = un movimiento pequeño. Si ni
+ * achicada cabe, manda la cabeza (arriba de la zona) y lo que sobra queda bajo la tarjeta.
+ */
+export function encajar(banda, zona, sMin = 0.5) {
+  const a = +banda?.arriba, b = +banda?.abajo, t = +zona?.arriba, u = +zona?.abajo;
+  if (!(b > a) || !(u > t)) return { s: 1, ty: 0 };
+  const s = Math.max(sMin, Math.min(1, (u - t) / (b - a))), alto = s * (b - a);
+  const na = alto >= u - t ? t : Math.min(Math.max(s * a, t), u - alto);   // arriba nuevo: lo mínimo para quedar dentro
+  return { s: r4(s), ty: r4(na - s * a) };
+}
 function webglWorks() {
   try { const c = document.createElement('canvas'); const gl = c.getContext('webgl2') || c.getContext('webgl'); const ok = !!gl; gl?.getExtension('WEBGL_lose_context')?.loseContext(); return ok; }
   catch { return false; }
@@ -156,9 +181,14 @@ function ensureCss() {
   if (!document.querySelector(`link[href="${href}"]`)) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; cssReady = new Promise(ok => { l.onload = l.onerror = () => ok(); }); document.head.appendChild(l); }
 }
 /** Hoja de estilos propia del tema (opcional, `css` en theme.json): se pide una sola vez y nunca bloquea el pintado. */
-function ensureThemeCss(href) {
-  if (typeof document === 'undefined' || document.querySelector(`link[data-te-theme="${href}"]`)) return;
-  const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; l.dataset.teTheme = href; document.head.appendChild(l);
+function ensureThemeCss(href, onLoad) {
+  if (typeof document === 'undefined') return;
+  const old = document.querySelector(`link[data-te-theme="${href}"]`);
+  // load o error, una sola vez y quitando los dos oyentes: sin hoja del tema también se reencaja y no queda nada colgado
+  const once = el => { const fin = () => { el.removeEventListener('load', fin); el.removeEventListener('error', fin); el.dataset.teListo = '1'; onLoad?.(); };
+    el.addEventListener('load', fin); el.addEventListener('error', fin); };
+  if (old) { if (!old.dataset.teListo) once(old); return; }
+  const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; l.dataset.teTheme = href; once(l); document.head.appendChild(l);
 }
 function loadScript(src) {
   return new Promise((ok, no) => {
@@ -191,7 +221,7 @@ export function create(container, opts = {}) {
     off(name, fn) { listeners.set(name, (listeners.get(name) || []).filter(f => f !== fn)); },
   };
   let themeUrl = null, renderer = null, sound = null, particles = [], ctx2d = null, size = { w: 540, h: 960 }, fpsCap = 30;
-  let raf = 0, last = 0, runUntil = 0, bubbleTimer = 0, bubbleAnchor = null, typeTimer = 0, reactTimer = 0, loopReact = null;
+  let fitN = 0, raf = 0, last = 0, runUntil = 0, bubbleTimer = 0, bubbleAnchor = null, typeTimer = 0, reactTimer = 0, loopReact = null;
   let winT = 0, fpsN = 0, fpsT = 0, fpsNow = 0, slowFrames = 0, frames = 0, degraded = 0, hostImg = null, lastSkinKey = null, lightMod = null, lightOpts = {};
   const resolveTheme = rel => new URL(rel, themeUrl).href;
 
@@ -211,7 +241,7 @@ export function create(container, opts = {}) {
     }
     S.theme = t;
     if (t.id) root.dataset.theme = t.id;
-    if (t.css) ensureThemeCss(resolveTheme(t.css));
+    if (t.css) ensureThemeCss(resolveTheme(t.css), () => applyFit(true));   // la hoja del tema cambia la caja de la capa ligera: se reencaja
     if (t.font?.family) root.style.setProperty('--te-font', `'${t.font.family}'`);
     if (t.font?.src && !FONTS.has(t.font.family)) {
       FONTS.add(t.font.family);
@@ -246,6 +276,61 @@ export function create(container, opts = {}) {
     root.style.setProperty('--te-s', String(+(shot.zoom * (lg.s ?? 1)).toFixed(3)));
     if (lg.suelo != null) root.style.setProperty('--te-suelo', lg.suelo + '%'); else root.style.removeProperty('--te-suelo');
   }
+  /**
+   * Zona segura (v11): la app dice cuánto tapan arriba (barra, progreso) y abajo (tarjeta de la pregunta) y el personaje se
+   * encaja en lo que queda a la vista. Capa ligera: se mide su caja de maquetación (offsetTop/offsetHeight, sin transformaciones)
+   * y se corre y achica desde los pies con variables CSS (--te-f-y, --te-f-s); el piso sube con él. 3D/2D: el renderizador
+   * aplica el mismo encaje a su imagen (renderer.encuadre). La banda sale de sus anclas «crudas» (anchor(nombre, true): sin
+   * encaje y sin saltos de animación), así sigue a cada plano y a cada personaje sin datos a mano y sin realimentarse.
+   */
+  let safe = null, fit3d = { s: 1, ty: 0 }, banda = null, gY = '';
+  function fitLight() {
+    const ch = root.clientHeight;
+    if (!safe || !ch || !lightEl.offsetHeight) { for (const v of ['--te-f-y', '--te-f-s', '--te-globo-y']) root.style.removeProperty(v); return; }
+    // la variante del plano (--te-k, data-plano) ya agranda o achica al personaje desde los pies: cuenta en su alto
+    const kp = parseFloat(getComputedStyle(root).getPropertyValue('--te-k')) || 1;
+    const lb = lightEl.offsetTop + lightEl.offsetHeight, lt = lb - lightEl.offsetHeight * kp;
+    const f = encajar({ arriba: lt / ch, abajo: lb / ch }, { arriba: (safe.top + 4) / ch, abajo: (ch - safe.bottom - 8) / ch });
+    const pies = f.s * lb + f.ty * ch, cabeza = pies - f.s * (lb - lt);
+    root.style.setProperty('--te-f-y', (pies - lb).toFixed(1) + 'px');
+    root.style.setProperty('--te-f-s', String(f.s));
+    root.style.setProperty('--te-globo-y', Math.max(cabeza - 4, safe.top + 48).toFixed(1) + 'px');
+  }
+  /** Banda del personaje en el lienzo sin encaje (fracciones del alto). En un plano cerrado se recorta a ALTO_MAX (cabeza, pecho y parte del torso). */
+  function medirBanda(rr) {
+    try {
+      const top = rr.anchor('top', true)?.[1], feet = rr.anchor('feet', true)?.[1];
+      if (!Number.isFinite(top) || !Number.isFinite(feet) || feet <= top) return null;
+      const a = top / size.h; return { arriba: a, abajo: Math.min(feet / size.h, a + ALTO_MAX) };
+    } catch { return null; }
+  }
+  /** Encaje del lienzo animado: `now` = sin viaje (cambio de tamaño, primer cuadro). */
+  function fit3dNow(now = false, rr = renderer || r) {
+    if (!rr?.encuadre) return;
+    const cw = root.clientWidth, ch = root.clientHeight, W = size.w, H = size.h;
+    let f = { s: 1, ty: 0 }, k = 1, b = null, z = null;
+    if (safe && cw && ch) {
+      b = banda = medirBanda(rr) || banda || BANDA_DEFECTO;
+      k = Math.max(cw / W, ch / H); const oy = (ch - H * k) / 2;
+      z = { arriba: (safe.top + 4 - oy) / (H * k), abajo: (ch - safe.bottom - 8 - oy) / (H * k) };
+      f = encajar(b, z);
+    }
+    // histéresis: la órbita, el travelling o la respiración del plano mueven la banda despacio. Mientras con el encaje actual
+    // siga a la vista, los cambios chicos se ignoran (el cuadro no «respira»); uno grande o salirse de la zona sí reencaja.
+    if (!now) {
+      const igual = Math.abs(f.s - fit3d.s) < 0.004 && Math.abs(f.ty - fit3d.ty) < 0.004;
+      const sigueDentro = !!b && !!z && fit3d.s * b.arriba + fit3d.ty >= z.arriba - 0.006 && fit3d.s * b.abajo + fit3d.ty <= z.abajo + 0.006;
+      if (igual || (sigueDentro && Math.abs(f.s - fit3d.s) < 0.03 && Math.abs(f.ty - fit3d.ty) < 0.03)) return;
+    }
+    fit3d = f;
+    try { rr.encuadre(f, now || reduced); } catch { /* el encaje es un extra */ }
+    const g = (b ? (f.s * b.abajo + f.ty - b.abajo) * H * k : 0).toFixed(1) + 'px';   // fondo CSS que sigue al 3D (tema aventura)
+    if (g !== gY) { gY = g; root.style.setProperty('--te-g-y', g); }
+    if (renderer) wake(1600);
+  }
+  function applyFit(now = false) { if (S.destroyed) return; fitLight(); fit3dNow(now); }
+  const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => applyFit(true)) : null; ro?.observe(root);
+  cssReady.then(() => applyFit(true));                              // sin la hoja del motor la capa ligera aún no tiene caja
   function paintNudge(dx) {
     root.style.setProperty('--te-nudge', (dx * 100).toFixed(1) + '%');                       // el globo (sin animar)
     root.style.setProperty('--te-dx', Math.round(dx * (root.clientWidth || 0)) + 'px');         // el personaje (translate animado)
@@ -324,7 +409,7 @@ export function create(container, opts = {}) {
       performance.mark?.('te-scene'); await yieldMain();
       if (S.destroyed || slow) { r.dispose(); r = null; return; }      // llegó tarde: se queda la capa ligera
       r.play(loopReact || 'idle');
-      r.frame(.016);
+      r.frame(.016); fit3dNow(true, r); r.frame(.016);                 // ya encajado en la zona visible desde el primer cuadro
       clearTimeout(slowTimer);
       renderer = r; r = null;
       performance.mark?.('te-visible'); root.dataset.mode = '3d'; S.mode = '3d'; glEl.classList.add('on'); emit('mode', { mode: '3d', tier });
@@ -349,6 +434,7 @@ export function create(container, opts = {}) {
     const el = now - last, min = 1000 / fpsCap; if (el < min - 2) return;
     last = now - (el % min); const dt = Math.min(.1, el / 1000), t0 = nowMs();
     renderer.frame(dt);
+    if ((safe || fit3d.s !== 1 || fit3d.ty) && ++fitN % 3 === 0) fit3dNow();     // el encaje sigue al plano (la cámara viaja ~1,5 s)
     if (particles.length) drawParticles(ctx2d, particles, dt, size.w / 540, S.theme.particles?.shape);
     placeBubble();
     fpsN++; if (now - fpsT >= 1000) { fpsNow = Math.round(fpsN * 1000 / (now - fpsT)); fpsN = 0; fpsT = now; root.dataset.fps = String(fpsNow); }
@@ -359,7 +445,7 @@ export function create(container, opts = {}) {
   }
   function degrade() {
     degraded++; console.debug('[taps-engine] rendimiento bajo, paso', degraded);
-    if (degraded === 1 && size.w > 360) { size = { w: 360, h: 640 }; renderer.setSize(size.w, size.h); fpsCap = Math.min(fpsCap, 24); emit('degrade', { step: 'resolucion' }); }
+    if (degraded === 1 && size.w > 360) { size = { w: 360, h: 640 }; renderer.setSize(size.w, size.h); fit3dNow(true); fpsCap = Math.min(fpsCap, 24); emit('degrade', { step: 'resolucion' }); }
     else { renderer.dispose(); renderer = null; fallback('rendimiento bajo'); emit('degrade', { step: 'ligero' }); }
   }
   const onVis = () => { if (document.hidden) S.pause('tab'); else S.resume('tab'); };
@@ -412,7 +498,7 @@ export function create(container, opts = {}) {
     const tipo = next.transicion || 'fundido';
     if (moved) { planoN = 0; planoSeed = 0; delete root.dataset.plano; }             // lugar nuevo: vuelve al plano base del Tap
     if (moved && prev && !reduced) { clearTimeout(revealTimer); delete root.dataset.revela; root.dataset.cambio = tipo; }
-    paintBackdrop(next.world, next.hora); paintShot(next.shot, next.plano);
+    paintBackdrop(next.world, next.hora); paintShot(next.shot, next.plano); fitLight();
     for (const k of ['camara', 'clima', 'fauna']) { if (next[k]) root.dataset[k] = next[k]; else delete root.dataset[k]; }
     if (moved && next.enter && !reduced) {
       clearTimeout(enterTimer); root.dataset.entra = next.enter; enterTimer = setTimeout(() => delete root.dataset.entra, 900);
@@ -427,6 +513,8 @@ export function create(container, opts = {}) {
       if (tok === sceneTok) {
         winT = 0; frames = 0; slowFrames = 0;
         if (renderer && root.dataset.cambio) try { renderer.frame(0.016); } catch { /* se dibuja en el siguiente fotograma */ }
+        // lugar nuevo: el encaje se aplica sin viaje y se dibuja otro cuadro ANTES de destaparlo (no se desliza tras el fundido)
+        if (renderer && (safe || fit3d.s !== 1 || fit3d.ty)) try { if (!root.dataset.cambio) renderer.frame(0); fit3dNow(!!root.dataset.cambio); if (root.dataset.cambio) renderer.frame(0); } catch { /* el encaje llega en el bucle */ }
         if (root.dataset.cambio) requestAnimationFrame(() => { if (tok === sceneTok) reveal(tipo); });
         wake(1500);
       }
@@ -452,6 +540,7 @@ export function create(container, opts = {}) {
     planoN = n | 0; planoSeed = seed | 0;
     const v = planoN === 0 ? 0 : 1 + ((planoSeed + planoN) % 3);
     if (v) root.dataset.plano = String(v); else delete root.dataset.plano;
+    fitLight();                                                       // la variante cambia el tamaño del personaje ligero (--te-k)
     try { renderer?.plano?.(planoN, planoSeed); } catch { /* el plano es un extra */ }
     wake(2200);
   };
@@ -595,17 +684,36 @@ export function create(container, opts = {}) {
   S.resume = function resume() { if (!S.paused && raf) return; S.paused = false; delete root.dataset.paused; if (sound?.ac?.state === 'suspended' && !document.hidden) sound.ac.resume().catch(() => {}); if (renderer) { wake(300); loop(); } };
   S.setMuted = function setMuted(m) { sound?.setMuted(m); readyTheme.then(() => sound?.setMuted(m)); S.muted = !!m; };
   /** Mueve el escenario entero a otro contenedor (el feed usa UN escenario para todos los Taps). */
-  S.attachTo = function attachTo(el) { if (root.parentElement !== el) { S.clearVisual(); S.clearEscena(); el.appendChild(root); } if (renderer) wake(500); };
+  S.attachTo = function attachTo(el) { if (root.parentElement !== el) { S.clearVisual(); S.clearEscena(); el.appendChild(root); applyFit(true); } if (renderer) wake(500); };
   S.sfx = name => sound?.play(name);
   S.destroy = function destroy() {
     S.clearVisual(); S.clearEscena(); clearTimeout(enterTimer); clearTimeout(revealTimer);
     S.destroyed = true; voice?.callar?.(); voice = null; clearTimeout(slowTimer); cancelAnimationFrame(raf); clearInterval(typeTimer); clearTimeout(bubbleTimer); clearTimeout(reactTimer);
-    document.removeEventListener('visibilitychange', onVis); window.removeEventListener('pointerdown', unlock); window.removeEventListener('keydown', unlock);
+    ro?.disconnect(); document.removeEventListener('visibilitychange', onVis); window.removeEventListener('pointerdown', unlock); window.removeEventListener('keydown', unlock);
     try { renderer?.dispose(); } catch { /* ya liberado */ } renderer = null; try { sound?.ac?.close(); } catch { /* sin audio */ } root.remove();
+  };
+  /**
+   * Zona segura (v11): `top` y `bottom` = px del contenedor que tapan la barra y la tarjeta de la pregunta. El personaje se
+   * encaja en lo que queda a la vista (todos los temas, planos y la capa ligera). `null` o ceros = todo el contenedor.
+   */
+  S.setSafeArea = function setSafeArea(a) {
+    const top = Math.max(0, +a?.top || 0), bottom = Math.max(0, +a?.bottom || 0), next = top || bottom ? { top, bottom } : null;
+    if (next?.top === safe?.top && next?.bottom === safe?.bottom) return;
+    safe = next; applyFit(false);
+  };
+  /** Dónde está el personaje ahora (px del contenedor): cabeza, pecho, pies y centro. Para pruebas y herramientas. */
+  S.caja = function caja() {
+    if (S.mode === '3d' && renderer) {
+      const [x, top] = toCss(...renderer.anchor('top')), [, pecho] = toCss(...renderer.anchor('chest')), [, pies] = toCss(...renderer.anchor('feet'));
+      return { modo: '3d', top, pecho, pies, x };
+    }
+    const rr = root.getBoundingClientRect(), b = lightEl.getBoundingClientRect();
+    return { modo: 'light', top: b.top - rr.top, pecho: b.top - rr.top + b.height * 0.45, pies: b.bottom - rr.top, x: (b.left + b.right) / 2 - rr.left };
   };
   S.snapshot = () => (S.mode === '3d' ? glEl.toDataURL('image/png') : null);
   S.stats = () => ({ mode: S.mode, tier: S.tier, size, fpsCap, fps: fpsNow, degraded, canvas: S.canvas || null });
+  Object.defineProperty(root, 'tapsStage', { value: S });         // para pruebas y herramientas: el escenario desde su nodo
   return S;
 }
 
-export default { create, pickTier, TIERS, resolveSound, SYNTH_NAMES };
+export default { create, pickTier, TIERS, resolveSound, SYNTH_NAMES, encajar, BANDA_DEFECTO };
