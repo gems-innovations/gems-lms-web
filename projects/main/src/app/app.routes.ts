@@ -79,6 +79,14 @@ export const routes: Routes = [
     loadComponent: () => import('./taps/taps-feed.component').then(m => m.TapsFeedComponent)
   },
   {
+    // Reto del día (alias corto para los Shorts): el mismo feed, con el reto de hoy primero. El HTML prerenderizado trae una
+    // portada del reto sin opciones (no sabe qué día se abre); al hidratar entra el reto del día de Colombia y se puede jugar.
+    path: 'hoy',
+    title: 'Reto del día de Taps: el mismo quiz para todos, cambia cada día',
+    data: { reto: true, ...seo({ ...TAPS_SEO, description: 'El reto del día de Taps: cinco preguntas y el mismo Tap para todos. Cambia cada día. ¿Me ganas? Gratis y sin registro.' }) },
+    loadComponent: () => import('./taps/taps-feed.component').then(m => m.TapsFeedComponent)
+  },
+  {
     // Enlace para compartir un Tap: ese Tap va primero y su tarjeta lleva su nombre (se prerenderiza uno por Tap).
     path: 't/:id',
     title: (route: ActivatedRouteSnapshot) => sharedTap(route.paramMap.get('id'))

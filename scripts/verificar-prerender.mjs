@@ -56,6 +56,21 @@ for (const id of ['primeros-pasos', 'redstone', 'nether']) {
   const html = existsSync(f) ? readFileSync(f, 'utf8') : '';
   if (!/<title>Tap/.test(html)) { fallos++; console.error(`FALLO t/${id}/index.html: no está prerenderizado con su título (enlaces viejos sin tarjeta)`); }
 }
+// /hoy (reto del día, alias para los Shorts): página propia con su título y su canonical, y una portada del reto SIN nada
+// que jugar. Qué Tap es el de hoy se decide al hidratar con la fecha de Colombia de quien abre: un Tap jugable o un número
+// de reto en el HTML serían los del día del build (y el de gancho cambiaría por el reto delante de la persona).
+{
+  const f = join(raiz, 'hoy', 'index.html');
+  const html = existsSync(f) ? readFileSync(f, 'utf8') : '';
+  const fallo = m => { fallos++; console.error(`FALLO hoy/index.html: ${m}`); };
+  if (!/<title>Reto del día/.test(html)) fallo('no está prerenderizado con el título del reto del día');
+  else {
+    if (!/rel="canonical" href="[^"]*\/hoy"/.test(html)) fallo('falta el canonical a /hoy');
+    if (!html.includes('tap--espera')) fallo('falta la portada del reto (tap--espera)');
+    if (/\sdata-tap="/.test(html) || /data-ans="\d"/.test(html) || /class="tap__opt[ "]/.test(html)) fallo('trae un Tap jugable horneado');
+    if (/Reto del día #\d/.test(html)) fallo('trae el número del reto horneado (sería el del día del build)');
+  }
+}
 
 if (fallos) { console.error(`\n${fallos} problema(s): el prerender no debe depender del API (ver scripts/verificar-prerender.mjs).`); process.exit(1); }
 console.log(`Prerender limpio: ${archivos.length} página(s) HTML revisadas en ${raiz}.`);

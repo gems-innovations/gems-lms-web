@@ -177,6 +177,76 @@ export function storeRun(saved: Record<string, TPartidaGuardada>, run: ITapRun, 
   return { saved: next, raw: JSON.stringify({ v: 2, runs: next }) };
 }
 
+// ───────────── pausa sana (mejora 11, competencia-y-recompensas.md §6.3) ─────────────
+/** Tras 20 Taps seguidos o 30 minutos de juego activo el personaje sugiere un descanso (una sola vez por sesión). */
+export const PAUSA_TAPS = 20;
+export const PAUSA_MS = 30 * 60 * 1000;
+/** 30 minutos o más sin actividad (o un día nuevo) cierran la sesión: el contador, el tiempo y la sugerencia vuelven a cero. */
+export const PAUSA_INACTIVA_MS = 30 * 60 * 1000;
+/** Un hueco entre dos actividades suma como mucho esto (quien deja el celular quieto con la pestaña abierta no «juega»). */
+export const PAUSA_HUECO_MAX_MS = 2 * 60 * 1000;
+/** sessionStorage: la sesión de la pestaña sobrevive a recargar (el contador y el tiempo no vuelven a cero). */
+export const PAUSA_KEY = 'gems-taps-pausa';
+
+export interface IPausaSesion {
+  /** Tiempo activo acumulado (ms): pestaña visible y con interacción. */
+  activoMs: number;
+  /** Última actividad (ms, Date.now()). */
+  ultima: number;
+  /** Taps terminados en esta sesión. */
+  taps: number;
+  /** Ya se sugirió el descanso en esta sesión. */
+  sugerida: boolean;
+  /** Día (AAAA-MM-DD) de la sesión. */
+  dia: string;
+}
+
+export const nuevaPausa = (now: number): IPausaSesion => ({ activoMs: 0, ultima: now, taps: 0, sugerida: false, dia: dayKey(now) });
+
+export function parsePausa(raw: string | null | undefined, now: number): IPausaSesion {
+  try {
+    const d = JSON.parse(raw ?? 'null') as Partial<IPausaSesion> | null;
+    if (!d || typeof d !== 'object') return nuevaPausa(now);
+    const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? v : null);
+    const ultima = num(d.ultima), activoMs = num(d.activoMs), taps = Number.isInteger(d.taps) && d.taps! >= 0 ? d.taps! : null;
+    if (ultima === null || ultima > now || activoMs === null || taps === null || typeof d.dia !== 'string') return nuevaPausa(now);
+    return reanudarPausa({ activoMs, ultima, taps, sugerida: d.sugerida === true, dia: d.dia }, now);
+  } catch { return nuevaPausa(now); }
+}
+
+/**
+ * Vuelve a la pestaña (o se carga la página): el tiempo que estuvo oculta no cuenta. Si pasaron 30 min o más sin actividad,
+ * o cambió el día, la sesión empieza de nuevo.
+ */
+export function reanudarPausa(p: IPausaSesion, now: number): IPausaSesion {
+  if (now - p.ultima >= PAUSA_INACTIVA_MS || dayKey(now) !== p.dia) return nuevaPausa(now);
+  return { ...p, ultima: now };
+}
+
+/**
+ * Una interacción (responder, pasar de Tap, terminar uno) con la pestaña visible: suma el tiempo desde la anterior, con un
+ * tope por hueco. 30 min o más sin actividad, o un día nuevo, reinician la sesión. `tap: true` cuenta un Tap terminado.
+ */
+export function registrarActividad(p: IPausaSesion, now: number, tap = false): IPausaSesion {
+  const base = now - p.ultima >= PAUSA_INACTIVA_MS || dayKey(now) !== p.dia ? nuevaPausa(now) : p;
+  const hueco = Math.max(0, Math.min(now - base.ultima, PAUSA_HUECO_MAX_MS));
+  return { ...base, activoMs: base.activoMs + hueco, ultima: now, taps: base.taps + (tap ? 1 : 0) };
+}
+
+/** ¿Toca sugerir el descanso? Solo en un momento natural (al terminar un Tap o al pasar al siguiente), una vez por sesión. */
+export function shouldSuggestPause(p: IPausaSesion): boolean {
+  return !p.sugerida && (p.taps >= PAUSA_TAPS || p.activoMs >= PAUSA_MS);
+}
+
+/** Resumen amable de lo logrado («Hoy: 20 Taps. Llevas 3 insignias y una racha de 4 días»), sin cifras de tiempo. */
+export function pauseSummary(hoy: number, insignias: number, racha: number): string {
+  const partes: string[] = [];
+  if (insignias > 0) partes.push(insignias === 1 ? '1 insignia' : `${insignias} insignias`);
+  if (racha > 0) partes.push(`una racha de ${dias(racha)}`);
+  const inicio = `Hoy: ${hoy === 1 ? '1 Tap' : `${hoy} Taps`}.`;
+  return partes.length ? `${inicio} Llevas ${partes.join(' y ')}.` : inicio;
+}
+
 // ───────────── medición de la sesión (mejora 13) ─────────────
 /**
  * Tramo de duración: `taps/sesion/<tramo>`. Límite conocido: se envía una sola vez, la primera vez que la pestaña se oculta

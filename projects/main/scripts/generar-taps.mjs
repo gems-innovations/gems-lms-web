@@ -32,7 +32,98 @@ export const RUTAS = {
   retos: join(APP, 'public/retos.data.ts'),
   temas: join(AQUI, '../public/taps-engine/themes'),
   salida: join(APP, 'taps/taps.banco.generated.ts'),
+  /** Calendario del reto del día (versionado): los días ya asignados nunca cambian. */
+  calendario: join(AQUI, 'reto-calendario.json'),
 };
+
+/**
+ * Reto del día (auditoria-permanencia.md, mejora 4): calendario fijo, generado aquí y guardado en git.
+ * - `inicio` es el reto #1 (un lunes); `dias` es cuántos días cubre. El tema de cada día rota por `rotacion` (lunes primero).
+ * - Solo crece hacia el futuro: los días que ya están en reto-calendario.json no se tocan nunca, así que agregar Taps al
+ *   banco no cambia ni los días pasados ni el de hoy. Para que los Taps nuevos entren al reto se sube `dias` (se agregan
+ *   días al final). Un Tap retirado se reemplaza solo en los días que lo tenían.
+ * - Dentro de cada tema se recorren todos sus Taps (sin los de gancho) antes de repetir, intercalando subtemas: nunca dos
+ *   días seguidos del mismo tema con el mismo subtema si se puede evitar.
+ * - Más allá del calendario, la app usa un respaldo determinista (taps.reto.ts) hasta que se extienda.
+ */
+export const RETO = {
+  inicio: '2026-10-19',
+  dias: 366,
+  rotacion: ['minecraft', 'logica', 'cultura', 'minecraft', 'logica', 'cultura', 'minecraft'],
+};
+
+/** Hash estable con avalancha (FNV-1a + mezcla final de murmur3): cambiar una letra reparte el resultado. */
+export function hashAvalancha(texto) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < texto.length; i++) { h ^= texto.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16;
+  return h >>> 0;
+}
+
+/**
+ * Una vuelta por los Taps de un tema, intercalando subtemas: cada subtema reparte sus Taps a lo largo de la vuelta
+ * (posición (k + ½) / tamaño) y nunca se repite el subtema anterior si queda otro.
+ */
+export function vueltaIntercalada(taps, previo = null) {
+  const grupos = new Map();
+  for (const t of taps) grupos.set(t.subtopic ?? 'mixto', [...(grupos.get(t.subtopic ?? 'mixto') ?? []), t]);
+  const colas = [...grupos.entries()]
+    .sort((a, b) => hashAvalancha(a[0]) - hashAvalancha(b[0]))
+    .map(([sub, lista]) => ({ sub, lista: [...lista].sort((a, b) => hashAvalancha(a.id) - hashAvalancha(b.id) || a.id.localeCompare(b.id)), k: 0 }));
+  const out = [];
+  let ultimo = previo;
+  while (out.length < taps.length) {
+    const vivas = colas.filter(c => c.k < c.lista.length)
+      .sort((a, b) => (a.k + 0.5) / a.lista.length - (b.k + 0.5) / b.lista.length);
+    const c = vivas.find(v => v.sub !== ultimo) ?? vivas[0];
+    out.push(c.lista[c.k++]);
+    ultimo = c.sub;
+  }
+  return out;
+}
+
+/**
+ * Calendario del reto: conserva los días de `previo` (si su Tap sigue publicado) y completa hasta `RETO.dias` siguiendo la
+ * rotación de temas y las vueltas intercaladas. Devuelve { inicio, dias: [id…] }.
+ */
+export function calendarioReto(taps, previo = null, reto = RETO) {
+  const publicados = new Set(taps.map(t => t.id));
+  const fijos = previo && previo.inicio === reto.inicio && Array.isArray(previo.dias) ? previo.dias : [];
+  const porTema = new Map();
+  for (const t of taps) if (!t.hook) porTema.set(t.topic, [...(porTema.get(t.topic) ?? []), t]);
+  const estado = new Map();                                       // tema → { cola, ultimoSub }
+  const dias = [];
+  const total = Math.max(reto.dias, fijos.length);
+  for (let d = 0; d < total; d++) {
+    const tema = reto.rotacion[d % 7], pool = porTema.get(tema) ?? [];
+    if (!pool.length) throw new Error(`reto del día: el tema «${tema}» no tiene Taps`);
+    const e = estado.get(tema) ?? { cola: [], ultimoSub: null };
+    if (!e.cola.length) e.cola = vueltaIntercalada(pool, e.ultimoSub);
+    const fijo = fijos[d];
+    let tap;
+    if (fijo && publicados.has(fijo)) {
+      tap = taps.find(t => t.id === fijo);
+      const i = e.cola.findIndex(t => t.id === fijo);
+      if (i >= 0) e.cola.splice(i, 1);
+    } else {
+      tap = e.cola.shift();
+    }
+    e.ultimoSub = tap.subtopic ?? 'mixto';
+    estado.set(tema, e);
+    dias.push(tap.id);
+  }
+  return { inicio: reto.inicio, dias };
+}
+
+export function leerCalendario(ruta = RUTAS.calendario) {
+  if (!existsSync(ruta)) return null;
+  try { return JSON.parse(readFileSync(ruta, 'utf8')); } catch (e) { throw new Error(`reto-calendario.json: JSON inválido (${e.message})`); }
+}
+
+/** Texto del calendario versionado (un id por línea: los cambios se leen bien en git). */
+export function emitirCalendario(cal) {
+  return `{\n  "inicio": ${JSON.stringify(cal.inicio)},\n  "dias": [\n${cal.dias.map(id => `    ${JSON.stringify(id)}`).join(',\n')}\n  ]\n}\n`;
+}
 
 /** Mismos límites que `validar.mjs` del banco (y que los de la interfaz: la pregunta cabe en 5 líneas). */
 export const LIMITES = { pregunta: 120, opcion: 22, explicacion: 90, opciones: 4, preguntasPorTap: 5, linea: 110, lineasExtra: 2 };
@@ -332,7 +423,7 @@ export function generar(bancos, retos, temas) {
 }
 
 /** Texto del archivo TypeScript generado (estable: el mismo banco da siempre los mismos bytes). */
-export function emitir({ taps, retirados }) {
+export function emitir({ taps, retirados, calendario = null }) {
   const lit = v => JSON.stringify(v);
   const lineas = taps.map(t => `  ${lit(t)},`);
   return `// ARCHIVO GENERADO por scripts/generar-taps.mjs a partir de taps/banco/*.json. No lo edites a mano:
@@ -345,13 +436,18 @@ ${lineas.join('\n')}
 
 /** Taps marcados como retirados en el banco: no se publican, pero sus enlaces avisan «este Tap se retiró». */
 export const TAPS_RETIRADOS: string[] = ${lit(retirados)};
-`;
+${calendario ? `
+/** Reto del día: un Tap por día desde ${calendario.inicio} (#1). Fijo y versionado en scripts/reto-calendario.json. */
+export const TAPS_RETO_CALENDARIO: { inicio: string; dias: string[] } = ${lit(calendario)};
+` : ''}`;
 }
 
 /** Lee todo, valida y devuelve el resultado (sin escribir). */
 export function construir(rutas = RUTAS) {
   const resultado = generar(leerBancos(rutas.banco), leerRetos(rutas.retos), leerTemas(rutas.temas));
-  return { ...resultado, texto: resultado.errores.length ? '' : emitir(resultado) };
+  if (resultado.errores.length) return { ...resultado, calendario: null, texto: '', textoCalendario: '' };
+  const calendario = calendarioReto(resultado.taps, rutas.calendario ? leerCalendario(rutas.calendario) : null);
+  return { ...resultado, calendario, texto: emitir({ ...resultado, calendario }), textoCalendario: emitirCalendario(calendario) };
 }
 
 function main() {
@@ -366,12 +462,15 @@ function main() {
   const actual = existsSync(RUTAS.salida) ? readFileSync(RUTAS.salida, 'utf8') : '';
   if (comprobar) {
     // Con autocrlf (Windows) el archivo puede traer CRLF: se compara sin saltos de Windows.
+    const cal = existsSync(RUTAS.calendario) ? readFileSync(RUTAS.calendario, 'utf8').split('\r\n').join('\n') : '';
+    if (cal !== r.textoCalendario) { console.error('taps:generar --check: reto-calendario.json está desactualizado. Corre `npm run taps:generar` y súbelo.'); process.exit(1); }
     if (actual.split('\r\n').join('\n') !== r.texto) { console.error('taps:generar --check: taps.banco.generated.ts está desactualizado. Corre `npm run taps:generar` y súbelo.'); process.exit(1); }
     console.log(`taps:generar --check: al día (${r.taps.length} Taps).`);
     return;
   }
   mkdirSync(dirname(RUTAS.salida), { recursive: true });
   writeFileSync(RUTAS.salida, r.texto, 'utf8');
+  writeFileSync(RUTAS.calendario, r.textoCalendario, 'utf8');
   const preguntas = r.taps.reduce((n, t) => n + t.questions.length, 0);
   console.log(`taps:generar: ${r.taps.length} Taps, ${preguntas} preguntas${r.retirados.length ? `, ${r.retirados.length} retirados` : ''} → ${RUTAS.salida}`);
 }

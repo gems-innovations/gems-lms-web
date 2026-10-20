@@ -124,10 +124,8 @@ test.describe('Taps · permanencia (celular)', () => {
     await expect(page.locator('.bar__topics span')).toBeHidden();
     const after = await page.locator('.bar').boundingBox();
     expect(after!.height).toBe(before!.height);
-    const franja = active(page).locator('.res .franja');
-    await expect(franja).toContainText('Racha 1');
-    await expect(franja).toContainText('Hoy 1/3');
-    await expect(franja).toContainText(/Minecraft|Lógica y trampas|Cultura general/);
+    // El resultado no repite la racha ni «Hoy n/3» (ya están en la barra): así cabe en el celular.
+    await expect(active(page).locator('.res .franja')).toHaveCount(0);
     // Ningún botón de la barra se sale del ancho del celular.
     const right = await page.locator('.bar > *').evaluateAll(els => Math.max(...els.map(e => e.getBoundingClientRect().right)));
     expect(right).toBeLessThanOrEqual(375);
@@ -144,12 +142,12 @@ test.describe('Taps · permanencia (celular)', () => {
     await page.goto('/taps');
     await expect(page.locator('.bar__brand')).toContainText('2/3');
     const first = await completeActiveTap(page);
-    await expect(active(page).locator('.franja')).toContainText('Meta de hoy lista');
+    await expect(active(page).locator('.res__meta')).toContainText('Meta de hoy lista');
     await expect.poll(() => count(page, 'taps/meta-dia/cumplida')).toBe(1);
     await nextTap(page, first);
     await completeActiveTap(page);
-    await expect(active(page).locator('.franja')).not.toHaveClass(/is-meta/);           // la celebración no se repite
-    await expect(active(page).locator('.franja')).toContainText('Hoy 3/3');
+    await expect(active(page).locator('.res__meta')).toHaveCount(0);                     // la celebración no se repite
+    await expect(page.locator('.bar__brand')).toContainText('3/3');
     expect(await count(page, 'taps/meta-dia/cumplida')).toBe(1);
   });
 

@@ -19,6 +19,10 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'privacidad',     renderMode: RenderMode.Prerender },
   // El feed de Taps: la primera pregunta llega ya pintada; el motor 3D solo se carga en el navegador.
   { path: 'taps',           renderMode: RenderMode.Prerender },
+  // Reto del día (/hoy, alias para los Shorts): su título, su tarjeta y una portada del reto SIN opciones («Reto del día»,
+  // preparando). Qué Tap es el de hoy se decide al hidratar (la fecha de Colombia de quien abre, no la del build): nada que
+  // jugar queda horneado. No es una redirección: nginx la sirve como cualquier página (try_files $uri/index.html).
+  { path: 'hoy',            renderMode: RenderMode.Prerender },
   // Un Tap compartido (/t/mc-nether-1): su propia tarjeta (título, descripción con la primera pregunta, imagen) y ese Tap
   // primero. Se prerenderizan los 53 del banco (~81 KB c/u: el feed solo pinta el Tap pedido y el siguiente, no los 53).
   // Un id que no se prerenderizó (un Tap nuevo) recibe la shell y se pinta en el navegador.

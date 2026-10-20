@@ -1,8 +1,11 @@
 import {
-  ChangeDetectionStrategy, Component, ElementRef, afterNextRender, input, output, viewChild,
+  ChangeDetectionStrategy, Component, ElementRef, afterNextRender, computed, input, output, signal, viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IResumenSesion, goalLabel, sessionLabel, streakLabel } from './taps.sesion';
+import { IRetoVista, retoLabel } from './taps.reto';
+import { IAvanceColeccion, insigniasGanadas } from './taps.coleccion';
+import { TapColeccionComponent } from './tap-coleccion.component';
 
 /** Llama dibujada (sin emojis): racha. Apagada (contorno) si hoy aún no cuenta. */
 const LLAMA = 'M12 2.5c.9 3.2 4.6 5.2 4.6 9.9a4.6 4.6 0 0 1-9.2 0c0-2.1 1-3.6 2.1-4.6.3 1.7 1 2.7 2 3.1-.1-3.3-.8-5.8.5-8.4Z';
@@ -96,14 +99,26 @@ export class TapSesionComponent {
  */
 @Component({
   selector: 'gems-tap-sesion-hoja',
-  imports: [RouterLink, TapSesionComponent],
+  imports: [RouterLink, TapSesionComponent, TapColeccionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <dialog class="hoja" #hoja (close)="cerrar.emit()" (click)="$event.target === hoja && hoja.close()" aria-labelledby="taps-hoja-dia">
       <div class="hoja__body">
-        <h2 id="taps-hoja-dia" class="hoja__title">Tu día en Taps</h2>
+        <h2 id="taps-hoja-dia" class="hoja__title" tabindex="-1" #titulo>Tu día en Taps</h2>
         <gems-tap-sesion vista="franja" [resumen]="resumen()" />
         <p class="hoja__nota">{{ nota() }}</p>
+        @if (reto(); as r) {
+          <section class="reto" aria-labelledby="taps-hoja-reto">
+            <p class="reto__over" id="taps-hoja-reto">{{ etiquetaReto(r.numero) }} · {{ r.temaNombre }}</p>
+            @if (r.hecho; as h) {
+              <p class="reto__texto">Tu reto de hoy: {{ h.score }} de {{ h.total }}. Mañana hay otro.</p>
+              <button type="button" class="reto__btn reto__btn--sec" (click)="compartirReto.emit()">Retar a un amigo con el reto</button>
+            } @else {
+              <p class="reto__texto">El mismo Tap para todos. Cambia cada día y cuenta tu primer intento.</p>
+              <button type="button" class="reto__btn" (click)="jugarReto.emit()">Jugar el reto de hoy</button>
+            }
+          </section>
+        }
         @if (temas().length) {
           <ul class="hoja__temas">
             @for (t of temas(); track t.nombre) {
@@ -115,9 +130,28 @@ export class TapSesionComponent {
             }
           </ul>
         }
+        @if (colecciones().length) {
+          <section class="cols" aria-labelledby="taps-hoja-cols">
+            <h3 class="hoja__sub" id="taps-hoja-cols" tabindex="-1" #cols>Colecciones <span>{{ ganadas() }} de {{ colecciones().length }} insignias</span></h3>
+            <p class="hoja__ayuda">Completa un subtema y ganas bronce; con 80 % de aciertos, plata; todo perfecto, oro.</p>
+            @if (visibles().length) {
+              <ul class="cols__lista">
+                @for (a of visibles(); track a.col.id) { <li><gems-tap-coleccion [avance]="a" vista="lista" /></li> }
+              </ul>
+            } @else {
+              <p class="hoja__ayuda">Aún no empiezas ninguna. Al terminar un Tap se llena la primera casilla de su colección.</p>
+            }
+            @if (!todas() && visibles().length < colecciones().length) {
+              <button type="button" class="cols__todas" (click)="todas.set(true)">Ver las {{ colecciones().length }} colecciones</button>
+            }
+          </section>
+        }
         <p class="hoja__solo">Se guarda solo en este navegador.</p>
-        <button type="button" class="hoja__seguir" (click)="hoja.close()">Seguir jugando</button>
-        <a class="hoja__portada" routerLink="/">Ir a la portada de GEMS LMS</a>
+        <!-- «Seguir jugando» siempre a la vista, aunque la lista de colecciones sea larga. -->
+        <div class="hoja__pie">
+          <button type="button" class="hoja__seguir" (click)="hoja.close()">Seguir jugando</button>
+          <a class="hoja__portada" routerLink="/">Ir a la portada de GEMS LMS</a>
+        </div>
       </div>
     </dialog>
   `,
@@ -126,7 +160,22 @@ export class TapSesionComponent {
     .hoja { width: 100%; max-width: 480px; margin: auto auto 0; padding: 0; border: 0; border-radius: 22px 22px 0 0; color: #fff; background: #161b24;
       &::backdrop { background: rgba(0, 0, 0, .55); }
       &[open] { animation: hoja-in .26s cubic-bezier(.2, 1.1, .4, 1); } }
-    .hoja__body { padding: 16px 16px var(--safe-b); }
+    .hoja { max-height: 92dvh; overflow-y: auto; overscroll-behavior: contain; }
+    @media (min-width: 768px) { .hoja { margin: auto; border-radius: 22px; max-height: 86dvh; } }
+    .hoja__body { padding: 16px 16px 0; }
+    .hoja__pie { position: sticky; bottom: 0; padding: 10px 0 var(--safe-b); background: #161b24; box-shadow: 0 -12px 12px -4px #161b24; }
+    .hoja__sub { display: flex; justify-content: space-between; align-items: baseline; margin: 4px 0 2px; font-size: 16px;
+      span { font-size: 13px; font-weight: 700; color: #c8d1de; } }
+    .hoja__ayuda { margin: 0 0 6px; font-size: 13px; line-height: 1.35; color: #aab4c4; }
+    .reto { margin: 0 0 14px; padding: 12px; border-radius: 16px; background: rgba(77, 225, 255, .1); border: 1px solid rgba(77, 225, 255, .3); }
+    .reto__over { margin: 0 0 4px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #9fe9ff; }
+    .reto__texto { margin: 0 0 10px; font-size: 15px; line-height: 1.4; }
+    .reto__btn { width: 100%; min-height: 48px; border: 0; border-radius: 14px; font: inherit; font-weight: 800; color: #0d1117; background: #4de1ff; cursor: pointer; }
+    .reto__btn--sec { color: #fff; background: transparent; border: 1.5px solid rgba(255, 255, 255, .3); }
+    .cols { margin: 0 0 12px; }
+    .hoja__sub, .hoja__title { outline: none; scroll-margin-top: 12px; }
+    .cols__todas { width: 100%; min-height: 44px; margin-top: 6px; border-radius: 12px; font: inherit; font-weight: 700; color: #fff; background: transparent; border: 1.5px solid rgba(255, 255, 255, .22); cursor: pointer; }
+    .cols__lista { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
     .hoja__title { margin: 0 0 12px; font-size: 18px; }
     .hoja__nota { margin: 0 0 12px; font-size: 15px; line-height: 1.4; color: #c8d1de; }
     .hoja__temas { display: grid; gap: 10px; margin: 0 0 10px; padding: 0; list-style: none;
@@ -148,12 +197,37 @@ export class TapSesionComponent {
 export class TapSesionHojaComponent {
   readonly resumen = input.required<IResumenSesion>();
   readonly temas = input<ITemaAvance[]>([]);
+  /** Reto del día (null si aún no se sabe la fecha). */
+  readonly reto = input<IRetoVista | null>(null);
+  readonly colecciones = input<IAvanceColeccion[]>([]);
+  /** Abrir directamente en las colecciones (desde el resultado o el fin del feed). */
+  readonly foco = input<'colecciones' | null>(null);
   readonly cerrar = output<void>();
+  readonly jugarReto = output<void>();
+  readonly compartirReto = output<void>();
   private readonly hoja = viewChild.required<ElementRef<HTMLDialogElement>>('hoja');
+  private readonly cols = viewChild<ElementRef<HTMLElement>>('cols');
+  private readonly titulo = viewChild<ElementRef<HTMLElement>>('titulo');
 
   constructor() {
-    afterNextRender(() => { const d = this.hoja().nativeElement; if (!d.open) d.showModal?.(); });
+    // El foco va al título de la hoja o, si se abrió para ver las colecciones, a su encabezado (y se desplaza hasta ahí).
+    afterNextRender(() => {
+      const d = this.hoja().nativeElement;
+      if (!d.open) d.showModal?.();
+      const destino = this.foco() === 'colecciones' ? this.cols()?.nativeElement : this.titulo()?.nativeElement;
+      destino?.focus({ preventScroll: true });
+      destino?.scrollIntoView({ block: 'start' });
+    });
   }
+
+  protected etiquetaReto(n: number): string { return retoLabel(n); }
+  protected ganadas(): number { return insigniasGanadas(this.colecciones()); }
+  /** «Ver las 16»: por defecto solo se listan las colecciones empezadas (la hoja no se vuelve una lista larga). */
+  protected readonly todas = signal(false);
+  protected readonly visibles = computed(() => {
+    const cols = this.colecciones(), empezadas = cols.filter(a => a.hechos > 0);
+    return this.todas() ? [...empezadas, ...cols.filter(a => a.hechos === 0)] : empezadas;
+  });
 
   /** Nota sin presión: la meta es una invitación y 1 Tap ya cuenta para la racha. */
   protected nota(): string {
