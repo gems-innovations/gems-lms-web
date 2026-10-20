@@ -2,7 +2,9 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { LIMITES, RUTAS, asignarEscena, construir, emitir, generar, leerBancos, leerRetos, leerTemas, validarPregunta } from './generar-taps.mjs';
+import {
+  LIMITES, RETO, RUTAS, asignarEscena, calendarioReto, construir, emitir, generar, hashAvalancha, leerBancos, leerRetos, leerTemas, validarPregunta,
+} from './generar-taps.mjs';
 
 const clonar = o => structuredClone(o);
 const retos = leerRetos();
@@ -258,4 +260,52 @@ test('el banco real da títulos por subtema y 3 variantes de línea en cada tít
   const mc = taps.filter(t => t.topic === 'minecraft');
   assert.ok(new Set(mc.map(t => t.results.find(x => x.min === 4).title)).size >= 6);
   assert.ok(taps.every(t => t.results.every(x => x.lines?.length === 3)));
+});
+
+// ───────────── calendario del reto del día ─────────────
+test('el calendario del reto en git coincide con el generado (si falla: npm run taps:generar)', () => {
+  const r = construir();
+  assert.equal(readFileSync(RUTAS.calendario, 'utf8').split('\r\n').join('\n'), r.textoCalendario);
+  assert.equal(r.calendario.dias.length, RETO.dias);
+  assert.equal(r.calendario.inicio, RETO.inicio);
+});
+
+test('calendario del reto: rota temas, sin Taps de gancho, todos los del tema antes de repetir y subtemas intercalados', () => {
+  const { taps, calendario } = construir();
+  const porId = new Map(taps.map(t => [t.id, t]));
+  const ultimo = new Map(), vistos = new Map();
+  calendario.dias.forEach((id, d) => {
+    const t = porId.get(id);
+    assert.ok(t, `día ${d}: ${id} no está en el banco`);
+    assert.ok(!t.hook, `día ${d}: ${id} es de gancho`);
+    assert.equal(t.topic, RETO.rotacion[d % 7]);
+    assert.notEqual(ultimo.get(t.topic), t.subtopic ?? 'mixto', `día ${d}: mismo subtema que el anterior de ${t.topic}`);
+    ultimo.set(t.topic, t.subtopic ?? 'mixto');
+    vistos.set(t.topic, [...(vistos.get(t.topic) ?? []), id]);
+  });
+  for (const [tema, lista] of vistos) {
+    const n = taps.filter(t => t.topic === tema && !t.hook).length;
+    assert.equal(new Set(lista.slice(0, n)).size, n, tema);
+  }
+});
+
+test('calendario del reto: solo crece hacia el futuro (agregar Taps no cambia los días ya fijados)', () => {
+  const { taps } = construir();
+  const previo = calendarioReto(taps, null, { ...RETO, dias: 60 });
+  const nuevo = { ...taps.find(t => t.topic === 'minecraft' && !t.hook), id: 'mc-nuevo-de-prueba', subtopic: 'redstone' };
+  const despues = calendarioReto([...taps, nuevo], previo, { ...RETO, dias: 120 });
+  assert.deepEqual(despues.dias.slice(0, 60), previo.dias);
+  assert.equal(despues.dias.length, 120);
+  assert.ok(despues.dias.slice(60).includes('mc-nuevo-de-prueba'), 'el Tap nuevo entra en los días agregados');
+  // Un Tap retirado se reemplaza solo en los días que lo tenían.
+  const retirado = previo.dias[3];
+  const sin = calendarioReto(taps.filter(t => t.id !== retirado), previo, { ...RETO, dias: 60 });
+  previo.dias.forEach((id, d) => { if (id !== retirado) assert.equal(sin.dias[d], id); else assert.notEqual(sin.dias[d], retirado); });
+});
+
+test('hashAvalancha: estable y reparte (un carácter distinto cambia muchos bits)', () => {
+  assert.equal(hashAvalancha('mc-mobs'), hashAvalancha('mc-mobs'));
+  const a = hashAvalancha('mc-noche-1'), b = hashAvalancha('mc-noche-2');
+  const bits = (a ^ b).toString(2).split('').filter(x => x === '1').length;
+  assert.ok(bits >= 8, `solo cambiaron ${bits} bits`);
 });

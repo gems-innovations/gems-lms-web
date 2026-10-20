@@ -34,6 +34,15 @@
   &__streak { position: absolute; left: 50%; top: 58px; margin: 0; padding: 4px 12px; border-radius: 999px; transform: translateX(-50%); font-size: 1rem; font-weight: 800; font-variant-numeric: tabular-nums;
     color: #1b1300; background: #F5B83D; animation: pill-in .3s var(--curva-rebote) .3s backwards; }
 
+  // Chip «Reto del día #N»: arriba a la izquierda del mundo, bajo el aviso «Toca para sonido» (no tapa al personaje ni el
+  // riel); se esconde al responder.
+  &__reto { position: absolute; left: 12px; top: 48px; display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 5px 11px; border-radius: 999px;
+    font-size: 13px; font-weight: 800; color: #0d1117; background: #4de1ff; box-shadow: 0 3px 0 rgba(0, 0, 0, .25); pointer-events: none;
+    animation: pill-in-left .3s var(--curva-rebote) backwards; }
+  // /hoy antes de hidratar: las cuatro opciones como bloques quietos (mismo alto que las reales, nada que tocar).
+  &--espera { background: #1b2230; }
+  &__espera { display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    i { display: block; min-height: 92px; border-radius: 16px; background: rgba(255, 255, 255, .08); } }
   &__toast { position: absolute; left: 12px; right: 72px; bottom: 12px; margin: 0; padding: 8px 12px; border-radius: 12px; font-size: 1rem; overflow-wrap: anywhere; background: rgba(8, 10, 14, .8); }
   &__undo { margin-left: 8px; padding: 2px 10px; min-height: 32px; border: 1px solid rgba(255, 255, 255, .4); border-radius: 999px; background: none; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
 
@@ -51,9 +60,13 @@
   &__why { margin: 0; font-size: 1rem; line-height: 1.35; color: #e8edf4; }
 
   // El siguiente Tap «asoma» 24 px abajo y rebota una vez (enseña a deslizar sin tutorial).
-  &__peek { position: absolute; z-index: 4; left: 8px; right: 8px; bottom: 0; height: 24px; padding: 0; border: 0; border-radius: 14px 14px 0 0; cursor: pointer;
-    background: var(--peek, #333); color: #fff; font: inherit; font-size: 11px; font-weight: 700; box-shadow: 0 -4px 0 rgba(0, 0, 0, .35);
-    animation: peek-bounce .7s ease-in-out 2s 1; }
+  // Con su primera pregunta (sin la respuesta): el «uno más» se ve sin tapar el resultado.
+  &__peek { position: absolute; z-index: 4; left: 8px; right: 8px; bottom: 0; display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border: 0;
+    border-radius: 14px 14px 0 0; cursor: pointer; text-align: left; color: #fff; font: inherit; font-size: 13px; font-weight: 700;
+    background: #10141b; border-top: 3px solid var(--peek, #4de1ff); box-shadow: 0 -4px 0 rgba(0, 0, 0, .35);
+    &.is-teach { animation: peek-bounce .7s ease-in-out 2s 1; } }
+  &__peek-over { flex: none; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #9fe9ff; }
+  &__peek-q { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 
 
@@ -65,6 +78,7 @@
 a, button { &:focus-visible { outline: 3px solid #fff; outline-offset: 2px; } }
 
 @keyframes pill-in { from { opacity: 0; transform: translateX(-50%) scale(.8); } }
+@keyframes pill-in-left { from { opacity: 0; transform: scale(.8); } }
 @keyframes peek-bounce { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-14px); } }
 
 // Celulares bajitos (320×568, zoom): el mundo cede espacio y el panel, si aún no cabe, hace scroll (reveal() deja a la vista «Seguir»).
@@ -76,9 +90,9 @@ a, button { &:focus-visible { outline: 3px solid #fff; outline-offset: 2px; } }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tap__pill, .tap__pre, .tap__streak, .tap__bubble, .tap__card, .tap__peek { animation: none; }
+  .tap__pill, .tap__pre, .tap__streak, .tap__bubble, .tap__card, .tap__peek, .tap__reto { animation: none; }
 }
-.tap:has(.tap__peek) .tap__panel { padding-bottom: calc(var(--safe-b) + 24px); }
+.tap:has(.tap__peek) .tap__panel { padding-bottom: calc(var(--safe-b) + 36px); }
 // Aviso si el código del ranking no cargó (@error del @defer): abajo, sobre el feed, y se cierra.
 .ranking-fallo { position: fixed; z-index: 20; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; align-items: center; gap: 12px;
   width: min(440px, calc(100% - 32px)); padding: 12px 12px 12px 16px; border-radius: 16px; color: #fff; background: #161b24; border: 1px solid rgba(255, 255, 255, .16); box-shadow: 0 12px 32px rgba(0, 0, 0, .5);

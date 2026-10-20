@@ -74,7 +74,9 @@ import { ITapTopic } from './taps.types';
               <li>
                 <button type="button" class="glass sheet__item" [class.is-on]="topic() === t.topic.id" [disabled]="t.soon" (click)="pick(t.topic.id)">
                   <span class="sheet__dot" [style.--c]="t.topic.color"></span>
-                  <span class="sheet__name">{{ t.topic.name }}<small>{{ t.topic.blurb }}</small></span>
+                  <span class="sheet__name">{{ t.topic.name }}<small>{{ t.topic.blurb }}</small>
+                    @if (!t.soon && insignias()[t.topic.id]; as i) { <small class="sheet__ins">Colecciones: {{ i.ganadas }} de {{ i.total }} insignias</small> }
+                  </span>
                   <span class="sheet__count">{{ t.soon ? 'Pronto' : t.count + (t.count === 1 ? ' Tap' : ' Taps') }}</span>
                 </button>
               </li>
@@ -127,6 +129,7 @@ import { ITapTopic } from './taps.types';
     .sheet__dot { flex: none; width: 14px; height: 14px; border-radius: 4px; background: var(--c); }
     .sheet__name { flex: 1; font-size: 16px; font-weight: 800; small { display: block; font-size: 12px; font-weight: 700; color: #aab4c4; } }
     .sheet__count { font-size: 12px; font-weight: 700; color: #c8d1de; }
+    .sheet__name small.sheet__ins { margin-top: 2px; color: #f2c94c; }
     .sheet__close { width: 100%; min-height: 48px; margin-top: 12px; border-radius: 14px; font: inherit; font-weight: 700; cursor: pointer; }
     @container taps (min-width: 768px) {
       .bar { position: absolute; left: 0; right: 0; width: auto; max-width: none; transform: none; padding-top: 10px; }
@@ -153,6 +156,8 @@ export class TapsBarComponent {
   readonly topics = input<{ topic: ITapTopic; count: number; soon: boolean }[]>([]);
   /** Racha y meta del día (null: aún no hay progreso y se ve el nombre de la marca). */
   readonly resumen = input<IResumenSesion | null>(null);
+  /** Insignias de colección por tema (vacío en el servidor): «Colecciones: 1 de 6 insignias» en la hoja de temas. */
+  readonly insignias = input<Record<string, { ganadas: number; total: number }>>({});
 
   readonly toggleSound = output<void>();
   readonly toggleVoice = output<void>();

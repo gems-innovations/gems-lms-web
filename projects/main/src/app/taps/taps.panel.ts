@@ -59,6 +59,18 @@ export function almostThere(tap: ITap, run: ITapRun): string | null {
   return `${need === 1 ? '1 acierto más' : need + ' aciertos más'} y eres «${target.title}»`;
 }
 
+/**
+ * «Casi» honesto del resultado (mejora 6): con 60 % o más de aciertos y a 1 solo acierto del siguiente título, la revancha
+ * pasa al frente («Revancha: te falta 1 para "Leyenda del servidor"»). Con 5/5, con 0-2 de 5 o si faltan 2 o más, null.
+ */
+export function rematchGoal(tap: ITap, score: number): { title: string } | null {
+  const total = tap.questions.length;
+  if (score >= total || score * 5 < total * 3) return null;
+  const target = [...tap.results].sort((a, b) => a.min - b.min).find(r => r.min > score);
+  if (!target || target.min - score !== 1 || target.min > total) return null;
+  return { title: target.title };
+}
+
 const streakCard = (interest: IInterest, now: number): IPanelCard => {
   const { count, today } = streakDays(interest.days, now);
   const big = count === 0 ? '0 días' : count === 1 ? '1 día' : `${count} días`;

@@ -14,6 +14,11 @@ export type TEventPath =
   | 'visita/nueva'
   | `regreso/${TReturnBucket}/${string}`
   | `taps/${string}`
+  // Permanencia (auditoria-permanencia.md, mejoras 4, 5, 9 y 11):
+  // `taps/reto-dia/<ver|completar|repetir|compartir|llegada-hoy|abrir/<dia|fin|menu>>`,
+  // `taps/coleccion/<tema-subtema>/<bronce|plata|oro>`, `taps/coleccion/abrir/<resultado|fin|menu>`,
+  // `taps/fin-feed/<reto|colecciones|temas|cursos>`, `taps/revancha/<id>` y `taps/pausa/<sugerida|aceptada|seguir>`.
+  // Desde la portada salen como `portada/tap/...` (p. ej. `portada/tap/coleccion/minecraft-mobs/bronce`).
   // Portada: qué puerta abre la gente (`portada/opcion/<taps|temas/<tema>|retos|bloques|cursos|instituciones|entrar>`).
   | `portada/${string}`
   | `registro/${string}`

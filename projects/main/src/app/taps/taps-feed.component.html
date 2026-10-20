@@ -5,13 +5,18 @@
 @defer (when wide()) {
 <gems-taps-menu [topic]="topic()" [temas]="menuTopics()" [inverted]="menuInverted()" [shortcuts]="shortcuts()" [alias]="ranking.alias()"
                 (openRanking)="openRanking()" (forYou)="selectTopic(null)" (openTopics)="openTopics()" (pickTopic)="toggleTopicFilter($event)"
-                (toggleMenu)="toggleMenu()" (toggleShortcuts)="toggleShortcuts()" />
+                (toggleMenu)="toggleMenu()" (toggleShortcuts)="toggleShortcuts()" [reto]="retoVista()" (openReto)="goToReto('menu')" (openCols)="openDay('colecciones', 'menu')" />
 }
 <div class="centro">
 <div class="escenario">
 <!-- «Tu día en Taps»: la abre la marca de la barra en el celular (racha, meta y avance; la portada, a un toque). -->
-@if (hojaDia()) { <gems-tap-sesion-hoja [resumen]="resumen()" [temas]="avancesLista()" (cerrar)="closeDay()" /> }
-<gems-taps-bar [sound]="sound()" [voice]="voice()" [topic]="topic()" [topicName]="topicName()" [topics]="topics" [desktop]="wide()"
+@if (hojaDia()) {
+  <gems-tap-sesion-hoja [resumen]="resumen()" [temas]="avancesLista()" [reto]="retoVista()" [colecciones]="avancesCol()" [foco]="hojaFoco()"
+                        (cerrar)="closeDay()" (jugarReto)="goToReto('dia')" (compartirReto)="shareReto()" />
+}
+<!-- Pausa sana: tras 20 Taps o 30 min, una sola vez por sesión y nunca en la portada. «Seguir jugando» cierra en un toque. -->
+@if (pausaAbierta()) { <gems-tap-pausa [resumen]="pausaTexto()" (descanso)="onPausaDescanso()" (cerrar)="closePausa($event)" /> }
+<gems-taps-bar [sound]="sound()" [voice]="voice()" [topic]="topic()" [topicName]="topicName()" [topics]="topics" [desktop]="wide()" [insignias]="insigniasTema()"
                (toggleSound)="toggleSound()" (toggleVoice)="toggleVoice()" (topicChange)="selectTopic($event)" (sheetChange)="onSheet($event)"
                (openRanking)="openRanking()" [resumen]="barResumen()" (brand)="openDay()" />
 
@@ -25,6 +30,27 @@
 </main>
 }
 <ng-template #lista>
+  <!-- /hoy antes de hidratar (y en su HTML prerenderizado): portada del reto sin opciones. Qué Tap es el de hoy depende de la
+       fecha de Colombia de quien abre, así que no se hornea ninguno; al hidratar entra el reto y recién ahí se juega y se mide. -->
+  @if (retoRoute && !retoListo()) {
+    <article class="tap tap--espera" aria-busy="true" aria-label="Reto del día: cargando">
+      <div class="tap__mark" aria-hidden="true"><img src="/logo-64.png" width="44" height="44" alt="" decoding="async"><span>GEMS LMS · Taps</span></div>
+      <div class="tap__steps" aria-hidden="true">@for (k of [0, 1, 2, 3, 4]; track k) { <i></i> }</div>
+      <div class="tap__world">
+        <p class="tap__reto">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 5h14v15H5zM5 10h14M9 3v4M15 3v4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Reto del día
+        </p>
+      </div>
+      <div class="tap__panel">
+        <div class="tap__bubble">
+          <p class="tap__over">Reto del día · Cambia cada día</p>
+          <h2 class="tap__q">Preparando el reto de hoy…</h2>
+        </div>
+        <div class="tap__espera" aria-hidden="true">@for (k of [0, 1, 2, 3]; track k) { <i></i> }</div>
+      </div>
+    </article>
+  } @else {
   @for (tap of taps(); track tap.id) {
     @let run = runs()[tap.id];
     @let feedback = !run.finished && run.chosen !== null;
@@ -63,6 +89,13 @@
           <button type="button" class="tap__visual" [attr.data-lado]="visualSide(tap)" aria-label="Explicación con un objeto: pulsa para verla otra vez" (click)="replayVisual($event)">
             <span class="tap__visual-tip" aria-hidden="true">Tócalo o arrástralo</span>
           </button>
+        }
+        <!-- Reto del día: solo en el navegador (el HTML prerenderizado no sabe qué día se abre) y nunca en la portada. -->
+        @if (retoId() === tap.id && !feedback && !run.finished) {
+          <p class="tap__reto">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 5h14v15H5zM5 10h14M9 3v4M15 3v4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Reto del día #{{ reto()!.numero }}
+          </p>
         }
         <p class="tap__pre" aria-hidden="true"><span class="tap__pre-ok">¡Exacto!</span><span class="tap__pre-bad">Casi...</span></p>
 
@@ -124,18 +157,23 @@
         } @else {
           <gems-tap-result [tap]="tap" [run]="run" [topicName]="topicLabel(tap)" [hasNext]="!!nextTap(tap)"
                            [notice]="notice()?.tapId === tap.id ? notice() : null" [xp]="ranking.partida(tap.id)"
-                           (ranking)="openRanking()" (challenge)="challenge(tap)" (again)="restart(tap)" (more)="moreOf(tap)" (next)="goNext(tap)"
-                           [sesion]="live() ? resumen() : null" [tema]="temaDe(tap)" [celebrar]="metaTapId() === tap.id" />
+                           (ranking)="openRanking()" (challenge)="challenge(tap)" (again)="restart(tap)" (revancha)="revancha(tap)" (more)="moreOf(tap)" (next)="goNext(tap)"
+                           [celebrar]="metaTapId() === tap.id"
+                           [reto]="retoResultado(tap)" [coleccion]="coleccionDeTap(tap)" [coleccionNueva]="colNueva()?.tapId === tap.id ? colNueva()!.grado : null"
+                           [fin]="retoVista()"
+                           (colecciones)="verColecciones(tap)" (irReto)="finReto()" (temas)="finTemas()" (cursos)="finCursos()" />
         }
       </div>
 
-      @if (run.finished && teach() && nextTap(tap); as up) {
-        <button type="button" class="tap__peek" [style.--peek]="up.backdrop[0]" (click)="goNext(tap)" [attr.aria-label]="'Siguiente Tap: ' + up.title">
-          <span>{{ up.title }}</span>
+      <!-- El siguiente Tap asoma abajo con su primera pregunta (sin la respuesta): un toque lo trae. Rebota solo las 2 primeras veces. -->
+      @if (run.finished && siguienteDe(tap); as up) {
+        <button type="button" class="tap__peek" [class.is-teach]="teach()" [style.--peek]="up.color" (click)="goNext(tap)">
+          <span class="tap__peek-over">Siguiente</span><span class="tap__peek-q">{{ up.q }}</span>
         </button>
       }
       }
     </article>
+  }
   }
 </ng-template>
 </div>
