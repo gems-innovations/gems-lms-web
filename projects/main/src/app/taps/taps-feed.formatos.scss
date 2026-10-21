@@ -1,0 +1,38 @@
+// Formatos de pregunta nuevos (taps.types.ts → TTapQuestionTipo). Los dos se juegan con 2 opciones grandes, una contra otra,
+// que también se eligen deslizando el bloque hacia su lado (izquierda = primera, derecha = segunda) o con ← →.
+// `duo`: cuenta regresiva corta (barra ámbar que se vacía) y «tensión»: las opciones laten y una raya parte la pantalla.
+// `vf`: verdadero o falso; al responder, el panel entero se tiñe un instante (fuerte pero sobrio, sin confeti).
+.tap__opts[data-tipo='duo'], .tap__opts[data-tipo='vf'] {
+  position: relative; grid-template-columns: 1fr 1fr; gap: 10px; touch-action: pan-y; cursor: grab;
+  // raya central que parte la pantalla en dos
+  &::before { content: ''; position: absolute; left: 50%; top: 8%; bottom: 8%; width: 1px; background: linear-gradient(transparent, var(--doc-linea) 20%, var(--doc-linea) 80%, transparent); pointer-events: none; }
+  .tap__opt { justify-content: center; align-items: center; gap: 8px; min-height: clamp(104px, 18dvh, 150px); padding: 12px 10px; text-align: center; font-size: 1.25rem; line-height: 1.15;
+    will-change: transform; transition: transform var(--dur-rapida) var(--curva-salida), opacity var(--dur-rapida), background var(--dur-rapida), border-color var(--dur-rapida); }
+  .tap__letra { display: block; font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; font-family: var(--tap-font); font-weight: 600; color: rgba(255, 255, 255, .72); }
+  .tap__shape { display: none; }
+  // deslizar: el bloque sigue al dedo (--dx en px) y el lado hacia el que va se enciende antes de soltar
+  &.is-swiping .tap__opt { transition: none; transform: translateX(calc(var(--dx, 0) * 1px * .35)); }
+  &[data-lado='izq'] .tap__opt[data-k='0'], &[data-lado='der'] .tap__opt[data-k='1'] { --borde: var(--doc-ambar); filter: brightness(1.15); }
+  &[data-lado='izq'] .tap__opt[data-k='1'], &[data-lado='der'] .tap__opt[data-k='0'] { opacity: .55; }
+}
+.tap__opts[data-tipo='vf'] .tap__opt { font-family: var(--tap-serif); font-weight: 400; font-size: 1.6rem; }
+// duo: las dos opciones laten (a destiempo) mientras corre la cuenta; la cuenta regresiva es la misma barra de «Seguir», en ámbar
+.tap__opts[data-tipo='duo']:not(.is-answered) .tap__opt { animation: duo-late 1.1s ease-in-out infinite; }
+.tap__opts[data-tipo='duo']:not(.is-answered) .tap__opt[data-k='1'] { animation-delay: .55s; }
+.tap__wait--duo { height: 4px; margin: 0 0 10px; i { background: var(--doc-ambar); } }
+.tap__cuenta { display: inline-block; margin-left: 8px; font-variant-numeric: tabular-nums; color: var(--doc-ambar); }
+// vf: destello del panel entero al responder (salvia si acierta, terracota si falla); duo también lo recibe, más corto
+.tap--feedback[data-tipo='vf'] .tap__panel, .tap--feedback[data-tipo='duo'] .tap__panel { animation: vf-destello .6s var(--curva-salida) both; }
+.tap--feedback[data-tipo='duo'] .tap__panel { animation-duration: .4s; }
+.tap--feedback[data-acierto='no'] .tap__panel { --destello: rgba(217, 138, 122, .55); }
+.tap--feedback[data-acierto='si'] .tap__panel { --destello: rgba(143, 199, 154, .55); }
+.tap--feedback[data-tipo='vf'] .tap__opt.is-ok, .tap--feedback[data-tipo='duo'] .tap__opt.is-ok { transform: scale(1.03); }
+// el pulso es de luz (borde y sombra), no de tamaño: la caja no cambia y un clic automatizado o asistido no espera a que pare
+@keyframes duo-late { 0%, 100% { box-shadow: var(--doc-sombra); } 50% { box-shadow: 0 6px 22px rgba(0, 0, 0, .34), 0 0 0 2px rgba(232, 196, 122, .4); } }
+@keyframes vf-destello { 0% { box-shadow: inset 0 0 0 3px var(--destello, transparent), inset 0 0 60px var(--destello, transparent); } 100% { box-shadow: inset 0 0 0 0 transparent, inset 0 0 0 transparent; } }
+// En escritorio, las teclas: 1 y 2 abajo a la derecha de cada bloque (como en las de 4) y además ← →
+@media (prefers-reduced-motion: reduce) {
+  .tap__opts[data-tipo='duo']:not(.is-answered) .tap__opt { animation: none; }
+  .tap--feedback[data-tipo='vf'] .tap__panel, .tap--feedback[data-tipo='duo'] .tap__panel { animation: none; box-shadow: inset 0 0 0 3px var(--destello, transparent); }
+  .tap__opts.is-swiping .tap__opt { transform: none; }
+}

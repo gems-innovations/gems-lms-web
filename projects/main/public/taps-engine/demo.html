@@ -18,6 +18,15 @@
   #why { margin: 10px 0 0; font-size: .9rem; color: var(--soft); } #next { margin-top: 10px; min-height: 48px; width: 100%; border-radius: 10px; border: 0; background: var(--accent); color: #111; font-weight: 800; }
   #hud { position: absolute; top: 8px; left: 12px; right: 12px; display: flex; justify-content: space-between; z-index: 3; font-size: .85rem; text-shadow: 0 1px 2px #000; }
   #info { position: fixed; top: 4px; left: 4px; font: 11px monospace; color: #9f9; z-index: 9; }
+  /* estilo documental (por defecto, como el feed): viñeta leve sobre el escenario, tarjeta sobria, pregunta en serif editorial, un solo acento ámbar; ?estilo=clasico deja lo de antes */
+  html:not([data-estilo=clasico]) #stage::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse 120% 90% at 50% 42%, transparent 55%, rgba(6, 8, 12, .5) 100%), linear-gradient(rgba(10, 14, 22, .22), transparent 22%, transparent 70%, rgba(10, 14, 22, .3)); }
+  html:not([data-estilo=clasico]) #card { background: linear-gradient(transparent, rgba(10, 11, 14, .96) 24%); }
+  html:not([data-estilo=clasico]) #q { font: 400 1.3rem/1.25 'Instrument Serif', Georgia, serif; text-shadow: none; color: #f2efe8; }
+  html:not([data-estilo=clasico]) #opts button { border-radius: 4px; border-width: 1px; border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.05); font: 500 .98rem system-ui, sans-serif; }
+  html:not([data-estilo=clasico]) #opts button.ok { border-color: #8fc79a; background: rgba(143,199,154,.12); }
+  html:not([data-estilo=clasico]) #opts button.bad { border-color: #d98a7a; background: rgba(217,138,122,.12); }
+  html:not([data-estilo=clasico]) #next { border-radius: 4px; background: #e8c47a; font-weight: 700; }
+  html:not([data-estilo=clasico]) #hud { font: 600 .72rem system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
 </style>
 </head>
 <body>
@@ -29,9 +38,10 @@
 <div id="info" hidden></div>
 <script type="module">
 // Demo mínima: el motor (taps-engine.js) no sabe de quizzes; aquí un quiz de unas 50 líneas lo maneja.
-// Parámetros: ?tap=<archivo de taps/> · mode=light|3d · degrade=0 · reduced=1 · world= host= item= (probar otra escena) · debug
+// Parámetros: ?tap=<archivo de taps/> · mode=light|3d · degrade=0 · reduced=1 · estilo=clasico · world= host= item= (probar otra escena) · debug
 import { create } from './taps-engine.js';
 const params = new URLSearchParams(location.search);
+if (params.get('estilo') === 'clasico') document.documentElement.dataset.estilo = 'clasico';   // el motor lee el mismo parámetro
 const $ = id => document.getElementById(id);
 const t0 = performance.now();
 const tap = await (await fetch(`taps/${params.get('tap') || 'redstone'}.json`)).json();

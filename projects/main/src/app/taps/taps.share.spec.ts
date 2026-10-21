@@ -1,4 +1,4 @@
-import { drawShareCard, shareGrid, shareText, shareUrl, SHARE_BRAND_URL } from './taps.share';
+import { cineColor, drawShareCard, shareGrid, shareText, shareUrl, SHARE_BRAND_URL } from './taps.share';
 import { ITap, ITapRun } from './taps.types';
 
 const tap: ITap = {
@@ -37,5 +37,15 @@ describe('compartir un Tap', () => {
     expect(canvas.width).toBe(1080);
     expect(canvas.height).toBe(1920);
     expect(SHARE_BRAND_URL).toBe('lms.gemsinnovations.com/taps');
+  });
+});
+
+describe('gradación de cine de la tarjeta (cineColor)', () => {
+  it('desatura un 30 % hacia su gris, baja un poco la luz y calienta: el rojo puro queda terroso', () => {
+    expect(cineColor('#ff0000')).toBe('#c1120a');
+  });
+  it('un gris sigue siendo casi gris (solo el leve tono cálido) y lo que no es hex vuelve igual', () => {
+    expect(cineColor('#808080')).toBe('#817d75');
+    expect(cineColor('rgba(0,0,0,.5)')).toBe('rgba(0,0,0,.5)');
   });
 });
