@@ -32,10 +32,10 @@ function bancoMinimo(prefijo, subtema = 'mixto') {
 const bancosMinimos = () => ({ minecraft: bancoMinimo('mc'), logica: bancoMinimo('lg'), cultura: bancoMinimo('cu') });
 const correr = bancos => generar(bancos, retos, temas);
 
-test('el banco real genera 98 Taps de 5 preguntas sin errores', () => {
+test('el banco real genera 102 Taps de 5 preguntas sin errores', () => {
   const r = construir();
   assert.deepEqual(r.errores, []);
-  assert.equal(r.taps.length, 98);
+  assert.equal(r.taps.length, 102);
   assert.ok(r.taps.every(t => t.questions.length === LIMITES.preguntasPorTap));
 });
 
@@ -59,6 +59,41 @@ test('un banco mínimo válido genera sus Taps', () => {
   assert.equal(r.taps[0].topic, 'minecraft');
   assert.equal(r.taps[2].theme, 'estudio');
   assert.equal(r.taps[4].theme, 'aventura');
+});
+
+test('formatos duo y vf: 2 opciones, vf con «Verdadero» y «Falso», y el tipo llega al Tap generado', () => {
+  const b = bancosMinimos();
+  b.minecraft.preguntas[1] = { ...b.minecraft.preguntas[1], tipo: 'duo', options: ['Carbón', 'Diamante'], answer: 1 };
+  b.minecraft.preguntas[2] = { ...b.minecraft.preguntas[2], tipo: 'vf', options: ['Verdadero', 'Falso'], answer: 0 };
+  const r = correr(b);
+  assert.deepEqual(r.errores, []);
+  assert.equal(r.taps[0].questions[0].tipo, undefined);
+  assert.equal(r.taps[0].questions[1].tipo, 'duo');
+  assert.equal(r.taps[0].questions[2].tipo, 'vf');
+  assert.deepEqual(r.taps[0].questions[2].options, ['Verdadero', 'Falso']);
+});
+
+test('rechaza un duo de 4 opciones, un vf con otras opciones, una clásica de 2 y un tipo desconocido', () => {
+  const b = bancosMinimos();
+  b.minecraft.preguntas[0] = { ...b.minecraft.preguntas[0], tipo: 'duo' };
+  b.minecraft.preguntas[1] = { ...b.minecraft.preguntas[1], tipo: 'vf', options: ['Sí', 'No'], answer: 0 };
+  b.minecraft.preguntas[2] = { ...b.minecraft.preguntas[2], options: ['uno', 'dos'], answer: 0 };
+  b.minecraft.preguntas[3] = { ...b.minecraft.preguntas[3], tipo: 'trio' };
+  const e = correr(b).errores.join('\n');
+  assert.match(e, /mcp0»: debe tener exactamente 2 opciones \(formato duo\)/);
+  assert.match(e, /mcp1»: verdadero\/falso lleva las opciones \["Verdadero","Falso"\]/);
+  assert.match(e, /mcp2»: debe tener exactamente 4 opciones/);
+  assert.match(e, /mcp3»: tipo «trio» desconocido/);
+});
+
+test('el banco real trae los 4 Taps que mezclan formatos (clásica, duo y vf)', () => {
+  const { taps } = construir();
+  for (const id of ['mc-duelo-1', 'lg-duelo-1', 'cu-duelo-1', 'cu-duelo-2']) {
+    const t = taps.find(x => x.id === id);
+    assert.ok(t, `falta ${id}`);
+    const tipos = new Set(t.questions.map(q => q.tipo ?? 'clasica'));
+    assert.deepEqual([...tipos].sort(), ['clasica', 'duo', 'vf'], `${id} debe mezclar los tres formatos`);
+  }
 });
 
 test('rechaza una pregunta de más de 120 caracteres', () => {

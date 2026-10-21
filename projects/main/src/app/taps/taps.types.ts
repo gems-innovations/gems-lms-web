@@ -2,10 +2,24 @@
  * Formato de un Tap (solo datos). Para crear uno nuevo basta un objeto así en `taps.data.ts`: no se toca el motor
  * ni este componente. El motor (public/taps-engine) solo recibe `theme` y `scene`; las preguntas las maneja la app.
  */
+/**
+ * Formato de una pregunta. `clasica` (o sin campo): 4 opciones. `duo`: 2 opciones grandes, una contra otra, con cuenta
+ * regresiva corta (DUO_MS): sin responder a tiempo cuenta como fallo. `vf`: verdadero o falso (`options` = ['Verdadero', 'Falso']),
+ * se responde tocando o deslizando hacia el lado de la opción (izquierda = primera, derecha = segunda).
+ */
+export type TTapQuestionTipo = 'clasica' | 'duo' | 'vf';
+
+/** Cuenta regresiva del formato duo (ms). */
+export const DUO_MS = 7000;
+/** `chosen` cuando se acabó el tiempo sin responder (formato duo): fallo sin opción marcada. */
+export const SIN_RESPUESTA = -1;
+
 export interface ITapQuestion {
   id: string;
   q: string;
   options: string[];
+  /** Formato (ver TTapQuestionTipo). Sin campo: clásica de 4 opciones. */
+  tipo?: TTapQuestionTipo;
   /** Índice de la opción correcta. */
   answer: number;
   /** Explicación corta que se muestra al fallar: 90 caracteres como máximo (se lee en ~3 s). */
@@ -112,7 +126,7 @@ export interface ITapTopic {
 export interface ITapRun {
   tapId: string;
   index: number;
-  /** Opción elegida en la pregunta actual (null = aún sin responder). */
+  /** Opción elegida en la pregunta actual (null = aún sin responder; SIN_RESPUESTA = se acabó el tiempo en un duo). */
   chosen: number | null;
   score: number;
   /** Acierto (true) o fallo (false) de cada pregunta respondida, en orden: cuadrícula del resultado y racha. */

@@ -2748,6 +2748,88 @@
           "mostrar(a, b)"
         ]
       }
+    },
+    {
+      "id": "duelo-miercoles-10-dias",
+      "q": "Si hoy es miércoles, ¿qué día será dentro de 10 días?",
+      "options": [
+        "Viernes",
+        "Sábado",
+        "Domingo",
+        "Lunes"
+      ],
+      "answer": 1,
+      "why": "10 días = 1 semana y 3 días. Miércoles + 3 = sábado.",
+      "dificultad": 2,
+      "subtema": "mixto",
+      "estado": "revisada"
+    },
+    {
+      "id": "duelo-serie-doble",
+      "q": "¿Qué número sigue en la serie 3, 6, 12, 24?",
+      "options": [
+        "36",
+        "42",
+        "48",
+        "60"
+      ],
+      "answer": 2,
+      "why": "Cada número es el doble del anterior: 24 × 2 = 48.",
+      "dificultad": 1,
+      "subtema": "series",
+      "estado": "revisada",
+      "escena": {
+        "tipo": "serie",
+        "items": [
+          "3",
+          "6",
+          "12",
+          "24",
+          "?"
+        ]
+      }
+    },
+    {
+      "id": "duelo-ladrillo-medio",
+      "tipo": "duo",
+      "q": "Un ladrillo pesa 1 kg más medio ladrillo. ¿Cuánto pesa el ladrillo?",
+      "options": [
+        "1,5 kg",
+        "2 kg"
+      ],
+      "answer": 1,
+      "why": "Medio ladrillo pesa 1 kg, así que el ladrillo entero pesa 2 kg.",
+      "dificultad": 2,
+      "subtema": "lateral",
+      "estado": "revisada"
+    },
+    {
+      "id": "duelo-plumas-hierro",
+      "tipo": "duo",
+      "q": "¿Qué pesa más: un kilo de plumas o un kilo de hierro?",
+      "options": [
+        "Las plumas",
+        "Pesan igual"
+      ],
+      "answer": 1,
+      "why": "Un kilo es un kilo. El hierro solo ocupa menos espacio.",
+      "dificultad": 1,
+      "subtema": "lee-bien",
+      "estado": "revisada"
+    },
+    {
+      "id": "duelo-gatos-animales",
+      "tipo": "vf",
+      "q": "Si todos los gatos son animales, entonces todos los animales son gatos.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 1,
+      "why": "No se puede invertir: ser gato implica ser animal, pero no al revés.",
+      "dificultad": 1,
+      "subtema": "silogismos",
+      "estado": "revisada"
     }
   ],
   "taps": [
@@ -3114,6 +3196,19 @@
         "codigo-luz",
         "codigo-cuenta",
         "codigo-cambio"
+      ]
+    },
+    {
+      "id": "lg-duelo-1",
+      "titulo": "Rápido y sin trampas",
+      "nivel": "media",
+      "subtema": "lateral",
+      "preguntas": [
+        "duelo-plumas-hierro",
+        "duelo-miercoles-10-dias",
+        "duelo-gatos-animales",
+        "duelo-serie-doble",
+        "duelo-ladrillo-medio"
       ]
     }
   ]
