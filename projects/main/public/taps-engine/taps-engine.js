@@ -213,6 +213,9 @@ export function create(container, opts = {}) {
   container.appendChild(root);
   const q = s => root.querySelector(s), bgEl = q('.te-bg'), lightEl = q('.te-light'), charEl = q('.te-char'), glEl = q('.te-gl'), fxEl = q('.te-fx'), bubbleEl = q('.te-bubble');
   const reduced = opts.reducedMotion ?? (typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // Estilo experimental (rama exp/taps-estilo-maduro): opts.estilo o ?estilo=documental pone una gradación sobria; sin él no cambia nada.
+  const estilo = opts.estilo ?? (typeof location !== 'undefined' ? new URLSearchParams(location.search).get('estilo') : null);
+  if (estilo === 'documental') root.dataset.estilo = estilo;
   if (reduced) root.dataset.reduced = '1';      // la opción `reducedMotion` apaga también las animaciones CSS, no solo la media query
   const listeners = new Map();
   const emit = (n, d) => { opts.onEvent?.(n, d); (listeners.get(n) || []).forEach(f => { try { f(d); } catch { /* un oyente roto no tumba el motor */ } }); };
@@ -696,7 +699,7 @@ export function create(container, opts = {}) {
     if (renderer) { renderer.play(anim); (def.fx || []).forEach(f => !reduced && renderer.fx(f)); wake(Math.max(1500, (def.duration || 0) * 1000 + 300)); }
     else { lightAnim({ celebrate: 'te-celebrate', hurt: 'te-hurt', think: 'te-think', talk: 'te-talk' }[def.anim] || '', (def.duration || 1.2) * 1000); lightPose(anim); }
     (def.sfx || []).forEach(n => sound?.play(n));
-    if (def.particles && !reduced) {
+    if (def.particles && !reduced && !(root.dataset.estilo && def.particles === 'confetti')) {   // estilo sobrio: sin confeti
       const colors = t.palette?.[def.particles] || t.palette?.confetti || ['#fff'];
       if (renderer) { const [ax, ay] = renderer.anchor(def.particles === 'confetti' ? 'top' : 'chest'); burst(particles, ax, ay, def.particles, Array.isArray(colors) ? colors : [colors]); }
       else if (def.particles === 'confetti') lightConfetti(Array.isArray(colors) ? colors : [colors]);
