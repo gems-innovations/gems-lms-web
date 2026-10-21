@@ -38,7 +38,7 @@ export interface ITapQuestion {
 
 /** Escena de la pregunta (public/taps-engine/escena.js la dibuja). */
 export type ITapEscena =
-  | { tipo: 'codigo'; lineas: string[]; lenguaje?: 'pseudo' | 'python' | 'js'; texto?: string }
+  | { tipo: 'codigo'; lineas: string[]; lenguaje?: 'pseudo' | 'python' | 'js' | 'bash' | 'http' | 'prompt'; texto?: string }
   | { tipo: 'operacion'; lineas: string[]; texto?: string }
   | { tipo: 'serie'; items: string[]; texto?: string }
   | { tipo: 'objeto' | 'diagrama'; cosa: string; texto?: string };

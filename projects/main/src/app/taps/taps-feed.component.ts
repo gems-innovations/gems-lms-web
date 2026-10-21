@@ -2075,8 +2075,11 @@ export class TapsFeedComponent {
   private dejarHuella(stage: ITapsStage): void {
     const root = stage.root, slot = root?.parentElement;
     if (!root || !slot) return;
-    const tap = this.taps()[this.slots().findIndex(s => s.nativeElement === slot)];
+    const i = this.slots().findIndex(s => s.nativeElement === slot), tap = this.taps()[i];
     if (!tap) return;
+    // Solo se deja foto cerca del Tap a la vista (±2, como limpiarVecinos): si el escenario sale de un Tap ya lejano (al
+    // llevarlo a un vecino tras deslizar rápido), una foto ahí quedaría huérfana hasta volver a pasar por él.
+    if (this.activeIndex >= 0 && Math.abs(i - this.activeIndex) > 2) { this.quitarCapas(tap.id); return; }
     try {
       const foto = root.cloneNode(true) as HTMLElement;
       foto.querySelectorAll('.te-bubble, .te-fx').forEach(n => n.remove());

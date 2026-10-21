@@ -4,8 +4,8 @@
 //   npm run taps:generar              escribe src/app/taps/taps.banco.generated.ts
 //   npm run taps:generar -- --check   falla si el archivo generado no coincide con el banco (para CI)
 //
-// Fuente de verdad: src/app/taps/banco/{minecraft,logica,cultura}.json (copia del banco que se escribe y revisa en
-// gems-lms/producto/taps/banco). Para actualizarlo: copia los tres JSON del banco sobre esa carpeta, corre
+// Fuente de verdad: src/app/taps/banco/{minecraft,logica,cultura,tecnologia}.json (copia del banco que se escribe y revisa en
+// gems-lms/producto/taps/banco). Para actualizarlo: copia los JSON del banco sobre esa carpeta, corre
 // `npm run taps:generar` y sube los JSON y el .generated.ts juntos. El build NO corre el generador: el .ts va en git
 // (así el build no depende de nada fuera del repo) y la prueba `generar-taps.test.mjs` avisa si quedó desactualizado.
 //
@@ -52,19 +52,36 @@ export const RUTAS = {
  * Reto del día (auditoria-permanencia.md, mejora 4): calendario fijo, generado aquí y guardado en git.
  * - `inicio` es el reto #1 (un lunes); `dias` es cuántos días cubre (366 al publicar el reto; 420 desde la ronda 2 del
  *   banco, para que sus 45 Taps entren en los días agregados: del 2027-10-20 al 2027-12-11; 427 con los 4 Taps de formatos
- *   mezclados, que entran del 2027-12-12 al 2027-12-18). El tema de cada día rota por `rotacion` (lunes primero).
+ *   mezclados, que entran del 2027-12-12 al 2027-12-18; 560 con Tecnología, cuyos 19 Taps entran los domingos del
+ *   2027-12-26 al 2028-04-30). El tema de cada día rota por semana (lunes primero).
+ * - La rotación semanal está versionada en `rotaciones`: cada entrada rige desde el día `desde` (índice desde `inicio`,
+ *   siempre un lunes). Tecnología entró en la rotación el día 427 (lunes 2027-12-20) en lugar del tercer Minecraft (domingo).
+ *   Los días anteriores conservan la rotación con la que se fijaron: cambiar la rotación nunca toca días ya fijados.
  * - Solo crece hacia el futuro: los días que ya están en reto-calendario.json no se tocan nunca, así que agregar Taps al
  *   banco no cambia ni los días pasados ni el de hoy. Para que los Taps nuevos entren al reto se sube `dias` (se agregan
  *   días al final). Un Tap retirado se reemplaza solo en los días que lo tenían.
  * - Dentro de cada tema se recorren todos sus Taps (sin los de gancho) antes de repetir, intercalando subtemas: nunca dos
  *   días seguidos del mismo tema con el mismo subtema si se puede evitar.
- * - Más allá del calendario, la app usa un respaldo determinista (taps.reto.ts) hasta que se extienda.
+ * - Más allá del calendario, la app usa un respaldo determinista (taps.reto.ts, con la última rotación) hasta que se extienda.
  */
 export const RETO = {
   inicio: '2026-10-19',
-  dias: 427,
-  rotacion: ['minecraft', 'logica', 'cultura', 'minecraft', 'logica', 'cultura', 'minecraft'],
+  dias: 560,
+  rotaciones: [
+    { desde: 0, temas: ['minecraft', 'logica', 'cultura', 'minecraft', 'logica', 'cultura', 'minecraft'] },
+    { desde: 427, temas: ['minecraft', 'logica', 'cultura', 'minecraft', 'logica', 'cultura', 'tecnologia'] },
+  ],
 };
+/** Rotación vigente (la última): la misma que RETO_ROTACION en taps.reto.ts. */
+RETO.rotacion = RETO.rotaciones[RETO.rotaciones.length - 1].temas;
+
+/** Tema del día `d` (índice desde `inicio`) según la rotación vigente ese día. */
+export function temaDelDia(d, reto = RETO) {
+  const rotaciones = reto.rotaciones ?? [{ desde: 0, temas: reto.rotacion }];
+  let temas = rotaciones[0].temas;
+  for (const r of rotaciones) if (d >= r.desde) temas = r.temas;
+  return temas[d % 7];
+}
 
 /** Hash estable con avalancha (FNV-1a + mezcla final de murmur3): cambiar una letra reparte el resultado. */
 export function hashAvalancha(texto) {
@@ -109,13 +126,14 @@ export function calendarioReto(taps, previo = null, reto = RETO) {
   const dias = [];
   const total = Math.max(reto.dias, fijos.length);
   for (let d = 0; d < total; d++) {
-    const tema = reto.rotacion[d % 7], pool = porTema.get(tema) ?? [];
+    const fijo = fijos[d] && publicados.has(fijos[d]) ? fijos[d] : null;
+    // Un día ya fijado conserva su Tap (y su tema) aunque la rotación haya cambiado después.
+    const tema = fijo ? taps.find(t => t.id === fijo).topic : temaDelDia(d, reto), pool = porTema.get(tema) ?? [];
     if (!pool.length) throw new Error(`reto del día: el tema «${tema}» no tiene Taps`);
     const e = estado.get(tema) ?? { cola: [], ultimoSub: null };
     if (!e.cola.length) e.cola = vueltaIntercalada(pool, e.ultimoSub);
-    const fijo = fijos[d];
     let tap;
-    if (fijo && publicados.has(fijo)) {
+    if (fijo) {
       tap = taps.find(t => t.id === fijo);
       const i = e.cola.findIndex(t => t.id === fijo);
       if (i >= 0) e.cola.splice(i, 1);
@@ -157,6 +175,12 @@ export const TEMAS = {
   // Cultura usa el tema «aventura» (personajes y fondos del registro). Para volver a los robots: theme: 'estudio' (LUGARES y
   // ESCENA_GANCHO de cultura siguen escritos para estudio) y personajes: ['nube', 'chispa'].
   cultura: { archivo: 'cultura.json', theme: 'aventura', topic: 'cultura', kicker: 'Cultura general', prefijo: 'cu-', personajes: null },
+  // Tecnología (público joven y adulto): tema «aventura» solo con los personajes humanos y el robot (sin animales) y, por
+  // FONDOS_SUBTEMA, fondos sobrios. `gancho` fija la escena del Tap de gancho (sin él sería el primer personaje y fondo del registro).
+  tecnologia: {
+    archivo: 'tecnologia.json', theme: 'aventura', topic: 'tecnologia', kicker: 'Tecnología', prefijo: 'tc-',
+    personajes: ['cientifica', 'exploradora', 'hana', 'robot'], gancho: { world: 'noche-estrellada', host: 'cientifica' },
+  },
 };
 
 /** Objetos que cada tema dibuja en la mano (renderer3d.js ITEMS / rig.js ITEMS). */
@@ -206,7 +230,7 @@ export const LUGARES = {
  */
 export const ENCUADRES = ['izquierda', 'derecha', 'cerca-izquierda', 'lejos', 'cerca-derecha', 'centro'];
 export const ENTRADAS = { minecraft: ['camina', 'salta', 'gira', 'saluda'], estudio: ['vuela', 'cae', 'aparece', 'saluda'], aventura: ['camina', 'salta', 'gira', 'saluda'] };
-const DESFASE = { minecraft: 0, logica: 0, cultura: 3 };
+const DESFASE = { minecraft: 0, logica: 0, cultura: 3, tecnologia: 1 };
 
 /** Por tema y subtema: [mundo, objeto] que se reparten por orden. `_` es la lista de cualquier subtema sin regla propia. */
 export const ESCENAS = {
@@ -297,6 +321,8 @@ const registroDe = theme => (temasCache ??= leerTemas())[theme]?.registro ?? nul
 // ───────────────────────── escena de la pregunta ─────────────────────────
 /** Límites de la tarjeta (que quepa sin achicar demasiado la letra en un celular de 320 px). */
 export const LIMITES_ESCENA = { lineasCodigo: 7, largoCodigo: 30, lineasOperacion: 4, largoOperacion: 16, itemsSerie: [3, 8], largoItem: 4, texto: 28 };
+/** Lenguajes de la escena «codigo» (rótulo y resaltado en taps-engine/escena.js): pseudocódigo, Python, JavaScript, terminal (git), HTTP y prompt de IA. */
+export const LENGUAJES = ['pseudo', 'python', 'js', 'bash', 'http', 'prompt'];
 const quitarTildes = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 /** Todo el texto visible de una escena (para buscar si delata la respuesta). */
 const textoEscena = e => [...(e.lineas ?? []), ...(e.items ?? []), e.texto ?? ''].join(' \n ');
@@ -314,7 +340,7 @@ export function validarEscena(e, pregunta, catalogo, donde) {
   if (e.tipo === 'codigo') {
     if (!textos(e.lineas) || e.lineas.length > L.lineasCodigo) return mal(`«codigo» lleva de 1 a ${L.lineasCodigo} líneas de texto`);
     const larga = e.lineas.find(l => l.length > L.largoCodigo); if (larga) return mal(`la línea «${larga}» pasa de ${L.largoCodigo} caracteres`);
-    if (e.lenguaje !== undefined && !['pseudo', 'python', 'js'].includes(e.lenguaje)) return mal('«lenguaje» debe ser pseudo, python o js');
+    if (e.lenguaje !== undefined && !LENGUAJES.includes(e.lenguaje)) return mal(`«lenguaje» debe ser uno de: ${LENGUAJES.join(', ')}`);
   } else if (e.tipo === 'operacion') {
     if (!textos(e.lineas) || e.lineas.length > L.lineasOperacion) return mal(`«operacion» lleva de 1 a ${L.lineasOperacion} líneas`);
     const larga = e.lineas.find(l => l.length > L.largoOperacion); if (larga) return mal(`la línea «${larga}» pasa de ${L.largoOperacion} caracteres`);
@@ -345,7 +371,10 @@ export const PLANOS = ['general', 'cenital', 'picado', 'contrapicado', 'primer-p
 export const HORAS = ['dia', 'tarde', 'amanecer', 'noche'];
 export const TRANSICIONES = ['corte', 'barrido', 'zoom', 'fundido'];
 /** El Tap de gancho (la primera impresión) siempre igual: plano amable, de día y con fundido. */
-export const CINE_GANCHO = { minecraft: { camara: 'orbita', hora: 'dia', transicion: 'fundido' }, logica: { camara: 'travelling', hora: 'dia', transicion: 'fundido' }, cultura: { camara: 'primer-plano', hora: 'dia', transicion: 'fundido' } };
+export const CINE_GANCHO = {
+  minecraft: { camara: 'orbita', hora: 'dia', transicion: 'fundido' }, logica: { camara: 'travelling', hora: 'dia', transicion: 'fundido' },
+  cultura: { camara: 'primer-plano', hora: 'dia', transicion: 'fundido' }, tecnologia: { camara: 'travelling', transicion: 'fundido' },
+};
 
 const NIVEL = { facil: 1, media: 2, dificil: 3 };
 const SAWTOOTH = [0.1, 0.4, 0.9, 0.2, 0.55, 0.65, 0.97];
@@ -373,7 +402,9 @@ export function ordenParaTi(taps, hookDone = false) {
     const lastTopic = out.length ? out[out.length - 1].topic : null, tail = out.slice(-2);
     const full = tail.length === 2 && tail.every(t => t.topic === lastTopic);
     const open = [...queues.entries()].filter(([, q]) => q.length > 0), allowed = open.filter(([k]) => !(full && k === lastTopic));
-    const [topic, queue] = (allowed.length ? allowed : open).sort((a, b) => b[1].length - a[1].length || lastSeen.get(a[0]) - lastSeen.get(b[0]))[0];
+    const sorted = (allowed.length ? allowed : open).sort((a, b) => b[1].length - a[1].length || lastSeen.get(a[0]) - lastSeen.get(b[0]));
+    const dosDificiles = out.length >= 2 && out.slice(-2).every(t => t.level === 'dificil');
+    const [topic, queue] = (dosDificiles && sorted.find(([, q]) => q[0].level !== 'dificil')) || sorted[0];
     out.push(queue.shift()); lastSeen.set(topic, out.length);
   }
   return hookDone ? [...out, ...hooks] : out;
@@ -510,18 +541,29 @@ export const FONDOS_SUBTEMA = {
   'ciencia-cotidiana': ['cielo-nublado', 'atardecer'],
   dinosaurios: ['desierto', 'arboleda', 'colinas-atardecer'],
   plantas: ['arboleda', 'bosque', 'atardecer'],
+  // Tecnología: fondos sobrios (noche, nublado, ciudad amurallada), sin playa ni dunas. Un fondo «oficina con pantallas» o
+  // «sala de servidores» queda pendiente (ver producto/taps/banco/revision-independiente.md, sección Tecnología).
+  git: ['noche-estrellada', 'castillo', 'cielo-nublado'],
+  programacion: ['cielo-nublado', 'noche-estrellada', 'piramides-noche'],
+  redes: ['piramides-noche', 'cielo-nublado', 'castillo'],
+  ciberseguridad: ['castillo', 'noche-estrellada', 'piramides-noche'],
+  ia: ['noche-estrellada', 'piramides-noche', 'cielo-nublado'],
+  hardware: ['cielo-nublado', 'castillo', 'noche-estrellada'],
 };
+/** Temas con registro: fondos del Tap de gancho y de los subtemas sin regla propia (sin entrada: todos los del tema). */
+export const FONDOS_TEMA = { tecnologia: ['noche-estrellada', 'cielo-nublado', 'castillo', 'piramides-noche'] };
 
 export function asignarEscena(clave, subtema, n, orden, esGancho, id, fondoPrevio = null) {
   const entradas = ENTRADAS[TEMAS[clave].theme];
   const reg = registroDe(TEMAS[clave].theme);
   if (reg) {
-    if (esGancho) return { world: reg.fondos[0], host: reg.personajes[0], shot: 'centro', enter: 'saluda' };
+    const personajes = TEMAS[clave].personajes ?? reg.personajes, fondos = FONDOS_TEMA[clave] ?? reg.fondos;
+    if (esGancho) return { world: TEMAS[clave].gancho?.world ?? fondos[0], host: TEMAS[clave].gancho?.host ?? personajes[0], shot: 'centro', enter: 'saluda' };
     const k = orden + DESFASE[clave];
-    const elegido = elegirParaTap(orden, reg.personajes, reg.fondos), host = elegido.host;
-    const propios = (FONDOS_SUBTEMA[subtema] ?? []).filter(f => reg.fondos.includes(f));
+    const elegido = elegirParaTap(orden, personajes, fondos), host = elegido.host;
+    const propios = (FONDOS_SUBTEMA[subtema] ?? []).filter(f => fondos.includes(f));
     const candidatos = propios.length ? [propios[n % propios.length], ...propios] : [];
-    const world = candidatos.find(f => f !== fondoPrevio) ?? (elegido.world !== fondoPrevio ? elegido.world : reg.fondos.find(f => f !== fondoPrevio));
+    const world = candidatos.find(f => f !== fondoPrevio) ?? (elegido.world !== fondoPrevio ? elegido.world : fondos.find(f => f !== fondoPrevio));
     return { world, host, shot: ENCUADRES[k % ENCUADRES.length], enter: entradas[(k * 3 + 1) % entradas.length] };
   }
   if (esGancho) return { ...ESCENA_GANCHO[clave], shot: 'centro', enter: 'saluda' };

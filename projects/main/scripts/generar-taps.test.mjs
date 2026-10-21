@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import {
-  FONDOS_SUBTEMA, LIMITES, PLANOS, RETO, RUTAS, TRANSICIONES, asignarEscena, calendarioReto, construir, emitir, generar, hashAvalancha, leerBancos, leerRetos,
-  leerTemas, ordenParaTi, ordenSierra, validarEscena, validarPregunta,
+  FONDOS_SUBTEMA, FONDOS_TEMA, LENGUAJES, LIMITES, PLANOS, RETO, RUTAS, TEMAS, TRANSICIONES, asignarEscena, calendarioReto, construir, emitir, generar, hashAvalancha,
+  leerBancos, leerRetos, leerTemas, ordenParaTi, ordenSierra, temaDelDia, validarEscena, validarPregunta,
 } from './generar-taps.mjs';
 
 const clonar = o => structuredClone(o);
@@ -29,13 +29,13 @@ function bancoMinimo(prefijo, subtema = 'mixto') {
     ],
   };
 }
-const bancosMinimos = () => ({ minecraft: bancoMinimo('mc'), logica: bancoMinimo('lg'), cultura: bancoMinimo('cu') });
+const bancosMinimos = () => ({ minecraft: bancoMinimo('mc'), logica: bancoMinimo('lg'), cultura: bancoMinimo('cu'), tecnologia: bancoMinimo('tc') });
 const correr = bancos => generar(bancos, retos, temas);
 
-test('el banco real genera 102 Taps de 5 preguntas sin errores', () => {
+test('el banco real genera 122 Taps de 5 preguntas sin errores', () => {
   const r = construir();
   assert.deepEqual(r.errores, []);
-  assert.equal(r.taps.length, 102);
+  assert.equal(r.taps.length, 122);
   assert.ok(r.taps.every(t => t.questions.length === LIMITES.preguntasPorTap));
 });
 
@@ -54,11 +54,13 @@ test('ids de Tap y de pregunta únicos en todo el banco', () => {
 test('un banco mínimo válido genera sus Taps', () => {
   const r = correr(bancosMinimos());
   assert.deepEqual(r.errores, []);
-  assert.equal(r.taps.length, 6);
+  assert.equal(r.taps.length, 8);
   assert.equal(r.taps[0].hook, true);
   assert.equal(r.taps[0].topic, 'minecraft');
   assert.equal(r.taps[2].theme, 'estudio');
   assert.equal(r.taps[4].theme, 'aventura');
+  assert.equal(r.taps[6].theme, 'aventura');
+  assert.equal(r.taps[6].topic, 'tecnologia');
 });
 
 test('formatos duo y vf: 2 opciones, vf con «Verdadero» y «Falso», y el tipo llega al Tap generado', () => {
@@ -249,13 +251,13 @@ test('cada Tap publicado tiene su lugar propio y el personaje no queda siempre i
     assert.ok(del.filter(t => t.scene.props).length >= (theme === 'minecraft' ? 8 : 6), theme + ': pocos decorados');
   }
   // en los órdenes reales del feed («Para ti» y cada categoría sola), dos Taps seguidos del mismo tema nunca repiten encuadre
-  for (const orden of [ordenParaTi(taps), ordenParaTi(taps, true), ...['minecraft', 'logica', 'cultura'].map(k => ordenSierra(taps.filter(t => t.topic === k)))]) {
+  for (const orden of [ordenParaTi(taps), ordenParaTi(taps, true), ...Object.keys(TEMAS).map(k => ordenSierra(taps.filter(t => t.topic === k)))]) {
     // (los ganchos van siempre centrados y saludando: dos ganchos seguidos, al final del feed, no cuentan)
     orden.forEach((t, i) => i && t.theme === orden[i - 1].theme && !(t.hook && orden[i - 1].hook) && assert.notEqual(t.scene.shot, orden[i - 1].scene.shot, t.id + ' repite el encuadre del Tap anterior'));
   }
   assert.ok(new Set(taps.filter(t => t.theme === 'estudio').map(t => t.scene.world)).size >= 7, 'estudio usa sus mundos nuevos');
   // aventura (personajes y fondos del registro): todos aparecen, y dos Taps seguidos no repiten personaje ni fondo
-  const av = taps.filter(t => t.theme === 'aventura' && !t.hook);
+  const av = taps.filter(t => t.theme === 'aventura' && !t.hook && t.topic === 'cultura');
   assert.ok(av.length >= 9, 'cultura usa el tema aventura');
   assert.ok(new Set(av.map(t => t.scene.host)).size >= 9, 'aventura: aparecen todos los personajes');
   assert.ok(new Set(av.map(t => t.scene.world)).size >= 7, 'aventura: aparecen casi todos los fondos');
@@ -267,6 +269,51 @@ test('cada Tap publicado tiene su lugar propio y el personaje no queda siempre i
   });
   assert.ok(av.every(t => t.scene.item === undefined && t.backdrop.length === 2));
   assert.ok(taps.every(t => typeof t.ground === 'string'), 'cada Tap trae el color de su suelo');
+});
+
+test('tecnología: presentadores humanos o el robot (nunca animales), fondos sobrios y gancho con la científica de noche', () => {
+  const { taps } = construir();
+  const tc = taps.filter(t => t.topic === 'tecnologia');
+  assert.equal(tc.length, 20);
+  assert.ok(tc.every(t => t.theme === 'aventura' && t.kicker === 'Tecnología'));
+  assert.ok(tc.every(t => TEMAS.tecnologia.personajes.includes(t.scene.host)), 'solo cientifica, exploradora, hana y robot');
+  assert.equal(new Set(tc.map(t => t.scene.host)).size, 4, 'aparecen los cuatro presentadores');
+  assert.ok(tc.every(t => FONDOS_TEMA.tecnologia.includes(t.scene.world)), 'solo fondos sobrios');
+  assert.deepEqual(tc.find(t => t.hook).scene, { world: 'noche-estrellada', host: 'cientifica', shot: 'centro', enter: 'saluda', camara: 'travelling', transicion: 'fundido' });
+  tc.forEach((t, i) => i && assert.notEqual(t.scene.world, tc[i - 1].scene.world, t.id + ' repite el fondo del Tap anterior'));
+  // 3 Taps por subtema con dificultad creciente entre ellos, y escenas de código en los seis subtemas
+  for (const sub of ['git', 'programacion', 'redes', 'ciberseguridad', 'ia', 'hardware']) {
+    const del = tc.filter(t => t.subtopic === sub);
+    assert.deepEqual(del.map(t => t.level), ['facil', 'media', 'dificil'], sub);
+    assert.ok(del.some(t => t.questions.some(q => q.escena)), sub + ': sin escena');
+  }
+  const lenguajes = new Set(tc.flatMap(t => t.questions.filter(q => q.escena?.tipo === 'codigo').map(q => q.escena.lenguaje ?? 'pseudo')));
+  for (const l of LENGUAJES) assert.ok(lenguajes.has(l), 'sin escena en ' + l);
+  assert.ok(tc.flatMap(t => t.questions).filter(q => q.escena).length >= 22);
+  assert.deepEqual([...new Set(tc.flatMap(t => t.questions).map(q => q.tipo ?? 'clasica'))].sort(), ['clasica', 'duo', 'vf']);
+  // un lenguaje desconocido se rechaza
+  const b = bancosMinimos();
+  b.tecnologia.preguntas[0].escena = { tipo: 'codigo', lenguaje: 'cobol', lineas: ['x'] };
+  assert.match(correr(b).errores.join(' | '), /«lenguaje» debe ser uno de/);
+});
+
+test('reto del día: la rotación está versionada por día y los domingos pasan a Tecnología desde el día 427', () => {
+  assert.equal(temaDelDia(6), 'minecraft');
+  assert.equal(temaDelDia(426), 'minecraft');
+  assert.equal(temaDelDia(427), 'minecraft');
+  assert.equal(temaDelDia(433), 'tecnologia');
+  assert.equal(RETO.rotaciones[1].desde % 7, 0, 'la rotación nueva empieza un lunes');
+  assert.deepEqual(RETO.rotacion, RETO.rotaciones[RETO.rotaciones.length - 1].temas);
+  const { taps, calendario } = construir();
+  const porId = new Map(taps.map(t => [t.id, t]));
+  const tc = calendario.dias.map((id, d) => [id, d]).filter(([id]) => porId.get(id).topic === 'tecnologia');
+  assert.equal(tc.length, 19, 'los 19 Taps de Tecnología (sin gancho) entran al calendario');
+  assert.ok(tc.every(([, d]) => d >= 427 && d % 7 === 6), 'solo en domingos nuevos');
+  assert.equal(new Set(tc.map(([id]) => id)).size, 19);
+  // cambiar la rotación no toca los días ya fijados: con la rotación vieja en los días fijos sale lo mismo
+  const previo = calendarioReto(taps, null, { ...RETO, dias: 427, rotaciones: [RETO.rotaciones[0]] });
+  const nuevo = calendarioReto(taps, previo, RETO);
+  assert.deepEqual(nuevo.dias.slice(0, 427), previo.dias);
 });
 
 test('objetos para explicar: se copian a la pregunta y se validan contra el catálogo del tema', () => {
@@ -335,7 +382,7 @@ test('calendario del reto: rota temas, sin Taps de gancho, todos los del tema an
     const t = porId.get(id);
     assert.ok(t, `día ${d}: ${id} no está en el banco`);
     assert.ok(!t.hook, `día ${d}: ${id} es de gancho`);
-    assert.equal(t.topic, RETO.rotacion[d % 7]);
+    assert.equal(t.topic, temaDelDia(d), `día ${d}`);
     assert.notEqual(ultimo.get(t.topic), t.subtopic ?? 'mixto', `día ${d}: mismo subtema que el anterior de ${t.topic}`);
     ultimo.set(t.topic, t.subtopic ?? 'mixto');
     vistos.set(t.topic, [...(vistos.get(t.topic) ?? []), id]);
@@ -375,12 +422,12 @@ test('hashAvalancha: estable y reparte (un carácter distinto cambia muchos bits
   assert.ok(bits >= 8, `solo cambiaron ${bits} bits`);
 });
 
-test('escenas de pregunta: al menos 20 preguntas reales en los 3 temas, se copian y se validan', () => {
+test('escenas de pregunta: al menos 20 preguntas reales en cada tema, se copian y se validan', () => {
   const { taps, errores } = construir();
   assert.deepEqual(errores, []);
   const con = taps.flatMap(t => t.questions.filter(q => q.escena).map(q => [t.topic, q.escena.tipo]));
   assert.ok(con.length >= 20, `solo ${con.length} preguntas con escena`);
-  for (const topic of ['minecraft', 'logica', 'cultura']) assert.ok(con.filter(([k]) => k === topic).length >= 5, topic + ': pocas escenas');
+  for (const topic of Object.keys(TEMAS)) assert.ok(con.filter(([k]) => k === topic).length >= 5, topic + ': pocas escenas');
   assert.equal(new Set(con.map(([, tipo]) => tipo)).size, 5, 'se usan los cinco tipos (código, operación, serie, objeto, diagrama)');
 });
 
@@ -416,7 +463,7 @@ test('modo cine: cada Tap trae plano, transición y su ambiente; el feed nunca r
     assert.ok(del.filter(t => t.scene.clima).length >= del.length * 0.3, theme + ': poco clima');
     if (conFauna) assert.ok(del.filter(t => t.scene.fauna).length >= del.length * 0.3, theme + ': poca fauna');
   }
-  for (const orden of [ordenParaTi(taps), ordenParaTi(taps, true), ...['minecraft', 'logica', 'cultura'].map(k => ordenSierra(taps.filter(t => t.topic === k)))]) {
+  for (const orden of [ordenParaTi(taps), ordenParaTi(taps, true), ...Object.keys(TEMAS).map(k => ordenSierra(taps.filter(t => t.topic === k)))]) {
     orden.forEach((t, i) => {
       if (!i) return;
       const a = orden[i - 1].scene, b = t.scene;

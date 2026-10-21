@@ -34,6 +34,9 @@ export const SUBTEMA_NOMBRES: Record<string, string> = {
   'cultura-mixto': 'Rarezas y mitos', 'cultura-cuerpo-humano': 'Cuerpo humano', 'cultura-espacio': 'Espacio', 'cultura-animales': 'Animales',
   'cultura-ciencia-cotidiana': 'Ciencia cotidiana', 'cultura-geografia': 'Geografía',
   'cultura-datos-sorprendentes': 'Datos sorprendentes', 'cultura-dinosaurios': 'Dinosaurios', 'cultura-plantas': 'Plantas',
+  'tecnologia-mixto': 'Cultura digital', 'tecnologia-git': 'Git y GitHub', 'tecnologia-programacion': 'Programación',
+  'tecnologia-redes': 'Internet y redes', 'tecnologia-ciberseguridad': 'Ciberseguridad', 'tecnologia-ia': 'Inteligencia artificial',
+  'tecnologia-hardware': 'Hardware y sistemas',
 };
 
 const MIXTO = 'mixto';

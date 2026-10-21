@@ -12,7 +12,7 @@ describe('Taps · modo cine: variedad al deslizar', () => {
   const ordenes = (): [string, ITap[]][] => [
     ['para ti', orderFeed(TAPS, {})],
     ['para ti (gancho jugado)', orderFeed(TAPS, { hookDone: true })],
-    ...['minecraft', 'logica', 'cultura'].map(k => [`tema ${k}`, orderFeed(TAPS, { topic: k }).filter(t => topicOf(t) === k)] as [string, ITap[]]),
+    ...['minecraft', 'logica', 'cultura', 'tecnologia'].map(k => [`tema ${k}`, orderFeed(TAPS, { topic: k }).filter(t => topicOf(t) === k)] as [string, ITap[]]),
   ];
 
   it('cada Tap trae plano de cámara y transición', () => {
@@ -45,10 +45,10 @@ describe('Taps · modo cine: variedad al deslizar', () => {
     }
   });
 
-  it('hay escenas de pregunta en los tres temas (al menos 20)', () => {
+  it('hay escenas de pregunta en los cuatro temas (al menos 20)', () => {
     const con = TAPS.flatMap(t => t.questions.filter(q => q.escena).map(() => topicOf(t)));
     expect(con.length).toBeGreaterThanOrEqual(20);
-    for (const k of ['minecraft', 'logica', 'cultura']) expect(con.filter(x => x === k).length).withContext(k).toBeGreaterThanOrEqual(5);
+    for (const k of ['minecraft', 'logica', 'cultura', 'tecnologia']) expect(con.filter(x => x === k).length).withContext(k).toBeGreaterThanOrEqual(5);
   });
 });
 

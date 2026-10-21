@@ -105,7 +105,7 @@ export interface IRetoResultado {
             }
           }
           <button type="button" class="res__fin-btn" (click)="colecciones.emit()"><b>Tus colecciones</b><span>Completa subtemas y gana insignias</span></button>
-          <button type="button" class="res__fin-btn" (click)="temas.emit()"><b>Elegir otro tema</b><span>Minecraft, lógica, cultura general</span></button>
+          <button type="button" class="res__fin-btn" (click)="temas.emit()"><b>Elegir otro tema</b><span>Minecraft, lógica, cultura general, tecnología</span></button>
           <a class="res__cursos" routerLink="/" (click)="cursos.emit()">O mira los cursos gratis de GEMS LMS</a>
         </div>
       }

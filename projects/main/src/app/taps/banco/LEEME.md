@@ -1,13 +1,13 @@
 # Banco de preguntas de Taps (fuente de los Taps de la app)
 
-`minecraft.json`, `logica.json` y `cultura.json` son una **copia** del banco revisado que se escribe en
+`minecraft.json`, `logica.json`, `cultura.json` y `tecnologia.json` son una **copia** del banco revisado que se escribe en
 `gems-lms/producto/taps/banco/` (ahí están el formato completo, los criterios editoriales y la revisión independiente).
 Viven aquí para que el build no dependa de nada fuera del repo.
 
 ## Cómo se actualiza
 
 1. Edita el banco en `producto/taps/banco/` y corre allí `node validar.mjs` hasta ver «Todo bien».
-2. Copia los tres JSON sobre esta carpeta.
+2. Copia los JSON sobre esta carpeta.
 3. Desde `gems-lms-web`: `npm run taps:generar`. Valida los límites (pregunta ≤ 120, opciones ≤ 22 y exactamente 4, o 2 en
    los formatos `duo` y `vf`, explicación ≤ 90, respuesta válida, ids únicos, 5 preguntas por Tap) y escribe `../taps.banco.generated.ts`.
    Si algo falla, no escribe nada y dice qué pregunta y qué límite.
@@ -31,7 +31,8 @@ No se edita `taps.banco.generated.ts` a mano.
   (`visuals.objects`) y en `public/taps-engine/README.md`; el generador falla si el objeto o la acción no existen.
   Para una pregunta reutilizada de `retos.data.ts`, el campo va en su entrada de `existentes`.
 - En una pregunta: `"escena": { "tipo": "codigo" | "operacion" | "serie" | "objeto" | "diagrama", … }` (opcional) muestra
-  algo de lo que se PREGUNTA mientras se piensa: un fragmento de código (`lineas`, `lenguaje`), una cuenta grande
+  algo de lo que se PREGUNTA mientras se piensa: un fragmento de código (`lineas`, `lenguaje`: `pseudo`, `python`, `js`,
+  `bash` para terminal/git, `http` y `prompt` para instrucciones a una IA), una cuenta grande
   (`lineas`), una serie en fichas con un `?` (`items`) o un objeto/diagrama del tema (`cosa`, catálogo `escenas.objects` del
   `theme.json`), con un pie opcional (`texto`). El generador falla si el formato no cabe, si la cosa no existe o si la
   escena muestra escrita la opción correcta (nunca debe delatar la respuesta). Formato completo en `public/taps-engine/README.md`.
@@ -51,5 +52,8 @@ Modo cine (`asignarCine`): encima de eso cada Tap recibe plano de cámara (gener
 plano, travelling, órbita, diagonal), hora del día, clima, fauna de fondo y transición (corte, barrido, zoom, fundido), y se
 reparten de nuevo personaje, encuadre y entrada. Se simulan los órdenes reales del feed y cada Tap evita lo que ya tienen sus
 vecinos: deslizando 15 seguidos nunca se repite el plano (`taps.cine.spec.ts` lo comprueba). No hay que escribir nada a mano.
-Minecraft usa el tema `minecraft` (3D); Lógica y Cultura el tema `estudio` (2D). Para otro mundo u objeto se cambia
-esa tabla y se vuelve a generar.
+Minecraft usa el tema `minecraft` (3D); Lógica el tema `estudio` (2D); Cultura y Tecnología el tema `aventura` (personajes
+y fondos del registro). Tecnología (público joven y adulto) limita los presentadores a los humanos y el robot
+(`TEMAS.tecnologia.personajes`: cientifica, exploradora, hana, robot; nunca animales) y los fondos a los sobrios
+(`FONDOS_TEMA.tecnologia`: noche estrellada, pradera nublada, castillo y pirámides de noche). Para otro mundo u objeto se
+cambia esa tabla y se vuelve a generar.

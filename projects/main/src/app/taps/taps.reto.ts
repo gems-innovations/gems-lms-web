@@ -9,10 +9,11 @@ import { ITap } from './taps.types';
  *
  * - Calendario fijo: lo genera scripts/generar-taps.mjs y queda versionado en scripts/reto-calendario.json (y embebido en
  *   taps.banco.generated.ts). Solo crece hacia el futuro: agregar Taps al banco no cambia ni los días pasados ni el de hoy.
- *   Tema rotativo (lun Minecraft, mar Lógica, mié Cultura, jue Minecraft, vie Lógica, sáb Cultura y dom Minecraft), todos los
- *   Taps de un tema antes de repetir y subtemas intercalados.
- * - Respaldo (fuera del calendario o si un Tap del calendario ya no existe): misma rotación de temas y, dentro del tema,
- *   un orden fijo mezclado con un hash con avalancha. Determinista, pero sin intercalar subtemas.
+ *   Tema rotativo (lun Minecraft, mar Lógica, mié Cultura, jue Minecraft, vie Lógica, sáb Cultura y dom Tecnología desde el
+ *   día 427, lunes 2027-12-20; antes el domingo era Minecraft), todos los Taps de un tema antes de repetir y subtemas
+ *   intercalados. Los días ya fijados conservan la rotación con la que se fijaron.
+ * - Respaldo (fuera del calendario o si un Tap del calendario ya no existe): la rotación vigente de temas y, dentro del
+ *   tema, un orden fijo mezclado con un hash con avalancha. Determinista, pero sin intercalar subtemas.
  * - Solo usa Taps del banco (los que acepta el API del ranking): nunca inventa ids.
  * - Un solo intento puntuable: el primer resultado del día queda como «tu reto». Repetir se puede, pero no lo cambia.
  */
@@ -25,8 +26,23 @@ export const RETO_KEY = 'gems-taps-reto';
 const COLOMBIA_MS = 5 * 3600 * 1000;
 const DIA_MS = 86_400_000;
 
-/** Tema de cada día, de lunes (0) a domingo (6). La misma rotación que RETO.rotacion del generador. */
-export const RETO_ROTACION: readonly string[] = ['minecraft', 'logica', 'cultura', 'minecraft', 'logica', 'cultura', 'minecraft'];
+/**
+ * Rotaciones semanales (de lunes, 0, a domingo, 6), cada una vigente desde el día `desde` (índice desde RETO_INICIO).
+ * Las mismas que RETO.rotaciones del generador: cambiar la rotación nunca toca los días ya fijados del calendario.
+ */
+export const RETO_ROTACIONES: readonly { desde: number; temas: readonly string[] }[] = [
+  { desde: 0, temas: ['minecraft', 'logica', 'cultura', 'minecraft', 'logica', 'cultura', 'minecraft'] },
+  { desde: 427, temas: ['minecraft', 'logica', 'cultura', 'minecraft', 'logica', 'cultura', 'tecnologia'] },
+];
+/** Rotación vigente (la última): la que usa el respaldo más allá del calendario. */
+export const RETO_ROTACION: readonly string[] = RETO_ROTACIONES[RETO_ROTACIONES.length - 1].temas;
+
+/** Tema que la rotación asigna al día `d` (índice desde RETO_INICIO; antes del inicio, la primera rotación). */
+export function temaDelDia(d: number): string {
+  let temas = RETO_ROTACIONES[0].temas;
+  for (const r of RETO_ROTACIONES) if (d >= r.desde) temas = r.temas;
+  return temas[mod(d, 7)];
+}
 
 /** Fecha AAAA-MM-DD en Colombia para un instante (ms). */
 export function fechaColombia(ms: number): string {
@@ -55,7 +71,7 @@ export interface IRetoDia {
   /** Número del reto: #1 el 19 de octubre de 2026 (nunca menos de 1). */
   numero: number;
   tap: ITap;
-  /** Categoría del día (`minecraft`, `logica`, `cultura`). */
+  /** Categoría del día (`minecraft`, `logica`, `cultura`, `tecnologia`). */
   tema: string;
 }
 

@@ -205,7 +205,7 @@ mundo) y el motor lo llena; el personaje se corre a la otra mitad.
 
 | `tipo` | Datos | Cómo se ve |
 |---|---|---|
-| `codigo` | `lineas` (≤ 7 de ≤ 30 caracteres), `lenguaje?` (`pseudo`, `python`, `js`) | Ventana de código con resaltado por clases (palabras clave, textos, números, operadores, comentarios); en `minecraft`, un bloque de comandos |
+| `codigo` | `lineas` (≤ 7 de ≤ 30 caracteres), `lenguaje?` (`pseudo`, `python`, `js`, `bash` = terminal/git, `http`, `prompt` = instrucción a una IA) | Ventana de código con resaltado por clases (palabras clave, textos, números, operadores, comentarios); en `minecraft`, un bloque de comandos |
 | `operacion` | `lineas` (≤ 4 de ≤ 16) | Cuenta grande alineada a la derecha; la última línea bajo una raya, como en el cuaderno |
 | `serie` | `items` (3 a 8 fichas de ≤ 4 caracteres, con un `?`) | Fichas en fila, la del `?` resaltada |
 | `objeto` / `diagrama` | `cosa` (theme.json → `escenas.objects`) | minecraft: creeper, enderman, lobo, golem-nieve, piston, ghast, vaca-champinon, arco (pixel art + casilla «?»). estudio: esqueleto, pulpo, vaso-hielo, tormenta, olla-altura, sol-tierra, gaseosa (diagramas de cuaderno) |

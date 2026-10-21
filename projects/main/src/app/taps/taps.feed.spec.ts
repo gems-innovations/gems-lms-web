@@ -68,6 +68,19 @@ describe('mixFeed (feed «Para ti»)', () => {
     expect(maxRun(mixFeed(sample))).toBeLessThanOrEqual(MAX_SAME_TOPIC_IN_A_ROW);
     expect(maxRun(mixFeed(sample, { hookDone: true }).slice(0, -3))).toBeLessThanOrEqual(MAX_SAME_TOPIC_IN_A_ROW);
   });
+  it('con cuatro categorías evita 3 difíciles seguidos mientras alguna cola tenga otra cosa que ofrecer', () => {
+    // una categoría cargada de difíciles y tres normales: tras dos difíciles se prefiere la cola cuyo siguiente Tap no lo es
+    const duro = (topic: string, n: number): ITap[] => Array.from({ length: n }, (_, i) => ({ ...tap, id: `${topic}-${i}`, topic, hook: i === 0, level: i % 3 === 1 ? 'facil' : 'dificil' }));
+    const cuatro = [...duro('a', 9), ...maker('b', 9), ...maker('c', 8), ...maker('d', 8)];
+    for (const opts of [{}, { hookDone: true }]) {
+      const out = mixFeed(cuatro, opts), levels = out.map(t => t.level);
+      // mientras las cuatro colas están abiertas (los primeros 20) no hay tres difíciles seguidos; al final, cuando solo quedan
+      // difíciles, es inevitable
+      for (let i = 2; i < 20; i++) expect(levels[i] === 'dificil' && levels[i - 1] === 'dificil' && levels[i - 2] === 'dificil').withContext(JSON.stringify(opts) + ' posición ' + i).toBeFalse();
+      expect(maxRun(out.slice(0, -4))).toBeLessThanOrEqual(MAX_SAME_TOPIC_IN_A_ROW);
+      expect(new Set(out.map(t => t.id)).size).toBe(cuatro.length);
+    }
+  });
   it('empieza por un gancho y el gancho de cada categoría es lo primero que sale de ella', () => {
     const out = mixFeed(sample);
     expect(out[0].hook).toBeTrue();
@@ -98,11 +111,11 @@ describe('mixFeed (feed «Para ti»)', () => {
 
 describe('el feed con los Taps reales', () => {
   const feed = orderFeed(TAPS, {});
-  it('hay 102 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
-    expect(TAPS.length).toBe(102);
+  it('hay 122 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
+    expect(TAPS.length).toBe(122);
     expect(new Set(TAPS.map(t => t.id)).size).toBe(TAPS.length);
     const questionIds = TAPS.flatMap(t => t.questions.map(q => q.id));
-    expect(questionIds.length).toBe(102 * 5);
+    expect(questionIds.length).toBe(122 * 5);
     expect(new Set(questionIds).size).toBe(questionIds.length);
   });
   it('el feed los trae todos, con un gancho primero y nunca más de 2 seguidos del mismo tema', () => {
@@ -111,8 +124,8 @@ describe('el feed con los Taps reales', () => {
     expect(maxRun(feed)).toBeLessThanOrEqual(MAX_SAME_TOPIC_IN_A_ROW);
   });
   it('cada tema tiene su Tap de gancho y es el primero de ese tema en el feed', () => {
-    expect(HOOK_TAP_IDS.length).toBe(3);
-    for (const topic of ['minecraft', 'logica', 'cultura']) expect(feed.find(t => topicOf(t) === topic)!.hook).toBeTrue();
+    expect(HOOK_TAP_IDS.length).toBe(4);
+    for (const topic of ['minecraft', 'logica', 'cultura', 'tecnologia']) expect(feed.find(t => topicOf(t) === topic)!.hook).toBeTrue();
   });
   it('un enlace a un Tap lo pone primero y sigue sin pasar de 2 seguidos', () => {
     const f = orderFeed(TAPS, { first: TAPS[30].id });
@@ -162,9 +175,9 @@ describe('feedTopics', () => {
     expect(list[0]).toEqual(jasmine.objectContaining({ count: 1, soon: false }));
     expect(list[0].topic.name).toBe('Ciencias');
   });
-  it('con los Taps reales los tres temas son jugables, con sus conteos, y ninguno dice «pronto»', () => {
+  it('con los Taps reales los cuatro temas son jugables, con sus conteos, y ninguno dice «pronto»', () => {
     const real = feedTopics(TAPS, TAP_TOPICS);
-    expect(real.map(t => [t.topic.id, t.count, t.soon])).toEqual([['minecraft', 42, false], ['logica', 29, false], ['cultura', 31, false]]);
+    expect(real.map(t => [t.topic.id, t.count, t.soon])).toEqual([['minecraft', 42, false], ['logica', 29, false], ['cultura', 31, false], ['tecnologia', 20, false]]);
   });
 });
 
