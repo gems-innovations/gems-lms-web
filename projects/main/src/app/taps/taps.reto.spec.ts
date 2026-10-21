@@ -1,6 +1,6 @@
 import { TAPS } from './taps.data';
 import { topicOf } from './taps.logic';
-import { RETO_INICIO, RETO_ROTACION, dailyTap, fechaColombia, parseReto, retoLabel, retoShareText, retoUrl } from './taps.reto';
+import { RETO_INICIO, RETO_ROTACION, RETO_ROTACIONES, dailyTap, fechaColombia, parseReto, retoLabel, retoShareText, retoUrl, temaDelDia } from './taps.reto';
 import {
   avanceColeccion, coleccionDe, colecciones, emptyColecciones, gradoDe, parseColecciones, registrarPuntaje, sembrarInsignias,
 } from './taps.coleccion';
@@ -27,15 +27,22 @@ describe('Reto del día (dailyTap)', () => {
     expect(dailyTap(TAPS, '2026-10-22')?.tap.id).not.toBe(a?.tap.id);
   });
 
-  it('numera desde el reto #1 y rota el tema: lun Minecraft, mar Lógica, mié Cultura…', () => {
+  it('numera desde el reto #1 y rota el tema: lun Minecraft, mar Lógica, mié Cultura… (y dom Tecnología desde el día 427)', () => {
     expect(dailyTap(TAPS, RETO_INICIO)?.numero).toBe(1);
     expect(dailyTap(TAPS, mas(RETO_INICIO, 41))?.numero).toBe(42);
-    for (let d = 0; d < 7; d++) {
+    for (const d of [0, 1, 2, 3, 4, 5, 6, 427, 428, 433, 440]) {
       const r = dailyTap(TAPS, mas(RETO_INICIO, d))!;
-      expect(r.tema).toBe(RETO_ROTACION[d]);
-      expect(topicOf(r.tap)).toBe(RETO_ROTACION[d]);
+      expect(r.tema).withContext(`día ${d}`).toBe(temaDelDia(d));
+      expect(topicOf(r.tap)).withContext(`día ${d}`).toBe(temaDelDia(d));
     }
     expect(RETO_ROTACION.slice(0, 3)).toEqual(['minecraft', 'logica', 'cultura']);
+    expect(RETO_ROTACION[6]).toBe('tecnologia');
+    // los días ya fijados conservan la rotación con la que se fijaron (el domingo era Minecraft)
+    expect(temaDelDia(6)).toBe('minecraft');
+    expect(temaDelDia(433)).toBe('tecnologia');
+    expect(RETO_ROTACIONES[1].desde % 7).toBe(0);
+    expect(dailyTap(TAPS, mas(RETO_INICIO, 6))!.tema).toBe('minecraft');
+    expect(dailyTap(TAPS, mas(RETO_INICIO, 433))!.tema).toBe('tecnologia');
   });
 
   it('solo elige Taps del banco (los que acepta el ranking), nunca uno de gancho, y no repite un Tap del tema hasta agotarlos', () => {
@@ -69,7 +76,7 @@ describe('Reto del día (dailyTap)', () => {
     const fuera = mas(RETO_INICIO, TAPS_RETO_CALENDARIO.dias.length + 3);
     const r = dailyTap(TAPS, fuera)!;
     expect(r.tap.id).toBe(dailyTap([...TAPS].reverse(), fuera)!.tap.id);
-    expect(topicOf(r.tap)).toBe(RETO_ROTACION[(TAPS_RETO_CALENDARIO.dias.length + 3) % 7]);
+    expect(topicOf(r.tap)).toBe(temaDelDia(TAPS_RETO_CALENDARIO.dias.length + 3));
     expect(r.tap.hook).toBeFalsy();
     expect(dailyTap(TAPS, '2026-01-01')!.numero).toBe(1);
   });

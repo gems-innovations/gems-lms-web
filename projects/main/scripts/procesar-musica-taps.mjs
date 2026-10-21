@@ -72,9 +72,11 @@ export const PISTAS = [
 const GRUPO_MINECRAFT = ['pixel-quest-loop', 'cave-quiz-crawl', 'magma-quest-loop', 'village-morning-loop', 'island-quiz-loop'];
 const GRUPO_LOGICA = ['puzzle-tick-loop', 'cozy-study-loop', 'orbit-quiz-drift'];
 const GRUPO_CULTURA = ['wonder-loop', 'orbit-quiz-drift', 'island-quiz-loop', 'village-morning-loop', 'cozy-study-loop'];
+/** Tecnología (público adulto): solo las pistas sobrias, sin playa ni aldea. */
+const GRUPO_TECNOLOGIA = ['orbit-quiz-drift', 'cozy-study-loop', 'puzzle-tick-loop'];
 export const MAPA = {
   grupos: {
-    minecraft: GRUPO_MINECRAFT, logica: GRUPO_LOGICA, cultura: GRUPO_CULTURA,
+    minecraft: GRUPO_MINECRAFT, logica: GRUPO_LOGICA, cultura: GRUPO_CULTURA, tecnologia: GRUPO_TECNOLOGIA,
     // Por motor, para una categoría nueva sin grupo propio.
     estudio: GRUPO_LOGICA, aventura: GRUPO_CULTURA,
   },

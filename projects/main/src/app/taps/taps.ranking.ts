@@ -7,10 +7,11 @@
  * - GET  /api/v1/public/taps/ranking?periodo=semana|hoy&tema=&jugadorId=&limite=20 → IRanking
  * XP = aciertos × 10 + 20 si el Tap sale perfecto. La semana va de lunes a lunes, hora de Colombia (UTC−5, sin horario de verano).
  */
-export type TRankingTema = 'minecraft' | 'logica' | 'cultura';
+export type TRankingTema = 'minecraft' | 'logica' | 'cultura' | 'tecnologia';
 export type TRankingPeriodo = 'semana' | 'hoy';
 
-export const RANKING_TEMAS: readonly TRankingTema[] = ['minecraft', 'logica', 'cultura'];
+/** Los mismos temas que acepta el API (TapsRankingUseCase.TEMAS en ms-education): el API se despliega antes que la web. */
+export const RANKING_TEMAS: readonly TRankingTema[] = ['minecraft', 'logica', 'cultura', 'tecnologia'];
 export const RANKING_LIMITE = 20;
 export const XP_POR_ACIERTO = 10;
 export const XP_BONO_PERFECTO = 20;

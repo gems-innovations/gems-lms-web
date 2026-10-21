@@ -1,7 +1,7 @@
 // Taps Engine · escena de la PREGUNTA (no de la respuesta): algo de lo que se pregunta, a la vista mientras se piensa.
 // Lo pide el motor la primera vez que una pregunta la trae (stage.escena); nunca está en el bundle de la app.
 //
-//   { tipo: 'codigo',    lineas: ['si llueve:', '  calle = "mojada"'], lenguaje?: 'pseudo' | 'python' | 'js' }
+//   { tipo: 'codigo',    lineas: ['si llueve:', '  calle = "mojada"'], lenguaje?: 'pseudo' | 'python' | 'js' | 'bash' | 'http' | 'prompt' }
 //   { tipo: 'operacion', lineas: ['? × 5', '= ? × 7'] }      la última línea va bajo una raya, como una suma en el cuaderno
 //   { tipo: 'serie',     items: ['2', '4', '8', '16', '?'] } fichas en fila; la del «?» resaltada
 //   { tipo: 'objeto' | 'diagrama', cosa, texto? }           lo dibuja el tema (visuals.js → createEscena), en su estilo
@@ -12,7 +12,10 @@
 
 const PALABRAS = new Set(['si', 'sino', 'entonces', 'para', 'cada', 'en', 'repetir', 'veces', 'mientras', 'escribir', 'devolver', 'funcion', 'función',
   'y', 'o', 'no', 'es', 'todo', 'todos', 'ningún', 'ninguno', 'verdadero', 'falso', 'if', 'else', 'for', 'while', 'return', 'def', 'print', 'let', 'const',
-  'true', 'false', 'in', 'not', 'and', 'or', 'is']);
+  'true', 'false', 'in', 'not', 'and', 'or', 'is',
+  // terminal (git) y HTTP: el comando y el método se resaltan como palabra clave
+  'git', 'init', 'clone', 'add', 'commit', 'push', 'pull', 'fetch', 'merge', 'branch', 'checkout', 'switch', 'status', 'log', 'rebase', 'revert',
+  'get', 'post', 'put', 'patch', 'delete', 'head', 'http']);
 const TOKEN = /(#.*$|\/\/.*$)|("[^"]*"|'[^']*')|(\d+(?:[.,]\d+)?)|([=<>!+\-*/×÷%]+|==)|([A-Za-zÁÉÍÓÚÜÑáéíóúüñ_][\wÁÉÍÓÚÜÑáéíóúüñ]*)/g;
 
 /** Una línea de código en trozos con su clase (puro: también lo usan las pruebas). */
@@ -31,7 +34,8 @@ export function tokenizar(linea) {
 }
 
 const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
-const NOMBRE = { pseudo: 'pseudocódigo', python: 'python', js: 'javascript' };
+/** Rótulo de la barra de la ventana por lenguaje (mismos ids que LENGUAJES en scripts/generar-taps.mjs). */
+const NOMBRE = { pseudo: 'pseudocódigo', python: 'python', js: 'javascript', bash: 'terminal', http: 'http', prompt: 'prompt' };
 
 function codigo(spec) {
   const card = el('div', 'te-esc-code');

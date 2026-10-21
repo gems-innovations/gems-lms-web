@@ -21,6 +21,8 @@ export const TAP_TOPICS: ITapTopic[] = [
   { id: 'minecraft', name: 'Minecraft', blurb: 'Quiz de bloques', color: '#5fbf3a' },
   { id: 'logica', name: 'Lógica y trampas', blurb: 'Piénsalo dos veces', color: '#8b6cf0' },
   { id: 'cultura', name: 'Cultura general', blurb: 'Ciencia y datos que sorprenden', color: '#f0a43a' },
+  // Primer tema «profundo» para público joven y adulto: Git, programación, redes, ciberseguridad, IA y hardware.
+  { id: 'tecnologia', name: 'Tecnología', blurb: 'Código, redes, IA y seguridad', color: '#3fb8c9' },
 ];
 
 /**

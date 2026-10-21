@@ -124,7 +124,11 @@ export function mixFeed(taps: readonly ITap[], opts: { hookDone?: boolean } = {}
     const open = [...queues.entries()].filter(([, q]) => q.length > 0);
     const allowed = open.filter(([k]) => !(full && k === lastTopic));
     const pool = allowed.length ? allowed : open;
-    const [topic, queue] = pool.sort((a, b) => b[1].length - a[1].length || lastSeen.get(a[0])! - lastSeen.get(b[0])!)[0];
+    const sorted = pool.sort((a, b) => b[1].length - a[1].length || lastSeen.get(a[0])! - lastSeen.get(b[0])!);
+    // Nunca 3 difíciles seguidos: tras dos difíciles se prefiere la categoría (en el mismo orden) cuyo siguiente Tap no lo sea.
+    // Con cuatro categorías el diente de sierra de cada una ya no bastaba para evitarlo.
+    const dosDificiles = out.length >= 2 && out.slice(-2).every(t => t.level === 'dificil');
+    const [topic, queue] = (dosDificiles && sorted.find(([, q]) => q[0].level !== 'dificil')) || sorted[0];
     out.push(queue.shift()!);
     lastSeen.set(topic, out.length);
   }
