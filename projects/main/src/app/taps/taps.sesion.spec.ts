@@ -1,6 +1,6 @@
 import { dayKey, emptyInterest, markCompleted } from './taps.interest';
 import {
-  META_DIA, PARTIDAS_VIGENCIA_MS, REGRESO_MS, bestStreak, emptySesion, freshHead, greeting, hasProgress, parseRuns, parseSesion,
+  META_DIA, PARTIDAS_VIGENCIA_MS, REGRESO_MS, bestStreak, emptySesion, greeting, hasProgress, parseRuns, parseSesion,
   rematchText, sessionBucket, sessionGoal, sessionLabel, sessionSummary, sessionTapsBucket, storeRun,
 } from './taps.sesion';
 import { ITap, ITapRun } from './taps.types';
@@ -15,7 +15,6 @@ const mk = (id: string, topic = 'mc'): ITap => ({
   results: [{ min: 0, title: 'A', line: 'a' }],
 });
 const run = (id: string, over: Partial<ITapRun> = {}): ITapRun => ({ tapId: id, index: 1, chosen: null, score: 1, answers: [true], finished: false, ...over });
-const ids = (list: ITap[]) => list.map(t => t.id);
 
 describe('sessionGoal (meta del día: 3 Taps)', () => {
   it('cuenta los Taps completados hoy: 0, 1, 3 y más de 3', () => {
@@ -95,28 +94,6 @@ describe('greeting (saludo al volver)', () => {
   });
 });
 
-describe('freshHead (regreso sin repeticiones)', () => {
-  const feed = ['a', 'b', 'c', 'd', 'e'].map(id => mk(id));
-
-  it('lo jugado ayer no ocupa las 2 primeras posiciones', () => {
-    const i = markCompleted(markCompleted(emptyInterest(), feed[0], NOW - DIA), feed[1], NOW - DIA);
-    expect(ids(freshHead(feed, i, NOW))).toEqual(['c', 'd', 'a', 'b', 'e']);
-  });
-
-  it('el Tap pedido por enlace se queda primero aunque ya se haya jugado', () => {
-    const i = markCompleted(markCompleted(emptyInterest(), feed[0], NOW - DIA), feed[1], NOW - DIA);
-    expect(ids(freshHead(feed, i, NOW, 2, 1))).toEqual(['a', 'c', 'd', 'b', 'e']);
-  });
-
-  it('pasados 14 días un Tap vuelve a contar como nuevo; si todo es reciente no cambia nada', () => {
-    const viejo = markCompleted(emptyInterest(), feed[0], NOW - 15 * DIA);
-    expect(ids(freshHead(feed, viejo, NOW))).toEqual(ids(feed));
-    let todo = emptyInterest();
-    feed.forEach(t => { todo = markCompleted(todo, t, NOW - HORA); });
-    expect(ids(freshHead(feed, todo, NOW))).toEqual(ids(feed));
-  });
-});
-
 describe('partidas guardadas (localStorage, 48 h)', () => {
   const known = new Set(['a', 'b', 'c']);
 
@@ -160,13 +137,6 @@ describe('medición de la sesión', () => {
 });
 
 describe('arreglos de la revisión', () => {
-  it('freshHead con ?tema= reemplaza dentro del mismo tema', () => {
-    const feed = [mk('m1', 'mc'), mk('l1', 'lg'), mk('m2', 'mc'), mk('m3', 'mc')];
-    const i = markCompleted(emptyInterest(), feed[0], NOW - DIA);
-    expect(ids(freshHead(feed, i, NOW, 1, 0, 'mc'))).toEqual(['m2', 'm1', 'l1', 'm3']);
-    expect(ids(freshHead(feed, i, NOW, 1, 0, null))).toEqual(['l1', 'm1', 'm2', 'm3']);
-  });
-
   it('una partida terminada otro día no se retoma; una de hoy sí; a medias, 48 h', () => {
     const known = new Set(['a', 'b']);
     let { saved } = storeRun({}, run('a', { finished: true, answers: [true, true, true, true, true], index: 4, score: 5 }), NOW - DIA);

@@ -1,5 +1,4 @@
-import { IInterest, NOVELTY_MS, dayKey, streakDays } from './taps.interest';
-import { topicOf } from './taps.logic';
+import { IInterest, dayKey, streakDays } from './taps.interest';
 import { ITap, ITapRun } from './taps.types';
 
 /**
@@ -117,25 +116,7 @@ export function rematchText(tap: ITap, interest: IInterest, sesion: ISesionGuard
   return p === undefined ? 'Ya lo jugaste. ¿Revancha?' : `Ya lo jugaste: ${p}/${tap.questions.length}. ¿Revancha?`;
 }
 
-// ───────────── orden del regreso ─────────────
-/**
- * Cabeza fresca: ningún Tap completado en los últimos 14 días ocupa las `n` primeras posiciones si hay otros sin jugar
- * (el primero de cada hueco se toma en el orden que ya traía el feed). `fixed` posiciones al inicio no se tocan (el Tap
- * pedido por enlace). Con `topic` (`?tema=`), el reemplazo de un Tap de ese tema se busca dentro del mismo tema.
- */
-export function freshHead(feed: readonly ITap[], interest: IInterest, now: number, n = 2, fixed = 0, topic: string | null = null): ITap[] {
-  const recent = (t: ITap) => (interest.done[t.id] ?? 0) > now - NOVELTY_MS;
-  const out = [...feed];
-  for (let pos = fixed; pos < Math.min(fixed + n, out.length); pos++) {
-    if (!recent(out[pos])) continue;
-    const same = topic !== null && topicOf(out[pos]) === topic;
-    const swap = out.findIndex((t, i) => i > pos && !recent(t) && (!same || topicOf(t) === topic));
-    if (swap < 0) break;
-    const [fresh] = out.splice(swap, 1);
-    out.splice(pos, 0, fresh);
-  }
-  return out;
-}
+// El orden del regreso (lo jugado en los últimos 14 días al fondo) vive en taps.mezcla.ts (`mezclarFeed`, antes `freshHead`).
 
 // ───────────── partidas a medias (localStorage, 48 h) ─────────────
 export type TPartidaGuardada = ITapRun & { t: number };
