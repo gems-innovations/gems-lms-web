@@ -34,7 +34,7 @@ import { ITap, ITapEscena, ITapRun, ITapVisual, ITapsStage } from './taps.types'
 import { planoSeed, questionEscena, visualSide } from './taps.escena';
 import { fraseActual } from './taps.frases';
 import {
-  IPausaSesion, ISesionGuardada, PARTIDAS_KEY, PAUSA_KEY, SESION_KEY, TPartidaGuardada, emptySesion, freshHead, greeting, hasProgress, nuevaPausa,
+  IPausaSesion, ISesionGuardada, PARTIDAS_KEY, PAUSA_KEY, SESION_KEY, TPartidaGuardada, emptySesion, greeting, hasProgress, nuevaPausa,
   parsePausa, parseRuns, parseSesion, pauseSummary, reanudarPausa, registrarActividad, rematchText, sessionBucket, sessionGoal, sessionSummary,
   sessionTapsBucket, shouldSuggestPause, storeRun,
 } from './taps.sesion';
@@ -45,6 +45,7 @@ import {
   parseColecciones, registrarPuntaje, sembrarInsignias,
 } from './taps.coleccion';
 import { IRetoResultado } from './tap-result.component';
+import { barajarOpciones, mezclarFeed, semillaDe } from './taps.mezcla';
 import { TapPausaComponent } from './tap-pausa.component';
 
 const SOUND_KEY = 'gems-taps-sound';
@@ -133,6 +134,16 @@ export class TapsFeedComponent {
    * hidratación. Tras hidratar se pasa al orden deseado si la persona aún no respondió (`applyWantedOrder`).
    */
   protected readonly taps = signal<ITap[]>(this.serverOrder() ?? this.wanted);
+  /**
+   * Taps cuya primera pregunta ya estaba pintada (el actual y el que asoma): sus opciones no se barajan, porque el script
+   * previo a hidratar responde por posición (`data-ans`) y el toque se repite al hidratar sobre ese mismo botón.
+   */
+  private readonly pintadosPrimero = new Set(this.taps().slice(0, 2).map(t => t.id));
+  /** Cada Tap con sus opciones barajadas para esta persona (una sola vez por id: el mismo objeto en todas las listas). */
+  private readonly barajados = new Map<string, ITap>();
+  /** Semillas de la mezcla (taps.mezcla.ts): por persona (opciones) y por persona y día de Colombia (orden). Vacías en el servidor. */
+  private semillaPersona = '';
+  private semillaDia = '';
   protected readonly topics = feedTopics(TAPS, TAP_TOPICS);
   protected readonly runs = signal<Record<string, ITapRun>>(Object.fromEntries(TAPS.map(t => [t.id, startRun(t)])));
   protected readonly activeId = signal(this.taps()[0].id);
@@ -393,6 +404,8 @@ export class TapsFeedComponent {
       this.watchViewport();
       this.gate = new LoadingGate(visible => this.skeleton.set(visible), 300, 500);
       this.gate.set(this.stageMode() === 'loading');
+      this.semillaPersona = this.ranking.jugadorId();
+      this.semillaDia = semillaDe(this.semillaPersona, fechaColombia(Date.now()));
       const reordered = this.applyWantedOrder();
       if (this.retoRoute) this.retoListo.set(true);
       this.restoreRuns();
@@ -410,8 +423,14 @@ export class TapsFeedComponent {
         this.welcome();
       }
       // Con el orden nuevo ya pintado se empieza a observar qué Tap está a la vista.
-      const start = () => { if (reordered) this.feed().nativeElement.scrollTo({ top: 0 }); this.watchSections(); void this.activate(0); };
-      if (reordered || this.retoRoute) afterNextRender(start, { injector: this.injector }); else start();
+      // `data-taps-orden`: el orden de esta persona y este día ya está pintado (lo esperan las pruebas e2e).
+      const start = () => {
+        if (reordered === 'todo') this.feed().nativeElement.scrollTo({ top: 0 });
+        html.setAttribute('data-taps-orden', '');
+        this.watchSections();
+        void this.activate(0);
+      };
+      if (reordered !== 'no' || this.retoRoute) afterNextRender(start, { injector: this.injector }); else start();
     });
   }
 
@@ -424,22 +443,73 @@ export class TapsFeedComponent {
   }
 
   /**
-   * Tras hidratar: pasa al orden deseado (enlace `?t=`, tema, gancho ya jugado) si nadie respondió todavía.
-   * Regreso sin repeticiones: lo jugado en los últimos 14 días no ocupa la cabeza del feed (salvo el Tap pedido por enlace).
+   * Tras hidratar: pasa al orden deseado (enlace `?t=`, tema, gancho ya jugado), mezclado con la semilla de esta persona y
+   * este día (taps.mezcla.ts), y con las opciones barajadas por persona.
+   *
+   * Prerender = hidratación: el HTML del servidor trae el orden neutro y se hidrata tal cual; aquí (antes de que la persona
+   * deslice) se reordena lo que viene DESPUÉS del Tap a la vista. Fijos: el Tap del enlace `/t/<id>` o `?t=` (y el reto en
+   * `/hoy`), el gancho de alguien nuevo y todo Tap ya respondido (también el respondido antes de hidratar por el script de
+   * index.html: su botón y su Tap no se mueven; solo se mezcla la cola). Lo jugado hace menos de 14 días va al fondo (antes
+   * `freshHead` solo lo sacaba de las 2 primeras posiciones).
+   * Devuelve 'no' (nada cambió), 'cola' (solo lo que viene después: no se vuelve arriba) o 'todo' (cambió también el primero).
    */
-  private applyWantedOrder(): boolean {
-    const now = Date.now(), fixed = findTap(this.askedId) ? 1 : 0;
-    // «Para ti» aprende de lo que se jugó; con un tema elegido el orden se respeta y solo se refresca la cabeza.
-    // En la portada, un solo Tap: el primero que esta persona aún no completó (portadaPick).
-    const base = this.topic() === null ? personalize(this.wanted, fixed, this.interest(), now) : this.wanted;
-    const target = this.portada ? this.portadaPick() : this.placeReto(freshHead(base, this.interest(), now, 2, fixed, this.topic()), fixed, now);
-    const current = this.taps().map(t => t.id).join(), wanted = target.map(t => t.id).join();
-    const answered = Object.values(this.runs()).some(r => r.answers.length > 0) || !!(globalThis as { __tapsPre?: unknown }).__tapsPre;
-    if (current === wanted || answered) return false;
+  private applyWantedOrder(): 'no' | 'cola' | 'todo' {
+    const now = Date.now(), current = this.taps();
+    const pre = (globalThis as { __tapsPre?: IPreAnswer }).__tapsPre;
+    // Lo ya respondido (en esta pestaña, o antes de hidratar) se queda donde está: se fija hasta la última respuesta.
+    const answeredAt = current.reduce((last, t, i) => (this.runs()[t.id].answers.length > 0 || pre?.id === t.id ? i : last), -1) + 1;
+    const fixed = Math.max(answeredAt, findTap(this.askedId) ? 1 : 0);
+    let target: ITap[];
+    if (this.portada) {
+      // En la portada, un solo Tap: el primero que esta persona aún no completó (portadaPick).
+      target = this.portadaPick();
+    } else {
+      // «Para ti» aprende de lo que se jugó; con un tema elegido ese tema va primero y se mezcla dentro de cada bloque.
+      const head = current.slice(0, fixed), ids = new Set(head.map(t => t.id));
+      const base = this.topic() === null ? personalize(this.wanted, fixed, this.interest(), now) : this.wanted;
+      const list = [...head, ...base.filter(t => !ids.has(t.id))];
+      // Alguien nuevo empieza por el Tap de gancho (el del tema elegido, si hay `?tema=`): ese no se mezcla.
+      const fijos = Math.max(fixed, this.fijosGancho(list));
+      target = this.placeReto(this.mezclar(list, fijos), fijos, now);
+    }
+    target = this.conOpciones(target);
+    if (target.length === current.length && target.every((t, i) => t === current[i])) return 'no';
     this.taps.set(target);
     this.activeId.set(target[0].id);
     this.activeIndex = -1;
-    return true;
+    return answeredAt > 0 ? 'cola' : target[0].id === current[0]?.id ? 'cola' : 'todo';
+  }
+
+  /** Alguien nuevo (sin gancho jugado) empieza por el Tap de gancho que encabeza la lista (el del tema elegido, si hay uno): 1 posición fija; si no, 0. */
+  private fijosGancho(list: readonly ITap[]): number {
+    return !this.hookDone && !this.anyFinished() && !!list[0]?.hook && !this.interest().done[list[0].id] ? 1 : 0;
+  }
+
+  /** Mezcla con la semilla del día (persona + fecha de Colombia): ver taps.mezcla.ts. Con `?tema=` ese tema va primero; los bloqueados, al final. */
+  private mezclar(list: readonly ITap[], fijos: number): ITap[] {
+    const now = Date.now(), interest = this.interest(), topic = this.topic();
+    return mezclarFeed(list, {
+      semilla: this.semillaDia, fijos,
+      reciente: t => (interest.done[t.id] ?? 0) > now - NOVELTY_MS,
+      grupo: t => (topic !== null && topicOf(t) !== topic ? 1 : 0) + (isBlocked(interest, topicOf(t), now) ? 2 : 0),
+    });
+  }
+
+  /**
+   * Cada Tap con sus opciones barajadas para esta persona (`answer` sigue apuntando a la correcta; el ranking cuenta
+   * aciertos, no posiciones). Quedan como están: la primera pregunta del gancho («Toca tu respuesta»), la primera de los
+   * Taps ya pintados antes de hidratar y todo Tap con alguna respuesta dada. Un Tap se baraja una sola vez (misma referencia después).
+   */
+  private conOpciones(list: readonly ITap[]): ITap[] {
+    return list.map(tap => {
+      const known = this.barajados.get(tap.id);
+      if (known) return known;
+      const run = this.runs()[tap.id], pre = (globalThis as { __tapsPre?: IPreAnswer }).__tapsPre;
+      const answered = run.answers.length > 0 || run.chosen !== null || pre?.id === tap.id;
+      const out = answered || !this.semillaPersona ? tap : barajarOpciones(tap, this.semillaPersona, k => k === 0 && (!!tap.hook || this.pintadosPrimero.has(tap.id)));
+      this.barajados.set(tap.id, out);
+      return out;
+    });
   }
 
   /**
@@ -636,8 +706,9 @@ export class TapsFeedComponent {
     const ordered = orderFeed(TAPS, { hookDone, topic: this.portadaTopic });
     this.following = this.portadaTopic ? ordered : personalize(ordered, 2, this.interest(), Date.now());
     const first = this.following.find(t => !(t.id in done)) ?? this.following[0];
-    this.following = [first, ...this.following.filter(t => t !== first)];
-    return [first];
+    // «Siguiente» también varía por persona y día; el Tap a la vista no cambia.
+    this.following = this.conOpciones(this.mezclar([first, ...this.following.filter(t => t !== first)], 1));
+    return [this.following[0]];
   }
 
   /**
@@ -1206,7 +1277,8 @@ export class TapsFeedComponent {
     if (this.portada) { this.toFeed({ tema: id }); return; }
     this.clock.flush();
     this.topic.set(id);
-    const ordered = orderFeed(TAPS, { topic: id, hookDone: this.hookDone || this.anyFinished() });
+    const base = orderFeed(TAPS, { topic: id, hookDone: this.hookDone || this.anyFinished() });
+    const ordered = this.conOpciones(this.mezclar(base, this.fijosGancho(base)));   // alguien nuevo: el gancho del tema elegido sigue primero
     this.taps.set(ordered);
     this.activeId.set(ordered[0].id);                              // el nuevo primer Tap ya tiene contenido al volver arriba
     void this.router.navigate([], { queryParams: { tema: id, t: null }, queryParamsHandling: 'merge', replaceUrl: true });
@@ -1406,7 +1478,8 @@ export class TapsFeedComponent {
   /** Reordena lo que viene después del Tap a la vista y el que asoma (esos dos no cambian de pronto). Con un tema elegido no se toca. */
   private reorderTail(): void {
     if (this.topic() !== null || !this.isBrowser) return;
-    const next = personalize(this.taps(), this.activeIndexSig() + 2, this.interest(), Date.now());
+    const keep = this.activeIndexSig() + 2;
+    const next = this.mezclar(personalize(this.taps(), keep, this.interest(), Date.now()), keep);
     if (next.some((t, i) => t.id !== this.taps()[i].id)) this.taps.set(next);
   }
 
