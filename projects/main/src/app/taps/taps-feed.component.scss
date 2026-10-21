@@ -1,22 +1,14 @@
 // Feed de Taps: pantalla completa (100dvh), un Tap por pantalla (scroll-snap). Primero celular, oscuro por defecto.
 // Zonas (experiencia-ux.md §3): barra arriba (se toca poco), mundo + riel en el centro, pregunta y opciones abajo (pulgar).
-// Aspecto «documental» (producto/taps/direccion-visual.md, dirección A, por defecto): pregunta en serif editorial, opciones
-// neutras (grafito / hueso) con un solo acento ámbar, reacción como subtítulo oscuro sin cola, bordes poco redondeados y
-// sombras suaves. Los colores viven en --doc-*; `?estilo=clasico` (taps-feed.clasico.scss) devuelve el aspecto anterior.
-// Tipografía: la familia de interfaz del sitio (--tap-font) para lo que se toca y se lee de corrido; la serif (--tap-serif,
-// Instrument Serif, OFL, 21 KB, cargada aquí con swap) solo en la pregunta y el título del resultado; la del tema
+// Tipografía: la familia de interfaz del sitio (--tap-font) para todo lo que se lee y se toca; la del tema
 // (--tap-display-font, p. ej. la pixelada de Minecraft) solo como acento en el nombre del tema.
-@font-face { font-family: 'Instrument Serif'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/instrument-serif-latin-400-normal.woff2') format('woff2'); }
-:host { display: block; --tap-font: var(--font-interfaz, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif); --tap-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
-  --safe-b: max(12px, calc(env(safe-area-inset-bottom) + 8px)); --bar-h: calc(max(8px, env(safe-area-inset-top)) + 56px);
-  --doc-ink: #f2efe8; --doc-suave: #b8ad99; --doc-grafito: #262b33; --doc-linea: rgba(255, 255, 255, .14); --doc-ambar: #e8c47a; --doc-ambar-tinta: #1b1300;
-  --doc-ok: #8fc79a; --doc-ok-tinta: #0d2a16; --doc-bad: #d98a7a; --doc-bad-tinta: #2d0f0a; --doc-sombra: 0 6px 18px rgba(0, 0, 0, .28); --doc-radio: 6px; --doc-sub: rgba(12, 14, 18, .82); }
+:host { display: block; --tap-font: var(--font-interfaz, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif); --safe-b: max(12px, calc(env(safe-area-inset-bottom) + 8px)); --bar-h: calc(max(8px, env(safe-area-inset-top)) + 56px); }
 
 .visually-hidden { font-weight: 700; position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 
 .taps {
   position: fixed; inset: 0; z-index: 5; overflow-y: auto; overscroll-behavior-y: contain;
-  scroll-snap-type: y mandatory; scrollbar-width: none; background: #0e1116; color: var(--doc-ink);
+  scroll-snap-type: y mandatory; scrollbar-width: none; background: #0e1116; color: #fff;
   font-family: var(--tap-font);
   &::-webkit-scrollbar { display: none; }
 }
@@ -29,34 +21,54 @@
   &__stage { position: absolute; inset: 0; }
   // Marca sutil del primer fotograma: se ve mientras el escenario carga y se desvanece cuando aparece.
   &__mark { position: absolute; left: 50%; top: 34%; z-index: 0; display: grid; justify-items: center; gap: 6px; transform: translate(-50%, -50%);
-    font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: rgba(255, 255, 255, .55); transition: opacity .4s; pointer-events: none;
+    font-size: 12px; font-weight: 700; letter-spacing: .08em; color: rgba(255, 255, 255, .55); transition: opacity .4s; pointer-events: none;
     img { opacity: .75; border-radius: 10px; } }
 
   // ── mundo: reacción + riel (nunca encima de las opciones) ──
   &__world { position: relative; z-index: 2; flex: 1; min-height: 96px; }
-  // Reacción como subtítulo: oscuro, sin cola, una raya de color a la izquierda; entra con un fundido corto.
-  &__pill, &__pre { position: absolute; left: 50%; top: 10px; display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 7px 14px 7px 12px; border-radius: 2px;
-    border-left: 3px solid var(--doc-ok); font-size: 1.05rem; font-weight: 600; letter-spacing: .01em; white-space: nowrap; color: var(--doc-ink); background: var(--doc-sub); box-shadow: var(--doc-sombra);
-    transform: translateX(-50%); animation: sub-pop .36s var(--curva-rebote, cubic-bezier(.3, 1.3, .5, 1)) .06s backwards; pointer-events: none;
-    svg { color: var(--doc-ok); }
-    &.is-bad { border-left-color: var(--doc-bad); svg { color: var(--doc-bad); } } }
+  &__pill, &__pre { position: absolute; left: 50%; top: 10px; display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 8px 16px; border-radius: 999px;
+    font-size: 1.2rem; font-weight: 800; white-space: nowrap; color: #06210f; background: #2FBF71; box-shadow: 0 4px 0 rgba(0, 0, 0, .25);
+    transform: translateX(-50%); animation: pill-in .32s var(--curva-rebote) .08s backwards; pointer-events: none;
+    &.is-bad { color: #fff; background: #D1343A; } }
   &__pre { display: none; }
-  &__streak { position: absolute; left: 50%; top: 58px; margin: 0; padding: 3px 10px; border-radius: 2px; transform: translateX(-50%); font-size: .8rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-variant-numeric: tabular-nums;
-    color: var(--doc-ambar); background: var(--doc-sub); animation: sub-pop .36s var(--curva-rebote, cubic-bezier(.3, 1.3, .5, 1)) .3s backwards; }
+  &__streak { position: absolute; left: 50%; top: 58px; margin: 0; padding: 4px 12px; border-radius: 999px; transform: translateX(-50%); font-size: 1rem; font-weight: 800; font-variant-numeric: tabular-nums;
+    color: #1b1300; background: #F5B83D; animation: pill-in .3s var(--curva-rebote) .3s backwards; }
+
+  // Chip «Reto del día #N»: arriba a la izquierda del mundo, bajo la barra (no tapa al personaje ni el
+  // riel); se esconde al responder.
+  &__reto { position: absolute; left: 12px; top: 48px; display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 5px 11px; border-radius: 999px;
+    font-size: 13px; font-weight: 800; color: #0d1117; background: #4de1ff; box-shadow: 0 3px 0 rgba(0, 0, 0, .25); pointer-events: none;
+    animation: pill-in-left .3s var(--curva-rebote) backwards; }
+  // /hoy antes de hidratar: las cuatro opciones como bloques quietos (mismo alto que las reales, nada que tocar).
+  &--espera { background: #1b2230; }
+  &__espera { display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    i { display: block; min-height: 92px; border-radius: 16px; background: rgba(255, 255, 255, .08); } }
+  &__toast { position: absolute; left: 12px; right: 72px; bottom: 12px; margin: 0; padding: 8px 12px; border-radius: 12px; font-size: 1rem; overflow-wrap: anywhere; background: rgba(8, 10, 14, .8); }
+  &__undo { margin-left: 8px; padding: 2px 10px; min-height: 32px; border: 1px solid rgba(255, 255, 255, .4); border-radius: 999px; background: none; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
 
   // ── panel inferior: pregunta + opciones en la zona del pulgar ──
-  &__panel { position: relative; z-index: 3; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: 12px 14px var(--safe-b); }
-  // La pregunta: sin tarjeta blanca ni cola; un rótulo pequeño en versalitas y el enunciado en serif, con una raya ámbar.
-  &__bubble, &__card { position: relative; margin: 0 0 12px; padding: 2px 0 4px 12px; border-left: 3px solid var(--doc-ambar); color: var(--doc-ink); }
-  &__bubble { animation: gm-fundido var(--dur-base) var(--curva-estandar); }
-  &__card { border-left-color: var(--doc-ok); animation: gm-fundido var(--dur-base) var(--curva-salida) var(--dur-enfasis) backwards; }
-  &__over { margin: 0 0 4px; font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--doc-suave); }
-  &__theme { font-family: var(--tap-display-font, inherit); font-size: 1.05em; letter-spacing: .04em; text-transform: none; }
-  &__q { margin: 0; outline: none; font-family: var(--tap-serif); font-size: clamp(1.3rem, 5.6vw, 1.6rem); font-weight: 400; line-height: 1.2; text-wrap: balance; }
-  &__chip { display: inline-flex; align-items: center; gap: 8px; margin: 2px 0 6px; padding: 4px 10px 4px 8px; border-radius: 6px; font-size: 1rem; font-weight: 700; color: #fff; background: #3d7a4b;
-    .tap__shape { flex: none; color: #fff; } }
-  &__why { margin: 0; font-size: 1rem; line-height: 1.35; color: #e8e3d8; }
+  &__panel { position: relative; z-index: 3; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: 10px 12px var(--safe-b); }
+  &__bubble, &__card { position: relative; margin: 0 0 10px; padding: 10px 14px 12px; border-radius: var(--radio-tarjeta); background: #fff; color: #11151c; box-shadow: 0 4px 0 rgba(0, 0, 0, .25);
+    &::before { content: ''; position: absolute; left: 34%; top: -8px; width: 16px; height: 16px; background: inherit; transform: rotate(45deg); border-radius: 3px; } }
+  &__bubble { animation: gm-pop var(--dur-base) var(--curva-estandar); }
+  &__card { background: #1d2430; color: #fff; border: 1px solid rgba(255, 255, 255, .12); &::before { display: none; } animation: gm-pop var(--dur-base) var(--curva-salida) var(--dur-enfasis) backwards; }
+  &__over { margin: 0 0 3px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #5b6575; }
+  &__card &__over { color: #aab4c4; }
+  &__theme { font-family: var(--tap-display-font, inherit); font-size: 1.15em; letter-spacing: .02em; text-transform: none; }
+  &__q { margin: 0; outline: none; font-size: clamp(1.1rem, 5vw, 1.4rem); font-weight: 800; line-height: 1.2; text-wrap: balance; }
+  &__chip { display: inline-flex; align-items: center; gap: 6px; margin: 2px 0 6px; padding: 4px 10px; border-radius: 999px; font-size: 1rem; font-weight: 800; color: #06210f; background: #2FBF71; }
+  &__why { margin: 0; font-size: 1rem; line-height: 1.35; color: #e8edf4; }
+
+  // El siguiente Tap «asoma» 24 px abajo y rebota una vez (enseña a deslizar sin tutorial).
+  // Con su primera pregunta (sin la respuesta): el «uno más» se ve sin tapar el resultado.
+  &__peek { position: absolute; z-index: 4; left: 8px; right: 8px; bottom: 0; display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border: 0;
+    border-radius: 14px 14px 0 0; cursor: pointer; text-align: left; color: #fff; font: inherit; font-size: 13px; font-weight: 700;
+    background: #10141b; border-top: 3px solid var(--peek, #4de1ff); box-shadow: 0 -4px 0 rgba(0, 0, 0, .35);
+    &.is-teach { animation: peek-bounce .7s ease-in-out 2s 1; } }
+  &__peek-over { flex: none; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #9fe9ff; }
+  &__peek-q { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
+
 
 // Marca del primer fotograma: se apaga cuando el escenario ya se ve.
 .taps[data-stage='3d'] .tap__mark, .taps[data-stage='light'] .tap__mark, .taps[data-stage='poster'] .tap__mark { opacity: 0; }
@@ -65,19 +77,24 @@
 
 a, button { &:focus-visible { outline: 3px solid #fff; outline-offset: 2px; } }
 
-@keyframes sub-in { from { opacity: 0; transform: translateX(-50%) translateY(4px); } }
-// la reacción entra con un pequeño pop (energía sin confeti); el fallo entra igual pero sin más celebración
-@keyframes sub-pop { from { opacity: 0; transform: translateX(-50%) scale(.82); } }
+@keyframes pill-in { from { opacity: 0; transform: translateX(-50%) scale(.8); } }
+@keyframes pill-in-left { from { opacity: 0; transform: scale(.8); } }
+@keyframes peek-bounce { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-14px); } }
 
 // Celulares bajitos (320×568, zoom): el mundo cede espacio y el panel, si aún no cabe, hace scroll (reveal() deja a la vista «Seguir»).
 @media (max-height: 680px) {
-  .tap__opt { min-height: 52px; font-size: 1.05rem; gap: 2px; padding-block: 8px; }
+  .tap__opt { min-height: 52px; font-size: 1.1rem; gap: 2px; padding-block: 8px; }
   .tap__world { min-height: 0; }
   .tap__mark, .tap__streak { display: none; }
-  .tap__bubble, .tap__card { padding-block: 0 2px; margin-bottom: 8px; }
-  .tap__q { font-size: 1.25rem; }
+  .tap__bubble, .tap__card { padding-block: 8px; margin-bottom: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tap__pill, .tap__pre, .tap__streak, .tap__bubble, .tap__card, .tap__peek, .tap__reto { animation: none; }
 }
+.tap:has(.tap__peek) .tap__panel { padding-bottom: calc(var(--safe-b) + 36px); }
+// Aviso si el código del ranking no cargó (@error del @defer): abajo, sobre el feed, y se cierra.
+.ranking-fallo { position: fixed; z-index: 20; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; align-items: center; gap: 12px;
+  width: min(440px, calc(100% - 32px)); padding: 12px 12px 12px 16px; border-radius: 16px; color: #fff; background: #161b24; border: 1px solid rgba(255, 255, 255, .16); box-shadow: 0 12px 32px rgba(0, 0, 0, .5);
+  p { flex: 1; margin: 0; font-size: .9375rem; line-height: 1.35; }
+  button { flex: none; min-height: 44px; padding: 0 14px; border: 0; border-radius: 12px; font: inherit; font-weight: 800; color: #0d1117; background: #4de1ff; cursor: pointer; } }

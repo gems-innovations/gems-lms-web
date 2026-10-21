@@ -1,7 +1,6 @@
-import { MAX_SAME_TOPIC_IN_A_ROW, TAP_LIMITS, choose, feedTopics, mixFeed, next, optionLayout, orderFeed, questionTipo, sawtoothOrder, startRun, streak, timeOut, topicOf, validateTap } from './taps.logic';
+import { MAX_SAME_TOPIC_IN_A_ROW, TAP_LIMITS, choose, feedTopics, mixFeed, next, optionLayout, orderFeed, sawtoothOrder, startRun, streak, topicOf, validateTap } from './taps.logic';
 import { HOOK_TAP_IDS, RETIRED_TAP_IDS, TAP_TOPICS, TAPS, findTap } from './taps.data';
-import { keyAction } from './taps.keys';
-import { ITap, SIN_RESPUESTA } from './taps.types';
+import { ITap } from './taps.types';
 
 const tap: ITap = {
   id: 'prueba', theme: 'minecraft', title: 'Prueba', kicker: 'Quiz', scene: { world: 'pradera', host: 'leo' }, backdrop: ['#000', '#111'],
@@ -98,11 +97,11 @@ describe('mixFeed (feed «Para ti»)', () => {
 
 describe('el feed con los Taps reales', () => {
   const feed = orderFeed(TAPS, {});
-  it('hay 102 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
-    expect(TAPS.length).toBe(102);
+  it('hay 98 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
+    expect(TAPS.length).toBe(98);
     expect(new Set(TAPS.map(t => t.id)).size).toBe(TAPS.length);
     const questionIds = TAPS.flatMap(t => t.questions.map(q => q.id));
-    expect(questionIds.length).toBe(102 * 5);
+    expect(questionIds.length).toBe(98 * 5);
     expect(new Set(questionIds).size).toBe(questionIds.length);
   });
   it('el feed los trae todos, con un gancho primero y nunca más de 2 seguidos del mismo tema', () => {
@@ -164,7 +163,7 @@ describe('feedTopics', () => {
   });
   it('con los Taps reales los tres temas son jugables, con sus conteos, y ninguno dice «pronto»', () => {
     const real = feedTopics(TAPS, TAP_TOPICS);
-    expect(real.map(t => [t.topic.id, t.count, t.soon])).toEqual([['minecraft', 42, false], ['logica', 29, false], ['cultura', 31, false]]);
+    expect(real.map(t => [t.topic.id, t.count, t.soon])).toEqual([['minecraft', 41, false], ['logica', 28, false], ['cultura', 29, false]]);
   });
 });
 
@@ -177,11 +176,11 @@ describe('optionLayout', () => {
 });
 
 describe('textos de los Taps reales', () => {
-  it('explicaciones de 90 caracteres o menos, preguntas de 120 o menos y opciones de 22 (4 por pregunta; 2 en duo y vf)', () => {
+  it('explicaciones de 90 caracteres o menos, preguntas de 120 o menos y opciones de 22', () => {
     for (const t of TAPS) for (const q of t.questions) {
       expect(q.why.length).withContext(t.id + '/' + q.id).toBeLessThanOrEqual(TAP_LIMITS.why);
       expect(q.q.length).withContext(t.id + '/' + q.id).toBeLessThanOrEqual(TAP_LIMITS.question);
-      expect(q.options.length).withContext(t.id + '/' + q.id).toBe(questionTipo(q) === 'clasica' ? 4 : 2);
+      expect(q.options.length).withContext(t.id + '/' + q.id).toBe(4);
       for (const o of q.options) expect(o.length).withContext(t.id + '/' + q.id).toBeLessThanOrEqual(TAP_LIMITS.optionGrid);
     }
   });
@@ -218,63 +217,5 @@ describe('textos de los Taps reales', () => {
   it('validateTap marca explicaciones largas', () => {
     const largo: ITap = { ...tap, questions: [{ ...tap.questions[0], why: 'x'.repeat(91) }] };
     expect(validateTap(largo).join(' ')).toContain('explicación pasa de 90');
-  });
-});
-
-describe('formatos duo y verdadero/falso', () => {
-  const duo: ITap = {
-    ...tap, id: 'duo',
-    questions: [
-      { id: 'd', q: '¿Cuál?', options: ['Carbón', 'Diamante'], answer: 1, why: 'Porque sí.', tipo: 'duo' },
-      { id: 'v', q: 'Afirmación.', options: ['Verdadero', 'Falso'], answer: 0, why: 'Porque no.', tipo: 'vf' },
-      { id: 'c', q: '¿Clásica?', options: ['1', '2', '3', '4'], answer: 0, why: 'Porque sí.' },
-    ],
-  };
-  it('questionTipo: el del banco o clásica (también para una pregunta de 2 opciones sin tipo)', () => {
-    expect(questionTipo(duo.questions[0])).toBe('duo');
-    expect(questionTipo(duo.questions[1])).toBe('vf');
-    expect(questionTipo(duo.questions[2])).toBe('clasica');
-    expect(questionTipo(tap.questions[1])).toBe('clasica');
-    expect(questionTipo(undefined)).toBe('clasica');
-  });
-  it('se acabó el tiempo en un duo: cuenta como fallo sin opción marcada y se puede avanzar', () => {
-    const run = timeOut(startRun(duo), duo);
-    expect(run.chosen).toBe(SIN_RESPUESTA);
-    expect(run.answers).toEqual([false]);
-    expect(run.score).toBe(0);
-    expect(next(run, duo).index).toBe(1);
-  });
-  it('no se agota dos veces ni después de responder', () => {
-    const answered = choose(startRun(duo), duo, 1).run;
-    expect(timeOut(answered, duo)).toBe(answered);
-    const out = timeOut(startRun(duo), duo);
-    expect(timeOut(out, duo)).toBe(out);
-  });
-  it('validateTap: duo y vf llevan 2 opciones, vf exactamente «Verdadero» y «Falso»', () => {
-    expect(validateTap(duo)).toEqual([]);
-    const mal: ITap = { ...duo, questions: [
-      { ...duo.questions[0], options: ['1', '2', '3'] },
-      { ...duo.questions[1], options: ['Sí', 'No'] },
-      { ...duo.questions[2], tipo: 'trio' as never },
-    ] };
-    const e = validateTap(mal);
-    expect(e.some(m => /pregunta 1: el formato duo lleva exactamente 2 opciones/.test(m))).toBeTrue();
-    expect(e.some(m => /pregunta 2: verdadero\/falso lleva las opciones «Verdadero» y «Falso»/.test(m))).toBeTrue();
-    expect(e.some(m => /pregunta 3: tipo «trio» desconocido/.test(m))).toBeTrue();
-  });
-  it('el banco real trae los cuatro Taps que mezclan formatos y todos los Taps validan', () => {
-    for (const id of ['mc-duelo-1', 'lg-duelo-1', 'cu-duelo-1', 'cu-duelo-2']) {
-      const t = findTap(id);
-      expect(t).withContext(id).toBeTruthy();
-      expect(new Set(t!.questions.map(q => questionTipo(q)))).toEqual(new Set(['clasica', 'duo', 'vf']));
-    }
-    expect(TAPS.flatMap(t => validateTap(t))).toEqual([]);
-  });
-});
-
-describe('atajos ← → (solo preguntas de 2 opciones)', () => {
-  it('ArrowLeft es la primera opción y ArrowRight la segunda, aunque los atajos de un carácter estén apagados', () => {
-    expect(keyAction({ key: 'ArrowLeft' }, false)).toEqual({ kind: 'lado', index: 0 });
-    expect(keyAction({ key: 'ArrowRight' }, true)).toEqual({ kind: 'lado', index: 1 });
   });
 });

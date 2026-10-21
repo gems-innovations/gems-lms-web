@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { sinAudio } from './humo-soporte';
 
 /**
- * Taps con el banco de preguntas (102 Taps): selector de temas con conteos reales (Cultura general ya no es «Pronto»),
+ * Taps con el banco de preguntas (98 Taps): selector de temas con conteos reales (Cultura general ya no es «Pronto»),
  * ?tema= que pone primero esa categoría y feed liviano (solo el Tap anterior, el actual y el siguiente tienen contenido).
  *
  * Uso: npx playwright test e2e/taps-banco.spec.ts
@@ -20,9 +20,9 @@ test('el selector muestra los tres temas con sus conteos y ninguno dice «Pronto
   await hydrated(page);
   await page.getByRole('button', { name: /^Temas:/ }).click();
   const sheet = page.getByRole('dialog');
-  await expect(sheet.getByRole('button', { name: /Minecraft/ })).toContainText('42 Taps');
-  await expect(sheet.getByRole('button', { name: /Lógica y trampas/ })).toContainText('29 Taps');
-  await expect(sheet.getByRole('button', { name: /Cultura general/ })).toContainText('31 Taps');
+  await expect(sheet.getByRole('button', { name: /Minecraft/ })).toContainText('41 Taps');
+  await expect(sheet.getByRole('button', { name: /Lógica y trampas/ })).toContainText('28 Taps');
+  await expect(sheet.getByRole('button', { name: /Cultura general/ })).toContainText('29 Taps');
   await expect(sheet.getByRole('button', { name: /Cultura general/ })).toBeEnabled();
   await expect(sheet).not.toContainText('Pronto');
 });
@@ -42,10 +42,10 @@ test('?tema= abre con el gancho de ese tema', async ({ page }) => {
   await expect(page.locator('.tap.tap--active')).toHaveAttribute('data-tap', 'lg-gancho');
 });
 
-test('solo tres Taps tienen contenido en el DOM aunque el feed tenga 102', async ({ page }) => {
+test('solo tres Taps tienen contenido en el DOM aunque el feed tenga 98', async ({ page }) => {
   await page.goto('/taps');
   await hydrated(page);
-  await expect(page.locator('main.taps > .tap')).toHaveCount(102);
+  await expect(page.locator('main.taps > .tap')).toHaveCount(98);
   expect(await page.locator('main.taps .tap__opts').count()).toBeLessThanOrEqual(3);
 });
 

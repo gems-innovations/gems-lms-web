@@ -777,17 +777,12 @@ html.taps-page[data-glass='off'] .glass:not(.is-on):not([aria-pressed='true']) {
 }
 
 // Taps: respuesta dada antes de que Angular hidrate (script de index.html). Global porque esas clases las pone ese script.
-// Colores del aspecto «documental» (taps-feed.component.scss); con ?estilo=clasico (gems-taps[data-estilo]) los de antes.
-html.taps-page .tap__opt.pre-ok { --c: #3d7a4b; --borde: #8fc79a; opacity: 1; }
-html.taps-page .tap__opt.pre-bad { --c: #a8503d; --borde: #d98a7a; opacity: 1; }
-html.taps-page .tap[data-pre] .tap__opt:not(.pre-ok):not(.pre-bad) { opacity: .35; }
+html.taps-page .tap__opt.pre-ok { --c: #2FBF71; --ink: #06210f; opacity: 1; }
+html.taps-page .tap__opt.pre-bad { --c: #D1343A; --ink: #fff; opacity: 1; }
+html.taps-page .tap[data-pre] .tap__opt:not(.pre-ok):not(.pre-bad) { opacity: .25; }
 html.taps-page .tap[data-pre] .tap__touch { display: none; }
 html.taps-page .tap[data-pre] .tap__pre { display: inline-flex; }
-html.taps-page .tap[data-pre='bad'] .tap__pre { border-left-color: #d98a7a; }
-html.taps-page gems-taps[data-estilo='clasico'] .tap__opt.pre-ok { --c: #2FBF71; --ink: #06210f; }
-html.taps-page gems-taps[data-estilo='clasico'] .tap__opt.pre-bad { --c: #D1343A; --ink: #fff; }
-html.taps-page gems-taps[data-estilo='clasico'] .tap[data-pre] .tap__opt:not(.pre-ok):not(.pre-bad) { opacity: .25; }
-html.taps-page gems-taps[data-estilo='clasico'] .tap[data-pre='bad'] .tap__pre { color: #fff; background: #D1343A; }
+html.taps-page .tap[data-pre='bad'] .tap__pre { color: #fff; background: #D1343A; }
 html.taps-page .tap[data-pre='ok'] .tap__pre-bad, html.taps-page .tap[data-pre='bad'] .tap__pre-ok { display: none; }
 
 // Taps con el celular en horizontal: aviso «Gira el celular» (experiencia-ux.md §9). En escritorio con zoom se juega con scroll.
