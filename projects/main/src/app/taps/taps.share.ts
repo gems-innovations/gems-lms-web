@@ -45,26 +45,10 @@ export interface IShareCardData {
   logo?: CanvasImageSource | null;
   /** Personaje 2D (canvas pequeño de píxeles) que se escala sin suavizado. */
   character?: HTMLCanvasElement | null;
-  /** Aspecto: `documental` (por defecto: colores de cine, título en serif, esquinas suaves) o `clasico`. */
-  estilo?: 'documental' | 'clasico';
 }
 
 const CARD_W = 1080, CARD_H = 1920;
 const FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
-const SERIF = "'Instrument Serif', Georgia, 'Times New Roman', serif";
-
-/**
- * Gradación de cine de un color (#rrggbb): −30 % de saturación (hacia su gris), un poco menos de luz y un leve tono cálido,
- * la misma que el motor aplica con CSS al escenario (saturate(.7) brightness(.96) sepia(.1)). Un color que no sea hex vuelve igual.
- */
-export function cineColor(hex: string): string {
-  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
-  if (!m) return hex;
-  const n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
-  const gris = .2126 * r + .7152 * g + .0722 * b;
-  const mix = (c: number, calido: number) => Math.max(0, Math.min(255, Math.round((c * .7 + gris * .3) * .96 + calido)));
-  return `#${[mix(r, 6), mix(g, 2), mix(b, -6)].map(c => c.toString(16).padStart(2, '0')).join('')}`;
-}
 
 /** Dibuja la tarjeta 9:16 (1080×1920). Solo navegador. */
 export function drawShareCard(data: IShareCardData, canvas: HTMLCanvasElement = document.createElement('canvas')): HTMLCanvasElement {
@@ -72,27 +56,18 @@ export function drawShareCard(data: IShareCardData, canvas: HTMLCanvasElement = 
   canvas.height = CARD_H;
   const x = canvas.getContext('2d');
   if (!x) return canvas;
-  const doc = data.estilo !== 'clasico';
-  const ok = doc ? '#8fc79a' : '#2FBF71', bad = doc ? '#d98a7a' : '#E5484D', tinta = doc ? '#f2efe8' : '#ffffff';
-  // Cielo en dos franjas planas (sin degradado), como el fondo del Tap; en documental, con la gradación de cine y viñeta.
-  x.fillStyle = doc ? cineColor(data.backdrop[0]) : data.backdrop[0];
+  // Cielo en dos franjas planas (sin degradado), como el fondo del Tap.
+  x.fillStyle = data.backdrop[0];
   x.fillRect(0, 0, CARD_W, CARD_H);
-  x.fillStyle = doc ? cineColor(data.backdrop[1]) : data.backdrop[1];
+  x.fillStyle = data.backdrop[1];
   x.fillRect(0, CARD_H * 0.42, CARD_W, CARD_H * 0.58);
   x.fillStyle = 'rgba(7, 9, 12, .45)';
   x.fillRect(0, 0, CARD_W, CARD_H);
-  if (doc) {
-    const v = x.createRadialGradient(CARD_W / 2, CARD_H * .42, CARD_W * .35, CARD_W / 2, CARD_H * .42, CARD_W * 1.05);
-    v.addColorStop(0, 'rgba(6, 8, 12, 0)'); v.addColorStop(1, 'rgba(6, 8, 12, .55)');
-    x.fillStyle = v;
-    x.fillRect(0, 0, CARD_W, CARD_H);
-  }
 
   // Panel central
-  roundRect(x, 72, 250, CARD_W - 144, 1400, doc ? 20 : 56);
-  x.fillStyle = doc ? 'rgba(14, 17, 22, .9)' : 'rgba(14, 17, 22, .86)';
+  roundRect(x, 72, 250, CARD_W - 144, 1400, 56);
+  x.fillStyle = 'rgba(14, 17, 22, .86)';
   x.fill();
-  if (doc) { x.fillStyle = '#e8c47a'; x.fillRect(72, 250, 10, 1400); }     // la raya ámbar, como en la pregunta del feed
 
   // Personaje
   if (data.character) {
@@ -107,27 +82,25 @@ export function drawShareCard(data: IShareCardData, canvas: HTMLCanvasElement = 
   }
 
   x.textAlign = 'center';
-  x.fillStyle = doc ? '#b8ad99' : '#c9d2e0';
-  x.font = doc ? `600 34px ${FONT}` : `700 40px ${FONT}`;
-  if (doc) (x as CanvasRenderingContext2D & { letterSpacing?: string }).letterSpacing = '5px';
+  x.fillStyle = '#c9d2e0';
+  x.font = `700 40px ${FONT}`;
   x.fillText(`MI TÍTULO EN ${data.tapTitle.toUpperCase()}`, CARD_W / 2, 960);
-  if (doc) (x as CanvasRenderingContext2D & { letterSpacing?: string }).letterSpacing = '0px';
-  x.fillStyle = tinta;
-  const titleLines = wrap(x, data.title, CARD_W - 240, doc ? `400 112px ${SERIF}` : `800 96px ${FONT}`);
-  titleLines.forEach((line, i) => x.fillText(line, CARD_W / 2, 1070 + i * (doc ? 112 : 104)));
-  const gridY = 1070 + titleLines.length * (doc ? 112 : 104) + 10;
+  x.fillStyle = '#ffffff';
+  const titleLines = wrap(x, data.title, CARD_W - 240, `800 96px ${FONT}`);
+  titleLines.forEach((line, i) => x.fillText(line, CARD_W / 2, 1070 + i * 104));
+  const gridY = 1070 + titleLines.length * 104 + 10;
 
   // Cuadrícula sin spoilers
   const size = 120, gap = 22, total = data.total, gx = CARD_W / 2 - (total * size + (total - 1) * gap) / 2;
   for (let i = 0; i < total; i++) {
-    const acierto = data.answers[i];
-    roundRect(x, gx + i * (size + gap), gridY, size, size, doc ? 12 : 22);
-    x.fillStyle = i >= data.answers.length ? (doc ? '#2a2f38' : '#3a4150') : acierto ? ok : bad;
+    const ok = data.answers[i];
+    roundRect(x, gx + i * (size + gap), gridY, size, size, 22);
+    x.fillStyle = i >= data.answers.length ? '#3a4150' : ok ? '#2FBF71' : '#E5484D';
     x.fill();
-    drawMark(x, gx + i * (size + gap) + size / 2, gridY + size / 2, i >= data.answers.length ? null : acierto, doc);
+    drawMark(x, gx + i * (size + gap) + size / 2, gridY + size / 2, i >= data.answers.length ? null : ok);
   }
-  x.fillStyle = doc ? '#e8e3d8' : '#e9eef6';
-  x.font = `${doc ? 600 : 700} 52px ${FONT}`;
+  x.fillStyle = '#e9eef6';
+  x.font = `700 52px ${FONT}`;
   x.fillText(`${data.score} de ${data.total} · ¿Me ganas?`, CARD_W / 2, gridY + size + 100);
 
   // Marca de agua GEMS LMS: logo + nombre + dirección
@@ -197,10 +170,10 @@ function roundRect(x: CanvasRenderingContext2D, left: number, top: number, w: nu
 }
 
 /** Marca dibujada (sin emojis): visto para acierto, X para fallo. */
-function drawMark(x: CanvasRenderingContext2D, cx: number, cy: number, ok: boolean | null, doc = true): void {
+function drawMark(x: CanvasRenderingContext2D, cx: number, cy: number, ok: boolean | null): void {
   if (ok === null) return;
   x.save();
-  x.strokeStyle = ok ? (doc ? '#0d2a16' : '#06210f') : doc ? '#2d0f0a' : '#ffffff';
+  x.strokeStyle = ok ? '#06210f' : '#ffffff';
   x.lineWidth = 12;
   x.lineCap = 'round';
   x.lineJoin = 'round';

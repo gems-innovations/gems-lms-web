@@ -7,8 +7,7 @@
 | Rol | Fuente | Dónde sí | Dónde no |
 |---|---|---|---|
 | Interfaz (`--font-interfaz`, `--font-texto`, `--font-titulo`) | Plus Jakarta Sans | Todo el texto | — |
-| Display del tema (`--font-display`) | La del tema (p. ej. Pixelify Sans en Bloques) | Título del tema, número grande de puntaje | Opciones, explicaciones, botones, cualquier texto de más de una línea |
-| Editorial de Taps (`--tap-serif`) | Instrument Serif (OFL, 400, 21 KB, `public/fonts/instrument-serif-latin-400-normal.woff2`) | La pregunta, el título del resultado, el globo del personaje y el título de la tarjeta para compartir (dirección «documental») | Opciones, botones, interfaz: siguen en Plus Jakarta Sans |
+| Display del tema (`--font-display`) | La del tema (p. ej. Pixelify Sans en Bloques) | Título del tema, burbuja del personaje, número grande de puntaje | Opciones, explicaciones, botones, cualquier texto de más de una línea |
 | Documento formal | Certificado (Cinzel, Alex Brush) | Solo el certificado | — |
 
 ## Por qué Plus Jakarta Sans
@@ -62,9 +61,3 @@ Reglas:
 ## Taps
 
 Taps hoy usa `system-ui` en el shell (`html.taps-page`) y Pixelify Sans en preguntas del tema Bloques. Con 27 KB ya no hace falta evitar la fuente de marca: al adoptar el sistema, la pregunta y las opciones pasan a `var(--font-interfaz)` y Pixelify queda como `--font-display` del tema (título y burbuja). El tema «estudio» (PR #25) puede dejar Rubik o limitarla a `--font-display`.
-
-Dirección «documental» (producto/taps/direccion-visual.md): la pregunta y el título del resultado van en **Instrument Serif**
-(`--tap-serif`), una serif editorial libre de un solo peso. Se declara en `taps-feed.component.scss` (`@font-face` con
-`font-display: swap`), así solo se pide al entrar a Taps y nunca bloquea el texto; mientras llega se ve Georgia. Las opciones,
-los botones y la interfaz siguen en Plus Jakarta Sans. El archivo viene de `@fontsource/instrument-serif` 5.3.0 (latín, 21 KB);
-licencia en `public/fonts/LICENSE-instrument-serif.txt`.

@@ -1,4 +1,4 @@
-import { ITap, ITapQuestion, ITapResult, ITapRun, ITapTopic, SIN_RESPUESTA, TTapQuestionTipo } from './taps.types';
+import { ITap, ITapResult, ITapRun, ITapTopic } from './taps.types';
 
 /** Lógica pura de un Tap (sin DOM ni motor): puntaje → título, avance de preguntas y validación del formato de datos. */
 
@@ -26,17 +26,6 @@ export function choose(run: ITapRun, tap: ITap, option: number): { run: ITapRun;
   if (run.finished || run.chosen !== null || !q || option < 0 || option >= q.options.length) return { run, correct: null };
   const correct = option === q.answer;
   return { run: { ...run, chosen: option, score: run.score + (correct ? 1 : 0), answers: [...run.answers, correct] }, correct };
-}
-
-/** Se acabó la cuenta regresiva (formato duo) sin responder: cuenta como fallo, sin opción marcada. */
-export function timeOut(run: ITapRun, tap: ITap): ITapRun {
-  if (run.finished || run.chosen !== null || !tap.questions[run.index]) return run;
-  return { ...run, chosen: SIN_RESPUESTA, answers: [...run.answers, false] };
-}
-
-/** Formato de una pregunta: el del banco o, sin campo, `clasica`. */
-export function questionTipo(q: ITapQuestion | undefined): TTapQuestionTipo {
-  return q?.tipo ?? 'clasica';
 }
 
 /** Pasa a la siguiente pregunta (o termina). No avanza sin haber respondido. */
@@ -191,9 +180,6 @@ export function validateTap(tap: ITap): string[] {
     if (q.q.length > TAP_LIMITS.question) at(`pregunta ${i + 1}: el enunciado pasa de ${TAP_LIMITS.question} caracteres`);
     if (q.why.length > TAP_LIMITS.why) at(`pregunta ${i + 1}: la explicación pasa de ${TAP_LIMITS.why} caracteres`);
     if (q.options.some(o => o.length > TAP_LIMITS.option)) at(`pregunta ${i + 1}: una opción pasa de ${TAP_LIMITS.option} caracteres`);
-    if (q.tipo !== undefined && !['clasica', 'duo', 'vf'].includes(q.tipo)) at(`pregunta ${i + 1}: tipo «${q.tipo}» desconocido`);
-    if ((q.tipo === 'duo' || q.tipo === 'vf') && q.options.length !== 2) at(`pregunta ${i + 1}: el formato ${q.tipo} lleva exactamente 2 opciones`);
-    if (q.tipo === 'vf' && (q.options[0] !== 'Verdadero' || q.options[1] !== 'Falso')) at(`pregunta ${i + 1}: verdadero/falso lleva las opciones «Verdadero» y «Falso»`);
   });
   if (tap.results.length === 0) at('sin resultados');
   else {

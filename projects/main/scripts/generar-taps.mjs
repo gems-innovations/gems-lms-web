@@ -19,8 +19,6 @@
 // deterministas, sin azar. Cada Tap publicado tiene su lugar en LUGARES; uno nuevo usa la lista de (mundo, objeto) de su
 // subtema (el n-ésimo Tap de ese subtema usa el n-ésimo par, dando la vuelta). Personaje, encuadre y entrada rotan por el
 // orden del Tap dentro de su tema. El Tap de gancho usa siempre la escena de ESCENA_GANCHO, centrado y saludando.
-// Una pregunta puede traer "tipo": "duo" (2 opciones una contra otra, con cuenta regresiva) o "vf" (verdadero/falso, opciones
-// ["Verdadero", "Falso"]); sin "tipo" es clásica de 4 opciones (ver TIPOS). Un Tap puede mezclar formatos.
 // Una pregunta puede traer "visual": { objeto, accion, valor? } (objeto para explicar tras responder; catálogo en el
 // theme.json de su tema → visuals.objects). El generador lo copia tal cual y falla si el objeto o la acción no existen.
 // Temas con registro (theme.json → "personajes"/"fondos", p. ej. «aventura»): personaje y fondo salen de elegirParaTap()
@@ -51,8 +49,7 @@ export const RUTAS = {
 /**
  * Reto del día (auditoria-permanencia.md, mejora 4): calendario fijo, generado aquí y guardado en git.
  * - `inicio` es el reto #1 (un lunes); `dias` es cuántos días cubre (366 al publicar el reto; 420 desde la ronda 2 del
- *   banco, para que sus 45 Taps entren en los días agregados: del 2027-10-20 al 2027-12-11; 427 con los 4 Taps de formatos
- *   mezclados, que entran del 2027-12-12 al 2027-12-18). El tema de cada día rota por `rotacion` (lunes primero).
+ *   banco, para que sus 45 Taps entren en los días agregados: del 2027-10-20 al 2027-12-11). El tema de cada día rota por `rotacion` (lunes primero).
  * - Solo crece hacia el futuro: los días que ya están en reto-calendario.json no se tocan nunca, así que agregar Taps al
  *   banco no cambia ni los días pasados ni el de hoy. Para que los Taps nuevos entren al reto se sube `dias` (se agregan
  *   días al final). Un Tap retirado se reemplaza solo en los días que lo tenían.
@@ -62,7 +59,7 @@ export const RUTAS = {
  */
 export const RETO = {
   inicio: '2026-10-19',
-  dias: 427,
+  dias: 420,
   rotacion: ['minecraft', 'logica', 'cultura', 'minecraft', 'logica', 'cultura', 'minecraft'],
 };
 
@@ -142,13 +139,7 @@ export function emitirCalendario(cal) {
 }
 
 /** Mismos límites que `validar.mjs` del banco (y que los de la interfaz: la pregunta cabe en 5 líneas). */
-export const LIMITES = { pregunta: 120, opcion: 22, explicacion: 90, opciones: 4, opcionesDuo: 2, preguntasPorTap: 5, linea: 110, lineasExtra: 2 };
-/**
- * Formatos de pregunta (campo opcional `tipo`; sin él, clásica de 4 opciones). `duo`: 2 opciones grandes una contra otra con
- * cuenta regresiva; `vf`: verdadero o falso, con `options` exactamente ["Verdadero", "Falso"] (se responde tocando o deslizando).
- */
-export const TIPOS = ['clasica', 'duo', 'vf'];
-export const OPCIONES_VF = ['Verdadero', 'Falso'];
+export const LIMITES = { pregunta: 120, opcion: 22, explicacion: 90, opciones: 4, preguntasPorTap: 5, linea: 110, lineasExtra: 2 };
 
 /** Archivo del banco → tema del motor, categoría del selector (`?tema=`) y rótulo. */
 export const TEMAS = {
@@ -387,12 +378,6 @@ export function asignarCine(taps, temas) {
     for (const [d, w] of [[1, 3], [2, 1]]) for (const u of [o[i - d], o[i + d]]) if (u) cerca.get(t.id).set(u.id, Math.max(cerca.get(t.id).get(u.id) ?? 0, w));
   });
   const porId = new Map(taps.map(t => [t.id, t])), uso = new Map();
-  // vecinos en el orden del archivo (mismo tema, sin ganchos): tampoco ahí se repite el personaje
-  const archivo = new Map(taps.map(t => [t.id, []]));
-  for (const theme of new Set(taps.map(t => t.theme))) {
-    const lista = taps.filter(t => t.theme === theme && !t.hook);
-    lista.forEach((t, i) => archivo.set(t.id, [lista[i - 1], lista[i + 1]].filter(Boolean)));
-  }
   const usar = (k, v) => uso.set(k + '|' + v, (uso.get(k + '|' + v) ?? 0) + 1);
   /** Elige para `campo` la opción con menos choques con los vecinos ya asignados (mismo valor y mismo tema pesan más). */
   const elegir = (t, campo, opciones, extra = () => 0) => {
@@ -414,9 +399,8 @@ export function asignarCine(taps, temas) {
       Object.assign(s, CINE_GANCHO[t.topic] ?? { camara: 'orbita', transicion: 'fundido' });
       if (!cine?.horasMundos?.includes(s.world)) delete s.hora;
     } else {
-      // temas con registro (aventura): el fondo ya lo eligió el registro; el personaje se reparte aquí con los vecinos del
-      // feed (desde la ronda de formatos, 102 Taps: el orden del archivo solo ya no bastaba para no repetirlo seguido)
-      s.host = elegir(t, 'host', personajes ?? tema.registro?.personajes ?? [s.host], v => archivo.get(t.id).some(u => u.scene.__cine && u.scene.host === v) * 6);
+      // temas con registro (aventura): personaje y fondo ya los eligió el registro sin repetir entre Taps seguidos
+      if (personajes) s.host = elegir(t, 'host', personajes); else usar('host', s.host);
       s.shot = elegir(t, 'shot', ENCUADRES);
       s.enter = elegir(t, 'enter', entradas);
       s.camara = elegir(t, 'camara', PLANOS, v => (s.shot === 'lejos' && (v === 'general' || v === 'cenital') ? 3 : 0));
@@ -457,10 +441,7 @@ export function validarPregunta(p, donde) {
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(p.id ?? '')) mal('el id no está en kebab-case');
   if (typeof p.q !== 'string' || !p.q.trim()) mal('falta el enunciado');
   else if (p.q.length > LIMITES.pregunta) mal(`el enunciado tiene ${p.q.length} caracteres (máximo ${LIMITES.pregunta})`);
-  if (p.tipo !== undefined && !TIPOS.includes(p.tipo)) mal(`tipo «${p.tipo}» desconocido (${TIPOS.join(', ')})`);
-  const dos = p.tipo === 'duo' || p.tipo === 'vf', cuantas = dos ? LIMITES.opcionesDuo : LIMITES.opciones;
-  if (!Array.isArray(p.options) || p.options.length !== cuantas) mal(`debe tener exactamente ${cuantas} opciones${dos ? ` (formato ${p.tipo})` : ''}`);
-  else if (p.tipo === 'vf' && (p.options[0] !== OPCIONES_VF[0] || p.options[1] !== OPCIONES_VF[1])) mal(`verdadero/falso lleva las opciones ${JSON.stringify(OPCIONES_VF)}`);
+  if (!Array.isArray(p.options) || p.options.length !== LIMITES.opciones) mal(`debe tener exactamente ${LIMITES.opciones} opciones`);
   else {
     p.options.forEach(o => {
       if (typeof o !== 'string' || !o.trim()) mal('una opción está vacía');
@@ -610,10 +591,7 @@ export function generar(bancos, retos, temas) {
         errores.push(...validarPregunta(p, `${archivo} · pregunta «${id}»`).map(m => m));
         errores.push(...validarVisual(p.visual, temas[def.theme]?.objetos, `${archivo} · pregunta «${id}»`));
         errores.push(...validarEscena(p.escena, p, temas[def.theme]?.escenas, `${archivo} · pregunta «${id}»`));
-        preguntas.push({
-          id: p.id, q: p.q, options: p.options, answer: p.answer, why: p.why, ...(p.tipo && p.tipo !== 'clasica' ? { tipo: p.tipo } : {}),
-          ...(p.visual ? { visual: p.visual } : {}), ...(p.escena ? { escena: p.escena } : {}),
-        });
+        preguntas.push({ id: p.id, q: p.q, options: p.options, answer: p.answer, why: p.why, ...(p.visual ? { visual: p.visual } : {}), ...(p.escena ? { escena: p.escena } : {}) });
       }
       if (t.gancho && !(banco.taps[0] === t)) err(`Tap «${t.id}»: el Tap de gancho debe ser el primero del archivo`);
       if (banco.taps[0] === t && !t.gancho) err(`Tap «${t.id}»: el primer Tap del tema debe ser el de gancho (gancho: true)`);

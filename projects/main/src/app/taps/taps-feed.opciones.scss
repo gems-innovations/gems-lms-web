@@ -1,44 +1,41 @@
-// Pasos, opciones, cuenta atrás y «Seguir» de cada Tap (partido del archivo principal para no pasar su presupuesto).
-// Opciones «documental» (punto medio pedido por el dueño): se conservan las figuras (triángulo, rombo, círculo, cuadrado) y un color
-// por opción, pero en la paleta desaturada y cálida de la dirección A (terracota, azul petróleo, ámbar, salvia) con texto blanco
-// (AA, ≥ 4,5:1) y bordes de 11 px; grafito y hueso quedan solo como base del panel. Acierto salvia, fallo terracota.
+// Pasos, opciones de colores y formas, cuenta atrás y «Seguir» de cada Tap (partido del archivo principal para no pasar su presupuesto).
 .tap {
   &__steps { position: relative; z-index: 2; display: flex; gap: 4px; padding: var(--bar-h) 14px 0;
-    i { flex: 1; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, .28); transition: background .2s;
-      &.is-ok { background: var(--doc-ok); }
-      &.is-bad { background: var(--doc-bad); }
-      &.is-now { background: var(--doc-ambar); } } }
+    i { flex: 1; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, .3); transition: background .2s;
+      &.is-ok { background: #2FBF71; }
+      &.is-bad { background: #D1343A; }
+      &.is-now { background: rgba(255, 255, 255, .85); } } }
 
   &__opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
     &[data-layout='list'] { grid-template-columns: 1fr; .tap__opt { min-height: 54px; flex-direction: row; align-items: center; } }
     &[data-layout='pair'] { grid-template-columns: 1fr; } }
   &__opt {
-    --c: #a8503d; --ink: #fff; --borde: rgba(255, 255, 255, .12);
+    --c: #D1343A; --ink: #fff;
     position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 6px; min-height: clamp(64px, 10.6dvh, 86px);
-    padding: 10px 12px; border: 1px solid var(--borde); border-radius: 11px; cursor: pointer; font: inherit; font-size: 1.125rem; font-weight: 700; line-height: 1.15; text-align: left;
-    color: var(--ink); background: var(--c); box-shadow: var(--doc-sombra); transition: transform var(--dur-instante), box-shadow var(--dur-instante), opacity var(--dur-rapida), background var(--dur-rapida), border-color var(--dur-rapida);
-    &:active:not([aria-disabled='true']) { transform: translateY(1px); box-shadow: 0 2px 8px rgba(0, 0, 0, .3); }
-    &[data-k='1'] { --c: #2c6473; }
-    &[data-k='2'] { --c: #8f6318; }
-    &[data-k='3'] { --c: #3d7a4b; }
-    &.is-ok { --c: #3d7a4b; --borde: var(--doc-ok); opacity: 1; }
-    &.is-bad { --c: #a8503d; --borde: var(--doc-bad); opacity: 1; }
+    padding: 10px 12px; border: 0; border-radius: var(--radio-tarjeta); cursor: pointer; font: inherit; font-size: 1.25rem; font-weight: 800; line-height: 1.12; text-align: left;
+    color: var(--ink); background: var(--c); box-shadow: 0 4px 0 rgba(0, 0, 0, .3); transition: transform var(--dur-instante), box-shadow var(--dur-instante), opacity var(--dur-rapida), background var(--dur-rapida);
+    &[data-k='1'] { --c: #2F6BE0; }
+    // Las cuatro con texto y forma en blanco (coherentes); amarillo y verde algo más profundos para que el blanco se lea (≥ 3,8:1, texto grande).
+    &[data-k='2'] { --c: #B97100; }
+    &[data-k='3'] { --c: #188A4E; }
+    &:active:not([aria-disabled='true']) { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, .3); }
+    &.is-ok { --c: #188A4E; --ink: #fff; opacity: 1; }
+    &.is-bad { --c: #D1343A; --ink: #fff; opacity: 1; }
   }
-  &__opts.is-answered &__opt:not(.is-ok):not(.is-bad) { opacity: .35; }
-  // La figura de la opción en blanco; la letra (A-D) solo la usan los formatos de 2 opciones (taps-feed.formatos.scss).
-  &__letra { display: none; }
-  &__shape { flex: none; color: var(--ink); opacity: .92; }
+  &__opts.is-answered &__opt:not(.is-ok):not(.is-bad) { opacity: .25; }
+  &__shape { flex: none; color: var(--ink); opacity: .95; }
   &__label { min-width: 0; overflow-wrap: anywhere; }
-  &__mark-ok { position: absolute; top: 8px; right: 8px; animation: gm-pop var(--dur-base) var(--curva-rebote); color: var(--ink); }
+  &__mark-ok { position: absolute; top: 8px; right: 8px; animation: gm-pop var(--dur-base) var(--curva-salida); }
   &__touch { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; animation: gm-fundido var(--dur-enfasis) var(--curva-salida) .8s backwards;
-    i { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--doc-ambar); animation: ring 1.4s ease-out infinite; }
-    b { position: absolute; top: 8px; right: 8px; padding: 3px 9px; border-radius: 2px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--doc-ambar-tinta); background: var(--doc-ambar); } }
+    i { width: 56px; height: 56px; border-radius: 50%; border: 3px solid #fff; animation: ring 1.4s ease-out infinite; }
+    b { position: absolute; top: 8px; right: 8px; padding: 3px 9px; border-radius: 999px; font-size: 13px; white-space: nowrap; color: #11151c; background: #fff; } }
 
-  &__wait { height: 3px; margin: 10px 2px 0; border-radius: 2px; background: rgba(255, 255, 255, .14); overflow: hidden;
-    i { display: block; height: 100%; background: var(--doc-ambar); transform-origin: left; animation: drain var(--wait, 1.4s) linear forwards; }
+  &__wait { height: 4px; margin: 10px 2px 0; border-radius: 2px; background: rgba(255, 255, 255, .18); overflow: hidden;
+    i { display: block; height: 100%; background: #fff; transform-origin: left; animation: drain var(--wait, 1.4s) linear forwards; }
     &.is-paused i { animation-play-state: paused; } }
-  &__go { display: block; margin: 8px auto 0; min-height: 46px; padding: 0 22px; border: 0; border-radius: var(--doc-radio); font: inherit; font-size: 1rem; font-weight: 700;
-    color: var(--doc-ambar-tinta); background: var(--doc-ambar); box-shadow: var(--doc-sombra); cursor: pointer; }
+  &__go { display: block; margin: 6px auto 0; min-height: 48px; padding: 0 18px; border: 0; border-radius: 999px; font: inherit; font-size: 1rem; font-weight: 700;
+    color: #fff; background: rgba(255, 255, 255, .12); cursor: pointer; }
+
 }
 @keyframes ring { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
 @keyframes drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }

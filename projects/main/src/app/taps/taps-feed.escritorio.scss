@@ -62,7 +62,7 @@
   @media (hover: hover) and (pointer: fine) {
     .tap__opts:not(.is-answered) .tap__key { position: absolute; right: 8px; bottom: 8px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; font-size: 12px; font-weight: 800;
       color: var(--ink); background: color-mix(in srgb, var(--ink) 14%, transparent); border: 1.5px solid color-mix(in srgb, var(--ink) 55%, transparent); }
-    .tap__opt:hover:not([aria-disabled='true']) { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0, 0, 0, .35), 0 0 0 2px var(--doc-ambar, #fff); }
+    .tap__opt:hover:not([aria-disabled='true']) { transform: translateY(-3px); box-shadow: 0 7px 0 rgba(0, 0, 0, .3), 0 0 0 3px #fff; }
   }
 }
 @media (prefers-reduced-motion: reduce) { .tap__opt:hover { transform: none !important; } }

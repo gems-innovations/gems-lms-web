@@ -11,7 +11,7 @@ import { TEventPath, eventSlug } from '../analytics-taxonomy';
 import { AdvanceClock, TAP_RHYTHM, advanceDelay, browserClockHost } from './taps.clock';
 import { loadTapsEngine, tapsThemeUrl } from './taps-engine.loader';
 import { HOOK_TAP_IDS, TAP_DISPLAY_FONTS, TAP_TOPICS, TAPS, findTap } from './taps.data';
-import { choose, feedTopics, isGoodScore, next, optionLayout, orderFeed, questionTipo, resultFor, startRun, streak, timeOut, topicOf } from './taps.logic';
+import { choose, feedTopics, isGoodScore, next, optionLayout, orderFeed, resultFor, startRun, streak, topicOf } from './taps.logic';
 import { canvasToBlob, drawShareCard, loadImage, paintThemeCharacter, shareText, shareUrl } from './taps.share';
 import { TapResultComponent } from './tap-result.component';
 import { TapsBarComponent } from './taps-bar.component';
@@ -30,7 +30,7 @@ import { panelCards, panelState } from './taps.panel';
 import { WheelGate } from './taps.wheel';
 import { TapsSonidoService } from './taps-sonido.service';
 import { TapsMusicaService } from './taps-musica.service';
-import { DUO_MS, ITap, ITapEscena, ITapQuestion, ITapRun, ITapVisual, ITapsStage, SIN_RESPUESTA, TTapQuestionTipo, TTapsEstilo } from './taps.types';
+import { ITap, ITapEscena, ITapRun, ITapVisual, ITapsStage } from './taps.types';
 import { planoSeed, questionEscena, visualSide } from './taps.escena';
 import { fraseActual } from './taps.frases';
 import {
@@ -57,10 +57,7 @@ const PULSE_KEY = 'gems-taps-pulso';
 type TStageMode = 'loading' | 'poster' | '3d' | 'light' | 'none';
 /** Cookie (solo para /taps, sin datos personales): el servidor ya no abre con el Tap de gancho a quien lo jugó. */
 const HOOK_COOKIE = 'gems_taps_gancho';
-/** Deslizar una pregunta de 2 opciones: desde estos px hacia un lado se elige la opción de ese lado. */
-const SWIPE_PX = 72;
-/** Cómo se respondió (analítica de los formatos duo y vf). */
-type TVia = 'toque' | 'tecla' | 'deslizar';
+const SHAPES = ['triángulo', 'rombo', 'círculo', 'cuadrado'];
 
 /** Sonido general (efectos, música y voz): encendido por defecto; 'off' solo si la persona lo apagó (se recuerda). */
 export type TSound = 'on' | 'off';
@@ -83,11 +80,9 @@ interface IPreAnswer { id: string; k: number; t: number }
   selector: 'gems-taps',
   imports: [TapResultComponent, TapsBarComponent, TapRailComponent, TapPanelComponent, TapsMenuComponent, TapsRankingComponent, SkeletonComponent, TapSesionHojaComponent, TapPausaComponent, NgTemplateOutlet],
   templateUrl: './taps-feed.component.html',
-  styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.formatos.scss', './taps-feed.extras.scss', './taps-feed.escritorio.scss', './taps-feed.escena.scss', './taps-feed.portada.scss', './taps-feed.clasico.scss'],
+  styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.escritorio.scss', './taps-feed.escena.scss', './taps-feed.portada.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [TapsSonidoService, TapsMusicaService],
-  // Aspecto: «documental» por defecto; `?estilo=clasico` (conmutador interno, unos días) devuelve el anterior (taps-feed.clasico.scss).
-  host: { '[attr.data-estilo]': 'estilo' },
 })
 export class TapsFeedComponent {
   private readonly platform = inject(PLATFORM_ID);
@@ -128,19 +123,6 @@ export class TapsFeedComponent {
   private readonly portadaTopic = this.portada ? inject(new HostAttributeToken('tema'), { optional: true }) : null;
   /** Portada: el orden completo del feed, del que sale el Tap que sigue (`nextTap`). */
   private following: ITap[] = [];
-
-  /** Aspecto del feed y del motor (direccion-visual.md): documental salvo `?estilo=clasico`. Servidor y navegador leen lo mismo. */
-  protected readonly estilo: TTapsEstilo = this.query.get('estilo') === 'clasico' ? 'clasico' : 'documental';
-  protected readonly SIN_RESPUESTA = SIN_RESPUESTA;
-  protected readonly duoSegundos = Math.round(DUO_MS / 1000);
-  /** Cuenta regresiva de una pregunta duo: duración (ms) y clave para reiniciar la barra; null si no corre. */
-  protected readonly duoWait = signal<{ tapId: string; ms: number; key: number } | null>(null);
-  protected readonly duoPaused = signal(false);
-  private readonly duo = new AdvanceClock(browserClockHost, () => this.onDuoTimeout());
-  private duoTap: ITap | null = null;
-  private duoKey = 0;
-  /** Gesto de deslizar sobre una pregunta de 2 opciones (puntero capturado por el grupo de opciones). */
-  private swipe: { id: number; x0: number; el: HTMLElement; dx: number } | null = null;
 
   protected readonly topic = signal<string | null>(this.query.get('tema') ?? this.portadaTopic);
   /** Orden deseado: `?t=<id>` (enlace compartido) pone ese Tap primero; `?tema=<id>` pone primero los de esa categoría. */
@@ -360,7 +342,6 @@ export class TapsFeedComponent {
       html.removeAttribute('data-taps-live');
       html.removeAttribute('data-glass');
       this.clock.cancel();
-      this.duo.cancel();
       this.clearHold();
       this.clearVisualTimer();
       if (this.pausaTimer) clearTimeout(this.pausaTimer);
@@ -619,7 +600,6 @@ export class TapsFeedComponent {
       this.pausaAbierta.set(true);
       this.sheetOpen.set(true);
       this.clock.pause();
-      this.pauseDuo();
       this.audio.callar();
       this.musica.pausar('pausa-sana');
       this.stage?.say('¿Un descanso?', { ms: 3500, voz: false });
@@ -636,7 +616,7 @@ export class TapsFeedComponent {
     this.sheetOpen.set(false);
     this.musica.reanudar('pausa-sana');
     if (!descanso) this.track(null, 'taps/pausa/seguir');
-    if (!this.held && !this.document.hidden) { this.clock.resume(); this.resumeDuo(); }
+    if (!this.held && !this.document.hidden) this.clock.resume();
   }
 
   // ───────────── portada (modo="portada") ─────────────
@@ -688,8 +668,8 @@ export class TapsFeedComponent {
     return list[list.findIndex(t => t.id === tap.id) + 1] ?? null;
   }
   protected streakOf(tap: ITap): number { return streak(this.run(tap)); }
+  protected shape(k: number): string { return SHAPES[k] ?? ''; }
   protected letter(k: number): string { return 'ABCD'[k] ?? String(k + 1); }
-  protected tipoDe(q: ITapQuestion | undefined): TTapQuestionTipo { return questionTipo(q); }
   /** Frase de la reacción: del personaje del Tap, con semilla (sesión + Tap + partida + pregunta) y sin repetir la anterior. */
   protected word(tap: ITap): string {
     const semilla = `${this.semilla}|${tap.id}|${this.partidas.get(tap.id) ?? 0}`;
@@ -726,10 +706,9 @@ export class TapsFeedComponent {
   protected showTouchHint(tap: ITap): boolean { const run = this.run(tap); return !!tap.hook && run.index === 0 && run.chosen === null && !run.finished; }
 
   // ───────────── responder y avanzar ─────────────
-  protected choose(tap: ITap, option: number, via: TVia = 'toque'): void {
+  protected choose(tap: ITap, option: number): void {
     if (tap.id !== this.activeId() && this.live()) return;
-    // el toque de «adelantar» no responde en los primeros ms de la pregunta nueva; una tecla (1-4, ← →) sí es deliberada
-    if (via !== 'tecla' && this.questionShownAt && performance.now() - this.questionShownAt < TAP_RHYTHM.guardMs) return;
+    if (this.questionShownAt && performance.now() - this.questionShownAt < TAP_RHYTHM.guardMs) return;   // el toque de «adelantar» no responde
     const { run, correct } = choose(this.run(tap), tap, option);
     if (correct === null) return;
     const pre = this.takePreAnswer(tap, option);
@@ -737,26 +716,6 @@ export class TapsFeedComponent {
     // Inicio de la partida para el ranking: si se respondió antes de hidratar, la pregunta se veía desde que cargó la página.
     if (pre) this.tapStart.set(tap.id, Math.round(performance.timeOrigin));
     else if (this.run(tap).answers.length === 0 && !this.tapStart.has(tap.id)) this.tapStart.set(tap.id, Date.now());
-    const tipo = this.tipoDe(tap.questions[run.index]);
-    if (tipo !== 'clasica') this.track(null, `taps/formato/${tipo}/${via}`);
-    this.afterAnswer(tap, run, correct, pre);
-  }
-
-  /** Se acabó la cuenta regresiva de un duo sin responder: cuenta como fallo (sin opción marcada) y sigue el ritmo del error. */
-  private onDuoTimeout(): void {
-    const tap = this.duoTap;
-    this.duoTap = null;
-    this.duoWait.set(null);
-    if (!tap || tap.id !== this.activeId()) return;
-    const run = timeOut(this.run(tap), tap);
-    if (run === this.run(tap)) return;
-    this.track(null, 'taps/formato/duo/tiempo');
-    this.afterAnswer(tap, run, false, null);
-  }
-
-  /** Lo común a responder y a quedarse sin tiempo: marca, mide, suena, reacciona y arma la cuenta para avanzar. */
-  private afterAnswer(tap: ITap, run: ITapRun, correct: boolean, pre: IPreAnswer | null): void {
-    this.cancelDuo();
     this.setRun(tap, run);
     this.notice.set(null);
     this.track('taps-responder', `taps/responder/${eventSlug(tap.id)}/${run.answers.length}`);
@@ -766,7 +725,7 @@ export class TapsFeedComponent {
     this.audio.callar();
     this.answerSound(tap, run, correct);
     if (!pre) this.vibrate(correct);
-    if (tap.id === this.activeId()) this.stage?.react(correct ? 'celebrate' : 'hurt', { say: false, grande: correct && streak(run) >= 3 });   // racha: celebración mayor
+    if (tap.id === this.activeId()) this.stage?.react(correct ? 'celebrate' : 'hurt', { say: false });
     const ms = advanceDelay(correct, pre ? performance.now() - pre.t : 0);
     this.clockTap = tap;
     this.clock.start(ms);
@@ -834,69 +793,6 @@ export class TapsFeedComponent {
   /** Adelantar con el botón «Seguir» (teclado y lector de pantalla). */
   protected skip(): void { this.clock.flush(); }
 
-  // ───────────── formato duo: cuenta regresiva ─────────────
-  /** La pregunta a la vista es un duo sin responder: arranca (o reinicia) su cuenta regresiva. En cualquier otro caso la cancela. */
-  private armDuo(tap: ITap): void {
-    this.cancelDuo();
-    const run = this.run(tap), q = tap.questions[run.index];
-    if (!this.live() || run.finished || run.chosen !== null || this.tipoDe(q) !== 'duo' || tap.id !== this.activeId()) return;
-    this.duoTap = tap;
-    this.duo.start(DUO_MS);
-    this.duoPaused.set(false);
-    this.duoWait.set({ tapId: tap.id, ms: DUO_MS, key: ++this.duoKey });
-    if (this.sheetOpen() || this.document.hidden) this.pauseDuo();
-  }
-
-  private cancelDuo(): void {
-    this.duo.cancel();
-    this.duoTap = null;
-    if (this.duoWait()) this.duoWait.set(null);
-  }
-
-  /** La cuenta del duo espera con lo mismo que la de «Seguir»: hoja abierta, pestaña oculta, puntero sobre el panel. */
-  private pauseDuo(): void { if (this.duo.running) { this.duo.pause(); this.duoPaused.set(true); } }
-  private resumeDuo(): void { if (this.duo.paused) { this.duo.resume(); this.duoPaused.set(false); } }
-
-  // ───────────── formatos duo y vf: deslizar hacia la opción ─────────────
-  /** Puntero abajo sobre las 2 opciones: desde aquí, mover a un lado desliza el bloque; soltar lejos elige la opción de ese lado. */
-  protected swipeStart(event: PointerEvent, tipo: TTapQuestionTipo): void {
-    const el = event.currentTarget as HTMLElement;
-    if (tipo === 'clasica' || this.swipe || !event.isPrimary || el.classList.contains('is-answered') || event.button > 0) return;
-    this.swipe = { id: event.pointerId, x0: event.clientX, el, dx: 0 };
-  }
-
-  protected swipeMove(event: PointerEvent): void {
-    const s = this.swipe;
-    if (!s || event.pointerId !== s.id) return;
-    s.dx = event.clientX - s.x0;
-    if (Math.abs(s.dx) < 10) return;
-    if (!s.el.classList.contains('is-swiping')) {
-      s.el.classList.add('is-swiping');
-      try { s.el.setPointerCapture(s.id); } catch { /* sin captura el gesto sigue mientras el puntero esté encima */ }
-    }
-    s.el.style.setProperty('--dx', String(Math.max(-120, Math.min(120, s.dx))));
-    s.el.dataset['lado'] = s.dx <= -SWIPE_PX / 2 ? 'izq' : s.dx >= SWIPE_PX / 2 ? 'der' : '';
-  }
-
-  protected swipeEnd(event: PointerEvent, tap: ITap): void {
-    const s = this.swipe;
-    if (!s || event.pointerId !== s.id) return;
-    const dx = s.dx;
-    this.swipeCancel(event);
-    if (Math.abs(dx) < SWIPE_PX) return;                            // un toque corto: lo resuelve el clic del botón
-    this.choose(tap, dx < 0 ? 0 : 1, 'deslizar');
-  }
-
-  protected swipeCancel(event: PointerEvent): void {
-    const s = this.swipe;
-    if (!s || event.pointerId !== s.id) return;
-    this.swipe = null;
-    s.el.classList.remove('is-swiping');
-    s.el.style.removeProperty('--dx');
-    delete s.el.dataset['lado'];
-    try { if (s.el.hasPointerCapture(s.id)) s.el.releasePointerCapture(s.id); } catch { /* ya liberado */ }
-  }
-
   protected restart(tap: ITap): void {
     this.track(null, `taps/repetir/${eventSlug(tap.id)}`);
     this.signal(tap, 'repeat');
@@ -911,7 +807,6 @@ export class TapsFeedComponent {
     this.stage?.react('ask');
     this.readQuestion(tap);
     this.showQuestionScene(tap);
-    this.armDuo(tap);
     this.focusLater(tap, '.tap__q');
   }
 
@@ -962,7 +857,6 @@ export class TapsFeedComponent {
       this.questionShownAt = performance.now();
       if (tap.id === this.activeId()) { this.stage?.react('ask', { say: false }); this.readQuestion(tap); }
       if (tap.questions[run.index]?.visual) void this.stage?.preloadVisuals?.();
-      this.armDuo(tap);
       this.focusLater(tap, '.tap__q');
       if (run.index === 2) this.preloadAhead(this.activeIndex);   // llega a la pregunta 3: se adelanta el escenario de los siguientes
     }
@@ -1024,7 +918,6 @@ export class TapsFeedComponent {
     this.rankingShown = true;
     this.sheetOpen.set(true);
     this.clock.pause();
-    this.pauseDuo();
     this.audio.callar();                                            // la voz no sigue leyendo la pregunta debajo del ranking
   }
 
@@ -1034,7 +927,7 @@ export class TapsFeedComponent {
     if (this.rankingShown) {
       this.rankingShown = false;
       this.sheetOpen.set(false);
-      if (!this.held && !this.document.hidden) { this.clock.resume(); this.resumeDuo(); }
+      if (!this.held && !this.document.hidden) this.clock.resume();
     }
     const opener = this.rankingOpener;
     this.rankingOpener = null;
@@ -1072,11 +965,11 @@ export class TapsFeedComponent {
   }
 
   private readonly onVisibility = () => {
-    if (this.document.hidden) { this.clock.pause(); this.pauseDuo(); this.audio.pausar(); this.actividad(); }
+    if (this.document.hidden) { this.clock.pause(); this.audio.pausar(); this.actividad(); }
     else {
       if (!this.portada && this.live()) { this.pausa = reanudarPausa(this.pausa, Date.now()); this.savePausa(); }   // lo oculto no cuenta
       this.audio.reanudar();
-      if (!this.held && !this.sheetOpen()) { this.clock.resume(); this.resumeDuo(); }
+      if (!this.held && !this.sheetOpen()) this.clock.resume();
     }
     if (this.document.hidden && !this.sharing) this.countSession();
     if (!this.document.hidden) { this.ahora.set(Date.now()); this.refreshReto(); }
@@ -1132,14 +1025,13 @@ export class TapsFeedComponent {
     this.hojaDia.set(true);
     this.sheetOpen.set(true);
     this.clock.pause();
-    this.pauseDuo();
   }
 
   protected closeDay(): void {
     if (!this.hojaDia()) return;
     this.hojaDia.set(false);
     this.sheetOpen.set(false);
-    if (!this.held && !this.document.hidden) { this.clock.resume(); this.resumeDuo(); }
+    if (!this.held && !this.document.hidden) this.clock.resume();
   }
 
   // ───────────── sonido ─────────────
@@ -1304,7 +1196,7 @@ export class TapsFeedComponent {
   protected onSheet(open: boolean): void {
     this.sheetOpen.set(open);
     if (open) this.track(null, 'taps/tema/abrir');
-    if (open) { this.clock.pause(); this.pauseDuo(); } else if (!this.held) { this.clock.resume(); this.resumeDuo(); }
+    if (open) this.clock.pause(); else if (!this.held) this.clock.resume();
   }
 
   /** Elige categoría: el feed vuelve arriba con esos Taps primero y la URL queda enlazable (`/taps?tema=minecraft`). */
@@ -1386,7 +1278,7 @@ export class TapsFeedComponent {
       const answers = oficial?.hecho?.answers ?? run.answers, score = answers.filter(Boolean).length;
       const canvas = drawShareCard({
         tapTitle: oficial ? retoLabel(oficial.numero) : tap.title, title: resultFor(tap, score).title, score, total: tap.questions.length,
-        answers, backdrop: tap.backdrop, character, logo, estilo: this.estilo,
+        answers, backdrop: tap.backdrop, character, logo,
       });
       const blob = await canvasToBlob(canvas);
       if (blob) this.shareFiles.set(tap.id, new File([blob], `gems-taps-${tap.id}.png`, { type: 'image/png' }));
@@ -1410,9 +1302,7 @@ export class TapsFeedComponent {
     const tap = this.activeTap(), run = this.run(tap), desktop = this.wide();
     const onControl = !!target?.closest?.('button, a, [role="menuitem"]');
     switch (action.kind) {
-      case 'option': if (!run.finished) this.choose(tap, action.index, 'tecla'); break;
-      // ← → solo en una pregunta de 2 opciones (duo, verdadero/falso): la de ese lado
-      case 'lado': if (!run.finished && this.tipoDe(tap.questions[run.index]) !== 'clasica') { event.preventDefault(); this.choose(tap, action.index, 'tecla'); } break;
+      case 'option': if (!run.finished) this.choose(tap, action.index); break;
       case 'step':
         if (!desktop || target?.closest?.('gems-tap-panel, gems-taps-menu, .rail__menu')) return;   // ahí ↑ ↓ son del propio control
         event.preventDefault(); this.step(action.dir); break;
@@ -1459,9 +1349,9 @@ export class TapsFeedComponent {
 
   /** El puntero sobre el panel o el foco dentro pausan la cuenta atrás del feedback («En pausa mientras lees»). */
   protected holdPanel(on: boolean): void {
-    if (!this.wide() || !(this.clock.active || this.duo.active)) return;
-    if (on) { this.clock.pause(); this.waitPaused.set(true); this.pauseDuo(); }
-    else if (!this.held && !this.sheetOpen() && !this.document.hidden) { this.clock.resume(); this.waitPaused.set(false); this.resumeDuo(); }
+    if (!this.wide() || !this.clock.active) return;
+    if (on) { this.clock.pause(); this.waitPaused.set(true); }
+    else if (!this.held && !this.sheetOpen() && !this.document.hidden) { this.clock.resume(); this.waitPaused.set(false); }
   }
 
   /** «No me interesa este tema»: no sale en «Para ti» durante 30 días (se puede deshacer desde el mismo menú). */
@@ -1532,7 +1422,7 @@ export class TapsFeedComponent {
   private celebrateResult(tap: ITap, run: ITapRun): void {
     const good = isGoodScore(tap, run.score);
     this.stage?.say('');                                       // el título ya está en la tarjeta: sin globo encima de la barra
-    this.stage?.react(good ? 'win' : 'lose', { say: false, grande: run.score === tap.questions.length });   // 5 de 5: celebración mayor
+    this.stage?.react(good ? 'win' : 'lose', { say: false });
   }
 
   private focusLater(tap: ITap, selector: string): void {
@@ -1627,7 +1517,6 @@ export class TapsFeedComponent {
     if (index === this.activeIndex) return;
     const previous = this.activeIndex, tap = this.taps()[index], token = ++this.token;
     if (this.clockTap && this.clockTap.id !== tap.id) this.clock.flush();   // se fue con la respuesta a la vista: queda en la siguiente pregunta
-    if (this.duoTap && this.duoTap.id !== tap.id) this.cancelDuo();         // se fue a mitad de un duo: la cuenta no sigue a escondidas (sin fallo)
     const left = previous >= 0 ? this.taps().find(t => t.id === this.activeId()) : undefined;
     if (left && left.id !== tap.id) {                                   // se fue a mitad de un Tap tras fallar: el tema pierde 1 punto
       const r = this.run(left);
@@ -1665,14 +1554,13 @@ export class TapsFeedComponent {
       const run = this.run(tap);
       if (run.finished) this.celebrateResult(tap, run); else { stage.say(''); stage.react('ask', { say: false }); this.readQuestion(tap); }
       this.showQuestionScene(tap);
-      this.armDuo(tap);
       this.audio.precalentar(tap.theme);
       if (tap.questions.some(q => q.visual)) void stage.preloadVisuals?.();
       if (tap.questions.some(q => q.escena)) void stage.preloadEscenas?.();
       this.preloadAhead(index);
     } catch {
       // Sin tema ni motor el Tap se juega sobre su degradado (--bg-top/--bg-bottom), sin personaje y sin aviso: es el mínimo garantizado.
-      if (token === this.token) { this.setStageMode('none'); this.armDuo(tap); }
+      if (token === this.token) this.setStageMode('none');
       this.stageError('error/motor');
     }
   }
@@ -1729,7 +1617,7 @@ export class TapsFeedComponent {
     const { create } = await loadTapsEngine();
     if (this.stages.has(tap.theme)) return this.switchStage(this.stages.get(tap.theme)!);   // otro activate (o la precarga) lo creó mientras cargaba el motor
     // Modo ligero o ahorro de datos: póster fijo, sin pedir el motor 3D.
-    const stage = create(this.slots()[this.activeIndex].nativeElement, { theme: tapsThemeUrl(tap.theme), mode: this.lightOnly() ? 'light' : 'auto', audio: this.audio.motorAudio, estilo: this.estilo });
+    const stage = create(this.slots()[this.activeIndex].nativeElement, { theme: tapsThemeUrl(tap.theme), mode: this.lightOnly() ? 'light' : 'auto', audio: this.audio.motorAudio });
     this.stage?.pause();
     this.stage = stage;
     this.retireWebglStages(stage, 1);
@@ -1929,7 +1817,7 @@ export class TapsFeedComponent {
         const { create } = await loadTapsEngine();
         if (!sigue() || this.stages.has(tap.theme) || i === this.activeIndex) return;
         // en pausa y en silencio: el 3D se arma detrás sin dibujar en bucle; su espera de 4 s empieza al verse (switchStage)
-        const stage = create(slot, { theme: tapsThemeUrl(tap.theme), mode: 'auto', audio: this.audio.motorAudio, slowMs: 0, estilo: this.estilo });
+        const stage = create(slot, { theme: tapsThemeUrl(tap.theme), mode: 'auto', audio: this.audio.motorAudio, slowMs: 0 });
         stage.pause('precarga');
         this.wireStage(tap, stage);
         stage.setMuted(true);
@@ -1965,7 +1853,7 @@ export class TapsFeedComponent {
     if (!slot || this.anticipos.has(tap.id) || ocupada()) return;
     const { create } = await loadTapsEngine();
     if (token !== this.token || !this.precargaPermitida() || this.anticipos.has(tap.id) || ocupada() || this.ranura(tap.id) !== slot) return;
-    const a = create(slot, { theme: tapsThemeUrl(tap.theme), mode: 'light', audio: { play: () => undefined }, slowMs: 0, estilo: this.estilo });
+    const a = create(slot, { theme: tapsThemeUrl(tap.theme), mode: 'light', audio: { play: () => undefined }, slowMs: 0 });
     this.marcarCapa(a.root, 'te-anticipo');
     this.anticipos.set(tap.id, a);
     try {
