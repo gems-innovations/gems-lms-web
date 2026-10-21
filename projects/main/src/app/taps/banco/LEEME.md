@@ -8,8 +8,8 @@ Viven aquí para que el build no dependa de nada fuera del repo.
 
 1. Edita el banco en `producto/taps/banco/` y corre allí `node validar.mjs` hasta ver «Todo bien».
 2. Copia los tres JSON sobre esta carpeta.
-3. Desde `gems-lms-web`: `npm run taps:generar`. Valida los límites (pregunta ≤ 120, opciones ≤ 22 y exactamente 4,
-   explicación ≤ 90, respuesta válida, ids únicos, 5 preguntas por Tap) y escribe `../taps.banco.generated.ts`.
+3. Desde `gems-lms-web`: `npm run taps:generar`. Valida los límites (pregunta ≤ 120, opciones ≤ 22 y exactamente 4, o 2 en
+   los formatos `duo` y `vf`, explicación ≤ 90, respuesta válida, ids únicos, 5 preguntas por Tap) y escribe `../taps.banco.generated.ts`.
    Si algo falla, no escribe nada y dice qué pregunta y qué límite.
 4. Sube los JSON y el `.generated.ts` en el mismo commit. `npm run taps:verificar` (y `npm run taps:test`) falla si el
    archivo generado no coincide con el banco.
@@ -21,6 +21,11 @@ No se edita `taps.banco.generated.ts` a mano.
 - En un Tap: `"retirado": true` lo saca de la app (su id queda en `TAPS_RETIRADOS` y el enlace avisa «este Tap se retiró»);
   `"resultados": [...]` le da títulos propios en vez de los del tema.
 - Las preguntas en `estado: "borrador"` o `"retirada"` no pueden estar en un Tap publicado.
+- En una pregunta: `"tipo": "duo"` o `"tipo": "vf"` (opcional; sin él es clásica de 4 opciones). `duo`: exactamente 2 opciones,
+  una contra otra, con cuenta regresiva de 7 s (sin respuesta cuenta como fallo). `vf`: verdadero o falso, con `options`
+  exactamente `["Verdadero", "Falso"]` y `answer` 0 (verdadero) o 1 (falso); se responde tocando o deslizando hacia el lado
+  de la opción. Un Tap puede mezclar formatos (p. ej. `mc-duelo-1`: 2 clásicas, 2 duo, 1 vf). El generador falla si el
+  número de opciones no cuadra con el tipo.
 - En una pregunta: `"visual": { "objeto": "piston", "accion": "bloquea", "valor": "…" }` (opcional) muestra un objeto que el
   usuario puede tocar y arrastrar junto a la explicación al fallar. El catálogo está en el `theme.json` del tema
   (`visuals.objects`) y en `public/taps-engine/README.md`; el generador falla si el objeto o la acción no existen.

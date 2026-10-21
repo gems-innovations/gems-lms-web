@@ -3773,6 +3773,83 @@
       "subtema": "aldeas",
       "fuente": "https://minecraft.wiki/w/Trading",
       "estado": "revisada"
+    },
+    {
+      "id": "duelo-enderman-perla",
+      "q": "¿Qué mob suelta perlas de ender?",
+      "options": [
+        "Enderman",
+        "Esqueleto",
+        "Creeper",
+        "Zombi"
+      ],
+      "answer": 0,
+      "why": "El enderman suelta hasta 1 perla al morir; sirven para hacer ojos de ender.",
+      "dificultad": 1,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Enderman",
+      "estado": "revisada"
+    },
+    {
+      "id": "duelo-ojos-portal-end",
+      "q": "¿Cuántos ojos de ender lleva un portal del End completo?",
+      "options": [
+        "9",
+        "12",
+        "16",
+        "20"
+      ],
+      "answer": 1,
+      "why": "12 marcos, 12 ojos. Algunos ya vienen puestos cuando se genera la fortaleza.",
+      "dificultad": 2,
+      "subtema": "nether-end",
+      "fuente": "https://minecraft.wiki/w/End_portal",
+      "estado": "revisada"
+    },
+    {
+      "id": "duelo-sol-zombi-creeper",
+      "tipo": "duo",
+      "q": "¿Cuál arde con el sol de la mañana?",
+      "options": [
+        "El zombi",
+        "El creeper"
+      ],
+      "answer": 0,
+      "why": "Zombis y esqueletos arden de día sin casco; los creepers no.",
+      "dificultad": 1,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Zombie",
+      "estado": "revisada"
+    },
+    {
+      "id": "duelo-xp-carbon-diamante",
+      "tipo": "duo",
+      "q": "¿Qué mena da más experiencia al minarla?",
+      "options": [
+        "Carbón",
+        "Diamante"
+      ],
+      "answer": 1,
+      "why": "El diamante suelta de 3 a 7 puntos de experiencia; el carbón, de 0 a 2.",
+      "dificultad": 2,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Experience",
+      "estado": "revisada"
+    },
+    {
+      "id": "duelo-oro-mas-duro",
+      "tipo": "vf",
+      "q": "Las herramientas de oro duran más que las de hierro.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 1,
+      "why": "Falso: el pico de oro se gasta en 32 usos (el de hierro, 250), aunque mina más rápido.",
+      "dificultad": 2,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Pickaxe",
+      "estado": "revisada"
     }
   ],
   "taps": [
@@ -4308,6 +4385,19 @@
         "heroe-aldea",
         "devastador",
         "niveles-aldeano"
+      ]
+    },
+    {
+      "id": "mc-duelo-1",
+      "titulo": "Duelo de bloques",
+      "nivel": "media",
+      "subtema": "mixto",
+      "preguntas": [
+        "duelo-enderman-perla",
+        "duelo-sol-zombi-creeper",
+        "duelo-ojos-portal-end",
+        "duelo-xp-carbon-diamante",
+        "duelo-oro-mas-duro"
       ]
     }
   ]
