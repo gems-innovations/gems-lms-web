@@ -22,6 +22,9 @@ export type TEventPath =
   // sonido» en «Tu día»); `taps/musica/<on|off>` al usar el control de música (hoja «Tu día» o menú) y
   // `taps/voz/<encender|apagar>` el de la voz. Encender música o voz con el sonido apagado también lo enciende, sin evento
   // `taps/sonido` aparte. Nada se mide por el estado por defecto (sonido y música encendidos, voz apagada).
+  // Formatos de pregunta (taps.types.ts → TTapQuestionTipo): `taps/formato/<duo|vf>/<toque|tecla|deslizar|tiempo>` al responder
+  // una pregunta que no es clásica, con cómo se respondió (`tiempo` = se acabó la cuenta regresiva de un duo). Las clásicas no
+  // miden nada aparte (`taps/responder/...` sigue contando todas).
   // Desde la portada salen como `portada/tap/...` (p. ej. `portada/tap/coleccion/minecraft-mobs/bronce`).
   // Portada: qué puerta abre la gente (`portada/opcion/<taps|temas/<tema>|retos|bloques|cursos|instituciones|entrar>`).
   | `portada/${string}`

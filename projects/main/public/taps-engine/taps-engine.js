@@ -156,10 +156,14 @@ function externalSound(audio, theme) {
 }
 
 // ───────────────────────── partículas (capa 2D sobre el 3D) ─────────────────────────
+/** Colores de las chispas del estilo documental: ámbar y dorado, nada multicolor. */
+const CHISPAS = ['#e8c47a', '#f3dca3', '#d9a54a', '#fff2cc'];
 function burst(list, x, y, kind, colors) {
   const make = (n, fn) => { for (let i = 0; i < n; i++) list.push(fn(i)); };
   if (kind === 'confetti') make(46, i => { const a = -Math.PI / 2 + (Math.random() - .5) * 2.2, v = 260 + Math.random() * 420; return { x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, g: 900, life: 1.5, max: 1.5, c: colors[i % colors.length], s: 8 + Math.random() * 9 }; });
   else if (kind === 'hit') make(16, i => { const a = Math.random() * Math.PI * 2, v = 220 + Math.random() * 300; return { x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 120, g: 900, life: .5, max: .5, c: colors[i % colors.length], s: 7 + Math.random() * 8 }; });
+  // chispas (estilo documental): pocas, finas, doradas, 450 ms; «grande» = tres veces más, para racha y 5/5
+  else if (kind === 'chispas' || kind === 'chispas-grande') make(kind === 'chispas' ? 14 : 40, i => { const a = -Math.PI / 2 + (Math.random() - .5) * 2.6, v = 180 + Math.random() * 300; return { x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, g: 700, life: .45, max: .45, c: colors[i % colors.length], s: 3 + Math.random() * 3 }; });
   else if (kind === 'poof') make(14, i => { const a = Math.random() * Math.PI * 2, v = 90 + Math.random() * 120; return { x, y, vx: Math.cos(a) * v, vy: -60 - Math.random() * 160, g: -40, life: .9, max: .9, c: colors[i % colors.length], s: 20 + Math.random() * 16 }; });
 }
 function drawParticles(ctx, list, dt, scale, shape = 'square') {
@@ -203,7 +207,7 @@ const loadImage = src => new Promise((ok, no) => { const i = new Image(); i.onlo
 /**
  * Crea un escenario dentro de `container` (que debe tener tamaño: la capa se estira a todo el contenedor).
  * @param {HTMLElement} container
- * @param {{theme: string|object, mode?: 'auto'|'3d'|'light', degrade?: boolean, reducedMotion?: boolean, onEvent?: (name:string, data?:any)=>void}} opts
+ * @param {{theme: string|object, mode?: 'auto'|'3d'|'light', degrade?: boolean, reducedMotion?: boolean, estilo?: 'documental'|'clasico', onEvent?: (name:string, data?:any)=>void}} opts
  */
 export function create(container, opts = {}) {
   ensureCss();
@@ -213,6 +217,10 @@ export function create(container, opts = {}) {
   container.appendChild(root);
   const q = s => root.querySelector(s), bgEl = q('.te-bg'), lightEl = q('.te-light'), charEl = q('.te-char'), glEl = q('.te-gl'), fxEl = q('.te-fx'), bubbleEl = q('.te-bubble');
   const reduced = opts.reducedMotion ?? (typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // v13: aspecto «documental» por defecto (gradación de cine, globo como subtítulo, sin confeti). `estilo: 'clasico'` (o
+  // ?estilo=clasico mientras se compara) deja el aspecto anterior. Cualquier otro valor cae en documental.
+  const estilo = opts.estilo ?? (typeof location !== 'undefined' ? new URLSearchParams(location.search).get('estilo') : null);
+  root.dataset.estilo = estilo === 'clasico' ? 'clasico' : 'documental';
   if (reduced) root.dataset.reduced = '1';      // la opción `reducedMotion` apaga también las animaciones CSS, no solo la media query
   const listeners = new Map();
   const emit = (n, d) => { opts.onEvent?.(n, d); (listeners.get(n) || []).forEach(f => { try { f(d); } catch { /* un oyente roto no tumba el motor */ } }); };
@@ -353,12 +361,12 @@ export function create(container, opts = {}) {
     lightEl.classList.remove('te-celebrate', 'te-hurt', 'te-think', 'te-talk'); void lightEl.offsetWidth; if (cls && !reduced) lightEl.classList.add(cls);
     if (!cls || cls === 'te-think' || cls === 'te-talk') return; if (ms) setTimeout(() => lightEl.classList.remove(cls), ms);
   }
-  function lightConfetti(colors) {
+  function lightConfetti(colors, chispas = false) {
     if (reduced) return;
-    for (let i = 0; i < 24; i++) {
-      const p = document.createElement('i'); p.style.setProperty('--x', (Math.random() * 100 - 50).toFixed(0) + 'vmin'); p.style.setProperty('--y', (-(25 + Math.random() * 45)).toFixed(0) + 'vmin');
+    for (let i = 0; i < (chispas === 'grande' ? 36 : chispas ? 14 : 24); i++) {
+      const p = document.createElement('i'); if (chispas) p.className = 'te-chispa'; p.style.setProperty('--x', (Math.random() * 100 - 50).toFixed(0) + 'vmin'); p.style.setProperty('--y', (-(25 + Math.random() * 45)).toFixed(0) + 'vmin');
       p.style.setProperty('--r', (Math.random() * 720 - 360).toFixed(0) + 'deg'); p.style.background = colors[i % colors.length]; p.style.animationDelay = (Math.random() * .12).toFixed(2) + 's';
-      fxEl.appendChild(p); setTimeout(() => p.remove(), 1600);
+      fxEl.appendChild(p); setTimeout(() => p.remove(), chispas ? 600 : 1600);
     }
   }
 
@@ -688,18 +696,23 @@ export function create(container, opts = {}) {
     if (o.hold !== true) bubbleTimer = setTimeout(() => bubbleEl.classList.remove('on'), o.ms ?? 1400 + full.length * 45);
   };
 
-  /** Dispara una reacción definida en theme.reactions: animación + efecto + sonido + partículas + frase. */
+  /** Dispara una reacción definida en theme.reactions: animación + efecto + sonido + partículas + frase. `o.grande` (v13): celebración
+   * mayor (más chispas y la capa ligera salta dos veces) para la racha y el 5 de 5. */
   S.react = function react(name, o = {}) {
     const t = S.theme; const def = t?.reactions?.[name]; if (!def) return;
     clearTimeout(reactTimer); voiceTurn++;                     // una reacción manda sobre la boca que habla
     const anim = reduced ? (def.reducedAnim || 'idle') : def.anim;
+    if (o.grande) root.dataset.grande = '1'; else delete root.dataset.grande;
     if (renderer) { renderer.play(anim); (def.fx || []).forEach(f => !reduced && renderer.fx(f)); wake(Math.max(1500, (def.duration || 0) * 1000 + 300)); }
     else { lightAnim({ celebrate: 'te-celebrate', hurt: 'te-hurt', think: 'te-think', talk: 'te-talk' }[def.anim] || '', (def.duration || 1.2) * 1000); lightPose(anim); }
     (def.sfx || []).forEach(n => sound?.play(n));
+    // documental: el confeti multicolor se vuelve un estallido breve de chispas doradas (o uno grande con o.grande: racha y 5/5)
+    const chispas = root.dataset.estilo === 'documental' && def.particles === 'confetti' ? (o.grande ? 'grande' : true) : false;
     if (def.particles && !reduced) {
-      const colors = t.palette?.[def.particles] || t.palette?.confetti || ['#fff'];
-      if (renderer) { const [ax, ay] = renderer.anchor(def.particles === 'confetti' ? 'top' : 'chest'); burst(particles, ax, ay, def.particles, Array.isArray(colors) ? colors : [colors]); }
-      else if (def.particles === 'confetti') lightConfetti(Array.isArray(colors) ? colors : [colors]);
+      const colors = chispas ? CHISPAS : t.palette?.[def.particles] || t.palette?.confetti || ['#fff'];
+      const kind = chispas === 'grande' ? 'chispas-grande' : chispas ? 'chispas' : def.particles;
+      if (renderer) { const [ax, ay] = renderer.anchor(def.particles === 'confetti' ? 'top' : 'chest'); burst(particles, ax, ay, kind, Array.isArray(colors) ? colors : [colors]); }
+      else if (def.particles === 'confetti') lightConfetti(Array.isArray(colors) ? colors : [colors], chispas);
     }
     if (o.say !== false && def.say?.length) S.say(typeof o.say === 'string' ? o.say : pick(def.say), { tone: def.tone || name });
     loopReact = def.duration ? null : name;

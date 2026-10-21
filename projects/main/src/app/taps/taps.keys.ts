@@ -5,6 +5,8 @@
 export type TTapKeyAction =
   | { kind: 'option'; index: number }
   | { kind: 'step'; dir: 1 | -1 }
+  /** ← → en una pregunta de 2 opciones (duo, verdadero/falso): la de ese lado. El componente la ignora en las de 4. */
+  | { kind: 'lado'; index: 0 | 1 }
   | { kind: 'sound' | 'challenge' | 'topics' | 'focus' | 'menu' | 'help' | 'escape' | 'continue' };
 
 /** Teclas de un solo carácter: por WCAG 2.1.4 la persona puede apagarlas. Las de navegación (flechas, Esc) no. */
@@ -17,6 +19,7 @@ const SINGLE: Record<string, TTapKeyAction> = {
 const NAV: Record<string, TTapKeyAction> = {
   ArrowDown: { kind: 'step', dir: 1 }, PageDown: { kind: 'step', dir: 1 },
   ArrowUp: { kind: 'step', dir: -1 }, PageUp: { kind: 'step', dir: -1 },
+  ArrowLeft: { kind: 'lado', index: 0 }, ArrowRight: { kind: 'lado', index: 1 },
   Escape: { kind: 'escape' },
 };
 
