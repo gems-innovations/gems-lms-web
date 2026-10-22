@@ -1,0 +1,5 @@
+﻿Tema «época» de Taps (GEMS Innovations)
+
+- Presentadores (dibujante de grabados y arqueóloga), escenarios (taller de Londres 1803, excavación en Egipto) y objetos: ilustración original dibujada por código (rig.js, scenery.js).
+  No usa imágenes, modelos ni personajes de terceros.
+- Sonidos: sintetizados en el navegador con Web Audio a partir de los tonos definidos en theme.json. Sin archivos de audio.

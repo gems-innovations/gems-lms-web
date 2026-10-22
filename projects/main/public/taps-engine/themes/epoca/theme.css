@@ -1,0 +1,29 @@
+/* Tema «época» · capa ligera y globo. Solo aplica dentro de :is(.te-stage, .te-huella)[data-theme='epoca'] (no toca otros temas).
+   Los colores salen de theme.json (variables --te-*). Fondo sobrio de cielo y piso; el personaje es la ilustración de rig.js. */
+:is(.te-stage, .te-huella)[data-theme='epoca'] { background: linear-gradient(180deg, var(--te-sky-top, #231b17), var(--te-sky-bottom, #3b2c24) 50%, var(--te-ground-dark, #1a110c) 50%); }
+:is(.te-stage, .te-huella)[data-theme='epoca'] .te-bg::before { display: none; }
+:is(.te-stage, .te-huella)[data-theme='epoca'] .te-bg::after { height: calc(var(--te-suelo, 50%) - var(--te-f-y, 0px)); background: var(--te-ground-dark, #1a110c); }
+/* personaje: ilustración (sin pixelado), proporción 4:5, sombra dura en el piso */
+:is(.te-stage, .te-huella)[data-theme='epoca'] .te-light { top: calc(99% - var(--te-suelo, 50%) - 32% * var(--te-s, 1)); height: calc(32% * var(--te-s, 1)); aspect-ratio: 4 / 5; }
+:is(.te-stage, .te-huella)[data-theme='epoca'] .te-char { image-rendering: auto; filter: drop-shadow(0 8px 10px rgba(8, 6, 10, .45)); animation-name: te-epoca-float; animation-duration: 3s; }
+:is(.te-stage, .te-huella)[data-theme='epoca'] .te-light.te-hurt .te-char { filter: drop-shadow(0 8px 10px rgba(8, 6, 10, .45)); }
+:is(.te-stage, .te-huella)[data-theme='epoca'][data-entra] .te-char { animation-duration: .6s; animation-iteration-count: 1; }
+@keyframes te-epoca-float { 0%, 100% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(-1%) scale(1.004, .996); } }
+
+/* confeti redondo y en tiras (no cuadritos) */
+:is(.te-stage, .te-huella)[data-theme='epoca'] .te-fx i { border-radius: 50%; }
+:is(.te-stage, .te-huella)[data-theme='epoca'] .te-fx i:nth-child(2n) { border-radius: 3px; height: 5px; width: 14px; }
+
+/* globo: redondeado, sin borde negro, tipografía del tema, sombra dura */
+:is(.te-stage, .te-huella)[data-theme='epoca'] .te-bubble { top: var(--te-globo-y, 15%); border: 0; border-radius: 18px; padding: .5em .9em .55em; color: #1E1B4B; background: #fff;
+  box-shadow: 0 4px 14px rgba(8, 6, 10, .4); }
+:is(.te-stage, .te-huella)[data-theme='epoca'] .te-bubble::after { border: 0; border-radius: 0 0 4px 0; bottom: -6px; width: 14px; height: 14px; }
+:is(.te-stage, .te-huella)[data-theme='epoca'] .te-bubble[data-tone='celebrate'] { background: var(--te-good, #34D399); color: #062a1e; }
+:is(.te-stage, .te-huella)[data-theme='epoca'] .te-bubble[data-tone='celebrate']::after { background: var(--te-good, #34D399); }
+:is(.te-stage, .te-huella)[data-theme='epoca'] .te-bubble[data-tone='hurt'] { background: var(--te-bad, #F87171); color: #3a0b0b; }
+:is(.te-stage, .te-huella)[data-theme='epoca'] .te-bubble[data-tone='hurt']::after { background: var(--te-bad, #F87171); }
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.te-stage, .te-huella)[data-theme='epoca'] .te-char { animation: none; }
+}
+

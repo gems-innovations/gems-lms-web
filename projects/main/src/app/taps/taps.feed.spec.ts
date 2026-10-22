@@ -112,11 +112,11 @@ describe('mixFeed (feed «Para ti»)', () => {
 describe('el feed con los Taps reales', () => {
   const feed = orderFeed(TAPS, {});
   const enFeed = TAPS.filter(t => !t.soloEnlace).length;
-  it('hay 123 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
-    expect(TAPS.length).toBe(123);
+  it('hay 124 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
+    expect(TAPS.length).toBe(124);
     expect(new Set(TAPS.map(t => t.id)).size).toBe(TAPS.length);
     const questionIds = TAPS.flatMap(t => t.questions.map(q => q.id));
-    expect(questionIds.length).toBe(123 * 5);
+    expect(questionIds.length).toBe(124 * 5);
     expect(new Set(questionIds).size).toBe(questionIds.length);
   });
   it('el feed los trae todos, con un gancho primero y nunca más de 2 seguidos del mismo tema', () => {
@@ -229,6 +229,8 @@ describe('textos de los Taps reales', () => {
       minecraft: { hosts: ['leo', 'sofi', 'mateo', 'dani'], items: ['sword', 'pick', 'axe', 'torch', 'diamond', 'apple', 'grass', 'tnt'] },
       estudio: { hosts: ['chispa', 'nube'], items: ['matraz', 'lupa', 'libro'] },
       // aventura: personajes del registro (public/taps-engine/personajes), sin objeto en la mano
+      // época: presentadores 2D de «historias» (public/taps-engine/themes/epoca)
+      epoca: { hosts: ['grabador', 'arqueologa'], items: ['pluma', 'cepillo', 'pergamino', 'mapa'] },
       aventura: { hosts: ['zorro', 'cientifica', 'robot', 'panda', 'pirata', 'exploradora', 'pinguino', 'ninja', 'hana'], items: [] },
     };
     for (const t of TAPS) {

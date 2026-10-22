@@ -114,6 +114,85 @@
       "subtema": "napoleon",
       "fuente": "https://es.wikipedia.org/wiki/Napoleón_Bonaparte",
       "estado": "revisada"
+    },
+    {
+      "id": "cleopatra-piramide",
+      "q": "¿Cleopatra vivió más cerca de la Gran Pirámide o del alunizaje?",
+      "options": [
+        "De la Gran Pirámide",
+        "Del alunizaje"
+      ],
+      "answer": 1,
+      "why": "Del alunizaje: la Pirámide es de hacia 2560 a. C. y Cleopatra murió en 30 a. C.",
+      "dificultad": 2,
+      "subtema": "cleopatra",
+      "fuente": "https://es.wikipedia.org/wiki/Cleopatra_VII",
+      "estado": "revisada",
+      "tipo": "duo"
+    },
+    {
+      "id": "cleopatra-origen",
+      "q": "¿De qué origen era la dinastía de Cleopatra?",
+      "options": [
+        "Egipcio antiguo",
+        "Griego macedonio",
+        "Romano",
+        "Persa"
+      ],
+      "answer": 1,
+      "why": "Griego macedonio: Ptolomeo I, general de Alejandro, fundó la dinastía.",
+      "dificultad": 2,
+      "subtema": "cleopatra",
+      "fuente": "https://es.wikipedia.org/wiki/Dinast%C3%ADa_ptolemaica",
+      "estado": "revisada"
+    },
+    {
+      "id": "cleopatra-idioma",
+      "q": "¿Qué idioma local aprendió Cleopatra, algo raro entre los Ptolomeos?",
+      "options": [
+        "Egipcio",
+        "Latín",
+        "Etrusco",
+        "Sánscrito"
+      ],
+      "answer": 0,
+      "why": "Egipcio: según Plutarco, fue la primera Ptolomea en aprenderlo.",
+      "dificultad": 3,
+      "subtema": "cleopatra",
+      "fuente": "https://es.wikipedia.org/wiki/Cleopatra_VII",
+      "estado": "revisada"
+    },
+    {
+      "id": "cleopatra-accio",
+      "q": "¿Qué batalla naval de 31 a. C. perdieron Cleopatra y Marco Antonio?",
+      "options": [
+        "Salamina",
+        "Accio",
+        "Lepanto",
+        "Trafalgar"
+      ],
+      "answer": 1,
+      "why": "Accio: Octavio los derrotó y quedó dueño del Mediterráneo.",
+      "dificultad": 2,
+      "subtema": "cleopatra",
+      "fuente": "https://es.wikipedia.org/wiki/Batalla_de_Accio",
+      "estado": "revisada"
+    },
+    {
+      "id": "cleopatra-final",
+      "q": "¿Qué pasó con Egipto tras la muerte de Cleopatra?",
+      "options": [
+        "Fue provincia romana",
+        "Siguió independiente",
+        "Lo gobernó su hijo",
+        "Pasó a Persia"
+      ],
+      "answer": 0,
+      "why": "Octavio lo anexó en 30 a. C. y fue provincia romana por siglos.",
+      "dificultad": 2,
+      "subtema": "cleopatra",
+      "fuente": "https://es.wikipedia.org/wiki/Cleopatra_VII",
+      "estado": "revisada"
     }
   ],
   "taps": [
@@ -147,6 +226,58 @@
           "lineas": [
             "Entre la caricatura y los datos, elegiste los datos.",
             "Medía unos 1,69 m, como tantos franceses de su época."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cleopatra",
+      "titulo": "Cleopatra vivió más cerca de ti que de las pirámides",
+      "nivel": "media",
+      "subtema": "cleopatra",
+      "encuadre": "cerca-derecha",
+      "preguntas": [
+        "cleopatra-piramide",
+        "cleopatra-origen",
+        "cleopatra-idioma",
+        "cleopatra-accio",
+        "cleopatra-final"
+      ],
+      "resultados": [
+        {
+          "min": 0,
+          "title": "Te creíste la leyenda",
+          "line": "Cleopatra tiene más de mito que de historia. Ahora sabes más.",
+          "lineas": [
+            "Casi nadie sabe esto de ella a la primera.",
+            "Las películas la contaron a su manera."
+          ]
+        },
+        {
+          "min": 2,
+          "title": "Curioso de la historia",
+          "line": "Sabes más de Cleopatra que la mayoría. Falta poco.",
+          "lineas": [
+            "Vas por buen camino con la reina de Egipto.",
+            "Un repaso más y la dominas."
+          ]
+        },
+        {
+          "min": 4,
+          "title": "Casi egiptólogo",
+          "line": "Conoces bien a la última reina de Egipto.",
+          "lineas": [
+            "Pocos separan tan bien el mito de los hechos.",
+            "Solo se te escapó un detalle."
+          ]
+        },
+        {
+          "min": 5,
+          "title": "Más que el mito",
+          "line": "Cleopatra no tiene secretos para ti. Compártelo.",
+          "lineas": [
+            "Pocos llegan al 5 de 5 en este Tap.",
+            "Ahora cuéntaselo a alguien."
           ]
         }
       ]

@@ -98,6 +98,18 @@ export const FRASES: Readonly<Record<string, IFrasesPersonaje>> = {
     fallo: ['Casi...', 'Otro sendero', 'Esa era trampa', 'Buen intento', 'Por poquito', 'Seguimos buscando',
       'Ahora la sabes', 'Uy, por poco', 'Esa engaña', 'A la próxima'],
   },
+  // Época: Tomás, el grabador de Londres (tono sobrio, de oficio).
+  grabador: {
+    acierto: ['Bien trazado', 'Exacto', 'Sin error de imprenta', 'Eso es', 'Buen ojo', 'Muy bien visto', 'Correcto', 'Justo así', 'Tenías la fecha', 'Impecable'],
+    fallo: ['Casi', 'Un borrón nada más', 'Esa engaña a muchos', 'Buen intento', 'Se corrige y se sigue', 'Por poco',
+      'Ahora ya la sabes', 'Todos erramos', 'Otra prueba', 'A la próxima'],
+  },
+  // Época: Inés, la arqueóloga.
+  arqueologa: {
+    acierto: ['Bien excavado', 'Hallazgo confirmado', 'Exacto', 'Eso es', 'Buen hallazgo', 'Datación correcta', 'Correcto', 'Lo tenías', 'Impecable', 'Muy bien'],
+    fallo: ['Casi', 'A seguir excavando', 'Esa engaña a muchos', 'Buen intento', 'Otra capa más', 'Por poco',
+      'Ahora ya la sabes', 'Error útil', 'Revisemos el dato', 'A la próxima'],
+  },
   // Pingo, el pingüino.
   pinguino: {
     acierto: ['¡Bien deslizado!', '¡Fresquísimo!', '¡Eso es!', '¡Exacto!', '¡Qué frío de bueno!', '¡Directo!',

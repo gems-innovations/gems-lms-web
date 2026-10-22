@@ -1,0 +1,89 @@
+{
+  "id": "epoca",
+  "name": "Época",
+  "version": 1,
+
+  "canvas": "2d",
+  "renderer": "renderer2d.js",
+  "light": "light.js",
+  "css": "theme.css",
+  "defaultWorld": "taller-londres",
+
+  "font": { "family": "Rubik", "src": "../../../fonts/rubik-latin-700-normal.woff2" },
+  "palette": {
+    "accent": "#D3B27A",
+    "good": "#34D399",
+    "bad": "#F87171",
+    "planet": "#D3B27A",
+    "confetti": ["#D3B27A", "#C8453F", "#3A74C4", "#E9E1CF", "#34D399"],
+    "hit": ["#F87171", "#D3B27A", "#FFFFFF"],
+    "poof": ["#E9E1CF", "#CDBFA0", "#9C8B6A"]
+  },
+  "particles": { "shape": "mixed" },
+
+  "characters": {
+    "grabador": { "name": "Tomás", "look": {
+      "skin": "#c99a76", "skinShade": "#b0805e", "hair": "#3a2a20", "hairStyle": "corto", "beard": "patillas",
+      "outfit": "levita", "coat": "#34364c", "coatShade": "#22232f", "vest": "#7a5c3a", "shirt": "#e8e1cf", "cravat": "#e8e1cf", "trousers": "#2c2c36", "shoes": "#15151a", "hat": "none", "glow": "#ffd48a" } },
+    "arqueologa": { "name": "Inés", "look": {
+      "skin": "#b98059", "skinShade": "#a06c47", "lips": "#9a5a48", "hair": "#2f2218", "hairStyle": "recogido", "beard": "none",
+      "outfit": "safari", "coat": "#b8a679", "coatShade": "#8c7a4e", "vest": "#8a7a50", "trousers": "#5a4a32", "shoes": "#3a2a1a", "belt": "#5a4128",
+      "hat": "safari", "hatColor": "#a38b57", "hatBand": "#5a4128", "glow": "#ffd48a" } }
+  },
+
+  "scenes": {
+    "taller-londres":    { "sky": ["#231b17", "#3b2c24"], "ground": "#33231a", "groundDark": "#1a110c" },
+    "excavacion-egipto": { "sky": ["#7fa3c4", "#f2d4a0"], "ground": "#d5a566", "groundDark": "#7c5230" }
+  },
+
+  "shots": {
+    "centro":          { "x": 0 },
+    "izquierda":       { "x": -0.24, "zoom": 0.9 },
+    "derecha":         { "x": 0.24, "zoom": 0.9, "flip": true },
+    "cerca-izquierda": { "x": -0.17, "zoom": 1.08 },
+    "cerca-derecha":   { "x": 0.17, "zoom": 1.08, "flip": true },
+    "lejos":           { "x": 0.12, "zoom": 0.74 }
+  },
+  "enters": ["vuela", "cae", "aparece", "saluda"],
+  "props": {},
+
+  "cine": {
+    "planos": {
+      "general":      { "s": 1, "host": 0.72, "ligero": { "s": 0.78 } },
+      "cenital":      { "s": 1.04, "floor": 0.66, "host": 0.76, "ligero": { "s": 0.76, "suelo": 66 } },
+      "picado":       { "s": 1.02, "floor": 0.84, "host": 0.88, "ligero": { "s": 0.88, "suelo": 58 } },
+      "contrapicado": { "s": 1.04, "floor": 1.2, "host": 1.18, "ligero": { "s": 1.16, "suelo": 40 } },
+      "primer-plano": { "s": 1.55, "host": 1, "ligero": { "s": 1.38 } },
+      "travelling":   { "s": 1.16, "pan": 0.06, "ligero": { "s": 1.04 } },
+      "orbita":       { "s": 1.1, "breathe": 0.05, "ligero": { "s": 0.96 } },
+      "diagonal":     { "s": 1.12, "rot": -0.06, "ligero": { "s": 1.08 } }
+    },
+    "horas": { "dia": {} },
+    "horasMundos": [],
+    "climas": {},
+    "fauna": {},
+    "transiciones": ["corte", "barrido", "zoom", "fundido"]
+  },
+
+  "sounds": {
+    "pop":    { "tones": [["sine", 420, 840, 0.09, 0.12]] },
+    "ding":   { "tones": [["sine", 1046, 1046, 0.22, 0.14], ["sine", 1568, 1568, 0.2, 0.1, 0.07], ["triangle", 2093, 2093, 0.12, 0.04, 0.07]] },
+    "bonk":   { "tones": [["triangle", 330, 140, 0.18, 0.16], ["sine", 160, 80, 0.24, 0.12, 0.02]] },
+    "result": { "tones": [["sine", 523, 523, 0.18, 0.13], ["sine", 659, 659, 0.18, 0.13, 0.1], ["sine", 784, 784, 0.18, 0.13, 0.2], ["sine", 1046, 1046, 0.35, 0.14, 0.3], ["triangle", 1568, 1568, 0.3, 0.05, 0.3]] },
+    "aww":    { "tones": [["sine", 440, 330, 0.3, 0.12], ["sine", 330, 247, 0.4, 0.12, 0.25]] },
+    "blip":   { "tones": [["sine", 900, 900, 0.035, 0.035]] },
+    "whoosh": { "noise": [0.25, 0.18, 500, 2400] }
+  },
+
+  "reactions": {
+    "idle":      { "anim": "idle", "reducedAnim": "still" },
+    "think":     { "anim": "think", "reducedAnim": "think" },
+    "ask":       { "anim": "talk", "reducedAnim": "still", "sfx": ["pop"], "duration": 1.5, "then": "think", "say": [] },
+    "celebrate": { "anim": "celebrate", "reducedAnim": "happy", "fx": ["ring", "flash"], "sfx": ["ding"], "particles": "confetti", "duration": 2.0, "then": "idle", "tone": "celebrate",
+                   "say": ["¡Eso es!", "¡Exacto!", "¡Muy bien!", "¡Lo sabías!", "¡Así se hace!"] },
+    "hurt":      { "anim": "hurt", "reducedAnim": "oops", "fx": ["shake"], "sfx": ["bonk"], "particles": "hit", "duration": 1.6, "then": "think", "tone": "hurt",
+                   "say": ["Ay…", "Casi", "Mmm, no", "Otra vez será", "No era esa"] },
+    "win":       { "anim": "dance", "reducedAnim": "happy", "fx": ["ring"], "sfx": ["result"], "particles": "confetti", "tone": "celebrate", "say": [] },
+    "lose":      { "anim": "sad", "reducedAnim": "oops", "sfx": ["aww"], "tone": "hurt", "say": [] }
+  }
+}
