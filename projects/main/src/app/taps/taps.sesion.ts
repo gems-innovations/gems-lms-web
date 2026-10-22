@@ -1,4 +1,5 @@
 import { IInterest, dayKey, streakDays } from './taps.interest';
+import { puntuables } from './taps.logic';
 import { ITap, ITapRun } from './taps.types';
 
 /**
@@ -113,7 +114,7 @@ export function greeting(interest: IInterest, sesion: ISesionGuardada, now: numb
 export function rematchText(tap: ITap, interest: IInterest, sesion: ISesionGuardada): string | null {
   if (!interest.done[tap.id]) return null;
   const p = sesion.puntajes[tap.id];
-  return p === undefined ? 'Ya lo jugaste. ¿Revancha?' : `Ya lo jugaste: ${p}/${tap.questions.length}. ¿Revancha?`;
+  return p === undefined ? 'Ya lo jugaste. ¿Revancha?' : `Ya lo jugaste: ${p}/${puntuables(tap)}. ¿Revancha?`;
 }
 
 // El orden del regreso (lo jugado en los últimos 14 días al fondo) vive en taps.mezcla.ts (`mezclarFeed`, antes `freshHead`).

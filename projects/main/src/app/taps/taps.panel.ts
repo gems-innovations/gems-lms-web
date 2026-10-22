@@ -1,5 +1,5 @@
 import { IInterest, streakDays, topicProgress } from './taps.interest';
-import { resultFor, streak, topicOf } from './taps.logic';
+import { esPaso, puntuables, respuestasPuntuables, resultFor, streak, topicOf } from './taps.logic';
 import { IPartidaRespuesta, frasePuesto, numero } from './taps.ranking';
 import { ITap, ITapRun } from './taps.types';
 
@@ -54,7 +54,7 @@ export function almostThere(tap: ITap, run: ITapRun): string | null {
   const sorted = [...tap.results].sort((a, b) => a.min - b.min), current = resultFor(tap, run.score);
   const target = sorted.find(r => r.min > run.score && r.min > current.min);
   if (!target) return null;
-  const left = tap.questions.length - (run.index + (run.chosen !== null ? 1 : 0)), need = target.min - run.score;
+  const left = puntuables(tap) - respuestasPuntuables(tap, run.answers).length, need = target.min - run.score;
   if (need > left || need > 2) return null;                          // solo si de verdad está cerca
   return `${need === 1 ? '1 acierto más' : need + ' aciertos más'} y eres «${target.title}»`;
 }
@@ -64,7 +64,7 @@ export function almostThere(tap: ITap, run: ITapRun): string | null {
  * pasa al frente («Revancha: te falta 1 para "Leyenda del servidor"»). Con 5/5, con 0-2 de 5 o si faltan 2 o más, null.
  */
 export function rematchGoal(tap: ITap, score: number): { title: string } | null {
-  const total = tap.questions.length;
+  const total = puntuables(tap);
   if (score >= total || score * 5 < total * 3) return null;
   const target = [...tap.results].sort((a, b) => a.min - b.min).find(r => r.min > score);
   if (!target || target.min - score !== 1 || target.min > total) return null;
@@ -97,11 +97,11 @@ const avanceCard = (c: IPanelContext, taps: readonly ITap[]): IPanelCard => {
 
 /** Las tarjetas del panel para el momento actual (3 como máximo; una sola con llamada a la acción). */
 export function panelCards(c: IPanelContext, taps: readonly ITap[]): IPanelCard[] {
-  const state = panelState(c.run), q = c.tap.questions[c.run.index];
+  const q = c.tap.questions[c.run.index], state = esPaso(q) && !c.run.finished ? 'pregunta' : panelState(c.run);   // un paso no es acierto ni fallo
   const thisTap = (): IPanelCard => {
-    const run = c.run, row = streak(run);
-    const bits = [`${run.score} de ${c.tap.questions.length} aciertos`, row >= 2 ? `x${row} seguidas` : null, almostThere(c.tap, run)];
-    return { id: 'este-tap', title: 'Este Tap', big: `${run.score} de ${c.tap.questions.length}`, body: bits.slice(1).filter(Boolean).join(' · ') || 'Sigue, ya casi.' };
+    const run = c.run, row = streak({ ...run, answers: respuestasPuntuables(c.tap, run.answers) });
+    const bits = [`${run.score} de ${puntuables(c.tap)} aciertos`, row >= 2 ? `x${row} seguidas` : null, almostThere(c.tap, run)];
+    return { id: 'este-tap', title: 'Este Tap', big: `${run.score} de ${puntuables(c.tap)}`, body: bits.slice(1).filter(Boolean).join(' · ') || 'Sigue, ya casi.' };
   };
   let cards: IPanelCard[];
   switch (state) {

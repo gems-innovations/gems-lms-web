@@ -138,7 +138,7 @@ const POSICIONAL = /\b(ninguna|ambas|todas|anterior|anteriores|las dos|[abcd] y 
  * algo) ni si alguna opción se apoya en la posición de otra.
  */
 export function opcionesBarajables(q: ITapQuestion): boolean {
-  return q.options.length > 2 && !q.options.some(o => POSICIONAL.test(o));
+  return q.tipo !== 'paso' && q.options.length > 2 && !q.options.some(o => POSICIONAL.test(o));      // las decisiones de un paso van en el orden que cuenta la historia
 }
 
 /**

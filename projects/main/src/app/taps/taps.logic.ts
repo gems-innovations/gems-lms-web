@@ -8,6 +8,21 @@ import { ITap, ITapQuestion, ITapResult, ITapRun, ITapTopic, SIN_RESPUESTA, TTap
  */
 export const TAP_LIMITS = { question: 120, option: 40, optionGrid: 22, why: 90 } as const;
 
+/** La pregunta es un paso de historia: una decisión narrativa que no puntúa. */
+export function esPaso(q: ITapQuestion | undefined): boolean {
+  return q?.tipo === 'paso';
+}
+
+/** Preguntas que puntúan (todas menos los pasos de una historia): el total de «x de N», del resultado y del ranking. */
+export function puntuables(tap: ITap): number {
+  return tap.questions.filter(q => !esPaso(q)).length;
+}
+
+/** Las respuestas de las preguntas que puntúan, sin las decisiones de los pasos (cuadrícula del resultado y de compartir). */
+export function respuestasPuntuables(tap: ITap, answers: readonly boolean[]): boolean[] {
+  return tap.questions.flatMap((q, i) => (esPaso(q) || i >= answers.length ? [] : [answers[i]]));
+}
+
 export function startRun(tap: ITap): ITapRun {
   return { tapId: tap.id, index: 0, chosen: null, score: 0, answers: [], finished: false };
 }
@@ -24,6 +39,7 @@ export function resultFor(tap: ITap, score: number): ITapResult {
 export function choose(run: ITapRun, tap: ITap, option: number): { run: ITapRun; correct: boolean | null } {
   const q = tap.questions[run.index];
   if (run.finished || run.chosen !== null || !q || option < 0 || option >= q.options.length) return { run, correct: null };
+  if (esPaso(q)) return { run: { ...run, chosen: option, answers: [...run.answers, true] }, correct: true };   // una decisión no puntúa
   const correct = option === q.answer;
   return { run: { ...run, chosen: option, score: run.score + (correct ? 1 : 0), answers: [...run.answers, correct] }, correct };
 }
@@ -48,7 +64,7 @@ export function next(run: ITapRun, tap: ITap): ITapRun {
 
 /** Un resultado «bueno» celebra; uno malo consuela. La mitad de las preguntas o más es bueno. */
 export function isGoodScore(tap: ITap, score: number): boolean {
-  return score * 2 >= tap.questions.length;
+  return score * 2 >= puntuables(tap);
 }
 
 /** Aciertos seguidos al final de la partida (para el chip «x3 seguidas»). */
@@ -140,9 +156,11 @@ export function mixFeed(taps: readonly ITap[], opts: { hookDone?: boolean } = {}
  * 1. El Tap del enlace (`?t=`) va primero.
  * 2. Con `?tema=` van primero los Taps de esa categoría (el resto sigue después: el feed nunca se acaba de golpe).
  * 3. Alguien nuevo empieza por un Tap de gancho (el de la categoría con más Taps); quien ya jugó uno los encuentra al final.
- * 4. «Para ti» alterna categorías y sube y baja la dificultad (ver `mixFeed`).
+ * 4. Los Taps `soloEnlace` (historias de prueba) no entran al feed salvo que sean el del enlace.
+ * 5. «Para ti» alterna categorías y sube y baja la dificultad (ver `mixFeed`).
  */
-export function orderFeed(taps: readonly ITap[], opts: { first?: string | null; topic?: string | null; hookDone?: boolean }): ITap[] {
+export function orderFeed(all: readonly ITap[], opts: { first?: string | null; topic?: string | null; hookDone?: boolean }): ITap[] {
+  const taps = all.filter(t => !t.soloEnlace || t.id === opts.first);        // un Tap «solo enlace» solo sale si es el del enlace
   const mix = { hookDone: opts.hookDone };
   let list: ITap[];
   if (opts.topic && taps.some(t => topicOf(t) === opts.topic)) {
@@ -158,7 +176,8 @@ export function orderFeed(taps: readonly ITap[], opts: { first?: string | null; 
  * Categorías del selector: primero las que tienen Taps (en el orden del catálogo; una categoría nueva aparece sola al
  * agregar un Tap con ese `topic`, aunque no esté en el catálogo), luego las del catálogo sin Taps, marcadas como pronto.
  */
-export function feedTopics(taps: readonly ITap[], catalog: readonly ITapTopic[]): { topic: ITapTopic; count: number; soon: boolean }[] {
+export function feedTopics(all: readonly ITap[], catalog: readonly ITapTopic[]): { topic: ITapTopic; count: number; soon: boolean }[] {
+  const taps = all.filter(t => !t.soloEnlace);
   const counts = new Map<string, number>();
   for (const t of taps) counts.set(topicOf(t), (counts.get(topicOf(t)) ?? 0) + 1);
   const known = new Map(catalog.map(c => [c.id, c]));
@@ -190,21 +209,33 @@ export function validateTap(tap: ITap): string[] {
     ids.add(q.id);
     if (q.options.length < 2) at(`pregunta ${i + 1} con menos de 2 opciones`);
     if (q.options.length > 4) at(`pregunta ${i + 1} con más de 4 opciones`);
-    if (!Number.isInteger(q.answer) || q.answer < 0 || q.answer >= q.options.length) at(`pregunta ${i + 1}: la respuesta no es una opción`);
-    if (!q.q.trim() || !q.why.trim()) at(`pregunta ${i + 1}: falta enunciado o explicación`);
+    if (!esPaso(q) && (!Number.isInteger(q.answer) || q.answer < 0 || q.answer >= q.options.length)) at(`pregunta ${i + 1}: la respuesta no es una opción`);
+    if (!q.q.trim() || (!esPaso(q) && !q.why.trim())) at(`pregunta ${i + 1}: falta enunciado o explicación`);
     if (q.q.length > TAP_LIMITS.question) at(`pregunta ${i + 1}: el enunciado pasa de ${TAP_LIMITS.question} caracteres`);
-    if (q.why.length > TAP_LIMITS.why) at(`pregunta ${i + 1}: la explicación pasa de ${TAP_LIMITS.why} caracteres`);
+    if (!esPaso(q) && q.why.length > TAP_LIMITS.why) at(`pregunta ${i + 1}: la explicación pasa de ${TAP_LIMITS.why} caracteres`);
     if (q.options.some(o => o.length > TAP_LIMITS.option)) at(`pregunta ${i + 1}: una opción pasa de ${TAP_LIMITS.option} caracteres`);
-    if (q.tipo !== undefined && !['clasica', 'duo', 'vf'].includes(q.tipo)) at(`pregunta ${i + 1}: tipo «${q.tipo}» desconocido`);
+    if (q.tipo !== undefined && !['clasica', 'duo', 'vf', 'paso'].includes(q.tipo)) at(`pregunta ${i + 1}: tipo «${q.tipo}» desconocido`);
     if ((q.tipo === 'duo' || q.tipo === 'vf') && q.options.length !== 2) at(`pregunta ${i + 1}: el formato ${q.tipo} lleva exactamente 2 opciones`);
+    if (esPaso(q)) {
+      if (tap.tipo !== 'historia') at(`pregunta ${i + 1}: un paso solo cabe en un Tap de historia`);
+      if (q.options.length > 3) at(`pregunta ${i + 1}: un paso lleva 2 o 3 decisiones`);
+      if (q.consecuencias?.length !== q.options.length || q.consecuencias.some(c => !c.trim() || c.length > TAP_LIMITS.why)) at(`pregunta ${i + 1}: cada decisión lleva su consecuencia (hasta ${TAP_LIMITS.why} caracteres)`);
+    } else if (q.consecuencias) at(`pregunta ${i + 1}: solo un paso lleva consecuencias`);
     if (q.tipo === 'vf' && (q.options[0] !== 'Verdadero' || q.options[1] !== 'Falso')) at(`pregunta ${i + 1}: verdadero/falso lleva las opciones «Verdadero» y «Falso»`);
   });
+  if (tap.tipo !== undefined && !['quiz', 'historia'].includes(tap.tipo)) at(`tipo «${tap.tipo}» desconocido`);
+  if (tap.tipo === 'historia') {
+    const pasos = tap.questions.filter(esPaso).length;
+    if (pasos < 3 || pasos > 5) at('una historia lleva de 3 a 5 pasos');
+    if (puntuables(tap) !== 1 || esPaso(tap.questions[tap.questions.length - 1])) at('una historia termina con una única pregunta de selección');
+    if (tap.questions.some((q, i) => i < pasos && !esPaso(q))) at('los pasos van antes de la pregunta final');
+  }
   if (tap.results.length === 0) at('sin resultados');
   else {
     const mins = tap.results.map(r => r.min);
     if (Math.min(...mins) !== 0) at('algún resultado debe empezar en 0 aciertos');
     if (new Set(mins).size !== mins.length) at('resultados con el mismo mínimo');
-    if (Math.max(...mins) > tap.questions.length) at('un resultado pide más aciertos que preguntas');
+    if (Math.max(...mins) > puntuables(tap)) at('un resultado pide más aciertos que preguntas');
   }
   return errors;
 }

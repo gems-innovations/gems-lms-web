@@ -78,8 +78,8 @@ export interface IRetoDia {
 /** Respaldo determinista fuera del calendario: rotación de temas y vueltas completas por un orden mezclado. */
 function respaldo(taps: readonly ITap[], dia: number, inicio: number): { tap: ITap; tema: string } {
   const slot = mod(dia - inicio, 7), semana = Math.floor((dia - inicio) / 7), tema = RETO_ROTACION[slot];
-  let pool = taps.filter(t => topicOf(t) === tema && !t.hook);
-  if (!pool.length) pool = taps.filter(t => !t.hook);
+  let pool = taps.filter(t => topicOf(t) === tema && !t.hook && !t.soloEnlace);
+  if (!pool.length) pool = taps.filter(t => !t.hook && !t.soloEnlace);
   if (!pool.length) pool = [...taps];
   pool = [...pool].sort((a, b) => hashAvalancha(a.id) - hashAvalancha(b.id) || a.id.localeCompare(b.id));
   const vez = semana * RETO_ROTACION.filter(t => t === tema).length + RETO_ROTACION.slice(0, slot).filter(t => t === tema).length;

@@ -1,4 +1,4 @@
-import { MAX_SAME_TOPIC_IN_A_ROW, TAP_LIMITS, choose, feedTopics, mixFeed, next, optionLayout, orderFeed, questionTipo, sawtoothOrder, startRun, streak, timeOut, topicOf, validateTap } from './taps.logic';
+import { MAX_SAME_TOPIC_IN_A_ROW, TAP_LIMITS, choose, esPaso, feedTopics, mixFeed, next, optionLayout, orderFeed, questionTipo, sawtoothOrder, startRun, streak, timeOut, topicOf, validateTap } from './taps.logic';
 import { HOOK_TAP_IDS, RETIRED_TAP_IDS, TAP_TOPICS, TAPS, findTap } from './taps.data';
 import { keyAction } from './taps.keys';
 import { ITap, SIN_RESPUESTA } from './taps.types';
@@ -111,15 +111,17 @@ describe('mixFeed (feed «Para ti»)', () => {
 
 describe('el feed con los Taps reales', () => {
   const feed = orderFeed(TAPS, {});
-  it('hay 122 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
-    expect(TAPS.length).toBe(122);
+  const enFeed = TAPS.filter(t => !t.soloEnlace).length;
+  it('hay 123 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
+    expect(TAPS.length).toBe(123);
     expect(new Set(TAPS.map(t => t.id)).size).toBe(TAPS.length);
     const questionIds = TAPS.flatMap(t => t.questions.map(q => q.id));
-    expect(questionIds.length).toBe(122 * 5);
+    expect(questionIds.length).toBe(123 * 5);
     expect(new Set(questionIds).size).toBe(questionIds.length);
   });
   it('el feed los trae todos, con un gancho primero y nunca más de 2 seguidos del mismo tema', () => {
-    expect(feed.length).toBe(TAPS.length);
+    expect(feed.length).toBe(enFeed);
+    expect(feed.some(t => t.soloEnlace)).toBeFalse();
     expect(feed[0].hook).toBeTrue();
     expect(maxRun(feed)).toBeLessThanOrEqual(MAX_SAME_TOPIC_IN_A_ROW);
   });
@@ -130,7 +132,13 @@ describe('el feed con los Taps reales', () => {
   it('un enlace a un Tap lo pone primero y sigue sin pasar de 2 seguidos', () => {
     const f = orderFeed(TAPS, { first: TAPS[30].id });
     expect(f[0].id).toBe(TAPS[30].id);
-    expect(f.length).toBe(TAPS.length);
+    expect(f.length).toBe(enFeed);
+  });
+  it('un enlace a un Tap solo enlace lo trae primero y el resto del feed sigue igual', () => {
+    const f = orderFeed(TAPS, { first: 'napoleon' });
+    expect(f[0].id).toBe('napoleon');
+    expect(f.length).toBe(enFeed + 1);
+    expect(f.slice(1).map(t => t.id)).toEqual(feed.map(t => t.id));
   });
   it('con ?tema= salen primero los de ese tema (con su gancho al frente)', () => {
     const f = orderFeed(TAPS, { topic: 'cultura' });
@@ -192,6 +200,15 @@ describe('optionLayout', () => {
 describe('textos de los Taps reales', () => {
   it('explicaciones de 90 caracteres o menos, preguntas de 120 o menos y opciones de 22 (4 por pregunta; 2 en duo y vf)', () => {
     for (const t of TAPS) for (const q of t.questions) {
+      if (esPaso(q)) {                                          // paso de historia: 2 o 3 decisiones de hasta 40 y una consecuencia (90) por decisión
+        expect(q.q.length).withContext(t.id + '/' + q.id).toBeLessThanOrEqual(TAP_LIMITS.question);
+        expect(q.options.length).withContext(t.id + '/' + q.id).toBeGreaterThanOrEqual(2);
+        expect(q.options.length).withContext(t.id + '/' + q.id).toBeLessThanOrEqual(3);
+        for (const o of q.options) expect(o.length).withContext(t.id + '/' + q.id).toBeLessThanOrEqual(TAP_LIMITS.option);
+        expect(q.consecuencias?.length).withContext(t.id + '/' + q.id).toBe(q.options.length);
+        for (const c of q.consecuencias ?? []) expect(c.length).withContext(t.id + '/' + q.id).toBeLessThanOrEqual(TAP_LIMITS.why);
+        continue;
+      }
       expect(q.why.length).withContext(t.id + '/' + q.id).toBeLessThanOrEqual(TAP_LIMITS.why);
       expect(q.q.length).withContext(t.id + '/' + q.id).toBeLessThanOrEqual(TAP_LIMITS.question);
       expect(q.options.length).withContext(t.id + '/' + q.id).toBe(questionTipo(q) === 'clasica' ? 4 : 2);

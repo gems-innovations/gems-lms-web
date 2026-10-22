@@ -6,8 +6,10 @@
  * Formato de una pregunta. `clasica` (o sin campo): 4 opciones. `duo`: 2 opciones grandes, una contra otra, con cuenta
  * regresiva corta (DUO_MS): sin responder a tiempo cuenta como fallo. `vf`: verdadero o falso (`options` = ['Verdadero', 'Falso']),
  * se responde tocando o deslizando hacia el lado de la opción (izquierda = primera, derecha = segunda).
+ * `paso`: un paso de un Tap de historia (ver ITap.tipo): una decisión narrativa de 2 o 3 opciones, sin respuesta correcta,
+ * que no puntúa; cada opción trae su `consecuencias` (lo que pasa) y la historia sigue.
  */
-export type TTapQuestionTipo = 'clasica' | 'duo' | 'vf';
+export type TTapQuestionTipo = 'clasica' | 'duo' | 'vf' | 'paso';
 
 /** Cuenta regresiva del formato duo (ms). */
 export const DUO_MS = 7000;
@@ -24,6 +26,8 @@ export interface ITapQuestion {
   answer: number;
   /** Explicación corta que se muestra al fallar: 90 caracteres como máximo (se lee en ~3 s). */
   why: string;
+  /** Solo en un `paso`: lo que pasa tras cada decisión (una por opción, 90 caracteres como máximo). Sustituye a la explicación. */
+  consecuencias?: string[];
   /** Explicación ampliada (280 caracteres como máximo) para el panel de escritorio tras fallar. Opcional: el banco aún no la trae. */
   more?: string;
   /** Objeto para explicar tras responder (catálogo del tema: theme.json → visuals.objects). Sin él, la explicación es solo texto. */
@@ -91,6 +95,13 @@ export interface ITapScene {
 
 export interface ITap {
   id: string;
+  /**
+   * Clase de Tap. Sin campo: `quiz` (preguntas que puntúan). `historia`: 3 a 5 `paso` (decisiones que no puntúan) y una pregunta
+   * final de selección, la única que puntúa (ver `puntuables`). Los pasos van siempre antes de la pregunta final.
+   */
+  tipo?: 'quiz' | 'historia';
+  /** Se juega por su enlace (`/t/<id>`) pero no entra en «Para ti» ni en el selector de temas (ni como Tap siguiente). */
+  soloEnlace?: boolean;
   /** Id del tema del motor (carpeta en public/taps-engine/themes). Cambiarlo cambia de videojuego. */
   theme: string;
   title: string;
