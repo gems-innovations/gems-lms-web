@@ -1,0 +1,155 @@
+{
+  "tema": "Historias en pasos",
+  "titulosResultado": [
+    {
+      "min": 0,
+      "title": "Te contaron una leyenda",
+      "line": "Pasa en las mejores familias. Ahora sabes la historia de verdad.",
+      "lineas": [
+        "Una historia bien contada convence a cualquiera.",
+        "La próxima vez dudarás un poco más."
+      ]
+    },
+    {
+      "min": 1,
+      "title": "Cazador de mitos",
+      "line": "Atravesaste la caricatura y llegaste a los datos. Cuéntaselo a alguien.",
+      "lineas": [
+        "Con una pregunta bastó para ver la verdad.",
+        "Los mitos no te duran mucho."
+      ]
+    }
+  ],
+  "existentes": [],
+  "preguntas": [
+    {
+      "id": "napoleon-p1",
+      "tipo": "paso",
+      "q": "Londres, 1803. Eres dibujante de un periódico y Napoleón es el enemigo. Tu jefe te pide dibujarlo. ¿Cómo lo pintas?",
+      "options": [
+        "Enorme y feroz",
+        "Pequeño y furioso",
+        "Tal como es"
+      ],
+      "consecuencias": [
+        "Nadie se ríe de un monstruo. Tu jefe quiere algo que le quite el miedo al público.",
+        "Funciona: los lectores se ríen y tu dibujo se copia por toda la ciudad.",
+        "Tu jefe frunce el ceño: el público no quiere verlo normal, quiere reírse de él."
+      ],
+      "subtema": "napoleon",
+      "fuente": "https://es.wikipedia.org/wiki/Napoleón_Bonaparte",
+      "estado": "revisada"
+    },
+    {
+      "id": "napoleon-p2",
+      "tipo": "paso",
+      "q": "Tu dibujo triunfa: un Napoleón diminuto que patalea. Falta el titular para la portada. ¿Cuál eliges?",
+      "options": [
+        "Little Boney",
+        "El diablillo de Francia",
+        "Su Majestad"
+      ],
+      "consecuencias": [
+        "«Pequeño Boney» se pega tanto que en Inglaterra se vuelve su apodo burlón.",
+        "La gente lo imagina pataleando como un niño. El chiste crece solo.",
+        "Nadie lo compra: sin burla no hay gracia. Tu jefe te pide volver a lo pequeño."
+      ],
+      "subtema": "napoleon",
+      "fuente": "https://es.wikipedia.org/wiki/Napoleón_Bonaparte",
+      "estado": "revisada"
+    },
+    {
+      "id": "napoleon-p3",
+      "tipo": "paso",
+      "q": "Años después, un médico francés anota su estatura: 5 pies 2 pulgadas, medidas francesas. ¿Qué haces con el dato?",
+      "options": [
+        "Lo publico tal cual",
+        "Lo convierto a metros",
+        "Lo ignoro: el chiste vende"
+      ],
+      "consecuencias": [
+        "Tus lectores lo leen como pulgadas inglesas: 1,57 m. Un hombre muy bajo, y nadie revisa.",
+        "Haces bien: en medidas francesas son unos 1,69 m, más que muchos franceses de entonces.",
+        "El chiste vende, pero el error se queda y llega hasta hoy: dos siglos de mito."
+      ],
+      "escena": {
+        "tipo": "operacion",
+        "lineas": [
+          "5 pies 2 pulg."
+        ],
+        "texto": "Medida francesa"
+      },
+      "subtema": "napoleon",
+      "fuente": "https://en.wikipedia.org/wiki/Napoleon",
+      "estado": "revisada"
+    },
+    {
+      "id": "napoleon-p4",
+      "tipo": "paso",
+      "q": "Y su escolta, la Guardia, la formaban soldados elegidos por altos. ¿Cómo lo dibujas junto a ellos?",
+      "options": [
+        "Entre sus soldados altos",
+        "Solo, con su sombrero"
+      ],
+      "consecuencias": [
+        "Junto a esos gigantes parecía menudo, aunque era de estatura media. Truco perfecto.",
+        "Sus soldados lo llamaban «el pequeño cabo»: era cariño, no burla."
+      ],
+      "subtema": "napoleon",
+      "fuente": "https://es.wikipedia.org/wiki/Napoleón_Bonaparte",
+      "estado": "revisada"
+    },
+    {
+      "id": "napoleon-estatura",
+      "q": "Ahora la verdad, sin caricaturas. ¿Cuánto medía Napoleón en realidad?",
+      "options": [
+        "Unos 1,57 m",
+        "Unos 1,69 m",
+        "Unos 1,45 m",
+        "Más de 1,85 m"
+      ],
+      "answer": 1,
+      "why": "Unos 1,69 m: estatura media para su época. El mito lo dibujaron sus enemigos.",
+      "dificultad": 2,
+      "subtema": "napoleon",
+      "fuente": "https://es.wikipedia.org/wiki/Napoleón_Bonaparte",
+      "estado": "revisada"
+    }
+  ],
+  "taps": [
+    {
+      "id": "napoleon",
+      "tipo": "historia",
+      "titulo": "Napoleón no era tan bajito como crees",
+      "nivel": "facil",
+      "subtema": "napoleon",
+      "preguntas": [
+        "napoleon-p1",
+        "napoleon-p2",
+        "napoleon-p3",
+        "napoleon-p4",
+        "napoleon-estatura"
+      ],
+      "resultados": [
+        {
+          "min": 0,
+          "title": "Te creíste la caricatura",
+          "line": "Como medio Londres en 1803. Ahora sabes que medía unos 1,69 m.",
+          "lineas": [
+            "Dos siglos de chistes lo pintaron pequeño y casi todos lo creyeron.",
+            "No fuiste el primero en caer: la caricatura era buena."
+          ]
+        },
+        {
+          "min": 1,
+          "title": "Cazador de mitos",
+          "line": "Napoleón medía como un francés de su época. El mito lo dibujaron sus enemigos.",
+          "lineas": [
+            "Entre la caricatura y los datos, elegiste los datos.",
+            "Medía unos 1,69 m, como tantos franceses de su época."
+          ]
+        }
+      ]
+    }
+  ]
+}

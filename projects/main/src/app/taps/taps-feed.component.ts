@@ -11,7 +11,7 @@ import { TEventPath, eventSlug } from '../analytics-taxonomy';
 import { AdvanceClock, TAP_RHYTHM, advanceDelay, browserClockHost } from './taps.clock';
 import { loadTapsEngine, tapsThemeUrl } from './taps-engine.loader';
 import { HOOK_TAP_IDS, TAP_DISPLAY_FONTS, TAP_TOPICS, TAPS, findTap } from './taps.data';
-import { choose, feedTopics, isGoodScore, next, optionLayout, orderFeed, questionTipo, resultFor, startRun, streak, timeOut, topicOf } from './taps.logic';
+import { choose, esPaso, feedTopics, isGoodScore, next, optionLayout, orderFeed, puntuables, questionTipo, respuestasPuntuables, resultFor, startRun, streak, timeOut, topicOf } from './taps.logic';
 import { canvasToBlob, drawShareCard, loadImage, paintThemeCharacter, shareText, shareUrl } from './taps.share';
 import { TapResultComponent } from './tap-result.component';
 import { TapsBarComponent } from './taps-bar.component';
@@ -270,7 +270,7 @@ export class TapsFeedComponent {
     const r = this.reto(), g = this.retoGuardado();
     if (!r || this.portada) return null;
     const temaNombre = this.topics.find(t => t.topic.id === r.tema)?.topic.name ?? r.tema;
-    return { numero: r.numero, tapId: r.tap.id, temaNombre, hecho: g ? { score: retoScore(g), total: r.tap.questions.length, answers: g.answers } : null };
+    return { numero: r.numero, tapId: r.tap.id, temaNombre, hecho: g ? { score: retoScore(g), total: puntuables(r.tap), answers: g.answers } : null };
   });
   /** Partida (número de repetición) con la que se jugó el intento oficial en esta carga; -1 si fue en otra visita. */
   private retoPartida = -1;
@@ -455,7 +455,7 @@ export class TapsFeedComponent {
     if (!this.isBrowser) return null;
     const ids = Array.from(this.document.querySelectorAll<HTMLElement>('main.taps > .tap[data-tap]')).map(el => el.dataset['tap']);
     const list = ids.map(id => TAPS.find(t => t.id === id)).filter((t): t is ITap => !!t);
-    return list.length === TAPS.length && ids.length === TAPS.length ? list : null;
+    return list.length === ids.length && list.length >= TAPS.filter(t => !t.soloEnlace).length ? list : null;
   }
 
   /**
@@ -565,7 +565,7 @@ export class TapsFeedComponent {
     const r = this.reto(), g = this.retoGuardado();
     if (!r || !this.isReto(tap)) return null;
     return {
-      numero: r.numero, oficial: g ? { score: retoScore(g), total: tap.questions.length } : null,
+      numero: r.numero, oficial: g ? { score: retoScore(g), total: puntuables(tap) } : null,
       repeticion: !!g && this.retoPartida !== (this.partidas.get(tap.id) ?? 0),
     };
   }
@@ -755,16 +755,20 @@ export class TapsFeedComponent {
     const list = this.portada ? this.following : this.taps();
     return list[list.findIndex(t => t.id === tap.id) + 1] ?? null;
   }
-  protected streakOf(tap: ITap): number { return streak(this.run(tap)); }
+  protected streakOf(tap: ITap): number { return streak({ ...this.run(tap), answers: respuestasPuntuables(tap, this.run(tap).answers) }); }
   protected shape(k: number): string { return SHAPES[k] ?? ''; }
   protected letter(k: number): string { return 'ABCD'[k] ?? String(k + 1); }
   protected tipoDe(q: ITapQuestion | undefined): TTapQuestionTipo { return questionTipo(q); }
+  /** Paso de una historia: una decisión narrativa que no puntúa. */
+  protected esPasoDe(q: ITapQuestion | undefined): boolean { return esPaso(q); }
+  /** Lo que pasa tras la decisión tomada en un paso de historia. */
+  protected consecuenciaDe(q: ITapQuestion, run: ITapRun): string { return run.chosen === null ? '' : q.consecuencias?.[run.chosen] ?? ''; }
   /** Frase de la reacción: del personaje del Tap, con semilla (sesión + Tap + partida + pregunta) y sin repetir la anterior. */
   protected word(tap: ITap): string {
     const semilla = `${this.semilla}|${tap.id}|${this.partidas.get(tap.id) ?? 0}`;
     // La primera respuesta dada antes de hidratar ya mostró «¡Exacto!» o «Casi...» (script de index.html): se conserva.
     const primera = this.preWord?.tapId === tap.id && (this.partidas.get(tap.id) ?? 0) === 0 ? this.preWord.text : undefined;
-    return fraseActual(this.run(tap).answers, { host: tap.scene.host, theme: tap.theme, semilla, primera });
+    return fraseActual(respuestasPuntuables(tap, this.run(tap).answers), { host: tap.scene.host, theme: tap.theme, semilla, primera });
   }
   protected topicOf(tap: ITap): string { return topicOf(tap); }
   protected topicColor(tap: ITap): string { return this.topics.find(t => t.topic.id === topicOf(tap))?.topic.color ?? '#8b93a7'; }
@@ -833,10 +837,11 @@ export class TapsFeedComponent {
     this.actividad();
     if (this.sound() === 'on') this.audio.desbloquear();           // dentro del gesto: el navegador solo deja sonar así
     this.audio.callar();
-    this.answerSound(tap, run, correct);
+    const paso = esPaso(tap.questions[run.index]);                  // una decisión de historia: ni acierto ni fallo, y hay que leer lo que pasa
+    if (paso) this.audio.tocar('toque', { tema: tap.theme }); else this.answerSound(tap, run, correct);
     if (!pre) this.vibrate(correct);
-    if (tap.id === this.activeId()) this.stage?.react(correct ? 'celebrate' : 'hurt', { say: false });
-    const ms = advanceDelay(correct, pre ? performance.now() - pre.t : 0);
+    if (tap.id === this.activeId()) this.stage?.react(paso ? 'ask' : correct ? 'celebrate' : 'hurt', { say: false });
+    const ms = advanceDelay(correct && !paso, pre ? performance.now() - pre.t : 0);
     this.clockTap = tap;
     this.clock.start(ms);
     this.waitPaused.set(false);
@@ -1040,9 +1045,9 @@ export class TapsFeedComponent {
   private onFinished(tap: ITap, run: ITapRun, rachaAntes = this.resumen().racha): void {
     if (tap.id === this.activeId()) {
       this.celebrateResult(tap, run);
-      this.audio.tocar('resultado', { tema: tap.theme, puntaje: run.score / tap.questions.length });
+      this.audio.tocar('resultado', { tema: tap.theme, puntaje: run.score / puntuables(tap) });
       // Canción con letra solo aquí (5/5 o racha nueva), nunca sobre una pregunta; si no, la instrumental de premios.
-      this.musica.alResultado({ perfecto: run.score === tap.questions.length, racha: this.resumen().racha > rachaAntes });
+      this.musica.alResultado({ perfecto: run.score === puntuables(tap), racha: this.resumen().racha > rachaAntes });
       // Portada: «Siguiente» lleva a /taps y su primer Tap cambia de pista. Se baja ya; si no, al cortar la canción quedaban
       // segundos de silencio en 4G mientras llegaba (en /taps lo hace preloadAhead).
       const siguiente = this.portada ? this.nextTap(tap) : null;
@@ -1068,7 +1073,7 @@ export class TapsFeedComponent {
     this.tapStart.delete(tap.id);
     if (!started) return;
     this.ranking.enviarPartida({
-      tapId: tap.id, topic: topicOf(tap), aciertos: run.score, total: tap.questions.length, duracionMs: Date.now() - started,
+      tapId: tap.id, topic: topicOf(tap), aciertos: run.score, total: puntuables(tap), duracionMs: Date.now() - started,
     });
   }
 
@@ -1347,7 +1352,7 @@ export class TapsFeedComponent {
 
   /** Sonido de la respuesta (a los ~80 ms del toque, experiencia-ux.md §5.1): acierto, racha desde 3 seguidas o fallo. */
   private answerSound(tap: ITap, run: ITapRun, correct: boolean): void {
-    const level = correct ? streak(run) : 0;
+    const level = correct ? streak({ ...run, answers: respuestasPuntuables(tap, run.answers) }) : 0;
     if (!correct) this.audio.tocar('fallo', { tema: tap.theme });
     else if (level >= 3) this.audio.tocar('racha', { tema: tap.theme, nivel: level });
     else this.audio.tocar('acierto', { tema: tap.theme });
@@ -1424,7 +1429,7 @@ export class TapsFeedComponent {
   protected async shareTap(tap: ITap): Promise<void> {
     this.track('taps-compartir', `taps/compartir/${eventSlug(tap.id)}`);
     this.signal(tap, 'share');
-    const url = shareUrl(location.origin, tap.id), text = `Juega este Tap de GEMS LMS: ${tap.title}. ¿Cuántas sacas de ${tap.questions.length}?`;
+    const url = shareUrl(location.origin, tap.id), text = tap.tipo === 'historia' ? `Vive esta historia en GEMS LMS: ${tap.title}. ¿Tú qué habrías hecho?` : `Juega este Tap de GEMS LMS: ${tap.title}. ¿Cuántas sacas de ${puntuables(tap)}?`;
     this.sharing = true;
     try {
       if (navigator.share) { await navigator.share({ title: 'Taps de GEMS LMS', text, url }); this.track(null, 'taps/compartir-ok/nativo'); return; }
@@ -1453,9 +1458,9 @@ export class TapsFeedComponent {
       ]);
       // El reto comparte su intento oficial (el primero del día) con el número del reto en lugar del nombre del Tap.
       const oficial = this.isReto(tap) ? this.retoVista() : null;
-      const answers = oficial?.hecho?.answers ?? run.answers, score = answers.filter(Boolean).length;
+      const answers = oficial?.hecho?.answers ?? respuestasPuntuables(tap, run.answers), score = answers.filter(Boolean).length;
       const canvas = drawShareCard({
-        tapTitle: oficial ? retoLabel(oficial.numero) : tap.title, title: resultFor(tap, score).title, score, total: tap.questions.length,
+        tapTitle: oficial ? retoLabel(oficial.numero) : tap.title, title: resultFor(tap, score).title, score, total: puntuables(tap),
         answers, backdrop: tap.backdrop, character, logo,
       });
       const blob = await canvasToBlob(canvas);

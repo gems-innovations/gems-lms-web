@@ -57,9 +57,10 @@
   @for (tap of taps(); track tap.id) {
     @let run = runs()[tap.id];
     @let feedback = !run.finished && run.chosen !== null;
+    @let paso = !run.finished && esPasoDe(tap.questions[run.index]);
     @let visual = visualOf(tap, run);
     <article class="tap" #section [attr.data-tap]="tap.id" [attr.data-tema]="tap.theme" [class.tap--active]="activeId() === tap.id" [class.tap--feedback]="feedback" [class.tap--visual]="!!visual"
-             [attr.data-tipo]="run.finished ? null : tipoDe(tap.questions[run.index])" [attr.data-acierto]="feedback ? (run.answers[run.answers.length - 1] ? 'si' : 'no') : null"
+             [attr.data-tipo]="run.finished ? null : tipoDe(tap.questions[run.index])" [attr.data-acierto]="feedback && !paso ? (run.answers[run.answers.length - 1] ? 'si' : 'no') : null"
              aria-roledescription="Tap" [attr.aria-label]="'Tap de ' + tap.title" [style.--bg-top]="tap.backdrop[0]" [style.--bg-bottom]="tap.backdrop[1]" [style.--bg-ground]="tap.ground ?? null"
              [style.--tap-display-font]="displayFont(tap)" [inert]="live() && activeId() !== tap.id"
              (pointerdown)="onPress($event)" (pointerup)="onRelease($event)" (pointercancel)="onCancel()">
@@ -72,14 +73,14 @@
       @if (mounted().has(tap.id)) {
       <div class="tap__mark" aria-hidden="true"><img src="/logo-64.png" width="44" height="44" alt="" decoding="async"><span>GEMS LMS · Taps</span></div>
 
-      <div class="tap__steps" role="img" [attr.aria-label]="run.finished ? 'Terminaste las ' + tap.questions.length + ' preguntas' : 'Pregunta ' + (run.index + 1) + ' de ' + tap.questions.length">
+      <div class="tap__steps" role="img" [attr.aria-label]="tap.tipo === 'historia' ? (run.finished ? 'Terminaste la historia' : (paso ? 'Paso ' + (run.index + 1) + ' de ' + (tap.questions.length - 1) : 'Pregunta final')) : run.finished ? 'Terminaste las ' + tap.questions.length + ' preguntas' : 'Pregunta ' + (run.index + 1) + ' de ' + tap.questions.length">
         @for (q of tap.questions; track q.id; let k = $index) {
           <i [class.is-ok]="run.answers[k] === true" [class.is-bad]="run.answers[k] === false" [class.is-now]="!run.finished && k === run.index && run.chosen === null"></i>
         }
       </div>
 
       <div class="tap__world">
-        @if (feedback) {
+        @if (feedback && !paso) {
           @let ok = run.answers[run.answers.length - 1];
           <p class="tap__pill" [class.is-bad]="!ok" aria-hidden="true">
             @if (ok) { <svg viewBox="0 0 24 24" width="20" height="20"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg> }
@@ -117,7 +118,12 @@
         @if (!run.finished) {
           @let q = tap.questions[run.index];
           @let tipo = tipoDe(q);
-          @if (feedback && run.chosen !== q.answer) {
+          @if (feedback && paso) {
+            <div class="tap__card">
+              <p class="tap__over">La historia sigue</p>
+              <p class="tap__why">{{ consecuenciaDe(q, run) }}</p>
+            </div>
+          } @else if (feedback && run.chosen !== q.answer) {
             <div class="tap__card">
               <p class="tap__over">{{ run.chosen === SIN_RESPUESTA ? 'Se acabó el tiempo. La correcta era' : 'La correcta era' }}</p>
               <p class="tap__chip" [attr.data-k]="q.answer">
@@ -128,7 +134,7 @@
           } @else {
             @for (cur of [q]; track cur.id) {
               <div class="tap__bubble">
-                <p class="tap__over">Pregunta {{ run.index + 1 }} de {{ tap.questions.length }} · <span class="tap__theme">{{ tap.title }}</span>
+                <p class="tap__over">@if (paso) { Paso {{ run.index + 1 }} de {{ tap.questions.length - 1 }} } @else if (tap.tipo === 'historia') { Para terminar } @else { Pregunta {{ run.index + 1 }} de {{ tap.questions.length }} } · <span class="tap__theme">{{ tap.title }}</span>
                   @if (tipo === 'duo') { <span class="tap__cuenta">· Duelo</span> } @else if (tipo === 'vf') { <span class="tap__cuenta">· ¿Verdadero o falso?</span> }</p>
                 <h2 class="tap__q" tabindex="-1" [id]="'q-' + tap.id">{{ cur.q }}</h2>
                 <!-- Lector de pantalla: cómo se responde una de 2 opciones (tocar, deslizar o teclas) y la cuenta regresiva del duo. -->
@@ -146,16 +152,16 @@
             } }
           }
           <div class="tap__opts" role="group" [attr.aria-labelledby]="'q-' + tap.id" [attr.aria-describedby]="tipo !== 'clasica' ? 'ayuda-' + tap.id : null"
-               [attr.data-ans]="q.answer" [attr.data-layout]="layout(tap)" [attr.data-tipo]="tipo" [class.is-answered]="feedback"
+               [attr.data-ans]="paso ? null : q.answer" [attr.data-layout]="layout(tap)" [attr.data-tipo]="tipo" [class.is-answered]="feedback"
                (pointerdown)="swipeStart($event, tipo)" (pointermove)="swipeMove($event)" (pointerup)="swipeEnd($event, tap)" (pointercancel)="swipeCancel($event)">
             @for (o of q.options; track $index; let k = $index) {
               <button type="button" class="tap__opt" [attr.data-k]="k" [attr.aria-disabled]="feedback"
-                      [class.is-ok]="feedback && k === q.answer" [class.is-bad]="run.chosen === k && k !== q.answer"
+                      [class.is-ok]="feedback && (paso ? run.chosen === k : k === q.answer)" [class.is-bad]="!paso && run.chosen === k && k !== q.answer"
                       [attr.aria-label]="'Opción ' + letter(k) + ', ' + shape(k) + ': ' + o" (click)="choose(tap, k)">
                 <svg class="tap__shape" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><use [attr.href]="'#shape-' + k"/></svg>
                 <span class="tap__label">{{ o }}</span>
-                @if (feedback && k === q.answer) { <svg class="tap__mark-ok" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,.35)"/><path d="m6.5 12.5 3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg> }
-                @if (run.chosen === k && k !== q.answer) { <svg class="tap__mark-ok" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> }
+                @if (feedback && (paso ? run.chosen === k : k === q.answer)) { <svg class="tap__mark-ok" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,.35)"/><path d="m6.5 12.5 3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg> }
+                @if (!paso && run.chosen === k && k !== q.answer) { <svg class="tap__mark-ok" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> }
                 <span class="tap__key" aria-hidden="true">{{ k + 1 }}</span>
                 @if (k === q.options.length - 1 && showTouchHint(tap)) { <span class="tap__touch" aria-hidden="true"><i></i><b><span class="t-touch">Toca tu respuesta</span><span class="t-key">Haz clic o pulsa 1 2 3 4</span></b></span> }
               </button>
@@ -172,7 +178,9 @@
             <button type="button" class="tap__go" (click)="skip()">{{ run.index >= tap.questions.length - 1 ? 'Ver mi título' : 'Seguir' }}</button>
           }
           <p class="visually-hidden" aria-live="polite">
-            @if (feedback) {
+            @if (feedback && paso) {
+              {{ consecuenciaDe(q, run) }}
+            } @else if (feedback) {
               @if (run.chosen === q.answer) { Correcto. } @else { {{ run.chosen === SIN_RESPUESTA ? 'Se acabó el tiempo.' : 'Incorrecto.' }} La correcta era {{ q.options[q.answer] }}. {{ q.why }} }
             }
           </p>

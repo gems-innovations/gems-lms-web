@@ -95,7 +95,9 @@ export const routes: Routes = [
       seo: (route: ActivatedRouteSnapshot) => Promise.all([sharedTap(route.paramMap.get('id')), sharedTapImage(route.paramMap.get('id'))]).then(([tap, imagen]): IRouteSeo => tap ? {
         ...TAPS_SEO,
         ...imagen,
-        description: `${tap.questions.length} preguntas de ${tap.title} con un personaje en vivo. «${tap.questions[0].q}» Gratis y sin registro.`,
+        description: tap.tipo === 'historia'
+          ? `Una historia en ${tap.questions.length} pasos con un personaje en vivo. «${tap.questions[0].q}» Gratis y sin registro.`
+          : `${tap.questions.length} preguntas de ${tap.title} con un personaje en vivo. «${tap.questions[0].q}» Gratis y sin registro.`,
       } : TAPS_SEO),
     },
     loadComponent: () => import('./taps/taps-feed.component').then(m => m.TapsFeedComponent)

@@ -165,7 +165,14 @@ export const LIMITES = { pregunta: 120, opcion: 22, explicacion: 90, opciones: 4
  * Formatos de pregunta (campo opcional `tipo`; sin él, clásica de 4 opciones). `duo`: 2 opciones grandes una contra otra con
  * cuenta regresiva; `vf`: verdadero o falso, con `options` exactamente ["Verdadero", "Falso"] (se responde tocando o deslizando).
  */
-export const TIPOS = ['clasica', 'duo', 'vf'];
+export const TIPOS = ['clasica', 'duo', 'vf', 'paso'];
+/**
+ * Tap de historia (`tipo: "historia"` en el Tap): de 3 a 5 pasos y una pregunta final de selección, la única que puntúa. Un
+ * `paso` (tipo de pregunta) es una decisión narrativa: `q` cuenta lo que pasa (el mismo largo máximo que una pregunta),
+ * de 2 a 3 `options` (decisiones, hasta `opcionPaso` caracteres, se muestran en lista) y una `consecuencias` por opción (lo que
+ * pasa después, hasta `explicacion` caracteres). No lleva `answer` ni `why`: ninguna decisión es correcta o incorrecta.
+ */
+export const HISTORIA = { pasos: [3, 5], opcionPaso: 40, opcionesPaso: [2, 3], resultados: [2, 5] };
 export const OPCIONES_VF = ['Verdadero', 'Falso'];
 
 /** Archivo del banco → tema del motor, categoría del selector (`?tema=`) y rótulo. */
@@ -180,6 +187,13 @@ export const TEMAS = {
   tecnologia: {
     archivo: 'tecnologia.json', theme: 'aventura', topic: 'tecnologia', kicker: 'Tecnología', prefijo: 'tc-',
     personajes: ['cientifica', 'exploradora', 'hana', 'robot'], gancho: { world: 'noche-estrellada', host: 'cientifica' },
+  },
+  // Historias en pasos (tipo de Tap «historia»): tema «aventura» con los personajes humanos. Sin gancho (no es la puerta de entrada de
+  // nadie) y `soloEnlace`: los Taps se juegan por su enlace (/t/<id>) y no entran en «Para ti» ni en el selector hasta decidirlo.
+  // Sus ids no llevan prefijo (el enlace es parte del video: /t/napoleon). Van al final para no mover la escena de los demás.
+  historias: {
+    archivo: 'historias.json', theme: 'aventura', topic: 'historias', kicker: 'Historias', prefijo: '',
+    personajes: ['cientifica', 'exploradora', 'hana'], soloEnlace: true, sinGancho: true,
   },
 };
 
@@ -230,7 +244,7 @@ export const LUGARES = {
  */
 export const ENCUADRES = ['izquierda', 'derecha', 'cerca-izquierda', 'lejos', 'cerca-derecha', 'centro'];
 export const ENTRADAS = { minecraft: ['camina', 'salta', 'gira', 'saluda'], estudio: ['vuela', 'cae', 'aparece', 'saluda'], aventura: ['camina', 'salta', 'gira', 'saluda'] };
-const DESFASE = { minecraft: 0, logica: 0, cultura: 3, tecnologia: 1 };
+const DESFASE = { minecraft: 0, logica: 0, cultura: 3, tecnologia: 1, historias: 2 };
 
 /** Por tema y subtema: [mundo, objeto] que se reparten por orden. `_` es la lista de cualquier subtema sin regla propia. */
 export const ESCENAS = {
@@ -375,6 +389,8 @@ export const CINE_GANCHO = {
   minecraft: { camara: 'orbita', hora: 'dia', transicion: 'fundido' }, logica: { camara: 'travelling', hora: 'dia', transicion: 'fundido' },
   cultura: { camara: 'primer-plano', hora: 'dia', transicion: 'fundido' }, tecnologia: { camara: 'travelling', transicion: 'fundido' },
 };
+/** Las historias no entran al reparto del cine (no cambian la escena de los demás Taps): plano y transición fijos, cercanos. */
+export const CINE_HISTORIA = { camara: 'primer-plano', transicion: 'fundido' };
 
 const NIVEL = { facil: 1, media: 2, dificil: 3 };
 const SAWTOOTH = [0.1, 0.4, 0.9, 0.2, 0.55, 0.65, 0.97];
@@ -489,6 +505,8 @@ export function validarPregunta(p, donde) {
   if (typeof p.q !== 'string' || !p.q.trim()) mal('falta el enunciado');
   else if (p.q.length > LIMITES.pregunta) mal(`el enunciado tiene ${p.q.length} caracteres (máximo ${LIMITES.pregunta})`);
   if (p.tipo !== undefined && !TIPOS.includes(p.tipo)) mal(`tipo «${p.tipo}» desconocido (${TIPOS.join(', ')})`);
+  if (p.tipo === 'paso') return validarPaso(p, e, mal);
+  if (p.consecuencias !== undefined) mal('solo un paso de historia lleva «consecuencias»');
   const dos = p.tipo === 'duo' || p.tipo === 'vf', cuantas = dos ? LIMITES.opcionesDuo : LIMITES.opciones;
   if (!Array.isArray(p.options) || p.options.length !== cuantas) mal(`debe tener exactamente ${cuantas} opciones${dos ? ` (formato ${p.tipo})` : ''}`);
   else if (p.tipo === 'vf' && (p.options[0] !== OPCIONES_VF[0] || p.options[1] !== OPCIONES_VF[1])) mal(`verdadero/falso lleva las opciones ${JSON.stringify(OPCIONES_VF)}`);
@@ -505,9 +523,30 @@ export function validarPregunta(p, donde) {
   return e;
 }
 
-function validarResultados(resultados, donde) {
+/** Un paso de historia: decisión narrativa de 2 a 3 opciones, cada una con su consecuencia; sin respuesta correcta. */
+function validarPaso(p, e, mal) {
+  const [min, max] = HISTORIA.opcionesPaso;
+  if (!Array.isArray(p.options) || p.options.length < min || p.options.length > max) mal(`un paso lleva de ${min} a ${max} decisiones (options)`);
+  else {
+    p.options.forEach(o => {
+      if (typeof o !== 'string' || !o.trim()) mal('una decisión está vacía');
+      else if (o.length > HISTORIA.opcionPaso) mal(`la decisión «${o}» tiene ${o.length} caracteres (máximo ${HISTORIA.opcionPaso})`);
+    });
+    if (new Set(p.options.map(o => String(o).toLowerCase())).size !== p.options.length) mal('tiene decisiones repetidas');
+    if (!Array.isArray(p.consecuencias) || p.consecuencias.length !== p.options.length) mal('lleva una consecuencia por decisión (consecuencias)');
+    else p.consecuencias.forEach(c => {
+      if (typeof c !== 'string' || !c.trim()) mal('una consecuencia está vacía');
+      else if (c.length > LIMITES.explicacion) mal(`la consecuencia «${c}» tiene ${c.length} caracteres (máximo ${LIMITES.explicacion})`);
+    });
+  }
+  if (p.answer !== undefined || p.why !== undefined) mal('un paso no lleva «answer» ni «why» (ninguna decisión es correcta)');
+  return e;
+}
+
+function validarResultados(resultados, donde, { historia = false, maximo = LIMITES.preguntasPorTap } = {}) {
   const e = [];
-  if (!Array.isArray(resultados) || resultados.length < 3 || resultados.length > 5) return [`${donde}: debe tener de 3 a 5 títulos de resultado`];
+  const [minR, maxR] = historia ? HISTORIA.resultados : [3, 5];
+  if (!Array.isArray(resultados) || resultados.length < minR || resultados.length > maxR) return [`${donde}: debe tener de ${minR} a ${maxR} títulos de resultado`];
   if (resultados[0].min !== 0) e.push(`${donde}: el primer título debe empezar en 0 aciertos (nunca un título negativo)`);
   resultados.forEach((r, i) => {
     if (!r.title || !r.line) e.push(`${donde}: el título ${i + 1} no tiene title o line`);
@@ -521,7 +560,7 @@ function validarResultados(resultados, donde) {
       });
     }
     if (i && !(r.min > resultados[i - 1].min)) e.push(`${donde}: los min de los títulos deben subir`);
-    if (r.min > LIMITES.preguntasPorTap) e.push(`${donde}: un título pide ${r.min} aciertos y el Tap tiene ${LIMITES.preguntasPorTap} preguntas`);
+    if (r.min > maximo) e.push(`${donde}: un título pide ${r.min} aciertos y el Tap tiene ${maximo} preguntas que puntúan`);
   });
   return e;
 }
@@ -602,7 +641,7 @@ export function generar(bancos, retos, temas) {
     const archivo = def.archivo;
     const err = m => errores.push(`${archivo}: ${m}`);
     if (!banco || !Array.isArray(banco.preguntas) || !Array.isArray(banco.taps)) { err('debe tener «preguntas» y «taps»'); continue; }
-    const errTit = validarResultados(banco.titulosResultado, `${archivo} · titulosResultado`);
+    const errTit = validarResultados(banco.titulosResultado, `${archivo} · titulosResultado`, { historia: def.soloEnlace === true, maximo: def.soloEnlace ? 1 : LIMITES.preguntasPorTap });
     errores.push(...errTit);
     // Títulos por subtema: el mismo formato que «titulosResultado», uno por subtema (los que falten usan los del tema).
     const titulosSubtema = banco.titulosPorSubtema ?? {};
@@ -636,10 +675,15 @@ export function generar(bancos, retos, temas) {
       if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(t.id ?? '')) err(`Tap «${t.id}»: el id no está en kebab-case`);
       if (!t.id?.startsWith(def.prefijo)) avisos.push(`${donde}: el id debería empezar con «${def.prefijo}»`);
       if (!t.titulo?.trim()) err(`Tap «${t.id}»: falta el título`);
-      if (!Array.isArray(t.preguntas) || t.preguntas.length !== LIMITES.preguntasPorTap) {
-        err(`Tap «${t.id}»: tiene ${t.preguntas?.length ?? 0} preguntas (deben ser ${LIMITES.preguntasPorTap})`);
+      const historia = t.tipo === 'historia';
+      if (t.tipo !== undefined && !['quiz', 'historia'].includes(t.tipo)) err(`Tap «${t.id}»: tipo «${t.tipo}» desconocido (quiz o historia)`);
+      const largo = Array.isArray(t.preguntas) ? t.preguntas.length : 0;
+      if (historia ? largo < HISTORIA.pasos[0] + 1 || largo > HISTORIA.pasos[1] + 1 : largo !== LIMITES.preguntasPorTap) {
+        err(historia ? `Tap «${t.id}»: una historia lleva de ${HISTORIA.pasos[0]} a ${HISTORIA.pasos[1]} pasos y una pregunta final (tiene ${largo})`
+          : `Tap «${t.id}»: tiene ${largo} preguntas (deben ser ${LIMITES.preguntasPorTap})`);
         continue;
       }
+      if (def.soloEnlace && !historia) err(`Tap «${t.id}»: los Taps de ${def.topic} son de tipo historia`);
       if (new Set(t.preguntas).size !== t.preguntas.length) err(`Tap «${t.id}»: repite una pregunta`);
       if (t.retirado === true || t.estado === 'retirado') { retirados.push(t.id); continue; }
 
@@ -650,15 +694,22 @@ export function generar(bancos, retos, temas) {
         if (['retirada', 'retirado'].includes(p.estado)) err(`Tap «${t.id}»: la pregunta «${id}» está retirada; cámbiala o retira el Tap (retirado: true)`);
         if (p.estado === 'borrador') err(`Tap «${t.id}»: la pregunta «${id}» sigue en borrador; revísala (estado «revisada») antes de publicarla`);
         errores.push(...validarPregunta(p, `${archivo} · pregunta «${id}»`).map(m => m));
+        if (historia) {
+          const ultima = id === t.preguntas[t.preguntas.length - 1];
+          if (ultima && p.tipo === 'paso') err(`Tap «${t.id}»: la pregunta final «${id}» no puede ser un paso`);
+          if (!ultima && p.tipo !== 'paso') err(`Tap «${t.id}»: «${id}» debe ser un paso (tipo «paso»); solo la última es una pregunta de selección`);
+        } else if (p.tipo === 'paso') err(`Tap «${t.id}»: un paso solo cabe en un Tap de tipo historia`);
         errores.push(...validarVisual(p.visual, temas[def.theme]?.objetos, `${archivo} · pregunta «${id}»`));
         errores.push(...validarEscena(p.escena, p, temas[def.theme]?.escenas, `${archivo} · pregunta «${id}»`));
         preguntas.push({
-          id: p.id, q: p.q, options: p.options, answer: p.answer, why: p.why, ...(p.tipo && p.tipo !== 'clasica' ? { tipo: p.tipo } : {}),
+          id: p.id, q: p.q, options: p.options, answer: p.answer ?? 0, why: p.why ?? '', ...(p.tipo && p.tipo !== 'clasica' ? { tipo: p.tipo } : {}),
+          ...(p.consecuencias ? { consecuencias: p.consecuencias } : {}),
           ...(p.visual ? { visual: p.visual } : {}), ...(p.escena ? { escena: p.escena } : {}),
         });
       }
       if (t.gancho && !(banco.taps[0] === t)) err(`Tap «${t.id}»: el Tap de gancho debe ser el primero del archivo`);
-      if (banco.taps[0] === t && !t.gancho) err(`Tap «${t.id}»: el primer Tap del tema debe ser el de gancho (gancho: true)`);
+      if (t.gancho && def.sinGancho) err(`Tap «${t.id}»: el tema ${def.topic} no tiene Tap de gancho`);
+      if (banco.taps[0] === t && !t.gancho && !def.sinGancho) err(`Tap «${t.id}»: el primer Tap del tema debe ser el de gancho (gancho: true)`);
 
       const subtema = t.subtema ?? 'mixto';
       const n = porSubtema.get(subtema) ?? 0;
@@ -674,7 +725,7 @@ export function generar(bancos, retos, temas) {
       if (escena.enter && !tema.entradas.has(escena.enter)) err(`Tap «${t.id}»: la entrada «${escena.enter}» no existe en el tema ${def.theme}`);
       if (escena.props && !tema.decorados.has(escena.props)) err(`Tap «${t.id}»: el decorado «${escena.props}» no existe en el tema ${def.theme}`);
       const resultados = t.resultados ?? (Array.isArray(titulosSubtema) ? undefined : titulosSubtema[subtema]) ?? banco.titulosResultado;
-      if (t.resultados) errores.push(...validarResultados(t.resultados, `${donde} · resultados`));
+      if (t.resultados) errores.push(...validarResultados(t.resultados, `${donde} · resultados`, { historia, maximo: historia ? 1 : LIMITES.preguntasPorTap }));
 
       taps.push({
         id: t.id,
@@ -687,18 +738,21 @@ export function generar(bancos, retos, temas) {
         questions: preguntas,
         results: resultados.map(r => ({ min: r.min, title: r.title, line: r.line, ...(r.lineas?.length ? { lines: [r.line, ...r.lineas] } : {}) })),
         topic: def.topic,
+        ...(historia ? { tipo: 'historia' } : {}),
+        ...(def.soloEnlace ? { soloEnlace: true } : {}),
         ...(t.gancho ? { hook: true } : {}),
         ...(t.nivel ? { level: t.nivel } : {}),
         ...(t.subtema ? { subtopic: t.subtema } : {}),
       });
     }
-    if (banco.taps.length && !banco.taps.some(t => t.gancho)) err('ningún Tap es de gancho');
+    if (banco.taps.length && !def.sinGancho && !banco.taps.some(t => t.gancho)) err('ningún Tap es de gancho');
   }
   for (const t of taps) {
     if (!['facil', 'media', 'dificil'].includes(t.level ?? 'media')) errores.push(`Tap «${t.id}»: nivel «${t.level}» no válido (facil, media o dificil)`);
   }
   if (!errores.length) {
-    asignarCine(taps, temas);
+    asignarCine(taps.filter(t => !t.soloEnlace), temas);                     // las historias no mueven la escena de los demás
+    for (const t of taps.filter(t => t.soloEnlace)) Object.assign(t.scene, CINE_HISTORIA);
     for (const t of taps) {
       const s = t.scene, cine = temas[t.theme]?.cine, mal = m => errores.push(`Tap «${t.id}»: ${m} (tema ${t.theme})`);
       if (!temas[t.theme].personajes.has(s.host)) mal(`el personaje «${s.host}» no existe`);

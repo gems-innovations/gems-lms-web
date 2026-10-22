@@ -125,7 +125,7 @@ describe('mezclarFeed con el banco real', () => {
     for (const semilla of semillas) {
       const out = mezclarFeed(base, { semilla, fijos: 1 });
       expect(out[0].id).toBe(base[0].id);
-      expect(out.length).toBe(TAPS.length);
+      expect(out.length).toBe(base.length);
       expect(sinRepetirTema(out)).withContext(semilla).toBeTrue();
       expect(out.every((t, i) => i === 0 || topicOf(t) !== topicOf(out[i - 1]) || t.subtopic !== out[i - 1].subtopic)).withContext(semilla).toBeTrue();
       expect(sinTresDificiles(out)).withContext(semilla).toBeTrue();

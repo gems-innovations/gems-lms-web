@@ -117,8 +117,9 @@ describe('Colecciones por subtema', () => {
 
   it('cada Tap está en una sola colección y ninguna colección tiene 1 sola casilla', () => {
     const todos = cols.flatMap(c => c.tapIds);
-    expect(todos.length).toBe(TAPS.length);
-    expect(new Set(todos).size).toBe(TAPS.length);
+    const enColecciones = TAPS.filter(t => !t.soloEnlace).length;      // un Tap solo enlace no forma colección
+    expect(todos.length).toBe(enColecciones);
+    expect(new Set(todos).size).toBe(enColecciones);
     expect(cols.every(c => c.tapIds.length >= 2)).toBeTrue();
     expect(coleccionDe(cols, 'mc-mascotas')?.nombre).toBe('Mobs');
   });

@@ -1,4 +1,4 @@
-import { topicOf } from './taps.logic';
+import { puntuables, topicOf } from './taps.logic';
 import { ITap } from './taps.types';
 
 /**
@@ -43,7 +43,8 @@ const MIXTO = 'mixto';
 const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ');
 
 /** Agrupa el banco en colecciones, en el orden en que aparecen los Taps (el tema y luego el subtema). */
-export function colecciones(taps: readonly ITap[]): IColeccion[] {
+export function colecciones(todos: readonly ITap[]): IColeccion[] {
+  const taps = todos.filter(t => !t.soloEnlace);                // un Tap solo enlace no forma colección
   const cuenta = new Map<string, number>();
   for (const t of taps) cuenta.set(`${topicOf(t)}-${t.subtopic ?? MIXTO}`, (cuenta.get(`${topicOf(t)}-${t.subtopic ?? MIXTO}`) ?? 0) + 1);
   const out = new Map<string, IColeccion>();
@@ -109,7 +110,7 @@ function casiDe(casillas: readonly ICasilla[], grado: TGrado | null, aciertos: n
  */
 export function avanceColeccion(col: IColeccion, taps: readonly ITap[], mejores: Readonly<Record<string, number>>, done: Readonly<Record<string, number>>): IAvanceColeccion {
   const casillas = col.tapIds.map((id): ICasilla => {
-    const tap = taps.find(t => t.id === id), total = tap?.questions.length ?? 5;
+    const tap = taps.find(t => t.id === id), total = tap ? puntuables(tap) : 5;
     const puntaje = mejores[id] ?? null, hecho = puntaje !== null || !!done[id];
     return { tapId: id, hecho, puntaje: hecho ? Math.min(puntaje ?? 0, total) : null, total };
   });

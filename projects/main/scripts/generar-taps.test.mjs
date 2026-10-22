@@ -29,13 +29,28 @@ function bancoMinimo(prefijo, subtema = 'mixto') {
     ],
   };
 }
-const bancosMinimos = () => ({ minecraft: bancoMinimo('mc'), logica: bancoMinimo('lg'), cultura: bancoMinimo('cu'), tecnologia: bancoMinimo('tc') });
+/** Un banco mínimo de historias: una historia de 3 pasos y una pregunta final (la única que puntúa). */
+function bancoHistoriaMinimo() {
+  const paso = i => ({
+    id: `hi-p${i}`, tipo: 'paso', q: `Paso ${i}: ¿qué haces?`, options: ['Esto', 'Aquello'], consecuencias: ['Pasa esto.', 'Pasa aquello.'],
+    subtema: 'prueba', estado: 'revisada',
+  });
+  const final = { id: 'hi-final', q: '¿Cuál es la verdad?', options: ['uno', 'dos', 'tres', 'cuatro'], answer: 1, why: 'Porque sí.', dificultad: 1, subtema: 'prueba', estado: 'revisada' };
+  return {
+    tema: 'historias',
+    titulosResultado: [{ min: 0, title: 'A', line: 'a' }, { min: 1, title: 'B', line: 'b' }],
+    existentes: [],
+    preguntas: [paso(1), paso(2), paso(3), final],
+    taps: [{ id: 'hi', tipo: 'historia', titulo: 'Historia', nivel: 'facil', subtema: 'prueba', preguntas: ['hi-p1', 'hi-p2', 'hi-p3', 'hi-final'] }],
+  };
+}
+const bancosMinimos = () => ({ minecraft: bancoMinimo('mc'), logica: bancoMinimo('lg'), cultura: bancoMinimo('cu'), tecnologia: bancoMinimo('tc'), historias: bancoHistoriaMinimo() });
 const correr = bancos => generar(bancos, retos, temas);
 
-test('el banco real genera 122 Taps de 5 preguntas sin errores', () => {
+test('el banco real genera 123 Taps de 5 preguntas sin errores', () => {
   const r = construir();
   assert.deepEqual(r.errores, []);
-  assert.equal(r.taps.length, 122);
+  assert.equal(r.taps.length, 123);
   assert.ok(r.taps.every(t => t.questions.length === LIMITES.preguntasPorTap));
 });
 
@@ -54,7 +69,7 @@ test('ids de Tap y de pregunta únicos en todo el banco', () => {
 test('un banco mínimo válido genera sus Taps', () => {
   const r = correr(bancosMinimos());
   assert.deepEqual(r.errores, []);
-  assert.equal(r.taps.length, 8);
+  assert.equal(r.taps.length, 9);
   assert.equal(r.taps[0].hook, true);
   assert.equal(r.taps[0].topic, 'minecraft');
   assert.equal(r.taps[2].theme, 'estudio');
@@ -363,7 +378,7 @@ test('el banco real da títulos por subtema y 3 variantes de línea en cada tít
   const { taps } = construir();
   const mc = taps.filter(t => t.topic === 'minecraft');
   assert.ok(new Set(mc.map(t => t.results.find(x => x.min === 4).title)).size >= 6);
-  assert.ok(taps.every(t => t.results.every(x => x.lines?.length === 3)));
+  assert.ok(taps.filter(t => !t.soloEnlace).every(t => t.results.every(x => x.lines?.length === 3)));
 });
 
 // ───────────── calendario del reto del día ─────────────
@@ -395,7 +410,7 @@ test('calendario del reto: rota temas, sin Taps de gancho, todos los del tema an
   // Recién armado (sin días fijos), recorre todos los del tema antes de repetir. En el calendario real los días ya fijados
   // no se reordenan: los Taps agregados después entran en los días que se suman al final.
   const nuevo = calendarioReto(taps, null);
-  for (const tema of new Set(taps.map(t => t.topic))) {
+  for (const tema of new Set(taps.filter(t => !t.soloEnlace).map(t => t.topic))) {
     const lista = nuevo.dias.filter(id => porId.get(id).topic === tema), n = taps.filter(t => t.topic === tema && !t.hook).length;
     assert.equal(new Set(lista.slice(0, n)).size, n, tema);
   }
@@ -427,7 +442,7 @@ test('escenas de pregunta: al menos 20 preguntas reales en cada tema, se copian 
   assert.deepEqual(errores, []);
   const con = taps.flatMap(t => t.questions.filter(q => q.escena).map(q => [t.topic, q.escena.tipo]));
   assert.ok(con.length >= 20, `solo ${con.length} preguntas con escena`);
-  for (const topic of Object.keys(TEMAS)) assert.ok(con.filter(([k]) => k === topic).length >= 5, topic + ': pocas escenas');
+  for (const topic of Object.keys(TEMAS).filter(k => !TEMAS[k].soloEnlace)) assert.ok(con.filter(([k]) => k === topic).length >= 5, topic + ': pocas escenas');
   assert.equal(new Set(con.map(([, tipo]) => tipo)).size, 5, 'se usan los cinco tipos (código, operación, serie, objeto, diagrama)');
 });
 
@@ -474,4 +489,45 @@ test('modo cine: cada Tap trae plano, transición y su ambiente; el feed nunca r
   // el gancho siempre igual (primera impresión) y determinista: dos corridas dan lo mismo
   assert.equal(taps.find(t => t.id === 'mc-gancho').scene.camara, 'orbita');
   assert.deepEqual(construir().taps.map(t => t.scene), taps.map(t => t.scene));
+});
+
+test('historia: un banco mínimo se genera con sus pasos, su única pregunta que puntúa y la marca de solo enlace', () => {
+  const r = correr(bancosMinimos());
+  assert.deepEqual(r.errores, []);
+  const h = r.taps.find(t => t.id === 'hi');
+  assert.equal(h.tipo, 'historia');
+  assert.equal(h.soloEnlace, true);
+  assert.equal(h.hook, undefined);
+  assert.deepEqual(h.questions.map(q => q.tipo), ['paso', 'paso', 'paso', undefined]);
+  assert.deepEqual(h.questions[0].consecuencias, ['Pasa esto.', 'Pasa aquello.']);
+  assert.ok(r.taps.filter(t => t.id !== 'hi').every(t => !t.soloEnlace && t.tipo === undefined));
+});
+
+test('historia: las historias no cambian la escena de los demás Taps', () => {
+  const con = correr(bancosMinimos()).taps.filter(t => t.id !== 'hi');
+  const { historias, ...resto } = bancosMinimos();
+  const sin = generar({ ...resto, historias: { ...historias, taps: [] } }, retos, temas).taps;
+  assert.deepEqual(con, sin);
+});
+
+test('historia: errores de un paso mal armado', () => {
+  const mal = cambio => { const b = bancosMinimos(); cambio(b.historias); return correr(b).errores.join(' | '); };
+  assert.match(mal(h => { h.preguntas[0].answer = 0; }), /no lleva «answer» ni «why»/);
+  assert.match(mal(h => { h.preguntas[0].consecuencias = ['solo una']; }), /una consecuencia por decisión/);
+  assert.match(mal(h => { h.preguntas[0].options = ['a', 'b', 'c', 'd']; h.preguntas[0].consecuencias = ['1', '2', '3', '4']; }), /de 2 a 3 decisiones/);
+  assert.match(mal(h => { h.preguntas[0].consecuencias[0] = 'x'.repeat(LIMITES.explicacion + 1); }), /consecuencia/);
+  assert.match(mal(h => { h.taps[0].preguntas = ['hi-p1', 'hi-final', 'hi-p2', 'hi-p3']; }), /debe ser un paso|no puede ser un paso/);
+  assert.match(mal(h => { h.taps[0].preguntas = ['hi-p1', 'hi-p2']; }), /una historia lleva de 3 a 5 pasos/);
+  assert.match(mal(h => { h.taps[0].resultados = [{ min: 0, title: 'x', line: 'y' }, { min: 2, title: 'z', line: 'w' }]; }), /1 preguntas que puntúan/);
+  assert.match(mal(h => { h.taps[0].gancho = true; }), /no tiene Tap de gancho/);
+  assert.match(mal(h => { delete h.taps[0].tipo; }), /deben ser 5/);
+});
+
+test('historia: un paso no cabe en un Tap de quiz y una pregunta normal no lleva consecuencias', () => {
+  const b = bancosMinimos();
+  b.minecraft.preguntas[0] = { ...b.historias.preguntas[0], id: b.minecraft.preguntas[0].id };
+  assert.match(correr(b).errores.join(' | '), /un paso solo cabe en un Tap de tipo historia/);
+  const c = bancosMinimos();
+  c.minecraft.preguntas[0].consecuencias = ['x'];
+  assert.match(correr(c).errores.join(' | '), /solo un paso de historia lleva/);
 });

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { resultFor } from './taps.logic';
+import { esPaso, puntuables, resultFor } from './taps.logic';
 import { TPartidaEstado } from './taps.ranking';
 import { TapXpComponent } from './tap-xp.component';
 import { lineaResultado } from './taps.frases';
@@ -40,17 +40,19 @@ export interface IRetoResultado {
       @if (celebrar()) { <p class="res__meta" role="status">Meta de hoy lista: 3 Taps</p> }
       <p class="res__over" [class.res__over--reto]="!!reto()">@if (reto(); as r) { {{ etiquetaReto(r.numero) }} · tu título } @else { Tu título }</p>
       <h2 class="res__title" tabindex="-1">{{ result().title }}</h2>
-      <p class="res__score">{{ run().score }} de {{ tap().questions.length }} · <span class="res__theme">{{ tap().title }}</span></p>
-      <ol class="res__grid" [attr.aria-label]="run().score + ' aciertos de ' + tap().questions.length">
+      <p class="res__score">{{ run().score }} de {{ total() }} · <span class="res__theme">{{ tap().title }}</span></p>
+      <ol class="res__grid" [attr.aria-label]="run().score + ' aciertos de ' + total()">
         @for (q of tap().questions; track q.id; let k = $index) {
+          @if (!esPaso(q)) {
           <li [class.is-ok]="run().answers[k] === true" [class.is-bad]="run().answers[k] === false"
-              [attr.aria-label]="'Pregunta ' + (k + 1) + ': ' + (run().answers[k] ? 'acierto' : 'fallo')">
+              [attr.aria-label]="(tap().tipo === 'historia' ? 'Selección final' : 'Pregunta ' + (k + 1)) + ': ' + (run().answers[k] ? 'acierto' : 'fallo')">
             @if (run().answers[k]) {
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             } @else {
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
             }
           </li>
+          }
         }
       </ol>
       <p class="res__line">{{ line() }}</p>
@@ -186,6 +188,8 @@ export class TapResultComponent {
   readonly cursos = output<void>();
 
   protected readonly result = computed(() => resultFor(this.tap(), this.run().score));
+  protected readonly total = computed(() => puntuables(this.tap()));
+  protected readonly esPaso = esPaso;
   /** Una de las variantes de la línea, fija para esta partida (Tap + aciertos y fallos en orden). */
   protected readonly line = computed(() => lineaResultado(this.result(), `${this.tap().id}|${this.run().answers.map(a => (a ? 1 : 0)).join('')}`));
   /**

@@ -1,5 +1,5 @@
 import { ITap, ITapRun } from './taps.types';
-import { resultFor } from './taps.logic';
+import { puntuables, respuestasPuntuables, resultFor } from './taps.logic';
 
 /**
  * «Retar a un amigo» (competencia-y-recompensas.md §5.3, experiencia-ux.md §5.6): texto tipo Wordle sin spoilers,
@@ -24,11 +24,11 @@ export function shareGrid(answers: readonly boolean[], total: number): string {
 
 /** Texto listo para pegar. Sin `url` cuando el menú de compartir la recibe aparte (no se duplica). */
 export function shareText(tap: ITap, run: ITapRun, url?: string): string {
-  const total = tap.questions.length;
+  const total = puntuables(tap);
   const lines = [
     `Taps de GEMS LMS · ${tap.title}`,
-    `${shareGrid(run.answers, total)} ${run.score}/${total} · ${resultFor(tap, run.score).title}`,
-    `¿Me ganas? ${total} preguntas, menos de un minuto.`,
+    `${shareGrid(respuestasPuntuables(tap, run.answers), total)} ${run.score}/${total} · ${resultFor(tap, run.score).title}`,
+    tap.tipo === 'historia' ? '¿Tú qué habrías hecho? Una historia de menos de un minuto.' : `¿Me ganas? ${total} preguntas, menos de un minuto.`,
   ];
   if (url) lines.push(url);
   return lines.join('\n');
