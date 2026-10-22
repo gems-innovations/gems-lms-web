@@ -188,12 +188,13 @@ export const TEMAS = {
     archivo: 'tecnologia.json', theme: 'aventura', topic: 'tecnologia', kicker: 'Tecnología', prefijo: 'tc-',
     personajes: ['cientifica', 'exploradora', 'hana', 'robot'], gancho: { world: 'noche-estrellada', host: 'cientifica' },
   },
-  // Historias en pasos (tipo de Tap «historia»): tema «aventura» con los personajes humanos. Sin gancho (no es la puerta de entrada de
+  // Historias (tipo de Tap «historia» y quizzes de personajes históricos): tema «época» (motor 2D ligero con presentadores adultos y
+  // escenarios de época; ver producto/taps/manual-estilos.md). Sin gancho (no es la puerta de entrada de
   // nadie) y `soloEnlace`: los Taps se juegan por su enlace (/t/<id>) y no entran en «Para ti» ni en el selector hasta decidirlo.
   // Sus ids no llevan prefijo (el enlace es parte del video: /t/napoleon). Van al final para no mover la escena de los demás.
   historias: {
-    archivo: 'historias.json', theme: 'aventura', topic: 'historias', kicker: 'Historias', prefijo: '',
-    personajes: ['cientifica', 'exploradora', 'hana'], soloEnlace: true, sinGancho: true,
+    archivo: 'historias.json', theme: 'epoca', topic: 'historias', kicker: 'Historias', prefijo: '',
+    personajes: ['grabador', 'arqueologa'], soloEnlace: true, sinGancho: true,
   },
 };
 
@@ -202,6 +203,7 @@ export const OBJETOS = {
   minecraft: ['sword', 'pick', 'axe', 'torch', 'diamond', 'apple', 'grass', 'tnt'],
   estudio: ['matraz', 'lupa', 'libro'],
   aventura: [],
+  epoca: ['pluma', 'cepillo', 'pergamino', 'mapa'],
 };
 
 /** Escena del Tap de gancho de cada tema (la primera impresión: clara y conocida). */
@@ -235,6 +237,8 @@ export const LUGARES = {
   'cu-cuerpo-2': ['laboratorio', 'matraz', 'libros'], 'cu-geografia-1': ['museo', 'lupa', 'globo'], 'cu-mitos': ['biblioteca', 'lupa', 'libros'],
   'cu-animales-2': ['jardin', 'libro', 'planta'], 'cu-espacio-2': ['espacio', 'lupa', 'cohete'], 'cu-gigantes': ['observatorio', 'libro', 'globo'],
   'cu-animales-3': ['aula', 'libro', 'planta'], 'cu-luz-sonido': ['cocina', 'matraz', null], 'cu-rarezas': ['laboratorio', 'lupa', 'planta'],
+  // Historias (tema época): cada Tap tiene su lugar y su objeto propios.
+  napoleon: ['taller-londres', 'pluma', null], cleopatra: ['excavacion-egipto', 'cepillo', null],
 };
 
 /**
@@ -243,7 +247,7 @@ export const LUGARES = {
  * El Tap de gancho va centrado y saluda. Todo es determinista: el servidor y el navegador ven la misma escena.
  */
 export const ENCUADRES = ['izquierda', 'derecha', 'cerca-izquierda', 'lejos', 'cerca-derecha', 'centro'];
-export const ENTRADAS = { minecraft: ['camina', 'salta', 'gira', 'saluda'], estudio: ['vuela', 'cae', 'aparece', 'saluda'], aventura: ['camina', 'salta', 'gira', 'saluda'] };
+export const ENTRADAS = { minecraft: ['camina', 'salta', 'gira', 'saluda'], estudio: ['vuela', 'cae', 'aparece', 'saluda'], aventura: ['camina', 'salta', 'gira', 'saluda'], epoca: ['aparece', 'saluda'] };
 const DESFASE = { minecraft: 0, logica: 0, cultura: 3, tecnologia: 1, historias: 2 };
 
 /** Por tema y subtema: [mundo, objeto] que se reparten por orden. `_` es la lista de cualquier subtema sin regla propia. */
@@ -278,6 +282,7 @@ export const ESCENAS = {
     'datos-sorprendentes': [['aula', 'lupa'], ['laboratorio', 'lupa'], ['espacio', 'lupa']],
     _: [['laboratorio', 'matraz'], ['aula', 'libro'], ['espacio', 'lupa']],
   },
+  historias: { _: [['taller-londres', 'pluma'], ['excavacion-egipto', 'cepillo']] },   // cada Tap fija su lugar en LUGARES
 };
 
 /** Lee RETOS y BLOQUES de retos.data.ts sin compilar TypeScript (quita las anotaciones de tipo). */
@@ -683,7 +688,6 @@ export function generar(bancos, retos, temas) {
           : `Tap «${t.id}»: tiene ${largo} preguntas (deben ser ${LIMITES.preguntasPorTap})`);
         continue;
       }
-      if (def.soloEnlace && !historia) err(`Tap «${t.id}»: los Taps de ${def.topic} son de tipo historia`);
       if (new Set(t.preguntas).size !== t.preguntas.length) err(`Tap «${t.id}»: repite una pregunta`);
       if (t.retirado === true || t.estado === 'retirado') { retirados.push(t.id); continue; }
 
@@ -716,6 +720,7 @@ export function generar(bancos, retos, temas) {
       porSubtema.set(subtema, n + 1);
       const escena = asignarEscena(clave, subtema, n, orden, t.gancho === true, t.id, fondoPrevio);
       fondoPrevio = escena.world;
+      if (t.encuadre) escena.shot = t.encuadre;                                  // encuadre propio del Tap (clave de `shots` del tema)
       orden++;
       const tema = temas[def.theme];
       if (escena.item !== undefined && !OBJETOS[def.theme].includes(escena.item)) err(`Tap «${t.id}»: el objeto «${escena.item}» no existe en el tema ${def.theme}`);
@@ -752,7 +757,7 @@ export function generar(bancos, retos, temas) {
   }
   if (!errores.length) {
     asignarCine(taps.filter(t => !t.soloEnlace), temas);                     // las historias no mueven la escena de los demás
-    for (const t of taps.filter(t => t.soloEnlace)) Object.assign(t.scene, CINE_HISTORIA);
+    taps.filter(t => t.soloEnlace).forEach((t, i) => Object.assign(t.scene, CINE_HISTORIA, i % 2 ? { camara: 'travelling' } : {}));   // dos historias seguidas no repiten plano
     for (const t of taps) {
       const s = t.scene, cine = temas[t.theme]?.cine, mal = m => errores.push(`Tap «${t.id}»: ${m} (tema ${t.theme})`);
       if (!temas[t.theme].personajes.has(s.host)) mal(`el personaje «${s.host}» no existe`);
