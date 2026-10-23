@@ -193,6 +193,240 @@
       "subtema": "cleopatra",
       "fuente": "https://es.wikipedia.org/wiki/Cleopatra_VII",
       "estado": "revisada"
+    },
+    {
+      "id": "roma-gladiadores",
+      "tipo": "vf",
+      "q": "Los gladiadores siempre peleaban hasta la muerte.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 1,
+      "why": "Falso: eran caros y muchos combates acababan sin muertos; el vencido podía salvarse.",
+      "dificultad": 2,
+      "subtema": "roma",
+      "fuente": "https://es.wikipedia.org/wiki/Gladiador",
+      "estado": "revisada"
+    },
+    {
+      "id": "roma-orina",
+      "tipo": "vf",
+      "q": "Los romanos usaban orina para limpiar la ropa.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 0,
+      "why": "Verdadero: los fullones recogían orina; el amoníaco quitaba la grasa.",
+      "dificultad": 3,
+      "subtema": "roma",
+      "fuente": "https://es.wikipedia.org/wiki/Fullonica",
+      "estado": "revisada"
+    },
+    {
+      "id": "roma-vomitorium",
+      "tipo": "vf",
+      "q": "Un «vomitorium» era una sala para vomitar en los banquetes.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 1,
+      "why": "Falso: era el pasillo por el que el público entraba y salía del anfiteatro.",
+      "dificultad": 3,
+      "subtema": "roma",
+      "fuente": "https://es.wikipedia.org/wiki/Vomitorio",
+      "estado": "revisada"
+    },
+    {
+      "id": "roma-cesar",
+      "tipo": "vf",
+      "q": "Julio César murió apuñalado por senadores.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 0,
+      "why": "Verdadero: lo atacaron en los Idus de marzo del 44 a. C.",
+      "dificultad": 1,
+      "subtema": "roma",
+      "fuente": "https://es.wikipedia.org/wiki/Julio_C%C3%A9sar",
+      "estado": "revisada"
+    },
+    {
+      "id": "roma-calzadas",
+      "tipo": "vf",
+      "q": "Algunas calzadas romanas se siguen usando hoy.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 0,
+      "why": "Verdadero: tramos de la Vía Apia y otras calzadas siguen en uso.",
+      "dificultad": 2,
+      "subtema": "roma",
+      "fuente": "https://es.wikipedia.org/wiki/V%C3%ADa_Apia",
+      "estado": "revisada"
+    },
+    {
+      "id": "medieval-espada",
+      "tipo": "duo",
+      "q": "¿Cuánto pesaba una espada medieval típica?",
+      "options": [
+        "Más de 8 kg",
+        "Entre 1 y 2 kg"
+      ],
+      "answer": 1,
+      "why": "Entre 1 y 2 kg: eran armas equilibradas, no mazas pesadas.",
+      "dificultad": 2,
+      "subtema": "medieval",
+      "fuente": "https://es.wikipedia.org/wiki/Espada",
+      "estado": "revisada"
+    },
+    {
+      "id": "medieval-tierra",
+      "tipo": "duo",
+      "q": "¿Qué creían los eruditos medievales sobre la Tierra?",
+      "options": [
+        "Que era redonda",
+        "Que era plana"
+      ],
+      "answer": 0,
+      "why": "Que era redonda: la daban por esférica desde la Antigüedad.",
+      "dificultad": 2,
+      "subtema": "medieval",
+      "fuente": "https://es.wikipedia.org/wiki/Tierra_plana",
+      "estado": "revisada"
+    },
+    {
+      "id": "medieval-castidad",
+      "tipo": "duo",
+      "q": "¿Era común el cinturón de castidad en la Edad Media?",
+      "options": [
+        "Sí, muy común",
+        "Casi un mito"
+      ],
+      "answer": 1,
+      "why": "Casi un mito: hay muy pocas pruebas de su uso en esa época.",
+      "dificultad": 3,
+      "subtema": "medieval",
+      "fuente": "https://es.wikipedia.org/wiki/Cintur%C3%B3n_de_castidad",
+      "estado": "revisada"
+    },
+    {
+      "id": "medieval-armadura",
+      "tipo": "duo",
+      "q": "¿Un caballero con armadura podía montar sin una grúa?",
+      "options": [
+        "Sí, podía",
+        "No, necesitaba grúa"
+      ],
+      "answer": 0,
+      "why": "Sí: pesaba unos 20 a 25 kg, pero repartía el peso y permitía moverse.",
+      "dificultad": 3,
+      "subtema": "medieval",
+      "fuente": "https://es.wikipedia.org/wiki/Armadura_de_placas",
+      "estado": "revisada"
+    },
+    {
+      "id": "medieval-peste",
+      "tipo": "duo",
+      "q": "¿Qué enfermedad mató a millones en el siglo XIV?",
+      "options": [
+        "Peste negra",
+        "Viruela"
+      ],
+      "answer": 0,
+      "why": "La peste negra (1347-1351) mató a gran parte de Europa.",
+      "dificultad": 1,
+      "subtema": "medieval",
+      "fuente": "https://es.wikipedia.org/wiki/Peste_negra",
+      "estado": "revisada"
+    },
+    {
+      "id": "fleming-p1",
+      "tipo": "paso",
+      "q": "Londres, 1928. Vuelves de vacaciones y una placa de bacterias tiene moho encima. ¿Qué haces?",
+      "options": [
+        "La tiro a la basura",
+        "La miro con una lupa",
+        "La guardo para luego"
+      ],
+      "consecuencias": [
+        "Muchas placas así acaban en la basura. Fleming prefirió mirar.",
+        "Buen ojo: alrededor del moho las bacterias han desaparecido.",
+        "Esperar es arriesgado: las placas se estropean. Fleming las estudió ya."
+      ],
+      "subtema": "fleming",
+      "fuente": "https://es.wikipedia.org/wiki/Alexander_Fleming",
+      "estado": "revisada"
+    },
+    {
+      "id": "fleming-p2",
+      "tipo": "paso",
+      "q": "El moho es un Penicillium. ¿Cómo compruebas que de verdad frena a las bacterias?",
+      "options": [
+        "Lo cultivo y lo pruebo",
+        "Se lo doy a un enfermo ya",
+        "Digo que fue casualidad"
+      ],
+      "consecuencias": [
+        "Eso hizo: cultivó el moho y vio que frenaba varias bacterias.",
+        "Demasiado pronto: nadie sabía si era seguro. Faltaban años de ensayos.",
+        "Esa casualidad era justo la pista. Fleming siguió investigando."
+      ],
+      "subtema": "fleming",
+      "fuente": "https://es.wikipedia.org/wiki/Penicilina",
+      "estado": "revisada"
+    },
+    {
+      "id": "fleming-p3",
+      "tipo": "paso",
+      "q": "Llamas «penicilina» al caldo del moho y lo publicas en 1929. Casi nadie lo usa. ¿Qué haces?",
+      "options": [
+        "Insisto con otros científicos",
+        "Lo dejo en un cajón"
+      ],
+      "consecuencias": [
+        "Esa insistencia importó: otros científicos retomaron la idea.",
+        "Casi pasó: durante años la penicilina no se usó como medicina."
+      ],
+      "subtema": "fleming",
+      "fuente": "https://es.wikipedia.org/wiki/Penicilina",
+      "estado": "revisada"
+    },
+    {
+      "id": "fleming-p4",
+      "tipo": "paso",
+      "q": "En los años 40, en Oxford, quieren producirla en grandes cantidades. ¿Qué se necesita?",
+      "options": [
+        "Un equipo de científicos",
+        "Que alguien la invente de nuevo"
+      ],
+      "consecuencias": [
+        "Así fue: Florey, Chain y su equipo la purificaron y la probaron.",
+        "No hacía falta: Fleming ya la había descubierto; faltaba producirla."
+      ],
+      "subtema": "fleming",
+      "fuente": "https://es.wikipedia.org/wiki/Penicilina",
+      "estado": "revisada"
+    },
+    {
+      "id": "fleming-final",
+      "q": "¿Qué descubrió Fleming gracias a un moho?",
+      "options": [
+        "Un antibiótico",
+        "Una vacuna",
+        "La anestesia",
+        "Los rayos X"
+      ],
+      "answer": 0,
+      "why": "Un antibiótico: la penicilina, base de la lucha contra las infecciones.",
+      "dificultad": 1,
+      "subtema": "fleming",
+      "fuente": "https://es.wikipedia.org/wiki/Penicilina",
+      "estado": "revisada"
     }
   ],
   "taps": [
@@ -278,6 +512,148 @@
           "lineas": [
             "Pocos llegan al 5 de 5 en este Tap.",
             "Ahora cuéntaselo a alguien."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "roma-mitos",
+      "titulo": "Mitos de Roma: ¿verdad o falso?",
+      "nivel": "media",
+      "subtema": "roma",
+      "presentador": "senador",
+      "encuadre": "cerca-izquierda",
+      "preguntas": [
+        "roma-gladiadores",
+        "roma-orina",
+        "roma-vomitorium",
+        "roma-cesar",
+        "roma-calzadas"
+      ],
+      "resultados": [
+        {
+          "min": 0,
+          "title": "Te creíste el mito",
+          "line": "Roma tiene más leyendas que datos. Ahora ya los sabes.",
+          "lineas": [
+            "Las películas de gladiadores engañan a cualquiera.",
+            "Hoy aprendiste la parte real de Roma."
+          ]
+        },
+        {
+          "min": 2,
+          "title": "Curioso de Roma",
+          "line": "Separas bastante bien el mito del dato romano.",
+          "lineas": [
+            "Vas por buen camino con el Imperio.",
+            "Un repaso más y los dominas."
+          ]
+        },
+        {
+          "min": 4,
+          "title": "Casi senador",
+          "line": "Conoces Roma mejor que casi todos.",
+          "lineas": [
+            "Solo se te escapó un detalle.",
+            "Pocos acaban tan cerca del 5."
+          ]
+        },
+        {
+          "min": 5,
+          "title": "Cónsul de los mitos",
+          "line": "Roma no tiene secretos para ti. Compártelo.",
+          "lineas": [
+            "Pocos llegan al 5 de 5 en este Tap.",
+            "Ahora cuéntaselo a alguien."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "medieval-mitos",
+      "titulo": "Edad Media: ¿mito o realidad?",
+      "nivel": "media",
+      "subtema": "medieval",
+      "presentador": "artesano",
+      "encuadre": "cerca-derecha",
+      "preguntas": [
+        "medieval-espada",
+        "medieval-tierra",
+        "medieval-castidad",
+        "medieval-armadura",
+        "medieval-peste"
+      ],
+      "resultados": [
+        {
+          "min": 0,
+          "title": "Te creíste la leyenda",
+          "line": "La Edad Media se cuenta peor de lo que fue. Ahora ya sabes.",
+          "lineas": [
+            "Casi todos caen con estos mitos.",
+            "Lo que viste en películas no era tan real."
+          ]
+        },
+        {
+          "min": 2,
+          "title": "Curioso medieval",
+          "line": "Sabes separar bastante bien lo cierto de lo inventado.",
+          "lineas": [
+            "Vas bien por la Edad Media.",
+            "Un repaso más y los dominas."
+          ]
+        },
+        {
+          "min": 4,
+          "title": "Casi caballero",
+          "line": "Conoces la Edad Media mejor que casi todos.",
+          "lineas": [
+            "Solo se te escapó un mito.",
+            "Pocos acaban tan cerca del 5."
+          ]
+        },
+        {
+          "min": 5,
+          "title": "Maestro de los mitos",
+          "line": "La Edad Media no tiene secretos para ti. Compártelo.",
+          "lineas": [
+            "Pocos llegan al 5 de 5 en este Tap.",
+            "Ahora cuéntaselo a alguien."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fleming",
+      "tipo": "historia",
+      "titulo": "Fleming y el moho que salvó vidas",
+      "nivel": "facil",
+      "subtema": "fleming",
+      "presentador": "investigadora",
+      "encuadre": "centro",
+      "preguntas": [
+        "fleming-p1",
+        "fleming-p2",
+        "fleming-p3",
+        "fleming-p4",
+        "fleming-final"
+      ],
+      "resultados": [
+        {
+          "min": 0,
+          "title": "Casi lo tiras",
+          "line": "La ciencia a veces empieza con un error. Ahora sabes cuál.",
+          "lineas": [
+            "Un descuido cambió la medicina.",
+            "Hasta los grandes hallazgos casi se pierden."
+          ]
+        },
+        {
+          "min": 1,
+          "title": "Ojo de científico",
+          "line": "Viste lo que otros habrían tirado: un antibiótico.",
+          "lineas": [
+            "La curiosidad abrió una era nueva.",
+            "Mirar con atención lo cambia todo."
           ]
         }
       ]

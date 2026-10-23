@@ -28,12 +28,20 @@
     "arqueologa": { "name": "Inés", "look": {
       "skin": "#b98059", "skinShade": "#a06c47", "lips": "#9a5a48", "hair": "#2f2218", "hairStyle": "recogido", "beard": "none",
       "outfit": "safari", "coat": "#b8a679", "coatShade": "#8c7a4e", "vest": "#8a7a50", "trousers": "#5a4a32", "shoes": "#3a2a1a", "belt": "#5a4128",
-      "hat": "safari", "hatColor": "#a38b57", "hatBand": "#5a4128", "glow": "#ffd48a" } }
+      "hat": "safari", "hatColor": "#a38b57", "hatBand": "#5a4128", "glow": "#ffd48a" } },
+    "senador": { "name": "Lucio", "look": {"skin":"#c99a76","skinShade":"#b0805e","hair":"#9a9a9a","hairStyle":"corto","beard":"bigote","outfit":"toga","sleeve":"corta","coat":"#efe6d0","coatShade":"#cfc3a6","accent":"#7a2a5a","shoes":"#6a4a2a","hat":"laurel","hatColor":"#4f7a3a"} },
+    "escriba": { "name": "Nefer", "look": {"skin":"#a8714a","skinShade":"#8f5d3a","lips":"#8a4a3a","hair":"#15110e","hairStyle":"bob","outfit":"tunica","sleeve":"corta","coat":"#efe6d0","coatShade":"#cfc3a6","accent":"#c8a24a","belt":"#c8a24a","shoes":"#c8a24a"} },
+    "artesano": { "name": "BeltrÃ¡n", "look": {"skin":"#d9ab86","skinShade":"#c0916c","hair":"#6a3a1a","hairStyle":"corto","beard":"barba","outfit":"medieval","coat":"#5a6a8a","coatShade":"#3f4c68","accent":"#c8a24a","shirt":"#e8e1cf","trousers":"#4a3a2a","shoes":"#2a1c12","hat":"boina","hatColor":"#7a2a2a"} },
+    "investigadora": { "name": "Marta", "look": {"skin":"#8a5a3c","skinShade":"#744a2f","lips":"#7a3f32","hair":"#2a1a14","hairStyle":"rizos","glasses":true,"outfit":"bata","coat":"#f4f7fa","coatShade":"#c8d3dd","shirt":"#3a74c4","trousers":"#2c3a4c","shoes":"#1d1d22"} },
+    "periodista": { "name": "Ãlvaro", "look": {"skin":"#d9ab86","skinShade":"#c0916c","hair":"#2a2a2a","hairStyle":"corto","outfit":"traje","coat":"#2c3a4c","coatShade":"#1c2733","shirt":"#f4f7fa","cravat":"#c8453f","trousers":"#2c3a4c","shoes":"#15151a"} }
   },
 
   "scenes": {
     "taller-londres":    { "sky": ["#231b17", "#3b2c24"], "ground": "#33231a", "groundDark": "#1a110c" },
-    "excavacion-egipto": { "sky": ["#7fa3c4", "#f2d4a0"], "ground": "#d5a566", "groundDark": "#7c5230" }
+    "excavacion-egipto": { "sky": ["#7fa3c4", "#f2d4a0"], "ground": "#d5a566", "groundDark": "#7c5230" },
+    "foro-roma": {"sky":["#6fa3d0","#cfe3ee"],"ground":"#cfc2a3","groundDark":"#8c7e62"},
+    "sala-medieval": {"sky":["#4d4a48","#4d4a48"],"ground":"#4a3a2c","groundDark":"#231a12"},
+    "laboratorio-moderno": {"sky":["#dfe7ee","#c5d2de"],"ground":"#b8c4cf","groundDark":"#7e8c99"}
   },
 
   "shots": {

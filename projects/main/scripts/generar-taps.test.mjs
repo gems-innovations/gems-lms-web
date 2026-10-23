@@ -47,10 +47,10 @@ function bancoHistoriaMinimo() {
 const bancosMinimos = () => ({ minecraft: bancoMinimo('mc'), logica: bancoMinimo('lg'), cultura: bancoMinimo('cu'), tecnologia: bancoMinimo('tc'), historias: bancoHistoriaMinimo() });
 const correr = bancos => generar(bancos, retos, temas);
 
-test('el banco real genera 124 Taps de 5 preguntas sin errores', () => {
+test('el banco real genera 127 Taps de 5 preguntas sin errores', () => {
   const r = construir();
   assert.deepEqual(r.errores, []);
-  assert.equal(r.taps.length, 124);
+  assert.equal(r.taps.length, 127);
   assert.ok(r.taps.every(t => t.questions.length === LIMITES.preguntasPorTap));
 });
 
@@ -266,7 +266,8 @@ test('cada Tap publicado tiene su lugar propio y el personaje no queda siempre i
     assert.ok(del.filter(t => t.scene.props).length >= (theme === 'minecraft' ? 8 : 6), theme + ': pocos decorados');
   }
   // en los órdenes reales del feed («Para ti» y cada categoría sola), dos Taps seguidos del mismo tema nunca repiten encuadre
-  for (const orden of [ordenParaTi(taps), ordenParaTi(taps, true), ...Object.keys(TEMAS).map(k => ordenSierra(taps.filter(t => t.topic === k)))]) {
+  const feed = taps.filter(t => !t.soloEnlace);                                    // las historias solo salen por su enlace: no entran al orden del feed
+  for (const orden of [ordenParaTi(feed), ordenParaTi(feed, true), ...Object.keys(TEMAS).filter(k => !TEMAS[k].soloEnlace).map(k => ordenSierra(taps.filter(t => t.topic === k)))]) {
     // (los ganchos van siempre centrados y saludando: dos ganchos seguidos, al final del feed, no cuentan)
     orden.forEach((t, i) => i && t.theme === orden[i - 1].theme && !(t.hook && orden[i - 1].hook) && assert.notEqual(t.scene.shot, orden[i - 1].scene.shot, t.id + ' repite el encuadre del Tap anterior'));
   }
@@ -478,7 +479,8 @@ test('modo cine: cada Tap trae plano, transición y su ambiente; el feed nunca r
     assert.ok(del.filter(t => t.scene.clima).length >= del.length * 0.3, theme + ': poco clima');
     if (conFauna) assert.ok(del.filter(t => t.scene.fauna).length >= del.length * 0.3, theme + ': poca fauna');
   }
-  for (const orden of [ordenParaTi(taps), ordenParaTi(taps, true), ...Object.keys(TEMAS).map(k => ordenSierra(taps.filter(t => t.topic === k)))]) {
+  const feed = taps.filter(t => !t.soloEnlace);                                    // las historias solo salen por su enlace: no entran al orden del feed
+  for (const orden of [ordenParaTi(feed), ordenParaTi(feed, true), ...Object.keys(TEMAS).filter(k => !TEMAS[k].soloEnlace).map(k => ordenSierra(taps.filter(t => t.topic === k)))]) {
     orden.forEach((t, i) => {
       if (!i) return;
       const a = orden[i - 1].scene, b = t.scene;

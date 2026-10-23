@@ -194,7 +194,7 @@ export const TEMAS = {
   // Sus ids no llevan prefijo (el enlace es parte del video: /t/napoleon). Van al final para no mover la escena de los demás.
   historias: {
     archivo: 'historias.json', theme: 'epoca', topic: 'historias', kicker: 'Historias', prefijo: '',
-    personajes: ['grabador', 'arqueologa'], soloEnlace: true, sinGancho: true,
+    personajes: ['grabador', 'arqueologa', 'senador', 'escriba', 'artesano', 'investigadora', 'periodista'], soloEnlace: true, sinGancho: true,
   },
 };
 
@@ -203,7 +203,7 @@ export const OBJETOS = {
   minecraft: ['sword', 'pick', 'axe', 'torch', 'diamond', 'apple', 'grass', 'tnt'],
   estudio: ['matraz', 'lupa', 'libro'],
   aventura: [],
-  epoca: ['pluma', 'cepillo', 'pergamino', 'mapa'],
+  epoca: ['pluma', 'cepillo', 'pergamino', 'mapa', 'libro', 'lupa', 'matraz', 'antorcha'],
 };
 
 /** Escena del Tap de gancho de cada tema (la primera impresión: clara y conocida). */
@@ -239,6 +239,7 @@ export const LUGARES = {
   'cu-animales-3': ['aula', 'libro', 'planta'], 'cu-luz-sonido': ['cocina', 'matraz', null], 'cu-rarezas': ['laboratorio', 'lupa', 'planta'],
   // Historias (tema época): cada Tap tiene su lugar y su objeto propios.
   napoleon: ['taller-londres', 'pluma', null], cleopatra: ['excavacion-egipto', 'cepillo', null],
+  'roma-mitos': ['foro-roma', 'pergamino', null], 'medieval-mitos': ['sala-medieval', 'antorcha', null], fleming: ['laboratorio-moderno', 'matraz', null],
 };
 
 /**
@@ -720,6 +721,7 @@ export function generar(bancos, retos, temas) {
       porSubtema.set(subtema, n + 1);
       const escena = asignarEscena(clave, subtema, n, orden, t.gancho === true, t.id, fondoPrevio);
       fondoPrevio = escena.world;
+      if (t.presentador) escena.host = t.presentador;                            // presentador propio del Tap (clave de `characters` del tema)
       if (t.encuadre) escena.shot = t.encuadre;                                  // encuadre propio del Tap (clave de `shots` del tema)
       orden++;
       const tema = temas[def.theme];

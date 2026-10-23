@@ -110,6 +110,31 @@ export const FRASES: Readonly<Record<string, IFrasesPersonaje>> = {
     fallo: ['Casi', 'A seguir excavando', 'Esa engaña a muchos', 'Buen intento', 'Otra capa más', 'Por poco',
       'Ahora ya la sabes', 'Error útil', 'Revisemos el dato', 'A la próxima'],
   },
+  // Época: Lucio, el senador romano.
+  senador: {
+    acierto: ['¡Bien dicho!', 'Veredicto: correcto', 'Exacto', 'Eso es', 'Digno de Roma', 'Muy bien', 'Correcto', 'Lo tenías', 'Impecable', 'Así se habla'],
+    fallo: ['Casi', 'Se corrige', 'Esa engaña a muchos', 'Buen intento', 'Roma no cayó en un día', 'Por poco', 'Ahora ya la sabes', 'Otra vez será', 'Repasemos', 'A la próxima'],
+  },
+  // Época: Nefer, la escriba egipcia.
+  escriba: {
+    acierto: ['Bien escrito', 'Exacto', 'Eso es', 'Registrado', 'Muy bien', 'Correcto', 'Lo tenías', 'Impecable', 'Bien anotado', 'Sabia respuesta'],
+    fallo: ['Casi', 'Se borra y se escribe', 'Esa engaña a muchos', 'Buen intento', 'Por poco', 'Ahora ya la sabes', 'Otra vez será', 'Anotada para luego', 'A la próxima', 'Sin prisa'],
+  },
+  // Época: Beltrán, el artesano medieval.
+  artesano: {
+    acierto: ['Bien forjado', 'Exacto', 'Eso es', 'Buen trabajo', 'Muy bien', 'Correcto', 'Lo tenías', 'Impecable', 'Obra maestra', 'Así se hace'],
+    fallo: ['Casi', 'A forjar de nuevo', 'Esa engaña a muchos', 'Buen intento', 'Por poco', 'Ahora ya la sabes', 'Otra vez será', 'Se pule y sigue', 'A la próxima', 'Sin prisa'],
+  },
+  // Época: Marta, la investigadora.
+  investigadora: {
+    acierto: ['Dato confirmado', 'Exacto', 'Eso es', 'Bien razonado', 'Muy bien', 'Correcto', 'Lo tenías', 'Impecable', 'Hipótesis correcta', 'Buen ojo'],
+    fallo: ['Casi', 'A repetir el ensayo', 'Esa engaña a muchos', 'Buen intento', 'Por poco', 'Ahora ya la sabes', 'Error útil', 'Revisemos el dato', 'A la próxima', 'Sin prisa'],
+  },
+  // Época: Álvaro, el periodista.
+  periodista: {
+    acierto: ['Titular correcto', 'Exacto', 'Eso es', 'Bien informado', 'Muy bien', 'Correcto', 'Lo tenías', 'Impecable', 'Dato contrastado', 'Buen ojo'],
+    fallo: ['Casi', 'Se corrige la nota', 'Esa engaña a muchos', 'Buen intento', 'Por poco', 'Ahora ya la sabes', 'Fe de erratas', 'Contrastemos', 'A la próxima', 'Sin prisa'],
+  },
   // Pingo, el pingüino.
   pinguino: {
     acierto: ['¡Bien deslizado!', '¡Fresquísimo!', '¡Eso es!', '¡Exacto!', '¡Qué frío de bueno!', '¡Directo!',

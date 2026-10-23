@@ -133,7 +133,61 @@ function egipto(c, w, h, side) {
   vignette(c, w, h, 0.5); grain(c, w, h, 9, 0.04);
 }
 
-const WORLDS = { 'taller-londres': londres, 'excavacion-egipto': egipto };
+// ───────────────────────── Roma: el foro al mediodía ─────────────────────────
+function columna(c, x, base, w, h) {
+  c.fillStyle = lin(c, x, 0, x + w, 0, [[0, '#cdbd9c'], [0.5, '#efe3c6'], [1, '#b8a888']]); c.fillRect(x, base - h, w, h);
+  c.fillStyle = '#d9caa6'; c.fillRect(x - 6, base - h - 10, w + 12, 10); c.fillRect(x - 6, base - 8, w + 12, 8);
+  c.strokeStyle = 'rgba(90,70,40,.22)'; c.lineWidth = 1; for (let i = 1; i < 4; i++) { c.beginPath(); c.moveTo(x + w * i / 4, base - h); c.lineTo(x + w * i / 4, base - 8); c.stroke(); }
+}
+function roma(c, w, h, side) {
+  const gy = h * GROUND_Y;
+  c.fillStyle = lin(c, 0, 0, 0, gy, [[0, '#6fa3d0'], [1, '#cfe3ee']]); c.fillRect(0, 0, w, gy);
+  glow(c, side > 0 ? w * 0.8 : w * 0.2, gy * 0.2, w * 0.6, 'rgba(255,245,210,A)', 0.55);
+  c.fillStyle = '#d8c9a4'; c.fillRect(0, gy * 0.36, w, gy * 0.64);                                             // muro del foro
+  c.fillStyle = '#c8b890'; c.fillRect(0, gy * 0.36, w, 10);
+  c.fillStyle = '#7ea4c8'; for (let i = 0; i < 3; i++) { const ax = w * (0.1 + i * 0.32), aw = w * 0.22; c.beginPath(); c.moveTo(ax, gy); c.lineTo(ax, gy * 0.62); c.quadraticCurveTo(ax + aw / 2, gy * 0.4, ax + aw, gy * 0.62); c.lineTo(ax + aw, gy); c.closePath(); c.fill(); }   // arcos con cielo
+  for (const x of [w * 0.04, w * 0.36, w * 0.68, w * 0.94]) columna(c, x - 14, gy, 28, gy * 0.8);
+  c.fillStyle = lin(c, 0, gy, 0, h, [[0, '#cfc2a3'], [1, '#8c7e62']]); c.fillRect(0, gy, w, h - gy);
+  c.strokeStyle = 'rgba(70,55,35,.3)'; c.lineWidth = 1.5; for (let i = 1; i < 6; i++) { const y = gy + (h - gy) * (i * i / 36); c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke(); }
+  for (let i = -5; i <= 5; i++) { c.beginPath(); c.moveTo(w / 2 + i * w * 0.05, gy); c.lineTo(w / 2 + i * w * 0.45, h); c.stroke(); }
+  vignette(c, w, h, 0.38); grain(c, w, h, 21, 0.035);
+}
+
+// ───────────────────────── Edad Media: sala de piedra ─────────────────────────
+function antorchaPared(c, x, y) {
+  c.fillStyle = '#3a2a1c'; c.fillRect(x - 3, y, 6, 26); c.fillStyle = '#ffb347'; c.beginPath(); c.ellipse(x, y - 8, 8, 14, 0, 0, Math.PI * 2); c.fill(); c.fillStyle = '#ffe08a'; c.beginPath(); c.ellipse(x, y - 6, 4, 8, 0, 0, Math.PI * 2); c.fill();
+  glow(c, x, y - 8, 120, 'rgba(255,170,80,A)', 0.4);
+}
+function medieval(c, w, h, side) {
+  const gy = h * GROUND_Y;
+  c.fillStyle = '#4d4a48'; c.fillRect(0, 0, w, gy);
+  const r = rng(31); for (let y = 0, i = 0; y < gy; y += 30, i++) for (let x = -(i % 2) * 40; x < w; x += 80) { const v = 62 + r() * 24 | 0; c.fillStyle = `rgb(${v + 4},${v + 1},${v - 2})`; c.fillRect(x + 2, y + 2, 76, 26); }
+  const tx = side > 0 ? w * 0.12 : w * 0.62; c.fillStyle = '#7a2a2a'; c.fillRect(tx, gy * 0.12, w * 0.26, gy * 0.5); c.fillStyle = '#c8a24a'; c.fillRect(tx, gy * 0.12, w * 0.26, 8); c.fillRect(tx, gy * 0.62 - 8, w * 0.26, 8);   // tapiz
+  c.fillStyle = '#c8a24a'; c.beginPath(); c.arc(tx + w * 0.13, gy * 0.37, w * 0.06, 0, Math.PI * 2); c.fill(); c.fillStyle = '#7a2a2a'; c.beginPath(); c.arc(tx + w * 0.13, gy * 0.37, w * 0.04, 0, Math.PI * 2); c.fill();
+  c.fillStyle = '#15130f'; const vx = side > 0 ? w * 0.62 : w * 0.18; c.beginPath(); c.moveTo(vx, gy * 0.7); c.lineTo(vx, gy * 0.3); c.quadraticCurveTo(vx + w * 0.07, gy * 0.14, vx + w * 0.14, gy * 0.3); c.lineTo(vx + w * 0.14, gy * 0.7); c.closePath(); c.fill();   // ventana ojival
+  c.fillStyle = lin(c, 0, gy * 0.3, 0, gy * 0.7, [[0, '#3e5f8c'], [1, '#d99a62']]); c.beginPath(); c.moveTo(vx + 6, gy * 0.7); c.lineTo(vx + 6, gy * 0.31); c.quadraticCurveTo(vx + w * 0.07, gy * 0.17, vx + w * 0.14 - 6, gy * 0.31); c.lineTo(vx + w * 0.14 - 6, gy * 0.7); c.closePath(); c.fill();
+  antorchaPared(c, w * 0.5, gy * 0.42); 
+  c.fillStyle = lin(c, 0, gy, 0, h, [[0, '#4a3a2c'], [1, '#231a12']]); c.fillRect(0, gy, w, h - gy);
+  c.strokeStyle = 'rgba(0,0,0,.35)'; c.lineWidth = 2; for (let y = gy + 6, i = 0; y < h; y += 16 + i * 2, i++) { c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke(); }
+  vignette(c, w, h, 0.55); grain(c, w, h, 41, 0.05);
+}
+
+// ───────────────────────── Laboratorio moderno ─────────────────────────
+function laboratorioModerno(c, w, h, side) {
+  const gy = h * GROUND_Y;
+  c.fillStyle = lin(c, 0, 0, 0, gy, [[0, '#dfe7ee'], [1, '#c5d2de']]); c.fillRect(0, 0, w, gy);
+  c.fillStyle = '#a9bccd'; c.fillRect(0, gy - 20, w, 20);
+  const sx = side > 0 ? w * 0.06 : w * 0.56; c.fillStyle = '#8aa0b4'; c.fillRect(sx, gy * 0.2, w * 0.38, 6); c.fillRect(sx, gy * 0.42, w * 0.38, 6);                       // estantes
+  const r = rng(51); for (let k = 0; k < 2; k++) for (let i = 0; i < 6; i++) { const col = ['#3a9e7a', '#3a74c4', '#c8453f', '#d9962b'][(i + k) % 4], bx = sx + 10 + i * w * 0.06, by = gy * (k ? 0.42 : 0.2); c.fillStyle = col; c.fillRect(bx, by - 26 - r() * 10, 14, 26); c.fillStyle = 'rgba(255,255,255,.5)'; c.fillRect(bx + 3, by - 22, 3, 16); }
+  const px = side > 0 ? w * 0.56 : w * 0.06; c.fillStyle = '#f4f7fa'; c.fillRect(px, gy * 0.14, w * 0.36, gy * 0.42); c.strokeStyle = '#8aa0b4'; c.lineWidth = 4; c.strokeRect(px, gy * 0.14, w * 0.36, gy * 0.42);   // pizarra con fórmulas
+  c.strokeStyle = '#3a74c4'; c.lineWidth = 2; c.beginPath(); c.moveTo(px + 16, gy * 0.26); c.lineTo(px + w * 0.2, gy * 0.26); c.moveTo(px + 16, gy * 0.34); c.quadraticCurveTo(px + w * 0.12, gy * 0.24, px + w * 0.3, gy * 0.4); c.stroke();
+  c.fillStyle = lin(c, 0, gy, 0, h, [[0, '#b8c4cf'], [1, '#7e8c99']]); c.fillRect(0, gy, w, h - gy);
+  c.fillStyle = '#5f6e7c'; c.fillRect(0, gy, w, 12); c.fillStyle = '#e8eef3'; c.fillRect(0, gy - 2, w, 4);
+  c.strokeStyle = 'rgba(40,55,70,.2)'; c.lineWidth = 1.5; for (let i = 1; i < 7; i++) { const y = gy + (h - gy) * (i * i / 49); c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke(); }
+  vignette(c, w, h, 0.28); grain(c, w, h, 61, 0.03);
+}
+
+const WORLDS = { 'taller-londres': londres, 'excavacion-egipto': egipto, 'foro-roma': roma, 'sala-medieval': medieval, 'laboratorio-moderno': laboratorioModerno };
 export const WORLD_NAMES = Object.freeze(Object.keys(WORLDS));
 
 /** Pinta un mundo en el lienzo `c` (w × h). Los argumentos extra (props, hora) se reservan para mundos con variantes. */

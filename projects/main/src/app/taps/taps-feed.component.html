@@ -138,7 +138,7 @@
                   @if (tipo === 'duo') { <span class="tap__cuenta">· Duelo</span> } @else if (tipo === 'vf') { <span class="tap__cuenta">· ¿Verdadero o falso?</span> }</p>
                 <h2 class="tap__q" tabindex="-1" [id]="'q-' + tap.id">{{ cur.q }}</h2>
                 <!-- Lector de pantalla: cómo se responde una de 2 opciones (tocar, deslizar o teclas) y la cuenta regresiva del duo. -->
-                @if (tipo !== 'clasica') {
+                @if (tipo === 'duo' || tipo === 'vf') {
                   <p class="visually-hidden" [id]="'ayuda-' + tap.id">Dos opciones: toca una, o desliza hacia la izquierda o la derecha. Con teclado, 1 y 2 o las flechas.
                     @if (tipo === 'duo') { Tienes {{ duoSegundos }} segundos; sin respuesta cuenta como fallo. }</p>
                 }
@@ -151,7 +151,7 @@
               @for (key of [d.key]; track key) { <div class="tap__wait tap__wait--duo" [class.is-paused]="duoPaused()" [style.--wait]="d.ms + 'ms'" aria-hidden="true"><i></i></div> }
             } }
           }
-          <div class="tap__opts" role="group" [attr.aria-labelledby]="'q-' + tap.id" [attr.aria-describedby]="tipo !== 'clasica' ? 'ayuda-' + tap.id : null"
+          <div class="tap__opts" role="group" [attr.aria-labelledby]="'q-' + tap.id" [attr.aria-describedby]="(tipo === 'duo' || tipo === 'vf') ? 'ayuda-' + tap.id : null"
                [attr.data-ans]="paso ? null : q.answer" [attr.data-layout]="layout(tap)" [attr.data-tipo]="tipo" [class.is-answered]="feedback"
                (pointerdown)="swipeStart($event, tipo)" (pointermove)="swipeMove($event)" (pointerup)="swipeEnd($event, tap)" (pointercancel)="swipeCancel($event)">
             @for (o of q.options; track $index; let k = $index) {
