@@ -240,6 +240,8 @@ export const LUGARES = {
   // Historias (tema época): cada Tap tiene su lugar y su objeto propios.
   napoleon: ['taller-londres', 'pluma', null], cleopatra: ['excavacion-egipto', 'cepillo', null],
   'roma-mitos': ['foro-roma', 'pergamino', null], 'medieval-mitos': ['sala-medieval', 'antorcha', null], fleming: ['laboratorio-moderno', 'matraz', null],
+  'egipto-mitos': ['excavacion-egipto', 'mapa', null], 'roma-orden': ['foro-roma', 'pergamino', null], 'ciencia-mitos': ['laboratorio-moderno', 'lupa', null],
+  'inventos-orden': ['laboratorio-moderno', 'libro', null], 'gran-incendio': ['taller-londres', 'pluma', null], 'vikingos-mitos': ['sala-medieval', 'antorcha', null],
 };
 
 /**

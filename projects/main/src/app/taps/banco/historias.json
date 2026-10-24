@@ -427,6 +427,461 @@
       "subtema": "fleming",
       "fuente": "https://es.wikipedia.org/wiki/Penicilina",
       "estado": "revisada"
+    },
+    {
+      "id": "egipto-esclavos",
+      "tipo": "vf",
+      "q": "Las pirámides de Guiza las construyeron esclavos.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 1,
+      "why": "Falso: las levantaron obreros y artesanos, con vivienda, comida y médicos.",
+      "dificultad": 2,
+      "subtema": "egipto",
+      "fuente": "https://es.wikipedia.org/wiki/Gran_Pir%C3%A1mide_de_Guiza",
+      "estado": "revisada"
+    },
+    {
+      "id": "egipto-papiro",
+      "tipo": "vf",
+      "q": "Los egipcios escribían sobre papiro, hecho con una planta.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 0,
+      "why": "Verdadero: lo fabricaban con tiras de la planta del papiro.",
+      "dificultad": 1,
+      "subtema": "egipto",
+      "fuente": "https://es.wikipedia.org/wiki/Papiro",
+      "estado": "revisada"
+    },
+    {
+      "id": "egipto-momias",
+      "tipo": "vf",
+      "q": "Solo los faraones eran momificados.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 1,
+      "why": "Falso: también se momificaba a gente adinerada y a animales.",
+      "dificultad": 2,
+      "subtema": "egipto",
+      "fuente": "https://es.wikipedia.org/wiki/Momificaci%C3%B3n_en_el_Antiguo_Egipto",
+      "estado": "revisada"
+    },
+    {
+      "id": "egipto-nilo",
+      "tipo": "vf",
+      "q": "El Nilo se desbordaba cada año y fertilizaba la tierra.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 0,
+      "why": "Verdadero: la crecida dejaba limo fértil y sostenía la agricultura.",
+      "dificultad": 1,
+      "subtema": "egipto",
+      "fuente": "https://es.wikipedia.org/wiki/Nilo",
+      "estado": "revisada"
+    },
+    {
+      "id": "egipto-esfinge",
+      "tipo": "vf",
+      "q": "La Gran Esfinge tiene cuerpo de león y cabeza humana.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 0,
+      "why": "Verdadero: está tallada en la roca de la meseta de Guiza.",
+      "dificultad": 1,
+      "subtema": "egipto",
+      "fuente": "https://es.wikipedia.org/wiki/Gran_Esfinge_de_Guiza",
+      "estado": "revisada"
+    },
+    {
+      "id": "romaorden-1",
+      "tipo": "duo",
+      "q": "¿Qué fue antes?",
+      "options": [
+        "Fundación de Roma",
+        "El Coliseo"
+      ],
+      "answer": 0,
+      "why": "Roma se fundó, según la tradición, en 753 a. C.; el Coliseo, hacia el 80 d. C.",
+      "dificultad": 1,
+      "subtema": "roma-orden",
+      "fuente": "https://es.wikipedia.org/wiki/Roma",
+      "estado": "revisada"
+    },
+    {
+      "id": "romaorden-2",
+      "tipo": "duo",
+      "q": "¿Quién gobernó antes?",
+      "options": [
+        "Augusto",
+        "Julio César"
+      ],
+      "answer": 1,
+      "why": "Julio César murió en 44 a. C.; Augusto fue el primer emperador.",
+      "dificultad": 2,
+      "subtema": "roma-orden",
+      "fuente": "https://es.wikipedia.org/wiki/Augusto",
+      "estado": "revisada"
+    },
+    {
+      "id": "romaorden-3",
+      "tipo": "duo",
+      "q": "¿Qué ocurrió antes?",
+      "options": [
+        "El Coliseo",
+        "Caída de Roma"
+      ],
+      "answer": 0,
+      "why": "El Coliseo se inauguró en 80 d. C.; el Imperio de Occidente cayó en 476.",
+      "dificultad": 2,
+      "subtema": "roma-orden",
+      "fuente": "https://es.wikipedia.org/wiki/Coliseo",
+      "estado": "revisada"
+    },
+    {
+      "id": "romaorden-4",
+      "tipo": "duo",
+      "q": "¿Qué se construyó antes?",
+      "options": [
+        "El Coliseo",
+        "Vía Apia"
+      ],
+      "answer": 1,
+      "why": "La Vía Apia es de 312 a. C.; el Coliseo, de siglos después.",
+      "dificultad": 2,
+      "subtema": "roma-orden",
+      "fuente": "https://es.wikipedia.org/wiki/V%C3%ADa_Apia",
+      "estado": "revisada"
+    },
+    {
+      "id": "romaorden-5",
+      "tipo": "duo",
+      "q": "¿Qué fue primero?",
+      "options": [
+        "Caída de Roma",
+        "Peste negra"
+      ],
+      "answer": 0,
+      "why": "El Imperio de Occidente cayó en 476; la peste negra llegó en 1347.",
+      "dificultad": 1,
+      "subtema": "roma-orden",
+      "fuente": "https://es.wikipedia.org/wiki/Peste_negra",
+      "estado": "revisada"
+    },
+    {
+      "id": "cienciamito-cerebro",
+      "tipo": "vf",
+      "q": "Los humanos usamos solo el 10 % del cerebro.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 1,
+      "why": "Falso: usamos todo el cerebro; cada tarea activa zonas distintas.",
+      "dificultad": 2,
+      "subtema": "ciencia-mitos",
+      "fuente": "https://es.wikipedia.org/wiki/Mito_del_10_%25_del_cerebro",
+      "estado": "revisada"
+    },
+    {
+      "id": "cienciamito-rayo",
+      "tipo": "vf",
+      "q": "Un rayo nunca cae dos veces en el mismo sitio.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 1,
+      "why": "Falso: un mismo sitio recibe muchos; el Empire State, unos 20 rayos al año.",
+      "dificultad": 1,
+      "subtema": "ciencia-mitos",
+      "fuente": "https://es.wikipedia.org/wiki/Rayo",
+      "estado": "revisada"
+    },
+    {
+      "id": "cienciamito-murcielago",
+      "tipo": "vf",
+      "q": "Los murciélagos son ciegos.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 1,
+      "why": "Falso: ven, y muchos además se orientan con ecolocalización.",
+      "dificultad": 1,
+      "subtema": "ciencia-mitos",
+      "fuente": "https://es.wikipedia.org/wiki/Chiroptera",
+      "estado": "revisada"
+    },
+    {
+      "id": "cienciamito-muralla",
+      "tipo": "vf",
+      "q": "La Gran Muralla china se ve a simple vista desde la Luna.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 1,
+      "why": "Falso: es muy larga pero estrecha; desde la Luna no se distingue.",
+      "dificultad": 2,
+      "subtema": "ciencia-mitos",
+      "fuente": "https://es.wikipedia.org/wiki/Gran_Muralla_China",
+      "estado": "revisada"
+    },
+    {
+      "id": "cienciamito-dino",
+      "tipo": "vf",
+      "q": "Los humanos y los dinosaurios no aviares convivieron.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 1,
+      "why": "Falso: se extinguieron hace unos 66 millones de años.",
+      "dificultad": 1,
+      "subtema": "ciencia-mitos",
+      "fuente": "https://es.wikipedia.org/wiki/Extinci%C3%B3n_masiva_del_Cret%C3%A1cico-Pale%C3%B3geno",
+      "estado": "revisada"
+    },
+    {
+      "id": "inventos-1",
+      "tipo": "duo",
+      "q": "¿Qué fue antes?",
+      "options": [
+        "Imprenta de Gutenberg",
+        "Colón en América"
+      ],
+      "answer": 0,
+      "why": "La imprenta de Gutenberg es de hacia 1450; Colón llegó en 1492.",
+      "dificultad": 2,
+      "subtema": "inventos",
+      "fuente": "https://es.wikipedia.org/wiki/Johannes_Gutenberg",
+      "estado": "revisada"
+    },
+    {
+      "id": "inventos-2",
+      "tipo": "duo",
+      "q": "¿Qué se inventó antes?",
+      "options": [
+        "El teléfono",
+        "Bombilla de Edison"
+      ],
+      "answer": 0,
+      "why": "El teléfono es de 1876; la bombilla práctica de Edison, de 1879.",
+      "dificultad": 3,
+      "subtema": "inventos",
+      "fuente": "https://es.wikipedia.org/wiki/Tel%C3%A9fono",
+      "estado": "revisada"
+    },
+    {
+      "id": "inventos-3",
+      "tipo": "duo",
+      "q": "¿Qué fue antes?",
+      "options": [
+        "Penicilina",
+        "Vacuna de la viruela"
+      ],
+      "answer": 1,
+      "why": "La vacuna de la viruela es de 1796; la penicilina, de 1928.",
+      "dificultad": 2,
+      "subtema": "inventos",
+      "fuente": "https://es.wikipedia.org/wiki/Edward_Jenner",
+      "estado": "revisada"
+    },
+    {
+      "id": "inventos-4",
+      "tipo": "duo",
+      "q": "¿Qué ocurrió antes?",
+      "options": [
+        "Vuelo de los Wright",
+        "Se hunde el Titanic"
+      ],
+      "answer": 0,
+      "why": "Los Wright volaron en 1903; el Titanic se hundió en 1912.",
+      "dificultad": 2,
+      "subtema": "inventos",
+      "fuente": "https://es.wikipedia.org/wiki/Hermanos_Wright",
+      "estado": "revisada"
+    },
+    {
+      "id": "inventos-5",
+      "tipo": "duo",
+      "q": "¿Qué fue antes?",
+      "options": [
+        "Mensaje de ARPANET",
+        "Llegada a la Luna"
+      ],
+      "answer": 1,
+      "why": "La Luna fue en julio de 1969; el primer mensaje de ARPANET, en octubre.",
+      "dificultad": 3,
+      "subtema": "inventos",
+      "fuente": "https://es.wikipedia.org/wiki/ARPANET",
+      "estado": "revisada"
+    },
+    {
+      "id": "incendio-p1",
+      "tipo": "paso",
+      "q": "Londres, madrugada del 2 de septiembre de 1666. Huele a humo cerca de Pudding Lane. ¿Qué haces?",
+      "options": [
+        "Aviso a los vecinos",
+        "Vuelvo a dormir"
+      ],
+      "consecuencias": [
+        "Buena reacción: el fuego avanzaba rápido entre casas de madera muy juntas.",
+        "Mala idea: el fuego se extendió muy rápido esa misma noche."
+      ],
+      "subtema": "incendio",
+      "fuente": "https://es.wikipedia.org/wiki/Gran_Incendio_de_Londres",
+      "estado": "revisada"
+    },
+    {
+      "id": "incendio-p2",
+      "tipo": "paso",
+      "q": "El fuego sigue creciendo. ¿Cómo intentas frenarlo?",
+      "options": [
+        "Derribo casas para abrir paso",
+        "Espero a que llueva"
+      ],
+      "consecuencias": [
+        "Eso acabó funcionando, pero se decidió tarde.",
+        "No llegó la lluvia: el incendio duró varios días."
+      ],
+      "subtema": "incendio",
+      "fuente": "https://es.wikipedia.org/wiki/Gran_Incendio_de_Londres",
+      "estado": "revisada"
+    },
+    {
+      "id": "incendio-p3",
+      "tipo": "paso",
+      "q": "Días después, gran parte de la ciudad es ceniza. ¿Qué haces?",
+      "options": [
+        "Reconstruir Londres",
+        "Abandonar la ciudad"
+      ],
+      "consecuencias": [
+        "Eso hizo Londres: se levantó de nuevo, con nuevas normas.",
+        "Londres no se abandonó: se reconstruyó, con nuevas normas."
+      ],
+      "subtema": "incendio",
+      "fuente": "https://es.wikipedia.org/wiki/Gran_Incendio_de_Londres",
+      "estado": "revisada"
+    },
+    {
+      "id": "incendio-p4",
+      "tipo": "paso",
+      "q": "Para que no se repita, ¿con qué material se reconstruye?",
+      "options": [
+        "Ladrillo y piedra",
+        "Madera otra vez"
+      ],
+      "consecuencias": [
+        "Eso se hizo: las nuevas normas exigieron ladrillo y piedra.",
+        "Se prohibió: las casas nuevas debían ser de ladrillo o piedra."
+      ],
+      "subtema": "incendio",
+      "fuente": "https://es.wikipedia.org/wiki/Gran_Incendio_de_Londres",
+      "estado": "revisada"
+    },
+    {
+      "id": "incendio-final",
+      "q": "¿En qué año fue el Gran Incendio de Londres?",
+      "options": [
+        "1666",
+        "1766",
+        "1566",
+        "1066"
+      ],
+      "answer": 0,
+      "why": "1666: duró del 2 al 6 de septiembre y destruyó gran parte de la ciudad.",
+      "dificultad": 1,
+      "subtema": "incendio",
+      "fuente": "https://es.wikipedia.org/wiki/Gran_Incendio_de_Londres",
+      "estado": "revisada"
+    },
+    {
+      "id": "vikingos-cuernos",
+      "tipo": "vf",
+      "q": "Los vikingos llevaban cascos con cuernos en combate.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 1,
+      "why": "Falso: no hay pruebas; es una imagen de la ópera del siglo XIX.",
+      "dificultad": 1,
+      "subtema": "vikingos",
+      "fuente": "https://es.wikipedia.org/wiki/Vikingos",
+      "estado": "revisada"
+    },
+    {
+      "id": "vikingos-america",
+      "tipo": "vf",
+      "q": "Los vikingos llegaron a América antes que Colón.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 0,
+      "why": "Verdadero: hacia el año 1000 estuvieron en Terranova (L'Anse aux Meadows).",
+      "dificultad": 2,
+      "subtema": "vikingos",
+      "fuente": "https://es.wikipedia.org/wiki/L%27Anse_aux_Meadows",
+      "estado": "revisada"
+    },
+    {
+      "id": "vikingos-guerreros",
+      "tipo": "vf",
+      "q": "Los vikingos eran solo guerreros y saqueadores.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 1,
+      "why": "Falso: también eran granjeros, comerciantes y navegantes.",
+      "dificultad": 2,
+      "subtema": "vikingos",
+      "fuente": "https://es.wikipedia.org/wiki/Vikingos",
+      "estado": "revisada"
+    },
+    {
+      "id": "vikingos-rutas",
+      "tipo": "vf",
+      "q": "Sus rutas comerciales llegaban hasta Constantinopla.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 0,
+      "why": "Verdadero: viajaron por los ríos de Rusia hasta el Imperio bizantino.",
+      "dificultad": 3,
+      "subtema": "vikingos",
+      "fuente": "https://es.wikipedia.org/wiki/Ruta_comercial_de_los_varegos_a_los_griegos",
+      "estado": "revisada"
+    },
+    {
+      "id": "vikingos-lengua",
+      "tipo": "vf",
+      "q": "Los vikingos hablaban nórdico antiguo.",
+      "options": [
+        "Verdadero",
+        "Falso"
+      ],
+      "answer": 0,
+      "why": "Verdadero: de esa lengua descienden el islandés y otras nórdicas actuales.",
+      "dificultad": 2,
+      "subtema": "vikingos",
+      "fuente": "https://es.wikipedia.org/wiki/N%C3%B3rdico_antiguo",
+      "estado": "revisada"
     }
   ],
   "taps": [
@@ -656,6 +1111,307 @@
             "Mirar con atención lo cambia todo."
           ]
         }
+      ]
+    },
+    {
+      "id": "egipto-mitos",
+      "resultados": [
+        {
+          "min": 0,
+          "title": "Te creíste el mito",
+          "line": "Egipto tiene más leyendas que datos. Ahora ya los sabes.",
+          "lineas": [
+            "Casi todos caen con estos mitos.",
+            "Hoy aprendiste la parte real."
+          ]
+        },
+        {
+          "min": 2,
+          "title": "Curioso de la historia",
+          "line": "Separas bastante bien el mito del dato.",
+          "lineas": [
+            "Vas por buen camino.",
+            "Un repaso más y los dominas."
+          ]
+        },
+        {
+          "min": 4,
+          "title": "Casi experto",
+          "line": "Conoces el tema mejor que casi todos.",
+          "lineas": [
+            "Solo se te escapó un detalle.",
+            "Pocos acaban tan cerca del 5."
+          ]
+        },
+        {
+          "min": 5,
+          "title": "Maestro de los mitos",
+          "line": "Aquí no tienes secretos. Compártelo.",
+          "lineas": [
+            "Pocos llegan al 5 de 5 en este Tap.",
+            "Ahora cuéntaselo a alguien."
+          ]
+        }
+      ],
+      "titulo": "Egipto: ¿verdad o falso?",
+      "nivel": "media",
+      "subtema": "egipto",
+      "presentador": "escriba",
+      "encuadre": "cerca-izquierda",
+      "preguntas": [
+        "egipto-esclavos",
+        "egipto-papiro",
+        "egipto-momias",
+        "egipto-nilo",
+        "egipto-esfinge"
+      ]
+    },
+    {
+      "id": "roma-orden",
+      "resultados": [
+        {
+          "min": 0,
+          "title": "Se te mezcló el orden",
+          "line": "Los siglos de Roma se confunden fácil. Ahora ya los ordenas.",
+          "lineas": [
+            "Casi todos fallan alguna fecha.",
+            "Repasa y vuelve a probar."
+          ]
+        },
+        {
+          "min": 2,
+          "title": "Buen sentido del tiempo",
+          "line": "Ordenas bastante bien la historia.",
+          "lineas": [
+            "Vas por buen camino.",
+            "Un repaso más y los clavas."
+          ]
+        },
+        {
+          "min": 4,
+          "title": "Casi cronista",
+          "line": "Tienes la línea del tiempo casi completa.",
+          "lineas": [
+            "Solo se te escapó una fecha.",
+            "Pocos acaban tan cerca del 5."
+          ]
+        },
+        {
+          "min": 5,
+          "title": "Cronista de Roma",
+          "line": "La línea del tiempo no tiene secretos para ti.",
+          "lineas": [
+            "Pocos llegan al 5 de 5 en este Tap.",
+            "Ahora cuéntaselo a alguien."
+          ]
+        }
+      ],
+      "titulo": "¿Qué fue antes en Roma?",
+      "nivel": "media",
+      "subtema": "roma-orden",
+      "presentador": "senador",
+      "encuadre": "cerca-derecha",
+      "preguntas": [
+        "romaorden-1",
+        "romaorden-2",
+        "romaorden-3",
+        "romaorden-4",
+        "romaorden-5"
+      ]
+    },
+    {
+      "id": "ciencia-mitos",
+      "resultados": [
+        {
+          "min": 0,
+          "title": "Te creíste el mito",
+          "line": "La ciencia popular tiene más leyendas que datos. Ahora ya los sabes.",
+          "lineas": [
+            "Casi todos caen con estos mitos.",
+            "Hoy aprendiste la parte real."
+          ]
+        },
+        {
+          "min": 2,
+          "title": "Curioso de la historia",
+          "line": "Separas bastante bien el mito del dato.",
+          "lineas": [
+            "Vas por buen camino.",
+            "Un repaso más y los dominas."
+          ]
+        },
+        {
+          "min": 4,
+          "title": "Casi experto",
+          "line": "Conoces el tema mejor que casi todos.",
+          "lineas": [
+            "Solo se te escapó un detalle.",
+            "Pocos acaban tan cerca del 5."
+          ]
+        },
+        {
+          "min": 5,
+          "title": "Maestro de los mitos",
+          "line": "Aquí no tienes secretos. Compártelo.",
+          "lineas": [
+            "Pocos llegan al 5 de 5 en este Tap.",
+            "Ahora cuéntaselo a alguien."
+          ]
+        }
+      ],
+      "titulo": "Ciencia: ¿mito o verdad?",
+      "nivel": "facil",
+      "subtema": "ciencia-mitos",
+      "presentador": "investigadora",
+      "encuadre": "cerca-izquierda",
+      "preguntas": [
+        "cienciamito-cerebro",
+        "cienciamito-rayo",
+        "cienciamito-murcielago",
+        "cienciamito-muralla",
+        "cienciamito-dino"
+      ]
+    },
+    {
+      "id": "inventos-orden",
+      "resultados": [
+        {
+          "min": 0,
+          "title": "Se te mezcló el orden",
+          "line": "Los inventos se confunden fácil. Ahora ya los ordenas.",
+          "lineas": [
+            "Casi todos fallan alguna fecha.",
+            "Repasa y vuelve a probar."
+          ]
+        },
+        {
+          "min": 2,
+          "title": "Buen sentido del tiempo",
+          "line": "Ordenas bastante bien los inventos.",
+          "lineas": [
+            "Vas por buen camino.",
+            "Un repaso más y los clavas."
+          ]
+        },
+        {
+          "min": 4,
+          "title": "Casi historiador",
+          "line": "Tienes la línea del tiempo casi completa.",
+          "lineas": [
+            "Solo se te escapó una fecha.",
+            "Pocos acaban tan cerca del 5."
+          ]
+        },
+        {
+          "min": 5,
+          "title": "Maestro de los inventos",
+          "line": "La línea del tiempo no tiene secretos para ti.",
+          "lineas": [
+            "Pocos llegan al 5 de 5 en este Tap.",
+            "Ahora cuéntaselo a alguien."
+          ]
+        }
+      ],
+      "titulo": "¿Qué se inventó antes?",
+      "nivel": "media",
+      "subtema": "inventos",
+      "presentador": "periodista",
+      "encuadre": "cerca-derecha",
+      "preguntas": [
+        "inventos-1",
+        "inventos-2",
+        "inventos-3",
+        "inventos-4",
+        "inventos-5"
+      ]
+    },
+    {
+      "id": "gran-incendio",
+      "tipo": "historia",
+      "resultados": [
+        {
+          "min": 0,
+          "title": "Dormiste de más",
+          "line": "El fuego avanzó rápido. Ahora sabes cómo y cuándo.",
+          "lineas": [
+            "Una chispa cambió una ciudad entera.",
+            "Londres aprendió a base de cenizas."
+          ]
+        },
+        {
+          "min": 1,
+          "title": "Cronista del fuego",
+          "line": "Sabes cuándo ardió Londres y cómo se reconstruyó.",
+          "lineas": [
+            "De las cenizas salió una ciudad de piedra.",
+            "Pocos recuerdan el año exacto."
+          ]
+        }
+      ],
+      "titulo": "El incendio que quemó Londres",
+      "nivel": "facil",
+      "subtema": "incendio",
+      "presentador": "grabador",
+      "encuadre": "cerca-izquierda",
+      "preguntas": [
+        "incendio-p1",
+        "incendio-p2",
+        "incendio-p3",
+        "incendio-p4",
+        "incendio-final"
+      ]
+    },
+    {
+      "id": "vikingos-mitos",
+      "resultados": [
+        {
+          "min": 0,
+          "title": "Te creíste el mito",
+          "line": "Los vikingos tienen más leyendas que datos. Ahora ya los sabes.",
+          "lineas": [
+            "Casi todos caen con estos mitos.",
+            "Hoy aprendiste la parte real."
+          ]
+        },
+        {
+          "min": 2,
+          "title": "Curioso de la historia",
+          "line": "Separas bastante bien el mito del dato.",
+          "lineas": [
+            "Vas por buen camino.",
+            "Un repaso más y los dominas."
+          ]
+        },
+        {
+          "min": 4,
+          "title": "Casi experto",
+          "line": "Conoces el tema mejor que casi todos.",
+          "lineas": [
+            "Solo se te escapó un detalle.",
+            "Pocos acaban tan cerca del 5."
+          ]
+        },
+        {
+          "min": 5,
+          "title": "Maestro de los mitos",
+          "line": "Aquí no tienes secretos. Compártelo.",
+          "lineas": [
+            "Pocos llegan al 5 de 5 en este Tap.",
+            "Ahora cuéntaselo a alguien."
+          ]
+        }
+      ],
+      "titulo": "Vikingos: ¿verdad o falso?",
+      "nivel": "media",
+      "subtema": "vikingos",
+      "presentador": "artesano",
+      "encuadre": "cerca-izquierda",
+      "preguntas": [
+        "vikingos-cuernos",
+        "vikingos-america",
+        "vikingos-guerreros",
+        "vikingos-rutas",
+        "vikingos-lengua"
       ]
     }
   ]

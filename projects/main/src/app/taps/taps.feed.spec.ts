@@ -112,11 +112,11 @@ describe('mixFeed (feed «Para ti»)', () => {
 describe('el feed con los Taps reales', () => {
   const feed = orderFeed(TAPS, {});
   const enFeed = TAPS.filter(t => !t.soloEnlace).length;
-  it('hay 127 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
-    expect(TAPS.length).toBe(127);
+  it('hay 133 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
+    expect(TAPS.length).toBe(133);
     expect(new Set(TAPS.map(t => t.id)).size).toBe(TAPS.length);
     const questionIds = TAPS.flatMap(t => t.questions.map(q => q.id));
-    expect(questionIds.length).toBe(127 * 5);
+    expect(questionIds.length).toBe(133 * 5);
     expect(new Set(questionIds).size).toBe(questionIds.length);
   });
   it('el feed los trae todos, con un gancho primero y nunca más de 2 seguidos del mismo tema', () => {

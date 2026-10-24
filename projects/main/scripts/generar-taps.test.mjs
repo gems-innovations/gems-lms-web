@@ -47,10 +47,10 @@ function bancoHistoriaMinimo() {
 const bancosMinimos = () => ({ minecraft: bancoMinimo('mc'), logica: bancoMinimo('lg'), cultura: bancoMinimo('cu'), tecnologia: bancoMinimo('tc'), historias: bancoHistoriaMinimo() });
 const correr = bancos => generar(bancos, retos, temas);
 
-test('el banco real genera 127 Taps de 5 preguntas sin errores', () => {
+test('el banco real genera 133 Taps de 5 preguntas sin errores', () => {
   const r = construir();
   assert.deepEqual(r.errores, []);
-  assert.equal(r.taps.length, 127);
+  assert.equal(r.taps.length, 133);
   assert.ok(r.taps.every(t => t.questions.length === LIMITES.preguntasPorTap));
 });
 
