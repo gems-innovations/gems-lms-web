@@ -35,6 +35,13 @@
   .pista { position: absolute; right: 10px; bottom: 10px; color: rgba(236,235,245,.75); font-size: 11px; pointer-events: none; display: flex; align-items: center; gap: 5px; }
   .pista svg.ic { width: 14px; height: 14px; }
 
+  /* sugerencia contextual de una línea con chip de aplicar */
+  .sugerencia { display: flex; align-items: center; gap: 8px; padding: 6px 12px 0; color: var(--soft); font-size: 13px; min-width: 0; }
+  .sugerencia[hidden] { display: none; }
+  .sugerencia svg.ic { color: var(--acc); width: 18px; height: 18px; }
+  .sugerencia span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sugerencia button { min-height: 36px; padding: 6px 12px; border-radius: 18px; font-size: 13px; font-weight: 600; color: var(--acc); border-color: var(--acc); background: transparent; }
+
   /* barra de herramientas */
   .barra { display: flex; align-items: center; gap: 8px; padding: 8px 12px 0; }
   .barra h2 { margin: 0; flex: 1; font-size: 15px; font-weight: 600; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -56,7 +63,7 @@
   .tarjeta.sorpresa .dado svg.ic { width: 34px; height: 34px; }
   .tarjeta b { font-weight: 600; font-size: 14px; }
   .tarjeta small { color: var(--soft); font-size: 11px; }
-  .escenas .tarjeta canvas { width: 100%; height: 86px; aspect-ratio: 16 / 9; }
+  .escenas .tarjeta canvas { width: 100%; height: auto; aspect-ratio: 16 / 10; }
   .escenas { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
 
   .pestanas { display: flex; gap: 6px; margin: 0 0 10px; }
@@ -87,10 +94,10 @@
 
   button[hidden] { display: none; }
   @media (min-width: 820px) {
-    body { display: grid; grid-template-columns: 400px minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; grid-template-areas: 'cab cab' 'vista barra' 'vista paso' 'vista pie'; max-width: 1040px; margin: 0 auto; column-gap: 8px; }
+    body { display: grid; grid-template-columns: 400px minmax(0, 1fr); grid-template-rows: auto auto auto minmax(0, 1fr) auto; grid-template-areas: 'cab cab' 'vista sug' 'vista barra' 'vista paso' 'vista pie'; max-width: 1040px; margin: 0 auto; column-gap: 8px; }
     header { grid-area: cab; }
     .vista { grid-area: vista; height: auto; max-height: 720px; margin: 0 0 16px 16px; align-self: start; aspect-ratio: 9 / 14; }
-    .barra { grid-area: barra; } .paso { grid-area: paso; } footer { grid-area: pie; border: 0; }
+    .sugerencia { grid-area: sug; } .barra { grid-area: barra; } .paso { grid-area: paso; } footer { grid-area: pie; border: 0; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -110,6 +117,7 @@
   <symbol id="i-listo" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
   <symbol id="i-dedo" viewBox="0 0 24 24"><path d="M10 11V5a1.5 1.5 0 0 1 3 0v6M13 10a1.5 1.5 0 0 1 3 0v2M16 12a1.5 1.5 0 0 1 3 0v4a5 5 0 0 1-5 5h-1a5 5 0 0 1-4-2l-3-4a1.5 1.5 0 0 1 2.4-1.8L10 15"/></symbol>
   <symbol id="i-copiar" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+  <symbol id="i-idea" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 1 3.6 10.8c-.5.4-.6 1-.6 1.6V16H9v-.6c0-.6-.1-1.2-.6-1.6A6 6 0 0 1 12 3z"/></symbol>
 </svg>
 
 <header>
@@ -127,6 +135,12 @@
   <div class="etiqueta">Así estaba antes</div>
   <div class="pista" id="pista" hidden><svg class="ic"><use href="#i-dedo"/></svg>Mantén presionado para comparar</div>
 </section>
+
+<div class="sugerencia" id="sugerencia" hidden>
+  <svg class="ic" aria-hidden="true"><use href="#i-idea"/></svg>
+  <span id="sugerenciaTexto"></span>
+  <button type="button" id="sugerenciaAplicar">Aplicar</button>
+</div>
 
 <div class="barra">
   <h2 id="titulo">Elige un punto de partida</h2>
@@ -146,7 +160,7 @@
   </section>
 
   <section class="pantalla" data-p="2">
-    <p class="texto">Elige dónde se presenta tu personaje. Puedes cambiarlo después.</p>
+    <p class="texto">Así se ve tu personaje en cada lugar. Elige uno; puedes cambiarlo después.</p>
     <div class="tarjetas escenas" id="escenas"></div>
   </section>
 
@@ -172,7 +186,8 @@
 
 <script type="module">
 import { CATALOGO, POSES, blendPose, drawHost, lookOf, poseFor, validarLook, ITEMS } from './themes/epoca/rig.js';
-import { WORLD_NAMES, paintWorld, paintAmbient } from './themes/epoca/scenery.js';
+import { WORLD_NAMES, GROUND_Y, paintWorld, paintAmbient } from './themes/epoca/scenery.js';
+import { PALETAS, NOMBRES, MUNDOS, sombra, sorprenderTodo, sorprenderPestana, sorprenderEscenario, sugerencias } from './themes/epoca/sugerencias.js';
 
 const $ = id => document.getElementById(id);
 const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -180,38 +195,18 @@ let theme;
 try { theme = await (await fetch('./themes/epoca/theme.json')).json(); }
 catch { $('titulo').textContent = 'No se pudo cargar el tema. Revisa la conexión y vuelve a intentar.'; throw new Error('tema'); }
 
-// ───────────────────────── datos (textos para personas, paletas cerradas) ─────────────────────────
-const NOMBRES = { none: 'Sin nada', corto: 'Corto', recogido: 'Recogido', ondas: 'Ondas', largo: 'Largo', bob: 'Media melena', rizos: 'Rizos', calvo: 'Sin pelo',
-  patillas: 'Patillas', bigote: 'Bigote', perilla: 'Perilla', barba: 'Barba', levita: 'Levita', safari: 'Safari', bata: 'Bata', toga: 'Toga', tunica: 'Túnica',
-  medieval: 'Medieval', traje: 'Traje', larga: 'Larga', corta: 'Corta', copa: 'De copa', bicornio: 'Bicornio', laurel: 'Laurel', gorra: 'Gorra', boina: 'Boina',
-  pluma: 'Pluma', cepillo: 'Cepillo', pergamino: 'Pergamino', libro: 'Libro', lupa: 'Lupa', matraz: 'Matraz', antorcha: 'Antorcha', mapa: 'Mapa' };
-const MUNDOS = { 'taller-londres': ['Taller de Londres', '1803'], 'excavacion-egipto': ['Excavación en Egipto', 'Valle de los Reyes'], 'foro-roma': ['Foro de Roma', 'Antigüedad'], 'sala-medieval': ['Sala medieval', 'Castillo'], 'laboratorio-moderno': ['Laboratorio moderno', 'Hoy'] };
+// ───────────────────────── datos (textos para personas; paletas y afinidades en themes/epoca/sugerencias.js) ─────────────────────────
 const MUNDO_DE = { grabador: 'taller-londres', arqueologa: 'excavacion-egipto', senador: 'foro-roma', escriba: 'excavacion-egipto', artesano: 'sala-medieval', investigadora: 'laboratorio-moderno', periodista: 'laboratorio-moderno' };
 const OBJETO_DE = { grabador: 'pluma', arqueologa: 'cepillo', senador: 'pergamino', escriba: 'pergamino', artesano: 'antorcha', investigadora: 'lupa', periodista: 'libro' };
-const PALETAS = {
-  skin: ['#f1c9a5', '#d9ab86', '#c99a76', '#a8714a', '#8a5a3c', '#6b4429'],
-  hair: ['#15110e', '#3a2a20', '#6a3a1a', '#b8863b', '#9a9a9a', '#8a2f1d'],
-  coat: { levita: ['#34364c', '#1d1d27', '#4a2a2a', '#2c3a2c', '#5a4a3a', '#6a6a72'], safari: ['#b8a679', '#a38b57', '#8c7a4e', '#c9b58a', '#6e6a4a', '#9c8b6a'],
-    bata: ['#f4f7fa', '#e9eef2', '#dfe7ee', '#cfe3ee', '#e8e1cf', '#c8d3dd'], toga: ['#efe6d0', '#e9e1cf', '#f4f0e4', '#d9c9a6', '#7a2a5a', '#3a74c4'],
-    tunica: ['#efe6d0', '#e8d9b6', '#c8a24a', '#3a74c4', '#b84a3a', '#efe3c8'], medieval: ['#5a6a8a', '#7a2a2a', '#34564a', '#8c6a3a', '#4a3a2a', '#2c3a4c'],
-    traje: ['#2c3a4c', '#1c2733', '#34364c', '#3a3a3a', '#4a3a2a', '#6a6a72'] },
-  shirt: ['#e8e1cf', '#f4f7fa', '#3a74c4', '#c8453f', '#d3b27a', '#2a2a33'],
-  vest: ['#7a5c3a', '#8a7a50', '#7a2a2a', '#34564a', '#2c3a4c', '#c8a24a'],
-  trousers: ['#2c2c36', '#5a4a32', '#4a3a2a', '#2c3a4c', '#6a6a72', '#efe6d0'],
-  shoes: ['#15151a', '#3a2a1a', '#6a4a2a', '#2a1c12', '#c8a24a', '#1d1d22'],
-  accent: ['#c8a24a', '#7a2a5a', '#c8453f', '#3a74c4', '#34d399', '#e8e1cf'],
-  hatColor: ['#15151a', '#a38b57', '#4f7a3a', '#7a2a2a', '#2c3a4c', '#d3b27a'],
-};
 const paleta = campo => campo === 'coat' ? (PALETAS.coat[estado.look.outfit] || PALETAS.coat.levita) : PALETAS[campo];
 const FRASES = {
   preset: n => `¡Hola! Soy ${n}.`, hat: ['¿Me queda bien?', 'Buen sombrero.'], hair: ['Nuevo peinado.', '¿Qué tal así?'], outfit: ['¡Mira este cambio!', 'Me gusta esta ropa.'],
   color: ['Buen color.', 'Combina bien.'], face: ['Esta es mi cara.', '¿Me reconoces?'], item: ['Lo llevo en la mano.', '¿Y esto?'], world: ['Aquí me siento en casa.', 'Buen lugar.'],
-  sorpresa: ['¡Sorpresa!', 'A ver qué tal.'], deshacer: ['Como antes.'],
+  sorpresa: ['¡Sorpresa!', 'A ver qué tal.'], deshacer: ['Como antes.'], sugerencia: ['Buena idea.', 'Así va mejor.'],
 };
-const REACCION = { preset: ['celebrate', 1.3], hat: ['talk', 1], hair: ['talk', 1], outfit: ['dance', 1.1], color: ['talk', 0.8], face: ['talk', 0.8], item: ['think', 1], world: ['talk', 1], sorpresa: ['dance', 1.2], deshacer: ['think', 0.8] };
+const REACCION = { preset: ['celebrate', 1.3], hat: ['talk', 1], hair: ['talk', 1], outfit: ['dance', 1.1], color: ['talk', 0.8], face: ['talk', 0.8], item: ['think', 1], world: ['talk', 1], sorpresa: ['dance', 1.2], deshacer: ['think', 0.8], sugerencia: ['celebrate', 1] };
 const QUIETA = { celebrate: 'happy', dance: 'happy', talk: 'still', think: 'think', hurt: 'oops', sad: 'oops', idle: 'still' };
 const pick = a => a[Math.floor(Math.random() * a.length)];
-const sombra = hex => { const n = parseInt(hex.slice(1), 16), f = v => Math.max(0, Math.round(v * 0.82)).toString(16).padStart(2, '0'); return '#' + f(n >> 16 & 255) + f(n >> 8 & 255) + f(n & 255); };
 
 // ───────────────────────── estado ─────────────────────────
 const estado = { base: 'grabador', look: lookOf(theme.characters.grabador), item: 'pluma', world: 'taller-londres' };
@@ -226,32 +221,47 @@ function cambiar(tipo, aplicar) {              // todo cambio pasa por aquí: gu
   $('deshacer').disabled = false;
   reaccionar(tipo);
   fondoSucio = fondoSucio || tipo === 'world';
+  escenasSucias = true;                        // las miniaturas del paso 2 llevan al personaje: se repintan al volver a verlas
   if (tipo === 'world' && !reducido) entrada = 1;
-  refrescarControles(); pintar();
+  refrescarControles(); refrescarSugerencia(); pintar(); pintarEscenas();
   try { navigator.vibrate?.(12); } catch {}
 }
 function deshacer() {
   const ant = historial.pop(); if (!ant) return;
   Object.assign(estado, ant); $('deshacer').disabled = !historial.length;
-  fondoSucio = true; reaccionar('deshacer'); construirAjustes(); refrescarControles(); pintar();
+  fondoSucio = true; escenasSucias = true; reaccionar('deshacer'); construirAjustes(); refrescarControles(); refrescarSugerencia(); pintar(); pintarEscenas();
 }
 function ponerPreset(id) {
   const c = theme.characters[id];
   cambiar('preset', () => { estado.base = id; estado.look = lookOf(c); estado.item = OBJETO_DE[id] ?? null; estado.world = MUNDO_DE[id] ?? theme.defaultWorld; });
   decir(FRASES.preset(c.name)); fondoSucio = true; construirAjustes();
 }
-function sorprender() {                        // combinación al azar con paletas coherentes (PR-2 lo hará curado por época)
+function aplicarResultado(r) { estado.look = r.look; estado.item = r.item; estado.world = r.world; }
+function sorprender() {                        // curado, no un dado: combinaciones coherentes por prenda (tablas de sugerencias.js)
+  const ant = estado.world;
   cambiar('sorpresa', () => {
-    const L = estado.look;
-    for (const [campo, valores] of Object.entries(CATALOGO)) L[campo] = pick(valores);
-    L.skin = pick(PALETAS.skin); L.skinShade = sombra(L.skin); L.hair = pick(PALETAS.hair);
-    L.coat = pick(paleta('coat')); L.coatShade = sombra(L.coat);
-    L.shirt = pick(PALETAS.shirt); L.trousers = pick(PALETAS.trousers); L.shoes = pick(PALETAS.shoes); L.accent = pick(PALETAS.accent); L.hatColor = pick(PALETAS.hatColor);
-    L.vest = Math.random() < 0.4 ? pick(PALETAS.vest) : null; L.glasses = Math.random() < 0.25;
-    if (pantalla >= 2) { estado.world = pick(WORLD_NAMES); estado.item = pick([null, ...Object.keys(ITEMS)]); }
+    if (pantalla === 0) { aplicarResultado(sorprenderTodo()); estado.base = 'sorpresa'; }
+    else if (pantalla === 1) aplicarResultado(sorprenderPestana(pestana, estado));
+    else aplicarResultado(sorprenderEscenario(estado));
   });
-  fondoSucio = true; construirAjustes();
+  if (estado.world !== ant) { fondoSucio = true; if (!reducido) entrada = 1; pintar(); }
+  construirAjustes();
 }
+
+// Sugerencia contextual de una línea bajo la vista (paso 1: prenda → sombrero, manga, objeto; paso 2: objeto → escenario)
+let sugerenciaActual = null;
+function refrescarSugerencia() {
+  const caja = $('sugerencia');
+  const lista = pantalla === 1 ? sugerencias(estado, 'personaje') : pantalla === 2 ? sugerencias(estado, 'escenario') : [];
+  sugerenciaActual = lista[0] ?? null;
+  caja.hidden = !sugerenciaActual;
+  if (sugerenciaActual) { $('sugerenciaTexto').textContent = sugerenciaActual.texto; $('sugerenciaAplicar').setAttribute('aria-label', 'Aplicar: ' + sugerenciaActual.texto); }
+}
+$('sugerenciaAplicar').onclick = () => {
+  const s = sugerenciaActual; if (!s) return;
+  cambiar('sugerencia', () => { Object.assign(estado.look, s.cambios.look || {}); if ('item' in s.cambios) estado.item = s.cambios.item; if (s.cambios.world) { estado.world = s.cambios.world; fondoSucio = true; if (!reducido) entrada = 1; } });
+  construirAjustes(); if (s.cambios.world) pintar();
+};
 
 // ───────────────────────── pantallas ─────────────────────────
 const TITULOS = ['Punto de partida', 'Ajústalo', 'Escenario', 'Está listo'];
@@ -270,6 +280,7 @@ function irA(p) {
   if (pantalla === 1) construirAjustes();
   if (pantalla === 2) construirEscenas();
   if (pantalla === 3) { refrescarJson(); if (!reducido) reaccionar('preset'); }
+  refrescarSugerencia();
 }
 $('siguiente').onclick = () => { if (pantalla === 3) { historial.length = 0; $('deshacer').disabled = true; ponerPreset('grabador'); irA(0); } else irA(pantalla + 1); };
 $('atras').onclick = () => irA(pantalla - 1);
@@ -290,7 +301,7 @@ function construirPresets() {
     b.append(miniatura(lookOf(c)), Object.assign(document.createElement('b'), { textContent: c.name }), Object.assign(document.createElement('small'), { textContent: MUNDOS[MUNDO_DE[id]]?.[0] ?? '' }));
     b.onclick = () => { ponerPreset(id); marcarPreset(); }; return b;
   });
-  const sor = document.createElement('button'); sor.className = 'tarjeta sorpresa'; sor.type = 'button';
+  const sor = document.createElement('button'); sor.className = 'tarjeta sorpresa'; sor.type = 'button'; sor.dataset.id = 'sorpresa';
   sor.innerHTML = '<span class="dado"><svg class="ic"><use href="#i-sorpresa"/></svg></span><b>Sorpréndeme</b><small>Una mezcla nueva</small>';
   sor.onclick = () => { sorprender(); marcarPreset(); };
   $('presets').replaceChildren(...tarjetas, sor);
@@ -363,17 +374,38 @@ function refrescarControles() {               // marca el chip o la muestra acti
   marcarPreset(); document.querySelectorAll('#escenas .tarjeta').forEach(b => b.classList.toggle('on', b.dataset.id === estado.world));
 }
 
-// Paso 2: escenarios (en PR-2 las miniaturas llevarán al personaje dentro)
+// Paso 2: tarjetas con TU personaje ya de pie en cada escenario. El fondo de cada mundo se pinta una sola vez y se guarda;
+// el personaje se repinta encima solo cuando cambia el look (escenasSucias), nunca en bucle.
+const MINI_W = 320, MINI_H = 200, fondosMini = {};
+let escenasSucias = true;
+function fondoMini(w) {
+  if (fondosMini[w]) return fondosMini[w];
+  const c = document.createElement('canvas'); c.width = MINI_W; c.height = MINI_H; paintWorld(c.getContext('2d'), MINI_W, MINI_H, w, {}, null, 1);
+  return fondosMini[w] = c;
+}
 function construirEscenas() {
-  if ($('escenas').children.length) { refrescarControles(); return; }
-  $('escenas').replaceChildren(...WORLD_NAMES.map(w => {
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'tarjeta'; b.dataset.id = w;
-    const c = document.createElement('canvas'); c.width = 320; c.height = 180; paintWorld(c.getContext('2d'), 320, 180, w, {}, null, 1);
-    const [n, sub] = MUNDOS[w] ?? [w, ''];
-    b.append(c, Object.assign(document.createElement('b'), { textContent: n }), Object.assign(document.createElement('small'), { textContent: sub }));
-    b.onclick = () => cambiar('world', () => { estado.world = w; }); return b;
-  }));
-  refrescarControles();
+  if (!$('escenas').children.length) {
+    $('escenas').replaceChildren(...WORLD_NAMES.map(w => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'tarjeta'; b.dataset.id = w;
+      const c = document.createElement('canvas'); c.width = MINI_W; c.height = MINI_H; c.setAttribute('aria-hidden', 'true');
+      const [n, sub] = MUNDOS[w] ?? [w, ''];
+      b.append(c, Object.assign(document.createElement('b'), { textContent: n }), Object.assign(document.createElement('small'), { textContent: sub }));
+      b.setAttribute('aria-label', `${n}, ${sub}: tu personaje en este escenario`);
+      b.onclick = () => cambiar('world', () => { estado.world = w; }); return b;
+    }));
+  }
+  pintarEscenas(true); refrescarControles();
+}
+function pintarEscenas(forzar = false) {
+  if (!escenasSucias || (pantalla !== 2 && !forzar) || !$('escenas').children.length) return;
+  const L = lookOf({ look: estado.look }), P = poseFor('still'), s = MINI_H * 0.78 / 372, pies = MINI_H * (GROUND_Y + 0.4), cy = pies - 112 * s;
+  for (const b of $('escenas').children) {
+    const g = b.querySelector('canvas').getContext('2d');
+    g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(fondoMini(b.dataset.id), 0, 0);
+    g.fillStyle = 'rgba(8,7,16,.32)'; g.beginPath(); g.ellipse(MINI_W / 2, pies + 6 * s, 70 * s, 14 * s, 0, 0, Math.PI * 2); g.fill();
+    drawHost(g, MINI_W / 2, cy, s, P, L, { item: estado.item, T: 0 });
+  }
+  escenasSucias = false;
 }
 
 // Paso 3: reacciones y «Más»
