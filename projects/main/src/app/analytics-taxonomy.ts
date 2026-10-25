@@ -31,8 +31,10 @@ export type TEventPath =
   // deshacer|paso/<escenario|listo>|probar|listo|compartir/<enlace|json>|gusto/<si|meh>|abandono/<paso>/<segundos>|fps-bajo|error/<carga|look-invalido>>`.
   // Embudo de /crear (§A.4, taps.crear.ts; cada hito una vez por visita): `taps/crear/abrir/<portada|feed|enlace|instituciones|
   // instructor|directo|continuar>` → `taps/crear/aviso-publicar/<visto|entendido>` → `taps/crear/creo` → `taps/crear/personaje-listo`
-  // → `taps/crear/tap-listo` (cuando haya preguntas) → `taps/crear/intento-publicar/<sin-cuenta|con-cuenta>` → PR-8:
-  // `taps/crear/gancho/<docente|estudiante-enlace|volver>`, `taps/crear/registro/<inicio|enviado>` → PR-9: `taps/crear/publicado/<importado|nuevo>`.
+  // → `taps/crear/tap-listo` (cuando haya preguntas) → `taps/crear/intento-publicar/<sin-cuenta|con-cuenta>` → gancho (PR-8, hoja de
+  // §A.3.2): `taps/crear/gancho/<docente|estudiante|volver|copiar>` (`copiar` = el estudiante copió o compartió el enlace de su look)
+  // → `taps/crear/registro/inicio` (/instituciones abierto desde el gancho, `?desde=crear`) → `taps/crear/registro/enviado` (solicitud
+  // enviada desde ahí) → PR-9: `taps/crear/publicado/<importado|nuevo>`. Nunca viaja el look ni el borradorId.
   // `taps/crear/error/carga` si el módulo del diseñador no carga.
   // Puntos de entrada a /crear (§A.2, PR-7, taps.crear-entrada.ts): un solo evento de toque por entrada,
   // `taps/crear/entrada/<menu|resultado|instituciones>/clic` (cada enlace lleva `?desde=` y /crear cuenta la llegada en

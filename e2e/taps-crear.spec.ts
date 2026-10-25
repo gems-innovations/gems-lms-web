@@ -40,10 +40,13 @@ test.describe('/crear', () => {
     await cinta.getByRole('button', { name: 'Entendido' }).click();
     await expect(cinta).toBeHidden();
     await sinScrollHorizontal(page);
-    // «Publicar» aún no publica: lo dice, sin modal.
+    // «Publicar» abre la hoja del gancho (PR-8) y «Volver» la cierra sin cambiar nada.
     await dsn.locator('#publicar').click();
-    await expect(dsn.locator('.cinta--pronto')).toBeVisible();
-    await expect(dsn.locator('.cinta--pronto')).toContainText('todavía no está listo');
+    const hoja = page.locator('gems-tap-disenador .gancho');
+    await expect(hoja).toBeVisible();
+    await expect(hoja).toContainText('regístrate como docente o institución');
+    await hoja.getByRole('button', { name: 'Volver y seguir creando' }).click();
+    await expect(hoja).toBeHidden();
     // Al recargar, la cinta ya no sale.
     await page.reload();
     await expect(dsn.locator('#lienzo')).toBeVisible({ timeout: 20_000 });
@@ -80,6 +83,123 @@ test.describe('/crear', () => {
     await dsn.locator('#continuarSi').click();
     await expect(dsn.locator('#listaLooks .look b')).toHaveText('Inés de prueba');
     expect((await eventos(page)).filter(e => e.startsWith('taps/crear/abrir/'))).toEqual(['taps/crear/abrir/continuar']);
+  });
+});
+
+/**
+ * Gancho de «Publicar» (PR-8, §A.3.2 y §A.3.3): hoja inferior accesible con tres salidas. «Soy docente o institución» lleva al
+ * formulario de /instituciones con `?borrador=<id>`; el formulario muestra «Tu personaje irá adjunto» con la miniatura guardada y
+ * manda el borrador compacto dentro de `message` (la red se intercepta: ninguna solicitud sale de verdad). «Soy estudiante» solo
+ * ofrece copiar el enlace del look. Los eventos del embudo salen una vez y nunca llevan el look.
+ */
+test.describe('gancho de publicar', () => {
+  const CAPTURAS = process.env.E2E_CAPTURAS;
+  const capturar = async (page: import('@playwright/test').Page, nombre: string) => { if (CAPTURAS) { await page.waitForTimeout(700); await page.screenshot({ path: `${CAPTURAS}/${nombre}.png` }); } };
+
+  for (const [ancho, alto] of [[390, 844], [390, 667], [1366, 800]] as const) {
+    test(`/crear → Publicar → hoja → docente → formulario con borrador adjunto (${ancho}x${alto})`, async ({ page }) => {
+      test.setTimeout(90_000);
+      await page.setViewportSize({ width: ancho, height: alto });
+      const solicitudes: Record<string, unknown>[] = [];
+      await page.route(/\/api\/v1\//, async route => {
+        const req = route.request();
+        const cors = { 'access-control-allow-origin': (await req.headerValue('origin')) ?? '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, POST, OPTIONS' };
+        if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
+        if (/\/public\/institution-requests$/.test(new URL(req.url()).pathname) && req.method() === 'POST') {
+          solicitudes.push(req.postDataJSON() as Record<string, unknown>);
+          return route.fulfill({ status: 201, headers: { ...cors, 'content-type': 'application/json' }, body: '{"id":1}' });
+        }
+        return route.fulfill({ status: 200, headers: { ...cors, 'content-type': 'application/json' }, body: req.method() === 'GET' ? '[]' : '{}' });
+      });
+      await page.goto('/crear');
+      await page.evaluate(() => { try { localStorage.setItem('taps.crear.aviso-publicar', '1'); } catch { /* sin almacenamiento */ } });
+      const dsn = page.locator('gems-tap-disenador .dsn');
+      await expect(dsn.locator('#lienzo')).toBeVisible({ timeout: 20_000 });
+      await dsn.locator('#presets .tarjeta[data-id="arqueologa"]').click();
+      await dsn.locator('#publicar').click();
+      const hoja = page.locator('gems-tap-disenador .gancho');
+      await expect(hoja).toBeVisible();
+      await expect(hoja).toHaveAttribute('aria-modal', 'true');
+      await expect(hoja.getByRole('heading', { level: 2 })).toHaveText('Para publicarlo, regístrate como docente o institución');
+      await expect(hoja.locator('.gancho__ganas li')).toHaveCount(3);
+      // El foco entra a la hoja y el diseñador queda inerte detrás (sin desplazamiento lateral).
+      expect(await page.evaluate(() => document.querySelector('gems-tap-disenador .gancho')?.contains(document.activeElement))).toBe(true);
+      expect(await dsn.evaluate(e => (e as HTMLElement).inert)).toBe(true);
+      await sinScrollHorizontal(page);
+      await capturar(page, `hoja-${ancho}x${alto}`);
+      // El borrador se guardó al tocar «Publicar»: tiene borradorId y miniatura.
+      const borrador = JSON.parse(await page.evaluate(() => localStorage.getItem('taps.disenador.borrador') ?? 'null')) as { borradorId: string; miniatura: string; base: string } | null;
+      expect(borrador?.borradorId).toMatch(/^[0-9a-z]+-[0-9a-z]{7,}$/);
+      expect(borrador?.miniatura).toMatch(/^data:image\/png/);
+      expect(borrador?.base).toBe('arqueologa');
+      await hoja.getByRole('button', { name: 'Soy docente o institución' }).click();
+      await expect(page).toHaveURL(new RegExp(`/instituciones\\?desde=crear&borrador=${borrador!.borradorId}#solicitud$`));
+      const adjunto = page.locator('.adjunto');
+      await expect(adjunto).toBeVisible({ timeout: 15_000 });
+      await expect(adjunto).toContainText('Tu personaje irá adjunto');
+      expect(await adjunto.locator('img').getAttribute('src')).toMatch(/^data:image\/png/);
+      await capturar(page, `formulario-${ancho}x${alto}`);
+      await page.locator('input[name="inst"]').fill('Colegio de Prueba');
+      await page.locator('input[name="contact"]').fill('Persona de Prueba');
+      await page.locator('input[name="email"]').fill('contacto@prueba.test');
+      await page.locator('textarea[name="msg"]').fill('Quiero Taps para mi curso');
+      await page.getByRole('button', { name: 'Enviar solicitud' }).click();
+      await expect(page.getByRole('button', { name: 'Enviar solicitud' })).toHaveCount(0);
+      expect(solicitudes).toHaveLength(1);
+      const msg = String(solicitudes[0]['message']);
+      expect(msg.startsWith('Quiero Taps para mi curso\n\n[gems-borrador v1]')).toBeTruthy();
+      expect(msg).toContain(`"borradorId":"${borrador!.borradorId}"`);
+      expect(msg).toContain('"b":"arqueologa"');
+      expect(msg).not.toContain('miniatura'); expect(msg).not.toContain('data:image');
+      expect(msg.length).toBeLessThanOrEqual(2000);
+      expect(JSON.stringify(solicitudes[0])).not.toContain('"borrador"');   // el API de hoy no tiene campo propio (PR-9)
+      // Embudo: cada evento una vez y ninguno con el look.
+      const ev = await eventos(page);
+      for (const e of ['taps/crear/intento-publicar/sin-cuenta', 'taps/crear/gancho/docente', 'taps/crear/registro/inicio', 'taps/crear/registro/enviado']) expect(ev.filter(x => x === e), e).toHaveLength(1);
+      expect(ev.some(e => e.includes('look=') || e.includes(borrador!.borradorId))).toBeFalsy();
+      await capturar(page, `enviado-${ancho}x${alto}`);
+    });
+  }
+
+  test('«Soy estudiante»: copy «pídele a tu docente» y «Copiar enlace» del look; Escape vuelve al diseñador', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/crear');
+    await page.evaluate(() => { try { localStorage.setItem('taps.crear.aviso-publicar', '1'); } catch { /* sin almacenamiento */ } });
+    const dsn = page.locator('gems-tap-disenador .dsn');
+    await expect(dsn.locator('#lienzo')).toBeVisible({ timeout: 20_000 });
+    await dsn.locator('#presets .tarjeta[data-id="senador"]').click();
+    await dsn.locator('#publicar').click();
+    const hoja = page.locator('gems-tap-disenador .gancho');
+    await hoja.getByRole('button', { name: 'Soy estudiante' }).click();
+    await expect(hoja).toContainText('Pídele a tu docente que lo publique');
+    await expect(hoja.locator('input[type="email"], input[type="tel"]')).toHaveCount(0);
+    await capturar(page, 'hoja-estudiante-390x844');
+    // Sin hoja del sistema y con portapapeles de mentira: copia el enlace #look= de compartir.js (nunca viaja al servidor).
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
+      Object.defineProperty(navigator, 'clipboard', { value: { writeText: (t: string) => { (window as unknown as { __copiado: string }).__copiado = t; return Promise.resolve(); } }, configurable: true });
+    });
+    await hoja.getByRole('button', { name: 'Copiar enlace' }).click();
+    await expect(hoja.locator('.gancho__estado')).toContainText('Enlace copiado');
+    const copiado = await page.evaluate(() => (window as unknown as { __copiado: string }).__copiado);
+    expect(copiado).toMatch(/\/crear#look=[A-Za-z0-9_-]+$/);
+    expect(copiado).not.toContain('?');
+    await page.keyboard.press('Escape');
+    await expect(hoja).toBeHidden();
+    expect(await dsn.evaluate(e => (e as HTMLElement).inert)).toBeFalsy();
+    const ev = await eventos(page);
+    for (const e of ['taps/crear/intento-publicar/sin-cuenta', 'taps/crear/gancho/estudiante', 'taps/crear/gancho/copiar', 'taps/crear/gancho/volver']) expect(ev.filter(x => x === e), e).toHaveLength(1);
+    // El enlace copiado abre el look en /crear como «Look de un amigo».
+    await page.goto('/'); await page.goto(copiado);   // otra ruta antes: cambiar solo el hash no recarga
+    await expect(page.locator('gems-tap-disenador .dsn #recibido')).toBeVisible({ timeout: 20_000 });
+  });
+
+  test('/instituciones con ?borrador= que no existe en este navegador: formulario normal, sin adjunto', async ({ page }) => {
+    await page.goto('/instituciones?desde=crear&borrador=mh5k2x1a-0a1b2c3');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('h2#req-title')).toBeVisible();
+    await expect(page.locator('.adjunto')).toHaveCount(0);
+    expect(await eventos(page)).toContain('taps/crear/registro/inicio');
   });
 });
 

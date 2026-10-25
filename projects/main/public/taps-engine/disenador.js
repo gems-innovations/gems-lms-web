@@ -44,7 +44,15 @@ export async function montarDisenador(raiz, opciones = {}) {
   if (opciones.pasoPublicar) {
     const li = document.createElement('li'); li.className = 'publicar'; li.title = opciones.pasoPublicar.texto;
     const b = document.createElement('button'); b.type = 'button'; b.id = 'publicar'; b.textContent = opciones.pasoPublicar.texto;
-    b.onclick = () => { try { opciones.pasoPublicar.alTocar?.(); } catch { /* la página decide */ } };
+    // La página recibe el contexto del gancho (PR-8): el borrador se guarda en el acto (así tiene borradorId aunque el autoguardado
+    // de 1 s no haya corrido) y el enlace del look sale de compartir.js. Nada de esto viaja a ningún servidor desde aquí.
+    b.onclick = () => {
+      try {
+        let borradorId = null;
+        try { if (almacen.disponible) { guardarBorradorAhora(); borradorId = borradorActual?.borradorId ?? null; } } catch { borradorId = null; }
+        opciones.pasoPublicar.alTocar?.({ borradorId, enlace: enlaceActual(), nombre: $('nombre').value.trim() || nombreSugerido() });
+      } catch { /* la página decide */ }
+    };
     li.append(b); raiz.querySelector('#progreso').append(li);
   }
   const $ = id => raiz.querySelector('#' + id);
@@ -392,7 +400,8 @@ export async function montarDisenador(raiz, opciones = {}) {
   function guardarBorradorAhora() {
     clearTimeout(temporizadorGuardado);
     if (!almacen.disponible) return;
-    borradorActual = armarBorrador(estado, pantalla, borradorActual);
+    // La miniatura (PNG de 72×96) va en el borrador para que /instituciones muestre «Tu personaje irá adjunto» sin pintar (PR-8).
+    borradorActual = { ...armarBorrador(estado, pantalla, borradorActual), miniatura: pngMiniatura() };
     almacen.escribir(CLAVE_BORRADOR, serializarBorrador(borradorActual));
   }
   escuchar(document, 'visibilitychange', () => { if (document.hidden && temporizadorGuardado) guardarBorradorAhora(); });

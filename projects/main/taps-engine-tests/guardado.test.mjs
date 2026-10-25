@@ -76,6 +76,10 @@ test('guardado: JSON corrupto o de otra forma en localStorage → lista vacía y
   assert.equal(armarBorrador(estado(), 9, leido).paso, 3);
   assert.equal(parsearBorrador(serializarBorrador({ ...b, look: { ...b.look, hat: 'casco' } }), validarLook), null, 'look inválido → se descarta');
   assert.equal(parsearBorrador(serializarBorrador({ ...b, borradorId: undefined }), validarLook), null);
+  // PR-8: la miniatura PNG del borrador se conserva (la lee /instituciones) y solo si es una imagen data:.
+  assert.equal(parsearBorrador(serializarBorrador({ ...b, miniatura: 'data:image/png;base64,AAAA' }), validarLook).miniatura, 'data:image/png;base64,AAAA');
+  assert.equal(parsearBorrador(serializarBorrador({ ...b, miniatura: 'javascript:alert(1)' }), validarLook).miniatura, '');
+  assert.equal(leido.miniatura, '');
 });
 
 test('guardado: almacenamiento no disponible → nada lanza y se informa', () => {

@@ -1,11 +1,16 @@
 import { afterNextRender, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PublicHeaderComponent } from './public-header.component';
 import { PublicFooterComponent } from './public-footer.component';
 import { IInstitutionRequest, PublicCatalogService } from './public-catalog.service';
 import { AnalyticsService } from '../analytics.service';
 import { COPY_ENTRADA, eventoEntrada } from '../taps/taps.crear-entrada';
+import { IBorradorAdjunto, PARAM_BORRADOR, armarAdjunto, idBorradorValido, mensajeConAdjunto, restaMensaje } from '../taps/taps.crear';
+import { VALIDADOR_LOOK_LOADER } from '../taps/taps.look-validador';
+
+/** Clave del borrador del diseñador (guardado.js, `CLAVE_BORRADOR`): se lee aquí sin cargar el diseñador. */
+const CLAVE_BORRADOR_DISENADOR = 'taps.disenador.borrador';
 
 /** Para colegios, preuniversitarios y universidades: qué obtienen y solicitud de su propio espacio. */
 @Component({
@@ -49,6 +54,17 @@ import { COPY_ENTRADA, eventoEntrada } from '../taps/taps.crear-entrada';
             <a class="btn btn--ghost btn--block" routerLink="/">Volver al inicio</a>
           } @else {
             <h2 id="req-title">Quiero mi espacio en GEMS</h2>
+            <!-- PR-8 del plan del diseñador (§A.3.3): llegó desde /crear con un borrador local válido; va adjunto y se puede quitar. -->
+            @if (adjunto(); as a) {
+              <div class="adjunto" role="status">
+                @if (a.miniatura) { <img class="adjunto__mini" [src]="a.miniatura" alt="" width="56" height="74" /> }
+                <div class="adjunto__texto">
+                  <strong>Tu personaje irá adjunto</strong>
+                  <span>Cuando creemos tu espacio lo encontrarás en tu cuenta. Solo viaja el personaje: ningún dato de este navegador.</span>
+                  <button type="button" class="adjunto__quitar" (click)="quitarAdjunto()">No adjuntarlo</button>
+                </div>
+              </div>
+            }
             <form class="form" (submit)="$event.preventDefault(); submit()">
               <label>Nombre de tu institución, empresa o grupo *<input class="field" name="inst" required maxlength="160" autocomplete="organization" enterkeyhint="next" [(ngModel)]="form.institutionName" /></label>
               <div class="form__row">
@@ -70,10 +86,10 @@ import { COPY_ENTRADA, eventoEntrada } from '../taps/taps.crear-entrada';
                   }
                 </div>
               </fieldset>
-              <label>¿Qué te gustaría lograr?<textarea class="field" name="msg" rows="3" maxlength="2000" [(ngModel)]="form.message"></textarea></label>
+              <label>¿Qué te gustaría lograr?<textarea class="field" name="msg" rows="3" [attr.maxlength]="maxMensaje()" [(ngModel)]="form.message"></textarea></label>
               @if (error(); as e) { <p class="error" role="alert">{{ e }}</p> }
               <button type="submit" class="btn btn--primary btn--block" [disabled]="busy()">{{ busy() ? 'Enviando…' : 'Enviar solicitud' }}</button>
-              <span class="note">Solo usamos estos datos para contactarte sobre GEMS. Ver <a routerLink="/privacidad">privacidad</a>.</span>
+              <span class="note">Te escribimos en menos de 24 h. Solo usamos estos datos para contactarte sobre GEMS. Ver <a routerLink="/privacidad">privacidad</a>.</span>
             </form>
           }
         </aside>
@@ -82,7 +98,14 @@ import { COPY_ENTRADA, eventoEntrada } from '../taps/taps.crear-entrada';
     <gems-public-footer />
   `,
   styleUrls: ['./public.scss', './public-detail.scss'],
-  styles: '.perk__btn { display: flex; width: fit-content; min-height: 44px; margin-top: 10px; }',
+  styles: `
+    .perk__btn { display: flex; width: fit-content; min-height: 44px; margin-top: 10px; }
+    .adjunto { display: flex; gap: 12px; align-items: center; margin: 0 0 14px; padding: 12px; border: 1px solid var(--color-borde-principal); border-radius: 14px; background: var(--color-fondo-sutil); color: var(--color-texto-secundario); }
+    .adjunto__mini { width: 56px; height: 74px; flex: none; border-radius: 10px; background: #15131f; display: block; }
+    .adjunto__texto { display: grid; gap: 4px; font-size: 13px; line-height: 1.35; min-width: 0; }
+    .adjunto__texto strong { font-size: 14px; color: var(--color-texto-principal); }
+    .adjunto__quitar { justify-self: start; min-height: 32px; padding: 0 4px; font: inherit; font-size: 13px; color: var(--color-texto-acento); background: none; border: 0; text-decoration: underline; cursor: pointer; }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InstitutionsComponent {
@@ -90,12 +113,47 @@ export class InstitutionsComponent {
   private readonly analytics = inject(AnalyticsService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly cargarValidador = inject(VALIDADOR_LOOK_LOADER);
+  private readonly route = inject(ActivatedRoute);
+
+  /** Borrador del diseñador adjunto a la solicitud (PR-8, §A.3.3); null si no se llegó con `?borrador=` válido. */
+  protected readonly adjunto = signal<IBorradorAdjunto | null>(null);
+  /** Lo que cabe en el mensaje: el API corta a 2000 y el bloque del borrador va dentro mientras no haya campo propio (PR-9). */
+  protected readonly maxMensaje = signal(restaMensaje(null));
+  /** Vino del gancho de /crear (`?desde=crear`): se miden `registro/inicio` y `registro/enviado`. */
+  private desdeCrear = false;
 
   constructor() {
     // El formulario llega prerenderizado y se puede escribir antes de que la página hidrate; al hidratar, ngModel
     // reescribiría los campos con el modelo vacío. Se recoge lo escrito en el DOM antes de que eso pase.
-    afterNextRender(() => this.recuperarEscrito());
+    afterNextRender(() => { this.recuperarEscrito(); void this.adjuntarBorrador(); });
   }
+
+  /**
+   * `?borrador=<id>` (viene de «Soy docente o institución» en /crear): si en este navegador hay un borrador con ese id y su look
+   * valida con `validarLook`, se muestra «Tu personaje irá adjunto» con la miniatura guardada y el borrador compacto viaja en
+   * `message`. Si no existe, es otro o no valida, el formulario funciona normal. Nada de esto toca el prerender.
+   */
+  private async adjuntarBorrador(): Promise<void> {
+    const q = this.route.snapshot.queryParamMap;
+    this.desdeCrear = q.get('desde') === 'crear';
+    if (this.desdeCrear) this.analytics.event('taps/crear/registro/inicio');
+    const id = idBorradorValido(q.get(PARAM_BORRADOR));
+    if (!id) return;
+    let raw: string | null = null; try { raw = localStorage.getItem(CLAVE_BORRADOR_DISENADOR); } catch { raw = null; }
+    if (!raw) return;
+    let validar: (look: Record<string, unknown>) => string[];
+    try { validar = await this.cargarValidador(); } catch { return; }
+    const adjunto = armarAdjunto(raw, id, validar);
+    if (!adjunto) return;
+    this.adjunto.set(adjunto);
+    this.maxMensaje.set(restaMensaje(adjunto.bloque));
+    this.cdr.markForCheck();
+    // El aviso empuja el formulario: si se vino al ancla #solicitud, que siga a la vista (el gancho llega con ese fragmento).
+    if (this.route.snapshot.fragment === 'solicitud') { try { requestAnimationFrame(() => document.getElementById('solicitud')?.scrollIntoView({ block: 'start' })); } catch { /* sin DOM */ } }
+  }
+
+  protected quitarAdjunto(): void { this.adjunto.set(null); this.maxMensaje.set(restaMensaje(null)); }
 
   protected form: IInstitutionRequest = { institutionName: '', contactName: '', email: '', phone: '', role: '', students: null, message: '' };
   /** Rangos en vez de un número exacto: se guarda el tope de cada rango. */
@@ -135,8 +193,13 @@ export class InstitutionsComponent {
     }
     this.busy.set(true);
     this.error.set(null);
-    this.catalog.requestInstitution(f).subscribe({
-      next: () => { this.busy.set(false); this.sent.set(true); this.analytics.event('solicitud-institucion'); },
+    // El borrador va como bloque marcado al final de `message` (el API de hoy no tiene campo para él: PR-9 lo separa).
+    const cuerpo: IInstitutionRequest = { ...f, message: mensajeConAdjunto(f.message ?? '', this.adjunto()?.bloque ?? null) };
+    this.catalog.requestInstitution(cuerpo).subscribe({
+      next: () => {
+        this.busy.set(false); this.sent.set(true); this.analytics.event('solicitud-institucion');
+        if (this.desdeCrear) this.analytics.event('taps/crear/registro/enviado');
+      },
       error: () => { this.busy.set(false); this.error.set('No pudimos enviar la solicitud. Inténtalo de nuevo en unos minutos.'); },
     });
   }

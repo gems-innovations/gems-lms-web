@@ -1,10 +1,14 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { AnalyticsService } from '../analytics.service';
 import { DISENADOR_LOADER, IDisenadorModule, TapDisenadorComponent } from './tap-disenador.component';
 import { CLAVE_AVISO_PUBLICAR } from './taps.crear';
 
 type TOpciones = Parameters<IDisenadorModule['montarDisenador']>[1];
+
+@Component({ template: '' })
+class VaciaComponent {}
 
 describe('TapDisenadorComponent (/crear)', () => {
   let fixture: ComponentFixture<TapDisenadorComponent>;
@@ -12,6 +16,8 @@ describe('TapDisenadorComponent (/crear)', () => {
   let opciones: TOpciones;
   let destruido: number;
   let ok: boolean;
+  const ID = 'mh5k2x1a-0a1b2c3';
+  const ENLACE = 'http://localhost/crear#look=eyJ2IjoxfQ';
 
   /** Doble de public/taps-engine/disenador.js: pinta la ranura y el progreso, y avisa que abrió «directo». */
   const modulo: IDisenadorModule = {
@@ -20,7 +26,7 @@ describe('TapDisenadorComponent (/crear)', () => {
       raiz.innerHTML = '<ol id="progreso"><li>Personaje</li><li>Escenario</li><li>Listo</li></ol><section class="vista"><div id="ranuraVista"></div></section>';
       if (o.pasoPublicar) {
         const li = document.createElement('li'); const b = document.createElement('button'); b.id = 'publicar'; b.textContent = o.pasoPublicar.texto;
-        b.onclick = () => o.pasoPublicar?.alTocar?.(); li.append(b); raiz.querySelector('#progreso')!.append(li);
+        b.onclick = () => o.pasoPublicar?.alTocar?.({ borradorId: ID, enlace: ENLACE, nombre: 'Tomás' }); li.append(b); raiz.querySelector('#progreso')!.append(li);
       }
       o.alEvento?.('abrir/directo');
       return { ok, destruir: () => { destruido++; } };
@@ -33,7 +39,7 @@ describe('TapDisenadorComponent (/crear)', () => {
     await TestBed.configureTestingModule({
       imports: [TapDisenadorComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([{ path: 'instituciones', component: VaciaComponent }]),
         { provide: DISENADOR_LOADER, useValue: () => Promise.resolve(modulo) },
         { provide: AnalyticsService, useValue: { event: (n: string) => eventos.push(n), isInternal: () => false } },
       ],
@@ -96,15 +102,99 @@ describe('TapDisenadorComponent (/crear)', () => {
     expect(eventos.filter(e => e === 'taps/crear/personaje-listo').length).toBe(1);
   });
 
-  it('«Publicar» aún no publica: dice que llega pronto y mide el intento', () => {
+  // ───────────── gancho de «Publicar» (PR-8, §A.3.2) ─────────────
+
+  /** Abre la hoja y espera al foco (queueMicrotask). */
+  async function abrirHoja(): Promise<void> {
     el('#publicar')!.click();
     fixture.detectChanges();
-    expect(visible('#ranuraVista .cinta--pronto')).toBeTrue();
-    expect(el('.cinta--pronto p')?.textContent).toContain('todavía no está listo');
-    expect(eventos).toContain('taps/crear/intento-publicar/sin-cuenta');
-    el('.cinta--pronto .cerrar')!.click();
-    fixture.detectChanges();
-    expect(visible('#ranuraVista .cinta--pronto')).toBeFalse();
+    await new Promise(r => setTimeout(r, 0));
+  }
+
+  it('«Publicar» abre la hoja accesible con el personaje detrás, las tres salidas y mide el intento sin cuenta', async () => {
+    expect(visible('.gancho')).toBeFalse();
+    await abrirHoja();
+    const hoja = el('.gancho')!;
+    expect(hoja.hidden).toBeFalse();
+    expect(hoja.getAttribute('role')).toBe('dialog');
+    expect(hoja.getAttribute('aria-modal')).toBe('true');
+    expect(document.getElementById(hoja.getAttribute('aria-labelledby')!)?.textContent).toContain('regístrate como docente o institución');
+    expect(hoja.querySelectorAll('.gancho__ganas li').length).toBe(3);
+    expect(hoja.querySelectorAll('.gancho__ganas svg').length).toBe(3);
+    expect(el('#ganchoDocente')?.textContent).toContain('Soy docente o institución');
+    expect(el('#ganchoEstudiante')?.textContent).toContain('Soy estudiante');
+    expect(el('#ganchoVolver')?.textContent).toContain('Volver y seguir creando');
+    expect(hoja.textContent).not.toMatch(/\p{Extended_Pictographic}/u);
+    expect(eventos.filter(e => e === 'taps/crear/intento-publicar/sin-cuenta').length).toBe(1);
+    // El diseñador queda inerte detrás y el foco entra a la hoja.
+    expect(el('.dsn')!.inert).toBeTrue();
+    expect(hoja.contains(document.activeElement)).toBeTrue();
+  });
+
+  it('«Volver y seguir creando» (y Escape) cierra, devuelve el foco al diseñador y mide gancho/volver', async () => {
+    await abrirHoja();
+    el('#ganchoVolver')!.click(); fixture.detectChanges();
+    expect(visible('.gancho')).toBeFalse();
+    expect(el('.dsn')!.inert).toBeFalse();
+    expect(el('.dsn')!.contains(document.activeElement)).toBeTrue();
+    expect(eventos.filter(e => e === 'taps/crear/gancho/volver').length).toBe(1);
+    await abrirHoja();
+    el('.gancho')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); fixture.detectChanges();
+    expect(visible('.gancho')).toBeFalse();
+    expect(eventos.filter(e => e === 'taps/crear/gancho/volver').length).toBe(2);
+  });
+
+  it('Tab gira dentro de la hoja: del último botón vuelve al primero y Shift+Tab al revés', async () => {
+    await abrirHoja();
+    const hoja = el('.gancho')!;
+    el('#ganchoVolver')!.focus();
+    hoja.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+    expect(document.activeElement).toBe(el('#ganchoDocente'));
+    hoja.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }));
+    expect(document.activeElement).toBe(el('#ganchoVolver'));
+  });
+
+  it('«Soy docente o institución» mide gancho/docente y lleva al formulario con el borrador y desde=crear', async () => {
+    await abrirHoja();
+    const router = TestBed.inject(Router);
+    el('#ganchoDocente')!.click();
+    await fixture.whenStable();
+    expect(eventos).toContain('taps/crear/gancho/docente');
+    expect(router.url).toBe(`/instituciones?desde=crear&borrador=${ID}#solicitud`);
+  });
+
+  it('«Soy estudiante» no pide nada: copy «pídele a tu docente» y «Copiar enlace» con el enlace del look', async () => {
+    await abrirHoja();
+    el('#ganchoEstudiante')!.click(); fixture.detectChanges();
+    await new Promise(r => setTimeout(r, 0));
+    expect(eventos).toContain('taps/crear/gancho/estudiante');
+    expect(el('#ganchoEstudianteTexto')?.textContent).toContain('Pídele a tu docente');
+    expect(el('.gancho')!.querySelector('input[type="email"], input[type="tel"]')).toBeNull();
+    expect(document.activeElement).toBe(el('#ganchoCopiar'));
+    // Sin hoja del sistema y con portapapeles: copia y lo dice.
+    const nav = navigator as unknown as { share?: unknown; clipboard: Clipboard };
+    const shareAntes = nav.share; const clipboardAntes = nav.clipboard;
+    let copiado = '';
+    Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: (t: string) => { copiado = t; return Promise.resolve(); } }, configurable: true });
+    try {
+      el('#ganchoCopiar')!.click();
+      await new Promise(r => setTimeout(r, 0)); fixture.detectChanges();
+      expect(copiado).toBe(ENLACE);
+      expect(el('.gancho__estado')?.textContent).toContain('Enlace copiado');
+      expect(eventos.filter(e => e === 'taps/crear/gancho/copiar').length).toBe(1);
+      // Si copiar falla, el enlace se muestra para seleccionarlo.
+      Object.defineProperty(navigator, 'clipboard', { value: { writeText: () => Promise.reject(new Error('no')) }, configurable: true });
+      el('#ganchoCopiar')!.click();
+      await new Promise(r => setTimeout(r, 0)); fixture.detectChanges();
+      expect(visible('.gancho__enlace')).toBeTrue();
+      expect((el('.gancho__enlace input') as HTMLInputElement).value).toBe(ENLACE);
+    } finally {
+      Object.defineProperty(navigator, 'share', { value: shareAntes, configurable: true });
+      Object.defineProperty(navigator, 'clipboard', { value: clipboardAntes, configurable: true });
+    }
+    // El enlace nunca se mide: ningún evento lo lleva.
+    expect(eventos.some(e => e.includes('look='))).toBeFalse();
   });
 
   it('al salir de la ruta desmonta el diseñador', () => {
@@ -112,14 +202,15 @@ describe('TapDisenadorComponent (/crear)', () => {
     expect(destruido).toBe(1);
   });
 
-  it('tras «Entendido» y tras cerrar el aviso de «Publicar» el foco vuelve al diseñador, no al body', () => {
+  it('tras «Entendido» y tras volver de la hoja de «Publicar» el foco vuelve al diseñador, no al body', async () => {
     const raiz = el('.dsn')!; const titulo = document.createElement('h2'); titulo.id = 'titulo'; raiz.prepend(titulo);
     el('#ranuraVista .cinta button.primario')!.click(); fixture.detectChanges();
     expect(document.activeElement).toBe(titulo);
-    (document.activeElement as HTMLElement).blur();
-    el('#publicar')!.click(); fixture.detectChanges();
-    el('.cinta--pronto .cerrar')!.click(); fixture.detectChanges();
-    expect(document.activeElement).toBe(titulo);
+    // Quien abre la hoja es el botón «Publicar»: al volver, el foco regresa a él.
+    el('#publicar')!.focus();
+    await abrirHoja();
+    el('#ganchoVolver')!.click(); fixture.detectChanges();
+    expect(document.activeElement).toBe(el('#publicar'));
   });
 
   it('si se destruye mientras el diseñador se está montando, lo destruye en cuanto termina y no toca el componente', async () => {
