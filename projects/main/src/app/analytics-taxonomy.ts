@@ -57,6 +57,19 @@ export function internalFlagFrom(search: string): boolean | null {
   return null;
 }
 
+/**
+ * Tráfico que no es de personas: rastreadores y previsualizadores de enlaces (palabras de bot en el User-Agent) y los
+ * User-Agent de iPhone anteriores a iOS 14 (2020), que ya no usa nadie y que en GoatCounter aparecían como «Safari 11.0»
+ * (~20 % de las visitas de octubre de 2026, casi todas desde Estados Unidos). No toca a Playwright (HeadlessChrome o iOS
+ * actual): las pruebas siguen contando contra su doble de count.js.
+ */
+export function isAutomatedTraffic(userAgent: string): boolean {
+  if (!userAgent) return false;
+  if (/bot[\/;.)]|\bbot\b|crawl|spider|slurp|preview|facebookexternalhit|facebot|whatsapp|telegram|lighthouse|pingdom/i.test(userAgent)) return true;
+  const ios = /\b(?:iPhone|iPad|iPod)\b.*?\bOS (\d+)[_.]/i.exec(userAgent);
+  return !!ios && Number(ios[1]) < 14;
+}
+
 const REFERRERS: ReadonlyArray<[RegExp, string]> = [
   [/(^|\.)(youtube\.com|youtu\.be)$/, 'youtube'],
   [/(^|\.)instagram\.com$/, 'instagram'],

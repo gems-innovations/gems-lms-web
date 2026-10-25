@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import {
-  ARRIVAL_KEY, INTERNAL_KEY, TEventPath, VISIT_KEY, arrivalEvent, internalFlagFrom, localDay, parseVisitState, visitEvents,
+  ARRIVAL_KEY, INTERNAL_KEY, TEventPath, VISIT_KEY, arrivalEvent, internalFlagFrom, isAutomatedTraffic, localDay, parseVisitState, visitEvents,
 } from './analytics-taxonomy';
 
 interface IGoatCounterVars { path: string; title?: string; event?: boolean }
@@ -70,6 +70,7 @@ export class AnalyticsService {
 
   /** Navegador del equipo: `?interno=1` (o `#toggle-goatcounter` de GoatCounter) deja de contar para siempre en él. */
   isInternal(): boolean {
+    if (isAutomatedTraffic(navigator.userAgent)) return true;      // rastreadores y navegadores de otra época: no son personas
     try { return localStorage.getItem(INTERNAL_KEY) === 't'; } catch { return false; }
   }
 

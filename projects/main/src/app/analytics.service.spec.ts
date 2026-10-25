@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { AnalyticsService, toAnalyticsPath } from './analytics.service';
 import {
-  INTERNAL_KEY, arrivalEvent, eventSlug, internalFlagFrom, isoWeek, localDay, parseVisitState, returnBucket, visitEvents,
+  INTERNAL_KEY, arrivalEvent, eventSlug, internalFlagFrom, isAutomatedTraffic, isoWeek, localDay, parseVisitState, returnBucket, visitEvents,
 } from './analytics-taxonomy';
 
 describe('toAnalyticsPath', () => {
@@ -81,6 +81,17 @@ describe('taxonomía de eventos', () => {
     expect(eventSlug('Redstone Básico!')).toBe('redstone-basico');
     expect(eventSlug('')).toBe('otro');
     expect(eventSlug('a'.repeat(60)).length).toBe(40);
+  });
+
+  it('isAutomatedTraffic descarta rastreadores e iPhone anteriores a iOS 14, y deja pasar a las personas y a Playwright', () => {
+    expect(isAutomatedTraffic('Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1')).toBeTrue();
+    expect(isAutomatedTraffic('Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)')).toBeTrue();
+    expect(isAutomatedTraffic('facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)')).toBeTrue();
+    expect(isAutomatedTraffic('Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1')).toBeFalse();
+    expect(isAutomatedTraffic('Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 Version/14.0 Mobile/15E148 Safari/604.1')).toBeFalse();
+    expect(isAutomatedTraffic('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/130.0.0.0 Safari/537.36')).toBeFalse();
+    expect(isAutomatedTraffic('Mozilla/5.0 (Linux; Android 13; CUBOT X70) AppleWebKit/537.36 Chrome/130.0 Mobile Safari/537.36')).toBeFalse();
+    expect(isAutomatedTraffic('')).toBeFalse();
   });
 
   it('internalFlagFrom lee ?interno', () => {
