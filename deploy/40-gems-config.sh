@@ -4,6 +4,10 @@ set -eu
 : "${API_BASE_URL:?Define API_BASE_URL (p. ej. https://api.example.com/api/v1)}"
 
 printf 'globalThis.API_BASE_URL = %s;\n' "\"$API_BASE_URL\"" > /usr/share/nginx/html/config.js
+# ID de cliente de Google (público, opcional): sin él no aparece «Continuar con Google».
+if [ -n "${GOOGLE_CLIENT_ID:-}" ]; then
+  printf 'globalThis.GOOGLE_CLIENT_ID = %s;\n' "\"$GOOGLE_CLIENT_ID\"" >> /usr/share/nginx/html/config.js
+fi
 
 api_origin=$(printf %s "$API_BASE_URL" | sed -E 's#^(https?://[^/]+).*#\1#')
 # La CSP vive en /etc/nginx/gems/csp.conf (incluida por default.conf); default.conf por si alguna regla la repite.

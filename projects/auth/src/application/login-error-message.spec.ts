@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { loginErrorMessage } from './login.usecase';
+import { googleErrorMessage, loginErrorMessage } from './login.usecase';
 
 const http = (status: number, error: unknown = null) => new HttpErrorResponse({ status, error, url: '/auth/login' });
 
@@ -14,5 +14,18 @@ describe('loginErrorMessage', () => {
     expect(loginErrorMessage(http(0))).toMatch(/conexión|conectarnos/);
     expect(loginErrorMessage(http(429))).toContain('Demasiados intentos');
     expect(loginErrorMessage(http(403, { code: 'USER_DEACTIVATED' }))).toContain('desactivada');
+  });
+});
+
+describe('googleErrorMessage', () => {
+  it('no habla de contraseña cuando falla Google', () => {
+    expect(googleErrorMessage(http(401))).toContain('Google');
+    expect(googleErrorMessage(http(400))).not.toContain('contraseña');
+    expect(googleErrorMessage(http(404))).toContain('no está disponible');
+  });
+
+  it('para fallas de red o del servidor usa los mensajes de siempre', () => {
+    expect(googleErrorMessage(http(0))).toMatch(/conexión|conectarnos/);
+    expect(googleErrorMessage(http(503))).toContain('nuestro lado');
   });
 });
