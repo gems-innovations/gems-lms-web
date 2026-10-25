@@ -27,6 +27,8 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, input, ou
               } @else {
                 <button type="button" (click)="pick(() => notInterested.emit())">No me interesa este tema</button>
               }
+              <!-- PR-7 (§A.2): salir del juego hacia crear, desde el mismo menú y con su mismo estilo. -->
+              @if (crear()) { <button type="button" (click)="pick(() => crearPersonaje.emit())">Haz tu personaje</button> }
             </div>
           }
         </div>
@@ -68,6 +70,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, input, ou
                 } @else {
                   <button type="button" (click)="pick(() => notInterested.emit())">No me interesa este tema</button>
                 }
+                @if (crear()) { <button type="button" (click)="pick(() => crearPersonaje.emit())">Haz tu personaje</button> }
                 <button type="button" (click)="pick(() => toggleKeys.emit())">Atajos de teclado: {{ keysOn() ? 'apagar' : 'encender' }}</button>
               </div>
             }
@@ -92,6 +95,9 @@ export class TapRailComponent {
   readonly nextTitle = input<string | null>(null);
   readonly blocked = input(false);
   readonly keysOn = input(true);
+  /** «Haz tu personaje» en el menú «Más» (PR-7): solo en /taps, no en la portada (allí ya está la tarjeta). */
+  readonly crear = input(false);
+  readonly crearPersonaje = output<void>();
 
   readonly more = output<void>();
   readonly filterTopic = output<void>();

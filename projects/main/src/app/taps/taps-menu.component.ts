@@ -60,6 +60,10 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
         <li><a class="side__item" routerLink="/instituciones" title="Para instituciones">
           <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 10 12 4l9 6M5 10v8m4-8v8m6-8v8m4-8v8M3 20h18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <span class="side__txt">Para instituciones</span></a></li>
+        <!-- PR-7 (§A.2): el creador, con el mismo estilo de los demás destinos; ?desde=feed mide la entrada. -->
+        <li><a class="side__item" routerLink="/crear" [queryParams]="{ desde: 'feed' }" title="Haz tu personaje" (click)="crear.emit()">
+          <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M5.5 20.5a6.5 6.5 0 0 1 13 0M16.5 3.5l2 2M19.5 2.5l2 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="side__txt">Haz tu personaje</span></a></li>
       </ul>
 
       <p class="side__group">Tus temas</p>
@@ -126,6 +130,7 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
           <a routerLink="/bloques">Quiz de Bloques</a>
           <a routerLink="/">Cursos gratis</a>
           <a routerLink="/instituciones">Para instituciones</a>
+          <a routerLink="/crear" [queryParams]="{ desde: 'feed' }" (click)="crear.emit(); moreOpen.set(false)">Haz tu personaje</a>
           <button type="button" (click)="toggleShortcuts.emit(); moreOpen.set(false)">Atajos de teclado: {{ shortcuts() ? 'apagar' : 'encender' }}</button>
           <button type="button" class="top__musica" (click)="toggleMusica.emit()" [attr.aria-pressed]="musica()" aria-label="Música de fondo">Música de fondo<span class="top__nota" aria-hidden="true">: {{ musica() ? 'encendida' : 'apagada' }}</span></button>
           @if (voz() === 'on' || voz() === 'off') {
@@ -163,6 +168,8 @@ export class TapsMenuComponent {
   /** Voz que lee las preguntas; `null`/`'none'`: aún no se sabe o no hay voz en el dispositivo (no se muestra). */
   readonly voz = input<'on' | 'off' | 'none' | null>(null);
   readonly toggleVoz = output<void>();
+  /** Se tocó «Haz tu personaje» (el enlace ya navega; el feed solo lo mide). */
+  readonly crear = output<void>();
 
   protected readonly moreOpen = signal(false);
 

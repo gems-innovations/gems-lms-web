@@ -6,7 +6,7 @@
 <gems-taps-menu [topic]="topic()" [temas]="menuTopics()" [inverted]="menuInverted()" [shortcuts]="shortcuts()" [alias]="ranking.alias()"
                 (openRanking)="openRanking()" (forYou)="selectTopic(null)" (openTopics)="openTopics()" (pickTopic)="toggleTopicFilter($event)"
                 (toggleMenu)="toggleMenu()" (toggleShortcuts)="toggleShortcuts()" [reto]="retoVista()" (openReto)="goToReto('menu')" (openCols)="openDay('colecciones', 'menu')"
-                [musica]="musicaEfectiva()" (toggleMusica)="toggleMusica()" [voz]="vozEfectiva()" (toggleVoz)="toggleVoice()" />
+                [musica]="musicaEfectiva()" (toggleMusica)="toggleMusica()" [voz]="vozEfectiva()" (toggleVoz)="toggleVoice()" (crear)="crearMedir('menu')" />
 }
 <div class="centro">
 <div class="escenario">
@@ -109,7 +109,7 @@
 
         @if (!run.finished) {
           <gems-tap-rail [topicName]="topicLabel(tap)" [blocked]="activeBlocked()" (more)="moreOf(tap)" (share)="shareTap(tap)"
-                         (notInterested)="notInterested(tap)" (unblock)="unblockActive()" />
+                         (notInterested)="notInterested(tap)" (unblock)="unblockActive()" [crear]="!portada" (crearPersonaje)="crearDesde('menu')" />
           @if (notice(); as n) { @if (n.tapId === tap.id) { <p class="tap__toast" role="status">{{ n.text }}@if (n.undo) { <button type="button" class="tap__undo" (click)="undoNotInterested()">Deshacer</button> }</p> } }
         }
       </div>
@@ -191,7 +191,8 @@
                            [celebrar]="metaTapId() === tap.id"
                            [reto]="retoResultado(tap)" [coleccion]="coleccionDeTap(tap)" [coleccionNueva]="colNueva()?.tapId === tap.id ? colNueva()!.grado : null"
                            [fin]="retoVista()"
-                           (colecciones)="verColecciones(tap)" (irReto)="finReto()" (temas)="finTemas()" (cursos)="finCursos()" />
+                           (colecciones)="verColecciones(tap)" (irReto)="finReto()" (temas)="finTemas()" (cursos)="finCursos()"
+                           [crear]="crearOferta() === tap.id" (crearClic)="crearMedir('resultado')" (crearDescartar)="crearDescartar()" />
         }
       </div>
 
@@ -213,7 +214,8 @@
                [canPrev]="activeIndexSig() > 0" [canNext]="activeIndexSig() < taps().length - 1" [pulse]="pulseNext()" [finished]="run(activeTap()).finished"
                [nextTitle]="nextTap(activeTap())?.title ?? null" [blocked]="activeBlocked()" [keysOn]="shortcuts()"
                (prev)="step(-1)" (nextTap)="step(1)" (filterTopic)="toggleTopicFilter(topicOf(activeTap()))" (more)="moreOf(activeTap())"
-               (share)="shareActive()" (notInterested)="notInterested(activeTap())" (unblock)="unblockActive()" (toggleKeys)="toggleShortcuts()" />
+               (share)="shareActive()" (notInterested)="notInterested(activeTap())" (unblock)="unblockActive()" (toggleKeys)="toggleShortcuts()"
+               [crear]="!portada" (crearPersonaje)="crearDesde('menu')" />
 <gems-tap-panel (mouseenter)="holdPanel(true)" (mouseleave)="holdPanel(false)" (focusin)="holdPanel(true)" (focusout)="holdPanel(false)" [cards]="panelCardsList()" [state]="panelStateSig()" [keysOn]="shortcuts()" [(legend)]="legendOpen" (go)="onPanelGo($event)" (toggleKeys)="toggleShortcuts()" />
 }
 </div>

@@ -5,6 +5,7 @@ import { PublicHeaderComponent } from './public-header.component';
 import { PublicFooterComponent } from './public-footer.component';
 import { IInstitutionRequest, PublicCatalogService } from './public-catalog.service';
 import { AnalyticsService } from '../analytics.service';
+import { COPY_ENTRADA, eventoEntrada } from '../taps/taps.crear-entrada';
 
 /** Para colegios, preuniversitarios y universidades: qué obtienen y solicitud de su propio espacio. */
 @Component({
@@ -32,6 +33,10 @@ import { AnalyticsService } from '../analytics.service';
             <li><strong>Seguimiento de cada estudiante</strong>Libro de calificaciones, racha, alertas de quién se está quedando atrás y recordatorios con un clic.</li>
             <li><strong>Para cualquier tema</strong>Admisión, idiomas, programación, finanzas, música, tu club de lectura: tú decides qué se aprende.</li>
             <li><strong>Gestión académica</strong>Períodos con cierre y actas, carga de estudiantes por CSV, reportes, tu marca y varios idiomas.</li>
+            <!-- PR-7 del plan del diseñador (§A.2): argumento de venta tangible, con el creador para probarlo sin cuenta. -->
+            <li class="perk--crear"><strong>{{ copyCrear.institucionesPerk }}</strong>{{ copyCrear.institucionesDetalle }}
+              <a class="btn btn--ghost perk__btn" routerLink="/crear" [queryParams]="{ desde: 'instituciones' }" (click)="probarCreador()">{{ copyCrear.probarCreador }}</a>
+            </li>
           </ul>
         </section>
 
@@ -77,6 +82,7 @@ import { AnalyticsService } from '../analytics.service';
     <gems-public-footer />
   `,
   styleUrls: ['./public.scss', './public-detail.scss'],
+  styles: '.perk__btn { display: flex; width: fit-content; min-height: 44px; margin-top: 10px; }',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InstitutionsComponent {
@@ -116,6 +122,10 @@ export class InstitutionsComponent {
     });
     if (hubo) this.cdr.markForCheck();
   }
+
+  protected readonly copyCrear = COPY_ENTRADA;
+  /** «Probar el creador» (PR-7): el enlace navega a /crear?desde=instituciones; aquí solo se mide. */
+  protected probarCreador(): void { this.analytics.event(eventoEntrada('instituciones', 'clic')); }
 
   protected submit(): void {
     const f = this.form;

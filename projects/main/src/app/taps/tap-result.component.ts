@@ -9,6 +9,7 @@ import { IRetoVista, retoLabel } from './taps.reto';
 import { IAvanceColeccion, TGrado } from './taps.coleccion';
 import { TapColeccionComponent } from './tap-coleccion.component';
 import { ITap, ITapRun } from './taps.types';
+import { COPY_ENTRADA, enlaceCrear } from './taps.crear-entrada';
 
 /** El reto del día visto desde el resultado del Tap del reto. */
 export interface IRetoResultado {
@@ -90,6 +91,16 @@ export interface IRetoResultado {
         }
         <button type="button" class="res__ghost" (click)="more.emit()">Más de {{ topicName() }}</button>
       </div>
+      <!-- «Haz tu personaje» (PR-7, §A.2): 1 de cada 5 resultados y nunca tras 0 aciertos (lo decide el feed en el navegador).
+           Enlace discreto con el estilo de .res__cursos y una salida para no volver a verlo; nada de botones nuevos. -->
+      @if (crear()) {
+        <p class="res__crear">
+          <a class="res__cursos" routerLink="/crear" [queryParams]="crearQuery" (click)="crearClic.emit()">{{ COPY.resultado }}</a>
+          <button type="button" class="res__crear-x" (click)="crearDescartar.emit()" [attr.aria-label]="COPY.descartar" [title]="COPY.descartar">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+          </button>
+        </p>
+      }
       @if (hasNext()) {
         <!-- La primera pregunta del siguiente Tap va en la pestaña que asoma abajo (.tap__peek del feed). -->
         <button type="button" class="res__next" (click)="next.emit()">
@@ -149,6 +160,9 @@ export interface IRetoResultado {
       b { font-size: 1rem; } span { font-size: 13px; font-weight: 600; color: #c8d1de; } }
     .res__fin-btn--main { color: #0d1117; background: #4de1ff; border-color: #4de1ff; span { color: #0d3340; } }
     .res__cursos { display: block; padding: 10px 4px 2px; font-size: 14px; font-weight: 600; color: #aab4c4; text-align: center; text-underline-offset: 3px; }
+    // Fila compacta (28 px de alto): el enlace y la «x» ganan área táctil con padding sin empujar «Siguiente» más que una línea.
+    .res__crear { display: flex; align-items: center; justify-content: center; gap: 0; height: 28px; margin: 2px 0 -2px; .res__cursos { padding: 10px 4px; margin: -6px 0; } }
+    .res__crear-x { display: grid; place-items: center; width: 28px; height: 28px; padding: 8px; margin: -6px 0; box-sizing: content-box; border: 0; border-radius: 50%; background: none; color: #8b93a7; font: inherit; cursor: pointer; &:hover { color: #fff; } }
     button:focus-visible, a:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
     @keyframes res-in { from { opacity: 0; transform: translateY(18px) scale(.97); } }
     @keyframes res-bounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-7px); } }
@@ -175,6 +189,13 @@ export class TapResultComponent {
   readonly coleccionNueva = input<TGrado | null>(null);
   /** Fin del feed: el reto del día para ofrecerlo (null si aún no se sabe). */
   readonly fin = input<IRetoVista | null>(null);
+  /** Ofrecer «Haz tu personaje» en este resultado (regla 1 de cada 5 en taps.crear-entrada.ts; lo decide el feed). */
+  readonly crear = input(false);
+
+  readonly crearClic = output<void>();
+  readonly crearDescartar = output<void>();
+  protected readonly COPY = COPY_ENTRADA;
+  protected readonly crearQuery = enlaceCrear('feed').query;
 
   readonly challenge = output<void>();
   readonly again = output<void>();

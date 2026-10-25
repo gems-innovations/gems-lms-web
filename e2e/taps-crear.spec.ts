@@ -82,3 +82,80 @@ test.describe('/crear', () => {
     expect((await eventos(page)).filter(e => e.startsWith('taps/crear/abrir/'))).toEqual(['taps/crear/abrir/continuar']);
   });
 });
+
+/**
+ * Puntos de entrada (PR-7, §A.2): cada uno lleva a /crear con su `?desde=` y /crear cuenta esa llegada. El feed solo gana un
+ * elemento discreto en su menú y, 1 de cada 5 resultados, un enlace en el resultado (descartable).
+ */
+test.describe('entradas a /crear', () => {
+  test('portada: tarjeta en «Lleva los Taps a tu grupo» (prerenderizada) y /crear cuenta abrir/portada', async ({ page }) => {
+    await page.goto('/');
+    const tarjeta = page.locator('a.band__crear');
+    await expect(tarjeta).toHaveAttribute('href', '/crear?desde=portada');
+    await expect(tarjeta).toContainText('Crea tu personaje y tu Tap');
+    await expect(tarjeta).toContainText('Publicar es para docentes e instituciones');
+    // No se promueve en la zona de estudiante ni en /learn: la tarjeta vive solo en la portada.
+    await page.goto('/crear?desde=portada');
+    await expect(page.locator('gems-tap-disenador .dsn #lienzo')).toBeVisible({ timeout: 20_000 });
+    await expect.poll(async () => (await eventos(page)).filter(e => e.startsWith('taps/crear/abrir/'))).toEqual(['taps/crear/abrir/portada']);
+    expect(await page.locator('meta[name="robots"]').getAttribute('content'), '/crear sigue noindex').toBe('noindex');
+  });
+
+  test('/instituciones: «Probar el creador» con desde=instituciones', async ({ page }) => {
+    await page.goto('/instituciones');
+    const boton = page.getByRole('link', { name: 'Probar el creador' });
+    await expect(boton).toHaveAttribute('href', '/crear?desde=instituciones');
+    await expect(page.locator('.perks')).toContainText('Taps con tu mascota y tus colores');
+  });
+
+  test('feed en escritorio: «Haz tu personaje» en el menú lateral y en el menú «Más» del riel, con desde=feed', async ({ page }) => {
+    await page.setViewportSize({ width: 1366, height: 800 });
+    await page.goto('/taps');
+    await expect(page.locator('html[data-taps-live]')).toBeAttached({ timeout: 15_000 });
+    const lateral = page.locator('gems-taps-menu .side a[href^="/crear"]');
+    await expect(lateral).toHaveAttribute('href', '/crear?desde=feed');
+    await expect(lateral).toContainText('Haz tu personaje');
+    await page.locator('gems-tap-rail.riel-escritorio button[aria-label="Más opciones"]').click();
+    await page.locator('gems-tap-rail.riel-escritorio .rail__menu').getByRole('button', { name: 'Haz tu personaje' }).click();
+    await expect(page).toHaveURL(/\/crear\?desde=feed$/);
+  });
+
+  test('feed en celular: el menú «Más» lleva a /crear y el resultado ofrece «Haz tu personaje» solo en el 5.º resultado', async ({ page }) => {
+    test.setTimeout(90_000);
+    await page.setViewportSize({ width: 390, height: 844 });
+    // Cuatro resultados vistos en este navegador: el siguiente es el 5.º.
+    await page.addInitScript(() => { try { if (!localStorage.getItem('taps.crear.entrada-resultado')) localStorage.setItem('taps.crear.entrada-resultado', '{"n":4,"descartado":false}'); } catch { /* sin almacenamiento */ } });
+    await page.goto('/taps');
+    await expect(page.locator('html[data-taps-live]')).toBeAttached({ timeout: 15_000 });
+    const tap = page.locator('.tap.tap--active');
+    await tap.locator('gems-tap-rail button[aria-label="Más opciones"]').click();
+    const item = tap.locator('gems-tap-rail .rail__menu--movil').getByRole('button', { name: 'Haz tu personaje' });
+    await expect(item).toBeVisible();
+    await page.keyboard.press('Escape');
+    // Juega el Tap hasta el resultado respondiendo la opción CORRECTA (data-ans del bloque de opciones): así hay ≥ 1 acierto y
+    // la regla «nunca tras 0 aciertos» no esconde la fila. «Seguir» puede irse solo (avance automático): cada intento es corto.
+    for (let k = 0; k < 20 && !(await tap.locator('.res__title').count()); k++) {
+      if (await tap.locator('.tap__go').count()) { await tap.locator('.tap__go').click({ timeout: 1_500 }).catch(() => undefined); }
+      else {
+        const opts = tap.locator('.tap__opts');
+        const ans = Number(await opts.getAttribute('data-ans').catch(() => null));
+        const objetivo = Number.isFinite(ans) ? tap.locator('.tap__opt').nth(ans) : tap.locator('.tap__opt').first();
+        await objetivo.click({ timeout: 1_500 }).catch(() => undefined);
+      }
+      await page.waitForTimeout(400);
+    }
+    await expect(tap.locator('.res__title')).toBeVisible();
+    const aciertos = Number((await tap.locator('.res__score').textContent())?.match(/^(\d+)/)?.[1] ?? '0');
+    expect(aciertos, 'se respondió la opción correcta: hay al menos 1 acierto').toBeGreaterThan(0);
+    const enlace = tap.locator('.res__crear a');
+    await expect(enlace).toHaveAttribute('href', '/crear?desde=feed');
+    // La fila es compacta: «Siguiente» sigue dentro de la pantalla (zona del pulgar) también en un celular de 667 px de alto.
+    const next = await tap.locator('.res__next').boundingBox();
+    expect(next && next.y + next.height <= 844, '«Siguiente» no se sale de la pantalla').toBeTruthy();
+    expect(await eventos(page)).toContain('taps/crear/entrada/resultado/mostrado');
+    await tap.locator('.res__crear-x').click();
+    await expect(tap.locator('.res__crear')).toHaveCount(0);
+    expect(await page.evaluate(() => localStorage.getItem('taps.crear.entrada-resultado'))).toContain('"descartado":true');
+    expect(await eventos(page)).toContain('taps/crear/entrada/resultado/descartado');
+  });
+});
