@@ -90,6 +90,7 @@ describe('taxonomía de eventos', () => {
     expect(isAutomatedTraffic('Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1')).toBeFalse();
     expect(isAutomatedTraffic('Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 Version/14.0 Mobile/15E148 Safari/604.1')).toBeFalse();
     expect(isAutomatedTraffic('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/130.0.0.0 Safari/537.36')).toBeFalse();
+    expect(isAutomatedTraffic('Mozilla/5.0 (Linux; Android 13; CUBOT X70) AppleWebKit/537.36 Chrome/130.0 Mobile Safari/537.36')).toBeFalse();
     expect(isAutomatedTraffic('')).toBeFalse();
   });
 

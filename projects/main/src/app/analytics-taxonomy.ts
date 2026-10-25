@@ -65,8 +65,8 @@ export function internalFlagFrom(search: string): boolean | null {
  */
 export function isAutomatedTraffic(userAgent: string): boolean {
   if (!userAgent) return false;
-  if (/bot|crawl|spider|slurp|preview|facebookexternalhit|facebot|whatsapp|telegram|lighthouse|pingdom/i.test(userAgent)) return true;
-  const ios = /(?:iPhone|iPad|iPod).*?OS (\d+)[_.]/i.exec(userAgent);
+  if (/bot[\/;.)]|\bbot\b|crawl|spider|slurp|preview|facebookexternalhit|facebot|whatsapp|telegram|lighthouse|pingdom/i.test(userAgent)) return true;
+  const ios = /\b(?:iPhone|iPad|iPod)\b.*?\bOS (\d+)[_.]/i.exec(userAgent);
   return !!ios && Number(ios[1]) < 14;
 }
 
