@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Diseñador de presentadores (prototipo)</title>
+<style>
+  :root { --bg: #0f0e17; --panel: #1a1926; --line: #2e2c42; --txt: #ecebf5; --soft: #a6a3c0; --acc: #8b7cf6; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--txt); font: 15px/1.4 system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  header { padding: 14px 16px 6px; }
+  h1 { margin: 0; font-size: 18px; }
+  header p { margin: 4px 0 0; color: var(--soft); font-size: 13px; }
+  main { display: grid; grid-template-columns: minmax(280px, 380px) 1fr; gap: 16px; padding: 12px 16px 28px; max-width: 980px; margin: 0 auto; }
+  @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+  .vista { position: sticky; top: 8px; align-self: start; }
+  canvas { width: 100%; height: auto; aspect-ratio: 9 / 16; border-radius: 16px; background: #000; display: block; }
+  .anims { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  button, select, input[type=text] { font: inherit; color: var(--txt); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+  button { cursor: pointer; } button:hover { border-color: var(--acc); }
+  button.on { background: var(--acc); border-color: var(--acc); color: #fff; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; }
+  .panel h2 { margin: 0 0 8px; font-size: 14px; color: var(--soft); font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  label { display: grid; gap: 4px; font-size: 12px; color: var(--soft); }
+  label select, label input[type=color] { width: 100%; }
+  input[type=color] { height: 36px; padding: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+  .check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--txt); }
+  textarea { width: 100%; min-height: 84px; font: 12px/1.4 ui-monospace, Consolas, monospace; color: var(--txt); background: #12111b; border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+  .fila { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  small { color: var(--soft); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Diseñador de presentadores 2D <small>· prototipo</small></h1>
+  <p>Combina piezas y mira al presentador en vivo con el motor real del tema «época». Todavía no guarda ni publica nada: sirve para dar sugerencias.</p>
+</header>
+<main>
+  <section class="vista">
+    <canvas id="lienzo" width="360" height="640" aria-label="Vista previa del presentador"></canvas>
+    <div class="anims" id="anims" role="group" aria-label="Animación"></div>
+  </section>
+  <section>
+    <div class="panel"><h2>Punto de partida</h2><div class="fila" id="presets"></div></div>
+    <div class="panel"><h2>Piezas</h2><div class="grid" id="piezas"></div></div>
+    <div class="panel"><h2>Colores</h2><div class="grid" id="colores"></div>
+      <div class="fila" style="margin-top:10px"><label class="check"><input type="checkbox" id="conChaleco"> Con chaleco</label><label class="check"><input type="checkbox" id="gafas"> Gafas</label></div></div>
+    <div class="panel"><h2>Escena</h2><div class="grid" id="escena"></div></div>
+    <div class="panel"><h2>Look (JSON, para pegarlo en el chat)</h2>
+      <textarea id="json" readonly></textarea>
+      <div class="fila" style="margin-top:8px"><button id="copiar">Copiar</button><button id="azar">Al azar</button><span id="aviso" aria-live="polite"><small></small></span></div></div>
+  </section>
+</main>
+<script type="module">
+import { CATALOGO, POSES, blendPose, drawHost, lookOf, poseFor, validarLook, ITEMS } from './themes/epoca/rig.js';
+import { WORLD_NAMES, paintWorld, paintAmbient } from './themes/epoca/scenery.js';
+
+const $ = id => document.getElementById(id);
+const theme = await (await fetch('./themes/epoca/theme.json')).json();
+const lienzo = $('lienzo'), ctx = lienzo.getContext('2d'), W = lienzo.width, H = lienzo.height;
+const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const ROTULOS = {
+  hairStyle: 'Peinado', beard: 'Barba', outfit: 'Prenda', sleeve: 'Manga', hat: 'Sombrero',
+  skin: 'Piel', hair: 'Pelo', coat: 'Prenda (color)', shirt: 'Camisa', trousers: 'Pantalón', shoes: 'Calzado', accent: 'Detalle', hatColor: 'Sombrero (color)', vest: 'Chaleco',
+  item: 'Objeto en la mano', world: 'Escenario', anim: 'Animación',
+};
+const NOMBRES = { none: 'ninguna', corto: 'corto', recogido: 'recogido', ondas: 'ondas', largo: 'largo', bob: 'media melena', rizos: 'rizos', calvo: 'calvo',
+  patillas: 'patillas', bigote: 'bigote', perilla: 'perilla', barba: 'barba', levita: 'levita', safari: 'safari', bata: 'bata', toga: 'toga', tunica: 'túnica',
+  medieval: 'medieval', traje: 'traje', larga: 'larga', corta: 'corta', copa: 'copa', bicornio: 'bicornio', laurel: 'laurel', gorra: 'gorra', boina: 'boina' };
+const COLORES = ['skin', 'hair', 'coat', 'shirt', 'vest', 'trousers', 'shoes', 'accent', 'hatColor'];
+const ITEMS_LISTA = ['(ninguno)', ...Object.keys(ITEMS)];
+
+let look = lookOf(theme.characters.grabador), item = 'pluma', world = 'taller-londres', anim = 'idle';
+
+function selector(id, valores, actual, alCambiar, nombres = NOMBRES) {
+  const l = document.createElement('label'); l.append(ROTULOS[id] ?? id);
+  const s = document.createElement('select'); s.id = 'sel-' + id;
+  for (const v of valores) s.add(new Option(nombres[v] ?? v, v));
+  s.value = actual; s.onchange = () => alCambiar(s.value); l.append(s); return l;
+}
+function construir() {
+  $('presets').replaceChildren(...Object.entries(theme.characters).map(([id, c]) => {
+    const b = document.createElement('button'); b.textContent = c.name; b.title = id;
+    b.onclick = () => { look = lookOf(c); sincronizar(); }; return b;
+  }));
+  $('piezas').replaceChildren(...Object.entries(CATALOGO).map(([campo, valores]) => selector(campo, valores, look[campo], v => { look[campo] = v; refrescar(); })));
+  $('colores').replaceChildren(...COLORES.map(campo => {
+    const l = document.createElement('label'); l.append(ROTULOS[campo]);
+    const i = document.createElement('input'); i.type = 'color'; i.id = 'col-' + campo; i.value = look[campo] ?? '#888888';
+    i.oninput = () => { look[campo] = i.value; if (campo === 'skin') look.skinShade = sombra(i.value); if (campo === 'coat') look.coatShade = sombra(i.value); if (campo === 'vest') $('conChaleco').checked = true; refrescar(); };
+    l.append(i); return l;
+  }));
+  $('escena').replaceChildren(
+    selector('world', WORLD_NAMES, world, v => { world = v; fondo = null; }, { 'taller-londres': 'Taller de Londres, 1803', 'excavacion-egipto': 'Excavación en Egipto', 'foro-roma': 'Foro de Roma', 'sala-medieval': 'Sala medieval', 'laboratorio-moderno': 'Laboratorio moderno' }),
+    selector('item', ITEMS_LISTA, item ?? '(ninguno)', v => { item = v === '(ninguno)' ? null : v; }, {}));
+  $('anims').replaceChildren(...Object.keys(POSES).filter(n => !['still', 'happy', 'oops'].includes(n)).map(n => {
+    const b = document.createElement('button'); b.textContent = { idle: 'Quieto', talk: 'Habla', think: 'Piensa', celebrate: 'Acierta', hurt: 'Falla', dance: 'Baila', sad: 'Triste' }[n] ?? n; b.dataset.anim = n;
+    b.onclick = () => { anim = n; animT = 0; marcar(); }; return b;
+  }));
+  $('conChaleco').onchange = e => { look.vest = e.target.checked ? ($('col-vest').value) : null; refrescar(); };
+  $('gafas').onchange = e => { look.glasses = e.target.checked; refrescar(); };
+  marcar();
+}
+const sombra = hex => { const n = parseInt(hex.slice(1), 16), f = v => Math.max(0, Math.round(v * 0.82)).toString(16).padStart(2, '0'); return '#' + f(n >> 16 & 255) + f(n >> 8 & 255) + f(n & 255); };
+function sincronizar() {
+  for (const campo of Object.keys(CATALOGO)) $('sel-' + campo).value = look[campo];
+  for (const campo of COLORES) $('col-' + campo).value = look[campo] ?? $('col-' + campo).value;
+  $('conChaleco').checked = !!look.vest; $('gafas').checked = !!look.glasses; refrescar();
+}
+function refrescar() {
+  const errores = validarLook(look);
+  const salida = { ...look }; if (!salida.vest) delete salida.vest;
+  $('json').value = JSON.stringify(salida, null, 2) + (errores.length ? '\n// ' + errores.join('; ') : '');
+}
+function marcar() { document.querySelectorAll('#anims button').forEach(b => b.classList.toggle('on', b.dataset.anim === anim)); }
+$('copiar').onclick = async () => { try { await navigator.clipboard.writeText($('json').value); $('aviso').firstChild.textContent = 'Copiado'; } catch { $('json').select(); $('aviso').firstChild.textContent = 'Selecciona y copia'; } };
+$('azar').onclick = () => {
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  for (const [campo, valores] of Object.entries(CATALOGO)) look[campo] = pick(valores);
+  const tonos = ['#f1c9a5', '#d9ab86', '#c99a76', '#a8714a', '#8a5a3c', '#6b4429'], pelos = ['#15110e', '#2f2218', '#6a3a1a', '#9a9a9a', '#b8863b', '#8a2f1d'];
+  look.skin = pick(tonos); look.skinShade = sombra(look.skin); look.hair = pick(pelos);
+  const prendas = ['#262633', '#5a6a8a', '#8c6a3a', '#efe6d0', '#34564a', '#7a2a2a']; look.coat = pick(prendas); look.coatShade = sombra(look.coat);
+  look.glasses = Math.random() < 0.3; sincronizar();
+};
+
+let fondo = null;
+function bg() {
+  if (fondo?.world === world) return fondo.c;
+  const c = document.createElement('canvas'); c.width = W; c.height = H; paintWorld(c.getContext('2d'), W, H, world, {}, null, 1); fondo = { world, c }; return c;
+}
+let pose = null, animT = 0, T = 0, ultimo = performance.now(), parpadeo = 2.5, parpadeoT = 0;
+function cuadro(ahora) {
+  const dt = Math.min(0.05, (ahora - ultimo) / 1000); ultimo = ahora;
+  if (!reducido) { T += dt; animT += dt; }
+  pose = blendPose(pose, poseFor(anim, reducido ? 0 : animT, reducido ? 0 : T), reducido ? 1 : 1 - Math.exp(-dt * 16));
+  parpadeo -= dt; if (parpadeo <= 0) { parpadeoT = 0.12; parpadeo = 2.4 + Math.random() * 2.4; } if (parpadeoT > 0) parpadeoT -= dt;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(bg(), 0, 0);
+  if (!reducido) paintAmbient(ctx, W, H, world, T);
+  const s = W / 540 * 0.82 * 1.55, gy = H * 0.5 + 40;
+  ctx.fillStyle = 'rgba(8,7,16,.32)'; ctx.beginPath(); ctx.ellipse(W / 2, gy + 6 * s, 70 * s, 14 * s, 0, 0, Math.PI * 2); ctx.fill();
+  drawHost(ctx, W / 2, gy - 112 * s, s, pose, lookOf({ look }), { item, blink: parpadeoT > 0, T });
+  requestAnimationFrame(cuadro);
+}
+construir(); sincronizar(); requestAnimationFrame(cuadro);
+</script>
+</body>
+</html>
