@@ -104,7 +104,8 @@ export const routes: Routes = [
   },
   {
     // Creador de personajes y Taps (PR-6 del plan de producto/taps/disenador-plan-ux.md): cualquiera crea y prueba sin cuenta;
-    // publicar pedirá cuenta (PR-8). Entradas con `?desde=` desde la portada, el feed, /instituciones y /instructor (PR-7). Sigue
+    // publicar pide cuenta: la hoja del gancho (PR-8) lleva al formulario de /instituciones con `?borrador=<id>` (el borrador local
+    // viaja adjunto) u ofrece al estudiante el enlace de su look. Entradas con `?desde=` desde la portada, el feed, /instituciones y /instructor (PR-7). Sigue
     // noindex: el plan no pide indexarla (se llega por las entradas; abrirla a buscadores es decisión del dueño). El diseñador
     // (public/taps-engine/disenador.js) se carga solo en el navegador.
     path: 'crear',

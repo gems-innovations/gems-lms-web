@@ -50,12 +50,13 @@ export function armarBorrador(estado, paso, anterior, ahora = Date.now()) {
   return { v: 1, borradorId: anterior?.borradorId || nuevoId(Math.random, ahora), paso: Math.max(0, Math.min(3, paso | 0)), fecha: ahora, ...copiarEstado(estado) };
 }
 
-/** Lee el borrador guardado; null si no hay, si el JSON está roto o si el look ya no es válido. */
+/** Lee el borrador guardado; null si no hay, si el JSON está roto o si el look ya no es válido. Conserva la miniatura PNG si trae una (PR-8). */
 export function parsearBorrador(raw, validar) {
   if (!raw) return null;
   let b; try { b = JSON.parse(raw); } catch { return null; }
   if (!estadoValido(b, validar) || typeof b.borradorId !== 'string') return null;
-  return { borradorId: b.borradorId, paso: Math.max(0, Math.min(3, b.paso | 0)), fecha: +b.fecha || 0, ...copiarEstado(b) };
+  const miniatura = typeof b.miniatura === 'string' && b.miniatura.startsWith('data:image/') ? b.miniatura : '';
+  return { borradorId: b.borradorId, paso: Math.max(0, Math.min(3, b.paso | 0)), fecha: +b.fecha || 0, miniatura, ...copiarEstado(b) };
 }
 
 // ───────────────────────── mis looks ─────────────────────────
