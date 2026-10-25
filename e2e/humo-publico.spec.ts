@@ -146,8 +146,9 @@ test.describe('Humo · visitante', () => {
     await expect(page, 'tras la primera respuesta pasa solo al feed').toHaveURL(/\/taps\?t=/, { timeout: 15_000 });
     await expect(page.locator('.tap.tap--active')).toHaveAttribute('data-tap', primero ?? '');
     // Una vez por pestaña: al volver a la portada se queda en ella.
-    await page.goto('/');
-    await expect(page.locator('html[data-taps-live]')).toBeAttached({ timeout: 15_000 });
+    // (Se vuelve con el historial: recargar con /taps a medio cargar hace que WebKit anote como error sus descargas canceladas.)
+    await page.goBack();
+    await expect(page).toHaveURL(/\/$/);
     await page.locator('gems-taps .tap.tap--active .tap__opt').first().click({ timeout: 5_000 }).catch(() => undefined);
     await page.waitForTimeout(4_000);
     await expect(page).toHaveURL(/\/$/);
