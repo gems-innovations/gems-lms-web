@@ -135,6 +135,32 @@
   .importar textarea { min-height: 80px; margin: 0; }
   .importar .fila { display: flex; gap: 8px; align-items: center; }
 
+  /* paso 3: pregunta de muestra (el personaje juega una pregunta con el motor) */
+  .muestra-pregunta { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin: 0 0 16px; display: grid; gap: 10px; }
+  .muestra-pregunta h3 { margin: 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .muestra-pregunta .texto { margin: 0; }
+  .muestra-pregunta .opciones { display: none; gap: 8px; }
+  .muestra-pregunta.jugando .opciones { display: grid; }
+  .muestra-pregunta.jugando #probar { display: none; }
+  .muestra-pregunta .opciones button { text-align: left; min-height: 48px; display: flex; align-items: center; gap: 10px; }
+  .muestra-pregunta .opciones button:disabled { cursor: default; }
+  .muestra-pregunta .opciones button .letra { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--panel2); border: 1px solid var(--line); font-weight: 700; font-size: 13px; flex: none; }
+  .muestra-pregunta .opciones button.bien { border-color: var(--good); } .muestra-pregunta .opciones button.bien .letra { background: var(--good); color: var(--acc-ink); border-color: var(--good); }
+  .muestra-pregunta .opciones button.mal { border-color: #f3a0a0; opacity: .7; }
+  .muestra-pregunta .enunciado { font-weight: 600; font-size: 15px; margin: 0; }
+  .muestra-pregunta .veredicto { margin: 0; color: var(--soft); font-size: 13px; min-height: 1.2em; }
+  .muestra-pregunta .veredicto.bien { color: var(--good); }
+
+  /* paso 3: «¿Te gustó hacerlo?» (una vez, descartable, dos iconos dibujados) */
+  .gusto { display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 8px 8px 8px 14px; margin: 0 0 16px; }
+  .gusto[hidden] { display: none; }
+  .gusto p { margin: 0; flex: 1; font-size: 14px; font-weight: 600; min-width: 0; }
+  .gusto button { min-height: 44px; width: 44px; padding: 0; display: grid; place-items: center; border-radius: 50%; color: var(--soft); }
+  .gusto button svg.ic { width: 24px; height: 24px; }
+  .gusto button.si { color: var(--acc); border-color: var(--acc); }
+  .gusto button.cerrar { border-color: transparent; background: transparent; width: 36px; min-height: 36px; }
+  .gusto p.gracias { color: var(--good); font-weight: 500; }
+
   /* chispas al guardar */
   .chispa { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; border-radius: 50%; background: var(--acc); pointer-events: none; animation: chispa .9s ease-out forwards; box-shadow: 0 0 10px 2px rgba(211,178,122,.6); }
   @keyframes chispa { 0% { transform: translate(-50%, -50%) scale(.6); opacity: 1; } 100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); opacity: 0; } }
@@ -194,6 +220,10 @@
   <symbol id="i-enlace" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.6.4l3-3a4 4 0 0 0-5.6-5.6l-1.5 1.5"/><path d="M14 10a4 4 0 0 0-5.6-.4l-3 3a4 4 0 0 0 5.6 5.6l1.5-1.5"/></symbol>
   <symbol id="i-bajar" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></symbol>
   <symbol id="i-subir" viewBox="0 0 24 24"><path d="M12 15V4M7 9l5-5 5 5"/><path d="M5 20h14"/></symbol>
+  <symbol id="i-jugar" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+  <symbol id="i-sonrisa" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.01M15.5 10h.01"/><path d="M8 14c1 1.8 2.4 2.7 4 2.7s3-.9 4-2.7"/></symbol>
+  <symbol id="i-neutro" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.01M15.5 10h.01"/><path d="M8.5 15.5h7"/></symbol>
+  <symbol id="i-cerrar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
   <symbol id="i-regalo" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M4 13h16M12 9v11"/><path d="M12 9c-1.5-3-4-4-5.5-2.5S9 9 12 9zm0 0c1.5-3 4-4 5.5-2.5S15 9 12 9z"/></symbol>
 </svg>
 
@@ -244,12 +274,26 @@
   <section class="pantalla" data-p="3">
     <p class="texto" id="despedida">Tu personaje está listo. Toca una reacción para verlo en acción.</p>
     <div class="reacciones" id="reacciones" role="group" aria-label="Reacciones"></div>
+    <section class="muestra-pregunta" id="muestraPregunta" aria-labelledby="muestraTitulo">
+      <h3 id="muestraTitulo"><svg class="ic" aria-hidden="true"><use href="#i-jugar"/></svg>Míralo en un Tap</h3>
+      <p class="texto">Así se verá cuando alguien responda una pregunta con tu personaje. Prueba con una de ejemplo.</p>
+      <button type="button" id="probar" class="grande secundario" style="background:var(--panel2);border-color:var(--acc);color:var(--txt)"><svg class="ic"><use href="#i-jugar"/></svg>Probar con una pregunta</button>
+      <p class="enunciado" id="enunciado" hidden></p>
+      <div class="opciones" id="opciones" role="group" aria-label="Opciones de la pregunta de ejemplo"></div>
+      <p class="veredicto" id="veredicto" role="status" aria-live="polite"></p>
+    </section>
     <form class="guardar" id="formGuardar" novalidate>
       <label for="nombre">Ponle nombre (opcional)</label>
       <div class="fila"><input id="nombre" maxlength="20" autocomplete="off" autocapitalize="words" enterkeyhint="done" spellcheck="false"><small id="restan" aria-hidden="true"></small></div>
       <button type="submit" id="guardar" class="grande"><svg class="ic"><use href="#i-guardar"/></svg>Guardar en este dispositivo</button>
       <p class="estado" id="estadoGuardado" role="status" aria-live="polite"></p>
     </form>
+    <div class="gusto" id="gusto" hidden role="group" aria-labelledby="gustoTexto">
+      <p id="gustoTexto">¿Te gustó hacerlo?</p>
+      <button type="button" class="si" id="gustoSi" aria-label="Sí, me gustó"><svg class="ic"><use href="#i-sonrisa"/></svg></button>
+      <button type="button" id="gustoMeh" aria-label="Más o menos"><svg class="ic"><use href="#i-neutro"/></svg></button>
+      <button type="button" class="cerrar" id="gustoNo" aria-label="Ahora no"><svg class="ic"><use href="#i-cerrar"/></svg></button>
+    </div>
     <section class="mislooks" id="misLooks" aria-labelledby="misLooksTitulo">
       <h3 id="misLooksTitulo">Mis looks <small id="cuentaLooks"></small></h3>
       <p class="texto" id="misLooksVacio">Aquí aparecerán los personajes que guardes. Se quedan en este dispositivo; nada se envía.</p>
@@ -315,12 +359,42 @@ import { WORLD_NAMES, GROUND_Y, paintWorld, paintAmbient } from './themes/epoca/
 import { PALETAS, NOMBRES, MUNDOS, sombra, sorprenderTodo, sorprenderPestana, sorprenderEscenario, sugerencias } from './themes/epoca/sugerencias.js';
 import { CLAVE_BORRADOR, CLAVE_LOOKS, MAX_LOOKS, MAX_NOMBRE, armarBorrador, borrarLook, crearAlmacen, duplicarLook, fechaCorta, guardarLook, parsearBorrador, parsearLooks, renombrarLook, serializarBorrador, serializarLooks } from './themes/epoca/guardado.js';
 import { enlaceDeLook, exportarJson, importarJson, lookDesdeHash } from './themes/epoca/compartir.js';
+import { crearMedidor, esAutomatico, esInterno, nombreAbandono, paraGoatCounter } from './themes/epoca/medicion.js';
 
 const $ = id => document.getElementById(id);
 const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ───────────────────────── medición (themes/epoca/medicion.js): solo nombres cerrados, nunca el look ─────────────────────────
+// Canal: GoatCounter, el mismo contador sin cookies de la web (index.html + AnalyticsService), que acepta cualquier path
+// `taps/...`; el endpoint de estadísticas por Tap del API solo entiende vista/respuesta/completado/compartido de un Tap del
+// banco, así que no sirve para esto sin cambiarlo. Reglas: `?interno=1` (misma marca `skipgc`) y navegadores automatizados
+// (Playwright, prerender) no cargan count.js ni envían nada; si count.js tarda o falla, los eventos esperan en una cola de
+// 200 y se descartan en silencio. `window.tapsMedicion.registro` deja ver la secuencia (depuración y pruebas).
+let storageNativo = null; try { storageNativo = window.localStorage; } catch { storageNativo = null; }
+const interno = esInterno(location.search, storageNativo);
+const automatico = esAutomatico(navigator.userAgent, navigator.webdriver === true);
+const medidor = crearMedidor({ activo: !interno });
+const abierto = performance.now();
+let contadorListo = false;
+function bombear() {                           // manda lo pendiente a count.js cuando ya está; si no, se queda en la cola
+  const gc = window.goatcounter; if (!gc?.count) return;
+  for (const n of medidor.vaciar()) { try { gc.count(paraGoatCounter(n)); } catch { /* sin analítica no pasa nada */ } }
+}
+function contar(nombre) { try { if (medidor.evento(nombre) && contadorListo) bombear(); } catch { /* ídem */ } }
+if (!interno && !automatico) {
+  try {
+    const s = document.createElement('script'); s.id = 'goatcounter-script'; s.async = true; s.src = 'https://gc.zgo.at/count.js';
+    s.dataset.goatcounter = 'https://infogems.goatcounter.com/count';
+    s.dataset.goatcounterSettings = JSON.stringify({ no_onload: true });   // la página la cuenta el router de la web; aquí solo acciones
+    s.addEventListener('load', () => { contadorListo = true; bombear(); }, { once: true });
+    document.head.append(s);
+  } catch { /* sin script no hay medición: la página sigue igual */ }
+}
+window.tapsMedicion = Object.freeze({ registro: medidor.registro, interno, automatico });
+
 let theme;
 try { theme = await (await fetch('./themes/epoca/theme.json')).json(); }
-catch { $('titulo').textContent = 'No se pudo cargar el tema. Revisa la conexión y vuelve a intentar.'; throw new Error('tema'); }
+catch { contar('error/carga'); $('titulo').textContent = 'No se pudo cargar el tema. Revisa la conexión y vuelve a intentar.'; throw new Error('tema'); }
 
 // ───────────────────────── datos (textos para personas; paletas y afinidades en themes/epoca/sugerencias.js) ─────────────────────────
 const MUNDO_DE = { grabador: 'taller-londres', arqueologa: 'excavacion-egipto', senador: 'foro-roma', escriba: 'excavacion-egipto', artesano: 'sala-medieval', investigadora: 'laboratorio-moderno', periodista: 'laboratorio-moderno' };
@@ -355,10 +429,13 @@ function cambiar(tipo, aplicar) {              // todo cambio pasa por aquí: gu
   if (tipo === 'world' && !reducido) entrada = 1;
   refrescarControles(); refrescarSugerencia(); pintar(); pintarEscenas();
   programarAutoguardado();
+  if (pantalla === 1 && CAMBIO_DE_PESTANA.has(tipo)) contar('cambio/' + pestana);   // agregado: 1 por pestaña por minuto
   try { navigator.vibrate?.(12); } catch {}
 }
+const CAMBIO_DE_PESTANA = new Set(['face', 'hair', 'outfit', 'color', 'hat', 'item', 'sugerencia']);
 function deshacer() {
   const ant = historial.pop(); if (!ant) return;
+  contar('deshacer');
   Object.assign(estado, ant); $('deshacer').disabled = !historial.length;
   fondoSucio = true; escenasSucias = true; reaccionar('deshacer'); construirAjustes(); refrescarControles(); refrescarSugerencia(); pintar(); pintarEscenas();
   programarAutoguardado();
@@ -367,6 +444,7 @@ function ponerPreset(id) {
   const c = theme.characters[id];
   cambiar('preset', () => { estado.base = id; estado.look = lookOf(c); estado.item = OBJETO_DE[id] ?? null; estado.world = MUNDO_DE[id] ?? theme.defaultWorld; });
   decir(FRASES.preset(c.name)); fondoSucio = true; construirAjustes();
+  contar('preset/' + id);
 }
 function aplicarResultado(r) { estado.look = r.look; estado.item = r.item; estado.world = r.world; }
 function sorprender() {                        // curado, no un dado: combinaciones coherentes por prenda (tablas de sugerencias.js)
@@ -378,6 +456,7 @@ function sorprender() {                        // curado, no un dado: combinacio
   });
   if (estado.world !== ant) { fondoSucio = true; if (!reducido) entrada = 1; pintar(); }
   construirAjustes();
+  contar('sorprendeme/' + (pantalla === 0 ? 'todo' : pantalla === 1 ? pestana : 'escenario'));
 }
 
 // Sugerencia contextual de una línea bajo la vista (paso 1: prenda → sombrero, manga, objeto; paso 2: objeto → escenario)
@@ -398,7 +477,9 @@ $('sugerenciaAplicar').onclick = () => {
 // ───────────────────────── pantallas ─────────────────────────
 const TITULOS = ['Punto de partida', 'Ajústalo', 'Escenario', 'Está listo'];
 function irA(p) {
-  pantalla = Math.max(0, Math.min(3, p));
+  const destino = Math.max(0, Math.min(3, p));
+  if (destino > pantalla && destino >= 2) contar(destino === 2 ? 'paso/escenario' : 'paso/listo');   // solo al avanzar
+  pantalla = destino;
   document.querySelectorAll('.pantalla').forEach(s => s.classList.toggle('activa', +s.dataset.p === pantalla));
   const punto = pantalla <= 1 ? 0 : pantalla - 1;
   [...$('progreso').children].forEach((li, i) => { li.classList.toggle('ahora', i === punto); li.classList.toggle('ya', i < punto); li.setAttribute('aria-current', i === punto ? 'step' : 'false'); });
@@ -411,7 +492,7 @@ function irA(p) {
   $('paso').scrollTop = 0;
   if (pantalla === 1) construirAjustes();
   if (pantalla === 2) construirEscenas();
-  if (pantalla === 3) { refrescarJson(); prepararGuardar(); if (!reducido) reaccionar('preset'); }
+  if (pantalla === 3) { refrescarJson(); prepararGuardar(); reiniciarPregunta(); if (!reducido) reaccionar('preset'); }
   refrescarSugerencia();
   programarAutoguardado();
 }
@@ -551,12 +632,59 @@ function construirReacciones() {
   const lista = [['talk', 'Habla'], ['think', 'Piensa'], ['celebrate', 'Acierta'], ['hurt', 'Falla'], ['dance', 'Baila']];
   $('reacciones').replaceChildren(...lista.map(([a, t]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = t; b.onclick = () => animar(a, 1.6); return b; }));
 }
+// Pregunta de muestra: el personaje juega UNA pregunta de ejemplo (una opción correcta) con las mismas poses que usa el
+// feed (celebrate / hurt). No toca el motor: solo elige la pose según la opción. Opcional: solo si tocas «Probar».
+const PREGUNTA_MUESTRA = {
+  texto: '¿Cuál de estos números es primo?',
+  opciones: [['9', false], ['7', true], ['15', false]],
+  bien: ['¡Correcto! Así celebro.', '¡Eso es!'], mal: ['Casi… era el 7.', 'Uy, no. Era el 7.'],
+};
+let preguntaJugada = false;
+function reiniciarPregunta() {
+  const caja = $('muestraPregunta'); caja.classList.remove('jugando'); preguntaJugada = false;
+  $('enunciado').hidden = true; $('veredicto').textContent = ''; $('veredicto').classList.remove('bien'); $('opciones').replaceChildren();
+}
+$('probar').onclick = () => {
+  contar('probar');
+  const caja = $('muestraPregunta'); caja.classList.add('jugando');
+  $('enunciado').hidden = false; $('enunciado').textContent = PREGUNTA_MUESTRA.texto;
+  $('opciones').replaceChildren(...PREGUNTA_MUESTRA.opciones.map(([t, ok], i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.innerHTML = `<span class="letra">${'ABC'[i]}</span>`; b.append(t);
+    b.onclick = () => {
+      if (preguntaJugada) return; preguntaJugada = true;
+      for (const o of $('opciones').children) { o.disabled = true; o.classList.toggle('bien', PREGUNTA_MUESTRA.opciones[[...$('opciones').children].indexOf(o)][1]); }
+      if (!ok) b.classList.add('mal');
+      const v = $('veredicto'); v.textContent = ok ? 'Acertaste: así celebra tu personaje en un Tap.' : 'Era el 7: así reacciona tu personaje cuando alguien falla.'; v.classList.toggle('bien', ok);
+      animar(ok ? 'celebrate' : 'hurt', 1.6); decir(pick(ok ? PREGUNTA_MUESTRA.bien : PREGUNTA_MUESTRA.mal));
+      try { navigator.vibrate?.(ok ? 15 : [10, 40, 10]); } catch {}
+      const otra = document.createElement('button'); otra.type = 'button'; otra.textContent = 'Jugar otra vez'; otra.onclick = () => { reiniciarPregunta(); $('probar').click(); };
+      $('opciones').append(otra);
+    };
+    return b;
+  }));
+  if (!reducido) animar('think', 1.2); decir('A ver si sabes…');
+};
+// «¿Te gustó hacerlo?»: una vez por dispositivo, tras guardar, descartable. Solo viaja si/meh; nada más.
+const CLAVE_GUSTO = 'taps.disenador.gusto';
+function ofrecerGusto() {
+  if (almacen.leer(CLAVE_GUSTO)) return;
+  $('gusto').hidden = false;
+}
+function cerrarGusto(respuesta) {
+  if (respuesta) contar('gusto/' + respuesta);
+  almacen.escribir(CLAVE_GUSTO, respuesta || 'no');
+  if (!respuesta) { $('gusto').hidden = true; return; }
+  const p = $('gustoTexto'); p.textContent = respuesta === 'si' ? 'Gracias. A nosotros también nos gustó verte crearlo.' : 'Gracias por decirlo. Lo vamos a mejorar.'; p.classList.add('gracias');
+  for (const id of ['gustoSi', 'gustoMeh', 'gustoNo']) $(id).hidden = true;
+  setTimeout(() => { $('gusto').hidden = true; }, 3500);
+}
+$('gustoSi').onclick = () => cerrarGusto('si'); $('gustoMeh').onclick = () => cerrarGusto('meh'); $('gustoNo').onclick = () => cerrarGusto(null);
+
 function datosLook() { const l = { ...estado.look }; if (!l.vest) delete l.vest; return { base: estado.base, look: l, item: estado.item, world: estado.world }; }
 function refrescarJson() { const e = validarLook(estado.look); $('json').value = JSON.stringify(datosLook(), null, 2) + (e.length ? '\n// ' + e.join('; ') : ''); }
-$('copiar').onclick = async () => { try { await navigator.clipboard.writeText($('json').value); $('aviso').textContent = 'Copiado'; } catch { $('json').select(); $('aviso').textContent = 'Selecciona el texto y cópialo'; } setTimeout(() => { $('aviso').textContent = ''; }, 2500); };
+$('copiar').onclick = async () => { contar('compartir/json'); try { await navigator.clipboard.writeText($('json').value); $('aviso').textContent = 'Copiado'; } catch { $('json').select(); $('aviso').textContent = 'Selecciona el texto y cópialo'; } setTimeout(() => { $('aviso').textContent = ''; }, 2500); };
 
 // ───────────────────────── guardado en el dispositivo (themes/epoca/guardado.js; nada viaja a ningún servidor) ─────────────────────────
-let storageNativo = null; try { storageNativo = window.localStorage; } catch { storageNativo = null; }
 const almacen = crearAlmacen(storageNativo);
 let misLooks = parsearLooks(almacen.leer(CLAVE_LOOKS), validarLook);
 let borradorActual = parsearBorrador(almacen.leer(CLAVE_BORRADOR), validarLook);
@@ -610,6 +738,7 @@ $('formGuardar').addEventListener('submit', ev => {
   if (!almacen.escribir(CLAVE_LOOKS, serializarLooks(r.lista))) { estadoGuardado('No se pudo guardar: el almacenamiento de este navegador está lleno o bloqueado. Copia sus datos desde «Más».', false, 8000); return; }
   misLooks = r.lista; lookCargado = r.look.id; $('nombre').value = ''; contarNombre();
   estadoGuardado(`«${r.look.nombre}» está en Mis looks.`, true); reaccionar('guardar'); chispas(); pintarMisLooks();
+  contar('listo'); ofrecerGusto();
   try { navigator.vibrate?.(15); } catch {}
 });
 function persistirLooks(lista, aviso) {
@@ -665,13 +794,15 @@ async function copiarTexto(texto) { try { await navigator.clipboard.writeText(te
 $('copiarEnlace').onclick = async () => {
   const url = enlaceActual(), nombre = $('nombre').value.trim() || nombreSugerido();
   if (navigator.share) {
-    try { await navigator.share({ title: `Mira a ${nombre}`, text: 'Te mando mi personaje. Ábrelo y cámbialo a tu gusto.', url }); estadoCompartir('Enlace compartido.', true); return; }
+    try { await navigator.share({ title: `Mira a ${nombre}`, text: 'Te mando mi personaje. Ábrelo y cámbialo a tu gusto.', url }); estadoCompartir('Enlace compartido.', true); contar('compartir/enlace'); return; }
     catch (e) { if (e?.name === 'AbortError') return; }     // cerró la hoja del sistema: no es un error
   }
-  if (await copiarTexto(url)) { estadoCompartir('Enlace copiado. Pégalo donde quieras.', true); reaccionar('guardar'); return; }
+  if (await copiarTexto(url)) { estadoCompartir('Enlace copiado. Pégalo donde quieras.', true); reaccionar('guardar'); contar('compartir/enlace'); return; }
+  contar('compartir/enlace');
   mostrarEnlace(url); estadoCompartir('No se pudo copiar solo. Selecciona el enlace y cópialo.', false, 8000);
 };
 $('exportar').onclick = () => {
+  contar('compartir/json');
   const nombre = $('nombre').value.trim() || nombreSugerido(), archivo = 'personaje-' + nombre.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.json';
   try {
     const blob = new Blob([exportarJson(estado, $('nombre').value.trim())], { type: 'application/json' }), url = URL.createObjectURL(blob);
@@ -682,7 +813,7 @@ $('exportar').onclick = () => {
 function aviso(texto, ms = 4000) { const a = $('aviso'); a.textContent = texto; clearTimeout(aviso.t); aviso.t = setTimeout(() => { if (a.textContent === texto) a.textContent = ''; }, ms); }
 function importarTexto(texto) {
   const r = importarJson(texto, validarLook, OPCIONES_LOOK);
-  if (!r.ok) { aviso(r.motivo, 7000); return; }
+  if (!r.ok) { contar('error/look-invalido'); aviso(r.motivo, 7000); return; }
   cambiar('cargar', () => Object.assign(estado, r.estado)); lookCargado = null; fondoSucio = true; if (!reducido) entrada = 1; pintar(); construirAjustes(); refrescarJson(); prepararGuardar();
   if (r.nombre) { $('nombre').value = r.nombre; contarNombre(); }
   $('pegarImportar').value = ''; aviso('Personaje importado. Ya está en la vista; puedes ajustarlo o guardarlo.');
@@ -701,7 +832,7 @@ function ofrecerRecibido() {
   const r = lookDesdeHash(location.hash, validarLook, OPCIONES_LOOK);
   if (!r) return false;
   try { history.replaceState(null, '', location.pathname + location.search); } catch {}
-  if (!r.ok) { irA(0); estadoRecibidoInvalido(r.motivo); return false; }
+  if (!r.ok) { contar('error/look-invalido'); irA(0); estadoRecibidoInvalido(r.motivo); return false; }
   const quien = r.nombre || 'un personaje';
   try { $('recibidoMini').src = miniatura(r.estado.look, 84, 112, 2).toDataURL('image/png'); } catch {}
   $('recibidoTexto').textContent = `Alguien te mandó ${r.nombre ? 'a ' + r.nombre : 'su personaje'}.` + (borradorActual ? ' Tienes uno a medias en este dispositivo: si pruebas este, el tuyo se reemplaza; si solo lo guardas, el tuyo sigue igual.' : ' Puedes cambiarlo a tu gusto o guardarlo tal cual.');
@@ -792,8 +923,17 @@ function cuadro(ahora) {
   if (entrada > 0) entrada = Math.max(0, entrada - dt * 2.4);
   parpadeo -= dt; if (parpadeo <= 0) { parpadeoT = 0.12; parpadeo = 2.4 + Math.random() * 2.4; } if (parpadeoT > 0) parpadeoT -= dt;
   pose = blendPose(pose, poseFor(anim, animT, T), 1 - Math.exp(-dt * 16));
+  vigilarFps(ahora, dt);
   dibujar();
   requestAnimationFrame(cuadro);
+}
+// `fps-bajo`: menos de 30 fps durante 2 s seguidos mientras hay una animación (no en idle, no al volver de una pestaña oculta).
+let lentoDesde = 0;
+function vigilarFps(ahora, dt) {
+  if (anim === 'idle' || dt <= 0 || dt >= 0.05) { lentoDesde = 0; return; }     // dt tope = 0.05 → un salto (pestaña oculta), no un tirón
+  if (dt <= 1 / 30) { lentoDesde = 0; return; }
+  if (!lentoDesde) lentoDesde = ahora;
+  else if (ahora - lentoDesde >= 2000) { lentoDesde = 0; contar('fps-bajo'); }
 }
 function dibujar() {
   medir();
@@ -816,7 +956,11 @@ new ResizeObserver(() => { if (medir()) pintar(); }).observe(vista);
 // ───────────────────────── arranque ─────────────────────────
 construirPresets(); construirPestanas(); construirReacciones(); irA(0);
 medir(); arrancar(); pintar();
-if (!ofrecerRecibido() && !ofrecerContinuar()) { if (!reducido) animar('celebrate', 1.2); decir(FRASES.preset(theme.characters.grabador.name)); }
+const conEnlace = ofrecerRecibido(), conBorrador = !conEnlace && ofrecerContinuar();
+if (!conEnlace && !conBorrador) { if (!reducido) animar('celebrate', 1.2); decir(FRASES.preset(theme.characters.grabador.name)); }
+contar('abrir/' + (conEnlace ? 'enlace' : conBorrador ? 'continuar' : 'directo'));
+// Al irse: en qué paso estaba y cuántos segundos llevaba (redondeados a 10). Si ya guardó, no es abandono.
+addEventListener('pagehide', () => { if (!medidor.registro.includes('listo')) contar(nombreAbandono(pantalla, performance.now() - abierto)); bombear(); });
 </script>
 </body>
 </html>
