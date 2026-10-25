@@ -13,16 +13,15 @@ describe('enlaceCrear', () => {
       expect(ORIGENES_CREAR).toContain(origen);
     }
   });
-  it('desde el feed viaja el tema del Tap actual', () => {
-    expect(enlaceCrear('feed', 'minecraft').query).toEqual({ desde: 'feed', tema: 'minecraft' });
-    expect(enlaceCrear('feed', null).query).toEqual({ desde: 'feed' });
+  it('solo lleva lo que /crear lee (sin tema)', () => {
+    expect(Object.keys(enlaceCrear('feed').query)).toEqual(['desde']);
   });
 });
 
 describe('eventoEntrada', () => {
   it('sigue la taxonomía taps/crear/entrada/<entrada>/<accion>', () => {
     expect(eventoEntrada('resultado', 'mostrado')).toBe('taps/crear/entrada/resultado/mostrado');
-    expect(eventoEntrada('portada', 'clic')).toBe('taps/crear/entrada/portada/clic');
+    expect(eventoEntrada('instituciones', 'clic')).toBe('taps/crear/entrada/instituciones/clic');
     expect(eventoEntrada('menu', 'clic')).toBe('taps/crear/entrada/menu/clic');
   });
 });

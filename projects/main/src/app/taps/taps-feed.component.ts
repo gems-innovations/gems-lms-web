@@ -679,10 +679,10 @@ export class TapsFeedComponent {
   /** El enlace ya navega (menú de escritorio, resultado): aquí solo se mide la entrada. */
   protected crearMedir(entrada: TEntradaCrear): void { this.track(null, eventoEntrada(entrada, 'clic')); }
 
-  /** Desde un menú sin enlace (el «Más» del riel): mide y va a /crear con el tema del Tap actual. */
-  protected crearDesde(entrada: TEntradaCrear, tap: ITap): void {
+  /** Desde un menú sin enlace (el «Más» del riel): mide y va a /crear. */
+  protected crearDesde(entrada: TEntradaCrear): void {
     this.crearMedir(entrada);
-    const { ruta, query } = enlaceCrear('feed', topicOf(tap));
+    const { ruta, query } = enlaceCrear('feed');
     void this.router.navigate([ruta], { queryParams: query });
   }
 

@@ -8,8 +8,11 @@ import { TOrigenCrear } from './taps.crear';
  * se insiste. Sin Angular ni DOM, para probarla sin navegador.
  */
 
-/** Dónde está cada entrada (para `taps/crear/entrada/<entrada>/<accion>`). El menú y el resultado llegan con `desde=feed`. */
-export type TEntradaCrear = 'portada' | 'menu' | 'resultado' | 'instituciones' | 'instructor';
+/**
+ * Dónde está cada entrada (para `taps/crear/entrada/<entrada>/<accion>`). El menú y el resultado llegan con `desde=feed`.
+ * La portada no está: su toque ya se cuenta como puerta de la portada (`portada/opcion/crear`) y la llegada, en `abrir/portada`.
+ */
+export type TEntradaCrear = 'menu' | 'resultado' | 'instituciones' | 'instructor';
 
 /** Copy de las entradas (§A.2), para personas y sin emojis. */
 export const COPY_ENTRADA = {
@@ -24,11 +27,9 @@ export const COPY_ENTRADA = {
   instructor: 'Crear un Tap',
 } as const;
 
-/** Enlace de una entrada: `/crear?desde=<origen>` (y el tema del Tap actual cuando se sale del feed, §A.2). */
-export function enlaceCrear(origen: TOrigenCrear, tema?: string | null): { ruta: string; query: Record<string, string> } {
-  const query: Record<string, string> = { desde: origen };
-  if (tema) query['tema'] = tema;
-  return { ruta: '/crear', query };
+/** Enlace de una entrada: `/crear?desde=<origen>` (solo lo que /crear lee; el tema del Tap actual llegará cuando el creador lo use). */
+export function enlaceCrear(origen: TOrigenCrear): { ruta: string; query: Record<string, string> } {
+  return { ruta: '/crear', query: { desde: origen } };
 }
 
 /** Evento de una entrada: `mostrado` solo tiene sentido en el resultado (las demás siempre están); `descartado` también. */

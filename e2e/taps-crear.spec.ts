@@ -117,7 +117,7 @@ test.describe('entradas a /crear', () => {
     await expect(lateral).toContainText('Haz tu personaje');
     await page.locator('gems-tap-rail.riel-escritorio button[aria-label="Más opciones"]').click();
     await page.locator('gems-tap-rail.riel-escritorio .rail__menu').getByRole('button', { name: 'Haz tu personaje' }).click();
-    await expect(page).toHaveURL(/\/crear\?desde=feed&tema=/);
+    await expect(page).toHaveURL(/\/crear\?desde=feed$/);
   });
 
   test('feed en celular: el menú «Más» lleva a /crear y el resultado ofrece «Haz tu personaje» solo en el 5.º resultado', async ({ page }) => {
@@ -132,20 +132,26 @@ test.describe('entradas a /crear', () => {
     const item = tap.locator('gems-tap-rail .rail__menu--movil').getByRole('button', { name: 'Haz tu personaje' });
     await expect(item).toBeVisible();
     await page.keyboard.press('Escape');
-    // Juega el Tap hasta el resultado (patrón de humo-publico.spec.ts).
+    // Juega el Tap hasta el resultado respondiendo la opción CORRECTA (data-ans del bloque de opciones): así hay ≥ 1 acierto y
+    // la regla «nunca tras 0 aciertos» no esconde la fila. «Seguir» puede irse solo (avance automático): cada intento es corto.
     for (let k = 0; k < 20 && !(await tap.locator('.res__title').count()); k++) {
-      const objetivo = (await tap.locator('.tap__go').count()) ? tap.locator('.tap__go') : tap.locator('.tap__opt').first();
-      await objetivo.click({ timeout: 1_500 }).catch(() => undefined);
+      if (await tap.locator('.tap__go').count()) { await tap.locator('.tap__go').click({ timeout: 1_500 }).catch(() => undefined); }
+      else {
+        const opts = tap.locator('.tap__opts');
+        const ans = Number(await opts.getAttribute('data-ans').catch(() => null));
+        const objetivo = Number.isFinite(ans) ? tap.locator('.tap__opt').nth(ans) : tap.locator('.tap__opt').first();
+        await objetivo.click({ timeout: 1_500 }).catch(() => undefined);
+      }
       await page.waitForTimeout(400);
     }
     await expect(tap.locator('.res__title')).toBeVisible();
     const aciertos = Number((await tap.locator('.res__score').textContent())?.match(/^(\d+)/)?.[1] ?? '0');
+    expect(aciertos, 'se respondió la opción correcta: hay al menos 1 acierto').toBeGreaterThan(0);
     const enlace = tap.locator('.res__crear a');
-    if (aciertos === 0) {
-      await expect(enlace, 'nunca tras 0 aciertos').toHaveCount(0);
-      return;
-    }
-    await expect(enlace).toHaveAttribute('href', /^\/crear\?desde=feed&tema=/);
+    await expect(enlace).toHaveAttribute('href', '/crear?desde=feed');
+    // La fila es compacta: «Siguiente» sigue dentro de la pantalla (zona del pulgar) también en un celular de 667 px de alto.
+    const next = await tap.locator('.res__next').boundingBox();
+    expect(next && next.y + next.height <= 844, '«Siguiente» no se sale de la pantalla').toBeTruthy();
     expect(await eventos(page)).toContain('taps/crear/entrada/resultado/mostrado');
     await tap.locator('.res__crear-x').click();
     await expect(tap.locator('.res__crear')).toHaveCount(0);

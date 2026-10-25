@@ -17,7 +17,7 @@ import { feedTopics } from '../taps/taps.logic';
 import { AnalyticsService } from '../analytics.service';
 import { eventSlug } from '../analytics-taxonomy';
 import { TenantService } from '../tenant.service';
-import { COPY_ENTRADA, eventoEntrada } from '../taps/taps.crear-entrada';
+import { COPY_ENTRADA } from '../taps/taps.crear-entrada';
 
 /** Destinos que se miden desde la portada (`cursos` = abre o empieza un curso; `cursos-ancla` = baja a la lista) (`portada/opcion/<destino>`, producto/retencion/plan-retencion.md). */
 type TPortadaDestino = 'taps' | `temas/${string}` | 'retos' | 'bloques' | 'cursos' | 'cursos-ancla' | 'instituciones' | 'entrar' | 'crear';
@@ -104,9 +104,6 @@ export class LandingComponent {
   protected topicEvent(id: string): TPortadaDestino { return `temas/${eventSlug(id)}`; }
 
   protected readonly copyCrear = COPY_ENTRADA;
-  /** Tarjeta «Crea tu personaje y tu Tap» (PR-7): puerta de la portada y entrada del embudo de /crear. */
-  protected crear(): void {
-    this.choose('crear');
-    this.analytics.event(eventoEntrada('portada', 'clic'));
-  }
+  /** Tarjeta «Crea tu personaje y tu Tap» (PR-7): una puerta más de la portada (`portada/opcion/crear`); la llegada la cuenta /crear en `abrir/portada`. */
+  protected crear(): void { this.choose('crear'); }
 }
