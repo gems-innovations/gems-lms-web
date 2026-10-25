@@ -71,6 +71,9 @@ export type TSound = 'on' | 'off';
 export type TSoundEstado = TSound | null;
 interface IPreAnswer { id: string; k: number; t: number }
 
+/** Marca de sesión/prueba del salto automático de la portada a /taps. */
+const SALTO_KEY = 'gems-portada-salto';
+
 /**
  * Feed vertical de Taps: un Tap a pantalla completa, desliza para el siguiente. Cada Tap es un quiz que juegas con un
  * personaje en vivo (motor en public/taps-engine). Responder es libre y sin registro.
@@ -361,6 +364,7 @@ export class TapsFeedComponent {
   private sharing = false;
   /** Frase que pintó el script previo a hidratar para la primera respuesta (se mantiene al hidratar). */
   private preWord: { tapId: string; text: string } | null = null;
+  private saltoTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     const html = this.document.documentElement;
@@ -370,6 +374,7 @@ export class TapsFeedComponent {
       html.removeAttribute('data-taps-live');
       html.removeAttribute('data-glass');
       this.clock.cancel();
+      if (this.saltoTimer) clearTimeout(this.saltoTimer);
       this.duo.cancel();
       this.clearHold();
       this.clearVisualTimer();
@@ -744,6 +749,28 @@ export class TapsFeedComponent {
     }, () => { this.audio.relevarAlSalir(false); this.musica.relevarAlSalir(false); });
   }
 
+  /**
+   * Portada: tras la primera respuesta (y su reacción) se pasa solo al feed completo en ese mismo Tap, que retoma lo jugado.
+   * Una vez por pestaña: quien vuelve a la portada se queda en ella. Un navegador automatizado no salta (las pruebas de la
+   * portada juegan varias preguntas ahí) salvo que se pida con `gems-portada-salto=on`.
+   */
+  private saltoPermitido(): boolean {
+    try {
+      if (sessionStorage.getItem(SALTO_KEY) === 'hecho') return false;
+      return !navigator.webdriver || localStorage.getItem(SALTO_KEY) === 'on';
+    } catch { return false; }
+  }
+
+  private programarSalto(tap: ITap, ms: number): void {
+    if (this.saltoTimer) return;
+    this.saltoTimer = setTimeout(() => {
+      this.saltoTimer = null;
+      try { sessionStorage.setItem(SALTO_KEY, 'hecho'); } catch { /* sin sessionStorage */ }
+      this.track(null, 'taps/salto');                              // en la portada se mide como portada/tap/salto
+      this.toFeed({ t: tap.id });
+    }, ms);
+  }
+
   /** Portada: las teclas (1-4, Espacio, M) solo juegan mientras la tarjeta se ve; quien bajó a leer no responde sin querer. */
   private portadaOnScreen(): boolean {
     const box = this.host.nativeElement.getBoundingClientRect();
@@ -846,7 +873,8 @@ export class TapsFeedComponent {
     if (tap.id === this.activeId()) this.stage?.react(paso ? 'ask' : correct ? 'celebrate' : 'hurt', { say: false });
     const ms = advanceDelay(correct && !paso, pre ? performance.now() - pre.t : 0);
     this.clockTap = tap;
-    this.clock.start(ms);
+    // Portada: la primera respuesta lleva sola a /taps, justo cuando habría salido la pregunta siguiente (no se arranca el avance de aquí).
+    if (this.portada && run.answers.length === 1 && this.saltoPermitido()) this.programarSalto(tap, ms); else this.clock.start(ms);
     this.waitPaused.set(false);
     this.wait.set({ tapId: tap.id, ms, key: ++this.waitKey });
     afterNextRender(() => {                                        // pantallas bajas: que se vea cómo seguir

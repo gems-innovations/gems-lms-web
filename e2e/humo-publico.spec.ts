@@ -132,6 +132,28 @@ test.describe('Humo · visitante', () => {
     await expect(page.locator('.tap.tap--active')).not.toHaveAttribute('data-tap', primero ?? '');
   });
 
+  test('portada: la primera respuesta lleva sola a /taps, en ese mismo Tap y con lo jugado', async ({ page }) => {
+    test.setTimeout(60_000);
+    await apiFalsa(page);
+    // Un navegador automatizado no salta salvo que se pida: aquí sí se pide.
+    await page.addInitScript(() => { try { localStorage.setItem('gems-portada-salto', 'on'); } catch { /* sin almacenamiento */ } });
+    await page.goto('/');
+    await omitirSiPortadaAnterior(page);
+    const tap = page.locator('gems-taps .tap.tap--active');
+    const primero = await tap.getAttribute('data-tap');
+    await expect(page.locator('html[data-taps-live]')).toBeAttached({ timeout: 15_000 });
+    await tap.locator('.tap__opt').first().click();
+    await expect(page, 'tras la primera respuesta pasa solo al feed').toHaveURL(/\/taps\?t=/, { timeout: 15_000 });
+    await expect(page.locator('.tap.tap--active')).toHaveAttribute('data-tap', primero ?? '');
+    // Una vez por pestaña: al volver a la portada se queda en ella.
+    // (Se vuelve con el historial: recargar con /taps a medio cargar hace que WebKit anote como error sus descargas canceladas.)
+    await page.goBack();
+    await expect(page).toHaveURL(/\/$/);
+    await page.locator('gems-taps .tap.tap--active .tap__opt').first().click({ timeout: 5_000 }).catch(() => undefined);
+    await page.waitForTimeout(4_000);
+    await expect(page).toHaveURL(/\/$/);
+  });
+
   test('portada con el API caído: no queda en blanco', async ({ page }) => {
     await apiFalsa(page, { caida: true });
     await page.goto('/');
