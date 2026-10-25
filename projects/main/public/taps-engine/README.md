@@ -95,6 +95,14 @@ stage.say('¡Hola!');                                 // globo de diálogo (stag
 | `on('mode' \| 'degrade' \| 'visual', fn)` | Eventos: `{mode, reason, tier}` / `{step}` / `{type: 'touch' \| 'drag'}` (la app pausa la cuenta atrás mientras se explora el objeto) |
 | `destroy()` | Libera todo (incluido el contexto WebGL) |
 
+## Diseñador de personajes (tema «época»)
+
+`disenador.js` tiene la lógica del diseñador (pasos, guardado en `localStorage` con las claves `taps.disenador.*`, compartir
+por `#look=`, medición `taps/disenador/*`); `disenador.css` sus estilos (todo bajo `.dsn`). Lo usan dos páginas con el mismo
+comportamiento: `disenador.html` (página suelta, noindex) y la ruta `/crear` de la web (`TapDisenadorComponent`), que le pasa
+`{ enviar, alEvento, pasoPublicar }` para medir por `AnalyticsService` y añadir «Publicar (con cuenta)» y la cinta de
+transparencia. `montarDisenador(raiz, opciones)` devuelve `{ ok, registro, destruir }`.
+
 ## Cómo crear un tema
 
 Un tema es una carpeta `themes/<id>/` con un `theme.json`. Hay dos ejemplos que conviene leer juntos porque son opuestos:

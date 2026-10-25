@@ -1,0 +1,204 @@
+/* Estilos del diseñador de personajes (disenador.html y la ruta /crear de la web): todo bajo .dsn para no tocar nada fuera. */
+.dsn { --bg: #0f0e17; --panel: #1a1926; --panel2: #221f33; --line: #2e2c42; --txt: #ecebf5; --soft: #a6a3c0; --acc: #d3b27a; --acc-ink: #1a1408; --good: #34d399; --vista: clamp(280px, 45vh, 460px); }
+.dsn * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+.dsn { margin: 0; background: var(--bg); color: var(--txt); font: 15px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
+.dsn button { font: inherit; color: var(--txt); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; cursor: pointer; min-height: 44px; touch-action: manipulation; }
+.dsn button:focus-visible, .dsn .muestra:focus-visible, .dsn .tarjeta:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+.dsn svg.ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/* cabecera: título y puntos de progreso */
+.dsn header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px 6px; padding-top: max(10px, env(safe-area-inset-top)); }
+.dsn h1 { margin: 0; font-size: 17px; font-weight: 700; }
+.dsn .progreso { display: flex; align-items: center; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.dsn .progreso li { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .25s, transform .25s; }
+.dsn .progreso li.ya { background: var(--soft); }
+.dsn .progreso li.ahora { background: var(--acc); transform: scale(1.3); }
+.dsn .progreso li span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* vista previa fija */
+.dsn .vista { position: relative; height: var(--vista); margin: 0 12px; border-radius: 18px; overflow: hidden; background: #000; flex: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
+.dsn .vista canvas { display: block; width: 100%; height: 100%; }
+.dsn .bocadillo { position: absolute; left: 50%; top: 10px; transform: translateX(-50%) translateY(-6px); background: #fff; color: #1a1726; font-weight: 600; font-size: 14px; padding: 7px 12px; border-radius: 14px; opacity: 0; transition: opacity .18s, transform .18s; pointer-events: none; max-width: 80%; text-align: center; }
+.dsn .bocadillo::after { content: ''; position: absolute; left: 50%; bottom: -7px; width: 12px; height: 12px; background: #fff; transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
+.dsn .bocadillo.ver { opacity: 1; transform: translateX(-50%) translateY(0); }
+.dsn .etiqueta { position: absolute; left: 10px; bottom: 10px; background: rgba(15,14,23,.75); color: var(--txt); font-size: 12px; padding: 5px 10px; border-radius: 10px; pointer-events: none; display: none; }
+.dsn .vista.comparando .etiqueta { display: block; }
+.dsn .pista { position: absolute; right: 10px; bottom: 10px; color: rgba(236,235,245,.75); font-size: 11px; pointer-events: none; display: flex; align-items: center; gap: 5px; }
+.dsn .pista svg.ic { width: 14px; height: 14px; }
+
+/* sugerencia contextual de una línea con chip de aplicar */
+.dsn .sugerencia { display: flex; align-items: center; gap: 8px; padding: 6px 12px 0; color: var(--soft); font-size: 13px; min-width: 0; }
+.dsn .sugerencia[hidden] { display: none; }
+.dsn .sugerencia svg.ic { color: var(--acc); width: 18px; height: 18px; }
+.dsn .sugerencia span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dsn .sugerencia button { min-height: 36px; padding: 6px 12px; border-radius: 18px; font-size: 13px; font-weight: 600; color: var(--acc); border-color: var(--acc); background: transparent; }
+
+/* barra de herramientas */
+.dsn .barra { display: flex; align-items: center; gap: 8px; padding: 8px 12px 0; }
+.dsn .barra h2 { margin: 0; flex: 1; font-size: 15px; font-weight: 600; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dsn .barra button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; font-size: 13px; }
+.dsn .barra button:disabled { opacity: .4; cursor: default; }
+
+/* panel con desplazamiento */
+.dsn .paso { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 12px 12px; scrollbar-width: thin; }
+.dsn .pantalla { display: none; }
+.dsn .pantalla.activa { display: block; }
+.dsn .texto { color: var(--soft); font-size: 13px; margin: 0 0 8px; }
+
+.dsn .tarjetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+.dsn .tarjeta { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 6px 10px; background: var(--panel); border: 2px solid var(--line); border-radius: 14px; cursor: pointer; color: var(--txt); font: inherit; min-height: 44px; }
+.dsn .tarjeta.on { border-color: var(--acc); background: var(--panel2); }
+.dsn .tarjeta canvas { width: 72px; height: 96px; border-radius: 10px; background: #15131f; }
+.dsn .tarjeta.sorpresa canvas { display: none; }
+.dsn .tarjeta.sorpresa .dado { width: 72px; height: 96px; display: grid; place-items: center; color: var(--acc); }
+.dsn .tarjeta.sorpresa .dado svg.ic { width: 34px; height: 34px; }
+.dsn .tarjeta b { font-weight: 600; font-size: 14px; }
+.dsn .tarjeta small { color: var(--soft); font-size: 11px; }
+.dsn .escenas .tarjeta canvas { width: 100%; height: auto; aspect-ratio: 16 / 10; }
+.dsn .escenas { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+
+.dsn .pestanas { display: flex; gap: 6px; margin: 0 0 10px; }
+.dsn .pestanas button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; font-size: 12px; color: var(--soft); border-radius: 12px; }
+.dsn .pestanas button.on { color: var(--txt); background: var(--panel2); border-color: var(--acc); }
+.dsn .grupo { margin: 0 0 12px; }
+.dsn .grupo h3 { margin: 0 0 6px; font-size: 13px; color: var(--soft); font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+.dsn .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.dsn .chip { padding: 0 14px; min-height: 44px; border-radius: 22px; font-size: 14px; }
+.dsn .chip.on { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); font-weight: 600; }
+.dsn .muestras { display: grid; grid-template-columns: repeat(7, minmax(0, 48px)); gap: 6px; align-items: center; }
+.dsn .muestra { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 3px solid transparent; padding: 0; min-height: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); cursor: pointer; }
+.dsn .muestra.on { border-color: var(--acc); box-shadow: inset 0 0 0 2px var(--bg); }
+.dsn .mas { position: relative; width: 100%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; padding: 0; min-height: 0; color: var(--soft); overflow: hidden; border: 1px dashed var(--line); }
+.dsn .mas input[type=color] { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+
+.dsn .reacciones { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.dsn details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; }
+.dsn summary { cursor: pointer; padding: 10px 0; color: var(--soft); font-size: 14px; display: flex; align-items: center; gap: 8px; list-style: none; }
+.dsn summary::-webkit-details-marker { display: none; }
+.dsn textarea { width: 100%; min-height: 110px; font: 12px/1.4 ui-monospace, Consolas, monospace; color: var(--txt); background: #12111b; border: 1px solid var(--line); border-radius: 10px; padding: 8px; margin: 0 0 10px; }
+.dsn .aviso { color: var(--good); font-size: 13px; min-height: 1.2em; }
+
+/* paso 3: guardar en el dispositivo y «Mis looks» */
+.dsn .guardar { display: grid; gap: 8px; margin: 0 0 16px; }
+.dsn .guardar label { font-size: 13px; color: var(--soft); }
+.dsn .guardar input { font: inherit; font-size: 16px; color: var(--txt); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; min-height: 44px; width: 100%; }
+.dsn .guardar input:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-color: var(--acc); }
+.dsn .guardar .fila { display: flex; gap: 8px; align-items: center; }
+.dsn .guardar .fila input { flex: 1; min-width: 0; }
+.dsn .guardar .fila small { color: var(--soft); font-size: 12px; min-width: 3.5ch; text-align: right; }
+.dsn .grande { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; font-weight: 700; font-size: 16px; background: var(--acc); border-color: var(--acc); color: var(--acc-ink); border-radius: 14px; }
+.dsn .grande:disabled { opacity: .5; cursor: default; }
+.dsn .estado { color: var(--soft); font-size: 13px; margin: 0; min-height: 1.2em; }
+.dsn .estado.bien { color: var(--good); }
+.dsn .mislooks { margin: 0 0 16px; }
+.dsn .mislooks h3 { margin: 0 0 8px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.dsn .mislooks h3 small { color: var(--soft); font-weight: 400; font-size: 12px; }
+.dsn .mislooks[hidden] { display: none; }
+.dsn .looks { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+.dsn .look { position: relative; display: flex; flex-direction: column; background: var(--panel); border: 2px solid var(--line); border-radius: 14px; overflow: hidden; min-width: 0; }
+.dsn .look.on { border-color: var(--acc); }
+.dsn .look .cargar { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px 6px; background: none; border: 0; border-radius: 0; min-width: 0; width: 100%; }
+.dsn .look img { width: 72px; height: 96px; border-radius: 10px; background: #15131f; object-fit: cover; display: block; }
+.dsn .look b { font-weight: 600; font-size: 13px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dsn .look small { color: var(--soft); font-size: 11px; }
+.dsn .look .puntos { position: absolute; top: 4px; right: 4px; min-height: 32px; width: 32px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: rgba(15,14,23,.7); border: 0; }
+.dsn .look .acciones { display: none; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 0 6px 6px; }
+.dsn .look.abierto .acciones { display: grid; }
+.dsn .look .acciones button { min-height: 40px; padding: 4px 2px; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 2px; border-radius: 10px; }
+.dsn .look .acciones button svg.ic { width: 16px; height: 16px; }
+.dsn .look .acciones .peligro { color: #f3a0a0; }
+.dsn .look input { font: inherit; font-size: 13px; width: 100%; color: var(--txt); background: #12111b; border: 1px solid var(--acc); border-radius: 8px; padding: 4px 6px; text-align: center; }
+.dsn .look .renombrar { padding: 0 6px 6px; display: none; }
+.dsn .look.renombrando .renombrar { display: block; }
+.dsn .look.renombrando .cargar b { display: none; }
+
+/* paso 3: compartir por enlace; exportar e importar detrás de «Más» */
+.dsn .compartir { display: grid; gap: 8px; margin: 0 0 16px; }
+.dsn .compartir .grande.secundario { background: var(--panel2); border-color: var(--acc); color: var(--txt); }
+.dsn .compartir .enlace { display: none; gap: 8px; }
+.dsn .compartir.mostrarEnlace .enlace { display: flex; }
+.dsn .compartir .enlace input { flex: 1; min-width: 0; font: 13px/1.3 ui-monospace, Consolas, monospace; color: var(--txt); background: #12111b; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; min-height: 44px; }
+.dsn .mas-acciones { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 12px; }
+.dsn .mas-acciones button, .dsn .mas-acciones label.boton { display: inline-flex; align-items: center; gap: 6px; font: inherit; color: var(--txt); background: var(--panel2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; min-height: 44px; cursor: pointer; }
+.dsn .mas-acciones label.boton input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.dsn .mas-acciones label.boton:focus-within { outline: 2px solid var(--acc); outline-offset: 2px; }
+.dsn .importar { display: grid; gap: 8px; margin: 0 0 12px; }
+.dsn .importar textarea { min-height: 80px; margin: 0; }
+.dsn .importar .fila { display: flex; gap: 8px; align-items: center; }
+
+/* paso 3: pregunta de muestra (el personaje juega una pregunta con el motor) */
+.dsn .muestra-pregunta { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin: 0 0 16px; display: grid; gap: 10px; }
+.dsn .muestra-pregunta h3 { margin: 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.dsn .muestra-pregunta .texto { margin: 0; }
+.dsn .muestra-pregunta .opciones { display: none; gap: 8px; }
+.dsn .muestra-pregunta.jugando .opciones { display: grid; }
+.dsn .muestra-pregunta.jugando #probar { display: none; }
+.dsn .muestra-pregunta .opciones button { text-align: left; min-height: 48px; display: flex; align-items: center; gap: 10px; }
+.dsn .muestra-pregunta .opciones button:disabled { cursor: default; }
+.dsn .muestra-pregunta .opciones button .letra { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--panel2); border: 1px solid var(--line); font-weight: 700; font-size: 13px; flex: none; }
+.dsn .muestra-pregunta .opciones button.bien { border-color: var(--good); } .dsn .muestra-pregunta .opciones button.bien .letra { background: var(--good); color: var(--acc-ink); border-color: var(--good); }
+.dsn .muestra-pregunta .opciones button.mal { border-color: #f3a0a0; opacity: .7; }
+.dsn .muestra-pregunta .enunciado { font-weight: 600; font-size: 15px; margin: 0; }
+.dsn .muestra-pregunta .veredicto { margin: 0; color: var(--soft); font-size: 13px; min-height: 1.2em; }
+.dsn .muestra-pregunta .veredicto.bien { color: var(--good); }
+
+/* paso 3: «¿Te gustó hacerlo?» (una vez, descartable, dos iconos dibujados) */
+.dsn .gusto { display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 8px 8px 8px 14px; margin: 0 0 16px; }
+.dsn .gusto[hidden] { display: none; }
+.dsn .gusto p { margin: 0; flex: 1; font-size: 14px; font-weight: 600; min-width: 0; }
+.dsn .gusto button { min-height: 44px; width: 44px; padding: 0; display: grid; place-items: center; border-radius: 50%; color: var(--soft); }
+.dsn .gusto button svg.ic { width: 24px; height: 24px; }
+.dsn .gusto button.si { color: var(--acc); border-color: var(--acc); }
+.dsn .gusto button.cerrar { border-color: transparent; background: transparent; width: 36px; min-height: 36px; }
+.dsn .gusto p.gracias { color: var(--good); font-weight: 500; }
+
+/* chispas al guardar */
+.dsn .chispa { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; border-radius: 50%; background: var(--acc); pointer-events: none; animation: chispa .9s ease-out forwards; box-shadow: 0 0 10px 2px rgba(211,178,122,.6); }
+@keyframes chispa { 0% { transform: translate(-50%, -50%) scale(.6); opacity: 1; } 100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); opacity: 0; } }
+
+/* al abrir con borrador: «Seguir donde ibas» */
+.dsn .continuar { position: fixed; inset: 0; background: rgba(15,14,23,.86); display: flex; align-items: flex-end; justify-content: center; z-index: 10; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+.dsn .continuar[hidden] { display: none; }
+.dsn .continuar .hoja { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 18px 16px; width: 100%; max-width: 420px; display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; }
+.dsn .continuar img { width: 84px; height: 112px; border-radius: 12px; background: #15131f; display: block; }
+.dsn .continuar h2 { margin: 0 0 4px; font-size: 17px; }
+.dsn .continuar p { margin: 0; color: var(--soft); font-size: 13px; }
+.dsn .continuar .botones { grid-column: 1 / -1; display: flex; gap: 10px; }
+.dsn .continuar .botones button { flex: 1; min-height: 48px; font-weight: 600; }
+.dsn .continuar .botones .primario { flex: 1.6; background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+.dsn .continuar .hoja .botones.tres { flex-wrap: wrap; }
+.dsn .continuar .hoja .botones.tres button { flex: 1 1 45%; }
+.dsn .continuar .hoja .botones.tres .terciario { flex: 1 1 100%; background: transparent; border-color: transparent; color: var(--soft); min-height: 40px; }
+.dsn .continuar .hoja .botones button[hidden] { display: none; }
+.dsn .continuar .hoja p.estado { grid-column: 1 / -1; }
+@media (min-width: 820px) { .dsn .continuar { align-items: center; } }
+
+.dsn footer { display: flex; gap: 10px; padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--bg); }
+.dsn footer button { flex: 1; min-height: 48px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.dsn footer .primario { flex: 2; background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+.dsn footer button[hidden] { display: none; }
+
+.dsn button[hidden] { display: none; }
+@media (min-width: 820px) {
+  .dsn { display: grid; grid-template-columns: 400px minmax(0, 1fr); grid-template-rows: auto auto auto minmax(0, 1fr) auto; grid-template-areas: 'cab cab' 'vista sug' 'vista barra' 'vista paso' 'vista pie'; max-width: 1040px; margin: 0 auto; column-gap: 8px; }
+  .dsn header { grid-area: cab; }
+  .dsn .vista { grid-area: vista; height: auto; max-height: 720px; margin: 0 0 16px 16px; align-self: start; aspect-ratio: 9 / 14; }
+  .dsn .sugerencia { grid-area: sug; } .dsn .barra { grid-area: barra; } .dsn .paso { grid-area: paso; } .dsn footer { grid-area: pie; border: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .dsn * { transition: none !important; } }
+
+/* Solo en la web (/crear): cuarto punto «Publicar (con cuenta)» visible desde el inicio, y la ranura sobre la vista para la
+   cinta de transparencia y los avisos de la página (en disenador.html la ranura queda vacía y no ocupa nada). */
+.dsn .progreso li.publicar { width: auto; height: auto; border-radius: 0; background: none; transform: none; display: flex; align-items: center; gap: 6px; }
+.dsn .progreso li.publicar::before { content: ''; width: 9px; height: 9px; border-radius: 50%; border: 1px dashed var(--soft); flex: none; }
+.dsn .progreso li.publicar button { min-height: 32px; padding: 4px 8px; font-size: 12px; color: var(--soft); background: transparent; border-color: transparent; border-radius: 10px; }
+.dsn .progreso li.publicar button:hover { color: var(--txt); }
+.dsn .ranura { position: absolute; left: 8px; right: 8px; top: 8px; z-index: 2; display: grid; gap: 6px; }
+.dsn .ranura:empty { display: none; }
+.dsn .cinta { display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 12px; background: rgba(34, 31, 51, .94); border: 1px solid var(--line); border-radius: 12px; font-size: 13px; line-height: 1.35; color: var(--txt); box-shadow: 0 6px 20px rgba(0, 0, 0, .35); }
+.dsn .cinta[hidden] { display: none; }
+.dsn .cinta p { margin: 0; flex: 1; min-width: 0; }
+.dsn .cinta button { min-height: 36px; padding: 6px 12px; font-size: 13px; font-weight: 600; flex: none; }
+.dsn .cinta .primario { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+.dsn .cinta .cerrar { width: 36px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: transparent; border-color: transparent; color: var(--soft); }
+.dsn .cinta .cerrar svg.ic { width: 18px; height: 18px; }

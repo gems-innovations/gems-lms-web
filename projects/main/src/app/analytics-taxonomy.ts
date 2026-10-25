@@ -26,6 +26,14 @@ export type TEventPath =
   // una pregunta que no es clásica, con cómo se respondió (`tiempo` = se acabó la cuenta regresiva de un duo). Las clásicas no
   // miden nada aparte (`taps/responder/...` sigue contando todas).
   // Desde la portada salen como `portada/tap/...` (p. ej. `portada/tap/coleccion/minecraft-mobs/bronce`).
+  // Diseñador de personajes (producto/taps/disenador-plan-ux.md §4; los emite public/taps-engine/disenador.js por el mismo
+  // canal): `taps/disenador/<abrir/<enlace|continuar|directo>|preset/<id>|cambio/<pestaña>|sorprendeme/<pestaña|todo|escenario>|
+  // deshacer|paso/<escenario|listo>|probar|listo|compartir/<enlace|json>|gusto/<si|meh>|abandono/<paso>/<segundos>|fps-bajo|error/<carga|look-invalido>>`.
+  // Embudo de /crear (§A.4, taps.crear.ts; cada hito una vez por visita): `taps/crear/abrir/<portada|feed|enlace|instituciones|
+  // instructor|directo|continuar>` → `taps/crear/aviso-publicar/<visto|entendido>` → `taps/crear/creo` → `taps/crear/personaje-listo`
+  // → `taps/crear/tap-listo` (cuando haya preguntas) → `taps/crear/intento-publicar/<sin-cuenta|con-cuenta>` → PR-8:
+  // `taps/crear/gancho/<docente|estudiante-enlace|volver>`, `taps/crear/registro/<inicio|enviado>` → PR-9: `taps/crear/publicado/<importado|nuevo>`.
+  // `taps/crear/error/carga` si el módulo del diseñador no carga.
   // Portada: qué puerta abre la gente (`portada/opcion/<taps|temas/<tema>|retos|bloques|cursos|instituciones|entrar>`).
   | `portada/${string}`
   | `registro/${string}`
