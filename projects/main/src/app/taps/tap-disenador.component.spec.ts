@@ -144,6 +144,23 @@ describe('TapDisenadorComponent (/crear)', () => {
     expect(eventos.filter(e => e === 'taps/crear/gancho/volver').length).toBe(2);
   });
 
+  it('tocar el fondo cierra solo si el gesto empezó y terminó en el fondo (soltar fuera tras arrastrar no cierra ni cuenta)', async () => {
+    await abrirHoja();
+    const fondo = el('.gancho')!, hoja = el('.gancho__hoja')!;
+    // Empieza dentro de la hoja (p. ej. seleccionando el enlace) y suelta en el fondo: nada.
+    hoja.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    fondo.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    fixture.detectChanges();
+    expect(visible('.gancho')).toBeTrue();
+    expect(eventos.filter(e => e === 'taps/crear/gancho/volver').length).toBe(0);
+    // Empieza y termina en el fondo: vuelve.
+    fondo.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    fondo.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    fixture.detectChanges();
+    expect(visible('.gancho')).toBeFalse();
+    expect(eventos.filter(e => e === 'taps/crear/gancho/volver').length).toBe(1);
+  });
+
   it('Tab gira dentro de la hoja: del último botón vuelve al primero y Shift+Tab al revés', async () => {
     await abrirHoja();
     const hoja = el('.gancho')!;
@@ -189,6 +206,12 @@ describe('TapDisenadorComponent (/crear)', () => {
       await new Promise(r => setTimeout(r, 0)); fixture.detectChanges();
       expect(visible('.gancho__enlace')).toBeTrue();
       expect((el('.gancho__enlace input') as HTMLInputElement).value).toBe(ENLACE);
+      expect(eventos.filter(e => e === 'taps/crear/gancho/copiar').length).withContext('el fallo no cuenta como copiado').toBe(1);
+      // Cerrar la hoja del sistema tampoco cuenta.
+      Object.defineProperty(navigator, 'share', { value: () => Promise.reject(Object.assign(new Error('cerrada'), { name: 'AbortError' })), configurable: true });
+      el('#ganchoCopiar')!.click();
+      await new Promise(r => setTimeout(r, 0)); fixture.detectChanges();
+      expect(eventos.filter(e => e === 'taps/crear/gancho/copiar').length).toBe(1);
     } finally {
       Object.defineProperty(navigator, 'share', { value: shareAntes, configurable: true });
       Object.defineProperty(navigator, 'clipboard', { value: clipboardAntes, configurable: true });

@@ -114,17 +114,23 @@ export function armarAdjunto(raw: string | null, borradorId: string | null, vali
   return { adjunto, json, bloque: `${MARCA_ADJUNTO_INICIO}\n${json}\n${MARCA_ADJUNTO_FIN}`, miniatura };
 }
 
-/** Cuántos caracteres le quedan a la persona en el mensaje cuando el bloque va dentro de `message` (API: 2000). */
+/** Cuántos caracteres le quedan a la persona en el mensaje para que el bloque siga cabiendo en `message` (API: 2000). */
 export function restaMensaje(bloque: string | null): number {
   return Math.max(0, MAX_MENSAJE_API - (bloque ? bloque.length + 2 : 0));
 }
 
-/** `message` final: lo escrito (recortado a lo que cabe) y, si hay adjunto, el bloque marcado al final. */
+/** El texto de la persona vale más que el borrador: el bloque solo va si cabe junto al mensaje completo. */
+export function cabeAdjunto(mensaje: string, bloque: string | null): boolean {
+  if (!bloque) return true;
+  const texto = (mensaje ?? '').trim();
+  return !texto || texto.length <= restaMensaje(bloque);
+}
+
+/** `message` final: lo escrito, entero y sin recortar; el bloque marcado al final solo si cabe (si no, se pedirá después). */
 export function mensajeConAdjunto(mensaje: string, bloque: string | null): string {
   const texto = (mensaje ?? '').trim();
-  if (!bloque) return texto;
-  const propio = texto.slice(0, restaMensaje(bloque));
-  return propio ? `${propio}\n\n${bloque}` : bloque;
+  if (!bloque || !cabeAdjunto(texto, bloque)) return texto;
+  return texto ? `${texto}\n\n${bloque}` : bloque;
 }
 
 /** Lo inverso (para PR-9 y las pruebas): saca el adjunto de un `message` con bloque; null si no hay o no valida. */

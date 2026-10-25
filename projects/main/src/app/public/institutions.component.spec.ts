@@ -49,7 +49,7 @@ describe('InstitutionsComponent (borrador adjunto)', () => {
     f.detectChanges();
   }
 
-  afterEach(() => localStorage.removeItem(CLAVE));
+  afterEach(() => { localStorage.removeItem(CLAVE); sessionStorage.removeItem('taps-crear-registro-inicio'); });
 
   it('con ?borrador= válido y desde=crear: miniatura, «Tu personaje irá adjunto», bloque en message y registro/inicio|enviado', async () => {
     guardarBorrador();
@@ -68,6 +68,32 @@ describe('InstitutionsComponent (borrador adjunto)', () => {
     expect(msg.length).toBeLessThanOrEqual(2000);
     expect(enviados[0].email).toBe('contacto@prueba.test');
     expect(eventos).toContain('taps/crear/registro/enviado');
+  });
+
+  it('si el texto de la persona no deja sitio al bloque, va el texto entero sin recortar, sin bloque, y se avisa en pantalla', async () => {
+    guardarBorrador();
+    const f = await crear({ borrador: ID, desde: 'crear' });
+    const host = f.nativeElement as HTMLElement;
+    expect(host.querySelector('.adjunto__contador')?.textContent).toContain('Te quedan');
+    const largo = 'm'.repeat(1990);
+    const msg = host.querySelector<HTMLTextAreaElement>('[name="msg"]')!; msg.value = largo; msg.dispatchEvent(new Event('input'));
+    f.detectChanges();
+    expect(host.querySelector('.adjunto__aviso')?.textContent).toContain('no cabe junto a él');
+    expect(host.querySelector('.adjunto__contador')).toBeNull();
+    expect(host.querySelector('.adjunto')).withContext('el aviso de adjunto sigue; solo se explica que no viaja').not.toBeNull();
+    rellenarYEnviar(f, largo);
+    expect(enviados[0].message).toBe(largo);
+    expect(enviados[0].message).not.toContain(MARCA_ADJUNTO_INICIO);
+  });
+
+  it('registro/inicio se cuenta una vez por pestaña, no en cada recarga', async () => {
+    guardarBorrador();
+    await crear({ borrador: ID, desde: 'crear' });
+    expect(eventos.filter(e => e === 'taps/crear/registro/inicio').length).toBe(1);
+    TestBed.resetTestingModule();
+    await crear({ borrador: ID, desde: 'crear' });
+    expect(eventos.filter(e => e === 'taps/crear/registro/inicio').length).toBe(0);
+    expect(sessionStorage.getItem('taps-crear-registro-inicio')).toBe('1');
   });
 
   it('«No adjuntarlo» quita el bloque y el mensaje va limpio', async () => {

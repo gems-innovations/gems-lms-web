@@ -67,7 +67,7 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
       </div>
       <!-- Gancho de «Publicar» sin sesión (§A.3.2): hoja inferior con el personaje detrás; foco atrapado, Escape vuelve. -->
       <div class="gancho" #gancho role="dialog" aria-modal="true" aria-labelledby="ganchoTitulo" aria-describedby="ganchoIntro"
-           [hidden]="!hoja()" (keydown)="teclaHoja($event)" (click)="fondoHoja($event)">
+           [hidden]="!hoja()" (keydown)="teclaHoja($event)" (pointerdown)="fondoAbajo($event)" (click)="fondoHoja($event)">
         <div class="gancho__hoja">
           <h2 id="ganchoTitulo" tabindex="-1">{{ G.titulo }}</h2>
           <p id="ganchoIntro" class="gancho__intro">{{ G.intro }}</p>
@@ -160,7 +160,7 @@ export class TapDisenadorComponent {
 
   constructor() {
     if (this.isBrowser) afterNextRender(() => void this.montar());
-    this.destroyRef.onDestroy(() => { this.destruido = true; this.disenador?.destruir(); this.disenador = null; });
+    this.destroyRef.onDestroy(() => { this.destruido = true; if (this.hoja()) this.inerte(false); this.disenador?.destruir(); this.disenador = null; });
   }
 
   private async montar(): Promise<void> {
@@ -229,14 +229,14 @@ export class TapDisenadorComponent {
     const activo = document.activeElement;
     this.focoAnterior = activo instanceof HTMLElement && this.raiz().nativeElement.contains(activo) ? activo : null;
     this.hoja.set(true);
-    this.raiz().nativeElement.inert = true;
+    this.inerte(true);
     this.contar('taps/crear/intento-publicar/sin-cuenta');
     this.trasPintar(() => this.gancho().nativeElement.querySelector<HTMLElement>('h2')?.focus());
   }
 
   private cerrarHoja(): void {
     this.hoja.set(false);
-    this.raiz().nativeElement.inert = false;
+    this.inerte(false);
     const volverA = this.focoAnterior?.isConnected ? this.focoAnterior : this.raiz().nativeElement.querySelector<HTMLElement>('#publicar');
     if (volverA) volverA.focus(); else this.enfocarDisenador();
     this.focoAnterior = null;
@@ -246,7 +246,7 @@ export class TapDisenadorComponent {
   protected docente(): void {
     this.contar('taps/crear/gancho/docente');
     const destino = enlaceRegistro(this.contexto()?.borradorId ?? null);
-    this.hoja.set(false); this.raiz().nativeElement.inert = false;
+    this.hoja.set(false); this.inerte(false);
     void this.router.navigate([destino.ruta], { queryParams: destino.query, fragment: destino.fragment });
   }
 
@@ -260,12 +260,12 @@ export class TapDisenadorComponent {
   /** Copiar (o compartir) el enlace del look: la hoja del sistema si existe, el portapapeles si no, y si falla, el enlace a la vista. */
   protected async copiar(): Promise<void> {
     const c = this.contexto(); if (!c) return;
-    this.contar('taps/crear/gancho/copiar');
+    // `gancho/copiar` solo cuenta cuando el enlace salió de verdad (hoja del sistema resuelta o portapapeles escrito).
     if (typeof navigator.share === 'function') {
-      try { await navigator.share({ title: `Mira a ${c.nombre}`, text: 'Te mando mi personaje. Ábrelo y cámbialo a tu gusto.', url: c.enlace }); this.estadoCopia.set(this.G.compartido); return; }
+      try { await navigator.share({ title: `Mira a ${c.nombre}`, text: 'Te mando mi personaje. Ábrelo y cámbialo a tu gusto.', url: c.enlace }); this.estadoCopia.set(this.G.compartido); this.contar('taps/crear/gancho/copiar'); return; }
       catch (e) { if ((e as { name?: string })?.name === 'AbortError') return; }
     }
-    try { await navigator.clipboard.writeText(c.enlace); this.estadoCopia.set(this.G.copiado); return; } catch { /* sin portapapeles */ }
+    try { await navigator.clipboard.writeText(c.enlace); this.estadoCopia.set(this.G.copiado); this.contar('taps/crear/gancho/copiar'); return; } catch { /* sin portapapeles */ }
     this.enlaceVisible.set(true); this.estadoCopia.set(this.G.sinCopiar);
     this.trasPintar(() => this.enlaceInput()?.nativeElement.focus());
   }
@@ -277,8 +277,21 @@ export class TapDisenadorComponent {
     this.cerrarHoja();
   }
 
-  /** Tocar el fondo oscuro (fuera de la hoja) equivale a «Volver». */
-  protected fondoHoja(ev: MouseEvent): void { if (ev.target === this.gancho().nativeElement) this.volver(); }
+  /** Tocar el fondo oscuro (fuera de la hoja) equivale a «Volver», solo si el gesto empezó y terminó en el fondo (arrastrar para seleccionar el enlace y soltar fuera no cierra). */
+  private gestoEnFondo = false;
+  protected fondoAbajo(ev: PointerEvent): void { this.gestoEnFondo = ev.target === this.gancho().nativeElement; }
+  protected fondoHoja(ev: MouseEvent): void {
+    const enFondo = this.gestoEnFondo && ev.target === this.gancho().nativeElement;
+    this.gestoEnFondo = false;
+    if (enFondo) this.volver();
+  }
+
+  /** El diseñador no recibe foco ni toques mientras la hoja está abierta: `inert`, o `aria-hidden` donde no exista. */
+  private inerte(si: boolean): void {
+    const raiz = this.raiz().nativeElement;
+    if ('inert' in HTMLElement.prototype) { raiz.inert = si; return; }
+    if (si) raiz.setAttribute('aria-hidden', 'true'); else raiz.removeAttribute('aria-hidden');
+  }
 
   /** Escape vuelve; Tab y Shift+Tab giran dentro de la hoja (foco atrapado). */
   protected teclaHoja(ev: KeyboardEvent): void {

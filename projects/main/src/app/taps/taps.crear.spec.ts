@@ -1,5 +1,5 @@
 import {
-  CINTA_TRANSPARENCIA, COPY_GANCHO, IAdjuntoBorrador, MARCA_ADJUNTO_FIN, MARCA_ADJUNTO_INICIO, MAX_ADJUNTO, MAX_MENSAJE_API, PASO_PUBLICAR, armarAdjunto,
+  CINTA_TRANSPARENCIA, COPY_GANCHO, IAdjuntoBorrador, MARCA_ADJUNTO_FIN, MARCA_ADJUNTO_INICIO, MAX_ADJUNTO, MAX_MENSAJE_API, PASO_PUBLICAR, armarAdjunto, cabeAdjunto,
   enlaceRegistro, extraerAdjunto, hitosCrear, leerBorradorId, mensajeConAdjunto, origenCrear, restaMensaje, validarAdjunto,
 } from './taps.crear';
 
@@ -142,14 +142,21 @@ describe('validarAdjunto', () => {
 
 describe('mensajeConAdjunto y extraerAdjunto', () => {
   const a = () => armarAdjunto(borrador(), ID, validar)!;
-  it('pone el bloque al final, recorta lo escrito para que todo quepa en los 2000 del API', () => {
+  it('pone el bloque al final; si no cabe junto al texto entero, va el texto completo y el bloque no (nunca se recorta lo escrito)', () => {
     const bloque = a().bloque;
     expect(mensajeConAdjunto('Quiero Taps para mi curso', bloque)).toBe(`Quiero Taps para mi curso\n\n${bloque}`);
     expect(mensajeConAdjunto('   ', bloque)).toBe(bloque);
     expect(mensajeConAdjunto('Hola', null)).toBe('Hola');
-    const largo = mensajeConAdjunto('x'.repeat(5000), bloque);
-    expect(largo.length).toBeLessThanOrEqual(MAX_MENSAJE_API);
-    expect(largo.endsWith(bloque)).toBeTrue();
+    expect(cabeAdjunto('Hola', bloque)).toBeTrue();
+    expect(cabeAdjunto('', bloque)).toBeTrue();
+    expect(cabeAdjunto('Hola', null)).toBeTrue();
+    const justo = 'x'.repeat(restaMensaje(bloque));
+    expect(cabeAdjunto(justo, bloque)).toBeTrue();
+    expect(mensajeConAdjunto(justo, bloque).length).toBe(MAX_MENSAJE_API);
+    const largo = 'y'.repeat(restaMensaje(bloque) + 1);
+    expect(cabeAdjunto(largo, bloque)).toBeFalse();
+    expect(mensajeConAdjunto(largo, bloque)).toBe(largo);
+    expect(mensajeConAdjunto('z'.repeat(2000), bloque)).toBe('z'.repeat(2000));
     expect(restaMensaje(bloque)).toBe(MAX_MENSAJE_API - bloque.length - 2);
     expect(restaMensaje(null)).toBe(MAX_MENSAJE_API);
   });

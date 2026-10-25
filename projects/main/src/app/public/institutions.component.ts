@@ -6,11 +6,13 @@ import { PublicFooterComponent } from './public-footer.component';
 import { IInstitutionRequest, PublicCatalogService } from './public-catalog.service';
 import { AnalyticsService } from '../analytics.service';
 import { COPY_ENTRADA, eventoEntrada } from '../taps/taps.crear-entrada';
-import { IBorradorAdjunto, PARAM_BORRADOR, armarAdjunto, idBorradorValido, mensajeConAdjunto, restaMensaje } from '../taps/taps.crear';
+import { IBorradorAdjunto, PARAM_BORRADOR, armarAdjunto, cabeAdjunto, idBorradorValido, mensajeConAdjunto, restaMensaje } from '../taps/taps.crear';
 import { VALIDADOR_LOOK_LOADER } from '../taps/taps.look-validador';
 
 /** Clave del borrador del diseñador (guardado.js, `CLAVE_BORRADOR`): se lee aquí sin cargar el diseñador. */
 const CLAVE_BORRADOR_DISENADOR = 'taps.disenador.borrador';
+/** `registro/inicio` se cuenta una vez por pestaña (sessionStorage), no en cada recarga. */
+const CLAVE_REGISTRO_INICIO = 'taps-crear-registro-inicio';
 
 /** Para colegios, preuniversitarios y universidades: qué obtienen y solicitud de su propio espacio. */
 @Component({
@@ -86,10 +88,17 @@ const CLAVE_BORRADOR_DISENADOR = 'taps.disenador.borrador';
                   }
                 </div>
               </fieldset>
-              <label>¿Qué te gustaría lograr?<textarea class="field" name="msg" rows="3" [attr.maxlength]="maxMensaje()" [(ngModel)]="form.message"></textarea></label>
+              <label>¿Qué te gustaría lograr?<textarea class="field" name="msg" rows="3" maxlength="2000" [(ngModel)]="form.message"></textarea></label>
+              @if (adjunto(); as a) {
+                @if (!cabe()) {
+                  <p class="adjunto__aviso" role="status">Tu mensaje es largo y el personaje no cabe junto a él: enviamos tu mensaje completo y te pedimos el personaje después.</p>
+                } @else {
+                  <span class="adjunto__contador" aria-live="polite">Te quedan {{ restan() }} caracteres para que el personaje viaje junto a tu mensaje.</span>
+                }
+              }
               @if (error(); as e) { <p class="error" role="alert">{{ e }}</p> }
               <button type="submit" class="btn btn--primary btn--block" [disabled]="busy()">{{ busy() ? 'Enviando…' : 'Enviar solicitud' }}</button>
-              <span class="note">Te escribimos en menos de 24 h. Solo usamos estos datos para contactarte sobre GEMS. Ver <a routerLink="/privacidad">privacidad</a>.</span>
+              <span class="note">Revisamos las solicitudes a mano y te respondemos por correo. Solo usamos estos datos para contactarte sobre GEMS. Ver <a routerLink="/privacidad">privacidad</a>.</span>
             </form>
           }
         </aside>
@@ -104,6 +113,8 @@ const CLAVE_BORRADOR_DISENADOR = 'taps.disenador.borrador';
     .adjunto__mini { width: 56px; height: 74px; flex: none; border-radius: 10px; background: #15131f; display: block; }
     .adjunto__texto { display: grid; gap: 4px; font-size: 13px; line-height: 1.35; min-width: 0; }
     .adjunto__texto strong { font-size: 14px; color: var(--color-texto-principal); }
+    .adjunto__aviso { margin: -6px 0 0; font-size: 13px; color: var(--color-texto-secundario); }
+    .adjunto__contador { margin-top: -8px; font-size: 12px; color: var(--color-texto-terciario); }
     .adjunto__quitar { justify-self: start; min-height: 32px; padding: 0 4px; font: inherit; font-size: 13px; color: var(--color-texto-acento); background: none; border: 0; text-decoration: underline; cursor: pointer; }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -118,8 +129,9 @@ export class InstitutionsComponent {
 
   /** Borrador del diseñador adjunto a la solicitud (PR-8, §A.3.3); null si no se llegó con `?borrador=` válido. */
   protected readonly adjunto = signal<IBorradorAdjunto | null>(null);
-  /** Lo que cabe en el mensaje: el API corta a 2000 y el bloque del borrador va dentro mientras no haya campo propio (PR-9). */
-  protected readonly maxMensaje = signal(restaMensaje(null));
+  /** El bloque del borrador va dentro de `message` (API: 2000) mientras no haya campo propio (PR-9): si no cabe junto al texto, no viaja. */
+  protected cabe(): boolean { return cabeAdjunto(this.form.message ?? '', this.adjunto()?.bloque ?? null); }
+  protected restan(): number { return Math.max(0, restaMensaje(this.adjunto()?.bloque ?? null) - (this.form.message ?? '').trim().length); }
   /** Vino del gancho de /crear (`?desde=crear`): se miden `registro/inicio` y `registro/enviado`. */
   private desdeCrear = false;
 
@@ -137,7 +149,11 @@ export class InstitutionsComponent {
   private async adjuntarBorrador(): Promise<void> {
     const q = this.route.snapshot.queryParamMap;
     this.desdeCrear = q.get('desde') === 'crear';
-    if (this.desdeCrear) this.analytics.event('taps/crear/registro/inicio');
+    if (this.desdeCrear) {
+      try {
+        if (!sessionStorage.getItem(CLAVE_REGISTRO_INICIO)) { sessionStorage.setItem(CLAVE_REGISTRO_INICIO, '1'); this.analytics.event('taps/crear/registro/inicio'); }
+      } catch { this.analytics.event('taps/crear/registro/inicio'); }
+    }
     const id = idBorradorValido(q.get(PARAM_BORRADOR));
     if (!id) return;
     let raw: string | null = null; try { raw = localStorage.getItem(CLAVE_BORRADOR_DISENADOR); } catch { raw = null; }
@@ -147,13 +163,12 @@ export class InstitutionsComponent {
     const adjunto = armarAdjunto(raw, id, validar);
     if (!adjunto) return;
     this.adjunto.set(adjunto);
-    this.maxMensaje.set(restaMensaje(adjunto.bloque));
     this.cdr.markForCheck();
     // El aviso empuja el formulario: si se vino al ancla #solicitud, que siga a la vista (el gancho llega con ese fragmento).
     if (this.route.snapshot.fragment === 'solicitud') { try { requestAnimationFrame(() => document.getElementById('solicitud')?.scrollIntoView({ block: 'start' })); } catch { /* sin DOM */ } }
   }
 
-  protected quitarAdjunto(): void { this.adjunto.set(null); this.maxMensaje.set(restaMensaje(null)); }
+  protected quitarAdjunto(): void { this.adjunto.set(null); }
 
   protected form: IInstitutionRequest = { institutionName: '', contactName: '', email: '', phone: '', role: '', students: null, message: '' };
   /** Rangos en vez de un número exacto: se guarda el tope de cada rango. */
@@ -193,7 +208,7 @@ export class InstitutionsComponent {
     }
     this.busy.set(true);
     this.error.set(null);
-    // El borrador va como bloque marcado al final de `message` (el API de hoy no tiene campo para él: PR-9 lo separa).
+    // El borrador va como bloque marcado al final de `message` solo si cabe junto al texto entero (el API corta a 2000; PR-9 lo separa).
     const cuerpo: IInstitutionRequest = { ...f, message: mensajeConAdjunto(f.message ?? '', this.adjunto()?.bloque ?? null) };
     this.catalog.requestInstitution(cuerpo).subscribe({
       next: () => {
