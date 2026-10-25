@@ -103,6 +103,15 @@ export const routes: Routes = [
     loadComponent: () => import('./taps/taps-feed.component').then(m => m.TapsFeedComponent)
   },
   {
+    // Creador de personajes y Taps (PR-6 del plan de producto/taps/disenador-plan-ux.md): cualquiera crea y prueba sin cuenta;
+    // publicar pedirá cuenta (PR-8). noindex y sin enlaces desde el feed hasta PR-7. El diseñador (public/taps-engine/disenador.js)
+    // se carga solo en el navegador.
+    path: 'crear',
+    title: 'Crea tu personaje y tu Tap',
+    data: seo({ description: 'Crea y prueba tu personaje para Taps gratis y sin cuenta. Publicar es para docentes e instituciones.', noindex: true }),
+    loadComponent: () => import('./taps/tap-disenador.component').then(m => m.TapDisenadorComponent)
+  },
+  {
     path: 'instituciones',
     title: 'GEMS para tu institución',
     data: seo({ description: 'GEMS LMS para colegios, universidades y empresas: cursos, evaluaciones, certificados y seguimiento con tu marca.' }),

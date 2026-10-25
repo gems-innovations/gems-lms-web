@@ -32,6 +32,8 @@ export const serverRoutes: ServerRoute[] = [
     getPrerenderParams: async () => [...TAPS.map(tap => tap.id), ...LEGACY_TAP_IDS].map(id => ({ id })),
     fallback: PrerenderFallback.Client,
   },
+  // Creador (/crear): esqueleto con título y metadatos (noindex); el diseñador se monta en el navegador, nada se hornea.
+  { path: 'crear',          renderMode: RenderMode.Prerender },
   { path: 'not-found',      renderMode: RenderMode.Prerender },
 
   // Cursos abiertos: el catálogo vive en el API y cambia sin desplegar; sin SSR se pintan en el navegador
