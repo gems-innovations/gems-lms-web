@@ -52,7 +52,7 @@ const TODOS = 'Todos';
                 {{ i() + 1 }}/{{ total() }}
               </span>
             </div>
-            <div class="mock__bar gm-progreso" role="progressbar" [attr.aria-valuenow]="i() + 1" aria-valuemin="1" [attr.aria-valuemax]="total()"><span [style.--p]="(i() + 1) / total()"></span></div>
+            <div class="mock__bar gm-progreso" role="progressbar" aria-label="Progreso del reto" [attr.aria-valuenow]="i() + 1" aria-valuemin="1" [attr.aria-valuemax]="total()"><span [style.--p]="(i() + 1) / total()"></span></div>
             <strong class="mock__q" id="reto-q">{{ r.q }}</strong>
             <div class="mock__opts" [class.mock__opts--done]="elegida() !== null" role="group" aria-labelledby="reto-q">
               @for (o of r.options; track o; let k = $index) {
