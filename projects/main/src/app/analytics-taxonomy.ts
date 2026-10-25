@@ -34,6 +34,10 @@ export type TEventPath =
   // → `taps/crear/tap-listo` (cuando haya preguntas) → `taps/crear/intento-publicar/<sin-cuenta|con-cuenta>` → PR-8:
   // `taps/crear/gancho/<docente|estudiante-enlace|volver>`, `taps/crear/registro/<inicio|enviado>` → PR-9: `taps/crear/publicado/<importado|nuevo>`.
   // `taps/crear/error/carga` si el módulo del diseñador no carga.
+  // Puntos de entrada a /crear (§A.2, PR-7, taps.crear-entrada.ts): `taps/crear/entrada/<portada|menu|resultado|instituciones>/clic`
+  // al tocar la entrada (cada enlace lleva `?desde=` y /crear cuenta la llegada en `abrir/<origen>`; el menú y el resultado del
+  // feed llegan como `feed`); el resultado además `taps/crear/entrada/resultado/<mostrado|descartado>` (se ofrece 1 de cada 5
+  // resultados, nunca tras 0 aciertos). La barra de /instructor no mide el toque: basta `abrir/instructor`.
   // Portada: qué puerta abre la gente (`portada/opcion/<taps|temas/<tema>|retos|bloques|cursos|instituciones|entrar>`).
   | `portada/${string}`
   | `registro/${string}`

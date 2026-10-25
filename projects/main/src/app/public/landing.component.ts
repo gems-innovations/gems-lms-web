@@ -17,9 +17,10 @@ import { feedTopics } from '../taps/taps.logic';
 import { AnalyticsService } from '../analytics.service';
 import { eventSlug } from '../analytics-taxonomy';
 import { TenantService } from '../tenant.service';
+import { COPY_ENTRADA, eventoEntrada } from '../taps/taps.crear-entrada';
 
 /** Destinos que se miden desde la portada (`cursos` = abre o empieza un curso; `cursos-ancla` = baja a la lista) (`portada/opcion/<destino>`, producto/retencion/plan-retencion.md). */
-type TPortadaDestino = 'taps' | `temas/${string}` | 'retos' | 'bloques' | 'cursos' | 'cursos-ancla' | 'instituciones' | 'entrar';
+type TPortadaDestino = 'taps' | `temas/${string}` | 'retos' | 'bloques' | 'cursos' | 'cursos-ancla' | 'instituciones' | 'entrar' | 'crear';
 
 /**
  * Portada de GEMS LMS con la filosofía de Taps (variante B de producto/retencion/plan-retencion.md): se juega desde el
@@ -101,4 +102,11 @@ export class LandingComponent {
   }
 
   protected topicEvent(id: string): TPortadaDestino { return `temas/${eventSlug(id)}`; }
+
+  protected readonly copyCrear = COPY_ENTRADA;
+  /** Tarjeta «Crea tu personaje y tu Tap» (PR-7): puerta de la portada y entrada del embudo de /crear. */
+  protected crear(): void {
+    this.choose('crear');
+    this.analytics.event(eventoEntrada('portada', 'clic'));
+  }
 }

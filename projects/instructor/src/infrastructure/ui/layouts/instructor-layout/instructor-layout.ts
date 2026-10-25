@@ -32,6 +32,9 @@ export class InstructorLayout implements OnInit {
     { id: 'courses', label: 'Mis cursos',    icon: 'courses', route: '/instructor/courses' },
     { id: 'stats',   label: 'Estadísticas',  icon: 'stats',   route: '/instructor/stats' },
     { id: 'question-bank', label: 'Banco de preguntas', icon: 'bank', route: '/instructor/question-bank' },
+    // Creador de personajes y Taps (PR-7 de producto/taps/disenador-plan-ux.md §A.2): la misma /crear pública, con `desde`
+    // para medir. PR-10 lo vuelve «Taps: Mis Taps · Personajes · Resultados» dentro de la zona docente.
+    { id: 'taps', label: 'Crear un Tap', icon: 'taps', route: '/crear', queryParams: { desde: 'instructor' } },
   ];
 
   readonly userProfile = computed<UserProfile | null>(() => {

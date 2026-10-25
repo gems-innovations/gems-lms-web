@@ -162,6 +162,15 @@
       <p class="band__alt">¿Tu institución ya está en GEMS? <a routerLink="/auth/signin" (click)="choose('entrar')">Entra con la cuenta que te dieron</a>.</p>
     </div>
     <a class="btn btn--primary" routerLink="/instituciones" (click)="choose('instituciones')"><svg lucideSchool [size]="18" aria-hidden="true"></svg> Pedir mi espacio</a>
+    <!-- Creador de personajes y Taps (PR-7 del plan del diseñador, §A.2): invita y es honesto desde el primer vistazo.
+         Para docentes e instituciones; no se promueve en /learn. Mismo estilo que las tarjetas «clasico» de arriba. -->
+    <a class="clasico band__crear" routerLink="/crear" [queryParams]="{ desde: 'portada' }" (click)="crear()">
+      <span class="gm-icono gm-icono--tema" style="--tinte: var(--color-primario)" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5.5 20.5a6.5 6.5 0 0 1 13 0M16.5 3.5l2 2M19.5 2.5l2 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span><strong>{{ copyCrear.portadaTitulo }}</strong> {{ copyCrear.portadaLinea }}</span>
+      <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
+    </a>
   </section>
   }
 

@@ -40,6 +40,7 @@ import {
   sessionTapsBucket, shouldSuggestPause, storeRun,
 } from './taps.sesion';
 import { ITemaAvance, TapSesionHojaComponent } from './tap-sesion.component';
+import { CLAVE_ENTRADA_RESULTADO, TEntradaCrear, descartarEntrada, enlaceCrear, eventoEntrada, leerEstadoEntrada, registrarResultado } from './taps.crear-entrada';
 import { IRetoGuardado, IRetoVista, RETO_KEY, dailyTap, fechaColombia, parseReto, retoLabel, retoScore, retoShareText, retoUrl } from './taps.reto';
 import {
   COLECCION_KEY, IAvanceColeccion, IColeccionGuardada, TGrado, avanceColeccion, coleccionDe, colecciones, emptyColecciones, insigniasGanadas,
@@ -660,6 +661,37 @@ export class TapsFeedComponent {
   // ───────────── fin del feed ─────────────
   protected finTemas(): void { this.track(null, 'taps/fin-feed/temas'); this.openTopics(); }
   protected finCursos(): void { this.track(null, 'taps/fin-feed/cursos'); }
+
+  // ───────────── «Haz tu personaje» → /crear (PR-7 del plan del diseñador, taps.crear-entrada.ts) ─────────────
+  /** Tap en cuyo resultado se ofrece «Haz tu personaje» (1 de cada 5 resultados, nunca tras 0 aciertos; solo en el navegador). */
+  protected readonly crearOferta = signal<string | null>(null);
+
+  /** Al terminar un Tap (nunca en la portada: allí ya está la tarjeta): cuenta el resultado y decide si se ofrece. */
+  private ofrecerCrear(tap: ITap, run: ITapRun): void {
+    if (this.portada) return;
+    const { estado, ofrecer } = registrarResultado(leerEstadoEntrada(this.readStorage(CLAVE_ENTRADA_RESULTADO)), run.score, puntuables(tap));
+    this.writeStorage(CLAVE_ENTRADA_RESULTADO, JSON.stringify(estado));
+    if (!ofrecer) return;
+    this.crearOferta.set(tap.id);
+    this.track(null, eventoEntrada('resultado', 'mostrado'));
+  }
+
+  /** El enlace ya navega (menú de escritorio, resultado): aquí solo se mide la entrada. */
+  protected crearMedir(entrada: TEntradaCrear): void { this.track(null, eventoEntrada(entrada, 'clic')); }
+
+  /** Desde un menú sin enlace (el «Más» del riel): mide y va a /crear con el tema del Tap actual. */
+  protected crearDesde(entrada: TEntradaCrear, tap: ITap): void {
+    this.crearMedir(entrada);
+    const { ruta, query } = enlaceCrear('feed', topicOf(tap));
+    void this.router.navigate([ruta], { queryParams: query });
+  }
+
+  /** «No volver a sugerirlo»: se quita y no se insiste (queda en localStorage). */
+  protected crearDescartar(): void {
+    this.crearOferta.set(null);
+    this.writeStorage(CLAVE_ENTRADA_RESULTADO, JSON.stringify(descartarEntrada(leerEstadoEntrada(this.readStorage(CLAVE_ENTRADA_RESULTADO)))));
+    this.track(null, eventoEntrada('resultado', 'descartado'));
+  }
   protected finReto(): void { this.track(null, 'taps/fin-feed/reto'); this.goToReto('fin'); }
   /** «Revancha: a 1 de…» (el «casi» honesto del resultado). */
   protected revancha(tap: ITap): void { this.track(null, `taps/revancha/${eventSlug(tap.id)}`); this.restart(tap); }
@@ -1094,6 +1126,7 @@ export class TapsFeedComponent {
       if (this.wide() && pulses < 2 && tap.id === this.activeId()) { this.pulseNext.set(true); this.writeStorage(PULSE_KEY, String(pulses + 1)); }
     }
     this.prepareShareCard(tap, run);
+    this.ofrecerCrear(tap, run);
   }
 
   /**

@@ -104,8 +104,9 @@ export const routes: Routes = [
   },
   {
     // Creador de personajes y Taps (PR-6 del plan de producto/taps/disenador-plan-ux.md): cualquiera crea y prueba sin cuenta;
-    // publicar pedirá cuenta (PR-8). noindex y sin enlaces desde el feed hasta PR-7. El diseñador (public/taps-engine/disenador.js)
-    // se carga solo en el navegador.
+    // publicar pedirá cuenta (PR-8). Entradas con `?desde=` desde la portada, el feed, /instituciones y /instructor (PR-7). Sigue
+    // noindex: el plan no pide indexarla (se llega por las entradas; abrirla a buscadores es decisión del dueño). El diseñador
+    // (public/taps-engine/disenador.js) se carga solo en el navegador.
     path: 'crear',
     title: 'Crea tu personaje y tu Tap',
     data: seo({ description: 'Crea y prueba tu personaje para Taps gratis y sin cuenta. Publicar es para docentes e instituciones.', noindex: true }),

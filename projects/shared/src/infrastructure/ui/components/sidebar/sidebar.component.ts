@@ -11,6 +11,8 @@ export interface NavigationItem {
   label: string;
   icon: string;
   route: string;
+  /** Parámetros de consulta del enlace (p. ej. `{ desde: 'instructor' }` para medir de dónde se llega). */
+  queryParams?: Record<string, string>;
   badge?: number;
   disabled?: boolean;
 }

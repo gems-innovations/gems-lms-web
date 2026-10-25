@@ -59,6 +59,8 @@
   &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; } }
 
 .band .btn svg { flex: none; }
+// Tarjeta del creador dentro de «Lleva los Taps a tu grupo»: ocupa su propia fila bajo el texto y el botón.
+.band .band__crear { flex: 1 1 100%; background: var(--color-superficie); }
 
 // Tableta: la tarjeta deja de ir de borde a borde y se ve como un celular centrado.
 @media (min-width: 600px) {
