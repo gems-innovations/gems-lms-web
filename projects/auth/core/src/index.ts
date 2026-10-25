@@ -12,3 +12,6 @@ export { AuthSessionService } from './auth-session.service';
 export { DisplayPreferencesService } from './display-preferences.service';
 export type { ThemePreference } from './display-preferences.service';
 export { authInterceptor } from './auth.interceptor';
+export { GoogleAuthService } from './google-auth.service';
+export type { IGoogleSession } from './google-auth.service';
+export { GoogleButtonComponent } from './google-button.component';

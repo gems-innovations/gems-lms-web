@@ -3,10 +3,11 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserService } from '../infrastructure/services/user.service';
-import { AuthSessionService } from 'auth/core';
-import { Subject, EMPTY, of } from 'rxjs';
+import { AuthSessionService, GoogleAuthService } from 'auth/core';
+import { Observable, Subject, EMPTY, of } from 'rxjs';
 import { switchMap, tap, catchError, timeout, shareReplay } from 'rxjs/operators';
 import { ILoginCredentials } from '../domain/model/login-credentials.model';
+import { ILoginResult } from '../infrastructure/services/user.service';
 
 /** Mensaje para la persona: solo se habla de la contraseña cuando de verdad es la contraseña (401/400). */
 export function loginErrorMessage(err: unknown): string {
@@ -23,10 +24,18 @@ export function loginErrorMessage(err: unknown): string {
   return 'Correo o contraseña incorrectos';
 }
 
+/** Mensaje para quien entró con Google: el API distingue 404 (apagado) de una credencial rechazada. */
+export function googleErrorMessage(err: unknown): string {
+  if (err instanceof HttpErrorResponse && err.status === 404) return 'Entrar con Google no está disponible por ahora. Usa tu correo.';
+  if (err instanceof HttpErrorResponse && (err.status === 400 || err.status === 401)) return 'No pudimos verificar tu cuenta de Google. Inténtalo de nuevo o usa tu correo.';
+  return loginErrorMessage(err);
+}
+
 @Injectable({ providedIn: 'root' })
 export class LoginUseCase {
   private readonly destroyRef     = inject(DestroyRef);
   private readonly userService    = inject(UserService);
+  private readonly google         = inject(GoogleAuthService);
   private readonly authSession    = inject(AuthSessionService);
   private readonly router         = inject(Router);
 
@@ -37,7 +46,7 @@ export class LoginUseCase {
   readonly error       = computed(() => this._error());
   readonly currentUser = this.authSession.user;
 
-  private readonly login$ = new Subject<ILoginCredentials>();
+  private readonly login$ = new Subject<{ request$: Observable<ILoginResult>; google: boolean }>();
 
   constructor() {
     this.login$.pipe(
@@ -45,8 +54,8 @@ export class LoginUseCase {
         this._isLoading.set(true);
         this._error.set(null);
       }),
-      switchMap(credentials =>
-        this.userService.login(credentials).pipe(
+      switchMap(({ request$, google }) =>
+        request$.pipe(
           tap(({ user, token, mustChangePassword }) => this.authSession.saveSession(user, token, mustChangePassword)),
           // Branding is best-effort: it never blocks the login (ni lo demora más de 2,5 s con red lenta).
           // Si tarda, se entra igual y la marca termina de llegar en segundo plano (shareReplay mantiene la petición).
@@ -62,7 +71,7 @@ export class LoginUseCase {
               : this.authSession.getHomeRoute()]);
           }),
           catchError(err => {
-            this._error.set(loginErrorMessage(err));
+            this._error.set(google ? googleErrorMessage(err) : loginErrorMessage(err));
             this._isLoading.set(false);
             return EMPTY;
           })
@@ -73,6 +82,11 @@ export class LoginUseCase {
   }
 
   login(credentials: ILoginCredentials): void {
-    this.login$.next(credentials);
+    this.login$.next({ request$: this.userService.login(credentials), google: false });
+  }
+
+  /** Entra (o crea la cuenta) con la credencial de Google; un invitado con sesión conserva su avance. */
+  loginWithGoogle(credential: string): void {
+    this.login$.next({ request$: this.google.exchange(credential), google: true });
   }
 }

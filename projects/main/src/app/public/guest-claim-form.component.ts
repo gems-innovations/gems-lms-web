@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { GuestAccessService } from './guest-access.service';
 import { GuestGateService } from './guest-gate';
 import { AnalyticsService } from '../analytics.service';
+import { GoogleButtonComponent } from 'auth/core';
 
 /**
  * Formulario para que el invitado cree su cuenta y conserve su avance. Se carga solo cuando se abre
@@ -13,6 +14,7 @@ import { AnalyticsService } from '../analytics.service';
  */
 @Component({
   selector: 'gems-guest-claim-form',
+  imports: [GoogleButtonComponent],
   template: `
     <div class="gsm__backdrop" (click)="closed.emit()"></div>
     <div #dialog class="gsm" role="dialog" aria-modal="true" aria-labelledby="gsm-title" tabindex="-1" (keydown.escape)="closed.emit()">
@@ -24,6 +26,7 @@ import { AnalyticsService } from '../analytics.service';
         <h2 id="gsm-title">Guarda tu avance</h2>
         <p>Tu avance y tu racha pasan a tu cuenta.</p>
       }
+      <gems-google-button [disabled]="busy()" (credential)="saveWithGoogle($event)" />
       <form (submit)="$event.preventDefault(); save()">
         <div class="gsm__row">
           <label>Nombre<input name="fn" required maxlength="50" autocomplete="given-name" enterkeyhint="next" [value]="firstName" (input)="firstName = $any($event.target).value" /></label>
@@ -141,6 +144,21 @@ export class GuestClaimFormComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dialog().nativeElement.focus();
+  }
+
+  protected async saveWithGoogle(credential: string): Promise<void> {
+    if (this.busy()) return;
+    this.error.set(null);
+    this.busy.set(true);
+    try {
+      await this.guests.claimWithGoogle(credential);
+      this.analytics.event('cuenta-creada');
+      this.saved.emit();
+    } catch {
+      this.error.set('No pudimos guardar tu avance con Google. Inténtalo de nuevo o usa tu correo.');
+    } finally {
+      this.busy.set(false);
+    }
   }
 
   protected async save(): Promise<void> {

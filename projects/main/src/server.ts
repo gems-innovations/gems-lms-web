@@ -24,6 +24,8 @@ const tenantBaseDomain = process.env['TENANT_BASE_DOMAIN'];
 if (tenantBaseDomain) {
   (globalThis as { TENANT_BASE_DOMAIN?: string }).TENANT_BASE_DOMAIN = tenantBaseDomain;
 }
+// ID de cliente de Google (público): sin él no aparece «Continuar con Google».
+const googleClientId = process.env['GOOGLE_CLIENT_ID'];
 // Hosts que el SSR acepta; admite comodines (*.gemsinnovations.com) para los subdominios.
 const allowedHosts = (process.env['NG_ALLOWED_HOSTS'] ?? '').split(',').map((host) => host.trim()).filter(Boolean);
 const angularApp = new AngularNodeAppEngine(allowedHosts.length ? { allowedHosts } : undefined);
@@ -38,8 +40,9 @@ app.use((_req, res, next) => {
   const connectSources = ["'self'", apiOrigin].filter(Boolean).join(' ');
   res.set({
     'Cache-Control': 'no-cache',
-    'Content-Security-Policy': `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://gc.zgo.at; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https: ${apiOrigin}; media-src 'self' blob: ${apiOrigin}; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; font-src 'self' data:; connect-src ${connectSources} https://infogems.goatcounter.com`,
-    'Cross-Origin-Opener-Policy': 'same-origin',
+    'Content-Security-Policy': `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://gc.zgo.at https://accounts.google.com/gsi/client; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; img-src 'self' data: blob: https: ${apiOrigin}; media-src 'self' blob: ${apiOrigin}; frame-src https://accounts.google.com/gsi/ https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; font-src 'self' data:; connect-src ${connectSources} https://infogems.goatcounter.com https://accounts.google.com/gsi/`,
+    // allow-popups: el botón de Google abre su ventana y le devuelve la credencial a esta página.
+    'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
     'Permissions-Policy': 'camera=(), geolocation=(), microphone=(), payment=(), usb=()',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
@@ -51,12 +54,13 @@ app.use((_req, res, next) => {
 
 app.get('/config.js', (_req, res) => {
   res.set('Cache-Control', 'no-store');
-  if (!apiBaseUrl && !tenantBaseDomain) {
+  if (!apiBaseUrl && !tenantBaseDomain && !googleClientId) {
     res.sendFile(join(browserDistFolder, 'config.js'), { maxAge: 0 });
     return;
   }
   res.type('application/javascript').set('Cache-Control', 'no-store')
     .send((apiBaseUrl ? `globalThis.API_BASE_URL = ${JSON.stringify(apiBaseUrl)};\n` : '')
+      + (googleClientId ? `globalThis.GOOGLE_CLIENT_ID = ${JSON.stringify(googleClientId)};\n` : '')
       + (tenantBaseDomain ? `globalThis.TENANT_BASE_DOMAIN = ${JSON.stringify(tenantBaseDomain)};\n` : ''));
 });
 

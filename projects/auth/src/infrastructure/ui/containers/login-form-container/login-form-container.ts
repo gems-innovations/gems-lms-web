@@ -18,4 +18,8 @@ export class LoginFormContainer {
   login(credentials: ILoginCredentials): void {
     this.loginUseCase.login(credentials);
   }
+
+  loginWithGoogle(credential: string): void {
+    this.loginUseCase.loginWithGoogle(credential);
+  }
 }

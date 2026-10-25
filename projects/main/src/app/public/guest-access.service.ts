@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { AuthSessionService, IUser, IUserResponse, mapUser } from 'auth/core';
+import { AuthSessionService, GoogleAuthService, IUser, IUserResponse, mapUser } from 'auth/core';
 import { environment } from 'shared/core';
 
 
@@ -30,6 +30,7 @@ export interface IClaimAccount {
 export class GuestAccessService {
   private readonly http = inject(HttpClient);
   private readonly session = inject(AuthSessionService);
+  private readonly google = inject(GoogleAuthService);
   private readonly url = `${environment.apiUrls.auth.base}/guest`;
 
   /** Abre una sesión de invitado si no hay ninguna; con sesión, no hace nada. */
@@ -40,6 +41,13 @@ export class GuestAccessService {
     const user = mapUser(r);
     this.session.saveSession(user, r.token);
     return user;
+  }
+
+  /** Guarda el avance con Google: el invitado pasa a cuenta normal (o entra a la que ya tenía con ese correo). */
+  async claimWithGoogle(credential: string): Promise<IUser> {
+    const r = await firstValueFrom(this.google.exchange(credential));
+    this.session.saveSession(r.user, r.token, r.mustChangePassword);
+    return r.user;
   }
 
   async claim(data: IClaimAccount): Promise<IUser> {

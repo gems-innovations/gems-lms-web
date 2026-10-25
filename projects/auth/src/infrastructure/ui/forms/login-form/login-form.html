@@ -22,6 +22,8 @@
       </div>
     }
 
+    <gems-google-button [disabled]="disabled()" (credential)="onGoogle.emit($event)" />
+
     <fieldset class="login-form__fields" [disabled]="disabled()">
       <lib-input
         [formField]="loginForm.email"
