@@ -20,6 +20,7 @@ import { TapPanelComponent } from './tap-panel.component';
 import { IMenuTopic, TapsMenuComponent } from './taps-menu.component';
 import { TapsRankingComponent } from './taps-ranking.component';
 import { TapsRankingService } from './taps-ranking.service';
+import { TapsEstadisticasService } from './taps-estadisticas.service';
 import { IPartidaRespuesta } from './taps.ranking';
 import {
   INTEREST_KEY, IInterest, NOVELTY_MS, TInterestSignal, addSignal, blockTopic, emptyInterest, isBlocked, markCompleted, parseInterest, personalize,
@@ -101,6 +102,7 @@ export class TapsFeedComponent {
   private readonly status = inject(AppStatusService);
   /** Rankings: envío de cada partida terminada y alias del jugador (solo en el navegador). */
   protected readonly ranking = inject(TapsRankingService);
+  private readonly estadisticas = inject(TapsEstadisticasService);
   private readonly isBrowser = isPlatformBrowser(this.platform);
   /** Efectos (sintetizados por código) y voz de los personajes: taps-engine/audio y taps-engine/voz, cargados bajo demanda. */
   private readonly audio = inject(TapsSonidoService);
@@ -833,6 +835,7 @@ export class TapsFeedComponent {
     this.setRun(tap, run);
     this.notice.set(null);
     this.track('taps-responder', `taps/responder/${eventSlug(tap.id)}/${run.answers.length}`);
+    this.estadisticas.respuesta(tap.id, run.answers.length - 1, correct && !esPaso(tap.questions[run.answers.length - 1]));
     this.countFirstTouch(pre);
     this.actividad();
     if (this.sound() === 'on') this.audio.desbloquear();           // dentro del gesto: el navegador solo deja sonar así
@@ -1019,6 +1022,7 @@ export class TapsFeedComponent {
     if (run.finished) {
       const rachaAntes = this.resumen().racha;
       this.track('taps-completar', `taps/completar/${eventSlug(tap.id)}`);
+      this.estadisticas.completado(tap.id);
       this.completedThisSession++;
       this.updateInterest(i => markCompleted(i, tap, Date.now()));
       this.ahora.set(Date.now());
@@ -1400,7 +1404,7 @@ export class TapsFeedComponent {
   // ───────────── compartir ─────────────
   /** «Retar a un amigo»: imagen 9:16 + texto + enlace al mismo Tap. Si no se puede compartir, copia y ofrece la imagen. */
   protected async challenge(tap: ITap): Promise<void> {
-    this.track('taps-compartir', `taps/compartir/${eventSlug(tap.id)}`);
+    this.track('taps-compartir', `taps/compartir/${eventSlug(tap.id)}`); this.estadisticas.compartido(tap.id);
     this.signal(tap, 'share');
     // Reto del día: tarjeta tipo Wordle con el número y el intento oficial (el primero), sin el título del Tap ni respuestas,
     // y el enlace a /hoy (tarjeta neutra), no a /t/<id> (su vista previa trae la primera pregunta).
@@ -1427,7 +1431,7 @@ export class TapsFeedComponent {
 
   /** Compartir desde el riel (a mitad del Tap): solo el enlace, sin resultado. */
   protected async shareTap(tap: ITap): Promise<void> {
-    this.track('taps-compartir', `taps/compartir/${eventSlug(tap.id)}`);
+    this.track('taps-compartir', `taps/compartir/${eventSlug(tap.id)}`); this.estadisticas.compartido(tap.id);
     this.signal(tap, 'share');
     const url = shareUrl(location.origin, tap.id), text = tap.tipo === 'historia' ? `Vive esta historia en GEMS LMS: ${tap.title}. ¿Tú qué habrías hecho?` : `Juega este Tap de GEMS LMS: ${tap.title}. ¿Cuántas sacas de ${puntuables(tap)}?`;
     this.sharing = true;
@@ -1719,7 +1723,7 @@ export class TapsFeedComponent {
     if (this.run(tap).answers.length === 0 && !this.tapStart.has(tap.id)) this.tapStart.set(tap.id, Date.now());
     if (this.notice()?.tapId !== tap.id) this.notice.set(null);
     this.syncUrl(tap, previous);
-    if (!this.seen.has(tap.id)) { this.seen.add(tap.id); this.track('taps-ver', `taps/ver/${eventSlug(tap.id)}`); }
+    if (!this.seen.has(tap.id)) { this.seen.add(tap.id); this.track('taps-ver', `taps/ver/${eventSlug(tap.id)}`); if (!this.portada) this.estadisticas.vista(tap.id); }
     if (previous >= 0 && index > previous) this.track('taps-siguiente', 'taps/siguiente');
     if (this.isReto(tap) && !this.retoVisto) { this.retoVisto = true; this.track(null, 'taps/reto-dia/ver'); }
     if (previous >= 0) this.actividad();
