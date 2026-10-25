@@ -121,6 +121,20 @@
   .look.renombrando .renombrar { display: block; }
   .look.renombrando .cargar b { display: none; }
 
+  /* paso 3: compartir por enlace; exportar e importar detrás de «Más» */
+  .compartir { display: grid; gap: 8px; margin: 0 0 16px; }
+  .compartir .grande.secundario { background: var(--panel2); border-color: var(--acc); color: var(--txt); }
+  .compartir .enlace { display: none; gap: 8px; }
+  .compartir.mostrarEnlace .enlace { display: flex; }
+  .compartir .enlace input { flex: 1; min-width: 0; font: 13px/1.3 ui-monospace, Consolas, monospace; color: var(--txt); background: #12111b; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; min-height: 44px; }
+  .mas-acciones { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 12px; }
+  .mas-acciones button, .mas-acciones label.boton { display: inline-flex; align-items: center; gap: 6px; font: inherit; color: var(--txt); background: var(--panel2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; min-height: 44px; cursor: pointer; }
+  .mas-acciones label.boton input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+  .mas-acciones label.boton:focus-within { outline: 2px solid var(--acc); outline-offset: 2px; }
+  .importar { display: grid; gap: 8px; margin: 0 0 12px; }
+  .importar textarea { min-height: 80px; margin: 0; }
+  .importar .fila { display: flex; gap: 8px; align-items: center; }
+
   /* chispas al guardar */
   .chispa { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; border-radius: 50%; background: var(--acc); pointer-events: none; animation: chispa .9s ease-out forwards; box-shadow: 0 0 10px 2px rgba(211,178,122,.6); }
   @keyframes chispa { 0% { transform: translate(-50%, -50%) scale(.6); opacity: 1; } 100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); opacity: 0; } }
@@ -135,6 +149,11 @@
   .continuar .botones { grid-column: 1 / -1; display: flex; gap: 10px; }
   .continuar .botones button { flex: 1; min-height: 48px; font-weight: 600; }
   .continuar .botones .primario { flex: 1.6; background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+  .continuar .hoja .botones.tres { flex-wrap: wrap; }
+  .continuar .hoja .botones.tres button { flex: 1 1 45%; }
+  .continuar .hoja .botones.tres .terciario { flex: 1 1 100%; background: transparent; border-color: transparent; color: var(--soft); min-height: 40px; }
+  .continuar .hoja .botones button[hidden] { display: none; }
+  .continuar .hoja p.estado { grid-column: 1 / -1; }
   @media (min-width: 820px) { .continuar { align-items: center; } }
 
   footer { display: flex; gap: 10px; padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--bg); }
@@ -172,6 +191,10 @@
   <symbol id="i-lapiz" viewBox="0 0 24 24"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></symbol>
   <symbol id="i-papelera" viewBox="0 0 24 24"><path d="M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13"/><path d="M10 11v6M14 11v6"/></symbol>
   <symbol id="i-reloj" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-enlace" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.6.4l3-3a4 4 0 0 0-5.6-5.6l-1.5 1.5"/><path d="M14 10a4 4 0 0 0-5.6-.4l-3 3a4 4 0 0 0 5.6 5.6l1.5-1.5"/></symbol>
+  <symbol id="i-bajar" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></symbol>
+  <symbol id="i-subir" viewBox="0 0 24 24"><path d="M12 15V4M7 9l5-5 5 5"/><path d="M5 20h14"/></symbol>
+  <symbol id="i-regalo" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M4 13h16M12 9v11"/><path d="M12 9c-1.5-3-4-4-5.5-2.5S9 9 12 9zm0 0c1.5-3 4-4 5.5-2.5S15 9 12 9z"/></symbol>
 </svg>
 
 <header>
@@ -232,14 +255,27 @@
       <p class="texto" id="misLooksVacio">Aquí aparecerán los personajes que guardes. Se quedan en este dispositivo; nada se envía.</p>
       <div class="looks" id="listaLooks"></div>
     </section>
-    <p class="texto">Pronto vas a poder compartirlo con un enlace y usarlo en tu propio Tap.</p>
+    <section class="compartir" id="compartir" aria-labelledby="compartirTitulo">
+      <h3 id="compartirTitulo" class="texto" style="margin:0">Compártelo con quien quieras. El enlace lleva el personaje completo; nadie necesita cuenta.</h3>
+      <button type="button" id="copiarEnlace" class="grande secundario"><svg class="ic"><use href="#i-enlace"/></svg>Copiar enlace</button>
+      <div class="enlace"><input id="enlaceTexto" readonly aria-label="Enlace de tu personaje"><button type="button" id="enlaceSeleccionar">Seleccionar</button></div>
+      <p class="estado" id="estadoCompartir" role="status" aria-live="polite"></p>
+    </section>
+    <p class="texto">Pronto vas a poder usarlo en tu propio Tap.</p>
     <details id="masDetalles">
       <summary><svg class="ic"><use href="#i-puntos"/></svg>Más</summary>
-      <textarea id="json" readonly aria-label="Datos del personaje"></textarea>
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
-        <button id="copiar"><svg class="ic" style="vertical-align:-5px;margin-right:6px"><use href="#i-copiar"/></svg>Copiar JSON</button>
-        <span class="aviso" id="aviso" aria-live="polite"></span>
+      <p class="texto" style="margin-top:8px">Llévate el personaje como archivo o trae uno que te hayan pasado.</p>
+      <div class="mas-acciones">
+        <button type="button" id="exportar"><svg class="ic"><use href="#i-bajar"/></svg>Exportar JSON</button>
+        <label class="boton" for="archivoImportar"><svg class="ic"><use href="#i-subir"/></svg>Importar archivo<input type="file" id="archivoImportar" accept=".json,application/json,text/plain"></label>
+        <button type="button" id="copiar"><svg class="ic"><use href="#i-copiar"/></svg>Copiar JSON</button>
       </div>
+      <div class="importar">
+        <label class="texto" for="pegarImportar" style="margin:0">O pega aquí el texto de un personaje</label>
+        <textarea id="pegarImportar" aria-label="Texto del personaje para importar" placeholder='{"look": ...}' spellcheck="false"></textarea>
+        <div class="fila"><button type="button" id="importarPegado">Importar lo pegado</button><span class="aviso" id="aviso" aria-live="polite"></span></div>
+      </div>
+      <textarea id="json" readonly aria-label="Datos del personaje"></textarea>
     </details>
   </section>
 </main>
@@ -255,6 +291,19 @@
   </div>
 </div>
 
+<div class="continuar" id="recibido" hidden role="dialog" aria-modal="true" aria-labelledby="recibidoTitulo">
+  <div class="hoja">
+    <img id="recibidoMini" alt="" width="84" height="112">
+    <div><h2 id="recibidoTitulo">Look de un amigo</h2><p id="recibidoTexto">Alguien te mandó su personaje.</p></div>
+    <p class="estado" id="recibidoEstado" role="status" aria-live="polite"></p>
+    <div class="botones tres">
+      <button type="button" class="primario" id="recibidoProbar">Probarlo y ajustarlo</button>
+      <button type="button" id="recibidoGuardar"><svg class="ic"><use href="#i-guardar"/></svg>Guardarlo en Mis looks</button>
+      <button type="button" class="terciario" id="recibidoNo">Seguir con el mío</button>
+    </div>
+  </div>
+</div>
+
 <footer>
   <button id="atras" hidden><svg class="ic"><use href="#i-atras"/></svg>Atrás</button>
   <button id="siguiente" class="primario">Siguiente<svg class="ic"><use href="#i-sig"/></svg></button>
@@ -265,6 +314,7 @@ import { CATALOGO, POSES, blendPose, drawHost, lookOf, poseFor, validarLook, ITE
 import { WORLD_NAMES, GROUND_Y, paintWorld, paintAmbient } from './themes/epoca/scenery.js';
 import { PALETAS, NOMBRES, MUNDOS, sombra, sorprenderTodo, sorprenderPestana, sorprenderEscenario, sugerencias } from './themes/epoca/sugerencias.js';
 import { CLAVE_BORRADOR, CLAVE_LOOKS, MAX_LOOKS, MAX_NOMBRE, armarBorrador, borrarLook, crearAlmacen, duplicarLook, fechaCorta, guardarLook, parsearBorrador, parsearLooks, renombrarLook, serializarBorrador, serializarLooks } from './themes/epoca/guardado.js';
+import { enlaceDeLook, exportarJson, importarJson, lookDesdeHash } from './themes/epoca/compartir.js';
 
 const $ = id => document.getElementById(id);
 const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -601,6 +651,90 @@ function pintarMisLooks() {
   }));
 }
 
+// ───────────────────────── compartir (themes/epoca/compartir.js): enlace en el hash, exportar e importar JSON; nada sale a ningún servidor ─────────────────────────
+const OPCIONES_LOOK = { items: Object.keys(ITEMS), mundos: [...WORLD_NAMES] };
+let temporizadorCompartir = 0;
+function estadoCompartir(texto, bien = false, ms = 4000) {
+  const p = $('estadoCompartir'); p.textContent = texto; p.classList.toggle('bien', bien); clearTimeout(temporizadorCompartir);
+  if (ms) temporizadorCompartir = setTimeout(() => { if (p.textContent === texto) { p.textContent = ''; p.classList.remove('bien'); } }, ms);
+}
+function enlaceActual() { return enlaceDeLook(location.href, estado, $('nombre').value.trim()); }
+function mostrarEnlace(url) { $('compartir').classList.add('mostrarEnlace'); const i = $('enlaceTexto'); i.value = url; i.focus(); i.select(); }
+$('enlaceSeleccionar').onclick = () => { const i = $('enlaceTexto'); i.focus(); i.select(); try { i.setSelectionRange(0, i.value.length); } catch {} };
+async function copiarTexto(texto) { try { await navigator.clipboard.writeText(texto); return true; } catch { return false; } }
+$('copiarEnlace').onclick = async () => {
+  const url = enlaceActual(), nombre = $('nombre').value.trim() || nombreSugerido();
+  if (navigator.share) {
+    try { await navigator.share({ title: `Mira a ${nombre}`, text: 'Te mando mi personaje. Ábrelo y cámbialo a tu gusto.', url }); estadoCompartir('Enlace compartido.', true); return; }
+    catch (e) { if (e?.name === 'AbortError') return; }     // cerró la hoja del sistema: no es un error
+  }
+  if (await copiarTexto(url)) { estadoCompartir('Enlace copiado. Pégalo donde quieras.', true); reaccionar('guardar'); return; }
+  mostrarEnlace(url); estadoCompartir('No se pudo copiar solo. Selecciona el enlace y cópialo.', false, 8000);
+};
+$('exportar').onclick = () => {
+  const nombre = $('nombre').value.trim() || nombreSugerido(), archivo = 'personaje-' + nombre.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.json';
+  try {
+    const blob = new Blob([exportarJson(estado, $('nombre').value.trim())], { type: 'application/json' }), url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = archivo; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+    aviso(`Archivo «${archivo}» listo.`);
+  } catch { aviso('No se pudo crear el archivo. Copia el JSON de abajo.'); }
+};
+function aviso(texto, ms = 4000) { const a = $('aviso'); a.textContent = texto; clearTimeout(aviso.t); aviso.t = setTimeout(() => { if (a.textContent === texto) a.textContent = ''; }, ms); }
+function importarTexto(texto) {
+  const r = importarJson(texto, validarLook, OPCIONES_LOOK);
+  if (!r.ok) { aviso(r.motivo, 7000); return; }
+  cambiar('cargar', () => Object.assign(estado, r.estado)); lookCargado = null; fondoSucio = true; if (!reducido) entrada = 1; pintar(); construirAjustes(); refrescarJson(); prepararGuardar();
+  if (r.nombre) { $('nombre').value = r.nombre; contarNombre(); }
+  $('pegarImportar').value = ''; aviso('Personaje importado. Ya está en la vista; puedes ajustarlo o guardarlo.');
+  $('paso').scrollTo({ top: 0, behavior: reducido ? 'auto' : 'smooth' });
+}
+$('importarPegado').onclick = () => importarTexto($('pegarImportar').value);
+$('archivoImportar').addEventListener('change', async ev => {
+  const f = ev.target.files?.[0]; ev.target.value = ''; if (!f) return;
+  if (f.size > 64 * 1024) { aviso('Ese archivo es demasiado grande para ser un personaje.', 7000); return; }
+  try { importarTexto(await f.text()); } catch { aviso('No se pudo leer el archivo.', 7000); }
+});
+
+// Al abrir con `#look=`: «Look de un amigo» con «Probarlo y ajustarlo», «Guardarlo en Mis looks» y «Seguir con el mío».
+// El hash se limpia después para que recargar no vuelva a preguntar. Si es inválido: una línea amable y el diseñador normal.
+function ofrecerRecibido() {
+  const r = lookDesdeHash(location.hash, validarLook, OPCIONES_LOOK);
+  if (!r) return false;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch {}
+  if (!r.ok) { irA(0); estadoRecibidoInvalido(r.motivo); return false; }
+  const quien = r.nombre || 'un personaje';
+  try { $('recibidoMini').src = miniatura(r.estado.look, 84, 112, 2).toDataURL('image/png'); } catch {}
+  $('recibidoTexto').textContent = `Alguien te mandó ${r.nombre ? 'a ' + r.nombre : 'su personaje'}.` + (borradorActual ? ' Tienes uno a medias en este dispositivo: si pruebas este, el tuyo se reemplaza; si solo lo guardas, el tuyo sigue igual.' : ' Puedes cambiarlo a tu gusto o guardarlo tal cual.');
+  $('recibidoGuardar').hidden = !almacen.disponible;
+  $('recibidoNo').textContent = borradorActual ? 'Seguir con el mío' : 'Ahora no';
+  $('recibido').hidden = false; $('recibidoProbar').focus();
+  const cerrar = () => { $('recibido').hidden = true; $('recibidoEstado').textContent = ''; };
+  $('recibidoProbar').onclick = () => {
+    cerrar(); borradorActual = null; historial.length = 0; $('deshacer').disabled = true;
+    Object.assign(estado, { base: r.estado.base, look: { ...r.estado.look }, item: r.estado.item, world: r.estado.world });
+    if (r.nombre) { $('nombre').value = r.nombre; contarNombre(); }
+    fondoSucio = true; escenasSucias = true; marcarPreset(); irA(1); pintar(); decir(r.nombre ? `¡Hola! Soy ${r.nombre}.` : FRASES.cargar[0]); if (!reducido) animar('celebrate', 1.2);
+    programarAutoguardado();
+  };
+  $('recibidoGuardar').onclick = () => {
+    const g = guardarLook(misLooks, r.estado, { nombre: r.nombre || quien, miniatura: (() => { try { return miniatura(r.estado.look, 72, 96, 1).toDataURL('image/png'); } catch { return ''; } })() });
+    if (g.lleno) { $('recibidoEstado').textContent = `Ya tienes ${MAX_LOOKS} looks guardados, el máximo. Pruébalo y borra uno de «Mis looks» para guardarlo.`; return; }
+    if (!almacen.escribir(CLAVE_LOOKS, serializarLooks(g.lista))) { $('recibidoEstado').textContent = 'No se pudo guardar en este navegador. Pruébalo y cópialo desde «Más».'; return; }
+    misLooks = g.lista; cerrar(); estadoGuardado(`«${g.look.nombre}» está en Mis looks.`, true, 6000); pintarMisLooks();
+    if (!ofrecerContinuar()) { irA(3); if (!reducido) animar('celebrate', 1.2); }
+  };
+  $('recibidoNo').onclick = () => { cerrar(); if (!ofrecerContinuar()) { if (!reducido) animar('celebrate', 1.2); decir(FRASES.preset(theme.characters.grabador.name)); } };
+  return true;
+}
+function estadoRecibidoInvalido(motivo) {
+  $('titulo').textContent = 'Ese enlace no se pudo abrir';
+  decir('Haz el tuyo, mejor.');
+  const p = document.createElement('p'); p.className = 'texto'; p.id = 'avisoEnlace'; p.setAttribute('role', 'status');
+  p.textContent = `${motivo} Pídele a quien te lo mandó que lo copie otra vez, o haz tu propio personaje aquí.`;
+  $('presets').before(p);
+  setTimeout(() => { if (pantalla === 0) $('titulo').textContent = TITULOS[0]; }, 6000);
+}
+
 // Al abrir con borrador: «Seguir donde ibas» con miniatura, o «Empezar otro»
 function ofrecerContinuar() {
   if (!borradorActual) return false;
@@ -682,7 +816,7 @@ new ResizeObserver(() => { if (medir()) pintar(); }).observe(vista);
 // ───────────────────────── arranque ─────────────────────────
 construirPresets(); construirPestanas(); construirReacciones(); irA(0);
 medir(); arrancar(); pintar();
-if (!ofrecerContinuar()) { if (!reducido) animar('celebrate', 1.2); decir(FRASES.preset(theme.characters.grabador.name)); }
+if (!ofrecerRecibido() && !ofrecerContinuar()) { if (!reducido) animar('celebrate', 1.2); decir(FRASES.preset(theme.characters.grabador.name)); }
 </script>
 </body>
 </html>
