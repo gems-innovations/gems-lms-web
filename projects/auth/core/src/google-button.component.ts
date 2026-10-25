@@ -12,7 +12,7 @@ import { GoogleAuthService } from './google-auth.service';
     @if (visible()) {
       <div class="gbtn">
         <div #host class="gbtn__host" [class.gbtn__host--off]="disabled()"></div>
-        <p class="gbtn__note">Al continuar aceptas la <a href="/privacidad" target="_blank" rel="noopener">política de privacidad</a> y los <a href="/terminos" target="_blank" rel="noopener">términos</a>. Si eres menor, cuentas con permiso de tu acudiente.</p>
+        <p class="gbtn__note">Al continuar aceptas la <a href="/privacidad" target="_blank" rel="noopener">política de privacidad</a> y los <a href="/terminos" target="_blank" rel="noopener">términos</a>.@if (!short()) { Si eres menor, cuentas con permiso de tu acudiente. }</p>
         @if (divider()) { <p class="gbtn__or"><span>o con tu correo</span></p> }
       </div>
     }
@@ -34,6 +34,8 @@ export class GoogleButtonComponent {
   readonly disabled = input(false);
   /** Muestra «o con tu correo» debajo, para separarlo del formulario. */
   readonly divider = input(true);
+  /** Aviso en una línea (pantalla de inicio de sesión); sin la frase sobre menores. */
+  readonly short = input(false);
   readonly credential = output<string>();
 
   protected readonly visible = signal(false);
