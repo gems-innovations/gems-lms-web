@@ -87,6 +87,56 @@
   textarea { width: 100%; min-height: 110px; font: 12px/1.4 ui-monospace, Consolas, monospace; color: var(--txt); background: #12111b; border: 1px solid var(--line); border-radius: 10px; padding: 8px; margin: 0 0 10px; }
   .aviso { color: var(--good); font-size: 13px; min-height: 1.2em; }
 
+  /* paso 3: guardar en el dispositivo y «Mis looks» */
+  .guardar { display: grid; gap: 8px; margin: 0 0 16px; }
+  .guardar label { font-size: 13px; color: var(--soft); }
+  .guardar input { font: inherit; font-size: 16px; color: var(--txt); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; min-height: 44px; width: 100%; }
+  .guardar input:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-color: var(--acc); }
+  .guardar .fila { display: flex; gap: 8px; align-items: center; }
+  .guardar .fila input { flex: 1; min-width: 0; }
+  .guardar .fila small { color: var(--soft); font-size: 12px; min-width: 3.5ch; text-align: right; }
+  .grande { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; font-weight: 700; font-size: 16px; background: var(--acc); border-color: var(--acc); color: var(--acc-ink); border-radius: 14px; }
+  .grande:disabled { opacity: .5; cursor: default; }
+  .estado { color: var(--soft); font-size: 13px; margin: 0; min-height: 1.2em; }
+  .estado.bien { color: var(--good); }
+  .mislooks { margin: 0 0 16px; }
+  .mislooks h3 { margin: 0 0 8px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .mislooks h3 small { color: var(--soft); font-weight: 400; font-size: 12px; }
+  .mislooks[hidden] { display: none; }
+  .looks { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+  .look { position: relative; display: flex; flex-direction: column; background: var(--panel); border: 2px solid var(--line); border-radius: 14px; overflow: hidden; min-width: 0; }
+  .look.on { border-color: var(--acc); }
+  .look .cargar { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px 6px; background: none; border: 0; border-radius: 0; min-width: 0; width: 100%; }
+  .look img { width: 72px; height: 96px; border-radius: 10px; background: #15131f; object-fit: cover; display: block; }
+  .look b { font-weight: 600; font-size: 13px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .look small { color: var(--soft); font-size: 11px; }
+  .look .puntos { position: absolute; top: 4px; right: 4px; min-height: 32px; width: 32px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: rgba(15,14,23,.7); border: 0; }
+  .look .acciones { display: none; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 0 6px 6px; }
+  .look.abierto .acciones { display: grid; }
+  .look .acciones button { min-height: 40px; padding: 4px 2px; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 2px; border-radius: 10px; }
+  .look .acciones button svg.ic { width: 16px; height: 16px; }
+  .look .acciones .peligro { color: #f3a0a0; }
+  .look input { font: inherit; font-size: 13px; width: 100%; color: var(--txt); background: #12111b; border: 1px solid var(--acc); border-radius: 8px; padding: 4px 6px; text-align: center; }
+  .look .renombrar { padding: 0 6px 6px; display: none; }
+  .look.renombrando .renombrar { display: block; }
+  .look.renombrando .cargar b { display: none; }
+
+  /* chispas al guardar */
+  .chispa { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; border-radius: 50%; background: var(--acc); pointer-events: none; animation: chispa .9s ease-out forwards; box-shadow: 0 0 10px 2px rgba(211,178,122,.6); }
+  @keyframes chispa { 0% { transform: translate(-50%, -50%) scale(.6); opacity: 1; } 100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); opacity: 0; } }
+
+  /* al abrir con borrador: «Seguir donde ibas» */
+  .continuar { position: fixed; inset: 0; background: rgba(15,14,23,.86); display: flex; align-items: flex-end; justify-content: center; z-index: 10; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  .continuar[hidden] { display: none; }
+  .continuar .hoja { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 18px 16px; width: 100%; max-width: 420px; display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; }
+  .continuar img { width: 84px; height: 112px; border-radius: 12px; background: #15131f; display: block; }
+  .continuar h2 { margin: 0 0 4px; font-size: 17px; }
+  .continuar p { margin: 0; color: var(--soft); font-size: 13px; }
+  .continuar .botones { grid-column: 1 / -1; display: flex; gap: 10px; }
+  .continuar .botones button { flex: 1; min-height: 48px; font-weight: 600; }
+  .continuar .botones .primario { flex: 1.6; background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+  @media (min-width: 820px) { .continuar { align-items: center; } }
+
   footer { display: flex; gap: 10px; padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--bg); }
   footer button { flex: 1; min-height: 48px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
   footer .primario { flex: 2; background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
@@ -118,6 +168,10 @@
   <symbol id="i-dedo" viewBox="0 0 24 24"><path d="M10 11V5a1.5 1.5 0 0 1 3 0v6M13 10a1.5 1.5 0 0 1 3 0v2M16 12a1.5 1.5 0 0 1 3 0v4a5 5 0 0 1-5 5h-1a5 5 0 0 1-4-2l-3-4a1.5 1.5 0 0 1 2.4-1.8L10 15"/></symbol>
   <symbol id="i-copiar" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
   <symbol id="i-idea" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 1 3.6 10.8c-.5.4-.6 1-.6 1.6V16H9v-.6c0-.6-.1-1.2-.6-1.6A6 6 0 0 1 12 3z"/></symbol>
+  <symbol id="i-guardar" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></symbol>
+  <symbol id="i-lapiz" viewBox="0 0 24 24"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></symbol>
+  <symbol id="i-papelera" viewBox="0 0 24 24"><path d="M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13"/><path d="M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-reloj" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
 </svg>
 
 <header>
@@ -167,7 +221,18 @@
   <section class="pantalla" data-p="3">
     <p class="texto" id="despedida">Tu personaje está listo. Toca una reacción para verlo en acción.</p>
     <div class="reacciones" id="reacciones" role="group" aria-label="Reacciones"></div>
-    <p class="texto">Pronto vas a poder guardarlo en tu dispositivo, compartirlo con un enlace y usarlo en tu propio Tap. Por ahora nada se guarda ni se envía.</p>
+    <form class="guardar" id="formGuardar" novalidate>
+      <label for="nombre">Ponle nombre (opcional)</label>
+      <div class="fila"><input id="nombre" maxlength="20" autocomplete="off" autocapitalize="words" enterkeyhint="done" spellcheck="false"><small id="restan" aria-hidden="true"></small></div>
+      <button type="submit" id="guardar" class="grande"><svg class="ic"><use href="#i-guardar"/></svg>Guardar en este dispositivo</button>
+      <p class="estado" id="estadoGuardado" role="status" aria-live="polite"></p>
+    </form>
+    <section class="mislooks" id="misLooks" aria-labelledby="misLooksTitulo">
+      <h3 id="misLooksTitulo">Mis looks <small id="cuentaLooks"></small></h3>
+      <p class="texto" id="misLooksVacio">Aquí aparecerán los personajes que guardes. Se quedan en este dispositivo; nada se envía.</p>
+      <div class="looks" id="listaLooks"></div>
+    </section>
+    <p class="texto">Pronto vas a poder compartirlo con un enlace y usarlo en tu propio Tap.</p>
     <details id="masDetalles">
       <summary><svg class="ic"><use href="#i-puntos"/></svg>Más</summary>
       <textarea id="json" readonly aria-label="Datos del personaje"></textarea>
@@ -179,6 +244,17 @@
   </section>
 </main>
 
+<div class="continuar" id="continuar" hidden role="dialog" aria-modal="true" aria-labelledby="continuarTitulo">
+  <div class="hoja">
+    <img id="continuarMini" alt="" width="84" height="112">
+    <div><h2 id="continuarTitulo">Seguir donde ibas</h2><p id="continuarTexto">Dejaste un personaje a medias en este dispositivo.</p></div>
+    <div class="botones">
+      <button type="button" class="primario" id="continuarSi">Seguir donde ibas</button>
+      <button type="button" id="continuarNo">Empezar otro</button>
+    </div>
+  </div>
+</div>
+
 <footer>
   <button id="atras" hidden><svg class="ic"><use href="#i-atras"/></svg>Atrás</button>
   <button id="siguiente" class="primario">Siguiente<svg class="ic"><use href="#i-sig"/></svg></button>
@@ -188,6 +264,7 @@
 import { CATALOGO, POSES, blendPose, drawHost, lookOf, poseFor, validarLook, ITEMS } from './themes/epoca/rig.js';
 import { WORLD_NAMES, GROUND_Y, paintWorld, paintAmbient } from './themes/epoca/scenery.js';
 import { PALETAS, NOMBRES, MUNDOS, sombra, sorprenderTodo, sorprenderPestana, sorprenderEscenario, sugerencias } from './themes/epoca/sugerencias.js';
+import { CLAVE_BORRADOR, CLAVE_LOOKS, MAX_LOOKS, MAX_NOMBRE, armarBorrador, borrarLook, crearAlmacen, duplicarLook, fechaCorta, guardarLook, parsearBorrador, parsearLooks, renombrarLook, serializarBorrador, serializarLooks } from './themes/epoca/guardado.js';
 
 const $ = id => document.getElementById(id);
 const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -203,8 +280,11 @@ const FRASES = {
   preset: n => `¡Hola! Soy ${n}.`, hat: ['¿Me queda bien?', 'Buen sombrero.'], hair: ['Nuevo peinado.', '¿Qué tal así?'], outfit: ['¡Mira este cambio!', 'Me gusta esta ropa.'],
   color: ['Buen color.', 'Combina bien.'], face: ['Esta es mi cara.', '¿Me reconoces?'], item: ['Lo llevo en la mano.', '¿Y esto?'], world: ['Aquí me siento en casa.', 'Buen lugar.'],
   sorpresa: ['¡Sorpresa!', 'A ver qué tal.'], deshacer: ['Como antes.'], sugerencia: ['Buena idea.', 'Así va mejor.'],
+  guardar: ['¡Guardado!', 'Aquí me quedo.'], cargar: ['¡Aquí estoy otra vez!', 'Me acordaba de ti.'],
 };
-const REACCION = { preset: ['celebrate', 1.3], hat: ['talk', 1], hair: ['talk', 1], outfit: ['dance', 1.1], color: ['talk', 0.8], face: ['talk', 0.8], item: ['think', 1], world: ['talk', 1], sorpresa: ['dance', 1.2], deshacer: ['think', 0.8], sugerencia: ['celebrate', 1] };
+const REACCION = { preset: ['celebrate', 1.3], hat: ['talk', 1], hair: ['talk', 1], outfit: ['dance', 1.1], color: ['talk', 0.8], face: ['talk', 0.8], item: ['think', 1], world: ['talk', 1], sorpresa: ['dance', 1.2], deshacer: ['think', 0.8], sugerencia: ['celebrate', 1], guardar: ['celebrate', 1.4], cargar: ['celebrate', 1.2] };
+// nombre sugerido según el punto de partida (editable, nunca obligatorio)
+const SUGERIDO = { grabador: 'Tomás', arqueologa: 'Capitana Inés', senador: 'Lucio', escriba: 'Nefer', artesano: 'Beltrán', investigadora: 'Marta', periodista: 'Álvaro', sorpresa: 'Mi personaje' };
 const QUIETA = { celebrate: 'happy', dance: 'happy', talk: 'still', think: 'think', hurt: 'oops', sad: 'oops', idle: 'still' };
 const pick = a => a[Math.floor(Math.random() * a.length)];
 
@@ -224,12 +304,14 @@ function cambiar(tipo, aplicar) {              // todo cambio pasa por aquí: gu
   escenasSucias = true;                        // las miniaturas del paso 2 llevan al personaje: se repintan al volver a verlas
   if (tipo === 'world' && !reducido) entrada = 1;
   refrescarControles(); refrescarSugerencia(); pintar(); pintarEscenas();
+  programarAutoguardado();
   try { navigator.vibrate?.(12); } catch {}
 }
 function deshacer() {
   const ant = historial.pop(); if (!ant) return;
   Object.assign(estado, ant); $('deshacer').disabled = !historial.length;
   fondoSucio = true; escenasSucias = true; reaccionar('deshacer'); construirAjustes(); refrescarControles(); refrescarSugerencia(); pintar(); pintarEscenas();
+  programarAutoguardado();
 }
 function ponerPreset(id) {
   const c = theme.characters[id];
@@ -279,17 +361,23 @@ function irA(p) {
   $('paso').scrollTop = 0;
   if (pantalla === 1) construirAjustes();
   if (pantalla === 2) construirEscenas();
-  if (pantalla === 3) { refrescarJson(); if (!reducido) reaccionar('preset'); }
+  if (pantalla === 3) { refrescarJson(); prepararGuardar(); if (!reducido) reaccionar('preset'); }
   refrescarSugerencia();
+  programarAutoguardado();
 }
-$('siguiente').onclick = () => { if (pantalla === 3) { historial.length = 0; $('deshacer').disabled = true; ponerPreset('grabador'); irA(0); } else irA(pantalla + 1); };
+$('siguiente').onclick = () => { if (pantalla === 3) { empezarOtro(); } else irA(pantalla + 1); };
+function empezarOtro() {                       // borrador nuevo: se olvida el anterior y el siguiente autoguardado estrena borradorId
+  borradorActual = null; almacen.quitar(CLAVE_BORRADOR); $('nombre').value = ''; lookCargado = null;
+  ponerPreset('grabador'); irA(0);
+  historial.length = 0; $('deshacer').disabled = true; clearTimeout(temporizadorGuardado); temporizadorGuardado = 0;
+}
 $('atras').onclick = () => irA(pantalla - 1);
 $('deshacer').onclick = deshacer;
 $('sorprender').onclick = sorprender;
 
 // Pantalla A: puntos de partida como tarjetas con miniatura
-function miniatura(look, w = 72, h = 96) {
-  const c = document.createElement('canvas'); const r = Math.min(2, devicePixelRatio || 1); c.width = w * r; c.height = h * r;
+function miniatura(look, w = 72, h = 96, r = Math.min(2, devicePixelRatio || 1)) {
+  const c = document.createElement('canvas'); c.width = w * r; c.height = h * r;
   const g = c.getContext('2d'); g.scale(r, r);
   const grad = g.createLinearGradient(0, 0, 0, h); grad.addColorStop(0, '#2a2640'); grad.addColorStop(1, '#15131f'); g.fillStyle = grad; g.fillRect(0, 0, w, h);
   const s = h * 0.9 / 372; drawHost(g, w / 2, h * 0.94 - 112 * s, s, poseFor('still'), lookOf({ look }), { T: 0 });
@@ -417,6 +505,118 @@ function datosLook() { const l = { ...estado.look }; if (!l.vest) delete l.vest;
 function refrescarJson() { const e = validarLook(estado.look); $('json').value = JSON.stringify(datosLook(), null, 2) + (e.length ? '\n// ' + e.join('; ') : ''); }
 $('copiar').onclick = async () => { try { await navigator.clipboard.writeText($('json').value); $('aviso').textContent = 'Copiado'; } catch { $('json').select(); $('aviso').textContent = 'Selecciona el texto y cópialo'; } setTimeout(() => { $('aviso').textContent = ''; }, 2500); };
 
+// ───────────────────────── guardado en el dispositivo (themes/epoca/guardado.js; nada viaja a ningún servidor) ─────────────────────────
+let storageNativo = null; try { storageNativo = window.localStorage; } catch { storageNativo = null; }
+const almacen = crearAlmacen(storageNativo);
+let misLooks = parsearLooks(almacen.leer(CLAVE_LOOKS), validarLook);
+let borradorActual = parsearBorrador(almacen.leer(CLAVE_BORRADOR), validarLook);
+let lookCargado = null;                        // id del look de «Mis looks» que está en la vista (para marcarlo)
+let temporizadorGuardado = 0, temporizadorEstado = 0;
+const SIN_ALMACEN = 'En este navegador no se puede guardar (modo privado o almacenamiento bloqueado). Puedes seguir creando; para llevarte el personaje, copia sus datos desde «Más».';
+
+function programarAutoguardado() {             // borrador con ~1 s de espera; conserva el borradorId entre guardados
+  if (!almacen.disponible || (!historial.length && pantalla === 0)) return;   // sin tocar nada no hay borrador que ofrecer
+  clearTimeout(temporizadorGuardado); temporizadorGuardado = setTimeout(guardarBorradorAhora, 1000);
+}
+function guardarBorradorAhora() {
+  clearTimeout(temporizadorGuardado);
+  if (!almacen.disponible) return;
+  borradorActual = armarBorrador(estado, pantalla, borradorActual);
+  almacen.escribir(CLAVE_BORRADOR, serializarBorrador(borradorActual));
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden && temporizadorGuardado) guardarBorradorAhora(); });
+addEventListener('pagehide', () => { if (temporizadorGuardado) guardarBorradorAhora(); });
+
+function estadoGuardado(texto, bien = false, ms = 4000) {
+  const p = $('estadoGuardado'); p.textContent = texto; p.classList.toggle('bien', bien); clearTimeout(temporizadorEstado);
+  if (ms) temporizadorEstado = setTimeout(() => { if (p.textContent === texto) { p.textContent = ''; p.classList.remove('bien'); } }, ms);
+}
+function nombreSugerido() { return SUGERIDO[estado.base] ?? 'Mi personaje'; }
+function prepararGuardar() {                   // al entrar al paso 3: nombre sugerido, contador y lista
+  const i = $('nombre'); i.placeholder = nombreSugerido(); contarNombre();
+  if (!almacen.disponible) { $('guardar').disabled = true; estadoGuardado(SIN_ALMACEN, false, 0); $('misLooks').hidden = true; }
+  pintarMisLooks();
+}
+function contarNombre() { const n = Array.from($('nombre').value).length; $('restan').textContent = n ? `${n}/${MAX_NOMBRE}` : ''; }
+$('nombre').addEventListener('input', contarNombre);
+
+function pngMiniatura() { try { return miniatura(estado.look, 72, 96, 1).toDataURL('image/png'); } catch { return ''; } }
+function chispas() {                           // celebración breve: chispas ámbar desde la vista; nada con movimiento reducido
+  if (reducido) return;
+  const caja = $('vista'), r = caja.getBoundingClientRect();
+  for (let i = 0; i < 18; i++) {
+    const s = document.createElement('span'); s.className = 'chispa'; const a = (i / 18) * Math.PI * 2 + Math.random() * 0.3, d = r.width * (0.25 + Math.random() * 0.3);
+    s.style.setProperty('--dx', Math.cos(a) * d + 'px'); s.style.setProperty('--dy', Math.sin(a) * d * 0.8 + 'px'); s.style.top = (r.height * 0.55) + 'px';
+    s.style.animationDelay = (Math.random() * 120) + 'ms'; caja.append(s); s.addEventListener('animationend', () => s.remove());
+  }
+  setTimeout(() => caja.querySelectorAll('.chispa').forEach(s => s.remove()), 1500);
+}
+$('formGuardar').addEventListener('submit', ev => {
+  ev.preventDefault();
+  if (!almacen.disponible) { estadoGuardado(SIN_ALMACEN, false, 0); return; }
+  const nombre = $('nombre').value.trim() || nombreSugerido();
+  const r = guardarLook(misLooks, estado, { nombre, miniatura: pngMiniatura() });
+  if (r.lleno) { estadoGuardado(`Ya tienes ${MAX_LOOKS} looks guardados, el máximo. Borra uno de «Mis looks» y vuelve a guardar.`, false, 8000); $('misLooks').scrollIntoView({ behavior: reducido ? 'auto' : 'smooth', block: 'start' }); return; }
+  if (!almacen.escribir(CLAVE_LOOKS, serializarLooks(r.lista))) { estadoGuardado('No se pudo guardar: el almacenamiento de este navegador está lleno o bloqueado. Copia sus datos desde «Más».', false, 8000); return; }
+  misLooks = r.lista; lookCargado = r.look.id; $('nombre').value = ''; contarNombre();
+  estadoGuardado(`«${r.look.nombre}» está en Mis looks.`, true); reaccionar('guardar'); chispas(); pintarMisLooks();
+  try { navigator.vibrate?.(15); } catch {}
+});
+function persistirLooks(lista, aviso) {
+  if (!almacen.escribir(CLAVE_LOOKS, serializarLooks(lista))) { estadoGuardado('No se pudo guardar el cambio en este navegador.', false, 6000); return false; }
+  misLooks = lista; if (aviso) estadoGuardado(aviso, true); pintarMisLooks(); return true;
+}
+function cargarLook(l) {
+  cambiar('cargar', () => { estado.base = l.base; estado.look = { ...l.look }; estado.item = l.item; estado.world = l.world; });
+  lookCargado = l.id; fondoSucio = true; if (!reducido) entrada = 1; pintar(); construirAjustes(); refrescarJson(); prepararGuardar();
+  $('paso').scrollTo({ top: 0, behavior: reducido ? 'auto' : 'smooth' });
+}
+function icono(id) { return `<svg class="ic" aria-hidden="true"><use href="#${id}"/></svg>`; }
+function pintarMisLooks() {
+  $('cuentaLooks').textContent = misLooks.length ? `${misLooks.length} de ${MAX_LOOKS}` : '';
+  $('misLooksVacio').hidden = !!misLooks.length;
+  $('listaLooks').replaceChildren(...misLooks.map(l => {
+    const d = document.createElement('div'); d.className = 'look' + (l.id === lookCargado ? ' on' : ''); d.dataset.id = l.id;
+    const cargar = document.createElement('button'); cargar.type = 'button'; cargar.className = 'cargar'; cargar.setAttribute('aria-label', `Cargar «${l.nombre}», guardado ${fechaCorta(l.fecha) || 'antes'}`);
+    const img = document.createElement('img'); img.alt = ''; img.width = 72; img.height = 96; if (l.miniatura) img.src = l.miniatura;
+    cargar.append(img, Object.assign(document.createElement('b'), { textContent: l.nombre }), Object.assign(document.createElement('small'), { textContent: fechaCorta(l.fecha) }));
+    cargar.onclick = () => cargarLook(l);
+    const puntos = document.createElement('button'); puntos.type = 'button'; puntos.className = 'puntos'; puntos.innerHTML = icono('i-puntos'); puntos.setAttribute('aria-label', `Opciones de «${l.nombre}»`); puntos.setAttribute('aria-expanded', 'false');
+    puntos.onclick = () => { const ab = d.classList.toggle('abierto'); puntos.setAttribute('aria-expanded', String(ab)); d.classList.remove('renombrando'); };
+    const ren = document.createElement('div'); ren.className = 'renombrar';
+    const input = document.createElement('input'); input.maxLength = MAX_NOMBRE; input.value = l.nombre; input.setAttribute('aria-label', 'Nuevo nombre'); input.enterKeyHint = 'done';
+    const confirmarNombre = () => { if (!d.classList.contains('renombrando')) return; d.classList.remove('renombrando', 'abierto'); const nuevo = input.value.trim(); if (nuevo && nuevo !== l.nombre) persistirLooks(renombrarLook(misLooks, l.id, nuevo), 'Nombre cambiado.'); else pintarMisLooks(); };
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); confirmarNombre(); } if (e.key === 'Escape') { d.classList.remove('renombrando'); pintarMisLooks(); } });
+    input.addEventListener('blur', confirmarNombre); ren.append(input);
+    const acc = document.createElement('div'); acc.className = 'acciones';
+    const bRen = document.createElement('button'); bRen.type = 'button'; bRen.innerHTML = icono('i-lapiz') + 'Renombrar'; bRen.onclick = () => { d.classList.add('renombrando'); input.focus(); input.select(); };
+    const bDup = document.createElement('button'); bDup.type = 'button'; bDup.innerHTML = icono('i-copiar') + 'Duplicar';
+    bDup.onclick = () => { const r = duplicarLook(misLooks, l.id); if (r.lleno) { estadoGuardado(`Ya tienes ${MAX_LOOKS} looks, el máximo. Borra uno para duplicar.`, false, 8000); return; } persistirLooks(r.lista, `«${r.look.nombre}» está en Mis looks.`); };
+    const bBor = document.createElement('button'); bBor.type = 'button'; bBor.className = 'peligro'; bBor.innerHTML = icono('i-papelera') + 'Borrar'; let seguro = 0;
+    bBor.onclick = () => {
+      if (!seguro) { seguro = setTimeout(() => { seguro = 0; bBor.innerHTML = icono('i-papelera') + 'Borrar'; }, 3000); bBor.innerHTML = icono('i-papelera') + '¿Seguro?'; bBor.setAttribute('aria-label', 'Toca otra vez para borrar'); return; }
+      clearTimeout(seguro); if (lookCargado === l.id) lookCargado = null; persistirLooks(borrarLook(misLooks, l.id), `«${l.nombre}» se borró.`);
+    };
+    acc.append(bRen, bDup, bBor); d.append(cargar, puntos, ren, acc); return d;
+  }));
+}
+
+// Al abrir con borrador: «Seguir donde ibas» con miniatura, o «Empezar otro»
+function ofrecerContinuar() {
+  if (!borradorActual) return false;
+  const b = borradorActual, nombre = SUGERIDO[b.base] ?? 'tu personaje';
+  try { $('continuarMini').src = miniatura(b.look, 84, 112, 2).toDataURL('image/png'); } catch {}
+  $('continuarTexto').textContent = `Dejaste a ${nombre} a medias ${fechaCorta(b.fecha) || 'hace poco'}. Sigue en el paso donde ibas o empieza uno nuevo.`;
+  $('continuar').hidden = false; $('continuarSi').focus();
+  $('continuarSi').onclick = () => {
+    $('continuar').hidden = true;
+    Object.assign(estado, { base: b.base, look: { ...b.look }, item: b.item, world: b.world });
+    fondoSucio = true; escenasSucias = true; marcarPreset(); irA(b.paso); pintar(); decir(FRASES.cargar[0]); if (!reducido) animar('celebrate', 1.2);
+  };
+  $('continuarNo').onclick = () => { $('continuar').hidden = true; borradorActual = null; almacen.quitar(CLAVE_BORRADOR); programarAutoguardado(); };
+  return true;
+}
+
 // ───────────────────────── vista previa: reacciones, bocadillo, comparar ─────────────────────────
 let anim = 'idle', animT = 0, animFin = 0, entrada = 0, temporizadorQuieto = 0;
 function animar(nombre, dur) {
@@ -482,8 +682,7 @@ new ResizeObserver(() => { if (medir()) pintar(); }).observe(vista);
 // ───────────────────────── arranque ─────────────────────────
 construirPresets(); construirPestanas(); construirReacciones(); irA(0);
 medir(); arrancar(); pintar();
-if (!reducido) animar('celebrate', 1.2);
-decir(FRASES.preset(theme.characters.grabador.name));
+if (!ofrecerContinuar()) { if (!reducido) animar('celebrate', 1.2); decir(FRASES.preset(theme.characters.grabador.name)); }
 </script>
 </body>
 </html>
