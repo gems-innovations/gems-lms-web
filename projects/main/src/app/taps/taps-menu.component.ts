@@ -44,12 +44,6 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
         <li><button type="button" class="side__item" (click)="openCols.emit()" title="Colecciones e insignias" aria-haspopup="dialog">
           <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 2h3l-1.5 6h-3ZM13 2h3l1.5 6h-3ZM12 22a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></span>
           <span class="side__txt">Colecciones</span></button></li>
-        <li><a class="side__item" routerLink="/retos" title="Retos de lógica">
-          <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          <span class="side__txt">Retos de lógica</span></a></li>
-        <li><a class="side__item" routerLink="/bloques" title="Quiz de Bloques">
-          <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Zm0 9 8-4.5M12 12 4 7.5M12 12v9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></span>
-          <span class="side__txt">Quiz de Bloques</span></a></li>
       </ul>
 
       <p class="side__group">Aprender</p>
@@ -126,8 +120,6 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
       @if (moreOpen()) {
         <div class="top__pop" id="top-mas">
           <button type="button" (click)="openRanking.emit(); moreOpen.set(false)" aria-haspopup="dialog">Ranking</button>
-          <a routerLink="/retos">Retos de lógica</a>
-          <a routerLink="/bloques">Quiz de Bloques</a>
           <a routerLink="/">Cursos gratis</a>
           <a routerLink="/instituciones">Para instituciones</a>
           <a routerLink="/crear" [queryParams]="{ desde: 'feed' }" (click)="crear.emit(); moreOpen.set(false)">Haz tu personaje</a>

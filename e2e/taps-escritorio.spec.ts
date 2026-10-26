@@ -241,7 +241,7 @@ test.describe('tablet 820×1180', () => {
     expect(p.y).toBeGreaterThan(s.y + s.height);
     expect(p.y + p.height).toBeLessThanOrEqual(1180);
     await page.getByRole('button', { name: 'Menú' }).click();
-    await expect(page.getByRole('link', { name: 'Retos de lógica' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Cursos gratis' })).toBeVisible();
   });
 });
 
