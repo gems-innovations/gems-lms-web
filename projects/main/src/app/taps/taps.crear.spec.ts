@@ -1,7 +1,19 @@
 import {
   CINTA_TRANSPARENCIA, CLAVE_ESTUDIANTE, COPY_GANCHO, HITOS_CUENTA, IAdjuntoBorrador, MAX_ADJUNTO, NOMBRES_ADJUNTO, PASO_PUBLICAR, armarAdjunto,
-  enlaceRegistro, hitosCrear, leerBorradorId, leerDraft, origenCrear, tituloGancho, validarAdjunto,
+  destinoVolver, enlaceRegistro, hitosCrear, leerBorradorId, leerDraft, origenCrear, tituloGancho, validarAdjunto,
 } from './taps.crear';
+
+describe('destinoVolver (cabecera de marca de /crear)', () => {
+  it('vuelve a donde se vino según ?desde=', () => {
+    expect(destinoVolver('feed')).toEqual({ ruta: '/taps', texto: 'Volver a Taps' });
+    expect(destinoVolver('instituciones')).toEqual({ ruta: '/instituciones', texto: 'Volver a instituciones' });
+    expect(destinoVolver('instructor')).toEqual({ ruta: '/instructor', texto: 'Volver al panel' });
+  });
+  it('sin origen conocido (portada, directo, raro o nulo) vuelve a la portada', () => {
+    for (const d of ['portada', 'enlace', 'continuar', 'directo', '<script>', '', null, undefined]) expect(destinoVolver(d).ruta).toBe('/');
+    expect(destinoVolver(null).texto).toBe('Volver al inicio');
+  });
+});
 
 describe('origenCrear', () => {
   it('?desde= conocido manda sobre lo que vio el diseñador', () => {

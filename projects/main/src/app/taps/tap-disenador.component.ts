@@ -2,13 +2,15 @@ import { Location, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy, Component, DestroyRef, ElementRef, InjectionToken, Injector, PLATFORM_ID, afterNextRender, computed, inject, signal, viewChild,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { AnalyticsService } from '../analytics.service';
 import { TEventPath } from '../analytics-taxonomy';
 import { TapsSonidoService } from './taps-sonido.service';
 import {
-  CINTA_TRANSPARENCIA, CLAVE_AVISO_PUBLICAR, CLAVE_ESTUDIANTE, CLAVE_SONIDO_TAPS, COPY_GANCHO, PASO_PUBLICAR, THitoCuenta, enlaceRegistro, hitosCrear, origenCrear,
-  sonidoActivo, tituloGancho,
+  CINTA_TRANSPARENCIA, CLAVE_AVISO_PUBLICAR, CLAVE_ESTUDIANTE, CLAVE_SONIDO_TAPS, COPY_GANCHO, PASO_PUBLICAR, THitoCuenta, destinoVolver, enlaceRegistro, hitosCrear,
+  origenCrear, sonidoActivo, tituloGancho,
 } from './taps.crear';
 
 /** Lo que el diseñador entrega al tocar «Publicar (con cuenta)» o un aviso de cuenta: el id del borrador local (ya guardado), el enlace y la miniatura del look. */
@@ -64,8 +66,22 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
 @Component({
   selector: 'gems-tap-disenador',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink],
   template: `
     <div class="crear" [class.crear--listo]="listo()">
+      <!-- Marco de marca: el mismo logo y los mismos tokens que la cabecera pública (public-header.component.ts); «Volver» lleva a
+           donde se vino (?desde=) y el borrador queda guardado al desmontar el diseñador. Dentro del creador, «Atrás» ya va entre pasos. -->
+      <header class="marca">
+        <a class="marca__logo" routerLink="/" aria-label="GEMS LMS, inicio">
+          <img src="/logo-144.png" width="30" height="30" alt="" />
+          <span>GEMS <small>LMS</small></span>
+        </a>
+        <!-- En celular el texto se acorta a «Volver»; el nombre accesible conserva el destino. -->
+        <a class="marca__volver" id="volver" [routerLink]="volverA().ruta" [attr.aria-label]="volverA().texto">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          <span class="marca__largo">{{ volverA().texto }}</span><span class="marca__corto" aria-hidden="true">Volver</span>
+        </a>
+      </header>
       @if (fallo()) {
         <p class="crear__carga" role="alert">No se pudo cargar el creador. Revisa la conexión y vuelve a intentar.</p>
       } @else if (!listo()) {
@@ -115,31 +131,46 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
     </div>
   `,
   styles: `
-    :host { display: block; background: #0f0e17; color: #ecebf5; min-height: 100dvh; }
-    .crear { position: relative; min-height: 100dvh; }
-    .crear__carga { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: 24px; text-align: center; font: 15px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #a6a3c0; }
+    /* Todo con los tokens del sitio (design-system.scss): /crear es una página más de GEMS LMS. */
+    :host { display: block; background: var(--color-fondo-principal); color: var(--color-texto-principal); font-family: var(--font-interfaz); }
+    /* Columna a pantalla completa: la cabecera de marca arriba y el diseñador ocupa el resto (en vez de sus propios 100dvh:
+       así, en celular, la vista previa no se sale de la pantalla). */
+    .crear { position: relative; display: flex; flex-direction: column; height: 100dvh; }
+    .dsn { flex: 1; min-height: 0; height: auto; width: 100%; }
+    .marca { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; max-width: 1040px; margin: 0 auto; padding: 6px 16px; padding-top: max(6px, env(safe-area-inset-top)); border-bottom: 1px solid var(--color-borde-principal); }
+    .marca a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; color: var(--color-texto-principal); border-radius: 10px; }
+    .marca a:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; }
+    .marca__logo { gap: 10px; font: 800 20px/1 var(--font-titulo); letter-spacing: .02em; }
+    .marca__logo img { width: 30px; height: 30px; display: block; }
+    .marca__logo small { font-size: 12px; font-weight: 700; color: var(--color-texto-secundario); letter-spacing: .06em; vertical-align: 2px; }
+    .marca__volver { gap: 6px; padding: 8px 14px 8px 10px; border: 1px solid var(--color-borde-secundario); font-size: var(--font-size-sm); font-weight: 700; white-space: nowrap; transition: border-color .15s; }
+    .marca__volver:hover { border-color: var(--color-primario); }
+    .marca__volver .ic { width: 18px; height: 18px; }
+    .marca__corto { display: none; }
+    @media (max-width: 420px) { .marca { padding: 4px 12px; } .marca__logo { font-size: 18px; } .marca__largo { display: none; } .marca__corto { display: inline; } }
+    .crear__carga { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: 24px; text-align: center; font-size: 15px; line-height: 1.4; color: var(--color-texto-secundario); }
     .crear--listo .crear__carga { display: none; }
     .crear__avisos:empty { display: none; }
-    /* La hoja: mismos tonos que el diseñador (disenador.css), personaje visible detrás. */
-    .gancho { position: fixed; inset: 0; z-index: 20; display: flex; align-items: flex-end; justify-content: center; padding: 12px; padding-bottom: max(12px, env(safe-area-inset-bottom)); background: rgba(15,14,23,.72); font: 15px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #ecebf5; }
+    /* La hoja: mismos tokens que el diseñador (disenador.css hereda los del sitio), personaje visible detrás. */
+    .gancho { position: fixed; inset: 0; z-index: 20; display: flex; align-items: flex-end; justify-content: center; padding: 12px; padding-bottom: max(12px, env(safe-area-inset-bottom)); background: var(--color-fondo-overlay); font-size: 15px; line-height: 1.4; color: var(--color-texto-principal); }
     .gancho[hidden] { display: none; }
-    .gancho__hoja { width: 100%; max-width: 440px; max-height: calc(100dvh - 24px); overflow: auto; background: #1a1926; border: 1px solid #2e2c42; border-radius: 20px; padding: 18px 16px; display: grid; gap: 10px; }
+    .gancho__hoja { width: 100%; max-width: 440px; max-height: calc(100dvh - 24px); overflow: auto; background: var(--color-superficie-alta); border: 1px solid var(--color-borde-secundario); border-radius: 20px; padding: 18px 16px; display: grid; gap: 10px; }
     .gancho h2 { margin: 0; font-size: 18px; line-height: 1.25; }
     .gancho__quien { display: flex; align-items: center; gap: 12px; }
-    .gancho__mini { width: 54px; height: 72px; flex: none; border-radius: 10px; background: #15131f; border: 1px solid #2e2c42; object-fit: cover; }
+    .gancho__mini { width: 54px; height: 72px; flex: none; border-radius: 10px; background: var(--color-fondo-secundario); border: 1px solid var(--color-borde-secundario); object-fit: cover; }
     .gancho p { margin: 0; }
-    .gancho__intro, .gancho__nota, .gancho__estudiante, .gancho__conserva { color: #a6a3c0; font-size: 13px; }
+    .gancho__intro, .gancho__nota, .gancho__estudiante, .gancho__conserva { color: var(--color-texto-secundario); font-size: 13px; }
     .gancho__ganas { list-style: none; margin: 2px 0 4px; padding: 0; display: grid; gap: 8px; }
     .gancho__ganas li { display: flex; align-items: center; gap: 10px; font-size: 14px; }
     .ic { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-    .gancho__ganas .ic { color: #d3b27a; }
-    .gancho__btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; font: inherit; font-weight: 600; color: #ecebf5; background: #221f33; border: 1px solid #2e2c42; border-radius: 12px; padding: 10px 14px; cursor: pointer; touch-action: manipulation; }
-    .gancho__btn--primario { background: #d3b27a; border-color: #d3b27a; color: #1a1408; }
-    .gancho__btn--terciario { background: transparent; border-color: transparent; color: #a6a3c0; min-height: 44px; font-weight: 500; }
-    .gancho__btn:focus-visible, .gancho__enlace input:focus-visible { outline: 2px solid #d3b27a; outline-offset: 2px; }
+    .gancho__ganas .ic { color: var(--color-primario); }
+    .gancho__btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; font: inherit; font-weight: 600; color: var(--color-texto-principal); background: var(--color-fondo-hover); border: 1px solid var(--color-borde-secundario); border-radius: var(--border-radius-lg); padding: 10px 14px; cursor: pointer; touch-action: manipulation; }
+    .gancho__btn--primario { background: var(--color-primario-accion); border-color: var(--color-primario-accion); color: var(--color-sobre-primario); }
+    .gancho__btn--terciario { background: transparent; border-color: transparent; color: var(--color-texto-secundario); min-height: 44px; font-weight: 500; }
+    .gancho__btn:focus-visible, .gancho__enlace input:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
     .gancho__nota { margin-top: -4px; }
-    .gancho__enlace input { width: 100%; box-sizing: border-box; font: 13px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; color: #ecebf5; background: #0f0e17; border: 1px solid #2e2c42; border-radius: 10px; padding: 10px 12px; }
-    .gancho__estado { min-height: 1.2em; font-size: 13px; color: #34d399; }
+    .gancho__enlace input { width: 100%; box-sizing: border-box; font: 13px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--color-texto-principal); background: var(--color-fondo-principal); border: 1px solid var(--color-borde-secundario); border-radius: 10px; padding: 10px 12px; }
+    .gancho__estado { min-height: 1.2em; font-size: 13px; color: var(--color-exito); }
     .gancho__estado:empty { display: none; }
     .gancho__conserva { text-align: center; }
     @media (min-width: 820px) { .gancho { align-items: center; } }
@@ -160,6 +191,9 @@ export class TapDisenadorComponent {
   protected readonly contexto = signal<IContextoPublicar | null>(null);
   /** «Para publicar a X, regístrate…» con el nombre que trae el contexto (texto plano). */
   protected readonly tituloHoja = computed(() => tituloGancho(this.contexto()?.nombre));
+  private readonly desde = toSignal(inject(ActivatedRoute).queryParamMap.pipe(map(q => q.get('desde'))), { initialValue: null });
+  /** «Volver» de la cabecera: a donde se vino según `?desde=` (también en el HTML prerenderizado, sin query: a la portada). */
+  protected readonly volverA = computed(() => destinoVolver(this.desde()));
 
   private readonly raiz = viewChild.required<ElementRef<HTMLElement>>('raiz');
   private readonly avisos = viewChild.required<ElementRef<HTMLElement>>('avisos');

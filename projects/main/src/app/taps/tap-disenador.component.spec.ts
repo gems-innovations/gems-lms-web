@@ -65,6 +65,27 @@ describe('TapDisenadorComponent (/crear)', () => {
   const el = (sel: string): HTMLElement | null => fixture.nativeElement.querySelector(sel);
   const visible = (sel: string): boolean => { const e = el(sel); return !!e && !e.hidden; };
 
+  it('lleva el marco de marca: el logo existente de GEMS LMS y «Volver» a la portada cuando no hay ?desde=', () => {
+    const marca = el('header.marca')!;
+    expect(marca).not.toBeNull();
+    expect(marca.querySelector('a.marca__logo img')?.getAttribute('src')).toBe('/logo-144.png');
+    expect(marca.querySelector('a.marca__logo')?.getAttribute('aria-label')).toBe('GEMS LMS, inicio');
+    const volver = marca.querySelector<HTMLAnchorElement>('a#volver')!;
+    expect(volver.getAttribute('href')).toBe('/');
+    expect(volver.getAttribute('aria-label')).toBe('Volver al inicio');
+    expect(volver.querySelector('.marca__largo')?.textContent?.trim()).toBe('Volver al inicio');
+    expect(marca.querySelector('img')?.getAttribute('alt')).toBe('');
+  });
+
+  it('con ?desde=feed, «Volver» lleva a /taps y mantiene el texto correspondiente', async () => {
+    const router = TestBed.inject(Router);
+    await router.navigate([], { queryParams: { desde: 'feed' } });
+    fixture.detectChanges();
+    const volver = el('a#volver')!;
+    expect(volver.getAttribute('href')).toBe('/taps');
+    expect(volver.getAttribute('aria-label')).toBe('Volver a Taps');
+  });
+
   it('monta el diseñador con «Publicar (con cuenta)» como último punto y cuenta la apertura', () => {
     expect(el('.dsn #publicar')?.textContent).toBe('Publicar (con cuenta)');
     expect(el('#progreso')?.lastElementChild?.contains(el('#publicar'))).toBeTrue();
