@@ -28,7 +28,8 @@ export type TEventPath =
   // Desde la portada salen como `portada/tap/...` (p. ej. `portada/tap/coleccion/minecraft-mobs/bronce`).
   // Diseñador de personajes (producto/taps/disenador-plan-ux.md §4; los emite public/taps-engine/disenador.js por el mismo
   // canal): `taps/disenador/<abrir/<enlace|continuar|directo>|preset/<id>|cambio/<pestaña>|sorprendeme/<pestaña|todo|escenario>|
-  // deshacer|paso/<escenario|listo>|probar|listo|compartir/<enlace|json>|gusto/<si|meh>|abandono/<paso>/<segundos>|fps-bajo|error/<carga|look-invalido>>`.
+  // deshacer|paso/<escenario|listo>|probar|listo|compartir/<enlace|json>|gusto/<si|meh>|abandono/<paso>/<segundos>|fps-bajo|error/<carga|look-invalido>|
+  // sonido/<on|off>>` (`sonido`: altavoz de la barra o tecla M del creador, PR-D1 de disenador-v2-plan.md).
   // Embudo de /crear (§A.4, taps.crear.ts; cada hito una vez por visita): `taps/crear/abrir/<portada|feed|enlace|instituciones|
   // instructor|directo|continuar>` → `taps/crear/aviso-publicar/<visto|entendido>` → `taps/crear/creo` → `taps/crear/personaje-listo`
   // → `taps/crear/tap-listo` (cuando haya preguntas) → `taps/crear/intento-publicar/<sin-cuenta|con-cuenta>` → gancho (PR-8, hoja de

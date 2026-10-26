@@ -9,6 +9,13 @@ import { TEventPath } from '../analytics-taxonomy';
 
 /** Marca de «ya vio la cinta» (localStorage, junto a las claves taps.disenador.* del diseñador). */
 export const CLAVE_AVISO_PUBLICAR = 'taps.crear.aviso-publicar';
+/**
+ * Silencio general de Taps: la misma clave que el feed (`SOUND_KEY` en taps-feed.component.ts; 'off' = apagado, otra cosa o
+ * nada = encendido). El altavoz del creador de personajes (PR-D1) la lee y la escribe para que no haya dos interruptores.
+ */
+export const CLAVE_SONIDO_TAPS = 'gems-taps-sound';
+/** Estado del sonido general a partir de lo guardado: solo 'off' apaga. */
+export const sonidoActivo = (guardado: string | null): boolean => guardado !== 'off';
 
 /** Copy de la cinta de transparencia (§A.3.1): se lee antes de invertir esfuerzo, no es un modal. */
 export const CINTA_TRANSPARENCIA = 'Crea y prueba gratis, sin cuenta. Para publicar y compartir con tu grupo necesitas una cuenta de docente o institución. Tu trabajo se guarda en este navegador.';

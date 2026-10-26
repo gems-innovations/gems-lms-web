@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { AnalyticsService } from '../analytics.service';
 import { DISENADOR_LOADER, IDisenadorModule, TapDisenadorComponent } from './tap-disenador.component';
-import { CLAVE_AVISO_PUBLICAR } from './taps.crear';
+import { CLAVE_AVISO_PUBLICAR, CLAVE_SONIDO_TAPS } from './taps.crear';
 
 type TOpciones = Parameters<IDisenadorModule['montarDisenador']>[1];
 
@@ -90,6 +90,18 @@ describe('TapDisenadorComponent (/crear)', () => {
     const cinta = otra.nativeElement.querySelector('#ranuraVista .cinta[role="region"]') as HTMLElement;
     expect(cinta.hidden).toBeTrue();
     expect(eventos.filter(e => e.startsWith('taps/crear/aviso-publicar/'))).toEqual([]);
+  });
+
+  it('el altavoz del creador lee y escribe el silencio general del feed (una sola llave para todo Taps)', () => {
+    localStorage.removeItem(CLAVE_SONIDO_TAPS);
+    expect(opciones.sonido!.activo()).toBeTrue();
+    opciones.sonido!.cambiar(false);
+    expect(localStorage.getItem(CLAVE_SONIDO_TAPS)).toBe('off');
+    expect(opciones.sonido!.activo()).toBeFalse();
+    opciones.sonido!.cambiar(true);
+    expect(localStorage.getItem(CLAVE_SONIDO_TAPS)).toBe('on');
+    expect(opciones.sonido!.activo()).toBeTrue();
+    localStorage.removeItem(CLAVE_SONIDO_TAPS);
   });
 
   it('los eventos del diseñador salen por AnalyticsService y derivan los hitos del embudo una sola vez', () => {
