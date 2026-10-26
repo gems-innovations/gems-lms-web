@@ -1,7 +1,7 @@
 /* Estilos del diseñador de personajes (disenador.html y la ruta /crear de la web): todo bajo .dsn para no tocar nada fuera. */
 .dsn { --bg: #0f0e17; --panel: #1a1926; --panel2: #221f33; --line: #2e2c42; --txt: #ecebf5; --soft: #a6a3c0; --acc: #d3b27a; --acc-ink: #1a1408; --good: #34d399; --vista: clamp(280px, 45vh, 460px); }
 .dsn * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-.dsn { margin: 0; background: var(--bg); color: var(--txt); font: 15px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
+.dsn { margin: 0; position: relative; background: var(--bg); color: var(--txt); font: 15px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
 .dsn button { font: inherit; color: var(--txt); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; cursor: pointer; min-height: 44px; touch-action: manipulation; }
 .dsn button:focus-visible, .dsn .muestra:focus-visible, .dsn .tarjeta:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
 .dsn svg.ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
@@ -87,7 +87,8 @@
 .dsn .grupo h3 { margin: 0 0 6px; font-size: 13px; color: var(--soft); font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
 .dsn .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .dsn .chip { padding: 0 14px; min-height: 44px; border-radius: 22px; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; transition: transform .08s; }
-.dsn .chip:active { transform: scale(.96); }
+.dsn .chip:active, .dsn .muestra:active, .dsn .tarjeta:active, .dsn .pestanas button:active { transform: scale(.96); }
+.dsn .muestra, .dsn .tarjeta, .dsn .pestanas button { transition: transform .08s; }
 .dsn .chip.on { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); font-weight: 600; }
 /* chips con miniatura de la pieza (canvas 40×40 recortado) */
 .dsn .chips.con-mini .chip { padding: 3px 14px 3px 4px; }
@@ -200,9 +201,12 @@
 .dsn .gusto button.cerrar { border-color: transparent; background: transparent; width: 36px; min-height: 36px; }
 .dsn .gusto p.gracias { color: var(--good); font-weight: 500; }
 
-/* chispas al guardar */
-.dsn .chispa { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; border-radius: 50%; background: var(--acc); pointer-events: none; animation: chispa .9s ease-out forwards; box-shadow: 0 0 10px 2px rgba(211,178,122,.6); }
-@keyframes chispa { 0% { transform: translate(-50%, -50%) scale(.6); opacity: 1; } 100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); opacity: 0; } }
+/* transiciones (PR-D5): el panel entra desde abajo 220 ms, el h1 se funde; la miniatura de escenario vuela hacia la vista (canvas .vuelo) */
+.dsn .pantalla.entra { animation: dsn-entra .22s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes dsn-entra { from { transform: translateY(18px); opacity: 0; } to { transform: none; opacity: 1; } }
+.dsn h1.funde { animation: dsn-funde .22s ease-out both; }
+@keyframes dsn-funde { from { opacity: 0; } to { opacity: 1; } }
+.dsn canvas.vuelo { position: absolute; z-index: 5; pointer-events: none; border-radius: 10px; transform-origin: center; will-change: transform, opacity; }
 
 /* al abrir con borrador: «Seguir donde ibas» */
 .dsn .continuar { position: fixed; inset: 0; background: rgba(15,14,23,.86); display: flex; align-items: flex-end; justify-content: center; z-index: 10; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
@@ -233,7 +237,7 @@
   .dsn .vista { grid-area: vista; height: auto; max-height: 720px; margin: 0 0 16px 16px; align-self: start; aspect-ratio: 9 / 14; }
   .dsn .sugerencia { grid-area: sug; } .dsn .barra { grid-area: barra; } .dsn .paso { grid-area: paso; } .dsn footer { grid-area: pie; border: 0; }
 }
-@media (prefers-reduced-motion: reduce) { .dsn * { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { .dsn * { transition: none !important; animation: none !important; } }
 
 /* Solo en la web (/crear): cuarto punto «Publicar (con cuenta)» visible desde el inicio, y la ranura sobre la vista para la
    cinta de transparencia y los avisos de la página (en disenador.html la ranura queda vacía y no ocupa nada). */

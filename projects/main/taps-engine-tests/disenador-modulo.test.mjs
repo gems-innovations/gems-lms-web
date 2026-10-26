@@ -47,6 +47,18 @@ test('disenador.js (PR-D4): reacciones y frases vienen de sus módulos; la cáma
   assert.doesNotMatch(codigo, /themes\/epoca\/rig\.js'[^\n]*\n[\s\S]*export function (base|drawHost)/, 'rig.js no se toca desde aquí');
 });
 
+test('disenador.js (PR-D5): las chispas en DOM se retiran; partículas y transiciones respetan movimiento reducido', () => {
+  assert.match(codigo, /from '\.\/themes\/epoca\/particulas\.js'/);
+  assert.doesNotMatch(codigo, /chispa/i, 'ni función chispas() ni spans .chispa');
+  assert.match(cuerpo, /const particulas = crearParticulas\(\{ reducido \}\);/, 'el pool nace sabiendo si hay movimiento reducido');
+  assert.match(cuerpo, /particulas\.paso\(dt\);/); assert.match(cuerpo, /particulas\.dibujar\(ctx\);/);
+  assert.match(cuerpo, /contar\('fps-bajo'\); particulas\.degradar\(\);/, 'fps-bajo degrada las partículas');
+  assert.match(cuerpo, /function celebrarCambio\(tipo, detalle\) \{\n\s+if \(reducido\) return;/);
+  assert.match(cuerpo, /function confetiLook\(\) \{\n\s+if \(reducido\) return;/);
+  assert.match(cuerpo, /function volarAVista\(mini\) \{\n\s+if \(reducido \|\| /);
+  assert.doesNotMatch(cuerpo, /animationend/, 'ninguna partícula en DOM con animación CSS');
+});
+
 test('disenador.js (PR-D3): títulos por paso y botones de avanzar según §2 del plan', async () => {
   const m = await import('../public/taps-engine/disenador.js').catch(() => null);
   // El módulo importa código de navegador: si no se puede cargar en Node, se comprueba sobre el texto.
