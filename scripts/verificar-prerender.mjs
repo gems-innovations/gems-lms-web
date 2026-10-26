@@ -37,9 +37,9 @@ for (const f of archivos) {
     if (m) { fallos++; console.error(`FALLO ${relative(raiz, f)}: «${m[0]}» -> ${que}`); }
   }
 }
-// La portada debe traer el texto estático de valor, el esqueleto del catálogo y los enlaces a las otras puertas públicas.
+// La portada debe traer el texto estático de valor, el esqueleto del catálogo y los enlaces a las otras puertas públicas. (/retos ya no se enlaza desde la portada: decisión del dueño, auditoría UX 26-oct.)
 const portada = readFileSync(join(raiz, 'index.html'), 'utf8');
-for (const esperado of ['Retos cortos que', 'Cursos gratis', 'card--skeleton', 'href="/taps"', 'href="/retos"', 'href="/instituciones"', 'href="/auth/signin"', 'href="/crear?desde=portada"']) {
+for (const esperado of ['Retos cortos que', 'Cursos gratis', 'card--skeleton', 'href="/taps"', 'href="/instituciones"', 'href="/auth/signin"', 'href="/crear?desde=portada"']) {
   if (!portada.includes(esperado)) { fallos++; console.error(`FALLO index.html: falta «${esperado}»`); }
 }
 // Y se juega desde el primer fotograma: UN Tap ya pintado con su pregunta y sus opciones (el script de index.html marca
