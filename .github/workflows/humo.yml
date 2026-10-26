@@ -24,6 +24,10 @@ concurrency:
 jobs:
   humo:
     runs-on: ubuntu-latest
+    # Imagen oficial con navegadores y dependencias ya instalados (sin apt-get en cada corrida; la versión debe ser la de @playwright/test).
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host
     timeout-minutes: 15
     steps:
       - name: Checkout
@@ -41,8 +45,6 @@ jobs:
       - name: Build estático (el mismo del Dockerfile)
         run: npm run build:all && npx ng build main --configuration production,static
 
-      - name: Install Chromium y WebKit
-        run: npx playwright install --with-deps chromium webkit
 
       - name: Suite de humo (Chromium + iPhone WebKit)
         env:
