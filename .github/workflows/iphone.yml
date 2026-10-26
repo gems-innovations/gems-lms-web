@@ -19,6 +19,10 @@ permissions:
 jobs:
   iphone:
     runs-on: ubuntu-latest
+    # Imagen oficial con navegadores y dependencias ya instalados (sin apt-get en cada corrida; la versión debe ser la de @playwright/test).
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host
     timeout-minutes: 20
     steps:
       - name: Checkout
@@ -33,8 +37,6 @@ jobs:
       - name: Install exact dependencies
         run: npm ci
 
-      - name: Install WebKit
-        run: npx playwright install --with-deps webkit
 
       - name: Recorrido de celular en iPhone (WebKit)
         env:
