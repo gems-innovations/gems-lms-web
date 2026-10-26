@@ -21,7 +21,9 @@ export enum EContentType {
   QUIZ = 'quiz',
   ASSIGNMENT = 'assignment',
   LIVE_SESSION = 'live-session',
-  SCORM = 'scorm'
+  SCORM = 'scorm',
+  /** Cartas horizontales (ideas, preguntas, pasos animados) que arma el profesor dentro de una lección. */
+  CARDS = 'cards'
 }
 
 // ── Question types ────────────────────────────────────────────────────────────
@@ -113,7 +115,22 @@ export interface IContentBlock {
   dueDate?: string;
   allowedFileTypes?: string[];  // ['pdf', 'docx', 'zip', 'jpg']
   rubric?: IRubricItem[];
+
+  // ── CARDS ──
+  cards?: ICard[];
 }
+
+// ── Cards (cartas horizontales tipo Taps) ─────────────────────────────────────
+
+export interface ICardIdea { kind: 'idea'; label: string; title: string; text: string; remember?: string }
+export interface ICardQuestion {
+  kind: 'question'; label: string; scene?: string; question: string;
+  options: string[]; answer: number; why: string;
+}
+/** Pasos que aparecen uno a uno al tocar «Mostrar el siguiente» (animación de secuencia). */
+export interface ICardSteps { kind: 'steps'; label: string; title: string; steps: string[] }
+export interface ICardImage { kind: 'image'; label: string; title: string; url: string; alt: string; caption?: string }
+export type ICard = ICardIdea | ICardQuestion | ICardSteps | ICardImage;
 
 // ── Lesson ────────────────────────────────────────────────────────────────────
 
@@ -225,6 +242,8 @@ export interface ICreateContentBlockRequest {
   maxScore?: number;
   allowedFileTypes?: string[];
   rubric?: IRubricItem[];
+  // Cards
+  cards?: ICard[];
   /** Due date (yyyy-mm-dd), shown to students in their delivery calendar. */
   dueDate?: string;
 }

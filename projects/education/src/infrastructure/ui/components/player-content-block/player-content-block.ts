@@ -19,6 +19,8 @@ import {
   IAssignmentSubmission
 } from '../../../../domain/model/player.model';
 
+import { CardsPlayerComponent } from '../cards-player/cards-player';
+
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 
 /** Only the embedded players may tell us that a video ended. */
@@ -44,7 +46,7 @@ type QuizPhase = 'confirm' | 'taking' | 'result';
 @Component({
   selector: 'edu-player-content-block',
   standalone: true,
-  imports: [DecimalPipe, DatePipe, FormsModule, MarkdownComponent, MarkdownEditorComponent, LoadErrorComponent, BusyLabelComponent],
+  imports: [CardsPlayerComponent, DecimalPipe, DatePipe, FormsModule, MarkdownComponent, MarkdownEditorComponent, LoadErrorComponent, BusyLabelComponent],
   templateUrl: './player-content-block.html',
   styleUrl: './player-content-block.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -93,6 +95,7 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
       case EContentType.QUIZ: return this.quizNudgeText();
       case EContentType.VIDEO: return 'Para seguir, termina de ver el video.';
       case EContentType.ASSIGNMENT: return 'Para seguir, envía la tarea.';
+      case EContentType.CARDS: return 'Para seguir, llega hasta la última carta.';
       default: return 'Termina este paso para seguir.';
     }
   });

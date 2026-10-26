@@ -8,6 +8,7 @@ export { StudentLayout } from './infrastructure/ui/layouts/student-layout/studen
 export { EducationSidebarContainer } from './infrastructure/ui/containers/education-sidebar-container/education-sidebar-container';
 export { CourseEditorContainer } from './infrastructure/ui/containers/course-editor-container/course-editor-container';
 export { PlayerContentBlock } from './infrastructure/ui/components/player-content-block/player-content-block';
+export { CardsPlayerComponent } from './infrastructure/ui/components/cards-player/cards-player';
 export { EnrollStudentSearch } from './infrastructure/ui/components/enroll-student-search/enroll-student-search';
 export { EnrollResultBanner } from './infrastructure/ui/components/enroll-result-banner/enroll-result-banner';
 export { QuestionBankService } from './infrastructure/services/question-bank.service';
@@ -39,7 +40,7 @@ export type {
   ICourseSurvey, ISurveySection, ISurveyQuestion, ISurveyResponse, ISurveyAnswer,
   TSurveyQuestionType,
 } from './domain/model/survey.model';
-export type { ICourse, IContentBlock, IRubricItem, IQuestion, IQuestionPool } from './domain/model/course.model';
+export type { ICourse, IContentBlock, IRubricItem, IQuestion, IQuestionPool, ICard } from './domain/model/course.model';
 export { EContentType, EDifficulty, ECourseStatus } from './domain/model/course.model';
 export type { ILearningPath, ELearningPathStatus } from './domain/model/learning-path.model';
 export type { IEnrollment, IAssignmentSubmission } from './domain/model/enrollment.model';

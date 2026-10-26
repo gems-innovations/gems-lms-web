@@ -64,6 +64,11 @@
                     <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
                   </svg>
                 }
+                @case ('cards') {
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="6" y="4" width="12" height="16" rx="2"/><path d="M2 8v8M22 8v8"/>
+                  </svg>
+                }
                 @case ('live') {
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -192,6 +197,84 @@
                 <input class="cbm__input" type="number" min="0" max="100"
                   [ngModel]="completionThreshold()" (ngModelChange)="completionThreshold.set(+$event)" />
               </div>
+            </div>
+          </div>
+        }
+
+        <!-- ─── CARTAS ─────────────────────────────────────── -->
+        @if (selectedType() === EContentType.CARDS) {
+          <div class="cbm__section">
+            <h3 class="cbm__section-title">Cartas <span class="cbm__badge">{{ cards().length }}</span></h3>
+            <p class="cbm__hint">El estudiante las desliza de lado. Las preguntas se responden antes de ver la explicación y los pasos aparecen uno a uno.</p>
+            @if (cardsPristine()) {
+              <div class="cbm__field">
+                <label class="cbm__label">Empieza desde una plantilla (opcional)</label>
+                <lib-select ariaLabel="Plantilla de cartas" [options]="templateOptions" [ngModel]="null" (ngModelChange)="useTemplate($event)" />
+              </div>
+            }
+            @for (c of cards(); track $index; let i = $index) {
+              <div class="cbm__question">
+                <div class="cbm__question-header">
+                  <span class="cbm__question-num">{{ i + 1 }}</span>
+                  <strong>{{ cardKindLabel(c.kind) }}</strong>
+                  <button type="button" class="cbm__opt-remove" [disabled]="i === 0" (click)="moveCard(i, -1)" aria-label="Subir carta">&uarr;</button>
+                  <button type="button" class="cbm__opt-remove" [disabled]="i === cards().length - 1" (click)="moveCard(i, 1)" aria-label="Bajar carta">&darr;</button>
+                  <button type="button" class="cbm__remove-btn" (click)="removeCard(i)" aria-label="Quitar carta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+                <input class="cbm__input" type="text" placeholder="Etiqueta corta (ej: Pruébalo)" [ngModel]="c.label" (ngModelChange)="patchCard(i, { label: $event })" />
+                @switch (c.kind) {
+                  @case ('idea') {
+                    <input class="cbm__input" type="text" placeholder="Título de la idea" [ngModel]="c.title" (ngModelChange)="patchCard(i, { title: $event })" />
+                    <textarea class="cbm__textarea" placeholder="Explica la idea en pocas líneas" [ngModel]="c.text" (ngModelChange)="patchCard(i, { text: $event })"></textarea>
+                    <input class="cbm__input" type="text" placeholder="Para recordar (opcional)" [ngModel]="c.remember ?? ''" (ngModelChange)="patchCard(i, { remember: $event })" />
+                  }
+                  @case ('question') {
+                    <input class="cbm__input" type="text" placeholder="Situación breve (opcional)" [ngModel]="c.scene ?? ''" (ngModelChange)="patchCard(i, { scene: $event })" />
+                    <textarea class="cbm__textarea cbm__textarea--question" placeholder="La pregunta" [ngModel]="c.question" (ngModelChange)="patchCard(i, { question: $event })"></textarea>
+                    <div class="cbm__options">
+                      @for (o of c.options; track $index; let k = $index) {
+                        <div class="cbm__option-row">
+                          <button type="button" class="cbm__correct-btn" [class.cbm__correct-btn--on]="c.answer === k" (click)="patchCard(i, { answer: k })" title="Marcar como correcta" [attr.aria-pressed]="c.answer === k">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                          </button>
+                          <span class="cbm__opt-letter">{{ 'ABCDEF'[k] }}</span>
+                          <input class="cbm__input cbm__input--opt" type="text" [placeholder]="'Opción ' + 'ABCDEF'[k]" [ngModel]="o" (ngModelChange)="setListItem(i, 'options', k, $event)" />
+                          @if (c.options.length > 2) { <button type="button" class="cbm__opt-remove" (click)="removeListItem(i, 'options', k)" aria-label="Quitar opción">×</button> }
+                        </div>
+                      }
+                      @if (c.options.length < 6) { <button type="button" class="cbm__add-option-btn" (click)="addListItem(i, 'options')">+ Agregar opción</button> }
+                    </div>
+                    <textarea class="cbm__textarea" placeholder="Por qué es esa la respuesta (se muestra después de responder)" [ngModel]="c.why" (ngModelChange)="patchCard(i, { why: $event })"></textarea>
+                  }
+                  @case ('steps') {
+                    <input class="cbm__input" type="text" placeholder="Título" [ngModel]="c.title" (ngModelChange)="patchCard(i, { title: $event })" />
+                    <div class="cbm__options">
+                      @for (s of c.steps; track $index; let k = $index) {
+                        <div class="cbm__option-row">
+                          <span class="cbm__opt-letter">{{ k + 1 }}</span>
+                          <input class="cbm__input cbm__input--opt" type="text" [placeholder]="'Paso ' + (k + 1)" [ngModel]="s" (ngModelChange)="setListItem(i, 'steps', k, $event)" />
+                          @if (c.steps.length > 2) { <button type="button" class="cbm__opt-remove" (click)="removeListItem(i, 'steps', k)" aria-label="Quitar paso">×</button> }
+                        </div>
+                      }
+                      @if (c.steps.length < 6) { <button type="button" class="cbm__add-option-btn" (click)="addListItem(i, 'steps')">+ Agregar paso</button> }
+                    </div>
+                  }
+                  @case ('image') {
+                    <input class="cbm__input" type="text" placeholder="Título" [ngModel]="c.title" (ngModelChange)="patchCard(i, { title: $event })" />
+                    <input class="cbm__input" type="url" placeholder="Enlace https de la imagen" [ngModel]="c.url" (ngModelChange)="patchCard(i, { url: $event })" />
+                    <input class="cbm__input" type="text" placeholder="Descripción de la imagen (para lectores de pantalla)" [ngModel]="c.alt" (ngModelChange)="patchCard(i, { alt: $event })" />
+                    <input class="cbm__input" type="text" placeholder="Pie de imagen (opcional)" [ngModel]="c.caption ?? ''" (ngModelChange)="patchCard(i, { caption: $event })" />
+                  }
+                }
+                @if (cardProblems()[i]; as p) { <p class="cbm__error" role="status">{{ p }}</p> }
+              </div>
+            }
+            <div class="cbm__row">
+              @for (k of cardKinds; track k.kind) {
+                <button type="button" class="cbm__add-option-btn" (click)="addCard(k.kind)">+ {{ k.label }}</button>
+              }
             </div>
           </div>
         }

@@ -632,6 +632,15 @@
       }
     }
 
+    <!-- ═══════════════════════════ CARTAS (taps del profesor) ═════════════════ -->
+    @if (blk.type === EContentType.CARDS) {
+      <div class="player-content-block__meta">
+        <h2 class="player-content-block__title">{{ blk.title }}</h2>
+        @if (blk.description) { <p class="player-content-block__desc">{{ blk.description }}</p> }
+      </div>
+      <edu-cards-player [cards]="blk.cards ?? []" [heading]="blk.title" (completed)="markComplete.emit()" />
+    }
+
     <!-- ═══════════════════════════ LIVE / SCORM ═════════════════════════════ -->
     @if (blk.type === EContentType.LIVE_SESSION || blk.type === EContentType.SCORM) {
       <div class="player-content-block__meta">

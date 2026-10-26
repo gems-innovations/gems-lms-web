@@ -1,0 +1,117 @@
+// Cartas del profesor: se deslizan de lado. Mismo lenguaje que Taps (ver projects/shared/MOVIMIENTO.md).
+// acierto con rebote (.gm-acierto), error con sacudida corta (.gm-error). Ver projects/shared/MOVIMIENTO.md.
+// El ancho del contenedor (no el de la pantalla) decide si la carta es apaisada: en una columna angosta sigue vertical.
+:host { display: block; container-type: inline-size; }
+
+.cp {
+  display: grid; grid-template-rows: auto auto 1fr auto; gap: 10px;
+  width: min(720px, 100%); margin-inline: auto; padding: 16px 16px 20px;
+  
+  &__top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  &__titulo { margin: 0; font: 700 var(--font-size-sm)/1.3 var(--font-texto); color: var(--color-texto-secundario); }
+  &__n { margin: 0; font-size: var(--font-size-sm); color: var(--color-texto-secundario); font-variant-numeric: tabular-nums; }
+  &__bar { height: 6px; }
+  &--vacia { display: block; padding-block: 40px; a { color: var(--color-texto-acento); font-weight: 700; display: inline-block; padding-block: 10px; } }
+}
+
+.cp__stage { overflow: hidden; border-radius: 24px; touch-action: pan-y; }
+.cp__track {
+  display: flex; height: 100%; transform: translateX(calc(var(--i, 0) * -100%));
+  transition: transform var(--dur-enfasis, 320ms) var(--curva-salida, cubic-bezier(.2, .8, .2, 1));
+}
+
+.card {
+  flex: 0 0 100%; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 26px 22px;
+  background: var(--color-superficie); border: 1px solid var(--color-borde-secundario); box-shadow: var(--sombra-xl); border-radius: 24px;
+  overflow-y: auto;
+  &__tag { align-self: flex-start; font: 700 var(--texto-etiqueta)/1.2 var(--font-texto); color: var(--color-texto-acento); text-transform: uppercase; letter-spacing: var(--tracking-etiqueta); }
+  &__h { margin: 0; font: 800 var(--texto-titulo-2, 26px)/1.15 var(--font-titulo); letter-spacing: var(--tracking-titulo); color: var(--color-texto-principal); text-wrap: balance; outline: none; }
+  &__text { margin: 0; font-size: var(--texto-cuerpo); line-height: 1.6; color: var(--color-texto-secundario); }
+  &__scene { margin: 0; font-size: var(--texto-cuerpo); line-height: 1.55; color: var(--color-texto-secundario); padding-left: 12px; border-left: 3px solid var(--color-primario); }
+  &__remember { margin: 6px 0 0; padding: 14px 16px; border-radius: 16px; font-weight: 700; line-height: 1.4; color: var(--color-texto-principal);
+    background: color-mix(in srgb, var(--color-primario) 12%, transparent); border: 1px solid color-mix(in srgb, var(--color-primario) 35%, transparent);
+    span { display: block; margin-bottom: 4px; font: 700 var(--texto-etiqueta)/1.2 var(--font-texto); color: var(--color-texto-acento); text-transform: uppercase; letter-spacing: var(--tracking-etiqueta); } }
+  &__opts { display: grid; gap: 8px; }
+  &__opt {
+    display: flex; align-items: center; gap: 10px; text-align: left; padding: 12px 14px; min-height: 52px; border-radius: var(--radio-control); cursor: pointer;
+    font: 600 var(--texto-opcion)/1.3 var(--font-texto); color: var(--color-texto-principal);
+    border: 1px solid var(--color-borde-secundario); background: var(--color-fondo-sutil);
+    box-shadow: 0 2px 0 color-mix(in srgb, var(--color-texto-principal) 7%, transparent);
+    &:hover:not(:disabled) { border-color: var(--color-primario); }
+    &:disabled { cursor: default; }
+    svg { flex: none; margin-left: auto; }
+  }
+  &__opt--ok { border-color: var(--color-exito); color: var(--color-exito-texto); font-weight: 700; background: color-mix(in srgb, var(--color-exito) 14%, transparent); }
+  &__opt--bad { border-color: var(--color-error); color: var(--color-error-texto); background: color-mix(in srgb, var(--color-error) 12%, transparent); }
+  &__opts--done &__opt:not(.card__opt--ok, .card__opt--bad) { opacity: .55; }
+  &__key { display: inline-grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 9px; font-size: 14px; font-weight: 800;
+    background: color-mix(in srgb, var(--color-texto-principal) 9%, transparent); }
+  &__opt--ok &__key { background: var(--color-exito); color: var(--color-sobre-acento); }
+  &__opt--bad &__key { background: var(--color-error); color: var(--color-sobre-acento); }
+  &__why { margin: 0; font-size: var(--texto-cuerpo); line-height: 1.55; color: var(--color-texto-secundario); }
+  &__actions { display: grid; gap: 10px; margin-top: 6px; }
+  &__notice { margin: 0; text-align: center; font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
+}
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 12px 18px; border-radius: var(--radio-control); border: 0; cursor: pointer;
+  font: inherit; font-weight: 700; text-decoration: none; text-align: center; color: var(--color-sobre-primario); background: var(--color-primario-accion);
+  &--sub { color: var(--color-texto-acento); background: transparent; border: 1px solid var(--color-primario); } }
+
+.cp__nav { display: grid; grid-template-columns: 52px 1fr auto; align-items: center; gap: 12px; }
+.cp__btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 52px; min-height: 52px; padding: 0 14px; border-radius: var(--radio-control); cursor: pointer;
+  font: 700 var(--font-size-sm)/1 var(--font-texto); color: var(--color-texto-principal); background: var(--color-superficie); border: 1px solid var(--color-borde-secundario);
+  &:disabled { opacity: .55; cursor: default; }
+  &--next:not(:disabled) { color: var(--color-sobre-primario); background: var(--color-primario-accion); border-color: var(--color-primario-accion); } }
+.card__opt, .cp__btn, .btn { &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; } }
+.cp__fin-hueco { min-width: 52px; }
+.cp__dots { display: flex; justify-content: center; gap: 6px; flex-wrap: nowrap; min-width: 0;
+  i { width: 8px; height: 8px; border-radius: 50%; background: var(--color-borde-secundario); transition: background .2s; &.on { background: var(--color-primario); } } }
+
+@media (prefers-reduced-motion: reduce) { .cp__track { transition: none; } }
+@media (max-width: 380px) { .cp__btn--next { font-size: 13px; } .card { padding: 22px 16px; } }
+
+.cp__bar { height: 6px; border-radius: 99px; background: var(--color-borde-secundario); overflow: hidden;
+  span { display: block; height: 100%; background: var(--color-primario); transition: width .3s; } }
+.cp__btn--icon { min-width: 52px; font-size: 24px; }
+.cp__btn--sub { align-self: flex-start; min-height: 44px; padding: 0 16px; color: var(--color-texto-acento); background: transparent; border-color: var(--color-primario); }
+.card__img { max-width: 100%; max-height: 320px; object-fit: contain; border-radius: 14px; align-self: center; }
+.card__steps { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; font-size: var(--texto-cuerpo); line-height: 1.5; color: var(--color-texto-principal); }
+.card__step { animation: cp-in .4s var(--curva-salida, ease-out) both; }
+@keyframes cp-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .card__step { animation: none; } }
+
+// Horizontal: en pantalla ancha cada carta es un escenario apaisado (texto a la izquierda, lo interactivo a la derecha)
+// y la carta siguiente asoma por la derecha para invitar a deslizar.
+.card { display: grid; grid-template-columns: 1fr; align-content: center; }
+.card__tag { grid-column: 1 / -1; }
+.card__main, .card__side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+@container (min-width: 760px) {
+  .cp { width: min(1120px, 100%); }
+  .cp__track { gap: 20px; transform: translateX(calc(var(--i, 0) * (-92% - 20px))); }
+  .card { flex: 0 0 92%; align-items: center; min-height: 380px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); column-gap: 40px; row-gap: 12px; padding: 36px 40px; }
+  // La carta siguiente asoma solo como forma (sin letras cortadas en el borde).
+  .card:not(.card--on) { opacity: .45; transform: scale(.97); > * { visibility: hidden; } }
+  .card { transition: opacity .3s, transform .3s; }
+  .card__h { font-size: 32px; }
+  .card--on:not(:has(.card__side)) .card__main { grid-column: 1 / -1; }
+}
+// Pantalla final: centrada, con el resultado grande y el botón a su medida (no una franja de borde a borde).
+.card--fin { justify-items: center; text-align: center;
+  .card__tag { justify-self: center; align-self: center; }
+  .cp__btn--sub { justify-self: center; align-self: center; } }
+@container (min-width: 760px) {
+  .card--fin > :not(.card__tag) { grid-column: 1 / -1; }
+  .card--fin .card__h { font-size: 40px; }
+  .card--fin .card__text { max-width: 44ch; }
+  // En la idea, «Para recordar» llena su mitad de arriba abajo: es la frase que el estudiante se lleva, no una nota al margen.
+  .card__side:has(> .card__remember) { align-self: stretch; }
+  .card__remember { position: relative; flex: 1; display: flex; flex-direction: column; justify-content: center; margin: 0; padding: 40px 36px;
+    font: 800 var(--texto-titulo-2, 28px)/1.25 var(--font-titulo); letter-spacing: var(--tracking-titulo); text-wrap: balance;
+    span { margin-bottom: 12px; }
+    &::before { content: '\201C'; position: absolute; top: 18px; right: 28px; font: 800 120px/1 var(--font-titulo);
+      color: color-mix(in srgb, var(--color-primario) 35%, transparent); pointer-events: none; } }
+  // La idea llena su escenario: el texto crece en pantalla ancha (la carta más alta, una pregunta, fija el alto de todas).
+  .card__main .card__text { font-size: 19px; line-height: 1.65; }
+  .card__main .card__scene { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } }

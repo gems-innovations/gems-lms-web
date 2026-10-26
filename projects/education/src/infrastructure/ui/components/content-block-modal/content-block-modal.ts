@@ -10,11 +10,14 @@ import {
   IMultipleChoiceQuestion,
   ITrueFalseQuestion,
   IOpenQuestion,
-  IQuestionPool
+  IQuestionPool,
+  ICard
 } from '../../../../domain/model/course.model';
 import { QuestionBankService } from '../../../services/question-bank.service';
 import { toVideoEmbedUrl } from '../../../../application/video-embed';
 import type { IBankCategory } from '../../../services/question-bank.service';
+import { CARDS_TEMPLATES } from '../../../../application/cards-templates';
+import { CARD_KIND_LABELS, cardProblem, cleanCard, emptyCard, estimateMinutes, TCardKind } from '../../../../application/cards';
 import { FileUploadService } from 'shared';
 import { LibSelectComponent, SelectOption } from 'shared';
 
@@ -124,11 +127,20 @@ export class ContentBlockModal {
   readonly rubric                 = signal<IRubricDraft[]>([{ id: 'r1', criterion: '', maxPoints: 100 }]);
   readonly newFileType            = signal('');
 
+  /** Cartas horizontales del bloque «Cartas» (tipo Taps). */
+  readonly cards = signal<ICard[]>([emptyCard('idea')]);
+  readonly cardKinds = (Object.keys(CARD_KIND_LABELS) as TCardKind[]).map(k => ({ kind: k, label: CARD_KIND_LABELS[k] }));
+  readonly templateOptions: SelectOption[] = CARDS_TEMPLATES.map(t => ({ value: t.id, label: t.title, hint: `${t.cards.length} cartas` }));
+  /** Mientras solo esté la carta en blanco se ofrece partir de una plantilla. */
+  readonly cardsPristine = computed(() => { const c = this.cards(); return c.length === 1 && c[0].kind === 'idea' && !c[0].title && !c[0].text; });
+  readonly cardProblems = computed(() => this.cards().map(c => cardProblem(c)));
+
   readonly contentTypes = [
     { type: EContentType.VIDEO,        label: 'Video',          desc: 'YouTube, Vimeo o archivo',                 icon: 'video' },
     { type: EContentType.DOCUMENT,     label: 'Markdown',       desc: 'Texto enriquecido con formato',            icon: 'doc'   },
     { type: EContentType.QUIZ,         label: 'Evaluación',     desc: 'Preguntas con calificación automática',    icon: 'quiz'  },
     { type: EContentType.ASSIGNMENT,   label: 'Tarea',          desc: 'Entrega de archivos o texto',              icon: 'task'  },
+    { type: EContentType.CARDS,        label: 'Cartas',         desc: 'Ideas, preguntas y pasos que se deslizan de lado', icon: 'cards' },
     { type: EContentType.SCORM,        label: 'SCORM',          desc: 'Paquete e-learning estándar',              icon: 'scorm' },
     { type: EContentType.LIVE_SESSION, label: 'Sesión en Vivo', desc: 'Clase o webinar sincrónico',               icon: 'live'  }
   ] as const;
@@ -139,6 +151,7 @@ export class ContentBlockModal {
     const type = this.selectedType();
     if (type === EContentType.VIDEO)      return !!this.videoUrl().trim();
     if (type === EContentType.SCORM)      return !!this.scormUrl().trim();
+    if (type === EContentType.CARDS)      return this.cards().length > 0 && this.cardProblems().every(p => p === null);
     if (type === EContentType.QUIZ) {
       const pools = this.validPools();
       return (this.quizQuestions().length > 0 || pools.length > 0)
@@ -171,6 +184,46 @@ export class ContentBlockModal {
       next: list => this.bankCategories.set(list),
       error: () => this.bankError.set('No se pudo cargar el banco de preguntas'),
     });
+  }
+
+  cardKindLabel(kind: TCardKind): string { return CARD_KIND_LABELS[kind]; }
+  useTemplate(id: string): void {
+    const t = CARDS_TEMPLATES.find(x => x.id === id);
+    if (!t) return;
+    this.cards.set(structuredClone(t.cards));
+    if (!this.title().trim()) this.title.set(t.title);
+    if (!this.description().trim()) this.description.set(t.summary);
+  }
+  addCard(kind: TCardKind): void { this.cards.update(c => [...c, emptyCard(kind)]); }
+  removeCard(i: number): void { this.cards.update(c => c.filter((_, j) => j !== i)); }
+  moveCard(i: number, dir: -1 | 1): void {
+    this.cards.update(c => {
+      const j = i + dir;
+      if (j < 0 || j >= c.length) return c;
+      const copy = [...c];
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+      return copy;
+    });
+  }
+  patchCard(i: number, patch: Record<string, unknown>): void {
+    this.cards.update(c => c.map((x, j) => j === i ? ({ ...x, ...patch } as ICard) : x));
+  }
+  /** Cambia un texto de una lista de la carta (opciones de la pregunta o pasos). */
+  setListItem(i: number, field: 'options' | 'steps', k: number, text: string): void {
+    const c = this.cards()[i] as unknown as Record<string, string[]>;
+    this.patchCard(i, { [field]: c[field].map((v, j) => j === k ? text : v) });
+  }
+  addListItem(i: number, field: 'options' | 'steps'): void {
+    const c = this.cards()[i] as unknown as Record<string, string[]>;
+    if (c[field].length < 6) this.patchCard(i, { [field]: [...c[field], ''] });
+  }
+  removeListItem(i: number, field: 'options' | 'steps', k: number): void {
+    const c = this.cards()[i] as unknown as Record<string, string[] | number>;
+    const list = (c[field] as string[]).filter((_, j) => j !== k);
+    if (list.length < 2) return;
+    const patch: Record<string, unknown> = { [field]: list };
+    if (field === 'options') patch['answer'] = Math.min(c['answer'] as number, list.length - 1);
+    this.patchCard(i, patch);
   }
 
   addPool(): void {
@@ -207,6 +260,10 @@ export class ContentBlockModal {
       req.captionsUrl       = this.captionsUrl().trim() || undefined;
     }
     if (type === EContentType.DOCUMENT) { req.markdownContent = this.markdownContent(); }
+    if (type === EContentType.CARDS) {
+      req.cards = this.cards().map(cleanCard);
+      if (!req.duration) req.duration = estimateMinutes(req.cards);
+    }
     if (type === EContentType.SCORM) {
       req.url = this.scormUrl().trim();
       req.scormVersion        = this.scormVersion();
