@@ -99,6 +99,9 @@ test.describe('/crear', () => {
     const antes = await eventos(page);
     expect(antes.filter(e => e === 'taps/disenador/preset/arqueologa')).toHaveLength(1);
     expect(antes.filter(e => e === 'taps/disenador/listo')).toHaveLength(1);
+    // PR-D4: la cámara acercó a Pelo (flecha) y a Ropa (clic), una vez cada una.
+    expect(antes.filter(e => e === 'taps/disenador/encuadre/pelo')).toHaveLength(1);
+    expect(antes.filter(e => e === 'taps/disenador/encuadre/ropa')).toHaveLength(1);
     expect(antes.filter(e => e === 'taps/crear/creo')).toHaveLength(1);
     expect(antes.filter(e => e === 'taps/crear/personaje-listo')).toHaveLength(1);
     expect(antes.filter(e => e.startsWith('taps/crear/abrir/'))).toEqual(['taps/crear/abrir/directo']);

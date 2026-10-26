@@ -36,6 +36,17 @@ test('disenador.js (PR-D3): JSON crudo solo con ?dev=1, «Copiar JSON» ya no ex
   assert.match(cuerpo, /e\.clientX - origenX, e\.clientY - origenY\) > 8\) soltar\(\)/, 'comparar se cancela al mover > 8 px');
 });
 
+test('disenador.js (PR-D4): reacciones y frases vienen de sus módulos; la cámara pasa por encuadrar() y respeta movimiento reducido', () => {
+  assert.match(codigo, /from '\.\/themes\/epoca\/reacciones\.js'/); assert.match(codigo, /from '\.\/themes\/epoca\/frases\.js'/);
+  assert.doesNotMatch(cuerpo, /const FRASES = \{/, 'las frases ya no viven en disenador.js');
+  assert.match(cuerpo, /const propia = reaccionDe\(tipo, detalle\);/);
+  assert.match(cuerpo, /decir\(frases\.frase\(tipoFrase, estado\.base\)\)/);
+  assert.match(cuerpo, /camaraT = reducido \|\| !camaraOrigen \? 1 : 0;/, 'con movimiento reducido el corte es directo');
+  assert.match(cuerpo, /ctx\.scale\(camara\.zoom, camara\.zoom\); ctx\.translate\(-camara\.fx, -camara\.fy\);/);
+  assert.match(cuerpo, /QUIETA\[nombre\] \?\? QUIETA_REACCION\[nombre\] \?\? 'still'/);
+  assert.doesNotMatch(codigo, /themes\/epoca\/rig\.js'[^\n]*\n[\s\S]*export function (base|drawHost)/, 'rig.js no se toca desde aquí');
+});
+
 test('disenador.js (PR-D3): títulos por paso y botones de avanzar según §2 del plan', async () => {
   const m = await import('../public/taps-engine/disenador.js').catch(() => null);
   // El módulo importa código de navegador: si no se puede cargar en Node, se comprueba sobre el texto.
