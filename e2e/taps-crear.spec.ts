@@ -96,13 +96,41 @@ test.describe('/crear', () => {
     await expect(dsn.locator('#json')).toBeHidden();
     await expect(dsn.locator('#masDetalles')).not.toContainText('JSON');
     await dsn.locator('#nombre').fill('Inés de prueba');
+    // PR-D6: el personaje aparece dentro de un marco 9:16 y se juega con dos preguntas de verdad del banco (acierto/fallo, veredicto, resultado).
+    await expect(dsn.locator('#tapMini')).toBeVisible();
+    await dsn.locator('#lema').fill('Hoy aprendemos algo nuevo');
+    await expect(dsn.locator('#restanLema')).toHaveText('25/40');
+    await expect(dsn.locator('#probar')).toHaveText(/Probar con dos preguntas/);
+    await dsn.locator('#probar').click();
+    await expect(dsn.locator('#enunciado')).toContainText('1 de 2:');
+    await expect(dsn.locator('#opciones button[data-i]')).toHaveCount(4);
+    await dsn.locator('#opciones button[data-i="0"]').click();
+    await expect(dsn.locator('#veredicto')).toHaveText(/Acertaste\.|Era «/);
+    await expect(dsn.locator('#opciones button[data-i="0"]')).toBeDisabled();
+    await dsn.locator('#opciones button.siguiente', { hasText: 'Siguiente pregunta' }).click();
+    await expect(dsn.locator('#enunciado')).toContainText('2 de 2:');
+    await dsn.locator('#opciones button[data-i="1"]').click();
+    await dsn.locator('#opciones button.siguiente', { hasText: 'Ver el resultado' }).click();
+    await expect(dsn.locator('#veredicto')).toHaveText(/^[0-2] de 2\. Así termina un Tap/);
+    await expect(dsn.locator('#opciones button', { hasText: 'Jugar otra vez' })).toBeVisible();
     await dsn.locator('#guardar').click();
     await expect(dsn.locator('#estadoGuardado')).toContainText('está en Mis looks');
     await expect(dsn.locator('#listaLooks .look')).toHaveCount(1);
     await expect(dsn.locator('.vista .chispa'), 'PR-D5: el confeti va en el canvas, no en DOM').toHaveCount(0);
     expect(await page.evaluate(() => localStorage.getItem('taps.disenador.looks')), 'misma clave de looks que el prototipo').toContain('arqueologa');
+    expect(await page.evaluate(() => localStorage.getItem('taps.disenador.looks')), 'PR-D6: el lema se guarda con el look').toContain('Hoy aprendemos algo nuevo');
     // El borrador se autoguarda con ~1 s de espera.
     await expect.poll(() => page.evaluate(() => localStorage.getItem('taps.disenador.borrador') ?? ''), { timeout: 5_000 }).toContain('arqueologa');
+    expect(await page.evaluate(() => localStorage.getItem('taps.disenador.borrador'))).toContain('Hoy aprendemos algo nuevo');
+    // PR-D6: el enlace para compartir es v2 y lleva el lema en `m`; un enlace v1 (sin `m`) sigue abriéndose (compartir.test.mjs).
+    await page.evaluate(() => { (window as unknown as { __enlace?: string }).__enlace = ''; Object.defineProperty(navigator, 'share', { value: undefined, configurable: true }); Object.defineProperty(navigator, 'clipboard', { value: { writeText: async (t: string) => { (window as unknown as { __enlace?: string }).__enlace = t; } }, configurable: true }); });
+    await dsn.locator('#copiarEnlace').click();
+    await expect(dsn.locator('#compartir')).toContainText('Enlace copiado');
+    const enlace = await page.evaluate(() => (window as unknown as { __enlace?: string }).__enlace ?? '');
+    expect(enlace).toContain('#look=');
+    const compacto = JSON.parse(Buffer.from(enlace.split('#look=')[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8')) as Record<string, unknown>;
+    expect(compacto['v']).toBe(2); expect(compacto['m']).toBe('Hoy aprendemos algo nuevo');
+    expect(compacto['n']).toBeUndefined();   // guardar vacía el campo del nombre (comportamiento previo); el lema se queda
     // Medición: cada evento del diseñador una vez (sin doble envío) y los hitos de /crear.
     const antes = await eventos(page);
     expect(antes.filter(e => e === 'taps/disenador/preset/arqueologa')).toHaveLength(1);
@@ -119,6 +147,7 @@ test.describe('/crear', () => {
     await expect(dsn.locator('#continuar')).toBeVisible();
     await dsn.locator('#continuarSi').click();
     await expect(dsn.locator('#listaLooks .look b')).toHaveText('Inés de prueba');
+    await expect(dsn.locator('#lema'), 'PR-D6: el lema vuelve con el borrador').toHaveValue('Hoy aprendemos algo nuevo');
     expect((await eventos(page)).filter(e => e.startsWith('taps/crear/abrir/'))).toEqual(['taps/crear/abrir/continuar']);
   });
 });
@@ -198,6 +227,8 @@ test.describe('gancho de publicar', () => {
       expect(d['b']).toBe('arqueologa');
       expect(typeof d['l']).toBe('object');
       expect(String(draft)).not.toContain('miniatura'); expect(String(draft)).not.toContain('data:image');
+      // PR-D6: el lema no viaja en `draft` (el API solo acepta v, borradorId, b, l, i, w; cualquier otra clave anularía el borrador).
+      expect(Object.keys(d).sort()).toEqual(['b', 'borradorId', 'i', 'l', 'v', 'w']);
       expect(Buffer.byteLength(String(draft), 'utf8')).toBeLessThanOrEqual(2048);
       // Embudo: cada evento una vez y ninguno con el look.
       const ev = await eventos(page);

@@ -9,7 +9,7 @@
 import { CATALOGO, POSES, anchorOf, armPoints, blendPose, drawHost, lookOf, poseFor, validarLook, ITEMS } from './themes/epoca/rig.js';
 import { WORLD_NAMES, GROUND_Y, paintWorld, paintAmbient } from './themes/epoca/scenery.js';
 import { PALETAS, NOMBRES, MUNDOS, nombreColor, sombra, sorprenderTodo, sorprenderPestana, sorprenderEscenario, sugerencias } from './themes/epoca/sugerencias.js';
-import { CLAVE_BORRADOR, CLAVE_LOOKS, MAX_LOOKS, MAX_NOMBRE, armarBorrador, borrarLook, crearAlmacen, duplicarLook, fechaCorta, guardarLook, parsearBorrador, parsearLooks, renombrarLook, serializarBorrador, serializarLooks } from './themes/epoca/guardado.js';
+import { CLAVE_BORRADOR, CLAVE_LOOKS, MAX_LEMA, MAX_LOOKS, MAX_NOMBRE, armarBorrador, borrarLook, crearAlmacen, duplicarLook, fechaCorta, guardarLook, parsearBorrador, parsearLooks, renombrarLook, serializarBorrador, serializarLooks } from './themes/epoca/guardado.js';
 import { enlaceDeLook, exportarJson, importarJson, lookDesdeHash } from './themes/epoca/compartir.js';
 import { PREFIJO, crearMedidor, esAutomatico, esInterno, nombreAbandono, nombreValido, paraGoatCounter } from './themes/epoca/medicion.js';
 import { COPY_HITOS, ENTENDIDO, PUBLICAR, QUE_ES, conNombre, crearHitos, esEstudiante } from './themes/epoca/hitos.js';
@@ -40,7 +40,7 @@ export const BOTON_SIGUIENTE = Object.freeze(['Siguiente', 'Ponlo en su mundo', 
 export const URL_ESTILOS = new URL('./disenador.css', import.meta.url).href;
 
 /** Marcado del diseñador (un solo origen para las dos páginas). Se vuelca en la raíz al montar. */
-export const PLANTILLA = "<svg width=\"0\" height=\"0\" style=\"position:absolute\" aria-hidden=\"true\">\n  <symbol id=\"i-cara\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8.5 10.5h.01M15.5 10.5h.01M8.5 14.5c1 1.3 2.2 2 3.5 2s2.5-.7 3.5-2\"/></symbol>\n  <symbol id=\"i-pelo\" viewBox=\"0 0 24 24\"><path d=\"M5 14c0-5 3-9 7-9s7 4 7 9M5 14c1.5-1 2.5-3 3-5M19 14c-1.5-1-2.5-3-3-5M9 12c-.5 1.5-1.5 2.5-3 3M15 12c.5 1.5 1.5 2.5 3 3\"/><path d=\"M8 19c1 .8 2.5 1.2 4 1.2s3-.4 4-1.2\"/></symbol>\n  <symbol id=\"i-ropa\" viewBox=\"0 0 24 24\"><path d=\"M8 4l4 2 4-2 4 4-3 2v10H7V10L4 8z\"/><path d=\"M8 4c.5 2 2 3 4 3s3.5-1 4-3\"/></symbol>\n  <symbol id=\"i-objeto\" viewBox=\"0 0 24 24\"><path d=\"M7 11V7a2 2 0 0 1 4 0v4M11 10V5a2 2 0 0 1 4 0v6M15 11V7a2 2 0 0 1 4 0v8a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L4 14a2 2 0 0 1 3-2.4\"/></symbol>\n  <symbol id=\"i-deshacer\" viewBox=\"0 0 24 24\"><path d=\"M9 14 4 9l5-5\"/><path d=\"M4 9h10a6 6 0 0 1 0 12h-3\"/></symbol>\n  <symbol id=\"i-sorpresa\" viewBox=\"0 0 24 24\"><path d=\"M4 6h3l10 12h3M20 6h-3l-2.5 3M4 18h3l2.5-3\"/><path d=\"M17 4l3 2-3 2M17 16l3 2-3 2\"/></symbol>\n  <symbol id=\"i-mas\" viewBox=\"0 0 24 24\"><path d=\"M12 5v14M5 12h14\"/></symbol>\n  <symbol id=\"i-puntos\" viewBox=\"0 0 24 24\"><circle cx=\"6\" cy=\"12\" r=\"1.3\"/><circle cx=\"12\" cy=\"12\" r=\"1.3\"/><circle cx=\"18\" cy=\"12\" r=\"1.3\"/></symbol>\n  <symbol id=\"i-atras\" viewBox=\"0 0 24 24\"><path d=\"M15 5l-7 7 7 7\"/></symbol>\n  <symbol id=\"i-sig\" viewBox=\"0 0 24 24\"><path d=\"M9 5l7 7-7 7\"/></symbol>\n  <symbol id=\"i-listo\" viewBox=\"0 0 24 24\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></symbol>\n  <symbol id=\"i-dedo\" viewBox=\"0 0 24 24\"><path d=\"M10 11V5a1.5 1.5 0 0 1 3 0v6M13 10a1.5 1.5 0 0 1 3 0v2M16 12a1.5 1.5 0 0 1 3 0v4a5 5 0 0 1-5 5h-1a5 5 0 0 1-4-2l-3-4a1.5 1.5 0 0 1 2.4-1.8L10 15\"/></symbol>\n  <symbol id=\"i-copiar\" viewBox=\"0 0 24 24\"><rect x=\"9\" y=\"9\" width=\"11\" height=\"11\" rx=\"2\"/><path d=\"M5 15V6a2 2 0 0 1 2-2h9\"/></symbol>\n  <symbol id=\"i-idea\" viewBox=\"0 0 24 24\"><path d=\"M9 18h6M10 21h4M12 3a6 6 0 0 1 3.6 10.8c-.5.4-.6 1-.6 1.6V16H9v-.6c0-.6-.1-1.2-.6-1.6A6 6 0 0 1 12 3z\"/></symbol>\n  <symbol id=\"i-guardar\" viewBox=\"0 0 24 24\"><path d=\"M5 4h11l3 3v13H5z\"/><path d=\"M8 4v5h7V4M8 20v-6h8v6\"/></symbol>\n  <symbol id=\"i-lapiz\" viewBox=\"0 0 24 24\"><path d=\"M4 20l4-1L19 8l-3-3L5 16z\"/><path d=\"M14 7l3 3\"/></symbol>\n  <symbol id=\"i-papelera\" viewBox=\"0 0 24 24\"><path d=\"M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13\"/><path d=\"M10 11v6M14 11v6\"/></symbol>\n  <symbol id=\"i-reloj\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/></symbol>\n  <symbol id=\"i-enlace\" viewBox=\"0 0 24 24\"><path d=\"M10 14a4 4 0 0 0 5.6.4l3-3a4 4 0 0 0-5.6-5.6l-1.5 1.5\"/><path d=\"M14 10a4 4 0 0 0-5.6-.4l-3 3a4 4 0 0 0 5.6 5.6l1.5-1.5\"/></symbol>\n  <symbol id=\"i-bajar\" viewBox=\"0 0 24 24\"><path d=\"M12 4v11M7 10l5 5 5-5\"/><path d=\"M5 20h14\"/></symbol>\n  <symbol id=\"i-subir\" viewBox=\"0 0 24 24\"><path d=\"M12 15V4M7 9l5-5 5 5\"/><path d=\"M5 20h14\"/></symbol>\n  <symbol id=\"i-jugar\" viewBox=\"0 0 24 24\"><path d=\"M8 5v14l11-7z\"/></symbol>\n  <symbol id=\"i-sonrisa\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8.5 10h.01M15.5 10h.01\"/><path d=\"M8 14c1 1.8 2.4 2.7 4 2.7s3-.9 4-2.7\"/></symbol>\n  <symbol id=\"i-neutro\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8.5 10h.01M15.5 10h.01\"/><path d=\"M8.5 15.5h7\"/></symbol>\n  <symbol id=\"i-cerrar\" viewBox=\"0 0 24 24\"><path d=\"M6 6l12 12M18 6L6 18\"/></symbol>\n  <symbol id=\"i-regalo\" viewBox=\"0 0 24 24\"><rect x=\"4\" y=\"9\" width=\"16\" height=\"11\" rx=\"2\"/><path d=\"M4 13h16M12 9v11\"/><path d=\"M12 9c-1.5-3-4-4-5.5-2.5S9 9 12 9zm0 0c1.5-3 4-4 5.5-2.5S15 9 12 9z\"/></symbol>\n  <symbol id=\"i-altavoz\" viewBox=\"0 0 24 24\"><path d=\"M4 10v4h3l4 3.5v-11L7 10z\"/><path d=\"M15 9.5a3.6 3.6 0 0 1 0 5M17.8 7a7.2 7.2 0 0 1 0 10\"/></symbol>\n  <symbol id=\"i-altavoz-off\" viewBox=\"0 0 24 24\"><path d=\"M4 10v4h3l4 3.5v-11L7 10z\"/><path d=\"M15.5 10l4.5 4.5M20 10l-4.5 4.5\"/></symbol>\n  <symbol id=\"i-dispositivos\" viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"5\" width=\"13\" height=\"10\" rx=\"1.5\"/><path d=\"M7 19h5M9.5 15v4\"/><rect x=\"17\" y=\"9\" width=\"4\" height=\"10\" rx=\"1\"/><path d=\"M19 16.5h.01\"/></symbol>\n  <symbol id=\"i-cuenta\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"9\" r=\"3.5\"/><path d=\"M5 20a7 7 0 0 1 14 0\"/></symbol>\n</svg>\n\n<header>\n  <h1 id=\"h1\">Elige quién eres</h1>\n  <ol class=\"progreso\" id=\"progreso\" aria-label=\"Pasos\">\n    <li class=\"ahora\" title=\"Personaje\"><i aria-hidden=\"true\">1</i><span>Personaje</span></li>\n    <li title=\"Escenario\"><i aria-hidden=\"true\">2</i><span>Escenario</span></li>\n    <li title=\"Listo\"><i aria-hidden=\"true\">3</i><span>Listo</span></li>\n  </ol>\n</header>\n\n<section class=\"vista\" id=\"vista\" aria-label=\"Vista previa de tu personaje\">\n  <canvas id=\"lienzo\" role=\"img\" aria-label=\"Tu personaje\"></canvas>\n  <div class=\"bocadillo\" id=\"bocadillo\" aria-live=\"polite\"></div>\n  <div class=\"etiqueta\">Así estaba antes</div>\n  <div class=\"ranura\" id=\"ranuraVista\"></div>\n  <div class=\"pista\" id=\"pista\" hidden><svg class=\"ic\"><use href=\"#i-dedo\"/></svg>Mantén presionado para comparar</div>\n  <div class=\"inversion\" id=\"inversion\" role=\"img\" aria-label=\"Tu personaje: nada cambiado todavía\" title=\"Tu personaje\"><i data-tramo=\"cara\"></i><i data-tramo=\"ropa\"></i><i data-tramo=\"escenario\"></i></div>\n</section>\n\n<div class=\"sugerencia\" id=\"sugerencia\" hidden>\n  <svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-idea\"/></svg>\n  <span id=\"sugerenciaTexto\"></span>\n  <button type=\"button\" id=\"sugerenciaAplicar\">Aplicar</button>\n</div>\n\n<div class=\"barra\">\n  <h2 id=\"titulo\">Elige un punto de partida</h2>\n  <button id=\"deshacer\" disabled aria-label=\"Deshacer el último cambio\"><svg class=\"ic\"><use href=\"#i-deshacer\"/></svg>Deshacer</button>\n  <button id=\"sorprender\" aria-label=\"Sorpréndeme con una combinación\"><svg class=\"ic\"><use href=\"#i-sorpresa\"/></svg>Sorpréndeme</button>\n  <button type=\"button\" id=\"sonido\" class=\"altavoz\" aria-pressed=\"true\" aria-label=\"Sonido activado. Silenciar (tecla M)\" title=\"Silenciar (M)\"><svg class=\"ic on\" aria-hidden=\"true\"><use href=\"#i-altavoz\"/></svg><svg class=\"ic off\" aria-hidden=\"true\"><use href=\"#i-altavoz-off\"/></svg></button>\n</div>\n\n<main class=\"paso\" id=\"paso\">\n  <section class=\"pantalla activa\" data-p=\"0\">\n    <p class=\"texto\">Todos empiezan con un personaje completo. Elige uno y ajústalo a tu gusto; nada es obligatorio.</p>\n    <div class=\"tarjetas\" id=\"presets\"></div>\n  </section>\n\n  <section class=\"pantalla\" data-p=\"1\">\n    <div class=\"pestanas\" id=\"pestanas\" role=\"tablist\" aria-label=\"Qué ajustar\"></div>\n    <div id=\"ajustes\" role=\"tabpanel\" tabindex=\"-1\"></div>\n  </section>\n\n  <section class=\"pantalla\" data-p=\"2\">\n    <p class=\"texto\">Así se ve tu personaje en cada lugar. Elige uno; puedes cambiarlo después.</p>\n    <div class=\"tarjetas escenas\" id=\"escenas\"></div>\n  </section>\n\n  <section class=\"pantalla\" data-p=\"3\">\n    <p class=\"texto\" id=\"despedida\">Tu personaje está listo. Toca una reacción para verlo en acción.</p>\n    <section class=\"que-hacer\" id=\"queHacer\" hidden aria-labelledby=\"queHacerTitulo\"></section>\n    <div class=\"reacciones\" id=\"reacciones\" role=\"group\" aria-label=\"Reacciones\"></div>\n    <section class=\"muestra-pregunta\" id=\"muestraPregunta\" aria-labelledby=\"muestraTitulo\">\n      <h3 id=\"muestraTitulo\"><svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-jugar\"/></svg>Míralo en un Tap</h3>\n      <p class=\"texto\">Así se verá cuando alguien responda una pregunta con tu personaje. Prueba con una de ejemplo.</p>\n      <button type=\"button\" id=\"probar\" class=\"grande secundario\" style=\"background:var(--panel2);border-color:var(--acc);color:var(--txt)\"><svg class=\"ic\"><use href=\"#i-jugar\"/></svg>Probar con una pregunta</button>\n      <p class=\"enunciado\" id=\"enunciado\" hidden></p>\n      <div class=\"opciones\" id=\"opciones\" role=\"group\" aria-label=\"Opciones de la pregunta de ejemplo\"></div>\n      <p class=\"veredicto\" id=\"veredicto\" role=\"status\" aria-live=\"polite\"></p>\n      <div class=\"hito-linea cta\" id=\"probadoCuenta\" hidden></div>\n    </section>\n    <form class=\"guardar\" id=\"formGuardar\" novalidate>\n      <label for=\"nombre\">Ponle nombre (opcional)</label>\n      <div class=\"fila\"><input id=\"nombre\" maxlength=\"20\" autocomplete=\"off\" autocapitalize=\"words\" enterkeyhint=\"done\" spellcheck=\"false\"><small id=\"restan\" aria-hidden=\"true\"></small></div>\n      <button type=\"submit\" id=\"guardar\" class=\"grande\"><svg class=\"ic\"><use href=\"#i-guardar\"/></svg>Guardar en este dispositivo</button>\n      <p class=\"estado\" id=\"estadoGuardado\" role=\"status\" aria-live=\"polite\"></p>\n    </form>\n    <div class=\"gusto\" id=\"gusto\" hidden role=\"group\" aria-labelledby=\"gustoTexto\">\n      <p id=\"gustoTexto\">¿Te gustó hacerlo?</p>\n      <button type=\"button\" class=\"si\" id=\"gustoSi\" aria-label=\"Sí, me gustó\"><svg class=\"ic\"><use href=\"#i-sonrisa\"/></svg></button>\n      <button type=\"button\" id=\"gustoMeh\" aria-label=\"Más o menos\"><svg class=\"ic\"><use href=\"#i-neutro\"/></svg></button>\n      <button type=\"button\" class=\"cerrar\" id=\"gustoNo\" aria-label=\"Ahora no\"><svg class=\"ic\"><use href=\"#i-cerrar\"/></svg></button>\n    </div>\n    <section class=\"mislooks\" id=\"misLooks\" aria-labelledby=\"misLooksTitulo\">\n      <h3 id=\"misLooksTitulo\">Mis looks <small id=\"cuentaLooks\"></small></h3>\n      <div class=\"vacio\" id=\"misLooksVacio\"><svg viewBox=\"0 0 120 56\" aria-hidden=\"true\"><g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"24\" cy=\"18\" r=\"8\"/><path d=\"M8 50c0-11 7-18 16-18s16 7 16 18\"/><circle cx=\"60\" cy=\"15\" r=\"9\"/><path d=\"M42 50c0-12 8-20 18-20s18 8 18 20M52 9h16\"/><circle cx=\"96\" cy=\"18\" r=\"8\"/><path d=\"M80 50c0-11 7-18 16-18s16 7 16 18\"/></g></svg><p class=\"texto\">Aquí van los personajes que guardes. Se quedan en este dispositivo; nada se envía.</p></div>\n      <div class=\"looks\" id=\"listaLooks\"></div>\n      <p class=\"hito-linea\" id=\"misLooksCuenta\" hidden></p>\n    </section>\n    <section class=\"compartir\" id=\"compartir\" aria-labelledby=\"compartirTitulo\">\n      <h3 id=\"compartirTitulo\" class=\"texto\" style=\"margin:0\">Compártelo con quien quieras. El enlace lleva el personaje completo; nadie necesita cuenta.</h3>\n      <button type=\"button\" id=\"copiarEnlace\" class=\"grande secundario\"><svg class=\"ic\"><use href=\"#i-enlace\"/></svg>Copiar enlace</button>\n      <div class=\"enlace\"><input id=\"enlaceTexto\" readonly aria-label=\"Enlace de tu personaje\"><button type=\"button\" id=\"enlaceSeleccionar\">Seleccionar</button></div>\n      <p class=\"estado\" id=\"estadoCompartir\" role=\"status\" aria-live=\"polite\"></p>\n    </section>\n    <p class=\"texto\" id=\"pronto\">Pronto vas a poder usarlo en tu propio Tap.</p>\n    <details id=\"masDetalles\">\n      <summary><svg class=\"ic\"><use href=\"#i-puntos\"/></svg>Más</summary>\n      <p class=\"texto\" style=\"margin-top:8px\">Llévate el personaje como archivo para guardarlo donde quieras, o trae uno que te hayan pasado.</p>\n      <div class=\"mas-acciones\">\n        <button type=\"button\" id=\"exportar\"><svg class=\"ic\"><use href=\"#i-bajar\"/></svg>Descargar archivo del personaje</button>\n        <label class=\"boton\" for=\"archivoImportar\"><svg class=\"ic\"><use href=\"#i-subir\"/></svg>Abrir un archivo<input type=\"file\" id=\"archivoImportar\" accept=\".json,application/json,text/plain\"></label>\n      </div>\n      <div class=\"importar\">\n        <label class=\"texto\" for=\"pegarImportar\" style=\"margin:0\">O pega aquí el texto de un archivo de personaje</label>\n        <textarea id=\"pegarImportar\" aria-label=\"Texto del personaje para traer\" placeholder=\"Pega aquí el texto del archivo\" spellcheck=\"false\"></textarea>\n        <div class=\"fila\"><button type=\"button\" id=\"importarPegado\">Traer este personaje</button><span class=\"aviso\" id=\"aviso\" aria-live=\"polite\"></span></div>\n      </div>\n      <textarea id=\"json\" readonly aria-label=\"Datos del personaje (modo desarrollo)\" hidden></textarea>\n    </details>\n  </section>\n</main>\n\n<div class=\"continuar\" id=\"continuar\" hidden role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"continuarTitulo\">\n  <div class=\"hoja\">\n    <img id=\"continuarMini\" alt=\"\" width=\"84\" height=\"112\">\n    <div><h2 id=\"continuarTitulo\">Seguir donde ibas</h2><p id=\"continuarTexto\">Dejaste un personaje a medias en este dispositivo.</p></div>\n    <div class=\"botones\">\n      <button type=\"button\" class=\"primario\" id=\"continuarSi\">Seguir donde ibas</button>\n      <button type=\"button\" id=\"continuarNo\">Empezar otro</button>\n    </div>\n  </div>\n</div>\n\n<div class=\"continuar\" id=\"recibido\" hidden role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"recibidoTitulo\">\n  <div class=\"hoja\">\n    <img id=\"recibidoMini\" alt=\"\" width=\"84\" height=\"112\">\n    <div><h2 id=\"recibidoTitulo\">Look de un amigo</h2><p id=\"recibidoTexto\">Alguien te mandó su personaje.</p></div>\n    <p class=\"estado\" id=\"recibidoEstado\" role=\"status\" aria-live=\"polite\"></p>\n    <div class=\"botones tres\">\n      <button type=\"button\" class=\"primario\" id=\"recibidoProbar\">Probarlo y ajustarlo</button>\n      <button type=\"button\" id=\"recibidoGuardar\"><svg class=\"ic\"><use href=\"#i-guardar\"/></svg>Guardarlo en Mis looks</button>\n      <button type=\"button\" class=\"terciario\" id=\"recibidoNo\">Seguir con el mío</button>\n    </div>\n  </div>\n</div>\n\n<footer>\n  <button id=\"atras\" hidden><svg class=\"ic\"><use href=\"#i-atras\"/></svg>Atrás</button>\n  <button id=\"siguiente\" class=\"primario\">Siguiente<svg class=\"ic\"><use href=\"#i-sig\"/></svg></button>\n</footer>";
+export const PLANTILLA = "<svg width=\"0\" height=\"0\" style=\"position:absolute\" aria-hidden=\"true\">\n  <symbol id=\"i-cara\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8.5 10.5h.01M15.5 10.5h.01M8.5 14.5c1 1.3 2.2 2 3.5 2s2.5-.7 3.5-2\"/></symbol>\n  <symbol id=\"i-pelo\" viewBox=\"0 0 24 24\"><path d=\"M5 14c0-5 3-9 7-9s7 4 7 9M5 14c1.5-1 2.5-3 3-5M19 14c-1.5-1-2.5-3-3-5M9 12c-.5 1.5-1.5 2.5-3 3M15 12c.5 1.5 1.5 2.5 3 3\"/><path d=\"M8 19c1 .8 2.5 1.2 4 1.2s3-.4 4-1.2\"/></symbol>\n  <symbol id=\"i-ropa\" viewBox=\"0 0 24 24\"><path d=\"M8 4l4 2 4-2 4 4-3 2v10H7V10L4 8z\"/><path d=\"M8 4c.5 2 2 3 4 3s3.5-1 4-3\"/></symbol>\n  <symbol id=\"i-objeto\" viewBox=\"0 0 24 24\"><path d=\"M7 11V7a2 2 0 0 1 4 0v4M11 10V5a2 2 0 0 1 4 0v6M15 11V7a2 2 0 0 1 4 0v8a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L4 14a2 2 0 0 1 3-2.4\"/></symbol>\n  <symbol id=\"i-deshacer\" viewBox=\"0 0 24 24\"><path d=\"M9 14 4 9l5-5\"/><path d=\"M4 9h10a6 6 0 0 1 0 12h-3\"/></symbol>\n  <symbol id=\"i-sorpresa\" viewBox=\"0 0 24 24\"><path d=\"M4 6h3l10 12h3M20 6h-3l-2.5 3M4 18h3l2.5-3\"/><path d=\"M17 4l3 2-3 2M17 16l3 2-3 2\"/></symbol>\n  <symbol id=\"i-mas\" viewBox=\"0 0 24 24\"><path d=\"M12 5v14M5 12h14\"/></symbol>\n  <symbol id=\"i-puntos\" viewBox=\"0 0 24 24\"><circle cx=\"6\" cy=\"12\" r=\"1.3\"/><circle cx=\"12\" cy=\"12\" r=\"1.3\"/><circle cx=\"18\" cy=\"12\" r=\"1.3\"/></symbol>\n  <symbol id=\"i-atras\" viewBox=\"0 0 24 24\"><path d=\"M15 5l-7 7 7 7\"/></symbol>\n  <symbol id=\"i-sig\" viewBox=\"0 0 24 24\"><path d=\"M9 5l7 7-7 7\"/></symbol>\n  <symbol id=\"i-listo\" viewBox=\"0 0 24 24\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></symbol>\n  <symbol id=\"i-dedo\" viewBox=\"0 0 24 24\"><path d=\"M10 11V5a1.5 1.5 0 0 1 3 0v6M13 10a1.5 1.5 0 0 1 3 0v2M16 12a1.5 1.5 0 0 1 3 0v4a5 5 0 0 1-5 5h-1a5 5 0 0 1-4-2l-3-4a1.5 1.5 0 0 1 2.4-1.8L10 15\"/></symbol>\n  <symbol id=\"i-copiar\" viewBox=\"0 0 24 24\"><rect x=\"9\" y=\"9\" width=\"11\" height=\"11\" rx=\"2\"/><path d=\"M5 15V6a2 2 0 0 1 2-2h9\"/></symbol>\n  <symbol id=\"i-idea\" viewBox=\"0 0 24 24\"><path d=\"M9 18h6M10 21h4M12 3a6 6 0 0 1 3.6 10.8c-.5.4-.6 1-.6 1.6V16H9v-.6c0-.6-.1-1.2-.6-1.6A6 6 0 0 1 12 3z\"/></symbol>\n  <symbol id=\"i-guardar\" viewBox=\"0 0 24 24\"><path d=\"M5 4h11l3 3v13H5z\"/><path d=\"M8 4v5h7V4M8 20v-6h8v6\"/></symbol>\n  <symbol id=\"i-lapiz\" viewBox=\"0 0 24 24\"><path d=\"M4 20l4-1L19 8l-3-3L5 16z\"/><path d=\"M14 7l3 3\"/></symbol>\n  <symbol id=\"i-papelera\" viewBox=\"0 0 24 24\"><path d=\"M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13\"/><path d=\"M10 11v6M14 11v6\"/></symbol>\n  <symbol id=\"i-reloj\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/></symbol>\n  <symbol id=\"i-enlace\" viewBox=\"0 0 24 24\"><path d=\"M10 14a4 4 0 0 0 5.6.4l3-3a4 4 0 0 0-5.6-5.6l-1.5 1.5\"/><path d=\"M14 10a4 4 0 0 0-5.6-.4l-3 3a4 4 0 0 0 5.6 5.6l1.5-1.5\"/></symbol>\n  <symbol id=\"i-bajar\" viewBox=\"0 0 24 24\"><path d=\"M12 4v11M7 10l5 5 5-5\"/><path d=\"M5 20h14\"/></symbol>\n  <symbol id=\"i-subir\" viewBox=\"0 0 24 24\"><path d=\"M12 15V4M7 9l5-5 5 5\"/><path d=\"M5 20h14\"/></symbol>\n  <symbol id=\"i-jugar\" viewBox=\"0 0 24 24\"><path d=\"M8 5v14l11-7z\"/></symbol>\n  <symbol id=\"i-sonrisa\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8.5 10h.01M15.5 10h.01\"/><path d=\"M8 14c1 1.8 2.4 2.7 4 2.7s3-.9 4-2.7\"/></symbol>\n  <symbol id=\"i-neutro\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8.5 10h.01M15.5 10h.01\"/><path d=\"M8.5 15.5h7\"/></symbol>\n  <symbol id=\"i-cerrar\" viewBox=\"0 0 24 24\"><path d=\"M6 6l12 12M18 6L6 18\"/></symbol>\n  <symbol id=\"i-regalo\" viewBox=\"0 0 24 24\"><rect x=\"4\" y=\"9\" width=\"16\" height=\"11\" rx=\"2\"/><path d=\"M4 13h16M12 9v11\"/><path d=\"M12 9c-1.5-3-4-4-5.5-2.5S9 9 12 9zm0 0c1.5-3 4-4 5.5-2.5S15 9 12 9z\"/></symbol>\n  <symbol id=\"i-altavoz\" viewBox=\"0 0 24 24\"><path d=\"M4 10v4h3l4 3.5v-11L7 10z\"/><path d=\"M15 9.5a3.6 3.6 0 0 1 0 5M17.8 7a7.2 7.2 0 0 1 0 10\"/></symbol>\n  <symbol id=\"i-altavoz-off\" viewBox=\"0 0 24 24\"><path d=\"M4 10v4h3l4 3.5v-11L7 10z\"/><path d=\"M15.5 10l4.5 4.5M20 10l-4.5 4.5\"/></symbol>\n  <symbol id=\"i-dispositivos\" viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"5\" width=\"13\" height=\"10\" rx=\"1.5\"/><path d=\"M7 19h5M9.5 15v4\"/><rect x=\"17\" y=\"9\" width=\"4\" height=\"10\" rx=\"1\"/><path d=\"M19 16.5h.01\"/></symbol>\n  <symbol id=\"i-cuenta\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"9\" r=\"3.5\"/><path d=\"M5 20a7 7 0 0 1 14 0\"/></symbol>\n</svg>\n\n<header>\n  <h1 id=\"h1\">Elige quién eres</h1>\n  <ol class=\"progreso\" id=\"progreso\" aria-label=\"Pasos\">\n    <li class=\"ahora\" title=\"Personaje\"><i aria-hidden=\"true\">1</i><span>Personaje</span></li>\n    <li title=\"Escenario\"><i aria-hidden=\"true\">2</i><span>Escenario</span></li>\n    <li title=\"Listo\"><i aria-hidden=\"true\">3</i><span>Listo</span></li>\n  </ol>\n</header>\n\n<section class=\"vista\" id=\"vista\" aria-label=\"Vista previa de tu personaje\">\n  <canvas id=\"lienzo\" role=\"img\" aria-label=\"Tu personaje\"></canvas>\n  <div class=\"bocadillo\" id=\"bocadillo\" aria-live=\"polite\"></div>\n  <div class=\"etiqueta\">Así estaba antes</div>\n  <div class=\"ranura\" id=\"ranuraVista\"></div>\n  <div class=\"pista\" id=\"pista\" hidden><svg class=\"ic\"><use href=\"#i-dedo\"/></svg>Mantén presionado para comparar</div>\n  <div class=\"inversion\" id=\"inversion\" role=\"img\" aria-label=\"Tu personaje: nada cambiado todavía\" title=\"Tu personaje\"><i data-tramo=\"cara\"></i><i data-tramo=\"ropa\"></i><i data-tramo=\"escenario\"></i></div>\n</section>\n\n<div class=\"sugerencia\" id=\"sugerencia\" hidden>\n  <svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-idea\"/></svg>\n  <span id=\"sugerenciaTexto\"></span>\n  <button type=\"button\" id=\"sugerenciaAplicar\">Aplicar</button>\n</div>\n\n<div class=\"barra\">\n  <h2 id=\"titulo\">Elige un punto de partida</h2>\n  <button id=\"deshacer\" disabled aria-label=\"Deshacer el último cambio\"><svg class=\"ic\"><use href=\"#i-deshacer\"/></svg>Deshacer</button>\n  <button id=\"sorprender\" aria-label=\"Sorpréndeme con una combinación\"><svg class=\"ic\"><use href=\"#i-sorpresa\"/></svg>Sorpréndeme</button>\n  <button type=\"button\" id=\"sonido\" class=\"altavoz\" aria-pressed=\"true\" aria-label=\"Sonido activado. Silenciar (tecla M)\" title=\"Silenciar (M)\"><svg class=\"ic on\" aria-hidden=\"true\"><use href=\"#i-altavoz\"/></svg><svg class=\"ic off\" aria-hidden=\"true\"><use href=\"#i-altavoz-off\"/></svg></button>\n</div>\n\n<main class=\"paso\" id=\"paso\">\n  <section class=\"pantalla activa\" data-p=\"0\">\n    <p class=\"texto\">Todos empiezan con un personaje completo. Elige uno y ajústalo a tu gusto; nada es obligatorio.</p>\n    <div class=\"tarjetas\" id=\"presets\"></div>\n  </section>\n\n  <section class=\"pantalla\" data-p=\"1\">\n    <div class=\"pestanas\" id=\"pestanas\" role=\"tablist\" aria-label=\"Qué ajustar\"></div>\n    <div id=\"ajustes\" role=\"tabpanel\" tabindex=\"-1\"></div>\n  </section>\n\n  <section class=\"pantalla\" data-p=\"2\">\n    <p class=\"texto\">Así se ve tu personaje en cada lugar. Elige uno; puedes cambiarlo después.</p>\n    <div class=\"tarjetas escenas\" id=\"escenas\"></div>\n  </section>\n\n  <section class=\"pantalla\" data-p=\"3\">\n    <p class=\"texto\" id=\"despedida\">Tu personaje está listo. Toca una reacción para verlo en acción.</p>\n    <section class=\"que-hacer\" id=\"queHacer\" hidden aria-labelledby=\"queHacerTitulo\"></section>\n    <div class=\"reacciones\" id=\"reacciones\" role=\"group\" aria-label=\"Reacciones\"></div>\n    <section class=\"muestra-pregunta\" id=\"muestraPregunta\" aria-labelledby=\"muestraTitulo\">\n      <h3 id=\"muestraTitulo\"><svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-jugar\"/></svg>Míralo en un Tap</h3>\n      <p class=\"texto\" id=\"muestraTexto\">Así se ve dentro de un Tap: tu personaje presenta las preguntas, dice su lema y reacciona a cada respuesta. Prueba con dos preguntas de verdad.</p>\n      <div class=\"tap-marco\"><canvas id=\"tapMini\" role=\"img\" aria-label=\"Tu personaje dentro de un Tap\"></canvas></div>\n      <button type=\"button\" id=\"probar\" class=\"grande secundario\" style=\"background:var(--panel2);border-color:var(--acc);color:var(--txt)\"><svg class=\"ic\"><use href=\"#i-jugar\"/></svg>Probar con dos preguntas</button>\n      <p class=\"enunciado\" id=\"enunciado\" hidden></p>\n      <div class=\"opciones\" id=\"opciones\" role=\"group\" aria-label=\"Opciones de la pregunta\"></div>\n      <p class=\"veredicto\" id=\"veredicto\" role=\"status\" aria-live=\"polite\"></p>\n      <div class=\"hito-linea cta\" id=\"probadoCuenta\" hidden></div>\n    </section>\n    <form class=\"guardar\" id=\"formGuardar\" novalidate>\n      <label for=\"nombre\">Ponle nombre (opcional)</label>\n      <div class=\"fila\"><input id=\"nombre\" maxlength=\"20\" autocomplete=\"off\" autocapitalize=\"words\" enterkeyhint=\"done\" spellcheck=\"false\"><small id=\"restan\" aria-hidden=\"true\"></small></div>\n      <label for=\"lema\">Su lema (opcional): lo dice al aparecer en el Tap</label>\n      <div class=\"fila\"><input id=\"lema\" maxlength=\"40\" autocomplete=\"off\" autocapitalize=\"sentences\" enterkeyhint=\"done\" placeholder=\"Hoy aprendemos algo nuevo\"><small id=\"restanLema\" aria-hidden=\"true\"></small></div>\n      <button type=\"submit\" id=\"guardar\" class=\"grande\"><svg class=\"ic\"><use href=\"#i-guardar\"/></svg>Guardar en este dispositivo</button>\n      <p class=\"estado\" id=\"estadoGuardado\" role=\"status\" aria-live=\"polite\"></p>\n    </form>\n    <div class=\"gusto\" id=\"gusto\" hidden role=\"group\" aria-labelledby=\"gustoTexto\">\n      <p id=\"gustoTexto\">¿Te gustó hacerlo?</p>\n      <button type=\"button\" class=\"si\" id=\"gustoSi\" aria-label=\"Sí, me gustó\"><svg class=\"ic\"><use href=\"#i-sonrisa\"/></svg></button>\n      <button type=\"button\" id=\"gustoMeh\" aria-label=\"Más o menos\"><svg class=\"ic\"><use href=\"#i-neutro\"/></svg></button>\n      <button type=\"button\" class=\"cerrar\" id=\"gustoNo\" aria-label=\"Ahora no\"><svg class=\"ic\"><use href=\"#i-cerrar\"/></svg></button>\n    </div>\n    <section class=\"mislooks\" id=\"misLooks\" aria-labelledby=\"misLooksTitulo\">\n      <h3 id=\"misLooksTitulo\">Mis looks <small id=\"cuentaLooks\"></small></h3>\n      <div class=\"vacio\" id=\"misLooksVacio\"><svg viewBox=\"0 0 120 56\" aria-hidden=\"true\"><g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"24\" cy=\"18\" r=\"8\"/><path d=\"M8 50c0-11 7-18 16-18s16 7 16 18\"/><circle cx=\"60\" cy=\"15\" r=\"9\"/><path d=\"M42 50c0-12 8-20 18-20s18 8 18 20M52 9h16\"/><circle cx=\"96\" cy=\"18\" r=\"8\"/><path d=\"M80 50c0-11 7-18 16-18s16 7 16 18\"/></g></svg><p class=\"texto\">Aquí van los personajes que guardes. Se quedan en este dispositivo; nada se envía.</p></div>\n      <div class=\"looks\" id=\"listaLooks\"></div>\n      <p class=\"hito-linea\" id=\"misLooksCuenta\" hidden></p>\n    </section>\n    <section class=\"compartir\" id=\"compartir\" aria-labelledby=\"compartirTitulo\">\n      <h3 id=\"compartirTitulo\" class=\"texto\" style=\"margin:0\">Compártelo con quien quieras. El enlace lleva el personaje completo; nadie necesita cuenta.</h3>\n      <button type=\"button\" id=\"copiarEnlace\" class=\"grande secundario\"><svg class=\"ic\"><use href=\"#i-enlace\"/></svg>Copiar enlace</button>\n      <div class=\"enlace\"><input id=\"enlaceTexto\" readonly aria-label=\"Enlace de tu personaje\"><button type=\"button\" id=\"enlaceSeleccionar\">Seleccionar</button></div>\n      <p class=\"estado\" id=\"estadoCompartir\" role=\"status\" aria-live=\"polite\"></p>\n    </section>\n    <p class=\"texto\" id=\"pronto\">Pronto vas a poder usarlo en tu propio Tap.</p>\n    <details id=\"masDetalles\">\n      <summary><svg class=\"ic\"><use href=\"#i-puntos\"/></svg>Más</summary>\n      <p class=\"texto\" style=\"margin-top:8px\">Llévate el personaje como archivo para guardarlo donde quieras, o trae uno que te hayan pasado.</p>\n      <div class=\"mas-acciones\">\n        <button type=\"button\" id=\"exportar\"><svg class=\"ic\"><use href=\"#i-bajar\"/></svg>Descargar archivo del personaje</button>\n        <label class=\"boton\" for=\"archivoImportar\"><svg class=\"ic\"><use href=\"#i-subir\"/></svg>Abrir un archivo<input type=\"file\" id=\"archivoImportar\" accept=\".json,application/json,text/plain\"></label>\n      </div>\n      <div class=\"importar\">\n        <label class=\"texto\" for=\"pegarImportar\" style=\"margin:0\">O pega aquí el texto de un archivo de personaje</label>\n        <textarea id=\"pegarImportar\" aria-label=\"Texto del personaje para traer\" placeholder=\"Pega aquí el texto del archivo\" spellcheck=\"false\"></textarea>\n        <div class=\"fila\"><button type=\"button\" id=\"importarPegado\">Traer este personaje</button><span class=\"aviso\" id=\"aviso\" aria-live=\"polite\"></span></div>\n      </div>\n      <textarea id=\"json\" readonly aria-label=\"Datos del personaje (modo desarrollo)\" hidden></textarea>\n    </details>\n  </section>\n</main>\n\n<div class=\"continuar\" id=\"continuar\" hidden role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"continuarTitulo\">\n  <div class=\"hoja\">\n    <img id=\"continuarMini\" alt=\"\" width=\"84\" height=\"112\">\n    <div><h2 id=\"continuarTitulo\">Seguir donde ibas</h2><p id=\"continuarTexto\">Dejaste un personaje a medias en este dispositivo.</p></div>\n    <div class=\"botones\">\n      <button type=\"button\" class=\"primario\" id=\"continuarSi\">Seguir donde ibas</button>\n      <button type=\"button\" id=\"continuarNo\">Empezar otro</button>\n    </div>\n  </div>\n</div>\n\n<div class=\"continuar\" id=\"recibido\" hidden role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"recibidoTitulo\">\n  <div class=\"hoja\">\n    <img id=\"recibidoMini\" alt=\"\" width=\"84\" height=\"112\">\n    <div><h2 id=\"recibidoTitulo\">Look de un amigo</h2><p id=\"recibidoTexto\">Alguien te mandó su personaje.</p></div>\n    <p class=\"estado\" id=\"recibidoEstado\" role=\"status\" aria-live=\"polite\"></p>\n    <div class=\"botones tres\">\n      <button type=\"button\" class=\"primario\" id=\"recibidoProbar\">Probarlo y ajustarlo</button>\n      <button type=\"button\" id=\"recibidoGuardar\"><svg class=\"ic\"><use href=\"#i-guardar\"/></svg>Guardarlo en Mis looks</button>\n      <button type=\"button\" class=\"terciario\" id=\"recibidoNo\">Seguir con el mío</button>\n    </div>\n  </div>\n</div>\n\n<footer>\n  <button id=\"atras\" hidden><svg class=\"ic\"><use href=\"#i-atras\"/></svg>Atrás</button>\n  <button id=\"siguiente\" class=\"primario\">Siguiente<svg class=\"ic\"><use href=\"#i-sig\"/></svg></button>\n</footer>";
 
 /** Añade la hoja de estilos al documento una sola vez (disenador.html la trae en el <head>; la web no). */
 export function asegurarEstilos(doc = document) {
@@ -261,7 +261,8 @@ export async function montarDisenador(raiz, opciones = {}) {
     $('paso').scrollTop = 0;
     if (pantalla === 1) construirAjustes();
     if (pantalla === 2) construirEscenas();
-    if (pantalla === 3) { refrescarJson(); prepararGuardar(); reiniciarPregunta(); if (!reducido) { reaccionar('preset'); if (cambia) confetiLook(); } }
+    // Listo (PR-D6): «Terminar» celebra con `logro` (arriba) y confeti; el personaje dice su lema si tiene; el marco del Tap se pinta.
+    if (pantalla === 3) { refrescarJson(); prepararGuardar(); reiniciarPregunta(); cargarTapMuestra(); if (!reducido) { reaccionar('preset'); if (cambia) confetiLook(); } if (cambia && lemaActual()) decir(lemaActual()); }
     encuadrar(); refrescarSugerencia();
     programarAutoguardado();
     // Hitos de cuenta (§2): al entrar al escenario, un chip bajo la vista; en Listo, el bloque «Lo que puedes hacer con X».
@@ -270,7 +271,7 @@ export async function montarDisenador(raiz, opciones = {}) {
   }
   $('siguiente').onclick = () => { if (pantalla === 3) { empezarOtro(); } else irA(pantalla + 1); };
   function empezarOtro() {                       // borrador nuevo: se olvida el anterior y el siguiente autoguardado estrena borradorId
-    borradorActual = null; almacen.quitar(CLAVE_BORRADOR); $('nombre').value = ''; lookCargado = null;
+    borradorActual = null; almacen.quitar(CLAVE_BORRADOR); $('nombre').value = ''; $('lema').value = ''; lookCargado = null;
     ponerPreset('grabador'); irA(0);
     historial.length = 0; $('deshacer').disabled = true; clearTimeout(temporizadorGuardado); temporizadorGuardado = 0;
     invertido.clear(); cambios = 0; pintarInversion();
@@ -459,41 +460,155 @@ export async function montarDisenador(raiz, opciones = {}) {
     const lista = [['talk', 'Habla'], ['think', 'Piensa'], ['celebrate', 'Acierta'], ['hurt', 'Falla'], ['dance', 'Baila']];
     $('reacciones').replaceChildren(...lista.map(([a, t]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = t; b.onclick = () => { sonar('toque', { vol: GANANCIA_BAJA }); animar(a, 1.6); }; return b; }));
   }
-  // Pregunta de muestra: el personaje juega UNA pregunta de ejemplo (una opción correcta) con las mismas poses que usa el
-  // feed (celebrate / hurt). No toca el motor: solo elige la pose según la opción. Opcional: solo si tocas «Probar».
-  const PREGUNTA_MUESTRA = {
-    texto: '¿Cuál de estos números es primo?',
-    opciones: [['9', false], ['7', true], ['15', false]],
-    bien: ['¡Correcto! Así celebro.', '¡Eso es!'], mal: ['Casi… era el 7.', 'Uy, no. Era el 7.'],
-  };
-  let preguntaJugada = false;
+  // ───────────────────────── vista previa en Tap (PR-D6, disenador-v2-plan.md §5) ─────────────────────────
+  // Un marco 9:16 dibujado en canvas (el motor de verdad con `stage.registerCharacter` es PR-D10): arriba el escenario del
+  // personaje con él de anfitrión diciendo su lema; abajo el panel de pregunta y opciones como en el feed. Juega DOS preguntas
+  // reales del banco del motor (taps/<id>.json, las dos primeras de 4 opciones) con los sonidos del feed (`acierto`/`fallo`)
+  // y las mismas poses (celebrate / hurt). Si el banco no carga, hay dos preguntas de reserva: la vista nunca queda vacía.
+  // Las opciones se tocan en el marco (hit-test) o en los botones de abajo (accesibles): mismo camino.
+  const TAP_MUESTRA = new URL('./taps/ciencia-curiosa.json', import.meta.url);
+  const PREGUNTAS_RESERVA = Object.freeze([
+    { q: '¿Cuál de estos números es primo?', options: ['9', '7', '15', '21'], answer: 1, why: 'El 7 solo se divide por 1 y por sí mismo.' },
+    { q: '¿Cuántos lados tiene un hexágono?', options: ['5', '6', '7', '8'], answer: 1, why: 'Hexa- quiere decir seis.' },
+  ]);
+  const preguntaValida = q => q && typeof q.q === 'string' && q.q.length <= 120 && Array.isArray(q.options) && q.options.length === 4 && q.options.every(o => typeof o === 'string' && o.length <= 25) && Number.isInteger(q.answer) && q.answer >= 0 && q.answer < 4 && (!q.escena) && (q.tipo === undefined || q.tipo === 'clasica');
+  let tapMuestra = { titulo: 'Tap de muestra', kicker: 'Dos preguntas', backdrop: ['#1E1B4B', '#3B2F86'], preguntas: PREGUNTAS_RESERVA };
+  let tapPedido = false;
+  async function cargarTapMuestra() {
+    if (tapPedido) return; tapPedido = true;
+    try {
+      const t = await (await fetch(TAP_MUESTRA)).json();
+      const preguntas = (Array.isArray(t.questions) ? t.questions : []).filter(preguntaValida).slice(0, 2);
+      if (preguntas.length === 2) tapMuestra = { titulo: String(t.title || tapMuestra.titulo).slice(0, 40), kicker: String(t.kicker || '').slice(0, 30), backdrop: Array.isArray(t.backdrop) && t.backdrop.length === 2 ? t.backdrop : tapMuestra.backdrop, preguntas };
+    } catch { /* sin banco: quedan las de reserva */ }
+    pintarTap();
+  }
+  const FRASES_TAP = { bien: ['¡Eso es!', '¡Correcto! Así celebro.', 'Lo sabías.'], mal: ['Casi…', 'Uy, no.', 'La próxima sale.'] };
+  // Estado del juego: activo (se tocó «Probar»), índice de la pregunta, qué se respondió en la actual (null = nada), aciertos.
+  const juego = { activo: false, indice: 0, elegida: null, aciertos: 0, fin: false };
+  let zonasTap = [];                             // rectángulos de las opciones del último pintado (para tocar el marco)
+  const letraTap = i => 'ABCD'[i];
+  function preguntaActual() { return tapMuestra.preguntas[juego.indice]; }
   function reiniciarPregunta() {
-    const caja = $('muestraPregunta'); caja.classList.remove('jugando'); preguntaJugada = false;
+    const caja = $('muestraPregunta'); caja.classList.remove('jugando');
+    Object.assign(juego, { activo: false, indice: 0, elegida: null, aciertos: 0, fin: false });
     $('enunciado').hidden = true; $('veredicto').textContent = ''; $('veredicto').classList.remove('bien'); $('opciones').replaceChildren();
     $('probadoCuenta').hidden = true; $('probadoCuenta').replaceChildren();
+    pintarTap();
+  }
+  function construirOpcionesTap() {
+    const p = preguntaActual();
+    $('enunciado').hidden = false; $('enunciado').textContent = `${juego.indice + 1} de ${tapMuestra.preguntas.length}: ${p.q}`;
+    $('opciones').replaceChildren(...p.options.map((t, i) => {
+      const b = document.createElement('button'); b.type = 'button'; b.dataset.i = String(i); b.innerHTML = `<span class="letra">${letraTap(i)}</span>`; b.append(t);
+      b.onclick = () => responderTap(i); return b;
+    }));
+    $('veredicto').textContent = ''; $('veredicto').classList.remove('bien');
+  }
+  function responderTap(i) {
+    if (!juego.activo || juego.elegida !== null || juego.fin) return;
+    const p = preguntaActual(), ok = i === p.answer; juego.elegida = i; if (ok) juego.aciertos++;
+    for (const o of $('opciones').children) { o.disabled = true; const k = Number(o.dataset.i); o.classList.toggle('bien', k === p.answer); o.classList.toggle('mal', k === i && !ok); }
+    const v = $('veredicto'); v.textContent = (ok ? 'Acertaste. ' : `Era «${p.options[p.answer]}». `) + String(p.why || ''); v.classList.toggle('bien', ok);
+    animar(ok ? 'celebrate' : 'hurt', 1.6); decir(pick(ok ? FRASES_TAP.bien : FRASES_TAP.mal));
+    sonar(ok ? 'acierto' : 'fallo');                                     // los del feed: así sonará en un Tap de verdad
+    try { navigator.vibrate?.(ok ? 15 : [10, 40, 10]); } catch {}
+    const ultima = juego.indice >= tapMuestra.preguntas.length - 1;
+    const sig = document.createElement('button'); sig.type = 'button'; sig.className = 'siguiente'; sig.innerHTML = icono(ultima ? 'i-listo' : 'i-sig'); sig.append(ultima ? 'Ver el resultado' : 'Siguiente pregunta');
+    sig.onclick = () => { sonar('toque', { vol: GANANCIA_BAJA }); if (ultima) terminarTap(); else { juego.indice++; juego.elegida = null; construirOpcionesTap(); if (!reducido) animar('think', 1.2); pintarTap(); } };
+    $('opciones').append(sig);
+    pintarTap();
+    ctaProbado();                                                        // tras el primer veredicto: «Así lo verían tus estudiantes…» (§2)
+  }
+  function terminarTap() {
+    juego.fin = true;
+    const n = juego.aciertos, total = tapMuestra.preguntas.length;
+    const v = $('veredicto'); v.textContent = n === total ? `${n} de ${total}. Así termina un Tap: tu personaje celebra con quien lo jugó.` : `${n} de ${total}. Así termina un Tap: tu personaje anima a intentarlo otra vez.`; v.classList.toggle('bien', n === total);
+    $('enunciado').hidden = true;
+    const otra = document.createElement('button'); otra.type = 'button'; otra.innerHTML = icono('i-deshacer'); otra.append('Jugar otra vez'); otra.onclick = () => { reiniciarPregunta(); $('probar').click(); };
+    $('opciones').replaceChildren(otra);
+    animar(n ? 'celebrate' : 'talk', 1.6); if (!reducido) confetiLook(); sonar(n === total ? 'logro' : 'toque');
+    pintarTap();
   }
   $('probar').onclick = () => {
     contar('probar');
-    const caja = $('muestraPregunta'); caja.classList.add('jugando');
-    $('enunciado').hidden = false; $('enunciado').textContent = PREGUNTA_MUESTRA.texto;
-    $('opciones').replaceChildren(...PREGUNTA_MUESTRA.opciones.map(([t, ok], i) => {
-      const b = document.createElement('button'); b.type = 'button'; b.innerHTML = `<span class="letra">${'ABC'[i]}</span>`; b.append(t);
-      b.onclick = () => {
-        if (preguntaJugada) return; preguntaJugada = true;
-        for (const o of $('opciones').children) { o.disabled = true; o.classList.toggle('bien', PREGUNTA_MUESTRA.opciones[[...$('opciones').children].indexOf(o)][1]); }
-        if (!ok) b.classList.add('mal');
-        const v = $('veredicto'); v.textContent = ok ? 'Acertaste: así celebra tu personaje en un Tap.' : 'Era el 7: así reacciona tu personaje cuando alguien falla.'; v.classList.toggle('bien', ok);
-        animar(ok ? 'celebrate' : 'hurt', 1.6); decir(pick(ok ? PREGUNTA_MUESTRA.bien : PREGUNTA_MUESTRA.mal));
-        sonar(ok ? 'acierto' : 'fallo');                                   // los del feed: así sonará en un Tap de verdad
-        try { navigator.vibrate?.(ok ? 15 : [10, 40, 10]); } catch {}
-        const otra = document.createElement('button'); otra.type = 'button'; otra.textContent = 'Jugar otra vez'; otra.onclick = () => { reiniciarPregunta(); $('probar').click(); };
-        $('opciones').append(otra);
-        ctaProbado();                                                      // tras el veredicto: «Así lo verían tus estudiantes…» (§2)
-      };
-      return b;
-    }));
+    Object.assign(juego, { activo: true, indice: 0, elegida: null, aciertos: 0, fin: false });
+    $('muestraPregunta').classList.add('jugando'); construirOpcionesTap();
     if (!reducido) animar('think', 1.2); decir('A ver si sabes…'); sonar('toque', { vol: GANANCIA_BAJA });
+    pintarTap();
   };
+  // Tocar una opción dentro del marco: el mismo camino que los botones de abajo.
+  $('tapMini').addEventListener('click', e => {
+    if (!juego.activo || juego.elegida !== null || juego.fin) return;
+    const r = $('tapMini').getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    const z = zonasTap.find(z => x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h);
+    if (z) responderTap(z.i);
+  });
+  /** Parte `texto` en líneas que caben en `maxW` con la fuente actual de `g`; como mucho `max` líneas (la última con «…»). */
+  function lineasDe(g, texto, maxW, max) {
+    const palabras = String(texto).split(' '), lineas = []; let actual = '';
+    for (const p of palabras) { const prueba = actual ? actual + ' ' + p : p; if (g.measureText(prueba).width <= maxW || !actual) actual = prueba; else { lineas.push(actual); actual = p; } }
+    if (actual) lineas.push(actual);
+    if (lineas.length > max) { const corte = lineas.slice(0, max); let u = corte[max - 1]; while (u && g.measureText(u + '…').width > maxW) u = u.slice(0, -1).trimEnd(); corte[max - 1] = u + '…'; return corte; }
+    return lineas;
+  }
+  function redondo(g, x, y, w, h, r) { g.beginPath(); if (g.roundRect) g.roundRect(x, y, w, h, r); else g.rect(x, y, w, h); }   // navegadores sin roundRect: esquinas rectas, nada se rompe
+  /** Pinta el marco 9:16: escenario + personaje + lema arriba; pregunta y opciones abajo, con el estado del juego. */
+  function pintarTap() {
+    const c = $('tapMini'); if (!c) return;
+    const rect = c.getBoundingClientRect(); if (!rect.width) return;
+    const W = Math.round(rect.width), H = Math.round(rect.width * 16 / 9), r = Math.min(2, devicePixelRatio || 1);
+    if (c.width !== W * r || c.height !== H * r) { c.width = W * r; c.height = H * r; }
+    const g = c.getContext('2d'); g.setTransform(r, 0, 0, r, 0, 0); g.clearRect(0, 0, W, H);
+    g.font = '10px system-ui, sans-serif'; g.textBaseline = 'top';
+    // fondo del Tap: degradado del banco; escena del personaje en el 54 % de arriba, recortada
+    const grad = g.createLinearGradient(0, 0, 0, H); grad.addColorStop(0, tapMuestra.backdrop[0]); grad.addColorStop(1, tapMuestra.backdrop[1]); g.fillStyle = grad; g.fillRect(0, 0, W, H);
+    const ZH = H * 0.54;
+    g.save(); g.beginPath(); g.rect(0, 0, W, ZH); g.clip(); paintWorld(g, W, ZH, estado.world, {}, null, 1); g.restore();
+    const s = ZH * 0.62 / 372, pies = ZH * 0.95, cy = pies - 112 * s, L = lookOf({ look: estado.look });
+    g.fillStyle = 'rgba(8,7,16,.32)'; g.beginPath(); g.ellipse(W / 2, pies + 4 * s, 70 * s, 14 * s, 0, 0, Math.PI * 2); g.fill();
+    const poseTap = juego.fin ? poseFor(juego.aciertos ? 'celebrate' : 'talk', 0.5, 0) : juego.elegida !== null ? poseFor(juego.elegida === preguntaActual().answer ? 'celebrate' : 'hurt', 0.5, 0) : juego.activo ? poseFor('think', 0.5, 0) : poseFor('still');
+    drawHost(g, W / 2, cy, s, blendPose(null, poseTap, 1), L, { item: estado.item, T: 0 });
+    // cabecera: kicker y título del Tap, como en el feed
+    g.fillStyle = 'rgba(15,14,23,.55)'; redondo(g, 8, 8, W - 16, 26, 8); g.fill();
+    g.fillStyle = 'rgba(236,235,245,.75)'; g.font = '600 7px system-ui, sans-serif'; g.fillText(tapMuestra.kicker.toUpperCase(), 14, 12);
+    g.fillStyle = '#ecebf5'; g.font = '700 9px system-ui, sans-serif'; g.fillText(lineasDe(g, tapMuestra.titulo, W - 60, 1)[0] ?? '', 14, 21);
+    g.font = '600 8px system-ui, sans-serif'; g.fillStyle = 'rgba(236,235,245,.75)'; g.textAlign = 'right'; g.fillText(juego.activo && !juego.fin ? `${juego.indice + 1}/${tapMuestra.preguntas.length}` : `${tapMuestra.preguntas.length} preg.`, W - 14, 16); g.textAlign = 'left';
+    // bocadillo del personaje: lema (o saludo con el nombre); al responder, su reacción
+    const nombre = nombreActual(), lema = lemaActual();
+    const dicho = juego.fin ? (juego.aciertos ? '¡Lo lograste!' : '¡Otra vez!') : juego.elegida !== null ? (juego.elegida === preguntaActual().answer ? '¡Eso es!' : 'Casi…') : (lema || `Hola, soy ${nombre}`);
+    g.font = '600 9px system-ui, sans-serif';
+    const lineasB = lineasDe(g, dicho, W - 60, 2), bw = Math.min(W - 24, Math.max(...lineasB.map(l => g.measureText(l).width)) + 16), bh = 10 + lineasB.length * 12, bx = W / 2 - bw / 2, by = 42;
+    g.fillStyle = '#fff'; redondo(g, bx, by, bw, bh, 9); g.fill();
+    g.beginPath(); g.moveTo(W / 2 - 5, by + bh - 1); g.lineTo(W / 2, by + bh + 6); g.lineTo(W / 2 + 5, by + bh - 1); g.fill();
+    g.fillStyle = '#1a1726'; g.textAlign = 'center'; lineasB.forEach((l, i) => g.fillText(l, W / 2, by + 5 + i * 12)); g.textAlign = 'left';
+    // panel inferior: pregunta y 4 opciones (como el feed: letra en círculo, barra por opción)
+    const py = ZH, ph = H - ZH, pad = 10;
+    g.fillStyle = 'rgba(15,14,23,.78)'; redondo(g, 0, py - 10, W, ph + 10, 14); g.fill();
+    const p = preguntaActual(); g.fillStyle = '#ecebf5'; g.font = '700 10px system-ui, sans-serif';
+    const lq = lineasDe(g, p.q, W - pad * 2, 3); lq.forEach((l, i) => g.fillText(l, pad, py + 2 + i * 13));
+    zonasTap = [];
+    const oy = py + 6 + lq.length * 13, oh = 22, gap = 5, ow = W - pad * 2;
+    const altoDisponible = H - oy - 8, filas = Math.min(4, Math.floor((altoDisponible + gap) / (oh + gap)));
+    g.font = '600 9px system-ui, sans-serif';
+    p.options.slice(0, Math.max(0, filas)).forEach((t, i) => {
+      const y = oy + i * (oh + gap), bien = juego.elegida !== null && i === p.answer, mal = juego.elegida === i && i !== p.answer;
+      g.fillStyle = bien ? 'rgba(52,211,153,.22)' : mal ? 'rgba(243,160,160,.22)' : 'rgba(236,235,245,.1)'; redondo(g, pad, y, ow, oh, 8); g.fill();
+      g.strokeStyle = bien ? '#34d399' : mal ? '#f3a0a0' : 'rgba(236,235,245,.22)'; g.lineWidth = 1; redondo(g, pad + 0.5, y + 0.5, ow - 1, oh - 1, 8); g.stroke();
+      g.fillStyle = bien ? '#34d399' : 'rgba(236,235,245,.16)'; g.beginPath(); g.arc(pad + 12, y + oh / 2, 7, 0, Math.PI * 2); g.fill();
+      g.fillStyle = bien ? '#1a1408' : '#ecebf5'; g.textAlign = 'center'; g.fillText(letraTap(i), pad + 12, y + oh / 2 - 5); g.textAlign = 'left';
+      g.fillStyle = juego.elegida !== null && !bien && !mal ? 'rgba(236,235,245,.55)' : '#ecebf5'; g.fillText(lineasDe(g, t, ow - 34, 1)[0] ?? '', pad + 24, y + oh / 2 - 5);
+      zonasTap.push({ i, x: pad, y, w: ow, h: oh });
+    });
+    if (juego.fin) {     // resultado encima de las opciones
+      g.fillStyle = 'rgba(15,14,23,.9)'; redondo(g, pad, oy, ow, Math.max(oh, H - oy - 8), 10); g.fill();
+      g.fillStyle = '#ecebf5'; g.font = '700 13px system-ui, sans-serif'; g.textAlign = 'center'; g.fillText(`${juego.aciertos} de ${tapMuestra.preguntas.length}`, W / 2, oy + 10);
+      g.font = '600 9px system-ui, sans-serif'; g.fillStyle = 'rgba(236,235,245,.75)'; g.fillText(juego.aciertos === tapMuestra.preguntas.length ? 'Pleno' : 'Buen intento', W / 2, oy + 28); g.textAlign = 'left';
+      zonasTap = [];
+    } else if (!juego.activo) {     // pista: toca «Probar»
+      g.fillStyle = 'rgba(236,235,245,.6)'; g.font = '600 8px system-ui, sans-serif'; g.textAlign = 'center'; g.fillText('Toca «Probar» para jugarlo', W / 2, H - 14); g.textAlign = 'left';
+    }
+  }
   // «¿Te gustó hacerlo?»: una vez por dispositivo, tras guardar, descartable. Solo viaja si/meh; nada más.
   function ofrecerGusto() {
     if (almacen.leer(CLAVE_GUSTO)) return;
@@ -531,7 +646,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     clearTimeout(temporizadorGuardado);
     if (!almacen.disponible) return;
     // La miniatura (PNG de 72×96) va en el borrador para que /instituciones muestre «Tu personaje irá adjunto» sin pintar (PR-8).
-    borradorActual = { ...armarBorrador(estado, pantalla, borradorActual), miniatura: pngMiniatura() };
+    borradorActual = { ...armarBorrador(estado, pantalla, borradorActual, Date.now(), { lema: lemaActual() }), miniatura: pngMiniatura() };
     almacen.escribir(CLAVE_BORRADOR, serializarBorrador(borradorActual));
   }
   escuchar(document, 'visibilitychange', () => { if (document.hidden && temporizadorGuardado) guardarBorradorAhora(); });
@@ -542,13 +657,17 @@ export async function montarDisenador(raiz, opciones = {}) {
     if (ms) temporizadorEstado = esperar(() => { if (p.textContent === texto) { p.textContent = ''; p.classList.remove('bien'); } }, ms);
   }
   function nombreSugerido() { return SUGERIDO[estado.base] ?? 'Mi personaje'; }
-  function prepararGuardar() {                   // al entrar al paso 3: nombre sugerido, contador y lista
-    const i = $('nombre'); i.placeholder = nombreSugerido(); contarNombre();
+  function prepararGuardar() {                   // al entrar al paso 3: nombre sugerido, contadores, lista y marco del Tap
+    const i = $('nombre'); i.placeholder = nombreSugerido(); contarNombre(); contarLema();
     if (!almacen.disponible) { $('guardar').disabled = true; estadoGuardado(SIN_ALMACEN, false, 0); $('misLooks').hidden = true; }
-    pintarMisLooks();
+    pintarMisLooks(); pintarTap();
   }
   function contarNombre() { const n = Array.from($('nombre').value).length; $('restan').textContent = n ? `${n}/${MAX_NOMBRE}` : ''; }
-  $('nombre').addEventListener('input', () => { contarNombre(); const h = $('queHacerTitulo'); if (h) h.textContent = conNombre(COPY_HITOS.listo.titulo, nombreActual()); });
+  /** Lema del personaje (PR-D6): hasta MAX_LEMA caracteres; viaja en el enlace (`m`), en Mis looks y en el borrador, nunca en la solicitud. */
+  function lemaActual() { return Array.from($('lema').value.replace(/\s+/g, ' ').trim()).slice(0, MAX_LEMA).join(''); }
+  function contarLema() { const n = Array.from($('lema').value).length; $('restanLema').textContent = n ? `${n}/${MAX_LEMA}` : ''; }
+  $('nombre').addEventListener('input', () => { contarNombre(); const h = $('queHacerTitulo'); if (h) h.textContent = conNombre(COPY_HITOS.listo.titulo, nombreActual()); pintarTap(); });
+  $('lema').addEventListener('input', () => { contarLema(); pintarTap(); });
 
   function pngMiniatura() { try { return miniatura(estado.look, 72, 96, 1).toDataURL('image/png'); } catch { return ''; } }
   // ───────────────────────── partículas y transiciones (PR-D5, §4) ─────────────────────────
@@ -599,7 +718,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     ev.preventDefault();
     if (!almacen.disponible) { estadoGuardado(SIN_ALMACEN, false, 0); sonarError(); return; }
     const nombre = $('nombre').value.trim() || nombreSugerido();
-    const r = guardarLook(misLooks, estado, { nombre, miniatura: pngMiniatura() });
+    const r = guardarLook(misLooks, estado, { nombre, lema: lemaActual(), miniatura: pngMiniatura() });
     if (r.lleno) { estadoGuardado(`Ya tienes ${MAX_LOOKS} looks guardados, el máximo. Borra uno de «Mis looks» y vuelve a guardar.`, false, 8000); sonarError(); $('misLooks').scrollIntoView({ behavior: reducido ? 'auto' : 'smooth', block: 'start' }); return; }
     if (!almacen.escribir(CLAVE_LOOKS, serializarLooks(r.lista))) { estadoGuardado('No se pudo guardar: el almacenamiento de este navegador está lleno o bloqueado. Descarga su archivo desde «Más» o copia el enlace.', false, 8000); sonarError(); return; }
     misLooks = r.lista; lookCargado = r.look.id; $('nombre').value = ''; contarNombre();
@@ -613,6 +732,7 @@ export async function montarDisenador(raiz, opciones = {}) {
   }
   function cargarLook(l) {
     cambiar('cargar', () => { estado.base = l.base; estado.look = { ...l.look }; estado.item = l.item; estado.world = l.world; });
+    $('lema').value = l.lema || '';
     lookCargado = l.id; fondoSucio = true; if (!reducido) entrada = 1; pintar(); construirAjustes(); refrescarJson(); prepararGuardar();
     $('paso').scrollTo({ top: 0, behavior: reducido ? 'auto' : 'smooth' });
     chipHito('vuelve', conNombre(COPY_HITOS.vuelve.texto, l.nombre));       // volvió por un look guardado (§2)
@@ -654,7 +774,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     const p = $('estadoCompartir'); p.textContent = texto; p.classList.toggle('bien', bien); clearTimeout(temporizadorCompartir);
     if (ms) temporizadorCompartir = esperar(() => { if (p.textContent === texto) { p.textContent = ''; p.classList.remove('bien'); } }, ms);
   }
-  function enlaceActual() { return enlaceDeLook(location.href, estado, $('nombre').value.trim()); }
+  function enlaceActual() { return enlaceDeLook(location.href, estado, $('nombre').value.trim(), lemaActual()); }
   function mostrarEnlace(url) { $('compartir').classList.add('mostrarEnlace'); const i = $('enlaceTexto'); i.value = url; i.focus(); i.select(); }
   $('enlaceSeleccionar').onclick = () => { const i = $('enlaceTexto'); i.focus(); i.select(); try { i.setSelectionRange(0, i.value.length); } catch {} };
   async function copiarTexto(texto) { try { await navigator.clipboard.writeText(texto); return true; } catch { return false; } }
@@ -672,7 +792,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     contar('compartir/json');
     const nombre = $('nombre').value.trim() || nombreSugerido(), archivo = 'personaje-' + nombre.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.json';
     try {
-      const blob = new Blob([exportarJson(estado, $('nombre').value.trim())], { type: 'application/json' }), url = URL.createObjectURL(blob);
+      const blob = new Blob([exportarJson(estado, $('nombre').value.trim(), lemaActual())], { type: 'application/json' }), url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href = url; a.download = archivo; document.body.append(a); a.click(); a.remove(); esperar(() => URL.revokeObjectURL(url), 2000);
       aviso(`Archivo «${archivo}» listo.`); sonar('racha', { nivel: 1 });
     } catch { aviso('No se pudo crear el archivo. Prueba con «Copiar enlace».'); sonarError(); }
@@ -683,6 +803,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     if (!r.ok) { contar('error/look-invalido'); aviso(r.motivo, 7000); sonarError(); return; }
     cambiar('cargar', () => Object.assign(estado, r.estado)); lookCargado = null; fondoSucio = true; if (!reducido) entrada = 1; pintar(); construirAjustes(); refrescarJson(); prepararGuardar();
     if (r.nombre) { $('nombre').value = r.nombre; contarNombre(); }
+    if (r.lema) { $('lema').value = r.lema; contarLema(); pintarTap(); }
     $('pegarImportar').value = ''; aviso('Personaje importado. Ya está en la vista; puedes ajustarlo o guardarlo.');
     $('paso').scrollTo({ top: 0, behavior: reducido ? 'auto' : 'smooth' });
   }
@@ -712,11 +833,12 @@ export async function montarDisenador(raiz, opciones = {}) {
       cerrar(); borradorActual = null; historial.length = 0; $('deshacer').disabled = true;
       Object.assign(estado, { base: r.estado.base, look: { ...r.estado.look }, item: r.estado.item, world: r.estado.world });
       if (r.nombre) { $('nombre').value = r.nombre; contarNombre(); }
-      fondoSucio = true; escenasSucias = true; marcarPreset(); irA(1); pintar(); decir(r.nombre ? frases.saludo(r.nombre) : frases.frase('cargar', estado.base)); if (!reducido) animar('celebrate', 1.2);
+      $('lema').value = r.lema || ''; contarLema();
+      fondoSucio = true; escenasSucias = true; marcarPreset(); irA(1); pintar(); decir(r.lema || (r.nombre ? frases.saludo(r.nombre) : frases.frase('cargar', estado.base))); if (!reducido) animar('celebrate', 1.2);
       programarAutoguardado();
     };
     $('recibidoGuardar').onclick = () => {
-      const g = guardarLook(misLooks, r.estado, { nombre: r.nombre || quien, miniatura: (() => { try { return miniatura(r.estado.look, 72, 96, 1).toDataURL('image/png'); } catch { return ''; } })() });
+      const g = guardarLook(misLooks, r.estado, { nombre: r.nombre || quien, lema: r.lema, miniatura: (() => { try { return miniatura(r.estado.look, 72, 96, 1).toDataURL('image/png'); } catch { return ''; } })() });
       if (g.lleno) { $('recibidoEstado').textContent = `Ya tienes ${MAX_LOOKS} looks guardados, el máximo. Pruébalo y borra uno de «Mis looks» para guardarlo.`; return; }
       if (!almacen.escribir(CLAVE_LOOKS, serializarLooks(g.lista))) { $('recibidoEstado').textContent = 'No se pudo guardar en este navegador. Pruébalo y descarga su archivo desde «Más».'; return; }
       misLooks = g.lista; cerrar(); estadoGuardado(`«${g.look.nombre}» está en Mis looks.`, true, 6000); pintarMisLooks();
@@ -746,6 +868,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     $('continuarSi').onclick = () => {
       $('continuar').hidden = true;
       Object.assign(estado, { base: b.base, look: { ...b.look }, item: b.item, world: b.world });
+      $('lema').value = b.lema || ''; contarLema();
       fondoSucio = true; escenasSucias = true; marcarPreset(); irA(b.paso); pintar(); decir(frases.frase('cargar', estado.base)); if (!reducido) animar('celebrate', 1.2);
       chipHito('vuelve', conNombre(COPY_HITOS.vuelve.texto, nombre));         // segunda visita (§2); si el paso ya enseñó otro aviso, este espera
     };

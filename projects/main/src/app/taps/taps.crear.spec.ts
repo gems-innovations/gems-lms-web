@@ -117,6 +117,13 @@ describe('armarAdjunto', () => {
     expect(a.json).not.toContain('[gems-borrador');
     expect(a.miniatura).toBe('data:image/png;base64,AAAA');
   });
+  it('el lema del borrador (PR-D6) no viaja en el adjunto: el API solo acepta v, borradorId, b, l, i, w', () => {
+    const a = armarAdjunto(borrador({ lema: 'Hoy aprendemos algo nuevo' }), ID, validar)!;
+    expect(a).not.toBeNull();
+    expect(Object.keys(a.adjunto).sort()).toEqual(['b', 'borradorId', 'i', 'l', 'v', 'w']);
+    expect(a.json).not.toContain('lema'); expect(a.json).not.toContain('"m"'); expect(a.json).not.toContain('Hoy aprendemos');
+    expect(a.adjunto.v).toBe(1);
+  });
   it('sin borrador, con otro id, JSON roto o look inválido → null (el formulario sigue normal)', () => {
     expect(armarAdjunto(null, ID, validar)).toBeNull();
     expect(armarAdjunto(borrador(), null, validar)).toBeNull();

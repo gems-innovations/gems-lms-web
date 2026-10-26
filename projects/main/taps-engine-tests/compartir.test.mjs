@@ -5,7 +5,8 @@ import assert from 'node:assert/strict';
 import { ITEMS, lookOf, validarLook } from '../public/taps-engine/themes/epoca/rig.js';
 import { WORLD_NAMES } from '../public/taps-engine/themes/epoca/scenery.js';
 import {
-  MAX_HASH, MAX_NOMBRE, aBase64url, codificarLook, deBase64url, decodificarLook, enlaceDeLook, exportarJson, importarJson, lookDesdeHash, normalizarLook,
+  MAX_HASH, MAX_LEMA, MAX_NOMBRE, VERSION, VERSIONES_LEIDAS, aBase64url, codificarLook, compactar, deBase64url, decodificarLook, enlaceDeLook, exportarJson, importarJson,
+  lookDesdeHash, normalizarLook,
 } from '../public/taps-engine/themes/epoca/compartir.js';
 
 const OPC = { items: Object.keys(ITEMS), mundos: [...WORLD_NAMES] };
@@ -73,7 +74,7 @@ test('compartir: campos desconocidos se descartan (look y raíz), objeto o escen
   assert.equal(r.ok, true);
   assert.ok(!('inventado' in r.estado.look) && !('otro' in r.estado.look)); assert.equal(validarLook(r.estado.look).length, 0);
   assert.deepEqual(Object.keys(r.estado).sort(), ['base', 'item', 'look', 'world']);
-  assert.deepEqual(Object.keys(r).sort(), ['estado', 'nombre', 'ok']);
+  assert.deepEqual(Object.keys(r).sort(), ['estado', 'lema', 'nombre', 'ok']);
   const raro = dec(aBase64url(JSON.stringify({ ...o, i: 'espada', w: 'marte', b: 7 })));
   assert.equal(raro.estado.item, null, 'objeto desconocido → nada'); assert.equal(raro.estado.world, WORLD_NAMES[0]); assert.equal(raro.estado.base, 'sorpresa');
 });
@@ -84,4 +85,40 @@ test('compartir: el nombre se recorta a 20 y se limpia; si no es texto, va vací
   assert.equal(dec(aBase64url(JSON.stringify({ l: lookOf({}), w: 'foro-roma', n: 'ñ'.repeat(40) }))).nombre, 'ñ'.repeat(20));
   assert.equal(dec(aBase64url(JSON.stringify({ l: lookOf({}), w: 'foro-roma', n: 12 }))).nombre, '');
   assert.equal(dec(codificarLook(estado())).nombre, '');
+});
+
+// PR-D6: el enlace pasa a v2 (gana `m`, el lema) y DEBE seguir leyendo los v1 ya compartidos.
+test('compartir (PR-D6): se escribe v2; sin lema no hay `m`; el lema viaja en `m`, recortado a 40, y vuelve igual', () => {
+  assert.equal(VERSION, 2); assert.deepEqual([...VERSIONES_LEIDAS], [1, 2]);
+  const c = compactar(estado(), 'Tomás');
+  assert.equal(c.v, 2); assert.ok(!('m' in c), 'sin lema no viaja `m`'); assert.ok(!('lema' in c));
+  const url = enlaceDeLook('https://gems.example/crear', estado(), 'Tomás', '  Hoy   aprendemos algo nuevo  ');
+  const r = lookDesdeHash(new URL(url).hash, validarLook, OPC);
+  assert.equal(r.ok, true); assert.equal(r.nombre, 'Tomás'); assert.equal(r.lema, 'Hoy aprendemos algo nuevo');
+  assert.equal(JSON.parse(deBase64url(url.split('#look=')[1])).m, 'Hoy aprendemos algo nuevo');
+  const largo = dec(codificarLook(estado(), '', 'x'.repeat(60))); assert.equal(Array.from(largo.lema).length, MAX_LEMA); assert.equal(MAX_LEMA, 40);
+  assert.equal(dec(codificarLook(estado(), '', 'ñ'.repeat(45))).lema, 'ñ'.repeat(40), 'puntos de código, no bytes');
+  assert.equal(dec(codificarLook(estado())).lema, '', 'sin lema vuelve vacío, nunca undefined');
+  const txt = exportarJson(estado(), 'Marta', 'Ciencia con calma'); const o = JSON.parse(txt);
+  assert.equal(o.v, 2); assert.equal(o.lema, 'Ciencia con calma'); assert.ok(!('m' in o), 'el archivo usa claves largas');
+  assert.equal(importarJson(txt, validarLook, OPC).lema, 'Ciencia con calma');
+  assert.ok(!('lema' in JSON.parse(exportarJson(estado(), 'Marta'))), 'sin lema el archivo no trae la clave');
+  assert.ok(url.length < MAX_HASH / 2, 'sigue siendo corto: ' + url.length);
+});
+
+test('compartir (PR-D6): un enlace v1 (sin `m`) se lee igual que antes, con lema vacío; `m` raro no rompe', () => {
+  const e = estado();
+  const v1 = aBase64url(JSON.stringify({ v: 1, b: e.base, l: { ...e.look, vest: undefined }, i: e.item, w: e.world, n: 'Tomás' }));
+  const r = dec(v1);
+  assert.equal(r.ok, true); assert.equal(r.nombre, 'Tomás'); assert.equal(r.lema, ''); assert.equal(r.estado.base, 'grabador'); assert.equal(r.estado.item, 'pluma');
+  const esperado = { ...e.look }; delete esperado.vest; assert.deepEqual(r.estado.look, esperado);
+  // v1 → (re)codificar → v2 → decodificar: el mismo personaje, ahora con lema; y v2 sin lema vuelve a leerse como v1.
+  const v2 = codificarLook(r.estado, r.nombre, 'Nuevo lema'); const o2 = JSON.parse(deBase64url(v2));
+  assert.equal(o2.v, 2); assert.equal(o2.m, 'Nuevo lema'); assert.deepEqual(o2.l, esperado);
+  const r2 = dec(v2); assert.deepEqual(r2.estado, r.estado); assert.equal(r2.lema, 'Nuevo lema'); assert.equal(r2.nombre, 'Tomás');
+  // sin `v`, con `v` futuro o con `m` que no es texto: se leen los campos conocidos y el lema va vacío
+  assert.equal(dec(aBase64url(JSON.stringify({ l: lookOf({}), w: 'foro-roma' }))).ok, true);
+  assert.equal(dec(aBase64url(JSON.stringify({ v: 3, l: lookOf({}), w: 'foro-roma', m: 'x' }))).lema, 'x');
+  for (const m of [12, null, { a: 1 }, ['x'], true]) assert.equal(dec(aBase64url(JSON.stringify({ v: 2, l: lookOf({}), w: 'foro-roma', m }))).lema, '', JSON.stringify(m));
+  assert.equal(dec(aBase64url(JSON.stringify({ v: 2, l: lookOf({}), w: 'foro-roma', lema: 'clave larga' }))).lema, 'clave larga', 'también la clave larga (archivos)');
 });

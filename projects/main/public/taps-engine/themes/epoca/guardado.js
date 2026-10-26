@@ -7,18 +7,24 @@ export const CLAVE_BORRADOR = 'taps.disenador.borrador';
 export const CLAVE_LOOKS = 'taps.disenador.looks';
 export const MAX_LOOKS = 12;
 export const MAX_NOMBRE = 20;
+/** Lema del personaje (PR-D6, disenador-v2-plan.md §5): lo dice al aparecer en un Tap. Opcional; viaja en el enlace (`m`), en Mis looks y en el borrador. */
+export const MAX_LEMA = 40;
 
 /** Identificador estable y legible (se usa como `borradorId` al importar el borrador a una cuenta, PR-8/PR-9). */
 export function nuevoId(aleatorio = Math.random, ahora = Date.now()) {
   return ahora.toString(36) + '-' + Math.floor(aleatorio() * 0xffffffff).toString(36).padStart(7, '0');
 }
 
-/** Recorta el nombre a MAX_NOMBRE caracteres (por puntos de código, no por bytes), sin espacios sobrantes ni saltos. */
-export function recortarNombre(nombre, porDefecto = '') {
-  const limpio = String(nombre ?? '').replace(/\s+/g, ' ').trim();
+/** Recorta un texto a `max` puntos de código (no bytes), sin espacios sobrantes ni saltos; vacío → `porDefecto`. */
+function recortar(texto, max, porDefecto) {
+  const limpio = String(texto ?? '').replace(/\s+/g, ' ').trim();
   const puntos = Array.from(limpio);
-  return (puntos.length > MAX_NOMBRE ? puntos.slice(0, MAX_NOMBRE).join('').trim() : limpio) || porDefecto;
+  return (puntos.length > max ? puntos.slice(0, max).join('').trim() : limpio) || porDefecto;
 }
+/** Recorta el nombre a MAX_NOMBRE caracteres (por puntos de código, no por bytes), sin espacios sobrantes ni saltos. */
+export function recortarNombre(nombre, porDefecto = '') { return recortar(nombre, MAX_NOMBRE, porDefecto); }
+/** Recorta el lema a MAX_LEMA caracteres; si no es texto o está vacío, queda ''. */
+export function recortarLema(lema) { return typeof lema === 'string' ? recortar(lema, MAX_LEMA, '') : ''; }
 
 /**
  * Envuelve un almacén tipo Storage. `leer`/`escribir`/`quitar` nunca lanzan; `disponible` dice si el almacén
@@ -45,18 +51,21 @@ function estadoValido(e, validar) {
 function copiarEstado(e) { return { base: e.base, look: { ...e.look }, item: e.item ?? null, world: e.world }; }
 
 // ───────────────────────── borrador ─────────────────────────
-/** Devuelve el borrador listo para serializar; conserva el `borradorId` si ya había uno. */
-export function armarBorrador(estado, paso, anterior, ahora = Date.now()) {
-  return { v: 1, borradorId: anterior?.borradorId || nuevoId(Math.random, ahora), paso: Math.max(0, Math.min(3, paso | 0)), fecha: ahora, ...copiarEstado(estado) };
+/**
+ * Devuelve el borrador listo para serializar; conserva el `borradorId` si ya había uno. `extras.lema` (PR-D6) se guarda recortado;
+ * el adjunto de la solicitud de /instituciones (taps.crear.ts armarAdjunto) NO lo copia: el API solo acepta v, borradorId, b, l, i, w.
+ */
+export function armarBorrador(estado, paso, anterior, ahora = Date.now(), { lema = '' } = {}) {
+  return { v: 1, borradorId: anterior?.borradorId || nuevoId(Math.random, ahora), paso: Math.max(0, Math.min(3, paso | 0)), fecha: ahora, lema: recortarLema(lema), ...copiarEstado(estado) };
 }
 
-/** Lee el borrador guardado; null si no hay, si el JSON está roto o si el look ya no es válido. Conserva la miniatura PNG si trae una (PR-8). */
+/** Lee el borrador guardado; null si no hay, si el JSON está roto o si el look ya no es válido. Conserva la miniatura PNG si trae una (PR-8) y el lema (PR-D6). */
 export function parsearBorrador(raw, validar) {
   if (!raw) return null;
   let b; try { b = JSON.parse(raw); } catch { return null; }
   if (!estadoValido(b, validar) || typeof b.borradorId !== 'string') return null;
   const miniatura = typeof b.miniatura === 'string' && b.miniatura.startsWith('data:image/') ? b.miniatura : '';
-  return { borradorId: b.borradorId, paso: Math.max(0, Math.min(3, b.paso | 0)), fecha: +b.fecha || 0, miniatura, ...copiarEstado(b) };
+  return { borradorId: b.borradorId, paso: Math.max(0, Math.min(3, b.paso | 0)), fecha: +b.fecha || 0, miniatura, lema: recortarLema(b.lema), ...copiarEstado(b) };
 }
 
 // ───────────────────────── mis looks ─────────────────────────
@@ -69,7 +78,7 @@ export function parsearLooks(raw, validar) {
   for (const l of lista) {
     if (!estadoValido(l, validar) || typeof l.id !== 'string' || vistos.has(l.id)) continue;
     vistos.add(l.id);
-    buenos.push({ id: l.id, nombre: recortarNombre(l.nombre, 'Sin nombre'), fecha: +l.fecha || 0, miniatura: typeof l.miniatura === 'string' && l.miniatura.startsWith('data:image/') ? l.miniatura : '', ...copiarEstado(l) });
+    buenos.push({ id: l.id, nombre: recortarNombre(l.nombre, 'Sin nombre'), lema: recortarLema(l.lema), fecha: +l.fecha || 0, miniatura: typeof l.miniatura === 'string' && l.miniatura.startsWith('data:image/') ? l.miniatura : '', ...copiarEstado(l) });
     if (buenos.length >= MAX_LOOKS) break;
   }
   return buenos;
@@ -82,9 +91,9 @@ export function serializarBorrador(b) { return JSON.stringify(b); }
  * Añade un look al principio. Si la lista ya tiene MAX_LOOKS, no guarda y devuelve `lleno: true`
  * (la interfaz pide borrar uno; nada de bloqueos como anzuelo). Devuelve también el look guardado.
  */
-export function guardarLook(lista, estado, { nombre, miniatura = '', ahora = Date.now(), id = nuevoId(Math.random, ahora) } = {}) {
+export function guardarLook(lista, estado, { nombre, lema = '', miniatura = '', ahora = Date.now(), id = nuevoId(Math.random, ahora) } = {}) {
   if (lista.length >= MAX_LOOKS) return { lista, lleno: true, look: null };
-  const look = { id, nombre: recortarNombre(nombre, 'Sin nombre'), fecha: ahora, miniatura: String(miniatura || ''), ...copiarEstado(estado) };
+  const look = { id, nombre: recortarNombre(nombre, 'Sin nombre'), lema: recortarLema(lema), fecha: ahora, miniatura: String(miniatura || ''), ...copiarEstado(estado) };
   return { lista: [look, ...lista], lleno: false, look };
 }
 
