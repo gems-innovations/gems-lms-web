@@ -39,6 +39,7 @@ const PATRONES = [
   new RegExp(`^hito-cuenta/(visto|entendido|abrir)/${HITO}$`),               // aviso de cuenta en ese hito: enseñado, cerrado o abrió la hoja
   /^error\/(carga|look-invalido)$/,
   /^invertido\/5$/,                                                          // 5 cambios o 60 s con cambios (PR-D3, §2): la barra «Tu personaje» se rellena; una vez por sesión
+  new RegExp(`^encuadre/${PESTANA}$`),                                       // la cámara acercó a esa pestaña (PR-D4, §4)
 ];
 
 /** Quita el prefijo si viene puesto; devuelve el nombre corto (`preset/grabador`) o null si no es de la lista. */

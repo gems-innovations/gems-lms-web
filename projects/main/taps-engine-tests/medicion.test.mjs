@@ -18,7 +18,7 @@ test('medición: acepta exactamente la taxonomía del plan (§4) y rechaza lo de
     'abrir/enlace', 'abrir/continuar', 'abrir/directo', 'preset/grabador', 'preset/arqueologa', 'cambio/cara', 'cambio/objeto',
     'sorprendeme/ropa', 'sorprendeme/todo', 'sorprendeme/escenario', 'deshacer', 'paso/escenario', 'paso/listo', 'probar', 'listo',
     'compartir/enlace', 'compartir/json', 'gusto/si', 'gusto/meh', 'abandono/personaje/40', 'abandono/partida/0', 'abandono/listo/3600',
-    'fps-bajo', 'error/carga', 'error/look-invalido',
+    'fps-bajo', 'error/carga', 'error/look-invalido', 'encuadre/cara', 'encuadre/objeto',
   ];
   for (const b of buenos) { assert.equal(nombreValido(b), b, b); assert.equal(nombreValido(PREFIJO + b), b, 'con prefijo: ' + b); }
   const malos = [

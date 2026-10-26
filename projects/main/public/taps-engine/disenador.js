@@ -13,6 +13,8 @@ import { CLAVE_BORRADOR, CLAVE_LOOKS, MAX_LOOKS, MAX_NOMBRE, armarBorrador, borr
 import { enlaceDeLook, exportarJson, importarJson, lookDesdeHash } from './themes/epoca/compartir.js';
 import { PREFIJO, crearMedidor, esAutomatico, esInterno, nombreAbandono, nombreValido, paraGoatCounter } from './themes/epoca/medicion.js';
 import { COPY_HITOS, ENTENDIDO, PUBLICAR, QUE_ES, conNombre, crearHitos, esEstudiante } from './themes/epoca/hitos.js';
+import { CAMARA_MS, QUIETA_REACCION, REACCIONES, encuadreDe, focoDe, mezclarCamara, reaccionDe } from './themes/epoca/reacciones.js';
+import { crearFrases } from './themes/epoca/frases.js';
 // La versión (?v=) va en los imports del audio: si cambia efectos.js, una caché vieja no mezcla versiones (como en sonido.js).
 import { crearSonido } from './audio/sonido.js?v=3';
 import { luminancia } from './audio/efectos.js?v=3';
@@ -128,12 +130,9 @@ export async function montarDisenador(raiz, opciones = {}) {
   const MUNDO_DE = { grabador: 'taller-londres', arqueologa: 'excavacion-egipto', senador: 'foro-roma', escriba: 'excavacion-egipto', artesano: 'sala-medieval', investigadora: 'laboratorio-moderno', periodista: 'laboratorio-moderno' };
   const OBJETO_DE = { grabador: 'pluma', arqueologa: 'cepillo', senador: 'pergamino', escriba: 'pergamino', artesano: 'antorcha', investigadora: 'lupa', periodista: 'libro' };
   const paleta = campo => campo === 'coat' ? (PALETAS.coat[estado.look.outfit] || PALETAS.coat.levita) : PALETAS[campo];
-  const FRASES = {
-    preset: n => `¡Hola! Soy ${n}.`, hat: ['¿Me queda bien?', 'Buen sombrero.'], hair: ['Nuevo peinado.', '¿Qué tal así?'], outfit: ['¡Mira este cambio!', 'Me gusta esta ropa.'],
-    color: ['Buen color.', 'Combina bien.'], face: ['Esta es mi cara.', '¿Me reconoces?'], item: ['Lo llevo en la mano.', '¿Y esto?'], world: ['Aquí me siento en casa.', 'Buen lugar.'],
-    sorpresa: ['¡Sorpresa!', 'A ver qué tal.'], deshacer: ['Como antes.'], sugerencia: ['Buena idea.', 'Así va mejor.'],
-    guardar: ['¡Guardado!', 'Aquí me quedo.'], cargar: ['¡Aquí estoy otra vez!', 'Me acordaba de ti.'],
-  };
+  // Frases (themes/epoca/frases.js, PR-D4): seis por tipo, en la voz del punto de partida y sin repetir las tres últimas.
+  const frases = crearFrases();
+  // Reacciones de rig.js para lo que no tiene una propia; las de pieza (sombrero, peinado, prenda, color, objeto, gafas, barba) salen de reaccionDe().
   const REACCION = { preset: ['celebrate', 1.3], hat: ['talk', 1], hair: ['talk', 1], outfit: ['dance', 1.1], color: ['talk', 0.8], face: ['talk', 0.8], item: ['think', 1], world: ['talk', 1], sorpresa: ['dance', 1.2], deshacer: ['think', 0.8], sugerencia: ['celebrate', 1], guardar: ['celebrate', 1.4], cargar: ['celebrate', 1.2] };
   // nombre sugerido según el punto de partida (editable, nunca obligatorio)
   const SUGERIDO = { grabador: 'Tomás', arqueologa: 'Capitana Inés', senador: 'Lucio', escriba: 'Nefer', artesano: 'Beltrán', investigadora: 'Marta', periodista: 'Álvaro', sorpresa: 'Mi personaje' };
@@ -151,7 +150,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     aplicar();
     if (estado.look.vest === undefined) estado.look.vest = null;
     $('deshacer').disabled = false;
-    reaccionar(tipo); sonarCambio(tipo, detalle);
+    reaccionar(tipo, detalle); sonarCambio(tipo, detalle);
     fondoSucio = fondoSucio || tipo === 'world';
     escenasSucias = true;                        // las miniaturas del paso 2 llevan al personaje: se repintan al volver a verlas
     if (tipo === 'world' && !reducido) entrada = 1;
@@ -203,7 +202,7 @@ export async function montarDisenador(raiz, opciones = {}) {
   function ponerPreset(id) {
     const c = theme.characters[id];
     cambiar('preset', () => { estado.base = id; estado.look = lookOf(c); estado.item = OBJETO_DE[id] ?? null; estado.world = MUNDO_DE[id] ?? theme.defaultWorld; });
-    decir(FRASES.preset(c.name)); fondoSucio = true; construirAjustes();
+    decir(frases.saludo(c.name)); fondoSucio = true; construirAjustes();
     contar('preset/' + id);
   }
   function aplicarResultado(r) { estado.look = r.look; estado.item = r.item; estado.world = r.world; }
@@ -254,7 +253,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     if (pantalla === 1) construirAjustes();
     if (pantalla === 2) construirEscenas();
     if (pantalla === 3) { refrescarJson(); prepararGuardar(); reiniciarPregunta(); if (!reducido) reaccionar('preset'); }
-    refrescarSugerencia();
+    encuadrar(); refrescarSugerencia();
     programarAutoguardado();
     // Hitos de cuenta (§2): al entrar al escenario, un chip bajo la vista; en Listo, el bloque «Lo que puedes hacer con X».
     if (pantalla === 2 && historial.length) chipHito('navegador', COPY_HITOS.navegador.texto);
@@ -297,7 +296,7 @@ export async function montarDisenador(raiz, opciones = {}) {
   // Pestañas accesibles (role=tablist + flechas, Inicio y Fin; foco itinerante: solo la activa entra con Tab).
   function elegirPestana(id, enfocar = false) {
     if (pestana !== id) sonar('toque', { vol: GANANCIA_BAJA });
-    pestana = id; construirAjustes();
+    pestana = id; construirAjustes(); encuadrar();
     if (enfocar) raiz.querySelector(`#pestanas [data-id="${id}"]`)?.focus();
   }
   function construirPestanas() {
@@ -348,7 +347,7 @@ export async function montarDisenador(raiz, opciones = {}) {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.campo = campo; b.dataset.v = String(v);
       if (CON_MINIATURA.has(campo)) { try { b.append(miniaturaPieza(campo, v)); } catch { /* sin canvas: solo texto */ } }
       b.append(Object.assign(document.createElement('span'), { textContent: nombres[v] ?? v }));
-      b.onclick = () => cambiar(tipo, () => { if (campo === 'item') estado.item = v === 'none' ? null : v; else estado.look[campo] = v; }, { indice: valores.indexOf(v), total: valores.length });
+      b.onclick = () => cambiar(tipo, () => { if (campo === 'item') estado.item = v === 'none' ? null : v; else estado.look[campo] = v; }, { indice: valores.indexOf(v), total: valores.length, campo });
       w.append(b);
     }
     return w;
@@ -357,7 +356,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     const w = document.createElement('div'); w.className = 'chips';
     for (const [v, t] of [[false, 'Sin ' + textoSi], [true, 'Con ' + textoSi]]) {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.campo = campo; b.dataset.v = String(v); b.textContent = t;
-      b.onclick = () => cambiar(tipo, () => { estado.look[campo] = campo === 'vest' ? (v ? (PALETAS.vest[0]) : null) : v; }, { indice: v ? 1 : 0, total: 2 }); w.append(b);
+      b.onclick = () => cambiar(tipo, () => { estado.look[campo] = campo === 'vest' ? (v ? (PALETAS.vest[0]) : null) : v; }, { indice: v ? 1 : 0, total: 2, campo }); w.append(b);
     }
     return w;
   }
@@ -376,7 +375,7 @@ export async function montarDisenador(raiz, opciones = {}) {
   }
   let arrastreColor = 0;
   function ponerColor(campo, col, tipo) {
-    cambiar(tipo, () => { estado.look[campo] = col; if (campo === 'skin') estado.look.skinShade = sombra(col); if (campo === 'coat') estado.look.coatShade = sombra(col); }, { color: col });
+    cambiar(tipo, () => { estado.look[campo] = col; if (campo === 'skin') estado.look.skinShade = sombra(col); if (campo === 'coat') estado.look.coatShade = sombra(col); }, { color: col, campo });
   }
   function construirAjustes() {
     if (pantalla !== 1) return;
@@ -670,7 +669,7 @@ export async function montarDisenador(raiz, opciones = {}) {
       cerrar(); borradorActual = null; historial.length = 0; $('deshacer').disabled = true;
       Object.assign(estado, { base: r.estado.base, look: { ...r.estado.look }, item: r.estado.item, world: r.estado.world });
       if (r.nombre) { $('nombre').value = r.nombre; contarNombre(); }
-      fondoSucio = true; escenasSucias = true; marcarPreset(); irA(1); pintar(); decir(r.nombre ? `¡Hola! Soy ${r.nombre}.` : FRASES.cargar[0]); if (!reducido) animar('celebrate', 1.2);
+      fondoSucio = true; escenasSucias = true; marcarPreset(); irA(1); pintar(); decir(r.nombre ? frases.saludo(r.nombre) : frases.frase('cargar', estado.base)); if (!reducido) animar('celebrate', 1.2);
       programarAutoguardado();
     };
     $('recibidoGuardar').onclick = () => {
@@ -680,7 +679,7 @@ export async function montarDisenador(raiz, opciones = {}) {
       misLooks = g.lista; cerrar(); estadoGuardado(`«${g.look.nombre}» está en Mis looks.`, true, 6000); pintarMisLooks();
       if (!ofrecerContinuar()) { irA(3); if (!reducido) animar('celebrate', 1.2); }
     };
-    $('recibidoNo').onclick = () => { cerrar(); if (!ofrecerContinuar()) { if (!reducido) animar('celebrate', 1.2); decir(FRASES.preset(theme.characters.grabador.name)); } };
+    $('recibidoNo').onclick = () => { cerrar(); if (!ofrecerContinuar()) { if (!reducido) animar('celebrate', 1.2); decir(frases.saludo(theme.characters.grabador.name)); } };
     return true;
   }
   // Enlace roto: el personaje pone cara de «uy» en la vista y, sobre las tarjetas, una línea con «Hacer el mío» (vuelve al diseñador normal).
@@ -690,7 +689,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     const caja = document.createElement('div'); caja.className = 'aviso-enlace'; caja.id = 'avisoEnlace'; caja.setAttribute('role', 'status');
     const p = document.createElement('p'); p.className = 'texto'; p.textContent = `${motivo} Pídele a quien te lo mandó que lo copie otra vez, o haz tu propio personaje aquí.`;
     const b = document.createElement('button'); b.type = 'button'; b.id = 'hacerElMio'; b.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#i-lapiz"/></svg>Hacer el mío';
-    b.onclick = () => { caja.remove(); $('titulo').textContent = TITULOS[0]; sonar('toque', { vol: GANANCIA_BAJA }); $('presets').querySelector('.tarjeta')?.focus(); if (!reducido) animar('celebrate', 1.2); decir(FRASES.preset(theme.characters[estado.base]?.name ?? 'yo')); };
+    b.onclick = () => { caja.remove(); $('titulo').textContent = TITULOS[0]; sonar('toque', { vol: GANANCIA_BAJA }); $('presets').querySelector('.tarjeta')?.focus(); if (!reducido) animar('celebrate', 1.2); decir(frases.saludo(theme.characters[estado.base]?.name ?? 'yo')); };
     caja.append(p, b); $('presets').before(caja);
   }
 
@@ -704,7 +703,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     $('continuarSi').onclick = () => {
       $('continuar').hidden = true;
       Object.assign(estado, { base: b.base, look: { ...b.look }, item: b.item, world: b.world });
-      fondoSucio = true; escenasSucias = true; marcarPreset(); irA(b.paso); pintar(); decir(FRASES.cargar[0]); if (!reducido) animar('celebrate', 1.2);
+      fondoSucio = true; escenasSucias = true; marcarPreset(); irA(b.paso); pintar(); decir(frases.frase('cargar', estado.base)); if (!reducido) animar('celebrate', 1.2);
       chipHito('vuelve', conNombre(COPY_HITOS.vuelve.texto, nombre));         // segunda visita (§2); si el paso ya enseñó otro aviso, este espera
     };
     $('continuarNo').onclick = () => { $('continuar').hidden = true; borradorActual = null; almacen.quitar(CLAVE_BORRADOR); programarAutoguardado(); };
@@ -712,12 +711,22 @@ export async function montarDisenador(raiz, opciones = {}) {
   }
 
   // ───────────────────────── vista previa: reacciones, bocadillo, comparar ─────────────────────────
-  let anim = 'idle', animT = 0, animFin = 0, entrada = 0, temporizadorQuieto = 0;
-  function animar(nombre, dur) {
-    if (reducido) { anim = QUIETA[nombre] ?? 'still'; pintar(); clearTimeout(temporizadorQuieto); temporizadorQuieto = esperar(() => { anim = 'still'; pintar(); }, dur * 1000); return; }
-    anim = nombre; animT = 0; animFin = dur;
+  let anim = 'idle', animT = 0, animFin = 0, animOpciones = {}, entrada = 0, temporizadorQuieto = 0;
+  function animar(nombre, dur, o = {}) {
+    if (reducido) { anim = QUIETA[nombre] ?? QUIETA_REACCION[nombre] ?? 'still'; pintar(); clearTimeout(temporizadorQuieto); temporizadorQuieto = esperar(() => { anim = 'still'; pintar(); }, dur * 1000); return; }
+    anim = nombre; animT = 0; animFin = dur; animOpciones = o;
   }
-  function reaccionar(tipo) { const [a, d] = REACCION[tipo] ?? ['talk', 0.8]; animar(a, d); if (tipo !== 'preset') decir(pick(FRASES[tipo] ?? FRASES.color)); }
+  /** Pose objetivo: una reacción de pieza (themes/epoca/reacciones.js) o una animación del rig. */
+  function poseDe(nombre, t, Tr) { const r = REACCIONES[nombre]; return r ? r.pose(t, Tr, animOpciones) : poseFor(nombre, t, Tr); }
+  // Reacción por pieza (PR-D4, §4): sombrero, peinado, prenda, color, objeto, gafas y barba tienen la suya; lo demás usa la tabla
+  // de siempre. La frase sale de frases.js en la voz del punto de partida; gafas y barba tienen frases propias.
+  function reaccionar(tipo, detalle = {}) {
+    const propia = reaccionDe(tipo, detalle);
+    if (propia) animar(...propia); else { const [a, d] = REACCION[tipo] ?? ['talk', 0.8]; animar(a, d); }
+    if (tipo === 'preset') return;
+    const tipoFrase = detalle.campo === 'glasses' ? 'gafas' : detalle.campo === 'beard' ? 'barba' : tipo;
+    decir(frases.frase(tipoFrase, estado.base));
+  }
   let temporizadorBocadillo = 0;
   function decir(texto) {
     const b = $('bocadillo'); b.setAttribute('aria-live', performance.now() - arrastreColor < 700 ? 'off' : 'polite');
@@ -738,7 +747,23 @@ export async function montarDisenador(raiz, opciones = {}) {
 
   // ───────────────────────── pintura: solo al cambiar o animar; pausa con la pestaña oculta ─────────────────────────
   const lienzo = $('lienzo'), ctx = lienzo.getContext('2d');
-  let w = 0, h = 0, dpr = 1, fondo = null, fondoSucio = true, pose = null, T = 0, ultimo = 0, parpadeo = 2.5, parpadeoT = 0, corriendo = false;
+  let w = 0, h = 0, dpr = 1, fondo = null, fondoSucio = true, pose = null, T = 0, ultimo = 0, parpadeo = 2.5, parpadeoT = 0, parpadeoPose = false, corriendo = false;
+  // Cámara por pestaña (PR-D4, §4): Cara/Pelo acercan a la cabeza (×1,9), Ropa plano medio (×1,25), Objeto la mano derecha (×1,6),
+  // lo demás plano general. El destino se resuelve en cada cuadro (sigue al tamaño de la vista); el origen es una foto de la
+  // cámara al cambiar, y se interpola 350 ms con ease-out. Con movimiento reducido no hay bucle: el corte es directo.
+  let encuadre = encuadreDe(0, 'cara'), camara = null, camaraOrigen = null, camaraT = 1;
+  function encuadrar() {
+    const nuevo = encuadreDe(pantalla, pestana);
+    if (nuevo === encuadre) return;
+    encuadre = nuevo; camaraOrigen = camara; camaraT = reducido || !camaraOrigen ? 1 : 0;
+    if (pantalla === 1) contar('encuadre/' + pestana);
+    pintar();
+  }
+  function camaraDe(enc, s, cy) {
+    if (!enc.ancla) return { zoom: 1, fx: w / 2, fy: h / 2 };
+    const P = poseFor('still'), [ux, uy] = focoDe(enc.ancla, P);
+    return { zoom: enc.zoom, fx: w / 2 + (ux + P.x) * s, fy: cy + (uy + P.y) * s };
+  }
   function medir() {
     const r = vista.getBoundingClientRect(); const nw = Math.max(1, Math.round(r.width)), nh = Math.max(1, Math.round(r.height)), nd = Math.min(2, devicePixelRatio || 1);
     if (nw === w && nh === h && nd === dpr) return false;
@@ -756,7 +781,9 @@ export async function montarDisenador(raiz, opciones = {}) {
     if (anim !== 'idle' && animT >= animFin) { anim = 'idle'; animT = 0; }
     if (entrada > 0) entrada = Math.max(0, entrada - dt * 2.4);
     parpadeo -= dt; if (parpadeo <= 0) { parpadeoT = 0.12; parpadeo = 2.4 + Math.random() * 2.4; } if (parpadeoT > 0) parpadeoT -= dt;
-    pose = blendPose(pose, poseFor(anim, animT, T), 1 - Math.exp(-dt * 16));
+    if (camaraT < 1) camaraT = Math.min(1, camaraT + dt * 1000 / CAMARA_MS);
+    const objetivo = poseDe(anim, animT, T); parpadeoPose = objetivo.parpadeo === true;   // la reacción «color» pide un parpadeo doble
+    pose = blendPose(pose, objetivo, 1 - Math.exp(-dt * 16));
     vigilarFps(ahora, dt);
     dibujar();
     requestAnimationFrame(cuadro);
@@ -772,13 +799,17 @@ export async function montarDisenador(raiz, opciones = {}) {
   function dibujar() {
     medir();
     const E = comparando && historial.length ? historial[historial.length - 1] : estado;
-    if (reducido || !pose) pose = blendPose(null, poseFor(anim, 0, 0), 1);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.drawImage(bg(E.world), 0, 0, w, h);
-    if (!reducido) paintAmbient(ctx, w, h, E.world, T);
+    if (reducido || !pose) pose = blendPose(null, poseDe(anim, 0, 0), 1);
     const s = Math.min(w / 540 * 1.15, h * 0.8 / 372), pies = h * 0.9, cy = pies - 112 * s, a = 1 - entrada;
+    const destino = camaraDe(encuadre, s, cy);
+    camara = camaraT < 1 && camaraOrigen ? mezclarCamara(camaraOrigen, destino, camaraT) : destino;
+    // Todo (fondo, ambiente, sombra y personaje) pasa por la cámara: el punto de foco cae en el centro de la vista con su zoom.
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.translate(w / 2, h / 2); ctx.scale(camara.zoom, camara.zoom); ctx.translate(-camara.fx, -camara.fy);
+    ctx.drawImage(bg(E.world), 0, 0, w, h);
+    if (!reducido) paintAmbient(ctx, w, h, E.world, T);
     ctx.save(); ctx.globalAlpha = a;
     ctx.fillStyle = 'rgba(8,7,16,.32)'; ctx.beginPath(); ctx.ellipse(w / 2, pies + 6 * s, 70 * s, 14 * s, 0, 0, Math.PI * 2); ctx.fill();
-    drawHost(ctx, w / 2, cy + entrada * 40 * s, s, pose, lookOf({ look: E.look }), { item: E.item, blink: parpadeoT > 0, T });
+    drawHost(ctx, w / 2, cy + entrada * 40 * s, s, pose, lookOf({ look: E.look }), { item: E.item, blink: parpadeoT > 0 || parpadeoPose, T });
     ctx.restore();
   }
   function pintar() { if (reducido || !corriendo) dibujar(); }   // con animación, el bucle ya repinta en el próximo cuadro
@@ -940,7 +971,7 @@ export async function montarDisenador(raiz, opciones = {}) {
   construirPresets(); construirPestanas(); construirReacciones(); irA(0);
   medir(); arrancar(); pintar();
   const conEnlace = ofrecerRecibido(), conBorrador = !conEnlace && ofrecerContinuar();
-  if (!conEnlace && !conBorrador) { if (!reducido) animar('celebrate', 1.2); decir(FRASES.preset(theme.characters.grabador.name)); }
+  if (!conEnlace && !conBorrador) { if (!reducido) animar('celebrate', 1.2); decir(frases.saludo(theme.characters.grabador.name)); }
   contar('abrir/' + (conEnlace ? 'enlace' : conBorrador ? 'continuar' : 'directo'));
   // Al irse: en qué paso estaba y cuántos segundos llevaba (redondeados a 10). Si ya guardó, no es abandono.
   function abandonar() { if (abandonado) return; abandonado = true; if (!medidor.registro.includes('listo')) contar(nombreAbandono(pantalla, performance.now() - abierto)); bombear(); }
