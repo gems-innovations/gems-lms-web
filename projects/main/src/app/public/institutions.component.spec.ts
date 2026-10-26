@@ -1,15 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { AnalyticsService } from '../analytics.service';
-import { MARCA_ADJUNTO_INICIO } from '../taps/taps.crear';
 import { VALIDADOR_LOOK_LOADER } from '../taps/taps.look-validador';
 import { InstitutionsComponent } from './institutions.component';
 import { IInstitutionRequest, PublicCatalogService } from './public-catalog.service';
 
 /**
  * Formulario de /instituciones con `?borrador=<id>` (PR-8 del plan del diseñador, §A.3.3): muestra «Tu personaje irá adjunto» con la
- * miniatura de localStorage y manda el borrador compacto dentro de `message`; sin borrador válido funciona como siempre.
+ * miniatura de localStorage y manda el borrador compacto como string en el campo `draft` (PR-9b), con `message` intacto; sin
+ * borrador válido funciona como siempre.
  */
 describe('InstitutionsComponent (borrador adjunto)', () => {
   const CLAVE = 'taps.disenador.borrador';
@@ -51,39 +51,49 @@ describe('InstitutionsComponent (borrador adjunto)', () => {
 
   afterEach(() => { localStorage.removeItem(CLAVE); sessionStorage.removeItem('taps-crear-registro-inicio'); });
 
-  it('con ?borrador= válido y desde=crear: miniatura, «Tu personaje irá adjunto», bloque en message y registro/inicio|enviado', async () => {
+  it('con ?borrador= válido y desde=crear: miniatura, «Tu personaje irá adjunto», `draft` como string JSON, message intacto y registro/inicio|enviado', async () => {
     guardarBorrador();
     const f = await crear({ borrador: ID, desde: 'crear' });
     const host = f.nativeElement as HTMLElement;
     expect(host.querySelector('.adjunto')?.textContent).toContain('Tu personaje irá adjunto');
     expect(host.querySelector<HTMLImageElement>('.adjunto__mini')?.getAttribute('src')).toBe('data:image/png;base64,AAAA');
+    expect(host.querySelector('.adjunto__contador')).withContext('ya no hay contador: el borrador no compite con el texto').toBeNull();
+    expect(host.querySelector('[name="msg"]')?.getAttribute('maxlength')).toBe('2000');
     expect(eventos).toContain('taps/crear/registro/inicio');
     rellenarYEnviar(f, 'Quiero Taps');
     expect(enviados.length).toBe(1);
-    const msg = enviados[0].message!;
-    expect(msg.startsWith('Quiero Taps\n\n' + MARCA_ADJUNTO_INICIO)).toBeTrue();
-    expect(msg).toContain(`"borradorId":"${ID}"`);
-    expect(msg).not.toContain('miniatura');
-    expect(msg).not.toContain('data:image');
-    expect(msg.length).toBeLessThanOrEqual(2000);
+    expect(enviados[0].message).toBe('Quiero Taps');
+    expect(enviados[0].message).not.toContain('[gems-borrador');
+    const draft = enviados[0].draft;
+    expect(typeof draft).toBe('string');
+    expect(JSON.parse(draft!)).toEqual({ v: 1, borradorId: ID, b: 'grabador', l: { hat: 'copa', coat: '#223344' }, i: 'pluma', w: 'taller-londres' });
+    expect(draft).not.toContain('miniatura');
+    expect(draft).not.toContain('data:image');
+    expect(new TextEncoder().encode(draft).length).toBeLessThanOrEqual(2048);
     expect(enviados[0].email).toBe('contacto@prueba.test');
     expect(eventos).toContain('taps/crear/registro/enviado');
   });
 
-  it('si el texto de la persona no deja sitio al bloque, va el texto entero sin recortar, sin bloque, y se avisa en pantalla', async () => {
+  it('un mensaje de 2000 caracteres viaja entero y el borrador también: ya no compiten por el mismo campo', async () => {
     guardarBorrador();
     const f = await crear({ borrador: ID, desde: 'crear' });
-    const host = f.nativeElement as HTMLElement;
-    expect(host.querySelector('.adjunto__contador')?.textContent).toContain('Te quedan');
-    const largo = 'm'.repeat(1990);
-    const msg = host.querySelector<HTMLTextAreaElement>('[name="msg"]')!; msg.value = largo; msg.dispatchEvent(new Event('input'));
-    f.detectChanges();
-    expect(host.querySelector('.adjunto__aviso')?.textContent).toContain('no cabe junto a él');
-    expect(host.querySelector('.adjunto__contador')).toBeNull();
-    expect(host.querySelector('.adjunto')).withContext('el aviso de adjunto sigue; solo se explica que no viaja').not.toBeNull();
+    const largo = 'm'.repeat(2000);
     rellenarYEnviar(f, largo);
     expect(enviados[0].message).toBe(largo);
-    expect(enviados[0].message).not.toContain(MARCA_ADJUNTO_INICIO);
+    expect(enviados[0].draft).toContain(`"borradorId":"${ID}"`);
+  });
+
+  it('si el envío con draft falla, se enseña el error normal y no se reintenta sin el borrador', async () => {
+    guardarBorrador();
+    const f = await crear({ borrador: ID, desde: 'crear' });
+    let intentos = 0;
+    const servicio = TestBed.inject(PublicCatalogService) as unknown as { requestInstitution: (b: IInstitutionRequest) => unknown };
+    servicio.requestInstitution = (b: IInstitutionRequest) => { intentos++; enviados.push(b); return throwError(() => new Error('500')); };
+    rellenarYEnviar(f, 'Hola');
+    expect(intentos).toBe(1);
+    expect(enviados[0].draft).toBeDefined();
+    expect((f.nativeElement as HTMLElement).querySelector('.error')?.textContent).toContain('No pudimos enviar');
+    expect((f.nativeElement as HTMLElement).querySelector('.adjunto')).withContext('el personaje sigue adjunto para reintentar a mano').not.toBeNull();
   });
 
   it('registro/inicio se cuenta una vez por pestaña, no en cada recarga', async () => {
@@ -96,7 +106,7 @@ describe('InstitutionsComponent (borrador adjunto)', () => {
     expect(sessionStorage.getItem('taps-crear-registro-inicio')).toBe('1');
   });
 
-  it('«No adjuntarlo» quita el bloque y el mensaje va limpio', async () => {
+  it('«No adjuntarlo» quita el borrador: el cuerpo va sin `draft`', async () => {
     guardarBorrador();
     const f = await crear({ borrador: ID, desde: 'crear' });
     (f.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.adjunto__quitar')!.click();
@@ -104,6 +114,7 @@ describe('InstitutionsComponent (borrador adjunto)', () => {
     expect((f.nativeElement as HTMLElement).querySelector('.adjunto')).toBeNull();
     rellenarYEnviar(f, 'Sin personaje');
     expect(enviados[0].message).toBe('Sin personaje');
+    expect('draft' in enviados[0]).toBeFalse();
   });
 
   it('sin borrador, con otro id, con id raro o con look inválido: el formulario funciona normal y no adjunta nada', async () => {
@@ -120,6 +131,7 @@ describe('InstitutionsComponent (borrador adjunto)', () => {
       expect((f.nativeElement as HTMLElement).querySelector('.adjunto')).withContext(JSON.stringify(query)).toBeNull();
       rellenarYEnviar(f, 'Hola');
       expect(enviados[0].message).toBe('Hola');
+      expect('draft' in enviados[0]).toBeFalse();
       expect(eventos.filter(e => e.startsWith('taps/crear/registro/'))).toEqual([]);
     }
   });

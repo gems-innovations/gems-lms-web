@@ -6,7 +6,7 @@ import { PublicFooterComponent } from './public-footer.component';
 import { IInstitutionRequest, PublicCatalogService } from './public-catalog.service';
 import { AnalyticsService } from '../analytics.service';
 import { COPY_ENTRADA, eventoEntrada } from '../taps/taps.crear-entrada';
-import { IBorradorAdjunto, PARAM_BORRADOR, armarAdjunto, cabeAdjunto, idBorradorValido, mensajeConAdjunto, restaMensaje } from '../taps/taps.crear';
+import { IBorradorAdjunto, PARAM_BORRADOR, armarAdjunto, idBorradorValido } from '../taps/taps.crear';
 import { VALIDADOR_LOOK_LOADER } from '../taps/taps.look-validador';
 
 /** Clave del borrador del diseñador (guardado.js, `CLAVE_BORRADOR`): se lee aquí sin cargar el diseñador. */
@@ -89,13 +89,6 @@ const CLAVE_REGISTRO_INICIO = 'taps-crear-registro-inicio';
                 </div>
               </fieldset>
               <label>¿Qué te gustaría lograr?<textarea class="field" name="msg" rows="3" maxlength="2000" [(ngModel)]="form.message"></textarea></label>
-              @if (adjunto(); as a) {
-                @if (!cabe()) {
-                  <p class="adjunto__aviso" role="status">Tu mensaje es largo y el personaje no cabe junto a él: enviamos tu mensaje completo y te pedimos el personaje después.</p>
-                } @else {
-                  <span class="adjunto__contador" aria-live="polite">Te quedan {{ restan() }} caracteres para que el personaje viaje junto a tu mensaje.</span>
-                }
-              }
               @if (error(); as e) { <p class="error" role="alert">{{ e }}</p> }
               <button type="submit" class="btn btn--primary btn--block" [disabled]="busy()">{{ busy() ? 'Enviando…' : 'Enviar solicitud' }}</button>
               <span class="note">Revisamos las solicitudes a mano y te respondemos por correo. Solo usamos estos datos para contactarte sobre GEMS. Ver <a routerLink="/privacidad">privacidad</a>.</span>
@@ -113,8 +106,6 @@ const CLAVE_REGISTRO_INICIO = 'taps-crear-registro-inicio';
     .adjunto__mini { width: 56px; height: 74px; flex: none; border-radius: 10px; background: #15131f; display: block; }
     .adjunto__texto { display: grid; gap: 4px; font-size: 13px; line-height: 1.35; min-width: 0; }
     .adjunto__texto strong { font-size: 14px; color: var(--color-texto-principal); }
-    .adjunto__aviso { margin: -6px 0 0; font-size: 13px; color: var(--color-texto-secundario); }
-    .adjunto__contador { margin-top: -8px; font-size: 12px; color: var(--color-texto-terciario); }
     .adjunto__quitar { justify-self: start; min-height: 32px; padding: 0 4px; font: inherit; font-size: 13px; color: var(--color-texto-acento); background: none; border: 0; text-decoration: underline; cursor: pointer; }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -129,9 +120,6 @@ export class InstitutionsComponent {
 
   /** Borrador del diseñador adjunto a la solicitud (PR-8, §A.3.3); null si no se llegó con `?borrador=` válido. */
   protected readonly adjunto = signal<IBorradorAdjunto | null>(null);
-  /** El bloque del borrador va dentro de `message` (API: 2000) mientras no haya campo propio (PR-9): si no cabe junto al texto, no viaja. */
-  protected cabe(): boolean { return cabeAdjunto(this.form.message ?? '', this.adjunto()?.bloque ?? null); }
-  protected restan(): number { return Math.max(0, restaMensaje(this.adjunto()?.bloque ?? null) - (this.form.message ?? '').trim().length); }
   /** Vino del gancho de /crear (`?desde=crear`): se miden `registro/inicio` y `registro/enviado`. */
   private desdeCrear = false;
 
@@ -143,8 +131,8 @@ export class InstitutionsComponent {
 
   /**
    * `?borrador=<id>` (viene de «Soy docente o institución» en /crear): si en este navegador hay un borrador con ese id y su look
-   * valida con `validarLook`, se muestra «Tu personaje irá adjunto» con la miniatura guardada y el borrador compacto viaja en
-   * `message`. Si no existe, es otro o no valida, el formulario funciona normal. Nada de esto toca el prerender.
+   * valida con `validarLook`, se muestra «Tu personaje irá adjunto» con la miniatura guardada y el borrador compacto viaja en el
+   * campo `draft` (PR-9). Si no existe, es otro o no valida, el formulario funciona normal. Nada de esto toca el prerender.
    */
   private async adjuntarBorrador(): Promise<void> {
     const q = this.route.snapshot.queryParamMap;
@@ -208,8 +196,11 @@ export class InstitutionsComponent {
     }
     this.busy.set(true);
     this.error.set(null);
-    // El borrador va como bloque marcado al final de `message` solo si cabe junto al texto entero (el API corta a 2000; PR-9 lo separa).
-    const cuerpo: IInstitutionRequest = { ...f, message: mensajeConAdjunto(f.message ?? '', this.adjunto()?.bloque ?? null) };
+    // El texto de la persona va entero en `message`; el borrador, como string JSON en su propio campo `draft` (el API lo valida y, si no
+    // vale, lo descarta sin rechazar la solicitud). Si el envío falla, se enseña el error normal: nunca se reintenta sin el borrador a escondidas.
+    const cuerpo: IInstitutionRequest = { ...f, message: (f.message ?? '').trim() };
+    const json = this.adjunto()?.json;
+    if (json) cuerpo.draft = json;
     this.catalog.requestInstitution(cuerpo).subscribe({
       next: () => {
         this.busy.set(false); this.sent.set(true); this.analytics.event('solicitud-institucion');

@@ -30,6 +30,8 @@ export interface IInstitutionRequest {
   role?: string;
   students?: number | null;
   message?: string;
+  /** Borrador del personaje hecho en /crear (PR-9): JSON compacto como string ({v:1,borradorId,b,l,i,w}, ≤ 2048 bytes). El API lo valida. */
+  draft?: string;
 }
 
 /**

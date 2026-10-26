@@ -40,13 +40,8 @@ export const COPY_GANCHO = {
 export const PARAM_BORRADOR = 'borrador';
 /** Forma de los ids de guardado.js (`nuevoId`: tiempo en base 36, guion, 7+ caracteres en base 36). */
 const ID_BORRADOR = /^[0-9a-z]{1,12}-[0-9a-z]{7,12}$/;
-/** Tope del JSON adjunto (un look real ocupa ~650 caracteres); el campo `message` del API corta a 2000. */
+/** Tope del JSON adjunto (un look real ocupa ~650 caracteres): el mismo límite del campo `draft` del API (PR-9a). */
 export const MAX_ADJUNTO = 2048;
-/** Marcas del bloque que se concatena en `msg` mientras el API no tenga campo propio (PR-9). */
-export const MARCA_ADJUNTO_INICIO = '[gems-borrador v1]';
-export const MARCA_ADJUNTO_FIN = '[/gems-borrador]';
-/** Largo máximo que acepta el API en `message`. */
-export const MAX_MENSAJE_API = 2000;
 
 /** El valor de `?borrador=` si tiene la forma de un id; null si no (nunca se usa un valor libre). */
 export function idBorradorValido(valor: string | null | undefined): string | null {
@@ -71,11 +66,11 @@ export function enlaceRegistro(borradorId: string | null): { ruta: string; query
 export interface IEstadoLook { base: string; look: Record<string, unknown>; item: string | null; world: string }
 /** Lo que viaja en la solicitud: la misma forma compacta de compartir.js (v, b, l, i, w) más el `borradorId`. Sin nombre ni miniatura. */
 export interface IAdjuntoBorrador { v: 1; borradorId: string; b: string; l: Record<string, unknown>; i: string | null; w: string }
-/** Lo que el formulario necesita del borrador local. */
-export interface IBorradorAdjunto { adjunto: IAdjuntoBorrador; json: string; bloque: string; miniatura: string }
+/** Lo que el formulario necesita del borrador local: `json` es lo que viaja en el campo `draft` de la solicitud (string). */
+export interface IBorradorAdjunto { adjunto: IAdjuntoBorrador; json: string; miniatura: string }
 
 /**
- * Valida un adjunto (lo que se arma aquí o lo que PR-9 leerá en el API): forma cerrada, look sin errores según `validar`
+ * Valida un adjunto antes de enviarlo (el API lo vuelve a validar contra el catálogo): forma cerrada, look sin errores según `validar`
  * (validarLook de rig.js), id con forma de id y tamaño acotado. Devuelve el adjunto limpio o null.
  */
 export function validarAdjunto(obj: unknown, validar: (look: Record<string, unknown>) => string[]): IAdjuntoBorrador | null {
@@ -96,7 +91,7 @@ export function validarAdjunto(obj: unknown, validar: (look: Record<string, unkn
 
 /**
  * Arma el adjunto a partir del borrador crudo de localStorage (`taps.disenador.borrador`) cuando su `borradorId` es el de la
- * URL. Null si no hay borrador, si es otro, si el look no valida o si no cabe: el formulario sigue funcionando normal.
+ * URL. Null si no hay borrador, si es otro, si el look no valida o si excede el tope: el formulario sigue funcionando normal.
  * `vest` nulo no viaja (como compactar de compartir.js). La miniatura (PNG pequeña del propio borrador) solo se muestra; no se envía.
  */
 export function armarAdjunto(raw: string | null, borradorId: string | null, validar: (look: Record<string, unknown>) => string[]): IBorradorAdjunto | null {
@@ -111,36 +106,43 @@ export function armarAdjunto(raw: string | null, borradorId: string | null, vali
   if (!adjunto) return null;
   const json = JSON.stringify(adjunto);
   const miniatura = typeof b['miniatura'] === 'string' && b['miniatura'].startsWith('data:image/') ? b['miniatura'] : '';
-  return { adjunto, json, bloque: `${MARCA_ADJUNTO_INICIO}\n${json}\n${MARCA_ADJUNTO_FIN}`, miniatura };
+  return { adjunto, json, miniatura };
 }
 
-/** Cuántos caracteres le quedan a la persona en el mensaje para que el bloque siga cabiendo en `message` (API: 2000). */
-export function restaMensaje(bloque: string | null): number {
-  return Math.max(0, MAX_MENSAJE_API - (bloque ? bloque.length + 2 : 0));
-}
+// ───────────── lectura del `draft` que devuelve el API (panel /solicitudes, PR-9b) ─────────────
 
-/** El texto de la persona vale más que el borrador: el bloque solo va si cabe junto al mensaje completo. */
-export function cabeAdjunto(mensaje: string, bloque: string | null): boolean {
-  if (!bloque) return true;
-  const texto = (mensaje ?? '').trim();
-  return !texto || texto.length <= restaMensaje(bloque);
-}
+/** Nombres legibles de puntos de partida (theme.json), objetos y escenarios (sugerencias.js) para mostrar un borrador como texto. */
+export const NOMBRES_ADJUNTO: Readonly<Record<string, string>> = Object.freeze({
+  grabador: 'Tomás (grabador)', arqueologa: 'Inés (arqueóloga)', senador: 'Lucio (senador)', escriba: 'Nefer (escriba)', artesano: 'Beltrán (artesano)',
+  investigadora: 'Marta (investigadora)', periodista: 'Álvaro (periodista)', sorpresa: 'Sorpréndeme',
+  pluma: 'Pluma', cepillo: 'Cepillo', pergamino: 'Pergamino', libro: 'Libro', lupa: 'Lupa', matraz: 'Matraz', antorcha: 'Antorcha', mapa: 'Mapa',
+  'taller-londres': 'Taller de Londres', 'excavacion-egipto': 'Excavación en Egipto', 'foro-roma': 'Foro de Roma', 'sala-medieval': 'Sala medieval', 'laboratorio-moderno': 'Laboratorio moderno',
+});
+/** Colores del look que se enseñan como muestras, con su nombre para personas (el resto son matices derivados). */
+export const COLORES_ADJUNTO: ReadonlyArray<readonly [string, string]> = Object.freeze([
+  ['skin', 'Piel'], ['hair', 'Pelo'], ['coat', 'Prenda'], ['shirt', 'Camisa'], ['vest', 'Chaleco'], ['cravat', 'Corbatín'], ['trousers', 'Pantalón'],
+  ['shoes', 'Zapatos'], ['accent', 'Detalle'], ['hatColor', 'Sombrero'],
+] as const);
 
-/** `message` final: lo escrito, entero y sin recortar; el bloque marcado al final solo si cabe (si no, se pedirá después). */
-export function mensajeConAdjunto(mensaje: string, bloque: string | null): string {
-  const texto = (mensaje ?? '').trim();
-  if (!bloque || !cabeAdjunto(texto, bloque)) return texto;
-  return texto ? `${texto}\n\n${bloque}` : bloque;
-}
+/** Lo que el panel enseña de un borrador: todo texto plano y colores #rrggbb ya comprobados (nunca se interpreta como HTML). */
+export interface IResumenAdjunto { adjunto: IAdjuntoBorrador; base: string; objeto: string; escenario: string; colores: { nombre: string; hex: string }[] }
 
-/** Lo inverso (para PR-9 y las pruebas): saca el adjunto de un `message` con bloque; null si no hay o no valida. */
-export function extraerAdjunto(message: string | null | undefined, validar: (look: Record<string, unknown>) => string[]): { adjunto: IAdjuntoBorrador; mensaje: string } | null {
-  const m = message ?? '';
-  const i = m.indexOf(MARCA_ADJUNTO_INICIO), f = m.indexOf(MARCA_ADJUNTO_FIN);
-  if (i < 0 || f < i) return null;
-  let obj: unknown; try { obj = JSON.parse(m.slice(i + MARCA_ADJUNTO_INICIO.length, f).trim()); } catch { return null; }
-  const adjunto = validarAdjunto(obj, validar);
-  return adjunto ? { adjunto, mensaje: (m.slice(0, i) + m.slice(f + MARCA_ADJUNTO_FIN.length)).trim() } : null;
+const HEX = /^#[0-9a-fA-F]{6}$/;
+const ETIQUETA = /^[0-9a-zA-Z-]{1,40}$/;
+const nombre = (clave: unknown): string => typeof clave === 'string' && ETIQUETA.test(clave) ? (NOMBRES_ADJUNTO[clave] ?? clave) : '';
+
+/**
+ * Lee el `draft` tal como lo devuelve el API (string con el JSON canónico, null si no hubo o no validó). Es un dato de una
+ * solicitud pública: solo se acepta la forma cerrada, con valores de tipos simples, y nunca se confía en él más que para mostrarlo.
+ * Null con nulo, vacío, JSON roto o forma distinta: el panel enseña la solicitud sin personaje.
+ */
+export function leerDraft(raw: unknown): IResumenAdjunto | null {
+  if (typeof raw !== 'string' || !raw || raw.length > MAX_ADJUNTO) return null;
+  let obj: unknown; try { obj = JSON.parse(raw); } catch { return null; }
+  const adjunto = validarAdjunto(obj, look => Object.entries(look).some(([k, v]) => !ETIQUETA.test(k) || (typeof v === 'string' && v.length > 40)) ? ['forma'] : []);
+  if (!adjunto) return null;
+  const colores = COLORES_ADJUNTO.flatMap(([k, n]) => { const v = adjunto.l[k]; return typeof v === 'string' && HEX.test(v) ? [{ nombre: n, hex: v.toLowerCase() }] : []; });
+  return { adjunto, base: nombre(adjunto.b) || 'Sorpréndeme', objeto: adjunto.i ? nombre(adjunto.i) || 'Objeto' : 'Sin objeto', escenario: nombre(adjunto.w) || 'Escenario', colores };
 }
 
 /** Puntos de entrada del plan (§A.2, los pone PR-7 con `?desde=`), más los que detecta el propio diseñador al abrir. */
