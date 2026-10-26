@@ -208,3 +208,33 @@
 .dsn .cinta .primario { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
 .dsn .cinta .cerrar { width: 36px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: transparent; border-color: transparent; color: var(--soft); }
 .dsn .cinta .cerrar svg.ic { width: 18px; height: 18px; }
+
+/* Hitos de cuenta (PR-D2, disenador-v2-plan.md §2): chips en la ranura, bloque «Lo que puedes hacer con X», línea bajo Mis looks y
+   CTA tras la pregunta de muestra. Sin sonido, sin reloj, con botones normales. Solo aparecen en /crear (hay cuenta que ofrecer). */
+.dsn .cinta.hito { flex-wrap: wrap; align-items: flex-start; }
+.dsn .cinta.hito > svg.ic { color: var(--acc); margin-top: 2px; }
+.dsn .cinta.hito p { flex: 1 1 160px; }
+.dsn .cinta.hito .botones { display: flex; gap: 6px; flex: none; margin-left: auto; }
+.dsn .cinta.hito .botones button:not(.primario) { background: transparent; border-color: transparent; color: var(--soft); text-decoration: underline; text-underline-offset: 3px; padding: 6px 8px; }
+.dsn .cinta.hito .botones button:not(.primario):hover { color: var(--txt); }
+.dsn .que-hacer { margin: 0 0 16px; display: grid; gap: 8px; }
+.dsn .que-hacer[hidden] { display: none; }
+.dsn .que-hacer h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.dsn .que-hacer .tarjetas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.dsn .que-hacer .tarjeta { padding: 10px 6px 12px; text-align: center; }
+.dsn .que-hacer .tarjeta .dado { width: 54px; height: 96px; display: grid; place-items: center; color: var(--soft); background: #15131f; border-radius: 10px; }
+.dsn .que-hacer .tarjeta .dado svg.ic { width: 30px; height: 30px; }
+.dsn .que-hacer .tarjeta canvas.tap { width: 54px; height: 96px; border-radius: 10px; background: #15131f; border: 1px solid var(--line); }
+.dsn .que-hacer .tarjeta.cuenta { border-color: var(--acc); }
+.dsn .que-hacer .tarjeta.cuenta b { color: var(--acc); }
+.dsn .que-hacer .tarjeta b { font-size: 13px; line-height: 1.25; }
+.dsn .hito-linea { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 10px 0 0; color: var(--soft); font-size: 13px; line-height: 1.35; }
+.dsn .hito-linea[hidden] { display: none; }
+.dsn .hito-linea > svg.ic { color: var(--acc); width: 18px; height: 18px; }
+.dsn .hito-linea > span { flex: 1 1 200px; }
+.dsn .hito-linea button { min-height: 36px; padding: 6px 10px; font-size: 13px; }
+.dsn .hito-linea:not(.cta) button { background: transparent; border-color: transparent; color: var(--soft); text-decoration: underline; text-underline-offset: 3px; }
+.dsn .hito-linea:not(.cta) button:hover { color: var(--txt); }
+.dsn .hito-linea.cta { display: grid; gap: 8px; margin: 0; }
+.dsn .hito-linea.cta .texto { margin: 0; color: var(--txt); }
+.dsn .hito-linea.cta .primario { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); font-weight: 600; min-height: 44px; justify-self: start; }

@@ -29,7 +29,9 @@ export type TEventPath =
   // Diseñador de personajes (producto/taps/disenador-plan-ux.md §4; los emite public/taps-engine/disenador.js por el mismo
   // canal): `taps/disenador/<abrir/<enlace|continuar|directo>|preset/<id>|cambio/<pestaña>|sorprendeme/<pestaña|todo|escenario>|
   // deshacer|paso/<escenario|listo>|probar|listo|compartir/<enlace|json>|gusto/<si|meh>|abandono/<paso>/<segundos>|fps-bajo|error/<carga|look-invalido>|
-  // sonido/<on|off>>` (`sonido`: altavoz de la barra o tecla M del creador, PR-D1 de disenador-v2-plan.md).
+  // sonido/<on|off>|hito/<navegador|listo|guardado|probado|vuelve>|hito-cuenta/<visto|entendido|abrir>/<hito>>` (`sonido`: altavoz de
+  // la barra o tecla M del creador, PR-D1 de disenador-v2-plan.md; `hito`: hito de inversión alcanzado y `hito-cuenta`: qué pasó con el
+  // aviso de cuenta de ese hito, PR-D2 §2). En /crear se derivan `taps/crear/cuenta/<hito>/<abrir|entendido>` para medir qué hito convence.
   // Embudo de /crear (§A.4, taps.crear.ts; cada hito una vez por visita): `taps/crear/abrir/<portada|feed|enlace|instituciones|
   // instructor|directo|continuar>` → `taps/crear/aviso-publicar/<visto|entendido>` → `taps/crear/creo` → `taps/crear/personaje-listo`
   // → `taps/crear/tap-listo` (cuando haya preguntas) → `taps/crear/intento-publicar/<sin-cuenta|con-cuenta>` → gancho (PR-8, hoja de

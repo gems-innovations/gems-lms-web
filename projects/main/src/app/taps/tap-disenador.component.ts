@@ -1,19 +1,28 @@
 import { Location, isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy, Component, DestroyRef, ElementRef, InjectionToken, Injector, PLATFORM_ID, afterNextRender, inject, signal, viewChild,
+  ChangeDetectionStrategy, Component, DestroyRef, ElementRef, InjectionToken, Injector, PLATFORM_ID, afterNextRender, computed, inject, signal, viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AnalyticsService } from '../analytics.service';
 import { TEventPath } from '../analytics-taxonomy';
 import { TapsSonidoService } from './taps-sonido.service';
-import { CINTA_TRANSPARENCIA, CLAVE_AVISO_PUBLICAR, CLAVE_SONIDO_TAPS, COPY_GANCHO, PASO_PUBLICAR, enlaceRegistro, hitosCrear, origenCrear, sonidoActivo } from './taps.crear';
+import {
+  CINTA_TRANSPARENCIA, CLAVE_AVISO_PUBLICAR, CLAVE_ESTUDIANTE, CLAVE_SONIDO_TAPS, COPY_GANCHO, PASO_PUBLICAR, THitoCuenta, enlaceRegistro, hitosCrear, origenCrear,
+  sonidoActivo, tituloGancho,
+} from './taps.crear';
 
-/** Lo que el diseñador entrega al tocar «Publicar (con cuenta)»: el id del borrador local (ya guardado) y el enlace del look. */
+/** Lo que el diseñador entrega al tocar «Publicar (con cuenta)» o un aviso de cuenta: el id del borrador local (ya guardado), el enlace y la miniatura del look. */
 export interface IContextoPublicar {
   borradorId: string | null;
   /** Enlace `#look=` de compartir.js con el personaje completo (no viaja a ningún servidor). */
   enlace: string;
   nombre: string;
+  /** PNG pequeño (data:) del personaje para la hoja; vacío si no se pudo pintar. */
+  miniatura?: string;
+  /** Desde qué hito de cuenta se abrió (PR-D2); null desde el punto «Publicar» del progreso. */
+  hito?: THitoCuenta | null;
+  /** `publicar` = la persona tocó un botón «Publicar (con cuenta)»; `cuenta` = «Qué es la cuenta» (no es un intento de publicar). */
+  accion?: 'publicar' | 'cuenta';
 }
 
 /** Lo que exporta public/taps-engine/disenador.js (la lógica del prototipo, extraída sin cambiar su comportamiento). */
@@ -26,14 +35,16 @@ export interface IDisenadorModule {
     limpiarHash?: () => void;
     /** Altavoz del creador (PR-D1) enlazado al silencio general de Taps: qué estado tiene y qué hacer al cambiarlo. */
     sonido?: { activo: () => boolean; cambiar: (on: boolean) => void };
-  }): Promise<{ ok: boolean; registro?: string[]; destruir(): void }>;
+    /** Hitos de cuenta (PR-D2): «Qué es la cuenta» y «Publicar (con cuenta)» desde un hito abren la MISMA hoja del gancho. Sin esto, el diseñador no enseña avisos de cuenta. */
+    cuenta?: { abrir: (contexto: IContextoPublicar) => void };
+  }): Promise<{ ok: boolean; registro?: string[]; destruir(): void; apagarHitos?(): void }>;
 }
 
 /**
  * Dónde vive el diseñador: archivos estáticos del mismo origen (public/taps-engine), fuera del bundle, como el motor
  * (taps-engine.loader.ts). nginx lo sirve con `no-cache`; la query evita que una caché vieja entregue el módulo anterior.
  */
-const DISENADOR_VERSION = '3';
+const DISENADOR_VERSION = '4';
 export const DISENADOR_URL = `/taps-engine/disenador.js?v=${DISENADOR_VERSION}`;
 /** Cómo se carga el módulo (inyectable para probar el componente sin servir los estáticos). */
 export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModule>>('DISENADOR_LOADER', {
@@ -72,7 +83,11 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
       <div class="gancho" #gancho role="dialog" aria-modal="true" aria-labelledby="ganchoTitulo" aria-describedby="ganchoIntro"
            [hidden]="!hoja()" (keydown)="teclaHoja($event)" (pointerdown)="fondoAbajo($event)" (click)="fondoHoja($event)">
         <div class="gancho__hoja">
-          <h2 id="ganchoTitulo" tabindex="-1">{{ G.titulo }}</h2>
+          <!-- PR-D2: el personaje y su nombre en la hoja («Para publicar a X…»): quien lo hizo ve de quién se habla. -->
+          <div class="gancho__quien">
+            @if (contexto()?.miniatura) { <img class="gancho__mini" [src]="contexto()!.miniatura" alt="" width="54" height="72" /> }
+            <h2 id="ganchoTitulo" tabindex="-1">{{ tituloHoja() }}</h2>
+          </div>
           <p id="ganchoIntro" class="gancho__intro">{{ G.intro }}</p>
           @if (!estudiante()) {
             <ul class="gancho__ganas" aria-label="Qué ganas al publicar">
@@ -110,6 +125,8 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
     .gancho[hidden] { display: none; }
     .gancho__hoja { width: 100%; max-width: 440px; max-height: calc(100dvh - 24px); overflow: auto; background: #1a1926; border: 1px solid #2e2c42; border-radius: 20px; padding: 18px 16px; display: grid; gap: 10px; }
     .gancho h2 { margin: 0; font-size: 18px; line-height: 1.25; }
+    .gancho__quien { display: flex; align-items: center; gap: 12px; }
+    .gancho__mini { width: 54px; height: 72px; flex: none; border-radius: 10px; background: #15131f; border: 1px solid #2e2c42; object-fit: cover; }
     .gancho p { margin: 0; }
     .gancho__intro, .gancho__nota, .gancho__estudiante, .gancho__conserva { color: #a6a3c0; font-size: 13px; }
     .gancho__ganas { list-style: none; margin: 2px 0 4px; padding: 0; display: grid; gap: 8px; }
@@ -141,6 +158,8 @@ export class TapDisenadorComponent {
   protected readonly enlaceVisible = signal(false);
   protected readonly estadoCopia = signal('');
   protected readonly contexto = signal<IContextoPublicar | null>(null);
+  /** «Para publicar a X, regístrate…» con el nombre que trae el contexto (texto plano). */
+  protected readonly tituloHoja = computed(() => tituloGancho(this.contexto()?.nombre));
 
   private readonly raiz = viewChild.required<ElementRef<HTMLElement>>('raiz');
   private readonly avisos = viewChild.required<ElementRef<HTMLElement>>('avisos');
@@ -157,7 +176,7 @@ export class TapDisenadorComponent {
   private readonly audio = inject(TapsSonidoService, { optional: true });
   /** Hitos del embudo ya contados en esta visita (cada uno una vez). */
   private readonly hitos = new Set<string>();
-  private disenador: { destruir(): void } | null = null;
+  private disenador: { destruir(): void; apagarHitos?(): void } | null = null;
   /** Se salió de la ruta: lo que el montaje asíncrono devuelva después se destruye en el acto y no toca señales. */
   private destruido = false;
   /** Quién tenía el foco al abrir la hoja (vuelve ahí al cerrarla). */
@@ -183,6 +202,8 @@ export class TapDisenadorComponent {
           activo: () => sonidoActivo(this.leer(CLAVE_SONIDO_TAPS)),
           cambiar: on => { this.escribir(CLAVE_SONIDO_TAPS, on ? 'on' : 'off'); this.audio?.silenciar(!on); },
         },
+        // Hitos de cuenta (PR-D2): la misma hoja; `taps/crear/cuenta/<hito>/abrir` sale de `alEvento` (hito-cuenta/abrir/<hito>).
+        cuenta: { abrir: contexto => this.publicar(contexto) },
       });
     } catch {
       if (!this.destruido) { this.fallo.set(true); this.contar('taps/crear/error/carga'); }
@@ -232,7 +253,10 @@ export class TapDisenadorComponent {
 
   // ───────────── gancho de «Publicar» (§A.3.2): sin sesión siempre, hasta que PR-10 traiga el estudio con cuenta ─────────────
 
-  /** Abre la hoja con el personaje detrás; el diseñador queda inerte (sin foco ni toques) mientras está abierta. */
+  /**
+   * Abre la hoja con el personaje detrás; el diseñador queda inerte (sin foco ni toques) mientras está abierta. Desde «Publicar»
+   * (progreso o botón de un hito) cuenta el intento; desde «Qué es la cuenta» (accion `cuenta`) no: solo informa (§2).
+   */
   private publicar(contexto: IContextoPublicar): void {
     this.contexto.set(contexto);
     this.estudiante.set(false); this.enlaceVisible.set(false); this.estadoCopia.set('');
@@ -240,7 +264,7 @@ export class TapDisenadorComponent {
     this.focoAnterior = activo instanceof HTMLElement && this.raiz().nativeElement.contains(activo) ? activo : null;
     this.hoja.set(true);
     this.inerte(true);
-    this.contar('taps/crear/intento-publicar/sin-cuenta');
+    if (contexto.accion !== 'cuenta') this.contar('taps/crear/intento-publicar/sin-cuenta');
     this.trasPintar(() => this.gancho().nativeElement.querySelector<HTMLElement>('h2')?.focus());
   }
 
@@ -260,10 +284,12 @@ export class TapDisenadorComponent {
     void this.router.navigate([destino.ruta], { queryParams: destino.query, fragment: destino.fragment });
   }
 
-  /** «Soy estudiante»: nada de registro ni datos; solo cómo mandarle el personaje a su docente. */
+  /** «Soy estudiante»: nada de registro ni datos; solo cómo mandarle el personaje a su docente. Y los avisos de cuenta se apagan para siempre en este navegador (§2). */
   protected verEstudiante(): void {
     this.contar('taps/crear/gancho/estudiante');
     this.estudiante.set(true);
+    this.escribir(CLAVE_ESTUDIANTE, '1');
+    try { this.disenador?.apagarHitos?.(); } catch { /* el diseñador decide */ }
     this.trasPintar(() => this.gancho().nativeElement.querySelector<HTMLElement>('#ganchoCopiar')?.focus());
   }
 

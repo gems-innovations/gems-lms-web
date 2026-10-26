@@ -18,6 +18,9 @@ export const PASOS = Object.freeze(['partida', 'personaje', 'escenario', 'listo'
 export const MAX_SEGUNDOS = 3600;
 
 const PESTANA = '(cara|pelo|ropa|objeto)';
+/** Hitos de cuenta de hitos.js (misma lista, repetida aquí para que este módulo siga sin importar nada). */
+export const HITOS_CUENTA = Object.freeze(['navegador', 'listo', 'guardado', 'probado', 'vuelve']);
+const HITO = `(${HITOS_CUENTA.join('|')})`;
 const PATRONES = [
   /^abrir\/(enlace|continuar|directo)$/,
   /^preset\/[a-z0-9-]{1,40}$/,
@@ -32,6 +35,8 @@ const PATRONES = [
   /^abandono\/(partida|personaje|escenario|listo)\/(0|[1-9]\d{0,2}0)$/,     // segundos ya redondeados a 10
   /^fps-bajo$/,
   /^sonido\/(on|off)$/,                                                      // altavoz de la barra o tecla M (disenador-v2-plan.md §6)
+  new RegExp(`^hito/${HITO}$`),                                              // hito de inversión alcanzado (PR-D2, §2): una vez por sesión
+  new RegExp(`^hito-cuenta/(visto|entendido|abrir)/${HITO}$`),               // aviso de cuenta en ese hito: enseñado, cerrado o abrió la hoja
   /^error\/(carga|look-invalido)$/,
 ];
 
@@ -103,7 +108,7 @@ export function crearMedidor({ ahora = Date.now, activo = true } = {}) {
       if (antes !== undefined && t - antes < VENTANA_CAMBIO_MS) return false;
       ultimoCambio.set(n, t);
     }
-    if (UNA_VEZ.has(n)) { if (unicos.has(n)) return false; unicos.add(n); }
+    if (UNA_VEZ.has(n) || n.startsWith('hito/') || n.startsWith('hito-cuenta/visto/')) { if (unicos.has(n)) return false; unicos.add(n); }
     cola.push(n); if (cola.length > MAX_COLA) cola.splice(0, cola.length - MAX_COLA);
     registro.push(n); if (registro.length > MAX_COLA) registro.splice(0, registro.length - MAX_COLA);
     return true;
