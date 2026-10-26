@@ -129,7 +129,9 @@ export class InstitutionRequestsComponent {
       for (const { nativeElement: c } of lienzos) {
         if (this.pintados.has(c)) continue;
         const p = porId.get(c.dataset['id'] ?? '');
-        if (p && pintarMiniatura(rig, c, p.adjunto.l, p.adjunto.i, window.devicePixelRatio || 1)) this.pintados.add(c);
+        // Se marca como intentado aunque falle (sin contexto 2D, look que hace lanzar a drawHost): un lienzo no se reintenta en cada render.
+        this.pintados.add(c);
+        if (p) pintarMiniatura(rig, c, p.adjunto.l, p.adjunto.i, window.devicePixelRatio || 1);
       }
     });
   }

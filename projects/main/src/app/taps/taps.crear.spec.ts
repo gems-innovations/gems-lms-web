@@ -172,8 +172,16 @@ describe('leerDraft (lo que devuelve el API en /solicitudes)', () => {
     expect(leerDraft('x'.repeat(MAX_ADJUNTO + 1))).toBeNull();
     expect(leerDraft({ v: 1 } as unknown)).withContext('el API siempre devuelve string; un objeto no se interpreta').toBeNull();
   });
-  it('un texto que no es un color o un nombre no se enseña tal cual: colores no hex no salen y las etiquetas raras caen al genérico', () => {
-    const r = leerDraft(JSON.stringify({ v: 1, borradorId: ID, b: 'grabador', l: { coat: 'red', hat: 'copa' }, i: 'x y', w: 'w<1>' }))!;
+  it('el look se valida contra el catálogo cerrado (piezas, colores #rrggbb o null, glasses booleano); lo demás es null', () => {
+    const con = (l: Record<string, unknown>) => leerDraft(JSON.stringify({ v: 1, borradorId: ID, b: 'grabador', l, i: null, w: 'foro-roma' }));
+    expect(con({ coat: 'red', hat: 'copa' })).toBeNull();
+    expect(con({ hat: 'casco' })).toBeNull();
+    expect(con({ glasses: 'si' })).toBeNull();
+    expect(con({ raro: '#000000' })).toBeNull();
+    expect(con({ hat: 'copa', vest: null, glasses: true, coat: '#112233' })!.colores).toEqual([{ nombre: 'Prenda', hex: '#112233' }]);
+  });
+  it('etiquetas raras en objeto o escenario no se enseñan tal cual: caen al genérico', () => {
+    const r = leerDraft(JSON.stringify({ v: 1, borradorId: ID, b: 'grabador', l: { hat: 'copa' }, i: 'x y', w: 'w<1>' }))!;
     expect(r).not.toBeNull();
     expect(r.colores).toEqual([]);
     expect(r.objeto).toBe('Objeto');

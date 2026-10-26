@@ -131,6 +131,28 @@ const HEX = /^#[0-9a-fA-F]{6}$/;
 const ETIQUETA = /^[0-9a-zA-Z-]{1,40}$/;
 const nombre = (clave: unknown): string => typeof clave === 'string' && ETIQUETA.test(clave) ? (NOMBRES_ADJUNTO[clave] ?? clave) : '';
 
+/** Catálogo cerrado del tema época (rig.js CATALOGO y COLORES; el mismo que valida el API en InstitutionRequestDraft). */
+const PIEZAS_LOOK: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  hairStyle: ['corto', 'recogido', 'ondas', 'largo', 'bob', 'rizos', 'calvo'],
+  beard: ['none', 'patillas', 'bigote', 'perilla', 'barba'],
+  outfit: ['levita', 'safari', 'bata', 'toga', 'tunica', 'medieval', 'traje'],
+  sleeve: ['larga', 'corta'],
+  hat: ['none', 'copa', 'safari', 'bicornio', 'laurel', 'gorra', 'boina'],
+});
+const COLORES_LOOK = new Set(['skin', 'skinShade', 'lips', 'blush', 'hair', 'brow', 'coat', 'coatShade', 'shirt', 'vest', 'cravat', 'trousers', 'shoes', 'belt', 'accent', 'hatColor', 'hatBand', 'glow']);
+
+/** Errores de un look leído del API: piezas de su lista, colores #rrggbb (o null), `glasses` booleano; nada más. Como validarLook de rig.js. */
+export function validarLookCatalogo(look: Record<string, unknown>): string[] {
+  const e: string[] = [];
+  for (const [k, v] of Object.entries(look)) {
+    if (k in PIEZAS_LOOK) { if (typeof v !== 'string' || !PIEZAS_LOOK[k].includes(v)) e.push(`${k} fuera del catálogo`); }
+    else if (COLORES_LOOK.has(k)) { if (v !== null && (typeof v !== 'string' || !HEX.test(v))) e.push(`${k} no es un color`); }
+    else if (k === 'glasses') { if (typeof v !== 'boolean') e.push('glasses no es booleano'); }
+    else e.push(`campo desconocido «${k}»`);
+  }
+  return e;
+}
+
 /**
  * Lee el `draft` tal como lo devuelve el API (string con el JSON canónico, null si no hubo o no validó). Es un dato de una
  * solicitud pública: solo se acepta la forma cerrada, con valores de tipos simples, y nunca se confía en él más que para mostrarlo.
@@ -139,7 +161,7 @@ const nombre = (clave: unknown): string => typeof clave === 'string' && ETIQUETA
 export function leerDraft(raw: unknown): IResumenAdjunto | null {
   if (typeof raw !== 'string' || !raw || raw.length > MAX_ADJUNTO) return null;
   let obj: unknown; try { obj = JSON.parse(raw); } catch { return null; }
-  const adjunto = validarAdjunto(obj, look => Object.entries(look).some(([k, v]) => !ETIQUETA.test(k) || (typeof v === 'string' && v.length > 40)) ? ['forma'] : []);
+  const adjunto = validarAdjunto(obj, validarLookCatalogo);
   if (!adjunto) return null;
   const colores = COLORES_ADJUNTO.flatMap(([k, n]) => { const v = adjunto.l[k]; return typeof v === 'string' && HEX.test(v) ? [{ nombre: n, hex: v.toLowerCase() }] : []; });
   return { adjunto, base: nombre(adjunto.b) || 'Sorpréndeme', objeto: adjunto.i ? nombre(adjunto.i) || 'Objeto' : 'Sin objeto', escenario: nombre(adjunto.w) || 'Escenario', colores };

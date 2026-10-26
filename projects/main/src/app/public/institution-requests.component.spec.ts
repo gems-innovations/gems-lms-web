@@ -57,7 +57,7 @@ describe('InstitutionRequestsComponent (personaje adjunto)', () => {
     expect(adj.textContent).toContain('Excavación en Egipto');
     expect(adj.textContent).toContain(ID);
     const muestras = Array.from(adj.querySelectorAll<HTMLElement>('.adj__muestra')).map(e => e.style.backgroundColor);
-    expect(muestras.length).toBe(2);
+    expect(muestras).toEqual(['rgb(201, 154, 118)', 'rgb(138, 106, 58)']);   // #c99a76 (piel) y #8a6a3a (prenda), en el orden de COLORES_ADJUNTO
     expect(adj.textContent).toContain('#c99a76'); expect(adj.textContent).toContain('#8a6a3a');
     expect(host.querySelector('.req__msg')!.textContent).toContain('Quiero Taps');
     expect(pintadas.length).toBe(1);
@@ -75,18 +75,19 @@ describe('InstitutionRequestsComponent (personaje adjunto)', () => {
   });
 
   it('con draft corrupto, con forma rara o con HTML dentro: sin tarjeta o solo texto escapado; nunca se inyecta nada', async () => {
-    const malo = JSON.stringify({ v: 1, borradorId: ID, b: '<img src=x onerror=alert(1)>', l: { coat: '<b>rojo</b>' }, i: '<script>', w: 'foro-roma' });
-    const f = await crear([fila(1, { draft: '{roto' }), fila(2, { draft: '[]' }), fila(3, { draft: 12345 }), fila(4, { draft: malo })]);
+    const malo = JSON.stringify({ v: 1, borradorId: ID, b: '<img src=x onerror=alert(1)>', l: { hat: 'none' }, i: '<script>', w: 'foro-roma' });
+    const lookMalo = JSON.stringify({ v: 1, borradorId: ID, b: 'grabador', l: { coat: '<b>rojo</b>', hat: 'casco' }, i: 'pluma', w: 'foro-roma' });
+    const f = await crear([fila(1, { draft: '{roto' }), fila(2, { draft: '[]' }), fila(3, { draft: 12345 }), fila(4, { draft: malo }), fila(5, { draft: lookMalo })]);
     const host = f.nativeElement as HTMLElement;
-    expect(host.querySelectorAll('tbody tr').length).toBe(4);
-    expect(host.querySelectorAll('.adj').length).withContext('solo la cuarta pasa la forma; las otras tres no').toBe(1);
-    expect(host.querySelector('img, script, b.adj')).toBeNull();
+    expect(host.querySelectorAll('tbody tr').length).toBe(5);
+    expect(host.querySelectorAll('.adj').length).withContext('solo la cuarta pasa la forma; un look fuera del catálogo tampoco').toBe(1);
+    expect(host.querySelector('img, script, b')).toBeNull();
     const adj = host.querySelector('.adj')!;
     expect(adj.textContent).toContain('Sorpréndeme');          // base rara → genérico (texto)
     expect(adj.textContent).toContain('Objeto');               // objeto raro → genérico
-    expect(adj.querySelectorAll('.adj__muestra').length).toBe(0); // «<b>rojo</b>» no es #rrggbb
-    expect(adj.innerHTML).not.toContain('<b>rojo');
+    expect(adj.querySelectorAll('.adj__muestra').length).toBe(0);
     expect(adj.innerHTML).not.toContain('<img');
+    expect(host.innerHTML).not.toContain('<b>rojo');
   });
 
   it('si rig.js no carga, queda el texto y las muestras sin vista previa y sin error', async () => {

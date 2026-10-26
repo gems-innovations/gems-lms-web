@@ -146,7 +146,9 @@ test.describe('gancho de publicar', () => {
       await page.getByRole('button', { name: 'Enviar solicitud' }).click();
       await expect(page.getByRole('button', { name: 'Enviar solicitud' })).toHaveCount(0);
       expect(solicitudes).toHaveLength(1);
-      // PR-9b: el texto va intacto en `message` y el borrador, como string JSON, en su propio campo `draft`.
+      // PR-9b: el texto va intacto en `message` y el borrador, como string JSON, en su propio campo `draft`. Aquí el POST está
+      // interceptado (se comprueba la forma del cuerpo que manda la web); el contrato real con el API lo cubre
+      // PublicCatalogControllerRequestsTest en gems-lms-api.
       expect(solicitudes[0]['message']).toBe('Quiero Taps para mi curso');
       expect(String(solicitudes[0]['message'])).not.toContain('[gems-borrador');
       const draft = solicitudes[0]['draft'];
