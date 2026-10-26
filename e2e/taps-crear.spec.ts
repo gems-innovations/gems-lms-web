@@ -89,7 +89,7 @@ test.describe('/crear', () => {
 /**
  * Gancho de «Publicar» (PR-8, §A.3.2 y §A.3.3): hoja inferior accesible con tres salidas. «Soy docente o institución» lleva al
  * formulario de /instituciones con `?borrador=<id>`; el formulario muestra «Tu personaje irá adjunto» con la miniatura guardada y
- * manda el borrador compacto dentro de `message` (la red se intercepta: ninguna solicitud sale de verdad). «Soy estudiante» solo
+ * manda el borrador compacto como string en el campo `draft`, con `message` intacto (PR-9b; la red se intercepta: ninguna solicitud sale de verdad). «Soy estudiante» solo
  * ofrece copiar el enlace del look. Los eventos del embudo salen una vez y nunca llevan el look.
  */
 test.describe('gancho de publicar', () => {
@@ -146,13 +146,20 @@ test.describe('gancho de publicar', () => {
       await page.getByRole('button', { name: 'Enviar solicitud' }).click();
       await expect(page.getByRole('button', { name: 'Enviar solicitud' })).toHaveCount(0);
       expect(solicitudes).toHaveLength(1);
-      const msg = String(solicitudes[0]['message']);
-      expect(msg.startsWith('Quiero Taps para mi curso\n\n[gems-borrador v1]')).toBeTruthy();
-      expect(msg).toContain(`"borradorId":"${borrador!.borradorId}"`);
-      expect(msg).toContain('"b":"arqueologa"');
-      expect(msg).not.toContain('miniatura'); expect(msg).not.toContain('data:image');
-      expect(msg.length).toBeLessThanOrEqual(2000);
-      expect(JSON.stringify(solicitudes[0])).not.toContain('"borrador"');   // el API de hoy no tiene campo propio (PR-9)
+      // PR-9b: el texto va intacto en `message` y el borrador, como string JSON, en su propio campo `draft`. Aquí el POST está
+      // interceptado (se comprueba la forma del cuerpo que manda la web); el contrato real con el API lo cubre
+      // PublicCatalogControllerRequestsTest en gems-lms-api.
+      expect(solicitudes[0]['message']).toBe('Quiero Taps para mi curso');
+      expect(String(solicitudes[0]['message'])).not.toContain('[gems-borrador');
+      const draft = solicitudes[0]['draft'];
+      expect(typeof draft).toBe('string');
+      const d = JSON.parse(String(draft)) as Record<string, unknown>;
+      expect(d['v']).toBe(1);
+      expect(d['borradorId']).toBe(borrador!.borradorId);
+      expect(d['b']).toBe('arqueologa');
+      expect(typeof d['l']).toBe('object');
+      expect(String(draft)).not.toContain('miniatura'); expect(String(draft)).not.toContain('data:image');
+      expect(Buffer.byteLength(String(draft), 'utf8')).toBeLessThanOrEqual(2048);
       // Embudo: cada evento una vez y ninguno con el look.
       const ev = await eventos(page);
       for (const e of ['taps/crear/intento-publicar/sin-cuenta', 'taps/crear/gancho/docente', 'taps/crear/registro/inicio', 'taps/crear/registro/enviado']) expect(ev.filter(x => x === e), e).toHaveLength(1);

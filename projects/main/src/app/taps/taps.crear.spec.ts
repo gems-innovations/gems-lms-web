@@ -1,6 +1,6 @@
 import {
-  CINTA_TRANSPARENCIA, COPY_GANCHO, IAdjuntoBorrador, MARCA_ADJUNTO_FIN, MARCA_ADJUNTO_INICIO, MAX_ADJUNTO, MAX_MENSAJE_API, PASO_PUBLICAR, armarAdjunto, cabeAdjunto,
-  enlaceRegistro, extraerAdjunto, hitosCrear, leerBorradorId, mensajeConAdjunto, origenCrear, restaMensaje, validarAdjunto,
+  CINTA_TRANSPARENCIA, COPY_GANCHO, IAdjuntoBorrador, MAX_ADJUNTO, NOMBRES_ADJUNTO, PASO_PUBLICAR, armarAdjunto,
+  enlaceRegistro, hitosCrear, leerBorradorId, leerDraft, origenCrear, validarAdjunto,
 } from './taps.crear';
 
 describe('origenCrear', () => {
@@ -98,7 +98,7 @@ describe('armarAdjunto', () => {
     expect(a.json).toBe(JSON.stringify(a.adjunto));
     expect(a.json).not.toContain('miniatura'); expect(a.json).not.toContain('fecha'); expect(a.json).not.toContain('paso');
     expect(a.json.length).toBeLessThanOrEqual(MAX_ADJUNTO);
-    expect(a.bloque).toBe(`${MARCA_ADJUNTO_INICIO}\n${a.json}\n${MARCA_ADJUNTO_FIN}`);
+    expect(a.json).not.toContain('[gems-borrador');
     expect(a.miniatura).toBe('data:image/png;base64,AAAA');
   });
   it('sin borrador, con otro id, JSON roto o look inválido → null (el formulario sigue normal)', () => {
@@ -140,32 +140,51 @@ describe('validarAdjunto', () => {
   });
 });
 
-describe('mensajeConAdjunto y extraerAdjunto', () => {
+describe('leerDraft (lo que devuelve el API en /solicitudes)', () => {
   const a = () => armarAdjunto(borrador(), ID, validar)!;
-  it('pone el bloque al final; si no cabe junto al texto entero, va el texto completo y el bloque no (nunca se recorta lo escrito)', () => {
-    const bloque = a().bloque;
-    expect(mensajeConAdjunto('Quiero Taps para mi curso', bloque)).toBe(`Quiero Taps para mi curso\n\n${bloque}`);
-    expect(mensajeConAdjunto('   ', bloque)).toBe(bloque);
-    expect(mensajeConAdjunto('Hola', null)).toBe('Hola');
-    expect(cabeAdjunto('Hola', bloque)).toBeTrue();
-    expect(cabeAdjunto('', bloque)).toBeTrue();
-    expect(cabeAdjunto('Hola', null)).toBeTrue();
-    const justo = 'x'.repeat(restaMensaje(bloque));
-    expect(cabeAdjunto(justo, bloque)).toBeTrue();
-    expect(mensajeConAdjunto(justo, bloque).length).toBe(MAX_MENSAJE_API);
-    const largo = 'y'.repeat(restaMensaje(bloque) + 1);
-    expect(cabeAdjunto(largo, bloque)).toBeFalse();
-    expect(mensajeConAdjunto(largo, bloque)).toBe(largo);
-    expect(mensajeConAdjunto('z'.repeat(2000), bloque)).toBe('z'.repeat(2000));
-    expect(restaMensaje(bloque)).toBe(MAX_MENSAJE_API - bloque.length - 2);
-    expect(restaMensaje(null)).toBe(MAX_MENSAJE_API);
-  });
-  it('lo que PR-9 leerá: del mensaje sale el mismo adjunto y el texto de la persona', () => {
-    const r = extraerAdjunto(mensajeConAdjunto('Mi colegio', a().bloque), validar)!;
+  it('del string que mandó el formulario sale el mismo adjunto, con nombres legibles y muestras de color', () => {
+    const r = leerDraft(a().json)!;
+    expect(r).not.toBeNull();
     expect(r.adjunto).toEqual(a().adjunto);
-    expect(r.mensaje).toBe('Mi colegio');
-    expect(extraerAdjunto('sin bloque', validar)).toBeNull();
-    expect(extraerAdjunto(`${MARCA_ADJUNTO_INICIO}\n{roto\n${MARCA_ADJUNTO_FIN}`, validar)).toBeNull();
-    expect(extraerAdjunto(null, validar)).toBeNull();
+    expect(r.base).toBe(NOMBRES_ADJUNTO['grabador']);
+    expect(r.objeto).toBe('Pluma');
+    expect(r.escenario).toBe('Taller de Londres');
+    expect(r.colores).toEqual([{ nombre: 'Prenda', hex: '#223344' }]);
+  });
+  it('sin objeto y con base desconocida: «Sin objeto» y «Sorpréndeme»; los colores en mayúsculas se normalizan', () => {
+    const r = leerDraft(JSON.stringify({ v: 1, borradorId: ID, b: 'sorpresa', l: { skin: '#C99A76', hat: 'none' }, i: null, w: 'foro-roma' }))!;
+    expect(r.base).toBe('Sorpréndeme');
+    expect(r.objeto).toBe('Sin objeto');
+    expect(r.escenario).toBe('Foro de Roma');
+    expect(r.colores).toEqual([{ nombre: 'Piel', hex: '#c99a76' }]);
+  });
+  it('nulo, vacío, JSON roto, forma distinta, demasiado grande o con valores raros → null (la solicitud se enseña sin personaje)', () => {
+    expect(leerDraft(null)).toBeNull();
+    expect(leerDraft(undefined)).toBeNull();
+    expect(leerDraft('')).toBeNull();
+    expect(leerDraft('{roto')).toBeNull();
+    expect(leerDraft('[]')).toBeNull();
+    expect(leerDraft('"texto"')).toBeNull();
+    expect(leerDraft(JSON.stringify({ v: 2, borradorId: ID, b: 'grabador', l: {}, i: null, w: 'foro-roma' }))).toBeNull();
+    expect(leerDraft(JSON.stringify({ v: 1, borradorId: '<script>', b: 'grabador', l: {}, i: null, w: 'foro-roma' }))).toBeNull();
+    expect(leerDraft(JSON.stringify({ v: 1, borradorId: ID, b: 'grabador', l: { coat: { a: 1 } }, i: null, w: 'foro-roma' }))).toBeNull();
+    expect(leerDraft(JSON.stringify({ v: 1, borradorId: ID, b: 'grabador', l: { '<b>': 'x' }, i: null, w: 'foro-roma' }))).toBeNull();
+    expect(leerDraft('x'.repeat(MAX_ADJUNTO + 1))).toBeNull();
+    expect(leerDraft({ v: 1 } as unknown)).withContext('el API siempre devuelve string; un objeto no se interpreta').toBeNull();
+  });
+  it('el look se valida contra el catálogo cerrado (piezas, colores #rrggbb o null, glasses booleano); lo demás es null', () => {
+    const con = (l: Record<string, unknown>) => leerDraft(JSON.stringify({ v: 1, borradorId: ID, b: 'grabador', l, i: null, w: 'foro-roma' }));
+    expect(con({ coat: 'red', hat: 'copa' })).toBeNull();
+    expect(con({ hat: 'casco' })).toBeNull();
+    expect(con({ glasses: 'si' })).toBeNull();
+    expect(con({ raro: '#000000' })).toBeNull();
+    expect(con({ hat: 'copa', vest: null, glasses: true, coat: '#112233' })!.colores).toEqual([{ nombre: 'Prenda', hex: '#112233' }]);
+  });
+  it('etiquetas raras en objeto o escenario no se enseñan tal cual: caen al genérico', () => {
+    const r = leerDraft(JSON.stringify({ v: 1, borradorId: ID, b: 'grabador', l: { hat: 'copa' }, i: 'x y', w: 'w<1>' }))!;
+    expect(r).not.toBeNull();
+    expect(r.colores).toEqual([]);
+    expect(r.objeto).toBe('Objeto');
+    expect(r.escenario).toBe('Escenario');
   });
 });
