@@ -5,7 +5,8 @@ import {
 import { Router } from '@angular/router';
 import { AnalyticsService } from '../analytics.service';
 import { TEventPath } from '../analytics-taxonomy';
-import { CINTA_TRANSPARENCIA, CLAVE_AVISO_PUBLICAR, COPY_GANCHO, PASO_PUBLICAR, enlaceRegistro, hitosCrear, origenCrear } from './taps.crear';
+import { TapsSonidoService } from './taps-sonido.service';
+import { CINTA_TRANSPARENCIA, CLAVE_AVISO_PUBLICAR, CLAVE_SONIDO_TAPS, COPY_GANCHO, PASO_PUBLICAR, enlaceRegistro, hitosCrear, origenCrear, sonidoActivo } from './taps.crear';
 
 /** Lo que el diseñador entrega al tocar «Publicar (con cuenta)»: el id del borrador local (ya guardado) y el enlace del look. */
 export interface IContextoPublicar {
@@ -23,6 +24,8 @@ export interface IDisenadorModule {
     pasoPublicar?: { texto: string; alTocar?: (contexto: IContextoPublicar) => void };
     /** Cómo quitar `#look=` de la URL sin pisar el estado del router (la página suelta usa history directamente). */
     limpiarHash?: () => void;
+    /** Altavoz del creador (PR-D1) enlazado al silencio general de Taps: qué estado tiene y qué hacer al cambiarlo. */
+    sonido?: { activo: () => boolean; cambiar: (on: boolean) => void };
   }): Promise<{ ok: boolean; registro?: string[]; destruir(): void }>;
 }
 
@@ -30,7 +33,7 @@ export interface IDisenadorModule {
  * Dónde vive el diseñador: archivos estáticos del mismo origen (public/taps-engine), fuera del bundle, como el motor
  * (taps-engine.loader.ts). nginx lo sirve con `no-cache`; la query evita que una caché vieja entregue el módulo anterior.
  */
-const DISENADOR_VERSION = '2';
+const DISENADOR_VERSION = '3';
 export const DISENADOR_URL = `/taps-engine/disenador.js?v=${DISENADOR_VERSION}`;
 /** Cómo se carga el módulo (inyectable para probar el componente sin servir los estáticos). */
 export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModule>>('DISENADOR_LOADER', {
@@ -150,6 +153,8 @@ export class TapDisenadorComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  /** El sonido del feed, si esta ruta vive dentro de él (en /crear suelto no hay: basta la clave compartida). */
+  private readonly audio = inject(TapsSonidoService, { optional: true });
   /** Hitos del embudo ya contados en esta visita (cada uno una vez). */
   private readonly hitos = new Set<string>();
   private disenador: { destruir(): void } | null = null;
@@ -173,6 +178,11 @@ export class TapDisenadorComponent {
         alEvento: nombre => this.alEvento(nombre),
         pasoPublicar: { texto: PASO_PUBLICAR, alTocar: contexto => this.publicar(contexto) },
         limpiarHash: () => this.location.replaceState(location.pathname, location.search),
+        // Un solo interruptor para todo Taps: el altavoz del creador lee y escribe el silencio general del feed (PR-D1).
+        sonido: {
+          activo: () => sonidoActivo(this.leer(CLAVE_SONIDO_TAPS)),
+          cambiar: on => { this.escribir(CLAVE_SONIDO_TAPS, on ? 'on' : 'off'); this.audio?.silenciar(!on); },
+        },
       });
     } catch {
       if (!this.destruido) { this.fallo.set(true); this.contar('taps/crear/error/carga'); }

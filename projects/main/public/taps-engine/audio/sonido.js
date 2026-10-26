@@ -13,7 +13,7 @@
 //   · Los efectos se sintetizan la primera vez que se piden (efectos.js) y quedan en caché: 0 bytes de descarga.
 
 // La versión (?v=) va también en los imports internos: si cambia efectos.js, una caché vieja no mezcla versiones.
-import { renderizarEfecto, paletaDeTema, claveEfecto } from './efectos.js?v=2';
+import { renderizarEfecto, paletaDeTema, claveEfecto } from './efectos.js?v=3';
 
 export const VOLUMEN_EFECTOS = 0.6;
 export const VOLUMEN_VOZ = 1;
@@ -23,8 +23,8 @@ export const DUCKING = 0.35;
 export const DESDE_MOTOR = Object.freeze({ pop: 'aparece', blip: 'blip' });
 
 export function crearSonido(opciones = {}) {
-  let ac = null, efectos = null, voz = null, silencio = true, destruido = false, pausado = false, ultimoDeslizar = -1, temaPedido = null, gestoHasta = -1;
-  const cache = new Map(), calientes = new Set();
+  let ac = null, efectos = null, voz = null, silencio = true, destruido = false, pausado = false, ultimoDeslizar = -1, temaPedido = null, extraPedido = {}, gestoHasta = -1;
+  const cache = new Map(), calientes = new Set(), ultimos = new Map();
   const ahora = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
   /** iOS usa «interrupted» (llamada, Siri, otra app con audio): se trata igual que «suspended». */
   const dormido = () => ac && (ac.state === 'suspended' || ac.state === 'interrupted');
@@ -34,7 +34,7 @@ export function crearSonido(opciones = {}) {
     const comp = ac.createDynamicsCompressor(); comp.threshold.value = -12; comp.ratio.value = 4; comp.connect(ac.destination);
     efectos = ac.createGain(); efectos.gain.value = silencio ? 0 : VOLUMEN_EFECTOS; efectos.connect(comp);
     voz = ac.createGain(); voz.gain.value = silencio ? 0 : VOLUMEN_VOZ; voz.connect(comp);
-    if (temaPedido) S.precalentar(temaPedido);                       // se pidió antes del primer gesto
+    if (temaPedido) S.precalentar(temaPedido, extraPedido);          // se pidió antes del primer gesto
   }
 
   function buffer(nombre, o) {
@@ -80,13 +80,15 @@ export function crearSonido(opciones = {}) {
     /**
      * Toca un efecto (efectos.js). Sin desbloquear, silenciado o con la pestaña oculta no hace nada (y no lanza).
      * @param {string} nombre
-     * @param {{tema?: string, paleta?: string, nivel?: number, puntaje?: number, vol?: number}} [o]
+     * `cadaMs`: tope de uno de este efecto cada tantos ms (p. ej. `color` al arrastrar el selector); el sobrante se descarta.
+     * @param {{tema?: string, paleta?: string, nivel?: number, puntaje?: number, vol?: number, cadaMs?: number}} [o]
      */
     tocar(nombre, o = {}) {
       if (!ac || silencio || destruido || pausado) return false;
       // Solo suena con el contexto en marcha. Única excepción: justo tras desbloquear en un gesto válido, cuando el resume()
       // aún no terminó; fuera de eso, lo programado con el contexto dormido sonaría todo junto al despertar (ráfaga en móvil).
       if (ac.state !== 'running' && !(dormido() && ahora() < gestoHasta)) return false;
+      if (o.cadaMs > 0) { const t = ahora(); if (t - (ultimos.get(nombre) ?? -Infinity) < o.cadaMs) return false; ultimos.set(nombre, t); }
       if (nombre === 'deslizar') ultimoDeslizar = ahora();
       if (nombre === 'aparece' && ahora() - ultimoDeslizar < 350) return false;   // el «fiu» del cambio de Tap ya lo dijo
       const b = buffer(nombre, o); if (!b) return false;
@@ -109,15 +111,17 @@ export function crearSonido(opciones = {}) {
      * Sintetiza por adelantado los efectos de la paleta de un tema, de a uno por tarea en reposo (cada uno tarda pocos ms):
      * al responder, el sonido ya está en caché y suena en el mismo fotograma del toque.
      */
-    precalentar(tema) {
-      temaPedido = tema;
-      const paleta = paletaDeTema(tema);
+    precalentar(tema, extra = {}) {
+      temaPedido = tema; extraPedido = extra;
+      const paleta = extra.paleta ?? paletaDeTema(tema);
       if (!ac || destruido || calientes.has(paleta)) return;
       calientes.add(paleta);
-      const lista = [['acierto'], ['fallo'], ['deslizar'], ['toque'], ['aparece'], ['racha', { nivel: 3 }], ['racha', { nivel: 4 }], ['racha', { nivel: 5 }],
+      // `extra.lista` ([[nombre, opciones], …]) sustituye la lista del feed (el creador de personajes tiene otros efectos).
+      const lista = extra.lista ? extra.lista.map(([n, o]) => [n, o ?? {}]) : [['acierto'], ['fallo'], ['deslizar'], ['toque'], ['aparece'], ['racha', { nivel: 3 }], ['racha', { nivel: 4 }], ['racha', { nivel: 5 }],
         ['resultado', { puntaje: 1 }], ['resultado', { puntaje: 0.6 }], ['resultado', { puntaje: 0 }], ['blip'], ['tic']];
+      if (!lista.length) return;
       const idle = globalThis.requestIdleCallback ?? (fn => setTimeout(fn, 16));
-      const uno = () => { if (destruido || !ac) return; const [n, o = {}] = lista.shift(); buffer(n, { ...o, tema }); if (lista.length) idle(uno); };
+      const uno = () => { if (destruido || !ac) return; const [n, o = {}] = lista.shift(); buffer(n, { ...o, tema, paleta }); if (lista.length) idle(uno); };
       idle(uno);
     },
     /** Pestaña oculta: se suspende el contexto y nada se acumula para sonar de golpe al volver. */

@@ -12,14 +12,25 @@ import { PALETAS, NOMBRES, MUNDOS, sombra, sorprenderTodo, sorprenderPestana, so
 import { CLAVE_BORRADOR, CLAVE_LOOKS, MAX_LOOKS, MAX_NOMBRE, armarBorrador, borrarLook, crearAlmacen, duplicarLook, fechaCorta, guardarLook, parsearBorrador, parsearLooks, renombrarLook, serializarBorrador, serializarLooks } from './themes/epoca/guardado.js';
 import { enlaceDeLook, exportarJson, importarJson, lookDesdeHash } from './themes/epoca/compartir.js';
 import { PREFIJO, crearMedidor, esAutomatico, esInterno, nombreAbandono, nombreValido, paraGoatCounter } from './themes/epoca/medicion.js';
+// La versión (?v=) va en los imports del audio: si cambia efectos.js, una caché vieja no mezcla versiones (como en sonido.js).
+import { crearSonido } from './audio/sonido.js?v=3';
+import { luminancia } from './audio/efectos.js?v=3';
 
 export const PREFIJO_MEDICION = PREFIJO;
 export const CLAVE_GUSTO = 'taps.disenador.gusto';
+/** Sonido del creador en disenador.html: 'off' = apagado (en /crear manda el silencio general del feed, `opciones.sonido`). */
+export const CLAVE_SONIDO = 'taps.disenador.sonido';
+/** Paleta de audio/efectos.js del creador (campanas con madera): suena al tema, no al feed. */
+export const PALETA_SONIDO = 'epoca';
+/** Ganancias (sobre el 60 % general): −14 dB para lo que se toca decenas de veces y −12 dB para los errores. */
+export const GANANCIA_BAJA = 0.2, GANANCIA_ERROR = 0.25;
+/** Tope de un `color` cada tantos ms al arrastrar el selector libre. */
+export const CADA_COLOR_MS = 80;
 /** Hoja de estilos del diseñador (todo bajo .dsn), junto a este módulo. */
 export const URL_ESTILOS = new URL('./disenador.css', import.meta.url).href;
 
 /** Marcado del diseñador (un solo origen para las dos páginas). Se vuelca en la raíz al montar. */
-export const PLANTILLA = "<svg width=\"0\" height=\"0\" style=\"position:absolute\" aria-hidden=\"true\">\n  <symbol id=\"i-cara\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8.5 10.5h.01M15.5 10.5h.01M8.5 14.5c1 1.3 2.2 2 3.5 2s2.5-.7 3.5-2\"/></symbol>\n  <symbol id=\"i-pelo\" viewBox=\"0 0 24 24\"><path d=\"M5 14c0-5 3-9 7-9s7 4 7 9M5 14c1.5-1 2.5-3 3-5M19 14c-1.5-1-2.5-3-3-5M9 12c-.5 1.5-1.5 2.5-3 3M15 12c.5 1.5 1.5 2.5 3 3\"/><path d=\"M8 19c1 .8 2.5 1.2 4 1.2s3-.4 4-1.2\"/></symbol>\n  <symbol id=\"i-ropa\" viewBox=\"0 0 24 24\"><path d=\"M8 4l4 2 4-2 4 4-3 2v10H7V10L4 8z\"/><path d=\"M8 4c.5 2 2 3 4 3s3.5-1 4-3\"/></symbol>\n  <symbol id=\"i-objeto\" viewBox=\"0 0 24 24\"><path d=\"M7 11V7a2 2 0 0 1 4 0v4M11 10V5a2 2 0 0 1 4 0v6M15 11V7a2 2 0 0 1 4 0v8a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L4 14a2 2 0 0 1 3-2.4\"/></symbol>\n  <symbol id=\"i-deshacer\" viewBox=\"0 0 24 24\"><path d=\"M9 14 4 9l5-5\"/><path d=\"M4 9h10a6 6 0 0 1 0 12h-3\"/></symbol>\n  <symbol id=\"i-sorpresa\" viewBox=\"0 0 24 24\"><path d=\"M4 6h3l10 12h3M20 6h-3l-2.5 3M4 18h3l2.5-3\"/><path d=\"M17 4l3 2-3 2M17 16l3 2-3 2\"/></symbol>\n  <symbol id=\"i-mas\" viewBox=\"0 0 24 24\"><path d=\"M12 5v14M5 12h14\"/></symbol>\n  <symbol id=\"i-puntos\" viewBox=\"0 0 24 24\"><circle cx=\"6\" cy=\"12\" r=\"1.3\"/><circle cx=\"12\" cy=\"12\" r=\"1.3\"/><circle cx=\"18\" cy=\"12\" r=\"1.3\"/></symbol>\n  <symbol id=\"i-atras\" viewBox=\"0 0 24 24\"><path d=\"M15 5l-7 7 7 7\"/></symbol>\n  <symbol id=\"i-sig\" viewBox=\"0 0 24 24\"><path d=\"M9 5l7 7-7 7\"/></symbol>\n  <symbol id=\"i-listo\" viewBox=\"0 0 24 24\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></symbol>\n  <symbol id=\"i-dedo\" viewBox=\"0 0 24 24\"><path d=\"M10 11V5a1.5 1.5 0 0 1 3 0v6M13 10a1.5 1.5 0 0 1 3 0v2M16 12a1.5 1.5 0 0 1 3 0v4a5 5 0 0 1-5 5h-1a5 5 0 0 1-4-2l-3-4a1.5 1.5 0 0 1 2.4-1.8L10 15\"/></symbol>\n  <symbol id=\"i-copiar\" viewBox=\"0 0 24 24\"><rect x=\"9\" y=\"9\" width=\"11\" height=\"11\" rx=\"2\"/><path d=\"M5 15V6a2 2 0 0 1 2-2h9\"/></symbol>\n  <symbol id=\"i-idea\" viewBox=\"0 0 24 24\"><path d=\"M9 18h6M10 21h4M12 3a6 6 0 0 1 3.6 10.8c-.5.4-.6 1-.6 1.6V16H9v-.6c0-.6-.1-1.2-.6-1.6A6 6 0 0 1 12 3z\"/></symbol>\n  <symbol id=\"i-guardar\" viewBox=\"0 0 24 24\"><path d=\"M5 4h11l3 3v13H5z\"/><path d=\"M8 4v5h7V4M8 20v-6h8v6\"/></symbol>\n  <symbol id=\"i-lapiz\" viewBox=\"0 0 24 24\"><path d=\"M4 20l4-1L19 8l-3-3L5 16z\"/><path d=\"M14 7l3 3\"/></symbol>\n  <symbol id=\"i-papelera\" viewBox=\"0 0 24 24\"><path d=\"M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13\"/><path d=\"M10 11v6M14 11v6\"/></symbol>\n  <symbol id=\"i-reloj\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/></symbol>\n  <symbol id=\"i-enlace\" viewBox=\"0 0 24 24\"><path d=\"M10 14a4 4 0 0 0 5.6.4l3-3a4 4 0 0 0-5.6-5.6l-1.5 1.5\"/><path d=\"M14 10a4 4 0 0 0-5.6-.4l-3 3a4 4 0 0 0 5.6 5.6l1.5-1.5\"/></symbol>\n  <symbol id=\"i-bajar\" viewBox=\"0 0 24 24\"><path d=\"M12 4v11M7 10l5 5 5-5\"/><path d=\"M5 20h14\"/></symbol>\n  <symbol id=\"i-subir\" viewBox=\"0 0 24 24\"><path d=\"M12 15V4M7 9l5-5 5 5\"/><path d=\"M5 20h14\"/></symbol>\n  <symbol id=\"i-jugar\" viewBox=\"0 0 24 24\"><path d=\"M8 5v14l11-7z\"/></symbol>\n  <symbol id=\"i-sonrisa\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8.5 10h.01M15.5 10h.01\"/><path d=\"M8 14c1 1.8 2.4 2.7 4 2.7s3-.9 4-2.7\"/></symbol>\n  <symbol id=\"i-neutro\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8.5 10h.01M15.5 10h.01\"/><path d=\"M8.5 15.5h7\"/></symbol>\n  <symbol id=\"i-cerrar\" viewBox=\"0 0 24 24\"><path d=\"M6 6l12 12M18 6L6 18\"/></symbol>\n  <symbol id=\"i-regalo\" viewBox=\"0 0 24 24\"><rect x=\"4\" y=\"9\" width=\"16\" height=\"11\" rx=\"2\"/><path d=\"M4 13h16M12 9v11\"/><path d=\"M12 9c-1.5-3-4-4-5.5-2.5S9 9 12 9zm0 0c1.5-3 4-4 5.5-2.5S15 9 12 9z\"/></symbol>\n</svg>\n\n<header>\n  <h1>Haz tu personaje</h1>\n  <ol class=\"progreso\" id=\"progreso\" aria-label=\"Pasos\">\n    <li class=\"ahora\" title=\"Personaje\"><span>Personaje</span></li>\n    <li title=\"Escenario\"><span>Escenario</span></li>\n    <li title=\"Listo\"><span>Listo</span></li>\n  </ol>\n</header>\n\n<section class=\"vista\" id=\"vista\" aria-label=\"Vista previa de tu personaje\">\n  <canvas id=\"lienzo\" role=\"img\" aria-label=\"Tu personaje\"></canvas>\n  <div class=\"bocadillo\" id=\"bocadillo\" aria-live=\"polite\"></div>\n  <div class=\"etiqueta\">Así estaba antes</div>\n  <div class=\"ranura\" id=\"ranuraVista\"></div>\n  <div class=\"pista\" id=\"pista\" hidden><svg class=\"ic\"><use href=\"#i-dedo\"/></svg>Mantén presionado para comparar</div>\n</section>\n\n<div class=\"sugerencia\" id=\"sugerencia\" hidden>\n  <svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-idea\"/></svg>\n  <span id=\"sugerenciaTexto\"></span>\n  <button type=\"button\" id=\"sugerenciaAplicar\">Aplicar</button>\n</div>\n\n<div class=\"barra\">\n  <h2 id=\"titulo\">Elige un punto de partida</h2>\n  <button id=\"deshacer\" disabled aria-label=\"Deshacer el último cambio\"><svg class=\"ic\"><use href=\"#i-deshacer\"/></svg>Deshacer</button>\n  <button id=\"sorprender\" aria-label=\"Sorpréndeme con una combinación\"><svg class=\"ic\"><use href=\"#i-sorpresa\"/></svg>Sorpréndeme</button>\n</div>\n\n<main class=\"paso\" id=\"paso\">\n  <section class=\"pantalla activa\" data-p=\"0\">\n    <p class=\"texto\">Todos empiezan con un personaje completo. Elige uno y ajústalo a tu gusto; nada es obligatorio.</p>\n    <div class=\"tarjetas\" id=\"presets\"></div>\n  </section>\n\n  <section class=\"pantalla\" data-p=\"1\">\n    <nav class=\"pestanas\" id=\"pestanas\" aria-label=\"Qué ajustar\"></nav>\n    <div id=\"ajustes\"></div>\n  </section>\n\n  <section class=\"pantalla\" data-p=\"2\">\n    <p class=\"texto\">Así se ve tu personaje en cada lugar. Elige uno; puedes cambiarlo después.</p>\n    <div class=\"tarjetas escenas\" id=\"escenas\"></div>\n  </section>\n\n  <section class=\"pantalla\" data-p=\"3\">\n    <p class=\"texto\" id=\"despedida\">Tu personaje está listo. Toca una reacción para verlo en acción.</p>\n    <div class=\"reacciones\" id=\"reacciones\" role=\"group\" aria-label=\"Reacciones\"></div>\n    <section class=\"muestra-pregunta\" id=\"muestraPregunta\" aria-labelledby=\"muestraTitulo\">\n      <h3 id=\"muestraTitulo\"><svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-jugar\"/></svg>Míralo en un Tap</h3>\n      <p class=\"texto\">Así se verá cuando alguien responda una pregunta con tu personaje. Prueba con una de ejemplo.</p>\n      <button type=\"button\" id=\"probar\" class=\"grande secundario\" style=\"background:var(--panel2);border-color:var(--acc);color:var(--txt)\"><svg class=\"ic\"><use href=\"#i-jugar\"/></svg>Probar con una pregunta</button>\n      <p class=\"enunciado\" id=\"enunciado\" hidden></p>\n      <div class=\"opciones\" id=\"opciones\" role=\"group\" aria-label=\"Opciones de la pregunta de ejemplo\"></div>\n      <p class=\"veredicto\" id=\"veredicto\" role=\"status\" aria-live=\"polite\"></p>\n    </section>\n    <form class=\"guardar\" id=\"formGuardar\" novalidate>\n      <label for=\"nombre\">Ponle nombre (opcional)</label>\n      <div class=\"fila\"><input id=\"nombre\" maxlength=\"20\" autocomplete=\"off\" autocapitalize=\"words\" enterkeyhint=\"done\" spellcheck=\"false\"><small id=\"restan\" aria-hidden=\"true\"></small></div>\n      <button type=\"submit\" id=\"guardar\" class=\"grande\"><svg class=\"ic\"><use href=\"#i-guardar\"/></svg>Guardar en este dispositivo</button>\n      <p class=\"estado\" id=\"estadoGuardado\" role=\"status\" aria-live=\"polite\"></p>\n    </form>\n    <div class=\"gusto\" id=\"gusto\" hidden role=\"group\" aria-labelledby=\"gustoTexto\">\n      <p id=\"gustoTexto\">¿Te gustó hacerlo?</p>\n      <button type=\"button\" class=\"si\" id=\"gustoSi\" aria-label=\"Sí, me gustó\"><svg class=\"ic\"><use href=\"#i-sonrisa\"/></svg></button>\n      <button type=\"button\" id=\"gustoMeh\" aria-label=\"Más o menos\"><svg class=\"ic\"><use href=\"#i-neutro\"/></svg></button>\n      <button type=\"button\" class=\"cerrar\" id=\"gustoNo\" aria-label=\"Ahora no\"><svg class=\"ic\"><use href=\"#i-cerrar\"/></svg></button>\n    </div>\n    <section class=\"mislooks\" id=\"misLooks\" aria-labelledby=\"misLooksTitulo\">\n      <h3 id=\"misLooksTitulo\">Mis looks <small id=\"cuentaLooks\"></small></h3>\n      <p class=\"texto\" id=\"misLooksVacio\">Aquí aparecerán los personajes que guardes. Se quedan en este dispositivo; nada se envía.</p>\n      <div class=\"looks\" id=\"listaLooks\"></div>\n    </section>\n    <section class=\"compartir\" id=\"compartir\" aria-labelledby=\"compartirTitulo\">\n      <h3 id=\"compartirTitulo\" class=\"texto\" style=\"margin:0\">Compártelo con quien quieras. El enlace lleva el personaje completo; nadie necesita cuenta.</h3>\n      <button type=\"button\" id=\"copiarEnlace\" class=\"grande secundario\"><svg class=\"ic\"><use href=\"#i-enlace\"/></svg>Copiar enlace</button>\n      <div class=\"enlace\"><input id=\"enlaceTexto\" readonly aria-label=\"Enlace de tu personaje\"><button type=\"button\" id=\"enlaceSeleccionar\">Seleccionar</button></div>\n      <p class=\"estado\" id=\"estadoCompartir\" role=\"status\" aria-live=\"polite\"></p>\n    </section>\n    <p class=\"texto\">Pronto vas a poder usarlo en tu propio Tap.</p>\n    <details id=\"masDetalles\">\n      <summary><svg class=\"ic\"><use href=\"#i-puntos\"/></svg>Más</summary>\n      <p class=\"texto\" style=\"margin-top:8px\">Llévate el personaje como archivo o trae uno que te hayan pasado.</p>\n      <div class=\"mas-acciones\">\n        <button type=\"button\" id=\"exportar\"><svg class=\"ic\"><use href=\"#i-bajar\"/></svg>Exportar JSON</button>\n        <label class=\"boton\" for=\"archivoImportar\"><svg class=\"ic\"><use href=\"#i-subir\"/></svg>Importar archivo<input type=\"file\" id=\"archivoImportar\" accept=\".json,application/json,text/plain\"></label>\n        <button type=\"button\" id=\"copiar\"><svg class=\"ic\"><use href=\"#i-copiar\"/></svg>Copiar JSON</button>\n      </div>\n      <div class=\"importar\">\n        <label class=\"texto\" for=\"pegarImportar\" style=\"margin:0\">O pega aquí el texto de un personaje</label>\n        <textarea id=\"pegarImportar\" aria-label=\"Texto del personaje para importar\" placeholder='{\"look\": ...}' spellcheck=\"false\"></textarea>\n        <div class=\"fila\"><button type=\"button\" id=\"importarPegado\">Importar lo pegado</button><span class=\"aviso\" id=\"aviso\" aria-live=\"polite\"></span></div>\n      </div>\n      <textarea id=\"json\" readonly aria-label=\"Datos del personaje\"></textarea>\n    </details>\n  </section>\n</main>\n\n<div class=\"continuar\" id=\"continuar\" hidden role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"continuarTitulo\">\n  <div class=\"hoja\">\n    <img id=\"continuarMini\" alt=\"\" width=\"84\" height=\"112\">\n    <div><h2 id=\"continuarTitulo\">Seguir donde ibas</h2><p id=\"continuarTexto\">Dejaste un personaje a medias en este dispositivo.</p></div>\n    <div class=\"botones\">\n      <button type=\"button\" class=\"primario\" id=\"continuarSi\">Seguir donde ibas</button>\n      <button type=\"button\" id=\"continuarNo\">Empezar otro</button>\n    </div>\n  </div>\n</div>\n\n<div class=\"continuar\" id=\"recibido\" hidden role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"recibidoTitulo\">\n  <div class=\"hoja\">\n    <img id=\"recibidoMini\" alt=\"\" width=\"84\" height=\"112\">\n    <div><h2 id=\"recibidoTitulo\">Look de un amigo</h2><p id=\"recibidoTexto\">Alguien te mandó su personaje.</p></div>\n    <p class=\"estado\" id=\"recibidoEstado\" role=\"status\" aria-live=\"polite\"></p>\n    <div class=\"botones tres\">\n      <button type=\"button\" class=\"primario\" id=\"recibidoProbar\">Probarlo y ajustarlo</button>\n      <button type=\"button\" id=\"recibidoGuardar\"><svg class=\"ic\"><use href=\"#i-guardar\"/></svg>Guardarlo en Mis looks</button>\n      <button type=\"button\" class=\"terciario\" id=\"recibidoNo\">Seguir con el mío</button>\n    </div>\n  </div>\n</div>\n\n<footer>\n  <button id=\"atras\" hidden><svg class=\"ic\"><use href=\"#i-atras\"/></svg>Atrás</button>\n  <button id=\"siguiente\" class=\"primario\">Siguiente<svg class=\"ic\"><use href=\"#i-sig\"/></svg></button>\n</footer>";
+export const PLANTILLA = "<svg width=\"0\" height=\"0\" style=\"position:absolute\" aria-hidden=\"true\">\n  <symbol id=\"i-cara\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8.5 10.5h.01M15.5 10.5h.01M8.5 14.5c1 1.3 2.2 2 3.5 2s2.5-.7 3.5-2\"/></symbol>\n  <symbol id=\"i-pelo\" viewBox=\"0 0 24 24\"><path d=\"M5 14c0-5 3-9 7-9s7 4 7 9M5 14c1.5-1 2.5-3 3-5M19 14c-1.5-1-2.5-3-3-5M9 12c-.5 1.5-1.5 2.5-3 3M15 12c.5 1.5 1.5 2.5 3 3\"/><path d=\"M8 19c1 .8 2.5 1.2 4 1.2s3-.4 4-1.2\"/></symbol>\n  <symbol id=\"i-ropa\" viewBox=\"0 0 24 24\"><path d=\"M8 4l4 2 4-2 4 4-3 2v10H7V10L4 8z\"/><path d=\"M8 4c.5 2 2 3 4 3s3.5-1 4-3\"/></symbol>\n  <symbol id=\"i-objeto\" viewBox=\"0 0 24 24\"><path d=\"M7 11V7a2 2 0 0 1 4 0v4M11 10V5a2 2 0 0 1 4 0v6M15 11V7a2 2 0 0 1 4 0v8a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L4 14a2 2 0 0 1 3-2.4\"/></symbol>\n  <symbol id=\"i-deshacer\" viewBox=\"0 0 24 24\"><path d=\"M9 14 4 9l5-5\"/><path d=\"M4 9h10a6 6 0 0 1 0 12h-3\"/></symbol>\n  <symbol id=\"i-sorpresa\" viewBox=\"0 0 24 24\"><path d=\"M4 6h3l10 12h3M20 6h-3l-2.5 3M4 18h3l2.5-3\"/><path d=\"M17 4l3 2-3 2M17 16l3 2-3 2\"/></symbol>\n  <symbol id=\"i-mas\" viewBox=\"0 0 24 24\"><path d=\"M12 5v14M5 12h14\"/></symbol>\n  <symbol id=\"i-puntos\" viewBox=\"0 0 24 24\"><circle cx=\"6\" cy=\"12\" r=\"1.3\"/><circle cx=\"12\" cy=\"12\" r=\"1.3\"/><circle cx=\"18\" cy=\"12\" r=\"1.3\"/></symbol>\n  <symbol id=\"i-atras\" viewBox=\"0 0 24 24\"><path d=\"M15 5l-7 7 7 7\"/></symbol>\n  <symbol id=\"i-sig\" viewBox=\"0 0 24 24\"><path d=\"M9 5l7 7-7 7\"/></symbol>\n  <symbol id=\"i-listo\" viewBox=\"0 0 24 24\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></symbol>\n  <symbol id=\"i-dedo\" viewBox=\"0 0 24 24\"><path d=\"M10 11V5a1.5 1.5 0 0 1 3 0v6M13 10a1.5 1.5 0 0 1 3 0v2M16 12a1.5 1.5 0 0 1 3 0v4a5 5 0 0 1-5 5h-1a5 5 0 0 1-4-2l-3-4a1.5 1.5 0 0 1 2.4-1.8L10 15\"/></symbol>\n  <symbol id=\"i-copiar\" viewBox=\"0 0 24 24\"><rect x=\"9\" y=\"9\" width=\"11\" height=\"11\" rx=\"2\"/><path d=\"M5 15V6a2 2 0 0 1 2-2h9\"/></symbol>\n  <symbol id=\"i-idea\" viewBox=\"0 0 24 24\"><path d=\"M9 18h6M10 21h4M12 3a6 6 0 0 1 3.6 10.8c-.5.4-.6 1-.6 1.6V16H9v-.6c0-.6-.1-1.2-.6-1.6A6 6 0 0 1 12 3z\"/></symbol>\n  <symbol id=\"i-guardar\" viewBox=\"0 0 24 24\"><path d=\"M5 4h11l3 3v13H5z\"/><path d=\"M8 4v5h7V4M8 20v-6h8v6\"/></symbol>\n  <symbol id=\"i-lapiz\" viewBox=\"0 0 24 24\"><path d=\"M4 20l4-1L19 8l-3-3L5 16z\"/><path d=\"M14 7l3 3\"/></symbol>\n  <symbol id=\"i-papelera\" viewBox=\"0 0 24 24\"><path d=\"M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13\"/><path d=\"M10 11v6M14 11v6\"/></symbol>\n  <symbol id=\"i-reloj\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/></symbol>\n  <symbol id=\"i-enlace\" viewBox=\"0 0 24 24\"><path d=\"M10 14a4 4 0 0 0 5.6.4l3-3a4 4 0 0 0-5.6-5.6l-1.5 1.5\"/><path d=\"M14 10a4 4 0 0 0-5.6-.4l-3 3a4 4 0 0 0 5.6 5.6l1.5-1.5\"/></symbol>\n  <symbol id=\"i-bajar\" viewBox=\"0 0 24 24\"><path d=\"M12 4v11M7 10l5 5 5-5\"/><path d=\"M5 20h14\"/></symbol>\n  <symbol id=\"i-subir\" viewBox=\"0 0 24 24\"><path d=\"M12 15V4M7 9l5-5 5 5\"/><path d=\"M5 20h14\"/></symbol>\n  <symbol id=\"i-jugar\" viewBox=\"0 0 24 24\"><path d=\"M8 5v14l11-7z\"/></symbol>\n  <symbol id=\"i-sonrisa\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8.5 10h.01M15.5 10h.01\"/><path d=\"M8 14c1 1.8 2.4 2.7 4 2.7s3-.9 4-2.7\"/></symbol>\n  <symbol id=\"i-neutro\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8.5 10h.01M15.5 10h.01\"/><path d=\"M8.5 15.5h7\"/></symbol>\n  <symbol id=\"i-cerrar\" viewBox=\"0 0 24 24\"><path d=\"M6 6l12 12M18 6L6 18\"/></symbol>\n  <symbol id=\"i-regalo\" viewBox=\"0 0 24 24\"><rect x=\"4\" y=\"9\" width=\"16\" height=\"11\" rx=\"2\"/><path d=\"M4 13h16M12 9v11\"/><path d=\"M12 9c-1.5-3-4-4-5.5-2.5S9 9 12 9zm0 0c1.5-3 4-4 5.5-2.5S15 9 12 9z\"/></symbol>\n  <symbol id=\"i-altavoz\" viewBox=\"0 0 24 24\"><path d=\"M4 10v4h3l4 3.5v-11L7 10z\"/><path d=\"M15 9.5a3.6 3.6 0 0 1 0 5M17.8 7a7.2 7.2 0 0 1 0 10\"/></symbol>\n  <symbol id=\"i-altavoz-off\" viewBox=\"0 0 24 24\"><path d=\"M4 10v4h3l4 3.5v-11L7 10z\"/><path d=\"M15.5 10l4.5 4.5M20 10l-4.5 4.5\"/></symbol>\n</svg>\n\n<header>\n  <h1>Haz tu personaje</h1>\n  <ol class=\"progreso\" id=\"progreso\" aria-label=\"Pasos\">\n    <li class=\"ahora\" title=\"Personaje\"><span>Personaje</span></li>\n    <li title=\"Escenario\"><span>Escenario</span></li>\n    <li title=\"Listo\"><span>Listo</span></li>\n  </ol>\n</header>\n\n<section class=\"vista\" id=\"vista\" aria-label=\"Vista previa de tu personaje\">\n  <canvas id=\"lienzo\" role=\"img\" aria-label=\"Tu personaje\"></canvas>\n  <div class=\"bocadillo\" id=\"bocadillo\" aria-live=\"polite\"></div>\n  <div class=\"etiqueta\">Así estaba antes</div>\n  <div class=\"ranura\" id=\"ranuraVista\"></div>\n  <div class=\"pista\" id=\"pista\" hidden><svg class=\"ic\"><use href=\"#i-dedo\"/></svg>Mantén presionado para comparar</div>\n</section>\n\n<div class=\"sugerencia\" id=\"sugerencia\" hidden>\n  <svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-idea\"/></svg>\n  <span id=\"sugerenciaTexto\"></span>\n  <button type=\"button\" id=\"sugerenciaAplicar\">Aplicar</button>\n</div>\n\n<div class=\"barra\">\n  <h2 id=\"titulo\">Elige un punto de partida</h2>\n  <button id=\"deshacer\" disabled aria-label=\"Deshacer el último cambio\"><svg class=\"ic\"><use href=\"#i-deshacer\"/></svg>Deshacer</button>\n  <button id=\"sorprender\" aria-label=\"Sorpréndeme con una combinación\"><svg class=\"ic\"><use href=\"#i-sorpresa\"/></svg>Sorpréndeme</button>\n  <button type=\"button\" id=\"sonido\" class=\"altavoz\" aria-pressed=\"true\" aria-label=\"Sonido activado. Silenciar (tecla M)\" title=\"Silenciar (M)\"><svg class=\"ic on\" aria-hidden=\"true\"><use href=\"#i-altavoz\"/></svg><svg class=\"ic off\" aria-hidden=\"true\"><use href=\"#i-altavoz-off\"/></svg></button>\n</div>\n\n<main class=\"paso\" id=\"paso\">\n  <section class=\"pantalla activa\" data-p=\"0\">\n    <p class=\"texto\">Todos empiezan con un personaje completo. Elige uno y ajústalo a tu gusto; nada es obligatorio.</p>\n    <div class=\"tarjetas\" id=\"presets\"></div>\n  </section>\n\n  <section class=\"pantalla\" data-p=\"1\">\n    <nav class=\"pestanas\" id=\"pestanas\" aria-label=\"Qué ajustar\"></nav>\n    <div id=\"ajustes\"></div>\n  </section>\n\n  <section class=\"pantalla\" data-p=\"2\">\n    <p class=\"texto\">Así se ve tu personaje en cada lugar. Elige uno; puedes cambiarlo después.</p>\n    <div class=\"tarjetas escenas\" id=\"escenas\"></div>\n  </section>\n\n  <section class=\"pantalla\" data-p=\"3\">\n    <p class=\"texto\" id=\"despedida\">Tu personaje está listo. Toca una reacción para verlo en acción.</p>\n    <div class=\"reacciones\" id=\"reacciones\" role=\"group\" aria-label=\"Reacciones\"></div>\n    <section class=\"muestra-pregunta\" id=\"muestraPregunta\" aria-labelledby=\"muestraTitulo\">\n      <h3 id=\"muestraTitulo\"><svg class=\"ic\" aria-hidden=\"true\"><use href=\"#i-jugar\"/></svg>Míralo en un Tap</h3>\n      <p class=\"texto\">Así se verá cuando alguien responda una pregunta con tu personaje. Prueba con una de ejemplo.</p>\n      <button type=\"button\" id=\"probar\" class=\"grande secundario\" style=\"background:var(--panel2);border-color:var(--acc);color:var(--txt)\"><svg class=\"ic\"><use href=\"#i-jugar\"/></svg>Probar con una pregunta</button>\n      <p class=\"enunciado\" id=\"enunciado\" hidden></p>\n      <div class=\"opciones\" id=\"opciones\" role=\"group\" aria-label=\"Opciones de la pregunta de ejemplo\"></div>\n      <p class=\"veredicto\" id=\"veredicto\" role=\"status\" aria-live=\"polite\"></p>\n    </section>\n    <form class=\"guardar\" id=\"formGuardar\" novalidate>\n      <label for=\"nombre\">Ponle nombre (opcional)</label>\n      <div class=\"fila\"><input id=\"nombre\" maxlength=\"20\" autocomplete=\"off\" autocapitalize=\"words\" enterkeyhint=\"done\" spellcheck=\"false\"><small id=\"restan\" aria-hidden=\"true\"></small></div>\n      <button type=\"submit\" id=\"guardar\" class=\"grande\"><svg class=\"ic\"><use href=\"#i-guardar\"/></svg>Guardar en este dispositivo</button>\n      <p class=\"estado\" id=\"estadoGuardado\" role=\"status\" aria-live=\"polite\"></p>\n    </form>\n    <div class=\"gusto\" id=\"gusto\" hidden role=\"group\" aria-labelledby=\"gustoTexto\">\n      <p id=\"gustoTexto\">¿Te gustó hacerlo?</p>\n      <button type=\"button\" class=\"si\" id=\"gustoSi\" aria-label=\"Sí, me gustó\"><svg class=\"ic\"><use href=\"#i-sonrisa\"/></svg></button>\n      <button type=\"button\" id=\"gustoMeh\" aria-label=\"Más o menos\"><svg class=\"ic\"><use href=\"#i-neutro\"/></svg></button>\n      <button type=\"button\" class=\"cerrar\" id=\"gustoNo\" aria-label=\"Ahora no\"><svg class=\"ic\"><use href=\"#i-cerrar\"/></svg></button>\n    </div>\n    <section class=\"mislooks\" id=\"misLooks\" aria-labelledby=\"misLooksTitulo\">\n      <h3 id=\"misLooksTitulo\">Mis looks <small id=\"cuentaLooks\"></small></h3>\n      <p class=\"texto\" id=\"misLooksVacio\">Aquí aparecerán los personajes que guardes. Se quedan en este dispositivo; nada se envía.</p>\n      <div class=\"looks\" id=\"listaLooks\"></div>\n    </section>\n    <section class=\"compartir\" id=\"compartir\" aria-labelledby=\"compartirTitulo\">\n      <h3 id=\"compartirTitulo\" class=\"texto\" style=\"margin:0\">Compártelo con quien quieras. El enlace lleva el personaje completo; nadie necesita cuenta.</h3>\n      <button type=\"button\" id=\"copiarEnlace\" class=\"grande secundario\"><svg class=\"ic\"><use href=\"#i-enlace\"/></svg>Copiar enlace</button>\n      <div class=\"enlace\"><input id=\"enlaceTexto\" readonly aria-label=\"Enlace de tu personaje\"><button type=\"button\" id=\"enlaceSeleccionar\">Seleccionar</button></div>\n      <p class=\"estado\" id=\"estadoCompartir\" role=\"status\" aria-live=\"polite\"></p>\n    </section>\n    <p class=\"texto\">Pronto vas a poder usarlo en tu propio Tap.</p>\n    <details id=\"masDetalles\">\n      <summary><svg class=\"ic\"><use href=\"#i-puntos\"/></svg>Más</summary>\n      <p class=\"texto\" style=\"margin-top:8px\">Llévate el personaje como archivo o trae uno que te hayan pasado.</p>\n      <div class=\"mas-acciones\">\n        <button type=\"button\" id=\"exportar\"><svg class=\"ic\"><use href=\"#i-bajar\"/></svg>Exportar JSON</button>\n        <label class=\"boton\" for=\"archivoImportar\"><svg class=\"ic\"><use href=\"#i-subir\"/></svg>Importar archivo<input type=\"file\" id=\"archivoImportar\" accept=\".json,application/json,text/plain\"></label>\n        <button type=\"button\" id=\"copiar\"><svg class=\"ic\"><use href=\"#i-copiar\"/></svg>Copiar JSON</button>\n      </div>\n      <div class=\"importar\">\n        <label class=\"texto\" for=\"pegarImportar\" style=\"margin:0\">O pega aquí el texto de un personaje</label>\n        <textarea id=\"pegarImportar\" aria-label=\"Texto del personaje para importar\" placeholder='{\"look\": ...}' spellcheck=\"false\"></textarea>\n        <div class=\"fila\"><button type=\"button\" id=\"importarPegado\">Importar lo pegado</button><span class=\"aviso\" id=\"aviso\" aria-live=\"polite\"></span></div>\n      </div>\n      <textarea id=\"json\" readonly aria-label=\"Datos del personaje\"></textarea>\n    </details>\n  </section>\n</main>\n\n<div class=\"continuar\" id=\"continuar\" hidden role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"continuarTitulo\">\n  <div class=\"hoja\">\n    <img id=\"continuarMini\" alt=\"\" width=\"84\" height=\"112\">\n    <div><h2 id=\"continuarTitulo\">Seguir donde ibas</h2><p id=\"continuarTexto\">Dejaste un personaje a medias en este dispositivo.</p></div>\n    <div class=\"botones\">\n      <button type=\"button\" class=\"primario\" id=\"continuarSi\">Seguir donde ibas</button>\n      <button type=\"button\" id=\"continuarNo\">Empezar otro</button>\n    </div>\n  </div>\n</div>\n\n<div class=\"continuar\" id=\"recibido\" hidden role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"recibidoTitulo\">\n  <div class=\"hoja\">\n    <img id=\"recibidoMini\" alt=\"\" width=\"84\" height=\"112\">\n    <div><h2 id=\"recibidoTitulo\">Look de un amigo</h2><p id=\"recibidoTexto\">Alguien te mandó su personaje.</p></div>\n    <p class=\"estado\" id=\"recibidoEstado\" role=\"status\" aria-live=\"polite\"></p>\n    <div class=\"botones tres\">\n      <button type=\"button\" class=\"primario\" id=\"recibidoProbar\">Probarlo y ajustarlo</button>\n      <button type=\"button\" id=\"recibidoGuardar\"><svg class=\"ic\"><use href=\"#i-guardar\"/></svg>Guardarlo en Mis looks</button>\n      <button type=\"button\" class=\"terciario\" id=\"recibidoNo\">Seguir con el mío</button>\n    </div>\n  </div>\n</div>\n\n<footer>\n  <button id=\"atras\" hidden><svg class=\"ic\"><use href=\"#i-atras\"/></svg>Atrás</button>\n  <button id=\"siguiente\" class=\"primario\">Siguiente<svg class=\"ic\"><use href=\"#i-sig\"/></svg></button>\n</footer>";
 
 /** Añade la hoja de estilos al documento una sola vez (disenador.html la trae en el <head>; la web no). */
 export function asegurarEstilos(doc = document) {
@@ -30,7 +41,9 @@ export function asegurarEstilos(doc = document) {
 /**
  * Monta el diseñador dentro de `raiz` (un elemento vacío con la clase .dsn) y devuelve `{ ok, registro, destruir }`.
  * Opciones: `enviar(path)` canal de analítica de la página (si falta, el módulo carga count.js); `alEvento(nombreCorto)` aviso
- * por cada evento aceptado; `pasoPublicar: { texto, alTocar }` cuarto punto de progreso visible desde el inicio.
+ * por cada evento aceptado; `pasoPublicar: { texto, alTocar }` cuarto punto de progreso visible desde el inicio;
+ * `sonido: { activo(): boolean, cambiar(on) }` enlaza el altavoz del creador con el silencio general de Taps (en /crear) en vez
+ * de la clave propia CLAVE_SONIDO.
  */
 export async function montarDisenador(raiz, opciones = {}) {
   asegurarEstilos(raiz.ownerDocument);
@@ -120,12 +133,12 @@ export async function montarDisenador(raiz, opciones = {}) {
   const historial = [];                          // para Deshacer y comparar
   let pantalla = 0, pestana = 'cara';
 
-  function cambiar(tipo, aplicar) {              // todo cambio pasa por aquí: guarda el anterior, aplica, reacciona y repinta
+  function cambiar(tipo, aplicar, detalle) {     // todo cambio pasa por aquí: guarda el anterior, aplica, reacciona, suena y repinta
     historial.push(copia(estado)); if (historial.length > 40) historial.shift();
     aplicar();
     if (estado.look.vest === undefined) estado.look.vest = null;
     $('deshacer').disabled = false;
-    reaccionar(tipo);
+    reaccionar(tipo); sonarCambio(tipo, detalle);
     fondoSucio = fondoSucio || tipo === 'world';
     escenasSucias = true;                        // las miniaturas del paso 2 llevan al personaje: se repintan al volver a verlas
     if (tipo === 'world' && !reducido) entrada = 1;
@@ -139,7 +152,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     const ant = historial.pop(); if (!ant) return;
     contar('deshacer');
     Object.assign(estado, ant); $('deshacer').disabled = !historial.length;
-    fondoSucio = true; escenasSucias = true; reaccionar('deshacer'); construirAjustes(); refrescarControles(); refrescarSugerencia(); pintar(); pintarEscenas();
+    fondoSucio = true; escenasSucias = true; reaccionar('deshacer'); sonarCambio('deshacer'); construirAjustes(); refrescarControles(); refrescarSugerencia(); pintar(); pintarEscenas();
     programarAutoguardado();
   }
   function ponerPreset(id) {
@@ -181,6 +194,7 @@ export async function montarDisenador(raiz, opciones = {}) {
   function irA(p) {
     const destino = Math.max(0, Math.min(3, p));
     if (destino > pantalla && destino >= 2) contar(destino === 2 ? 'paso/escenario' : 'paso/listo');   // solo al avanzar
+    if (destino !== pantalla) sonar(destino === 3 ? 'logro' : 'blip');                                // cambiar de paso; Listo celebra
     pantalla = destino;
     raiz.querySelectorAll('.pantalla').forEach(s => s.classList.toggle('activa', +s.dataset.p === pantalla));
     const punto = pantalla <= 1 ? 0 : pantalla - 1;
@@ -234,7 +248,7 @@ export async function montarDisenador(raiz, opciones = {}) {
   function construirPestanas() {
     $('pestanas').replaceChildren(...PESTANAS.map(([id, nombre, icono]) => {
       const b = document.createElement('button'); b.type = 'button'; b.dataset.id = id; b.setAttribute('role', 'tab');
-      b.innerHTML = `<svg class="ic"><use href="#${icono}"/></svg>${nombre}`; b.onclick = () => { pestana = id; construirAjustes(); }; return b;
+      b.innerHTML = `<svg class="ic"><use href="#${icono}"/></svg>${nombre}`; b.onclick = () => { if (pestana !== id) sonar('toque', { vol: GANANCIA_BAJA }); pestana = id; construirAjustes(); }; return b;
     }));
   }
   function grupo(titulo, ...hijos) { const d = document.createElement('div'); d.className = 'grupo'; const h = document.createElement('h3'); h.textContent = titulo; d.append(h, ...hijos); return d; }
@@ -242,7 +256,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     const w = document.createElement('div'); w.className = 'chips'; w.setAttribute('role', 'group');
     for (const v of valores) {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.campo = campo; b.dataset.v = String(v); b.textContent = nombres[v] ?? v;
-      b.onclick = () => cambiar(tipo, () => { if (campo === 'item') estado.item = v === 'none' ? null : v; else estado.look[campo] = v; });
+      b.onclick = () => cambiar(tipo, () => { if (campo === 'item') estado.item = v === 'none' ? null : v; else estado.look[campo] = v; }, { indice: valores.indexOf(v), total: valores.length });
       w.append(b);
     }
     return w;
@@ -251,7 +265,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     const w = document.createElement('div'); w.className = 'chips';
     for (const [v, t] of [[false, 'Sin ' + textoSi], [true, 'Con ' + textoSi]]) {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.campo = campo; b.dataset.v = String(v); b.textContent = t;
-      b.onclick = () => cambiar(tipo, () => { estado.look[campo] = campo === 'vest' ? (v ? (PALETAS.vest[0]) : null) : v; }); w.append(b);
+      b.onclick = () => cambiar(tipo, () => { estado.look[campo] = campo === 'vest' ? (v ? (PALETAS.vest[0]) : null) : v; }, { indice: v ? 1 : 0, total: 2 }); w.append(b);
     }
     return w;
   }
@@ -267,7 +281,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     mas.append(i); w.append(mas); return w;
   }
   function ponerColor(campo, col, tipo) {
-    cambiar(tipo, () => { estado.look[campo] = col; if (campo === 'skin') estado.look.skinShade = sombra(col); if (campo === 'coat') estado.look.coatShade = sombra(col); });
+    cambiar(tipo, () => { estado.look[campo] = col; if (campo === 'skin') estado.look.skinShade = sombra(col); if (campo === 'coat') estado.look.coatShade = sombra(col); }, { color: col });
   }
   function construirAjustes() {
     if (pantalla !== 1) return;
@@ -332,7 +346,7 @@ export async function montarDisenador(raiz, opciones = {}) {
   // Paso 3: reacciones y «Más»
   function construirReacciones() {
     const lista = [['talk', 'Habla'], ['think', 'Piensa'], ['celebrate', 'Acierta'], ['hurt', 'Falla'], ['dance', 'Baila']];
-    $('reacciones').replaceChildren(...lista.map(([a, t]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = t; b.onclick = () => animar(a, 1.6); return b; }));
+    $('reacciones').replaceChildren(...lista.map(([a, t]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = t; b.onclick = () => { sonar('toque', { vol: GANANCIA_BAJA }); animar(a, 1.6); }; return b; }));
   }
   // Pregunta de muestra: el personaje juega UNA pregunta de ejemplo (una opción correcta) con las mismas poses que usa el
   // feed (celebrate / hurt). No toca el motor: solo elige la pose según la opción. Opcional: solo si tocas «Probar».
@@ -358,13 +372,14 @@ export async function montarDisenador(raiz, opciones = {}) {
         if (!ok) b.classList.add('mal');
         const v = $('veredicto'); v.textContent = ok ? 'Acertaste: así celebra tu personaje en un Tap.' : 'Era el 7: así reacciona tu personaje cuando alguien falla.'; v.classList.toggle('bien', ok);
         animar(ok ? 'celebrate' : 'hurt', 1.6); decir(pick(ok ? PREGUNTA_MUESTRA.bien : PREGUNTA_MUESTRA.mal));
+        sonar(ok ? 'acierto' : 'fallo');                                   // los del feed: así sonará en un Tap de verdad
         try { navigator.vibrate?.(ok ? 15 : [10, 40, 10]); } catch {}
         const otra = document.createElement('button'); otra.type = 'button'; otra.textContent = 'Jugar otra vez'; otra.onclick = () => { reiniciarPregunta(); $('probar').click(); };
         $('opciones').append(otra);
       };
       return b;
     }));
-    if (!reducido) animar('think', 1.2); decir('A ver si sabes…');
+    if (!reducido) animar('think', 1.2); decir('A ver si sabes…'); sonar('toque', { vol: GANANCIA_BAJA });
   };
   // «¿Te gustó hacerlo?»: una vez por dispositivo, tras guardar, descartable. Solo viaja si/meh; nada más.
   function ofrecerGusto() {
@@ -383,7 +398,7 @@ export async function montarDisenador(raiz, opciones = {}) {
 
   function datosLook() { const l = { ...estado.look }; if (!l.vest) delete l.vest; return { base: estado.base, look: l, item: estado.item, world: estado.world }; }
   function refrescarJson() { const e = validarLook(estado.look); $('json').value = JSON.stringify(datosLook(), null, 2) + (e.length ? '\n// ' + e.join('; ') : ''); }
-  $('copiar').onclick = async () => { contar('compartir/json'); try { await navigator.clipboard.writeText($('json').value); $('aviso').textContent = 'Copiado'; } catch { $('json').select(); $('aviso').textContent = 'Selecciona el texto y cópialo'; } esperar(() => { $('aviso').textContent = ''; }, 2500); };
+  $('copiar').onclick = async () => { contar('compartir/json'); try { await navigator.clipboard.writeText($('json').value); $('aviso').textContent = 'Copiado'; sonar('racha', { nivel: 1 }); } catch { $('json').select(); $('aviso').textContent = 'Selecciona el texto y cópialo'; } esperar(() => { $('aviso').textContent = ''; }, 2500); };
 
   // ───────────────────────── guardado en el dispositivo (themes/epoca/guardado.js; nada viaja a ningún servidor) ─────────────────────────
   const almacen = crearAlmacen(storageNativo);
@@ -433,13 +448,13 @@ export async function montarDisenador(raiz, opciones = {}) {
   }
   $('formGuardar').addEventListener('submit', ev => {
     ev.preventDefault();
-    if (!almacen.disponible) { estadoGuardado(SIN_ALMACEN, false, 0); return; }
+    if (!almacen.disponible) { estadoGuardado(SIN_ALMACEN, false, 0); sonarError(); return; }
     const nombre = $('nombre').value.trim() || nombreSugerido();
     const r = guardarLook(misLooks, estado, { nombre, miniatura: pngMiniatura() });
-    if (r.lleno) { estadoGuardado(`Ya tienes ${MAX_LOOKS} looks guardados, el máximo. Borra uno de «Mis looks» y vuelve a guardar.`, false, 8000); $('misLooks').scrollIntoView({ behavior: reducido ? 'auto' : 'smooth', block: 'start' }); return; }
-    if (!almacen.escribir(CLAVE_LOOKS, serializarLooks(r.lista))) { estadoGuardado('No se pudo guardar: el almacenamiento de este navegador está lleno o bloqueado. Copia sus datos desde «Más».', false, 8000); return; }
+    if (r.lleno) { estadoGuardado(`Ya tienes ${MAX_LOOKS} looks guardados, el máximo. Borra uno de «Mis looks» y vuelve a guardar.`, false, 8000); sonarError(); $('misLooks').scrollIntoView({ behavior: reducido ? 'auto' : 'smooth', block: 'start' }); return; }
+    if (!almacen.escribir(CLAVE_LOOKS, serializarLooks(r.lista))) { estadoGuardado('No se pudo guardar: el almacenamiento de este navegador está lleno o bloqueado. Copia sus datos desde «Más».', false, 8000); sonarError(); return; }
     misLooks = r.lista; lookCargado = r.look.id; $('nombre').value = ''; contarNombre();
-    estadoGuardado(`«${r.look.nombre}» está en Mis looks.`, true); reaccionar('guardar'); chispas(); pintarMisLooks();
+    estadoGuardado(`«${r.look.nombre}» está en Mis looks.`, true); reaccionar('guardar'); sonar('guardar'); chispas(); pintarMisLooks();
     contar('listo'); ofrecerGusto();
     try { navigator.vibrate?.(15); } catch {}
   });
@@ -496,10 +511,10 @@ export async function montarDisenador(raiz, opciones = {}) {
   $('copiarEnlace').onclick = async () => {
     const url = enlaceActual(), nombre = $('nombre').value.trim() || nombreSugerido();
     if (navigator.share) {
-      try { await navigator.share({ title: `Mira a ${nombre}`, text: 'Te mando mi personaje. Ábrelo y cámbialo a tu gusto.', url }); estadoCompartir('Enlace compartido.', true); contar('compartir/enlace'); return; }
+      try { await navigator.share({ title: `Mira a ${nombre}`, text: 'Te mando mi personaje. Ábrelo y cámbialo a tu gusto.', url }); estadoCompartir('Enlace compartido.', true); sonar('racha', { nivel: 1 }); contar('compartir/enlace'); return; }
       catch (e) { if (e?.name === 'AbortError') return; }     // cerró la hoja del sistema: no es un error
     }
-    if (await copiarTexto(url)) { estadoCompartir('Enlace copiado. Pégalo donde quieras.', true); reaccionar('guardar'); contar('compartir/enlace'); return; }
+    if (await copiarTexto(url)) { estadoCompartir('Enlace copiado. Pégalo donde quieras.', true); reaccionar('guardar'); sonar('racha', { nivel: 1 }); contar('compartir/enlace'); return; }
     contar('compartir/enlace');
     mostrarEnlace(url); estadoCompartir('No se pudo copiar solo. Selecciona el enlace y cópialo.', false, 8000);
   };
@@ -509,13 +524,13 @@ export async function montarDisenador(raiz, opciones = {}) {
     try {
       const blob = new Blob([exportarJson(estado, $('nombre').value.trim())], { type: 'application/json' }), url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href = url; a.download = archivo; document.body.append(a); a.click(); a.remove(); esperar(() => URL.revokeObjectURL(url), 2000);
-      aviso(`Archivo «${archivo}» listo.`);
-    } catch { aviso('No se pudo crear el archivo. Copia el JSON de abajo.'); }
+      aviso(`Archivo «${archivo}» listo.`); sonar('racha', { nivel: 1 });
+    } catch { aviso('No se pudo crear el archivo. Copia el JSON de abajo.'); sonarError(); }
   };
   function aviso(texto, ms = 4000) { const a = $('aviso'); a.textContent = texto; clearTimeout(aviso.t); aviso.t = esperar(() => { if (a.textContent === texto) a.textContent = ''; }, ms); }
   function importarTexto(texto) {
     const r = importarJson(texto, validarLook, OPCIONES_LOOK);
-    if (!r.ok) { contar('error/look-invalido'); aviso(r.motivo, 7000); return; }
+    if (!r.ok) { contar('error/look-invalido'); aviso(r.motivo, 7000); sonarError(); return; }
     cambiar('cargar', () => Object.assign(estado, r.estado)); lookCargado = null; fondoSucio = true; if (!reducido) entrada = 1; pintar(); construirAjustes(); refrescarJson(); prepararGuardar();
     if (r.nombre) { $('nombre').value = r.nombre; contarNombre(); }
     $('pegarImportar').value = ''; aviso('Personaje importado. Ya está en la vista; puedes ajustarlo o guardarlo.');
@@ -525,7 +540,7 @@ export async function montarDisenador(raiz, opciones = {}) {
   $('archivoImportar').addEventListener('change', async ev => {
     const f = ev.target.files?.[0]; ev.target.value = ''; if (!f) return;
     if (f.size > 64 * 1024) { aviso('Ese archivo es demasiado grande para ser un personaje.', 7000); return; }
-    try { importarTexto(await f.text()); } catch { aviso('No se pudo leer el archivo.', 7000); }
+    try { importarTexto(await f.text()); } catch { aviso('No se pudo leer el archivo.', 7000); sonarError(); }
   });
 
   // Al abrir con `#look=`: «Look de un amigo» con «Probarlo y ajustarlo», «Guardarlo en Mis looks» y «Seguir con el mío».
@@ -656,6 +671,63 @@ export async function montarDisenador(raiz, opciones = {}) {
   escuchar(document, 'visibilitychange', () => { if (document.hidden) parar(); else { arrancar(); pintar(); } });
   const observador = new ResizeObserver(() => { if (medir()) pintar(); }); observador.observe(vista);
 
+  // ───────────────────────── sonido (audio/sonido.js, paleta «epoca» de audio/efectos.js; disenador-v2-plan.md §3) ─────────────────────────
+  // Nada suena antes del primer gesto dentro del diseñador (pointerup, click o tecla; nunca pointerdown ni touchstart): ahí se
+  // crea el AudioContext y se sintetizan los efectos en reposo. Interruptor: altavoz de la barra y tecla M. En disenador.html se
+  // recuerda en CLAVE_SONIDO; en /crear la web pasa `opciones.sonido` enlazado al silencio general del feed (una sola llave).
+  // Con movimiento reducido no se silencia, pero caen los glisandos y el ambiente del mundo (quedan los toques secos). Sin Web
+  // Audio nada cambia en la interfaz. Cada sonido tiene su equivalente visual (reacción, bocadillo o estado).
+  const sonido = crearSonido();
+  const sonidoEnlace = opciones.sonido ?? null;
+  let sonidoActivo = sonidoEnlace ? sonidoEnlace.activo() !== false : almacen.leer(CLAVE_SONIDO) !== 'off';
+  let huboGesto = false;
+  sonido.silenciar(!sonidoActivo);
+  const btnSonido = $('sonido');
+  function pintarSonido() {
+    btnSonido.setAttribute('aria-pressed', String(sonidoActivo)); btnSonido.classList.toggle('off', !sonidoActivo);
+    btnSonido.setAttribute('aria-label', sonidoActivo ? 'Sonido activado. Silenciar (tecla M)' : 'Sonido apagado. Activar (tecla M)');
+    btnSonido.title = sonidoActivo ? 'Silenciar (M)' : 'Sonido (M)';
+  }
+  pintarSonido();
+  const PRECALENTAR = [['toque'], ['pieza', { indice: 0, total: 8 }], ['color', { luminancia: 0.5 }], ['blip'], ['aparece'], ['baraja'], ['deslizar', { inverso: true }], ['logro'], ['guardar'], ['acierto'], ['fallo'], ['racha', { nivel: 1 }]];
+  let precalentado = false;
+  function gesto() {                            // dentro de un gesto válido: crea o reanuda el audio; la primera vez precalienta
+    huboGesto = true;
+    if (!sonidoActivo || !sonido.desbloquear()) return;
+    if (!precalentado) { precalentado = true; sonido.precalentar(PALETA_SONIDO, { paleta: PALETA_SONIDO, lista: PRECALENTAR }); }
+  }
+  for (const ev of ['pointerup', 'click', 'keydown']) escuchar(raiz, ev, gesto);
+  function sonar(nombre, o = {}) {
+    if (!sonidoActivo || !huboGesto) return false;
+    if (!sonido.contexto) gesto();            // el gesto llegó por otro camino (p. ej. submit con Enter): sigue siendo un gesto
+    try { return sonido.tocar(nombre, { paleta: PALETA_SONIDO, ...o }); } catch { return false; }
+  }
+  function sonarError() { sonar('fallo', { vol: GANANCIA_ERROR }); }
+  /** Tabla evento → efecto de §3: color por luminancia (tope CADA_COLOR_MS), pieza por índice, lo demás por tipo. */
+  function sonarCambio(tipo, d = {}) {
+    if (d.color) return sonar('color', { luminancia: luminancia(d.color), vol: GANANCIA_BAJA, cadaMs: CADA_COLOR_MS });
+    if (d.indice !== undefined) return sonar('pieza', { indice: d.indice, total: d.total, vol: GANANCIA_BAJA });
+    if (tipo === 'sugerencia') return sonar('pieza', { indice: 4, total: 8, vol: GANANCIA_BAJA });
+    if (tipo === 'sorpresa') return sonar(reducido ? 'toque' : 'baraja');
+    if (tipo === 'deshacer') return sonar(reducido ? 'toque' : 'deslizar', { inverso: true, vol: 0.6 });
+    if (tipo === 'world') { if (reducido) return sonar('toque'); sonar('aparece'); return sonar('ambiente', { mundo: estado.world, vol: 0.45 }); }
+    return sonar(reducido ? 'toque' : 'aparece');   // preset, cargar
+  }
+  function alternarSonido() {
+    sonidoActivo = !sonidoActivo;
+    if (sonidoEnlace) { try { sonidoEnlace.cambiar(sonidoActivo); } catch { /* la página decide */ } } else almacen.escribir(CLAVE_SONIDO, sonidoActivo ? 'on' : 'off');
+    sonido.silenciar(!sonidoActivo); pintarSonido();
+    contar('sonido/' + (sonidoActivo ? 'on' : 'off'));
+    if (sonidoActivo) { gesto(); sonar('toque'); }
+  }
+  btnSonido.onclick = alternarSonido;
+  escuchar(raiz, 'keydown', e => {
+    if (e.key !== 'm' && e.key !== 'M') return;
+    if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName ?? '')) return;
+    e.preventDefault(); alternarSonido();
+  });
+  escuchar(document, 'visibilitychange', () => { if (document.hidden) sonido.pausar(); else sonido.reanudar(); });
+
   // ───────────────────────── arranque ─────────────────────────
   construirPresets(); construirPestanas(); construirReacciones(); irA(0);
   medir(); arrancar(); pintar();
@@ -675,6 +747,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     destruir() {
       if (temporizadorGuardado) guardarBorradorAhora();
       abandonar(); parar(); observador.disconnect();
+      try { sonido.destruir(); } catch { /* ya cerrado */ }
       for (const [t, ev, fn] of oyentes) t.removeEventListener(ev, fn);
       oyentes.length = 0;
       for (const t of temporizadores) clearTimeout(t);

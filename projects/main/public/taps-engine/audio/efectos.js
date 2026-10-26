@@ -15,13 +15,24 @@
 //   · El ruido es pseudoaleatorio con semilla fija: el mismo efecto suena igual siempre (y las pruebas son estables).
 
 export const EFECTOS = Object.freeze(['toque', 'acierto', 'fallo', 'racha', 'resultado', 'deslizar', 'tic', 'aparece', 'blip']);
-export const PALETAS = Object.freeze(['bloque', 'suave']);
+/**
+ * Efectos del creador de personajes (producto/taps/disenador-v2-plan.md §3): solo existen en la paleta «epoca» (las del feed
+ * no cambian). `pieza` sube con `indice` (Do5-Sol5), `color` con `luminancia` (0 oscuro/grave, 1 claro/agudo), `baraja` son
+ * cuatro tics y la entrada, `logro` un arpegio Do-Mi-Sol-Do, `guardar` dos notas (Sol→Do) con cola y `ambiente` el sonido
+ * del mundo elegido (`mundo`), el único que pasa de 400 ms.
+ */
+export const EFECTOS_CREADOR = Object.freeze(['pieza', 'color', 'baraja', 'logro', 'guardar', 'ambiente']);
+export const PALETAS = Object.freeze(['bloque', 'suave', 'epoca']);
 /** Duración máxima de cualquier efecto (s). */
 export const DURACION_MAXIMA = 0.4;
+/** Duración máxima del ambiente de un mundo (s): se funde a cero, nunca en bucle. */
+export const DURACION_AMBIENTE = 1.2;
 /** Pico máximo de las muestras (−6 dBFS). */
 export const PICO = 0.5;
+/** Mundos con ambiente propio (themes/epoca/scenery.js); otro mundo suena como el primero. */
+export const MUNDOS_AMBIENTE = Object.freeze(['excavacion-egipto', 'foro-roma', 'taller-londres', 'laboratorio-moderno', 'sala-medieval']);
 
-const TEMA_PALETA = { minecraft: 'bloque', estudio: 'suave' };
+const TEMA_PALETA = { minecraft: 'bloque', estudio: 'suave', epoca: 'epoca' };
 /** Paleta de un tema del motor; los temas que no la declaran suenan «suave» (lo más neutro). */
 export const paletaDeTema = tema => TEMA_PALETA[tema] ?? 'suave';
 
@@ -174,6 +185,77 @@ const RECETAS = {
   },
 };
 
+// Paleta «epoca» (creador de personajes): campanas senoidales con timbre de madera (parciales 1, 2.4 y 3.1, caída rápida),
+// más cálidas que «suave». Acierto, fallo, racha, resultado, blip y tic son los del feed (coherencia al probar la pregunta).
+const MADERA = [[2.4, 0.22], [3.1, 0.1]];
+/** Entrada del personaje: glisando ascendente breve con madera. */
+function aparecer(b, sr, t = 0, dur = 0.2) { sumarNota(b, sr, { t, dur, f0: 420, f1: 840, vol: 0.26, ataque: 0.006, caida: 5, parciales: MADERA }); return t + dur + 0.02; }
+const AMBIENTES = {
+  'excavacion-egipto': (b, sr) => {                                        // viento seco sobre la arena
+    sumarRuido(b, sr, { dur: 1.2, f0: 260, f1: 620, vol: 0.5, q: 0.7, semilla: 21 });
+    sumarRuido(b, sr, { t: 0.3, dur: 0.8, f0: 900, f1: 500, vol: 0.18, q: 1.1, semilla: 22 });
+  },
+  'foro-roma': (b, sr) => {                                                // murmullo de gente lejana
+    sumarRuido(b, sr, { dur: 1.2, f0: 180, f1: 260, vol: 0.45, q: 1.6, semilla: 31 });
+    sumarRuido(b, sr, { t: 0.15, dur: 0.9, f0: 420, f1: 380, vol: 0.22, q: 2.2, semilla: 32 });
+    sumarRuido(b, sr, { t: 0.5, dur: 0.6, f0: 700, f1: 520, vol: 0.12, q: 2.5, semilla: 33 });
+  },
+  'taller-londres': (b, sr) => {                                           // tic-tac del reloj del taller
+    [0.05, 0.35, 0.65, 0.95].forEach((t, k) => sumarRuido(b, sr, { t, dur: 0.03, f0: k % 2 ? 1900 : 2300, vol: 0.55, q: 3, semilla: 41 + k, forma: 'golpe' }));
+    sumarRuido(b, sr, { dur: 1.2, f0: 220, f1: 200, vol: 0.12, q: 1.2, semilla: 45 });
+  },
+  'laboratorio-moderno': (b, sr) => {                                      // goteo y un zumbido muy bajo
+    [0.1, 0.55, 0.95].forEach((t, k) => sumarNota(b, sr, { t, dur: 0.09, f0: 1700 - 200 * k, f1: 900, vol: 0.28, ataque: 0.002, caida: 7, parciales: [[2.0, 0.15]] }));
+    sumarNota(b, sr, { dur: 1.2, f0: 120, vol: 0.09, ataque: 0.15, caida: 2.2 });
+  },
+  'sala-medieval': (b, sr) => {                                            // fuego: rumor grave y chasquidos
+    sumarRuido(b, sr, { dur: 1.2, f0: 150, f1: 380, vol: 0.45, q: 0.8, semilla: 51 });
+    [0.2, 0.48, 0.81].forEach((t, k) => sumarRuido(b, sr, { t, dur: 0.02, f0: 2800 + 300 * k, vol: 0.5, q: 2, semilla: 55 + k, forma: 'golpe' }));
+  },
+};
+/** Semitonos de Do5 a Sol5 según el índice de la pieza dentro de su grupo (cada pieza suena distinta). */
+const tonoPieza = (indice = 0, total = 8) => DO5 + 7 * (Math.min(Math.max(0, indice), Math.max(1, total - 1)) / Math.max(1, total - 1));
+RECETAS.epoca = {
+  ...RECETAS.suave,
+  toque:    (b, sr) => { sumarNota(b, sr, { dur: 0.06, f0: nota(MI6), vol: 0.3, ataque: 0.002, caida: 9, parciales: MADERA }); return 0.07; },
+  aparece:  (b, sr) => aparecer(b, sr),
+  pieza:    (b, sr, o) => {                                                // «pop» de madera y campanita que sube con el índice
+    sumarRuido(b, sr, { dur: 0.025, f0: 1200, vol: 0.5, q: 1.5, semilla: 61, forma: 'golpe' });
+    sumarNota(b, sr, { t: 0.01, dur: 0.13, f0: nota(tonoPieza(o.indice, o.total)), vol: 0.3, ataque: 0.003, caida: 8, parciales: MADERA });
+    return 0.14;
+  },
+  color:    (b, sr, o) => {                                                // campana breve: oscuro grave, claro agudo (Do5 → Do6)
+    const l = Math.min(1, Math.max(0, o.luminancia ?? 0.5));
+    sumarNota(b, sr, { dur: 0.12, f0: nota(DO5 + 12 * l), vol: 0.3, ataque: 0.004, caida: 7, parciales: MADERA });
+    return 0.12;
+  },
+  baraja:   (b, sr) => {                                                   // cuatro tics muy rápidos subiendo y la entrada
+    for (let k = 0; k < 4; k++) sumarNota(b, sr, { t: k * 0.04, dur: 0.03, f0: 1100 * 1.14 ** k, vol: 0.22, ataque: 0.001, caida: 8, parciales: [[2.4, 0.2]] });
+    return aparecer(b, sr, 0.17, 0.11);
+  },
+  deslizar: (b, sr, o) => {                                                // deshacer: el mismo «fiu», invertido (baja)
+    if (o.inverso) { sumarRuido(b, sr, { dur: 0.14, f0: 2200, f1: 450, vol: 0.5, q: 1.4, semilla: 5 }); return 0.15; }
+    return RECETAS.suave.deslizar(b, sr, o);
+  },
+  logro:    (b, sr) => {                                                   // arpegio Do-Mi-Sol-Do de campana (distinto del «resultado» del feed)
+    [DO6, MI6, SOL6, DO7].forEach((n, k) => sumarNota(b, sr, { t: k * 0.08, dur: k === 3 ? 0.16 : 0.14, f0: nota(n), vol: 0.24, ataque: 0.004, caida: 5, parciales: MADERA }));
+    return DURACION_MAXIMA;
+  },
+  guardar:  (b, sr) => {                                                   // «cerrar el cofre»: Sol → Do con cola
+    sumarNota(b, sr, { dur: 0.12, f0: nota(SOL5), vol: 0.26, ataque: 0.004, caida: 5, parciales: MADERA });
+    sumarNota(b, sr, { t: 0.1, dur: 0.2, f0: nota(DO6), vol: 0.3, ataque: 0.004, caida: 4, parciales: MADERA });
+    return 0.3;
+  },
+  ambiente: (b, sr, o) => { (AMBIENTES[o.mundo] ?? AMBIENTES[MUNDOS_AMBIENTE[0]])(b, sr); return DURACION_AMBIENTE; },
+};
+/** Luminancia relativa (0-1) de un color `#rrggbb`; sirve para `color`. Color raro: 0,5. */
+export function luminancia(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex ?? '').trim());
+  if (!m) return 0.5;
+  const v = parseInt(m[1], 16), lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+  return Math.min(1, Math.max(0, 0.2126 * lin(v >> 16) + 0.7152 * lin((v >> 8) & 255) + 0.0722 * lin(v & 255)));
+}
+
 /**
  * Muestras mono (Float32Array) del efecto `nombre` en la `paleta` pedida. Nombre desconocido: búfer vacío (no lanza).
  * @param {string} nombre      uno de EFECTOS
@@ -182,8 +264,9 @@ const RECETAS = {
 export function renderizarEfecto(nombre, opciones = {}) {
   const sr = opciones.sampleRate ?? 48000, paleta = RECETAS[opciones.paleta] ? opciones.paleta : 'suave', receta = RECETAS[paleta][nombre];
   if (!receta) return new Float32Array(0);
-  const buf = new Float32Array(Math.ceil(DURACION_MAXIMA * sr));
-  const dur = Math.min(DURACION_MAXIMA, receta(buf, sr, opciones));
+  const tope = nombre === 'ambiente' ? DURACION_AMBIENTE : DURACION_MAXIMA;
+  const buf = new Float32Array(Math.ceil(tope * sr));
+  const dur = Math.min(tope, receta(buf, sr, opciones));
   const out = buf.slice(0, Math.ceil(dur * sr));
   if (paleta === 'bloque') cuantizar(out, 24, Math.max(1, Math.round(sr / 22050)));
   else suavizar(out, sr, 7000);
@@ -191,10 +274,14 @@ export function renderizarEfecto(nombre, opciones = {}) {
 }
 
 /** Clave de caché de un efecto con sus variantes (la racha y el resultado cambian según nivel y puntaje). */
-export function claveEfecto(nombre, { paleta = 'suave', nivel, puntaje } = {}) {
+export function claveEfecto(nombre, { paleta = 'suave', nivel, puntaje, indice, total, luminancia: lum, mundo, inverso } = {}) {
   if (nombre === 'racha') return `${paleta}:racha:${Math.min(7, Math.max(3, nivel ?? 3))}`;
   if (nombre === 'resultado') { const p = puntaje ?? 1; return `${paleta}:resultado:${p >= 0.8 ? 'alto' : p >= 0.5 ? 'medio' : 'bajo'}`; }
+  if (nombre === 'pieza') return `${paleta}:pieza:${Math.round(tonoPieza(indice, total) * 2)}`;   // medio semitono de resolución
+  if (nombre === 'color') return `${paleta}:color:${Math.round(Math.min(1, Math.max(0, lum ?? 0.5)) * 8)}`;   // 9 escalones
+  if (nombre === 'ambiente') return `${paleta}:ambiente:${AMBIENTES[mundo] ? mundo : MUNDOS_AMBIENTE[0]}`;
+  if (nombre === 'deslizar' && inverso) return `${paleta}:deslizar:inverso`;
   return `${paleta}:${nombre}`;
 }
 
-export default { EFECTOS, PALETAS, DURACION_MAXIMA, PICO, paletaDeTema, renderizarEfecto, claveEfecto };
+export default { EFECTOS, EFECTOS_CREADOR, PALETAS, DURACION_MAXIMA, DURACION_AMBIENTE, PICO, MUNDOS_AMBIENTE, paletaDeTema, renderizarEfecto, claveEfecto, luminancia };

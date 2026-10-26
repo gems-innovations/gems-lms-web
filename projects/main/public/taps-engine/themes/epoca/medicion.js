@@ -31,6 +31,7 @@ const PATRONES = [
   /^gusto\/(si|meh)$/,
   /^abandono\/(partida|personaje|escenario|listo)\/(0|[1-9]\d{0,2}0)$/,     // segundos ya redondeados a 10
   /^fps-bajo$/,
+  /^sonido\/(on|off)$/,                                                      // altavoz de la barra o tecla M (disenador-v2-plan.md §6)
   /^error\/(carga|look-invalido)$/,
 ];
 
