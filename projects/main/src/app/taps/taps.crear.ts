@@ -206,6 +206,19 @@ export function origenCrear(search: string, abrirDisenador: string | null | unde
   return abrir === 'enlace' || abrir === 'continuar' ? abrir : 'directo';
 }
 
+/**
+ * «Volver» de la cabecera de /crear (marco de marca): a donde se vino según `?desde=`; sin origen conocido, a la portada.
+ * El borrador no se pierde: el diseñador lo guarda al desmontarse (disenador.js `destruir()`).
+ */
+export function destinoVolver(desde: string | null | undefined): { ruta: string; texto: string } {
+  switch (desde) {
+    case 'feed': return { ruta: '/taps', texto: 'Volver a Taps' };
+    case 'instituciones': return { ruta: '/instituciones', texto: 'Volver a instituciones' };
+    case 'instructor': return { ruta: '/instructor', texto: 'Volver al panel' };
+    default: return { ruta: '/', texto: 'Volver al inicio' };
+  }
+}
+
 /** Primer gesto creativo: tocar un punto de partida, cambiar una pieza, «Sorpréndeme» o aplicar una sugerencia. */
 const CREO = /^(preset|cambio|sorprendeme)\//;
 /** `hito-cuenta/<abrir|entendido>/<hito>` del diseñador (lo «visto» ya viaja en `taps/disenador/*`). */

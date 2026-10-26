@@ -34,6 +34,12 @@ test.describe('/crear', () => {
     await expect(dsn.locator('#lienzo')).toBeVisible({ timeout: 20_000 });
     await expect(dsn.locator('#presets .tarjeta').first()).toBeVisible();
     await expect(dsn.locator('#progreso li').last().locator('button#publicar')).toHaveText('Publicar (con cuenta)');
+    // Marco de marca: el logo existente de GEMS LMS y «Volver» (sin ?desde=, a la portada), con los tokens del sitio.
+    const marca = page.locator('gems-tap-disenador header.marca');
+    await expect(marca.locator('a.marca__logo img')).toHaveAttribute('src', '/logo-144.png');
+    await expect(marca.getByRole('link', { name: 'GEMS LMS, inicio' })).toHaveAttribute('href', '/');
+    await expect(marca.getByRole('link', { name: 'Volver al inicio' })).toHaveAttribute('href', '/');
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector('gems-tap-disenador .dsn')!).fontFamily)).toContain('Plus Jakarta Sans');
     const cinta = dsn.locator('#ranuraVista .cinta[role="region"]');
     await expect(cinta).toBeVisible();
     await expect(cinta).toContainText('sin cuenta');
@@ -51,6 +57,22 @@ test.describe('/crear', () => {
     await page.reload();
     await expect(dsn.locator('#lienzo')).toBeVisible({ timeout: 20_000 });
     await expect(dsn.locator('#ranuraVista .cinta[role="region"]')).toBeHidden();
+  });
+
+  test('en celular (375×844) la cabecera de marca no saca de pantalla la vista previa ni «Siguiente»', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 844 });
+    await page.goto('/crear?desde=feed');
+    await page.evaluate(() => { try { localStorage.setItem('taps.crear.aviso-publicar', '1'); } catch { /* sin almacenamiento */ } });
+    const dsn = page.locator('gems-tap-disenador .dsn');
+    await expect(dsn.locator('#lienzo')).toBeVisible({ timeout: 20_000 });
+    const marca = await page.locator('gems-tap-disenador header.marca').boundingBox();
+    const vista = await dsn.locator('#vista').boundingBox();
+    const siguiente = await dsn.locator('#siguiente').boundingBox();
+    expect(marca && marca.height <= 64, 'la cabecera es compacta').toBeTruthy();
+    expect(vista && vista.y >= (marca?.height ?? 0) && vista.y + vista.height <= 844, 'la vista previa entera dentro de la pantalla').toBeTruthy();
+    expect(siguiente && siguiente.y + siguiente.height <= 844, '«Siguiente» dentro de la pantalla').toBeTruthy();
+    await expect(page.locator('gems-tap-disenador header.marca').getByRole('link', { name: 'Volver a Taps' })).toBeVisible();
+    await sinScrollHorizontal(page);
   });
 
   test('crear → guardar → recargar conserva el look (claves taps.disenador.*) y mide una sola vez', async ({ page }) => {
@@ -315,6 +337,12 @@ test.describe('entradas a /crear', () => {
     await page.locator('gems-tap-rail.riel-escritorio button[aria-label="Más opciones"]').click();
     await page.locator('gems-tap-rail.riel-escritorio .rail__menu').getByRole('button', { name: 'Haz tu personaje' }).click();
     await expect(page).toHaveURL(/\/crear\?desde=feed$/);
+    // «Volver a Taps» en la cabecera de marca devuelve al feed.
+    const volver = page.locator('gems-tap-disenador header.marca').getByRole('link', { name: 'Volver a Taps' });
+    await expect(volver).toHaveAttribute('href', '/taps');
+    await expect(page.locator('gems-tap-disenador .dsn #lienzo')).toBeVisible({ timeout: 20_000 });
+    await volver.click();
+    await expect(page).toHaveURL(/\/taps(\?|$)/);   // el feed retoma su propio estado (?t=)
   });
 
   test('feed en celular: el menú «Más» lleva a /crear y el resultado ofrece «Haz tu personaje» solo en el 5.º resultado', async ({ page }) => {
