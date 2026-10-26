@@ -29,7 +29,8 @@ export class CourseEditorUseCase {
     [EContentType.QUIZ]:         'Quiz',
     [EContentType.ASSIGNMENT]:   'Tarea',
     [EContentType.LIVE_SESSION]: 'Sesión en Vivo',
-    [EContentType.SCORM]:        'SCORM'
+    [EContentType.SCORM]:        'SCORM',
+    [EContentType.CARDS]:        'Cartas'
   };
 
   readonly difficultyLabels: Record<EDifficulty, string> = {
