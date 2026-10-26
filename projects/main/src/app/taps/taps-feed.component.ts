@@ -1362,6 +1362,9 @@ export class TapsFeedComponent {
    * Entonces se decodifica la música ya bajada (antes solo se bajaron los bytes): quien abre y se va no gasta CPU ni memoria.
    */
   private vigilarIntencion(): void {
+    // Llega tras requestIdleCallback + promesas: si la persona ya salió de la página, el feed está destruido y
+    // registrar onDestroy lanza NG0911 (visto en 4 de 100 recorridos de prueba saliendo rápido de la portada).
+    if (this.destroyRef.destroyed) return;
     const host = this.host.nativeElement;
     const opts = { capture: true, passive: true } as const;
     let timer: ReturnType<typeof setTimeout> | null = null;
