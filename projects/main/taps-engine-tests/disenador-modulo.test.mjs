@@ -59,6 +59,26 @@ test('disenador.js (PR-D5): las chispas en DOM se retiran; partículas y transic
   assert.doesNotMatch(cuerpo, /animationend/, 'ninguna partícula en DOM con animación CSS');
 });
 
+test('disenador.js (PR-D6): marco 9:16 en canvas con dos preguntas del banco (y reserva), lema en enlace/guardado/borrador, nada del motor ni de rig.js', () => {
+  assert.match(codigo, /id=\\"tapMini\\" role=\\"img\\"/, 'el marco es un canvas con nombre accesible');
+  assert.match(codigo, /id=\\"lema\\" maxlength=\\"40\\"/);
+  assert.match(cuerpo, /new URL\('\.\/taps\/ciencia-curiosa\.json', import\.meta\.url\)/, 'una pregunta real del banco del motor');
+  assert.match(cuerpo, /const PREGUNTAS_RESERVA = Object\.freeze\(\[/, 'si el banco no carga, hay reserva');
+  assert.match(cuerpo, /catch \{ \/\* sin banco: quedan las de reserva \*\/ \}/);
+  assert.match(cuerpo, /\.slice\(0, 2\)/, 'dos preguntas');
+  assert.match(cuerpo, /sonar\(ok \? 'acierto' : 'fallo'\)/, 'los sonidos del feed (D1 intacto)');
+  assert.match(cuerpo, /animar\(ok \? 'celebrate' : 'hurt', 1\.6\)/);
+  assert.match(cuerpo, /enlaceDeLook\(location\.href, estado, \$\('nombre'\)\.value\.trim\(\), lemaActual\(\)\)/);
+  assert.match(cuerpo, /guardarLook\(misLooks, estado, \{ nombre, lema: lemaActual\(\), miniatura: pngMiniatura\(\) \}\)/);
+  assert.match(cuerpo, /armarBorrador\(estado, pantalla, borradorActual, Date\.now\(\), \{ lema: lemaActual\(\) \}\)/);
+  assert.match(cuerpo, /exportarJson\(estado, \$\('nombre'\)\.value\.trim\(\), lemaActual\(\)\)/);
+  assert.match(cuerpo, /sonar\(destino === 3 \? 'logro' : 'blip'\)/, '«Terminar» celebra con logro'); assert.match(cuerpo, /if \(cambia\) confetiLook\(\);/);
+  assert.doesNotMatch(codigo, /from '\.\/taps-engine\.js'|import\(['"]\.\/taps-engine\.js|stage\.registerCharacter\(/, 'el motor real es PR-D10');
+  assert.doesNotMatch(codigo, /PREGUNTA_MUESTRA/, 'la pregunta suelta fija ya no existe');
+  assert.doesNotMatch(cuerpo, /probar\/|'probado\//, 'ningún evento de medición nuevo fuera de medicion.js');
+  const emoji = /\p{Extended_Pictographic}/u; assert.doesNotMatch(codigo, emoji, 'sin emojis');
+});
+
 test('disenador.js (PR-D3): títulos por paso y botones de avanzar según §2 del plan', async () => {
   const m = await import('../public/taps-engine/disenador.js').catch(() => null);
   // El módulo importa código de navegador: si no se puede cargar en Node, se comprueba sobre el texto.

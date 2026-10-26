@@ -114,6 +114,8 @@ export function validarAdjunto(obj: unknown, validar: (look: Record<string, unkn
  * Arma el adjunto a partir del borrador crudo de localStorage (`taps.disenador.borrador`) cuando su `borradorId` es el de la
  * URL. Null si no hay borrador, si es otro, si el look no valida o si excede el tope: el formulario sigue funcionando normal.
  * `vest` nulo no viaja (como compactar de compartir.js). La miniatura (PNG pequeña del propio borrador) solo se muestra; no se envía.
+ * Tampoco viaja el `lema` (PR-D6): el API (ms-education InstitutionRequestDraft) solo acepta v, borradorId, b, l, i, w y descarta
+ * el borrador entero ante una clave extra; cuando el API lo acepte, se añade aquí y en la interfaz IAdjuntoBorrador.
  */
 export function armarAdjunto(raw: string | null, borradorId: string | null, validar: (look: Record<string, unknown>) => string[]): IBorradorAdjunto | null {
   if (!raw || !borradorId) return null;

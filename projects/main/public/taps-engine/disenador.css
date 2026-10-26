@@ -187,7 +187,12 @@
 .dsn .muestra-pregunta .opciones button .letra { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--panel2); border: 1px solid var(--line); font-weight: 700; font-size: 13px; flex: none; }
 .dsn .muestra-pregunta .opciones button.bien { border-color: var(--good); } .dsn .muestra-pregunta .opciones button.bien .letra { background: var(--good); color: var(--acc-ink); border-color: var(--good); }
 .dsn .muestra-pregunta .opciones button.mal { border-color: #f3a0a0; opacity: .7; }
+.dsn .muestra-pregunta .opciones button.siguiente { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); font-weight: 600; justify-content: center; }
 .dsn .muestra-pregunta .enunciado { font-weight: 600; font-size: 15px; margin: 0; }
+/* Vista previa en Tap (PR-D6): marco 9:16 dibujado en canvas con el personaje de anfitrión, su lema y la pregunta; las opciones se tocan ahí o abajo */
+.dsn .tap-marco { display: flex; justify-content: center; }
+.dsn .tap-marco canvas { display: block; width: 216px; height: 384px; max-width: 100%; border-radius: 18px; background: #15131f; border: 1px solid var(--line); box-shadow: 0 10px 28px rgba(0, 0, 0, .4); touch-action: manipulation; }
+.dsn .muestra-pregunta.jugando .tap-marco canvas { cursor: pointer; }
 .dsn .muestra-pregunta .veredicto { margin: 0; color: var(--soft); font-size: 13px; min-height: 1.2em; }
 .dsn .muestra-pregunta .veredicto.bien { color: var(--good); }
 

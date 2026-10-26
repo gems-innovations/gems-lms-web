@@ -3,8 +3,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { lookOf, validarLook } from '../public/taps-engine/themes/epoca/rig.js';
 import {
-  CLAVE_BORRADOR, CLAVE_LOOKS, MAX_LOOKS, MAX_NOMBRE, armarBorrador, borrarLook, crearAlmacen, duplicarLook, fechaCorta, guardarLook,
-  parsearBorrador, parsearLooks, recortarNombre, renombrarLook, serializarBorrador, serializarLooks,
+  CLAVE_BORRADOR, CLAVE_LOOKS, MAX_LEMA, MAX_LOOKS, MAX_NOMBRE, armarBorrador, borrarLook, crearAlmacen, duplicarLook, fechaCorta, guardarLook,
+  parsearBorrador, parsearLooks, recortarLema, recortarNombre, renombrarLook, serializarBorrador, serializarLooks,
 } from '../public/taps-engine/themes/epoca/guardado.js';
 
 const estado = () => ({ base: 'grabador', look: lookOf({}), item: 'pluma', world: 'taller-londres' });
@@ -80,6 +80,24 @@ test('guardado: JSON corrupto o de otra forma en localStorage → lista vacía y
   assert.equal(parsearBorrador(serializarBorrador({ ...b, miniatura: 'data:image/png;base64,AAAA' }), validarLook).miniatura, 'data:image/png;base64,AAAA');
   assert.equal(parsearBorrador(serializarBorrador({ ...b, miniatura: 'javascript:alert(1)' }), validarLook).miniatura, '');
   assert.equal(leido.miniatura, '');
+});
+
+test('guardado (PR-D6): el lema se recorta a 40, viaja en Mis looks y en el borrador, y los guardados viejos (sin lema) siguen leyéndose', () => {
+  assert.equal(MAX_LEMA, 40);
+  assert.equal(recortarLema('  Hoy   aprendemos  '), 'Hoy aprendemos');
+  assert.equal(Array.from(recortarLema('ñ'.repeat(50))).length, 40, 'puntos de código, no bytes');
+  for (const raro of [12, null, undefined, { a: 1 }, ['x'], '']) assert.equal(recortarLema(raro), '', JSON.stringify(raro));
+  const { look } = guardarLook([], estado(), { nombre: 'A', lema: 'x'.repeat(60) });
+  assert.equal(look.lema.length, 40);
+  const leidos = parsearLooks(serializarLooks([look, { id: 'viejo', nombre: 'Viejo', fecha: 1, ...estado() }, { id: 'raro', nombre: 'Raro', fecha: 1, lema: 7, ...estado() }]), validarLook);
+  assert.equal(leidos[0].lema, 'x'.repeat(40)); assert.equal(leidos[1].lema, '', 'un look guardado antes de PR-D6 no trae lema'); assert.equal(leidos[2].lema, '');
+  assert.equal(duplicarLook(leidos, leidos[0].id, 5, 'copia').look.lema, leidos[0].lema, 'duplicar conserva el lema');
+  const b = armarBorrador(estado(), 3, null, 1000, { lema: ' Ciencia con calma ' });
+  assert.equal(b.lema, 'Ciencia con calma'); assert.equal(armarBorrador(estado(), 3, null, 1000).lema, '');
+  assert.equal(parsearBorrador(serializarBorrador(b), validarLook).lema, 'Ciencia con calma');
+  const viejo = serializarBorrador({ v: 1, borradorId: 'abc-0000000', paso: 2, fecha: 1, ...estado() });
+  assert.equal(parsearBorrador(viejo, validarLook).lema, '', 'un borrador anterior a PR-D6 se lee con lema vacío');
+  assert.equal(parsearBorrador(serializarBorrador({ ...b, lema: ['x'] }), validarLook).lema, '');
 });
 
 test('guardado: almacenamiento no disponible → nada lanza y se informa', () => {
