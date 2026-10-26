@@ -14,6 +14,7 @@ import { enlaceDeLook, exportarJson, importarJson, lookDesdeHash } from './theme
 import { PREFIJO, crearMedidor, esAutomatico, esInterno, nombreAbandono, nombreValido, paraGoatCounter } from './themes/epoca/medicion.js';
 import { COPY_HITOS, ENTENDIDO, PUBLICAR, QUE_ES, conNombre, crearHitos, esEstudiante } from './themes/epoca/hitos.js';
 import { CAMARA_MS, QUIETA_REACCION, REACCIONES, encuadreDe, focoDe, mezclarCamara, reaccionDe } from './themes/epoca/reacciones.js';
+import { crearParticulas } from './themes/epoca/particulas.js';
 import { crearFrases } from './themes/epoca/frases.js';
 // La versión (?v=) va en los imports del audio: si cambia efectos.js, una caché vieja no mezcla versiones (como en sonido.js).
 import { crearSonido } from './audio/sonido.js?v=3';
@@ -73,6 +74,9 @@ export async function montarDisenador(raiz, opciones = {}) {
   }
   const $ = id => raiz.querySelector('#' + id);
   const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Partículas en canvas (PR-D5, themes/epoca/particulas.js): pool fijo de 40, nada con movimiento reducido; se avanzan en
+  // `cuadro()` y se pintan al final de `dibujar()` en píxeles de la vista. Con `fps-bajo` se degradan (mitad de ráfaga, sin brillo).
+  const particulas = crearParticulas({ reducido });
 
   // ───────────────────────── medición (themes/epoca/medicion.js): solo nombres cerrados, nunca el look ─────────────────────────
   // Canal: GoatCounter, el mismo contador sin cookies de la web (index.html + AnalyticsService), que acepta cualquier path
@@ -157,6 +161,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     // Prenda, sombrero y chaleco cambian qué grupos existen en Ropa (color del sombrero, del chaleco, camisa): se reconstruye con el foco a salvo.
     if (pantalla === 1 && pestana === 'ropa' && REHACE_ROPA.has(tipo)) construirAjustes(); else refrescarControles();
     refrescarSugerencia(); pintar(); pintarEscenas();
+    celebrarCambio(tipo, detalle ?? {});
     programarAutoguardado();
     if (pantalla === 1 && CAMBIO_DE_PESTANA.has(tipo)) contar('cambio/' + pestana);   // agregado: 1 por pestaña por minuto
     invertir(tipo); mostrarPista();
@@ -239,8 +244,12 @@ export async function montarDisenador(raiz, opciones = {}) {
     const destino = Math.max(0, Math.min(3, p));
     if (destino > pantalla && destino >= 2) contar(destino === 2 ? 'paso/escenario' : 'paso/listo');   // solo al avanzar
     if (destino !== pantalla) { sonar(destino === 3 ? 'logro' : 'blip'); limpiarHitos(); }          // cambiar de paso; Listo celebra; los avisos de cuenta no viajan entre pasos
+    const cambia = destino !== pantalla;
     pantalla = destino;
-    raiz.querySelectorAll('.pantalla').forEach(s => s.classList.toggle('activa', +s.dataset.p === pantalla));
+    // Transición de pantalla (PR-D5, §4): el panel entra desde abajo 220 ms y el h1 se funde; `entra` se reinicia en cada cambio
+    // para que la animación CSS vuelva a correr. Con movimiento reducido el CSS anula las animaciones (corte directo).
+    raiz.querySelectorAll('.pantalla').forEach(s => { const on = +s.dataset.p === pantalla; s.classList.toggle('activa', on); s.classList.remove('entra'); if (on && cambia) { void s.offsetWidth; s.classList.add('entra'); } });
+    if (cambia) { const h1 = $('h1'); h1.classList.remove('funde'); void h1.offsetWidth; h1.classList.add('funde'); }
     const punto = pantalla <= 1 ? 0 : pantalla - 1;
     [...raiz.querySelectorAll('#progreso li:not(.publicar)')].forEach((li, i) => { li.classList.toggle('ahora', i === punto); li.classList.toggle('ya', i < punto); li.setAttribute('aria-current', i === punto ? 'step' : 'false'); });
     $('titulo').textContent = TITULOS[pantalla];
@@ -252,7 +261,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     $('paso').scrollTop = 0;
     if (pantalla === 1) construirAjustes();
     if (pantalla === 2) construirEscenas();
-    if (pantalla === 3) { refrescarJson(); prepararGuardar(); reiniciarPregunta(); if (!reducido) reaccionar('preset'); }
+    if (pantalla === 3) { refrescarJson(); prepararGuardar(); reiniciarPregunta(); if (!reducido) { reaccionar('preset'); if (cambia) confetiLook(); } }
     encuadrar(); refrescarSugerencia();
     programarAutoguardado();
     // Hitos de cuenta (§2): al entrar al escenario, un chip bajo la vista; en Listo, el bloque «Lo que puedes hacer con X».
@@ -428,7 +437,7 @@ export async function montarDisenador(raiz, opciones = {}) {
         const [n, sub] = MUNDOS[w] ?? [w, ''];
         b.append(c, Object.assign(document.createElement('b'), { textContent: n }), Object.assign(document.createElement('small'), { textContent: sub }));
         b.setAttribute('aria-label', `${n}, ${sub}: tu personaje en este escenario`);
-        b.onclick = () => cambiar('world', () => { estado.world = w; }); return b;
+        b.onclick = () => { if (estado.world !== w) volarAVista(c); cambiar('world', () => { estado.world = w; }); }; return b;
       }));
     }
     pintarEscenas(true); refrescarControles();
@@ -542,15 +551,49 @@ export async function montarDisenador(raiz, opciones = {}) {
   $('nombre').addEventListener('input', () => { contarNombre(); const h = $('queHacerTitulo'); if (h) h.textContent = conNombre(COPY_HITOS.listo.titulo, nombreActual()); });
 
   function pngMiniatura() { try { return miniatura(estado.look, 72, 96, 1).toDataURL('image/png'); } catch { return ''; } }
-  function chispas() {                           // celebración breve: chispas ámbar desde la vista; nada con movimiento reducido
+  // ───────────────────────── partículas y transiciones (PR-D5, §4) ─────────────────────────
+  // Todo se pinta en el canvas de la vista (nada en DOM): polvo dorado desde el chip al cambiar una pieza, anillo de luz del chip
+  // al personaje al elegir color, confeti con los colores del look en Listo y al guardar. Los puntos de origen salen del control
+  // tocado (getBoundingClientRect) llevados a coordenadas de la vista y pegados a su borde: el control está debajo de la vista.
+  const CON_POLVO = new Set(['face', 'hair', 'outfit', 'hat', 'item', 'sugerencia', 'sorpresa']);
+  function enVista(el, margen = 8) {
+    const rv = vista.getBoundingClientRect();
+    if (!el) return [w / 2, h - margen];
+    const r = el.getBoundingClientRect(), cx = r.left + r.width / 2 - rv.left, cy = r.top + r.height / 2 - rv.top;
+    return [Math.max(margen, Math.min(w - margen, cx)), Math.max(margen, Math.min(h - margen, cy))];
+  }
+  function controlDe(detalle) {
+    if (!detalle.campo) return null;
+    const activo = raiz.querySelector(`#ajustes .on[data-campo="${detalle.campo}"]`);
+    if (activo) return activo;
+    // Color libre (ningún círculo encendido): el origen es el botón «Más colores» de ese grupo.
+    return raiz.querySelector(`#ajustes .muestra[data-campo="${detalle.campo}"]`)?.closest('.muestras')?.querySelector('.mas') ?? null;
+  }
+  function celebrarCambio(tipo, detalle) {
     if (reducido) return;
-    const caja = $('vista'), r = caja.getBoundingClientRect();
-    for (let i = 0; i < 18; i++) {
-      const s = document.createElement('span'); s.className = 'chispa'; const a = (i / 18) * Math.PI * 2 + Math.random() * 0.3, d = r.width * (0.25 + Math.random() * 0.3);
-      s.style.setProperty('--dx', Math.cos(a) * d + 'px'); s.style.setProperty('--dy', Math.sin(a) * d * 0.8 + 'px'); s.style.top = (r.height * 0.55) + 'px';
-      s.style.animationDelay = (Math.random() * 120) + 'ms'; caja.append(s); s.addEventListener('animationend', () => s.remove());
-    }
-    esperar(() => caja.querySelectorAll('.chispa').forEach(s => s.remove()), 1500);
+    if (tipo === 'color' || detalle.color) { const [x, y] = enVista(controlDe(detalle)); particulas.anillo(x, y, w / 2, h / 2, { color: detalle.color || undefined, r1: Math.min(w, h) * 0.32 }); }
+    else if (CON_POLVO.has(tipo)) { const [x, y] = enVista(controlDe(detalle)); particulas.polvo(x, y); }
+  }
+  /** Confeti de papel con los colores del look actual, desde arriba de la vista (Listo y guardar). */
+  function confetiLook() {
+    if (reducido) return;
+    const L = estado.look; particulas.confeti(w / 2, h * 0.22, [L.coat, L.accent, L.trousers, L.hair, L.shirt, '#f0d08a'], { ancho: w * 0.6 });
+  }
+  /** Tarjeta de escenario → vista: una copia de la miniatura crece desde la tarjeta hasta la vista (300 ms) y se quita sola. */
+  function volarAVista(mini) {
+    if (reducido || typeof mini?.animate !== 'function') return;
+    const r0 = mini.getBoundingClientRect(), r1 = vista.getBoundingClientRect(), rr = raiz.getBoundingClientRect();
+    if (!r0.width || !r1.width) return;
+    const c = document.createElement('canvas'); c.width = mini.width; c.height = mini.height; c.className = 'vuelo'; c.setAttribute('aria-hidden', 'true');
+    try { c.getContext('2d').drawImage(mini, 0, 0); } catch { return; }
+    Object.assign(c.style, { left: (r0.left - rr.left) + 'px', top: (r0.top - rr.top) + 'px', width: r0.width + 'px', height: r0.height + 'px' });
+    raiz.append(c);
+    const quitar = () => c.remove();
+    const a = c.animate([
+      { transform: 'translate(0, 0) scale(1)', opacity: 0.95, borderRadius: '10px' },
+      { transform: `translate(${r1.left - r0.left + (r1.width - r0.width) / 2}px, ${r1.top - r0.top + (r1.height - r0.height) / 2}px) scale(${r1.width / r0.width}, ${r1.height / r0.height})`, opacity: 0, borderRadius: '4px' },
+    ], { duration: 300, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'forwards' });
+    a.onfinish = quitar; a.oncancel = quitar; esperar(quitar, 400);
   }
   $('formGuardar').addEventListener('submit', ev => {
     ev.preventDefault();
@@ -560,7 +603,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     if (r.lleno) { estadoGuardado(`Ya tienes ${MAX_LOOKS} looks guardados, el máximo. Borra uno de «Mis looks» y vuelve a guardar.`, false, 8000); sonarError(); $('misLooks').scrollIntoView({ behavior: reducido ? 'auto' : 'smooth', block: 'start' }); return; }
     if (!almacen.escribir(CLAVE_LOOKS, serializarLooks(r.lista))) { estadoGuardado('No se pudo guardar: el almacenamiento de este navegador está lleno o bloqueado. Descarga su archivo desde «Más» o copia el enlace.', false, 8000); sonarError(); return; }
     misLooks = r.lista; lookCargado = r.look.id; $('nombre').value = ''; contarNombre();
-    estadoGuardado(`«${r.look.nombre}» está en Mis looks.`, true); reaccionar('guardar'); sonar('guardar'); chispas(); pintarMisLooks();
+    estadoGuardado(`«${r.look.nombre}» está en Mis looks.`, true); reaccionar('guardar'); sonar('guardar'); confetiLook(); pintarMisLooks();
     contar('listo'); ofrecerGusto(); lineaGuardado();
     try { navigator.vibrate?.(15); } catch {}
   });
@@ -785,6 +828,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     const objetivo = poseDe(anim, animT, T); parpadeoPose = objetivo.parpadeo === true;   // la reacción «color» pide un parpadeo doble
     pose = blendPose(pose, objetivo, 1 - Math.exp(-dt * 16));
     vigilarFps(ahora, dt);
+    particulas.paso(dt);
     dibujar();
     requestAnimationFrame(cuadro);
   }
@@ -794,7 +838,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     if (anim === 'idle' || dt <= 0 || dt >= 0.05) { lentoDesde = 0; return; }     // dt tope = 0.05 → un salto (pestaña oculta), no un tirón
     if (dt <= 1 / 30) { lentoDesde = 0; return; }
     if (!lentoDesde) lentoDesde = ahora;
-    else if (ahora - lentoDesde >= 2000) { lentoDesde = 0; contar('fps-bajo'); }
+    else if (ahora - lentoDesde >= 2000) { lentoDesde = 0; contar('fps-bajo'); particulas.degradar(); }   // gama baja: la mitad de partículas y sin brillo
   }
   function dibujar() {
     medir();
@@ -811,6 +855,8 @@ export async function montarDisenador(raiz, opciones = {}) {
     ctx.fillStyle = 'rgba(8,7,16,.32)'; ctx.beginPath(); ctx.ellipse(w / 2, pies + 6 * s, 70 * s, 14 * s, 0, 0, Math.PI * 2); ctx.fill();
     drawHost(ctx, w / 2, cy + entrada * 40 * s, s, pose, lookOf({ look: E.look }), { item: E.item, blink: parpadeoT > 0 || parpadeoPose, T });
     ctx.restore();
+    // Partículas (PR-D5) fuera de la cámara, en píxeles de la vista: siempre arriba del personaje.
+    if (particulas.vivas()) { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); particulas.dibujar(ctx); }
   }
   function pintar() { if (reducido || !corriendo) dibujar(); }   // con animación, el bucle ya repinta en el próximo cuadro
   function arrancar() { if (reducido || corriendo || document.hidden) return; corriendo = true; ultimo = performance.now(); requestAnimationFrame(cuadro); }

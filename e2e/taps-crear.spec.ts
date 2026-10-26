@@ -84,6 +84,13 @@ test.describe('/crear', () => {
     await dsn.locator('#siguiente').click();                       // escenario
     await expect(dsn.locator('h1')).toHaveText('Dónde vive');
     await expect(dsn.locator('#siguiente')).toHaveText('Terminar');
+    // PR-D5: el panel que entra lleva la clase de transición y el h1 se funde (clases, no tiempos: la animación es CSS).
+    await expect(dsn.locator('.pantalla.activa[data-p="2"]')).toHaveClass(/entra/);
+    await expect(dsn.locator('h1')).toHaveClass(/funde/);
+    // Tocar un escenario distinto lanza la miniatura hacia la vista (canvas.vuelo) y se quita sola en < 1 s.
+    await dsn.locator('#escenas .tarjeta[data-id="foro-roma"]').click();
+    await expect(dsn.locator('#escenas .tarjeta[data-id="foro-roma"]')).toHaveClass(/on/);
+    await expect(dsn.locator('canvas.vuelo')).toHaveCount(0, { timeout: 2_000 });
     await dsn.locator('#siguiente').click();                       // listo
     await expect(dsn.locator('h1')).toHaveText('Lo hiciste');
     await expect(dsn.locator('#json')).toBeHidden();
@@ -92,6 +99,7 @@ test.describe('/crear', () => {
     await dsn.locator('#guardar').click();
     await expect(dsn.locator('#estadoGuardado')).toContainText('está en Mis looks');
     await expect(dsn.locator('#listaLooks .look')).toHaveCount(1);
+    await expect(dsn.locator('.vista .chispa'), 'PR-D5: el confeti va en el canvas, no en DOM').toHaveCount(0);
     expect(await page.evaluate(() => localStorage.getItem('taps.disenador.looks')), 'misma clave de looks que el prototipo').toContain('arqueologa');
     // El borrador se autoguarda con ~1 s de espera.
     await expect.poll(() => page.evaluate(() => localStorage.getItem('taps.disenador.borrador') ?? ''), { timeout: 5_000 }).toContain('arqueologa');
