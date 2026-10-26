@@ -73,7 +73,7 @@ test('compartir: campos desconocidos se descartan (look y raíz), objeto o escen
   const r = dec(aBase64url(JSON.stringify(o)));
   assert.equal(r.ok, true);
   assert.ok(!('inventado' in r.estado.look) && !('otro' in r.estado.look)); assert.equal(validarLook(r.estado.look).length, 0);
-  assert.deepEqual(Object.keys(r.estado).sort(), ['base', 'item', 'look', 'world']);
+  assert.deepEqual(Object.keys(r.estado).sort(), ['base', 'hora', 'item', 'look', 'world']);
   assert.deepEqual(Object.keys(r).sort(), ['estado', 'lema', 'nombre', 'ok']);
   const raro = dec(aBase64url(JSON.stringify({ ...o, i: 'espada', w: 'marte', b: 7 })));
   assert.equal(raro.estado.item, null, 'objeto desconocido → nada'); assert.equal(raro.estado.world, WORLD_NAMES[0]); assert.equal(raro.estado.base, 'sorpresa');

@@ -113,6 +113,14 @@ test.describe('/crear', () => {
     await dsn.locator('#escenas .tarjeta[data-id="foro-roma"]').click();
     await expect(dsn.locator('#escenas .tarjeta[data-id="foro-roma"]')).toHaveClass(/on/);
     await expect(dsn.locator('canvas.vuelo')).toHaveCount(0, { timeout: 2_000 });
+    // PR-D8: ocho escenarios (tres nuevos) y el selector de hora con iconos dibujados; de día por defecto, la noche se marca y se cuenta.
+    await expect(dsn.locator('#escenas .tarjeta')).toHaveCount(8);
+    await expect(dsn.locator('#escenas .tarjeta[data-id="biblioteca"]')).toBeVisible();
+    await expect(dsn.locator('#horas .chip')).toHaveCount(3);
+    await expect(dsn.locator('#horas .chip[data-id="dia"]')).toHaveAttribute('aria-pressed', 'true');
+    await dsn.locator('#horas .chip[data-id="noche"]').click();
+    await expect(dsn.locator('#horas .chip[data-id="noche"]')).toHaveClass(/on/);
+    await expect(dsn.locator('#horas .chip[data-id="dia"]')).toHaveAttribute('aria-pressed', 'false');
     await dsn.locator('#siguiente').click();                       // listo
     await expect(dsn.locator('h1')).toHaveText('Lo hiciste');
     await expect(dsn.locator('#json')).toBeHidden();
@@ -152,6 +160,7 @@ test.describe('/crear', () => {
     expect(enlace).toContain('#look=');
     const compacto = JSON.parse(Buffer.from(enlace.split('#look=')[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8')) as Record<string, unknown>;
     expect(compacto['v']).toBe(2); expect(compacto['m']).toBe('Hoy aprendemos algo nuevo');
+    expect(compacto['h'], 'PR-D8: la hora elegida (noche) viaja en el enlace').toBe('noche');
     expect(compacto['n']).toBeUndefined();   // guardar vacía el campo del nombre (comportamiento previo); el lema se queda
     // Medición: cada evento del diseñador una vez (sin doble envío) y los hitos de /crear.
     const antes = await eventos(page);

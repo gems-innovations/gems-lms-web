@@ -17,8 +17,11 @@ export const MAX_HASH = 2048;
 export const VERSION = 2;
 export const VERSIONES_LEIDAS = Object.freeze([1, 2]);
 
-// JSON compacto: claves de una letra para que el enlace sea corto. v: versión, b: base, l: look, i: item, w: world, n: nombre, m: lema.
-const CORTA = { base: 'b', look: 'l', item: 'i', world: 'w', nombre: 'n', lema: 'm' };
+// JSON compacto: claves de una letra para que el enlace sea corto. v: versión, b: base, l: look, i: item, w: world, n: nombre, m: lema,
+// h: hora del día (PR-D8; solo viaja si no es la de siempre, `dia`, así los enlaces de antes y los de ahora se leen igual).
+const CORTA = { base: 'b', look: 'l', item: 'i', world: 'w', nombre: 'n', lema: 'm', hora: 'h' };
+/** Hora que no viaja en el enlace ni cambia el dibujo (scenery.js HORA_DEFECTO). */
+export const HORA_DEFECTO = 'dia';
 
 // ───────────────────────── base64url (UTF-8), sin depender de Buffer ─────────────────────────
 export function aBase64url(texto) {
@@ -39,6 +42,7 @@ export function deBase64url(b64) {
 export function compactar(estado, nombre = '', lema = '') {
   const look = { ...estado.look }; if (!look.vest) delete look.vest;
   const o = { v: VERSION, [CORTA.base]: String(estado.base || 'sorpresa'), [CORTA.look]: look, [CORTA.item]: estado.item ?? null, [CORTA.world]: String(estado.world || '') };
+  if (typeof estado.hora === 'string' && estado.hora && estado.hora !== HORA_DEFECTO) o[CORTA.hora] = estado.hora;
   const n = recortarNombre(nombre); if (n) o[CORTA.nombre] = n;
   const m = recortarLema(lema); if (m) o[CORTA.lema] = m;
   return o;
@@ -53,7 +57,7 @@ export function enlaceDeLook(urlPagina, estado, nombre = '', lema = '') {
 /** JSON legible para «Exportar» (mismo contenido que el enlace, con claves largas). */
 export function exportarJson(estado, nombre = '', lema = '') {
   const c = compactar(estado, nombre, lema);
-  const o = { v: c.v, base: c.b, look: c.l, item: c.i, world: c.w }; if (c.n) o.nombre = c.n; if (c.m) o.lema = c.m;
+  const o = { v: c.v, base: c.b, look: c.l, item: c.i, world: c.w }; if (c.h) o.hora = c.h; if (c.n) o.nombre = c.n; if (c.m) o.lema = c.m;
   return JSON.stringify(o, null, 2);
 }
 
@@ -75,19 +79,21 @@ function sinDesconocidos(look, validar) {
 
 /**
  * Convierte un objeto (ya parseado, con claves cortas o largas, de v1 o v2) en `{ ok, estado, nombre, lema }` o
- * `{ ok: false, motivo }`. `opciones`: { items: [...objetos válidos], mundos: [...escenarios válidos] }. Un objeto desconocido
- * pasa a «nada»; un escenario desconocido pasa al primero de la lista (si hay lista). Campos que no son del personaje se
- * ignoran. Un enlace v1 (sin `m`) vuelve con `lema: ''`; el lema, si viene, se recorta a MAX_LEMA y si no es texto va vacío.
+ * `{ ok: false, motivo }`. `opciones`: { items: [...objetos válidos], mundos: [...escenarios válidos], horas: [...horas válidas] }.
+ * Un objeto desconocido pasa a «nada»; un escenario desconocido pasa al primero de la lista (si hay lista); una hora ausente o
+ * desconocida pasa a `dia` (los enlaces v1/v2 sin `h` se ven como siempre). Campos que no son del personaje se ignoran.
+ * Un enlace v1 (sin `m`) vuelve con `lema: ''`; el lema, si viene, se recorta a MAX_LEMA y si no es texto va vacío.
  */
-export function normalizarLook(obj, validar, { items = null, mundos = null } = {}) {
+export function normalizarLook(obj, validar, { items = null, mundos = null, horas = null } = {}) {
   if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return { ok: false, motivo: MOTIVOS.forma };
-  const look = obj.l ?? obj.look, base = obj.b ?? obj.base, item = obj.i ?? obj.item, world = obj.w ?? obj.world, nombre = obj.n ?? obj.nombre, lema = obj.m ?? obj.lema;
+  const look = obj.l ?? obj.look, base = obj.b ?? obj.base, item = obj.i ?? obj.item, world = obj.w ?? obj.world, nombre = obj.n ?? obj.nombre, lema = obj.m ?? obj.lema, hora = obj.h ?? obj.hora;
   if (!look || typeof look !== 'object' || Array.isArray(look)) return { ok: false, motivo: MOTIVOS.forma };
   const limpio = sinDesconocidos(look, validar);
   if (validar(limpio).length) return { ok: false, motivo: MOTIVOS.invalido };
   let it = typeof item === 'string' && item ? item : null; if (items && it && !items.includes(it)) it = null;
   let w = typeof world === 'string' ? world : ''; if (mundos && !mundos.includes(w)) w = mundos[0] ?? ''; if (!w) return { ok: false, motivo: MOTIVOS.forma };
-  return { ok: true, estado: { base: typeof base === 'string' && base ? base : 'sorpresa', look: limpio, item: it, world: w }, nombre: recortarNombre(typeof nombre === 'string' ? nombre : ''), lema: recortarLema(lema) };
+  let hr = typeof hora === 'string' && hora ? hora : HORA_DEFECTO; if (horas && !horas.includes(hr)) hr = HORA_DEFECTO;
+  return { ok: true, estado: { base: typeof base === 'string' && base ? base : 'sorpresa', look: limpio, item: it, world: w, hora: hr }, nombre: recortarNombre(typeof nombre === 'string' ? nombre : ''), lema: recortarLema(lema) };
 }
 
 /** Texto JSON (de un archivo o pegado) → resultado de `normalizarLook`. */

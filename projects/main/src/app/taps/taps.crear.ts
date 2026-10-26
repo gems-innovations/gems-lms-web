@@ -114,8 +114,8 @@ export function validarAdjunto(obj: unknown, validar: (look: Record<string, unkn
  * Arma el adjunto a partir del borrador crudo de localStorage (`taps.disenador.borrador`) cuando su `borradorId` es el de la
  * URL. Null si no hay borrador, si es otro, si el look no valida o si excede el tope: el formulario sigue funcionando normal.
  * `vest` nulo no viaja (como compactar de compartir.js). La miniatura (PNG pequeña del propio borrador) solo se muestra; no se envía.
- * Tampoco viaja el `lema` (PR-D6): el API (ms-education InstitutionRequestDraft) solo acepta v, borradorId, b, l, i, w y descarta
- * el borrador entero ante una clave extra; cuando el API lo acepte, se añade aquí y en la interfaz IAdjuntoBorrador.
+ * Tampoco viajan el `lema` (PR-D6) ni la `hora` del día (PR-D8): el API (ms-education InstitutionRequestDraft) solo acepta v,
+ * borradorId, b, l, i, w y descarta el borrador entero ante una clave extra; cuando el API los acepte, se añaden aquí y en IAdjuntoBorrador.
  */
 export function armarAdjunto(raw: string | null, borradorId: string | null, validar: (look: Record<string, unknown>) => string[]): IBorradorAdjunto | null {
   if (!raw || !borradorId) return null;
@@ -140,6 +140,7 @@ export const NOMBRES_ADJUNTO: Readonly<Record<string, string>> = Object.freeze({
   investigadora: 'Marta (investigadora)', periodista: 'Álvaro (periodista)', sorpresa: 'Sorpréndeme',
   pluma: 'Pluma', cepillo: 'Cepillo', pergamino: 'Pergamino', libro: 'Libro', lupa: 'Lupa', matraz: 'Matraz', antorcha: 'Antorcha', mapa: 'Mapa',
   'taller-londres': 'Taller de Londres', 'excavacion-egipto': 'Excavación en Egipto', 'foro-roma': 'Foro de Roma', 'sala-medieval': 'Sala medieval', 'laboratorio-moderno': 'Laboratorio moderno',
+  biblioteca: 'Biblioteca', observatorio: 'Observatorio', aula: 'Aula',
 });
 /** Colores del look que se enseñan como muestras, con su nombre para personas (el resto son matices derivados). */
 export const COLORES_ADJUNTO: ReadonlyArray<readonly [string, string]> = Object.freeze([

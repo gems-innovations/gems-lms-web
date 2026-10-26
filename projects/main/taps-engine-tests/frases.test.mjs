@@ -5,7 +5,7 @@ import { FRASES, MEMORIA, PESO_BASE, POR_BASE, crearFrases } from '../public/tap
 
 /** Generador determinista (LCG) para que las pruebas no dependan de Math.random. */
 function lcg(semilla = 7) { let s = semilla >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 2 ** 32; }; }
-const TIPOS = ['hat', 'hair', 'outfit', 'color', 'face', 'gafas', 'barba', 'item', 'world', 'sorpresa', 'deshacer', 'sugerencia', 'guardar', 'cargar'];
+const TIPOS = ['hat', 'hair', 'outfit', 'color', 'face', 'gafas', 'barba', 'item', 'world', 'sorpresa', 'deshacer', 'sugerencia', 'guardar', 'cargar', 'hora'];
 
 test('frases: seis por tipo, todas distintas, sin emojis y con puntuación de frase', () => {
   assert.deepEqual(Object.keys(FRASES).sort(), [...TIPOS].sort());
