@@ -1,0 +1,53 @@
+// Solo /instituciones (se suma a public.scss y public-detail.scss): «¿Buscas otra cosa?», muestra, vista del profesor,
+// «qué pasa después» y el orden en celular. Separado para que cada hoja quede dentro del presupuesto de estilos.
+// ── «¿Buscas otra cosa?» (página de instituciones) ─────────────────────────────
+.switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 24px;
+  a { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-height: 44px; padding: 10px 14px; border-radius: 12px;
+    background: var(--color-superficie); border: 1px solid var(--color-borde-principal); color: var(--color-texto-secundario);
+    text-decoration: none; font-size: var(--font-size-sm); line-height: 1.4; // transición: la global de enlaces (_movimiento.scss)
+    &:hover { border-color: var(--color-primario); } &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; } }
+  strong { color: var(--color-texto-principal); } }
+// Va después del titular (no antes): en celular, una columna con su pista, que es la respuesta a la pregunta.
+.detail .switch { margin-top: 18px; }
+@media (max-width: 640px) { .switch { grid-template-columns: 1fr; gap: 8px; } }
+.switch__hint { color: var(--color-texto-secundario); }
+.lead-cta { display: none; }
+#solicitud, #muestra, #profesor { scroll-margin-top: calc(var(--ph-h, 73px) + 16px); }
+@media (max-width: 860px) { .lead-cta { display: inline-flex; min-height: 44px; margin-top: 16px; } }
+
+.who { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; padding: 0; list-style: none;
+  li { padding: 6px 12px; border-radius: 99px; font-size: var(--font-size-sm); font-weight: 600; color: var(--color-texto-principal);
+    background: var(--color-fondo-sutil); border: 1px solid var(--color-borde-principal); } }
+
+// ── Lección de muestra y «qué pasa después» (instituciones) ────────────────────
+.muestra, .despues { margin-top: 32px;
+  h2 { font-size: var(--texto-titulo-3); } > p { margin: 6px 0 14px; color: var(--color-texto-secundario); } }
+.muestra { margin-block: 8px 48px; padding: 28px 0 0; border-top: 1px solid var(--color-borde-principal);
+  h2 { font-size: var(--texto-titulo-2); } }
+// /instituciones en celular: el contenido de .detail se aplana para que la muestra (que va después en el DOM, a todo el
+// ancho en escritorio y fuera del alcance del formulario fijo) quede entre el texto y el formulario.
+@media (max-width: 860px) {
+  .pub--inst { display: flex; flex-direction: column;
+    > .detail { display: contents; }
+    > .detail > section:first-child { order: 1; padding-top: 20px; }
+    > .muestra { order: 2; margin: 28px 0 0; }
+    > .profesor { margin-top: 8px; }
+    > .detail > .start { order: 3; margin-block: 28px 0; }
+    // El formulario viene justo después: el botón que lleva a él sobra aquí.
+    .muestra__cta { display: none; } }
+}
+.despues__nota a { display: inline-block; padding-block: 12px; margin-block: -12px; color: var(--color-texto-acento); font-weight: 700; overflow-wrap: break-word; }
+// Campos que faltaban al intentar enviar (submit() los marca con aria-invalid).
+.field[aria-invalid='true'] { border-color: var(--color-error); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 18%, transparent); }
+.field__error { display: block; margin-top: 6px; font-size: var(--font-size-sm); font-weight: 600; color: var(--color-error-texto); }
+.muestra__cta { display: flex; width: fit-content; min-height: 44px; margin: 8px auto 0; }
+.muestra-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 14px; font-weight: 700; color: var(--color-texto-acento); }
+.muestra__espera { display: grid; place-items: center; min-height: 380px; border-radius: 18px; color: var(--color-texto-secundario);
+  background: var(--color-fondo-sutil); border: 1px dashed var(--color-borde-secundario); }
+.despues ol { display: grid; gap: 10px; margin: 14px 0 0; padding: 0; list-style: none; counter-reset: paso;
+  li { position: relative; padding: 12px 14px 12px 52px; border-radius: 12px; background: var(--color-superficie); border: 1px solid var(--color-borde-principal);
+    font-size: var(--font-size-sm); color: var(--color-texto-secundario); counter-increment: paso;
+    &::before { content: counter(paso); position: absolute; left: 14px; top: 12px; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+      font-weight: 800; color: var(--color-sobre-primario); background: var(--color-primario-accion); } }
+  strong { color: var(--color-texto-principal); } }
+.despues__nota { margin: 12px 0 0; font-size: var(--font-size-sm); color: var(--color-texto-secundario); }

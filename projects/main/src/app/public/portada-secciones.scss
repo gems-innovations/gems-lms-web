@@ -1,0 +1,59 @@
+// Portada: secciones de instituciones, confianza y cierre (aparte de portada.scss por el presupuesto de estilos).
+
+// ── Instituciones ────────────────────────────────────────────────────────────
+.inst { display: grid; gap: 22px; margin-top: 28px; padding: 28px 22px; border-radius: 22px;
+  background: linear-gradient(135deg, var(--color-primario-trans-20), color-mix(in srgb, var(--color-teal) 14%, transparent));
+  border: 1px solid var(--color-borde-secundario);
+  h2 { margin-top: 8px; } .inst__head p { margin: 8px 0 0; color: var(--color-texto-secundario); } }
+.inst__perks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none;
+  li { display: grid; gap: 4px; align-content: start; padding: 16px; border-radius: 16px; background: var(--color-superficie); border: 1px solid var(--color-borde-principal); }
+  svg { color: var(--color-texto-acento); margin-bottom: 4px; }
+  strong { font: 700 var(--texto-titulo-3)/1.25 var(--font-titulo); }
+  span { font-size: var(--font-size-sm); color: var(--color-texto-secundario); } }
+.inst__start { h3 { margin: 0 0 8px; font: 700 var(--texto-titulo-3)/1.25 var(--font-titulo); }
+  ol { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+  .inst__alt { margin: 14px 0 0; font-size: var(--font-size-sm); color: var(--color-texto-secundario);
+    a { display: inline-block; padding-block: 12px; margin-block: -12px; color: var(--color-texto-acento); font-weight: 700; } } }
+.inst__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; .btn { flex: 1 1 auto; } svg { flex: none; } }
+// Tarjeta del creador de personajes y Taps (PR-7): bajo los botones, con el mismo trato que las demás puertas.
+.inst__crear { display: flex; align-items: center; gap: 12px; min-height: 64px; margin-top: 14px; padding: 10px 16px; border-radius: 14px;
+  text-decoration: none; color: var(--color-texto-secundario); font-size: var(--font-size-sm); background: var(--color-superficie);
+  border: 1px solid var(--color-borde-principal);
+  > span:nth-child(2) { flex: 1; }
+  strong { display: block; color: var(--color-texto-principal); font-size: var(--font-size-base); }
+  > svg { flex: none; color: var(--color-texto-acento); }
+  &:hover { border-color: var(--color-primario); }
+  &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; } }
+@media (min-width: 960px) {
+  .inst { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); padding: 36px; column-gap: 36px;
+    .inst__head, .inst__perks { grid-column: 1 / -1; } }
+  .inst__perks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .inst__start { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 32px; align-items: end;
+    h3, ol { grid-column: 1; } .inst__cta { grid-column: 2; grid-row: 1 / span 2; margin: 0; .btn { flex: 0 0 auto; } }
+    .inst__crear, .inst__alt { grid-column: 1 / -1; } }
+}
+
+// ── Confianza: solo hechos que se pueden comprobar ───────────────────────────
+// Seis hechos: dos columnas en celular (el de «quién está detrás» con su correo ocupa la fila entera) y tres en escritorio.
+.confianza { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 18px 0 0; padding: 0; list-style: none;
+  li { display: grid; gap: 4px; align-content: start; padding: 14px 16px; border-left: 3px solid var(--color-teal); background: var(--color-fondo-sutil); border-radius: 0 12px 12px 0; }
+  span { font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
+  a { display: inline-block; padding-block: 12px; margin-block: -12px; color: var(--color-texto-acento); font-weight: 700; overflow-wrap: break-word; } }
+@media (max-width: 759px) { .confianza li:first-child, .confianza li:last-child { grid-column: 1 / -1; } .confianza li { padding: 12px 14px; } }
+@media (max-width: 339px) { .confianza { grid-template-columns: 1fr; } }
+@media (min-width: 760px) { .confianza { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; } }
+
+#camino, #instituciones, #confianza { scroll-margin-top: calc(var(--ph-h) + 16px); }
+
+// ── Cierre: los dos caminos otra vez, al final de la página ──────────────────
+.cierre { padding-block: 24px 36px; text-align: center; }
+.cierre__opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 14px; max-width: 720px; margin: 18px auto 0; }
+.cierre__opt { display: grid; justify-items: center; gap: 4px; padding: 22px 18px; border-radius: 18px; text-decoration: none; color: inherit;
+  background: var(--color-superficie); border: 1px solid var(--color-borde-secundario);
+  transition: transform var(--dur-base) var(--curva-salida), border-color var(--dur-rapida) var(--curva-estandar);
+  svg { color: var(--color-texto-acento); margin-bottom: 4px; }
+  strong { font: 700 var(--texto-titulo-3)/1.25 var(--font-titulo); }
+  span { font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
+  &:hover { transform: translateY(-3px); border-color: var(--color-primario); }
+  &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; } }
+@media (prefers-reduced-motion: reduce) { .cierre__opt:hover { transform: none; } }

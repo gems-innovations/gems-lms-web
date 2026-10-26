@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PublicHeaderComponent } from './public-header.component';
 import { PublicFooterComponent } from './public-footer.component';
+import { CORREO_CONTACTO } from './contacto';
 
 /**
  * Términos de uso y política de privacidad de la parte pública (`data.doc`: 'terminos' | 'privacidad').
@@ -88,5 +89,5 @@ export class LegalPageComponent {
    * Responsable del tratamiento. Mientras no haya razón social ni NIT confirmados, los textos hablan del «equipo de GEMS»
    * y no afirman ninguna entidad. Al completar `nombre` y `nit` aparecen solos en términos y privacidad.
    */
-  protected readonly responsable = { nombre: '', nit: '', direccion: '', correo: 'info@gemsinnovations.com' };
+  protected readonly responsable = { nombre: '', nit: '', direccion: '', correo: CORREO_CONTACTO };
 }

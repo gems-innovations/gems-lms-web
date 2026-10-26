@@ -27,7 +27,7 @@
   h2 { font-size: 22px; }
   p { margin: 0; font-size: var(--font-size-sm); color: var(--color-texto-secundario); line-height: 1.55; }
   &--on { opacity: 1; border-color: var(--color-primario); transform: translateY(-2px); }
-  &__alt { justify-self: center; font-size: var(--font-size-sm); font-weight: 700; color: var(--color-texto-acento); text-decoration: none; }
+  &__alt { justify-self: center; display: inline-flex; align-items: center; min-height: 44px; font-size: var(--font-size-sm); font-weight: 700; color: var(--color-texto-acento); text-decoration: none; }
 }
 .error { margin: 0; font-size: var(--font-size-sm); color: var(--color-error-texto); }
 

@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CORREO_CONTACTO } from './contacto';
 
-/** Pie de las páginas públicas: aviso de no afiliación y enlaces legales. */
+/** Pie de las páginas públicas: quién está detrás y cómo escribirle, aviso de no afiliación y enlaces legales. */
 @Component({
   selector: 'gems-public-footer',
   imports: [RouterLink],
@@ -13,6 +14,7 @@ import { RouterLink } from '@angular/router';
         <a routerLink="/instituciones">Para instituciones</a>
         <a routerLink="/auth/signin">Ya tengo cuenta</a>
       </nav>
+      <p class="pf__quien">Hecho en Colombia por el equipo de GEMS Innovations. Escríbenos a <a [href]="'mailto:' + correo">{{ correo }}</a>.</p>
       <p>GEMS · Material de práctica con preguntas originales construidas a partir del análisis de exámenes oficiales publicados.
         No estamos afiliados a ninguna universidad, al ICFES ni al Ministerio de Educación. Los nombres de exámenes y universidades se usan solo para describir.</p>
     </footer>
@@ -21,12 +23,15 @@ import { RouterLink } from '@angular/router';
     .pf { display: grid; gap: 14px; justify-items: center; padding: 28px 20px calc(env(safe-area-inset-bottom, 0px) + 40px);
       text-align: center; border-top: 1px solid var(--color-borde-principal); background: var(--color-fondo-principal); }
     .pf__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 20px; }
-    .pf__links a { color: var(--color-texto-secundario); text-decoration: none; font-size: var(--font-size-sm); font-weight: 600; }
+    .pf__links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-texto-secundario); text-decoration: none; font-size: var(--font-size-sm); font-weight: 600; }
     .pf__links a:hover { color: var(--color-texto-principal); }
     .pf__links a:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; border-radius: 6px; }
-    @media (max-width: 768px) { .pf__links a { display: inline-flex; align-items: center; min-height: 44px; } }
+    .pf__quien { font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
+    .pf__quien a { display: inline-block; padding-block: 12px; margin-block: -12px; color: var(--color-texto-acento); font-weight: 700; }
     p { margin: 0; max-width: 72ch; font-size: var(--font-size-xs); line-height: 1.6; color: var(--color-texto-terciario); }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PublicFooterComponent {}
+export class PublicFooterComponent {
+  protected readonly correo = CORREO_CONTACTO;
+}

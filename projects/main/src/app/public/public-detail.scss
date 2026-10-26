@@ -1,4 +1,4 @@
-// Ficha de curso público y página de instituciones (se suma a public.scss).
+// Ficha de curso público y formulario de instituciones (se suma a public.scss). Lo que solo usa /instituciones está en instituciones.scss.
 // ── Página de curso e instituciones ──────────────────────────────────────────
 .detail { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 32px; align-items: start; padding-block: 36px; }
 .back { display: inline-flex; margin-top: 24px; color: var(--color-texto-secundario); text-decoration: none; font-size: var(--font-size-sm); &:hover { color: var(--color-texto-principal); } }
@@ -10,10 +10,10 @@
 .start {
   position: sticky; top: 90px; display: grid; gap: 12px; padding: 22px; border-radius: 18px;
   background: var(--color-superficie); border: 1px solid var(--color-borde-secundario); box-shadow: var(--sombra-lg);
-  h2 { font-size: 22px; }
+  h2 { font-size: var(--texto-titulo-3); }
   p { margin: 0; font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
   label { font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
-  .note { font-size: 12px; color: var(--color-texto-terciario); a { text-decoration: underline; } }
+  .note { font-size: var(--font-size-sm); color: var(--color-texto-secundario); a { text-decoration: underline; } }
 }
 .field { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--color-borde-secundario);
   background: var(--color-fondo-sutil); color: var(--color-texto-principal); font: inherit;
@@ -23,7 +23,7 @@
 .form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .form label { display: grid; gap: 6px; font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
 .ok { padding: 22px; border-radius: 16px; background: color-mix(in srgb, var(--color-exito) 10%, transparent); border: 1px solid color-mix(in srgb, var(--color-exito) 40%, transparent);
-  h2 { font-size: 22px; } p { margin: 8px 0 0; color: var(--color-texto-secundario); } }
+  h2 { font-size: var(--texto-titulo-3); } p { margin: 8px 0 0; color: var(--color-texto-secundario); } }
 .perks { display: grid; gap: 10px; margin: 20px 0 0; padding: 0; list-style: none;
   li { padding: 14px 16px; border-radius: 12px; background: var(--color-superficie); border: 1px solid var(--color-borde-principal); font-size: var(--font-size-sm); }
   strong { display: block; color: var(--color-texto-principal); font-size: var(--font-size-base); } }
@@ -43,30 +43,13 @@
     border-top: 1px solid var(--color-borde-principal); }
   .form__row { grid-template-columns: 1fr; }
 }
-// ── «¿Buscas otra cosa?» (página de instituciones) ─────────────────────────────
-.switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 24px;
-  a { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-height: 44px; padding: 10px 14px; border-radius: 12px;
-    background: var(--color-superficie); border: 1px solid var(--color-borde-principal); color: var(--color-texto-secundario);
-    text-decoration: none; font-size: var(--font-size-sm); line-height: 1.4; // transición: la global de enlaces (_movimiento.scss)
-    &:hover { border-color: var(--color-primario); } &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; } }
-  strong { color: var(--color-texto-principal); } }
-@media (max-width: 640px) { .switch { grid-template-columns: 1fr; gap: 6px; margin-top: 12px; a { padding-block: 6px; } &__hint { display: none; } } }
-.switch__hint { color: var(--color-texto-secundario); }
-.lead-cta { display: none; }
-#solicitud { scroll-margin-top: 80px; }
-@media (max-width: 860px) { .lead-cta { display: inline-flex; min-height: 44px; margin-top: 16px; } }
-
-.who { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; padding: 0; list-style: none;
-  li { padding: 6px 12px; border-radius: 99px; font-size: var(--font-size-sm); font-weight: 600; color: var(--color-texto-principal);
-    background: var(--color-fondo-sutil); border: 1px solid var(--color-borde-principal); } }
-
 // ── Selector por rangos y microinteracciones de formulario ─────────────────────
 .pick { margin: 0; padding: 0; border: 0; display: grid; gap: 8px;
   legend { margin-bottom: 8px; padding: 0; font-size: var(--font-size-sm); color: var(--color-texto-secundario); } }
 .pick__opts { display: flex; flex-wrap: wrap; gap: 8px; }
 .pick__opt { position: relative; display: inline-flex !important; cursor: pointer;
   input { position: absolute; opacity: 0; pointer-events: none; }
-  span { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 8px 14px; border-radius: 99px; font-weight: 600;
+  span { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 14px; border-radius: 99px; font-weight: 600;
     color: var(--color-texto-secundario); background: var(--color-fondo-sutil); border: 1px solid var(--color-borde-secundario);
     transition: color .15s, background .15s, border-color .15s, transform var(--dur-base) var(--curva-rebote); }
   &:hover span { border-color: var(--color-primario); color: var(--color-texto-principal); }
@@ -81,4 +64,3 @@
   &:user-invalid { border-color: var(--color-error); } }
 .form label:focus-within { color: var(--color-texto-principal); }
 .ok { animation: gm-aparecer var(--dur-enfasis) var(--curva-salida); }
-

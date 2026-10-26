@@ -1,12 +1,12 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthSessionService } from 'auth/core';
 import { isGuestUser } from './guest-access.service';
 
 /** Cabecera de las páginas públicas: cursos, instituciones y acceso normal a la plataforma. */
 @Component({
   selector: 'gems-public-header',
-  imports: [RouterLink],
+  imports: [RouterLink, RouterLinkActive],
   template: `
     <header class="ph">
       <a class="ph__brand" routerLink="/" aria-label="GEMS, inicio">
@@ -15,7 +15,7 @@ import { isGuestUser } from './guest-access.service';
       </a>
       <nav class="ph__nav" aria-label="Principal">
         <a routerLink="/" fragment="cursos">Cursos gratis</a>
-        <a routerLink="/instituciones">Para instituciones</a>
+        <!-- «Para instituciones» no se repite aquí: es el botón de la derecha. -->
       </nav>
       <div class="ph__actions">
         <!-- En el servidor no hay sesión: los botones esperan al navegador para no mostrar «Ya tengo cuenta» a quien sí entró. -->
@@ -27,7 +27,8 @@ import { isGuestUser } from './guest-access.service';
           <!-- «Ya tengo cuenta» es para quien guardó su avance o recibió una cuenta de su institución;
                los cursos gratis no la necesitan. -->
           <a class="ph__btn ph__btn--ghost" routerLink="/auth/signin"><span class="ph__long">Ya tengo cuenta</span><span class="ph__short">Entrar</span></a>
-          <a class="ph__btn ph__btn--primary ph__btn--b2b" routerLink="/instituciones"><span class="ph__long">Para instituciones</span><span class="ph__short">Instituciones</span></a>
+          <!-- Contorno, no relleno: el botón principal de cada página es el de su contenido (auditoría UX, 26-oct). -->
+          <a class="ph__btn ph__btn--ghost ph__btn--b2b" routerLink="/instituciones" routerLinkActive="is-here" ariaCurrentWhenActive="page"><span class="ph__long">Para instituciones</span><span class="ph__short">Instituciones</span></a>
         }
       </div>
     </header>
@@ -51,6 +52,7 @@ import { isGuestUser } from './guest-access.service';
       font-weight: 700; text-decoration: none; white-space: nowrap; transition: transform .15s ease, box-shadow .15s ease, background .15s; }
     .ph__btn--ghost { color: var(--color-texto-principal); border: 1px solid var(--color-borde-secundario); }
     .ph__btn--ghost:hover { border-color: var(--color-primario); }
+    .ph__btn--b2b.is-here { border-color: var(--color-primario); background: color-mix(in srgb, var(--color-primario) 14%, transparent); }
     .ph__btn--primary { color: var(--color-sobre-primario); background: var(--color-primario-accion); }
     .ph__btn--primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px var(--color-primario-trans-20); }
     a:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; border-radius: 8px; }
@@ -65,7 +67,8 @@ import { isGuestUser } from './guest-access.service';
       .ph__btn--b2b { color: var(--color-texto-principal); background: transparent; border: 1px solid var(--color-borde-secundario); }
       .ph__btn--b2b:hover { border-color: var(--color-primario); box-shadow: none; transform: none; }
     }
-    @media (max-width: 360px) {
+    /* Solo en pantallas de menos de 340 px se quita la palabra «GEMS»: en 360 cabe y la marca se lee desde el primer pantallazo. */
+    @media (max-width: 339px) {
       .ph__brand { min-width: 44px; justify-content: center; }
       .ph__brand span { display: none; }
     }

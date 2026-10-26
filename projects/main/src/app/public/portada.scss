@@ -10,12 +10,39 @@
   order: -2; height: calc(100svh - var(--ph-h) - 44px); min-height: 520px; max-height: 940px;
   margin-inline: -20px; overflow: hidden; background: #0e1116;
 }
+// Franja de dos caminos bajo el Tap (celular): temas y cursos | instituciones.
 .juego__mas {
-  order: -1; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; margin-inline: -20px;
-  font-size: var(--font-size-sm); font-weight: 700; color: var(--color-texto-secundario); text-decoration: none;
+  order: -1; display: grid; grid-template-columns: 1fr 1fr; min-height: 44px; margin-inline: -20px;
   background: var(--color-fondo-sutil); border-bottom: 1px solid var(--color-borde-principal);
-  svg { animation: mas-rebote 1.6s ease-in-out 3s 2; }
-  &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: -2px; }
+  a { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding-inline: 8px;
+    font-size: var(--font-size-sm); font-weight: 700; color: var(--color-texto-principal); text-decoration: none; text-align: center;
+    &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: -2px; } }
+  a + a { border-left: 1px solid var(--color-borde-principal); color: var(--color-texto-secundario); }
+  svg { flex: none; animation: mas-rebote 1.6s ease-in-out 3s 2; }
+}
+@media (max-width: 379px) { .juego__mas-largo { display: none; } }   // 320 a 375 px: cada camino en una sola línea
+// Escritorio: el camino institucional como una tarjeta clara bajo los botones del juego.
+.juego__inst { display: flex; align-items: center; gap: 12px; margin-top: 18px; padding: 14px 16px; min-height: 44px; border-radius: 14px;
+  color: var(--color-texto-principal); text-decoration: none; background: var(--color-superficie); border: 1px solid var(--color-borde-principal);
+  font-size: var(--font-size-sm);
+  span { flex: 1; } strong { display: block; font-size: var(--font-size-base); }
+  svg { flex: none; color: var(--color-texto-acento); }
+  &:hover { border-color: var(--color-texto-acento); }
+  &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; } }
+// Debajo de 960 px la franja de dos caminos ya ofrece «Para instituciones» justo encima: no se repite.
+@media (max-width: 959px) { .juego__inst { display: none; } }
+
+// ── De un Tap a un curso ─────────────────────────────────────────────────────
+.camino { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none;
+  li { position: relative; display: grid; gap: 6px; align-content: start; padding: 20px; border-radius: 18px;
+    background: var(--color-superficie); border: 1px solid var(--color-borde-principal); }
+  strong { font: 700 var(--texto-titulo-3)/1.25 var(--font-titulo); }
+  span { color: var(--color-texto-secundario); font-size: var(--font-size-sm); }
+  a { display: inline-flex; align-items: center; min-height: 44px; margin-top: 4px; font-weight: 700; color: var(--color-texto-acento); text-decoration: none;
+    &:hover { text-decoration: underline; } &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; } }
+  .camino__n { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; margin-bottom: 4px;
+    font: 800 16px/1 var(--font-titulo); color: var(--color-texto-principal);
+    background: color-mix(in srgb, var(--c) 22%, transparent); border: 2px solid var(--c); }
 }
 
 .juego__copia {
@@ -37,7 +64,7 @@
 #temas, #cursos, #preguntas, #importante { scroll-margin-top: calc(var(--ph-h) + 16px); }
 
 // ── Temas ────────────────────────────────────────────────────────────────────
-.temas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+.temas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
 .tema { position: relative; display: grid; gap: 4px; align-content: start; height: 100%; padding: 18px; border-radius: 18px; overflow: hidden; text-decoration: none; color: inherit;
   background: var(--color-superficie); border: 1px solid var(--color-borde-principal);
   transition: transform var(--dur-base) var(--curva-salida), border-color var(--dur-rapida) var(--curva-estandar), box-shadow var(--dur-base) var(--curva-estandar);
@@ -49,24 +76,12 @@
   &:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--c) 55%, var(--color-borde-principal)); box-shadow: var(--sombra-lg); }
   &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; } }
 
-.clasicos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 10px; margin: 14px 0 0; padding: 0; list-style: none; }
-.clasico { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 10px 16px; border-radius: 14px; text-decoration: none; color: var(--color-texto-secundario);
-  font-size: var(--font-size-sm); background: var(--color-fondo-sutil); border: 1px solid var(--color-borde-principal);
-  > span:nth-child(2) { flex: 1; }
-  strong { display: block; color: var(--color-texto-principal); font-size: var(--font-size-base); }
-  > svg { flex: none; color: var(--color-texto-acento); }
-  &:hover { border-color: var(--color-primario); }
-  &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; } }
-
-.band .btn svg { flex: none; }
-// Tarjeta del creador dentro de «Lleva los Taps a tu grupo»: ocupa su propia fila bajo el texto y el botón.
-.band .band__crear { flex: 1 1 100%; background: var(--color-superficie); }
 
 // Tableta: la tarjeta deja de ir de borde a borde y se ve como un celular centrado.
 @media (min-width: 600px) {
   .juego__tarjeta { width: min(440px, 100%); height: min(calc(100svh - var(--ph-h) - 72px), 820px); margin: 16px auto 0; border-radius: 28px;
     box-shadow: 0 24px 60px -20px rgb(0 0 0 / .55), 0 0 0 1px var(--color-borde-principal); }
-  .juego__mas { margin: 12px auto 0; padding-inline: 16px; border: 0; border-radius: 99px; }
+  .juego__mas { width: min(440px, 100%); margin: 12px auto 0; border: 1px solid var(--color-borde-principal); border-radius: 99px; overflow: hidden; }
 }
 @media (min-width: 761px) { .portada { --ph-h: 73px; } }
 
@@ -89,3 +104,22 @@
 .juego--institucion { min-height: 0; padding-block: 48px 8px;
   .juego__copia { padding: 0; } }
 @media (min-width: 960px) { .juego--institucion { grid-template-columns: minmax(0, 1fr); min-height: 0; padding-block: 64px 24px; } }
+
+.cursos__pos { display: none; }
+
+// ── Celular: la portada más corta (auditoría, 26-oct) ────────────────────────
+// Temas en dos columnas, el camino con el número a un lado y los cursos en una fila que se desliza (la siguiente tarjeta
+// asoma para invitar a deslizar). En tableta y escritorio no cambia nada.
+@media (max-width: 599px) {
+  .temas { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .tema { padding: 14px; strong { font-size: var(--font-size-base); } > .gm-icono { margin-bottom: 4px; } }
+  .camino li { grid-template-columns: 34px minmax(0, 1fr); column-gap: 12px; padding: 16px; }
+  .camino .camino__n { grid-row: span 3; margin: 0; }
+  #cursos div.grid { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    margin-inline: -20px; padding: 4px 20px 12px; scroll-padding-inline: 20px;
+    > .card { flex: 0 0 84%; scroll-snap-align: start; } }
+  .cursos__pos { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 10px;
+    font-size: var(--font-size-sm); color: var(--color-texto-secundario); font-variant-numeric: tabular-nums; }
+  .cursos__puntos { display: flex; gap: 6px;
+    i { width: 7px; height: 7px; border-radius: 50%; background: var(--color-borde-secundario); transition: background .2s; &.on { background: var(--color-primario); } } }
+}

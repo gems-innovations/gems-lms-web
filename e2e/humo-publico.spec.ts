@@ -101,9 +101,9 @@ test.describe('Humo · visitante', () => {
     await expect(page.locator('gems-taps .tap__toast')).toHaveCount(0);
     await expect(page.locator('gems-taps .bar__brand')).toBeHidden();
     await expect(page.locator('gems-tap-sesion-hoja')).toHaveCount(0);
-    // Las demás puertas siguen ahí: temas, retos, cursos gratis (del API) e instituciones.
+    // Las demás puertas siguen ahí: temas, cursos gratis (del API) e instituciones. Retos y Quiz de Bloques salieron de la
+    // portada por decisión del dueño (confundían); /retos y /bloques siguen vivos para los enlaces de los videos.
     await expect(page.locator('#temas a[href^="/taps"]').first()).toBeVisible();
-    await expect(page.locator('#temas a[href="/retos"]')).toBeVisible();
     await expect(page.locator('a[href="/instituciones"]').first()).toBeAttached();
     await expect(page.locator('article.card')).toHaveCount(CURSOS.length);
     await expect(page.locator('article.card h3 a').first()).toHaveAttribute('href', /\/cursos\/\d+/);
