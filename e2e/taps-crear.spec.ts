@@ -120,7 +120,9 @@ test.describe('gancho de publicar', () => {
       const hoja = page.locator('gems-tap-disenador .gancho');
       await expect(hoja).toBeVisible();
       await expect(hoja).toHaveAttribute('aria-modal', 'true');
-      await expect(hoja.getByRole('heading', { level: 2 })).toHaveText('Para publicarlo, regístrate como docente o institución');
+      // PR-D2: el título lleva el nombre del personaje (el sugerido para la arqueóloga) y la hoja enseña su miniatura.
+      await expect(hoja.getByRole('heading', { level: 2 })).toHaveText('Para publicar a Capitana Inés, regístrate como docente o institución');
+      await expect(hoja.locator('img.gancho__mini')).toHaveAttribute('src', /^data:image\/png/);
       await expect(hoja.locator('.gancho__ganas li')).toHaveCount(3);
       // El foco entra a la hoja y el diseñador queda inerte detrás (sin desplazamiento lateral).
       expect(await page.evaluate(() => document.querySelector('gems-tap-disenador .gancho')?.contains(document.activeElement))).toBe(true);

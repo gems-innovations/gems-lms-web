@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { AnalyticsService } from '../analytics.service';
 import { DISENADOR_LOADER, IDisenadorModule, TapDisenadorComponent } from './tap-disenador.component';
-import { CLAVE_AVISO_PUBLICAR, CLAVE_SONIDO_TAPS } from './taps.crear';
+import { CLAVE_AVISO_PUBLICAR, CLAVE_ESTUDIANTE, CLAVE_SONIDO_TAPS } from './taps.crear';
 
 type TOpciones = Parameters<IDisenadorModule['montarDisenador']>[1];
 
@@ -15,9 +15,11 @@ describe('TapDisenadorComponent (/crear)', () => {
   let eventos: string[];
   let opciones: TOpciones;
   let destruido: number;
+  let apagados: number;
   let ok: boolean;
   const ID = 'mh5k2x1a-0a1b2c3';
   const ENLACE = 'http://localhost/crear#look=eyJ2IjoxfQ';
+  const MINI = 'data:image/png;base64,iVBORw0KGgo=';
 
   /** Doble de public/taps-engine/disenador.js: pinta la ranura y el progreso, y avisa que abrió «directo». */
   const modulo: IDisenadorModule = {
@@ -26,16 +28,16 @@ describe('TapDisenadorComponent (/crear)', () => {
       raiz.innerHTML = '<ol id="progreso"><li>Personaje</li><li>Escenario</li><li>Listo</li></ol><section class="vista"><div id="ranuraVista"></div></section>';
       if (o.pasoPublicar) {
         const li = document.createElement('li'); const b = document.createElement('button'); b.id = 'publicar'; b.textContent = o.pasoPublicar.texto;
-        b.onclick = () => o.pasoPublicar?.alTocar?.({ borradorId: ID, enlace: ENLACE, nombre: 'Tomás' }); li.append(b); raiz.querySelector('#progreso')!.append(li);
+        b.onclick = () => o.pasoPublicar?.alTocar?.({ borradorId: ID, enlace: ENLACE, nombre: 'Tomás', miniatura: MINI, hito: null, accion: 'publicar' }); li.append(b); raiz.querySelector('#progreso')!.append(li);
       }
       o.alEvento?.('abrir/directo');
-      return { ok, destruir: () => { destruido++; } };
+      return { ok, destruir: () => { destruido++; }, apagarHitos: () => { apagados++; } };
     },
   };
 
   beforeEach(async () => {
-    eventos = []; destruido = 0; ok = true;
-    localStorage.removeItem(CLAVE_AVISO_PUBLICAR);
+    eventos = []; destruido = 0; apagados = 0; ok = true;
+    localStorage.removeItem(CLAVE_AVISO_PUBLICAR); localStorage.removeItem(CLAVE_ESTUDIANTE);
     await TestBed.configureTestingModule({
       imports: [TapDisenadorComponent],
       providers: [
@@ -58,7 +60,7 @@ describe('TapDisenadorComponent (/crear)', () => {
     }
   }
 
-  afterEach(() => localStorage.removeItem(CLAVE_AVISO_PUBLICAR));
+  afterEach(() => { localStorage.removeItem(CLAVE_AVISO_PUBLICAR); localStorage.removeItem(CLAVE_ESTUDIANTE); });
 
   const el = (sel: string): HTMLElement | null => fixture.nativeElement.querySelector(sel);
   const visible = (sel: string): boolean => { const e = el(sel); return !!e && !e.hidden; };
@@ -230,6 +232,43 @@ describe('TapDisenadorComponent (/crear)', () => {
     }
     // El enlace nunca se mide: ningún evento lo lleva.
     expect(eventos.some(e => e.includes('look='))).toBeFalse();
+  });
+
+  // ───────────── hitos de cuenta (PR-D2, disenador-v2-plan.md §2) ─────────────
+
+  it('la hoja enseña la miniatura y «Para publicar a X…» con el nombre que trae el contexto', async () => {
+    await abrirHoja();
+    expect(el('#ganchoTitulo')?.textContent).toBe('Para publicar a Tomás, regístrate como docente o institución');
+    expect((el('.gancho__mini') as HTMLImageElement | null)?.getAttribute('src')).toBe(MINI);
+  });
+
+  it('«Qué es la cuenta» desde un hito abre la MISMA hoja sin contar intento-publicar; «Publicar (con cuenta)» desde un hito sí lo cuenta', async () => {
+    opciones.cuenta!.abrir({ borradorId: ID, enlace: ENLACE, nombre: 'Nefer', miniatura: '', hito: 'guardado', accion: 'cuenta' });
+    fixture.detectChanges(); await new Promise(r => setTimeout(r, 0));
+    expect(visible('.gancho')).toBeTrue();
+    expect(el('#ganchoTitulo')?.textContent).toContain('Para publicar a Nefer');
+    expect(el('.gancho__mini')).withContext('sin miniatura no hay imagen vacía').toBeNull();
+    expect(el('#ganchoDocente')).not.toBeNull();
+    expect(eventos.filter(e => e === 'taps/crear/intento-publicar/sin-cuenta').length).toBe(0);
+    el('#ganchoVolver')!.click(); fixture.detectChanges();
+    opciones.cuenta!.abrir({ borradorId: ID, enlace: ENLACE, nombre: 'Nefer', hito: 'probado', accion: 'publicar' });
+    fixture.detectChanges();
+    expect(visible('.gancho')).toBeTrue();
+    expect(eventos.filter(e => e === 'taps/crear/intento-publicar/sin-cuenta').length).toBe(1);
+  });
+
+  it('los eventos hito-cuenta/<abrir|entendido>/<hito> del diseñador derivan taps/crear/cuenta/<hito>/<accion> una vez por visita', () => {
+    opciones.alEvento!('hito-cuenta/visto/listo');
+    opciones.alEvento!('hito-cuenta/abrir/listo'); opciones.alEvento!('hito-cuenta/abrir/listo');
+    opciones.alEvento!('hito-cuenta/entendido/navegador');
+    expect(eventos.filter(e => e.startsWith('taps/crear/cuenta/'))).toEqual(['taps/crear/cuenta/listo/abrir', 'taps/crear/cuenta/navegador/entendido']);
+  });
+
+  it('«Soy estudiante» apaga los avisos de cuenta para siempre en este navegador y quita los que estén a la vista', async () => {
+    await abrirHoja();
+    el('#ganchoEstudiante')!.click(); fixture.detectChanges();
+    expect(localStorage.getItem(CLAVE_ESTUDIANTE)).toBe('1');
+    expect(apagados).toBe(1);
   });
 
   it('al salir de la ruta desmonta el diseñador', () => {

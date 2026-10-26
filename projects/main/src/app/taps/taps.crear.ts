@@ -22,6 +22,14 @@ export const CINTA_TRANSPARENCIA = 'Crea y prueba gratis, sin cuenta. Para publi
 /** Nombre del cuarto punto de progreso desde el inicio: nadie llega sorprendido. */
 export const PASO_PUBLICAR = 'Publicar (con cuenta)';
 /**
+ * «Soy estudiante» elegido una vez en la hoja: los avisos de cuenta del creador desaparecen para siempre en ese navegador (a menores
+ * no se les insiste; disenador-v2-plan.md §2). La misma clave que lee public/taps-engine/themes/epoca/hitos.js (CLAVE_ESTUDIANTE).
+ */
+export const CLAVE_ESTUDIANTE = 'taps.crear.es-estudiante';
+/** Hitos de cuenta del creador (hitos.js); de cada uno se mide en /crear si abrió la hoja o cerró el aviso. */
+export const HITOS_CUENTA = ['navegador', 'listo', 'guardado', 'probado', 'vuelve'] as const;
+export type THitoCuenta = (typeof HITOS_CUENTA)[number];
+/**
  * Copy de la hoja de «Publicar» sin sesión (§A.3.2): transparente, sin culpas ni urgencias, apto para menores. Nunca pide
  * edad ni datos a quien no va a registrarse; al estudiante solo se le ofrece mandar su personaje por enlace.
  */
@@ -40,6 +48,12 @@ export const COPY_GANCHO = {
   volver: 'Volver y seguir creando',
   conserva: 'No pierdes nada: tu personaje se queda guardado en este navegador.',
 } as const;
+
+/** Título de la hoja con el nombre del personaje (PR-D2: «Para publicar a X…»); sin nombre, el título general. El nombre va como texto, nunca como HTML. */
+export function tituloGancho(nombre: string | null | undefined): string {
+  const n = (nombre ?? '').trim();
+  return n ? `Para publicar a ${n}, regístrate como docente o institución` : COPY_GANCHO.titulo;
+}
 
 // ───────────── borrador adjunto a la solicitud de /instituciones (§A.3.3) ─────────────
 
@@ -192,6 +206,8 @@ export function origenCrear(search: string, abrirDisenador: string | null | unde
 
 /** Primer gesto creativo: tocar un punto de partida, cambiar una pieza, «Sorpréndeme» o aplicar una sugerencia. */
 const CREO = /^(preset|cambio|sorprendeme)\//;
+/** `hito-cuenta/<abrir|entendido>/<hito>` del diseñador (lo «visto» ya viaja en `taps/disenador/*`). */
+const CUENTA = new RegExp(`^hito-cuenta/(abrir|entendido)/(${HITOS_CUENTA.join('|')})$`);
 
 /**
  * Traduce un evento corto del diseñador (`preset/grabador`, `paso/listo`, `listo`…) a los hitos del embudo de /crear que
@@ -200,9 +216,12 @@ const CREO = /^(preset|cambio|sorprendeme)\//;
  */
 export function hitosCrear(nombreCorto: string, ya: Set<string>): TEventPath[] {
   const hitos: TEventPath[] = [];
-  const marcar = (h: 'creo' | 'personaje-listo'): void => { if (!ya.has(h)) { ya.add(h); hitos.push(`taps/crear/${h}`); } };
+  const marcar = (h: string): void => { if (!ya.has(h)) { ya.add(h); hitos.push(`taps/crear/${h}`); } };
   if (CREO.test(nombreCorto)) marcar('creo');
   // Llegar al paso «Listo» o guardar el look: el personaje está terminado (guardar sin pasar por el paso no ocurre, pero por si acaso).
   if (nombreCorto === 'paso/listo' || nombreCorto === 'listo') { marcar('creo'); marcar('personaje-listo'); }
+  // Avisos de cuenta por hito (PR-D2, §6): `taps/crear/cuenta/<hito>/<abrir|entendido>`, una vez por visita cada par, para ver qué hito convence.
+  const m = CUENTA.exec(nombreCorto);
+  if (m) marcar(`cuenta/${m[2]}/${m[1]}`);
   return hitos;
 }

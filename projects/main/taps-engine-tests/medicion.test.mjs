@@ -48,6 +48,16 @@ test('medición: probar, listo y fps-bajo cuentan una vez por sesión', () => {
   assert.deepEqual(med.registro, ['probar', 'listo', 'fps-bajo']);
 });
 
+test('medición: hitos de cuenta (PR-D2): hito/* y hito-cuenta/visto/* una vez; entendido y abrir cuentan cada vez; otros nombres no', () => {
+  const med = crearMedidor();
+  for (const b of ['hito/navegador', 'hito/listo', 'hito/guardado', 'hito/probado', 'hito/vuelve', 'hito-cuenta/visto/listo', 'hito-cuenta/entendido/navegador', 'hito-cuenta/abrir/probado']) assert.equal(nombreValido(b), b, b);
+  for (const m of ['hito', 'hito/otro', 'hito/listo/2', 'hito-cuenta/visto', 'hito-cuenta/cerrar/listo', 'hito-cuenta/abrir/x', 'cuenta/listo/abrir']) assert.equal(nombreValido(m), null, m);
+  assert.equal(med.evento('hito/listo'), true); assert.equal(med.evento('hito/listo'), false, 'el hito se alcanza una vez por sesión');
+  assert.equal(med.evento('hito-cuenta/visto/listo'), true); assert.equal(med.evento('hito-cuenta/visto/listo'), false);
+  assert.equal(med.evento('hito-cuenta/abrir/listo'), true); assert.equal(med.evento('hito-cuenta/abrir/listo'), true, 'abrir la hoja puede repetirse');
+  assert.equal(med.evento('hito-cuenta/entendido/listo'), true);
+});
+
 test('medición: la cola guarda hasta 200, descarta los más viejos y se vacía al enviar; nombres inválidos no entran', () => {
   const med = crearMedidor();
   assert.equal(med.evento('nada/de/esto'), false); assert.equal(med.cola.length, 0);

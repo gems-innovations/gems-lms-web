@@ -1,6 +1,6 @@
 import {
-  CINTA_TRANSPARENCIA, COPY_GANCHO, IAdjuntoBorrador, MAX_ADJUNTO, NOMBRES_ADJUNTO, PASO_PUBLICAR, armarAdjunto,
-  enlaceRegistro, hitosCrear, leerBorradorId, leerDraft, origenCrear, validarAdjunto,
+  CINTA_TRANSPARENCIA, CLAVE_ESTUDIANTE, COPY_GANCHO, HITOS_CUENTA, IAdjuntoBorrador, MAX_ADJUNTO, NOMBRES_ADJUNTO, PASO_PUBLICAR, armarAdjunto,
+  enlaceRegistro, hitosCrear, leerBorradorId, leerDraft, origenCrear, tituloGancho, validarAdjunto,
 } from './taps.crear';
 
 describe('origenCrear', () => {
@@ -30,10 +30,20 @@ describe('hitosCrear', () => {
     expect(hitosCrear('paso/listo', ya)).toEqual(['taps/crear/creo', 'taps/crear/personaje-listo']);
     expect(hitosCrear('listo', ya)).toEqual([]);
   });
-  it('lo demás (deshacer, compartir, gusto, abandono) no es hito del embudo', () => {
+  it('lo demás (deshacer, compartir, gusto, abandono, hito alcanzado, aviso visto) no es hito del embudo', () => {
     const ya = new Set<string>();
-    for (const n of ['deshacer', 'compartir/enlace', 'gusto/si', 'abandono/personaje/40', 'abrir/directo', 'probar']) expect(hitosCrear(n, ya)).toEqual([]);
+    for (const n of ['deshacer', 'compartir/enlace', 'gusto/si', 'abandono/personaje/40', 'abrir/directo', 'probar', 'hito/listo', 'hito-cuenta/visto/listo', 'hito-cuenta/abrir/otro']) expect(hitosCrear(n, ya)).toEqual([]);
     expect(ya.size).toBe(0);
+  });
+  it('los avisos de cuenta (PR-D2) derivan `cuenta/<hito>/<abrir|entendido>`, una vez por visita cada par', () => {
+    const ya = new Set<string>();
+    expect(hitosCrear('hito-cuenta/abrir/listo', ya)).toEqual(['taps/crear/cuenta/listo/abrir']);
+    expect(hitosCrear('hito-cuenta/abrir/listo', ya)).toEqual([]);
+    expect(hitosCrear('hito-cuenta/entendido/navegador', ya)).toEqual(['taps/crear/cuenta/navegador/entendido']);
+    expect(hitosCrear('hito-cuenta/abrir/navegador', ya)).toEqual(['taps/crear/cuenta/navegador/abrir']);
+    for (const h of HITOS_CUENTA) expect(hitosCrear(`hito-cuenta/entendido/${h}`, new Set())).toEqual([`taps/crear/cuenta/${h}/entendido`]);
+    expect(HITOS_CUENTA).toEqual(['navegador', 'listo', 'guardado', 'probado', 'vuelve']);
+    expect(CLAVE_ESTUDIANTE).toBe('taps.crear.es-estudiante');
   });
 });
 
@@ -52,6 +62,12 @@ describe('copy de /crear', () => {
     expect(COPY_GANCHO.estudianteDetalle.toLowerCase()).toContain('pídele a tu docente');
     expect(COPY_GANCHO.conserva).toContain('No pierdes nada');
     expect(COPY_GANCHO.ganas.length).toBe(3);
+  });
+  it('el título de la hoja lleva el nombre del personaje como texto (PR-D2) y sin nombre vuelve al general', () => {
+    expect(tituloGancho('Nefer')).toBe('Para publicar a Nefer, regístrate como docente o institución');
+    expect(tituloGancho('  ')).toBe(COPY_GANCHO.titulo);
+    expect(tituloGancho(null)).toBe(COPY_GANCHO.titulo);
+    expect(tituloGancho('<b>x</b>')).toContain('<b>x</b>');   // va por interpolación, nunca como HTML
   });
 });
 
