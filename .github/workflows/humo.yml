@@ -4,8 +4,8 @@ name: Humo (regresión) sobre el build estático
 # rol, subdominios) contra el MISMO build que se despliega (`production,static`, servido como nginx), con el API
 # simulado en el navegador: no toca producción, no crea cuentas ni invitados reales. Ver e2e/humo-soporte.ts.
 
-# Corre en cada PR y, con `workflow_call`, como paso obligatorio de deploy.yml (Frontend CD): no se construye ni se
-# despliega la imagen si el humo falla. Por eso ya no tiene disparador `push` propio (el CD cubre develop, qa y main).
+# Corre en cada PR (ahí sí es requisito para mezclar) y, con `workflow_call`, en paralelo dentro de deploy.yml (Frontend CD),
+# donde ya no bloquea la imagen ni el despliegue: solo avisa si main se rompe. Por eso ya no tiene disparador `push` propio (el CD cubre develop, qa y main).
 on:
   pull_request:
     branches: [develop, qa, main, 'integracion/**']
@@ -24,7 +24,7 @@ concurrency:
 jobs:
   humo:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v7
