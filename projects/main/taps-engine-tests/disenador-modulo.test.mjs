@@ -23,3 +23,24 @@ test('disenador.js: destruir() quita window.tapsMedicion y los oyentes; limpiarH
   assert.equal((cuerpo.match(/history\.replaceState/g) ?? []).length, 1);
   assert.doesNotMatch(cuerpo, /document\.addEventListener\(|\n\s*addEventListener\(/, 'oyentes de documento/ventana solo con escuchar()');
 });
+
+test('disenador.js (PR-D3): JSON crudo solo con ?dev=1, «Copiar JSON» ya no existe, textos del paso y pista con tope por navegador', () => {
+  assert.match(cuerpo, /const modoDev = \/\(\^\|\[\?&\]\)dev=1\(&\|\$\)\/\.test\(location\.search\);/);
+  assert.match(cuerpo, /\$\('json'\)\.hidden = !modoDev;/);
+  assert.doesNotMatch(codigo, /Copiar JSON|Exportar JSON|id=\\"copiar\\"/, 'microcopy para desarrolladores fuera de la vista');
+  assert.match(codigo, /Descargar archivo del personaje/);
+  assert.match(codigo, /role=\\"tablist\\"/); assert.match(cuerpo, /ArrowRight/); assert.match(cuerpo, /ArrowLeft/);
+  assert.match(codigo, /Aquí van los personajes que guardes/);
+  assert.match(cuerpo, /almacen\.escribir\(CLAVE_PISTA, String\(veces \+ 1\)\)/);
+  assert.match(cuerpo, /id = 'reintentar'/);
+  assert.match(cuerpo, /e\.clientX - origenX, e\.clientY - origenY\) > 8\) soltar\(\)/, 'comparar se cancela al mover > 8 px');
+});
+
+test('disenador.js (PR-D3): títulos por paso y botones de avanzar según §2 del plan', async () => {
+  const m = await import('../public/taps-engine/disenador.js').catch(() => null);
+  // El módulo importa código de navegador: si no se puede cargar en Node, se comprueba sobre el texto.
+  const titulos = m?.TITULOS_PASO ?? JSON.parse(codigo.match(/TITULOS_PASO = Object\.freeze\((\[[^\]]+\])\)/)[1].replace(/'/g, '"'));
+  const botones = m?.BOTON_SIGUIENTE ?? JSON.parse(codigo.match(/BOTON_SIGUIENTE = Object\.freeze\((\[[^\]]+\])\)/)[1].replace(/'/g, '"'));
+  assert.deepEqual([...titulos], ['Elige quién eres', 'Hazlo tuyo', 'Dónde vive', 'Lo hiciste']);
+  assert.deepEqual([...botones], ['Siguiente', 'Ponlo en su mundo', 'Terminar', 'Empezar otro']);
+});

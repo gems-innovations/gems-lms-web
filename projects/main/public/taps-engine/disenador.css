@@ -9,14 +9,30 @@
 /* cabecera: título y puntos de progreso */
 .dsn header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px 6px; padding-top: max(10px, env(safe-area-inset-top)); }
 .dsn h1 { margin: 0; font-size: 17px; font-weight: 700; }
-.dsn .progreso { display: flex; align-items: center; gap: 6px; list-style: none; margin: 0; padding: 0; }
-.dsn .progreso li { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .25s, transform .25s; }
-.dsn .progreso li.ya { background: var(--soft); }
-.dsn .progreso li.ahora { background: var(--acc); transform: scale(1.3); }
-.dsn .progreso li span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+/* Progreso con etiquetas visibles (PR-D3): número en un círculo y nombre del paso; en pantallas estrechas solo el paso actual
+   muestra su nombre, los demás quedan como círculos numerados. */
+.dsn .progreso { display: flex; align-items: center; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.dsn .progreso li { display: flex; align-items: center; gap: 5px; color: var(--soft); font-size: 12px; transition: color .25s; }
+.dsn .progreso li i { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font: 700 11px/1 system-ui, sans-serif; font-style: normal; color: var(--soft); transition: background .25s, border-color .25s, color .25s; flex: none; }
+.dsn .progreso li.ya i { background: var(--soft); border-color: var(--soft); color: var(--bg); }
+.dsn .progreso li.ahora { color: var(--txt); font-weight: 600; }
+.dsn .progreso li.ahora i { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+.dsn .progreso li + li::before { content: ''; width: 8px; height: 1.5px; background: var(--line); flex: none; }
+@media (max-width: 480px) {
+  .dsn h1 { white-space: nowrap; font-size: 16px; }
+  .dsn .progreso li:not(.ahora):not(.publicar) span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  /* con el cuarto punto «Publicar (con cuenta)» (/crear) no cabe ningún nombre: quedan los círculos numerados; el paso actual ya lo dice el h1 */
+  .dsn .progreso:has(.publicar) li:not(.publicar) span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .dsn .progreso li.publicar button { line-height: 1.15; text-align: right; }
+}
+/* Barra «Tu personaje» (escalera de inversión, §2): 3 tramos bajo la vista que pasan de contorno a relleno con el primer cambio de cada zona. */
+.dsn .inversion { position: absolute; left: 10px; top: 10px; display: flex; gap: 3px; pointer-events: none; }
+.dsn .inversion i { width: 16px; height: 5px; border-radius: 3px; border: 1px solid rgba(236,235,245,.55); background: rgba(15,14,23,.45); transition: background .3s, border-color .3s; }
+.dsn .inversion i.on { background: var(--acc); border-color: var(--acc); }
+.dsn .vista:has(.ranura:not(:empty)) .inversion { display: none; }
 
 /* vista previa fija */
-.dsn .vista { position: relative; height: var(--vista); margin: 0 12px; border-radius: 18px; overflow: hidden; background: #000; flex: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
+.dsn .vista { position: relative; height: var(--vista); margin: 0 12px; border-radius: 18px; overflow: hidden; background: #000; flex: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: pan-y; }
 .dsn .vista canvas { display: block; width: 100%; height: 100%; }
 .dsn .bocadillo { position: absolute; left: 50%; top: 10px; transform: translateX(-50%) translateY(-6px); background: #fff; color: #1a1726; font-weight: 600; font-size: 14px; padding: 7px 12px; border-radius: 14px; opacity: 0; transition: opacity .18s, transform .18s; pointer-events: none; max-width: 80%; text-align: center; }
 .dsn .bocadillo::after { content: ''; position: absolute; left: 50%; bottom: -7px; width: 12px; height: 12px; background: #fff; transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
@@ -66,11 +82,24 @@
 .dsn .pestanas { display: flex; gap: 6px; margin: 0 0 10px; }
 .dsn .pestanas button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; font-size: 12px; color: var(--soft); border-radius: 12px; }
 .dsn .pestanas button.on { color: var(--txt); background: var(--panel2); border-color: var(--acc); }
+.dsn #ajustes:focus { outline: none; }
 .dsn .grupo { margin: 0 0 12px; }
 .dsn .grupo h3 { margin: 0 0 6px; font-size: 13px; color: var(--soft); font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
 .dsn .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.dsn .chip { padding: 0 14px; min-height: 44px; border-radius: 22px; font-size: 14px; }
+.dsn .chip { padding: 0 14px; min-height: 44px; border-radius: 22px; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; transition: transform .08s; }
+.dsn .chip:active { transform: scale(.96); }
 .dsn .chip.on { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); font-weight: 600; }
+/* chips con miniatura de la pieza (canvas 40×40 recortado) */
+.dsn .chips.con-mini .chip { padding: 3px 14px 3px 4px; }
+.dsn .chip canvas.mini { width: 40px; height: 40px; border-radius: 8px; display: block; flex: none; background: #15131f; }
+.dsn .chip.on canvas.mini { box-shadow: 0 0 0 1px rgba(26,20,8,.25); }
+/* Ropa en tres subgrupos plegables (Prenda · Colores · Sombrero) */
+.dsn details.subgrupo { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 0 12px; margin: 0 0 10px; }
+.dsn details.subgrupo summary { font-weight: 600; color: var(--txt); font-size: 14px; min-height: 44px; }
+.dsn details.subgrupo summary svg.ic { width: 16px; height: 16px; color: var(--soft); transition: transform .18s; }
+.dsn details.subgrupo[open] summary svg.ic { transform: rotate(90deg); }
+.dsn details.subgrupo .cuerpo { padding: 2px 0 2px; }
+.dsn details.subgrupo .grupo:last-child { margin-bottom: 10px; }
 .dsn .muestras { display: grid; grid-template-columns: repeat(7, minmax(0, 48px)); gap: 6px; align-items: center; }
 .dsn .muestra { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 3px solid transparent; padding: 0; min-height: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); cursor: pointer; }
 .dsn .muestra.on { border-color: var(--acc); box-shadow: inset 0 0 0 2px var(--bg); }
@@ -81,6 +110,7 @@
 .dsn details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; }
 .dsn summary { cursor: pointer; padding: 10px 0; color: var(--soft); font-size: 14px; display: flex; align-items: center; gap: 8px; list-style: none; }
 .dsn summary::-webkit-details-marker { display: none; }
+.dsn textarea[hidden] { display: none; }
 .dsn textarea { width: 100%; min-height: 110px; font: 12px/1.4 ui-monospace, Consolas, monospace; color: var(--txt); background: #12111b; border: 1px solid var(--line); border-radius: 10px; padding: 8px; margin: 0 0 10px; }
 .dsn .aviso { color: var(--good); font-size: 13px; min-height: 1.2em; }
 
@@ -100,6 +130,18 @@
 .dsn .mislooks h3 { margin: 0 0 8px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
 .dsn .mislooks h3 small { color: var(--soft); font-weight: 400; font-size: 12px; }
 .dsn .mislooks[hidden] { display: none; }
+/* vacío de Mis looks: tres siluetas en trazo */
+.dsn .vacio { display: flex; align-items: center; gap: 12px; color: var(--soft); padding: 4px 0; }
+.dsn .vacio[hidden] { display: none; }
+.dsn .vacio svg { width: 108px; height: 50px; flex: none; opacity: .7; }
+.dsn .vacio .texto { margin: 0; }
+/* enlace roto: línea con «Hacer el mío»; fallo de carga del tema: «Reintentar» */
+.dsn .aviso-enlace { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; margin: 0 0 12px; }
+.dsn .aviso-enlace .texto { margin: 0; flex: 1 1 200px; }
+.dsn .aviso-enlace button { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; min-height: 40px; }
+.dsn .fallo-carga { display: grid; gap: 10px; justify-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+.dsn .fallo-carga .texto { margin: 0; font-size: 14px; }
+.dsn .fallo-carga .primario { display: inline-flex; align-items: center; gap: 8px; background: var(--acc); border-color: var(--acc); color: var(--acc-ink); font-weight: 600; min-height: 48px; }
 .dsn .looks { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
 .dsn .look { position: relative; display: flex; flex-direction: column; background: var(--panel); border: 2px solid var(--line); border-radius: 14px; overflow: hidden; min-width: 0; }
 .dsn .look.on { border-color: var(--acc); }

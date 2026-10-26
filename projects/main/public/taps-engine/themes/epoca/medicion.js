@@ -38,6 +38,7 @@ const PATRONES = [
   new RegExp(`^hito/${HITO}$`),                                              // hito de inversión alcanzado (PR-D2, §2): una vez por sesión
   new RegExp(`^hito-cuenta/(visto|entendido|abrir)/${HITO}$`),               // aviso de cuenta en ese hito: enseñado, cerrado o abrió la hoja
   /^error\/(carga|look-invalido)$/,
+  /^invertido\/5$/,                                                          // 5 cambios o 60 s con cambios (PR-D3, §2): la barra «Tu personaje» se rellena; una vez por sesión
 ];
 
 /** Quita el prefijo si viene puesto; devuelve el nombre corto (`preset/grabador`) o null si no es de la lista. */
@@ -97,7 +98,7 @@ export function esAutomatico(userAgent, webdriver = false) {
  */
 export function crearMedidor({ ahora = Date.now, activo = true } = {}) {
   const cola = [], registro = [], ultimoCambio = new Map(), unicos = new Set();
-  const UNA_VEZ = new Set(['probar', 'listo', 'fps-bajo']);
+  const UNA_VEZ = new Set(['probar', 'listo', 'fps-bajo', 'invertido/5']);
   function evento(nombre) {
     if (!activo) return false;
     const n = nombreValido(nombre);

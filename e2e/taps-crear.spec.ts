@@ -59,9 +59,35 @@ test.describe('/crear', () => {
     const dsn = page.locator('gems-tap-disenador .dsn');
     await expect(dsn.locator('#lienzo')).toBeVisible({ timeout: 20_000 });
     await dsn.locator('#presets .tarjeta[data-id="arqueologa"]').click();
+    await expect(dsn.locator('h1')).toHaveText('Elige quién eres');
     await dsn.locator('#siguiente').click();                       // ajustar
+    // PR-D3: título por paso, pestañas accesibles (tablist + flechas), Ropa en tres subgrupos con la prenda primero, miniaturas
+    // en los chips de pieza y muestras con nombre de color (no el #hex).
+    await expect(dsn.locator('h1')).toHaveText('Hazlo tuyo');
+    await expect(dsn.locator('#siguiente')).toHaveText('Ponlo en su mundo');
+    const pestanas = dsn.locator('#pestanas');
+    await expect(pestanas).toHaveAttribute('role', 'tablist');
+    await expect(pestanas.locator('[role="tab"][aria-selected="true"]')).toHaveAttribute('data-id', 'cara');
+    await expect(dsn.locator('#ajustes .muestra').first()).toHaveAttribute('aria-label', /^[A-ZÁÉÍÓÚ][a-záéíóúñ ]+$/);
+    await pestanas.locator('[data-id="cara"]').focus(); await page.keyboard.press('ArrowRight');
+    await expect(pestanas.locator('[role="tab"][aria-selected="true"]')).toHaveAttribute('data-id', 'pelo');
+    await expect(dsn.locator('#ajustes .chip canvas.mini').first()).toBeVisible();
+    await pestanas.locator('[data-id="ropa"]').click();
+    await expect(dsn.locator('#ajustes details.subgrupo')).toHaveCount(3);
+    await expect(dsn.locator('#ajustes details.subgrupo').first()).toHaveAttribute('open', '');
+    await expect(dsn.locator('#ajustes details.subgrupo').nth(1)).not.toHaveAttribute('open', '');
+    await dsn.locator('#ajustes details.subgrupo[data-id="sombrero"] summary').click();
+    await dsn.locator('#ajustes .chip[data-campo="hat"][data-v="copa"]').click();
+    await expect(dsn.locator('#ajustes .grupo h3', { hasText: 'Color del sombrero' })).toBeVisible();
+    expect(await page.evaluate(() => document.activeElement?.getAttribute('data-v')), 'el foco sigue en el chip tras reconstruir Ropa').toBe('copa');
+    await expect(dsn.locator('#inversion i.on')).toHaveCount(1);
     await dsn.locator('#siguiente').click();                       // escenario
+    await expect(dsn.locator('h1')).toHaveText('Dónde vive');
+    await expect(dsn.locator('#siguiente')).toHaveText('Terminar');
     await dsn.locator('#siguiente').click();                       // listo
+    await expect(dsn.locator('h1')).toHaveText('Lo hiciste');
+    await expect(dsn.locator('#json')).toBeHidden();
+    await expect(dsn.locator('#masDetalles')).not.toContainText('JSON');
     await dsn.locator('#nombre').fill('Inés de prueba');
     await dsn.locator('#guardar').click();
     await expect(dsn.locator('#estadoGuardado')).toContainText('está en Mis looks');
