@@ -53,6 +53,9 @@
   span { padding: 2px 7px; border-radius: 99px; font-size: 12px; background: var(--color-fondo-sutil); color: var(--color-texto-terciario); }
   &:hover { border-color: var(--color-primario); color: var(--color-texto-principal); }
   &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
-  &[aria-selected='true'] { color: var(--color-sobre-primario); background: var(--color-primario-accion); border-color: transparent;
+  &[aria-pressed='true'] { color: var(--color-sobre-primario); background: var(--color-primario-accion); border-color: transparent;
     // Fondo oscuro para el número: con blanco al 22 % quedaba en 3,9:1.
     span { background: rgb(0 0 0 / .24); color: inherit; } } }
+
+// Enlace dentro de una respuesta de las preguntas: área táctil de 44 px sin mover las líneas.
+.faq .faq__enlace { display: inline-block; padding-block: 11px; margin-block: -11px; }

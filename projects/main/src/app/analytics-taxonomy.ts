@@ -46,6 +46,8 @@ export type TEventPath =
   // portada se cuenta como puerta de la portada (`portada/opcion/crear`) y la barra de /instructor no mide el toque: basta `abrir/<origen>`.
   // Portada: qué puerta abre la gente (`portada/opcion/<taps|temas/<tema>|retos|bloques|cursos|instituciones|entrar|crear>`).
   | `portada/${string}`
+  // /instituciones: `instituciones/muestra/<ir|cta|fin>` y `instituciones/profesor/recordar` (producto/portada/backlog-auditoria-ux-2026-10-26.md).
+  | `instituciones/${string}`
   | `registro/${string}`
   | `error/${string}`;
 
