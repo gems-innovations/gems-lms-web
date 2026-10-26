@@ -111,3 +111,9 @@ test('medición: la forma para GoatCounter es la misma de AnalyticsService (path
   assert.deepEqual(paraGoatCounter('listo'), { path: 'taps/disenador/listo', title: 'taps/disenador/listo', event: true });
   assert.match(paraGoatCounter('abandono/personaje/40').path, /^taps\/[a-z0-9/-]+$/, 'minúsculas, sin tildes, con guiones');
 });
+
+test('medición (PR-D3): invertido/5 es válido y cuenta una vez por sesión', () => {
+  assert.equal(nombreValido('invertido/5'), 'invertido/5'); assert.equal(nombreValido('invertido/4'), null); assert.equal(nombreValido('invertido'), null);
+  const med = crearMedidor();
+  assert.equal(med.evento('invertido/5'), true); assert.equal(med.evento('invertido/5'), false);
+});

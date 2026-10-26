@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { CATALOGO, ITEMS, lookOf, validarLook } from '../public/taps-engine/themes/epoca/rig.js';
 import { WORLD_NAMES } from '../public/taps-engine/themes/epoca/scenery.js';
-import { AFINIDAD, MUNDO_OBJETOS, PALETAS, aplicarCambios, sorprenderEscenario, sorprenderPestana, sorprenderTodo, sugerencias } from '../public/taps-engine/themes/epoca/sugerencias.js';
+import { AFINIDAD, MUNDO_OBJETOS, NOMBRES_COLOR, PALETAS, aplicarCambios, nombreColor, sorprenderEscenario, sorprenderPestana, sorprenderTodo, sugerencias } from '../public/taps-engine/themes/epoca/sugerencias.js';
 
 /** Aleatorio determinista para que la prueba sea repetible. */
 function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -74,4 +74,17 @@ test('sugerencias: las frases son para personas y aplicarlas deja un look válid
   assert.match(sugerencias({ look: { ...lookOf({}), outfit: 'toga', sleeve: 'corta', hat: 'none' }, item: 'pergamino', world: 'foro-roma' })[0].texto, /laurel/);
   assert.match(sugerencias({ look: { ...lookOf({}), outfit: 'bata' }, item: 'pluma', world: 'laboratorio-moderno' })[0].texto, /lupa/);
   assert.match(sugerencias({ look: { ...lookOf({}), outfit: 'safari' }, item: 'cepillo', world: 'foro-roma' }, 'escenario')[0].texto, /Egipto/);
+});
+
+test('sugerencias (PR-D3): cada color de las paletas tiene nombre para personas; fuera de paleta, «Color personalizado»', () => {
+  const colores = Object.values(PALETAS).flatMap(l => Array.isArray(l) ? l : Object.values(l).flat());
+  for (const col of colores) {
+    const n = nombreColor(col);
+    assert.ok(n && n !== 'Color personalizado', `sin nombre: ${col}`);
+    assert.match(n, /^[A-ZÁÉÍÓÚ][a-záéíóúñ ]+$/, n);
+    assert.equal(nombreColor(col.toUpperCase()), n, 'no distingue mayúsculas');
+  }
+  assert.equal(nombreColor('#123456'), 'Color personalizado');
+  assert.equal(nombreColor(undefined), 'Color personalizado');
+  for (const [hex, n] of Object.entries(NOMBRES_COLOR)) assert.match(hex, /^#[0-9a-f]{6}$/, n);
 });

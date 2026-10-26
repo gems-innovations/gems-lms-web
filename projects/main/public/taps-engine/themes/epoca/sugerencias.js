@@ -30,6 +30,27 @@ export const NOMBRES = Object.freeze({
   medieval: 'Medieval', traje: 'Traje', larga: 'Larga', corta: 'Corta', copa: 'De copa', bicornio: 'Bicornio', laurel: 'Laurel', gorra: 'Gorra', boina: 'Boina',
   pluma: 'Pluma', cepillo: 'Cepillo', pergamino: 'Pergamino', libro: 'Libro', lupa: 'Lupa', matraz: 'Matraz', antorcha: 'Antorcha', mapa: 'Mapa',
 });
+/** Nombre para personas de cada color de las paletas (aria-label y tooltip de las muestras; PR-D3). Cubre todos los PALETAS. */
+export const NOMBRES_COLOR = Object.freeze({
+  // piel
+  '#f1c9a5': 'Marfil rosado', '#d9ab86': 'Arena', '#c99a76': 'Canela', '#a8714a': 'Caramelo', '#8a5a3c': 'Nuez', '#6b4429': 'Café oscuro',
+  // pelo
+  '#15110e': 'Negro azabache', '#3a2a20': 'Castaño oscuro', '#6a3a1a': 'Castaño rojizo', '#b8863b': 'Rubio miel', '#9a9a9a': 'Gris plata', '#8a2f1d': 'Cobre',
+  // prendas y telas
+  '#34364c': 'Azul noche', '#1d1d27': 'Negro humo', '#4a2a2a': 'Vino', '#2c3a2c': 'Verde bosque', '#5a4a3a': 'Marrón tabaco', '#6a6a72': 'Gris pizarra',
+  '#b8a679': 'Caqui', '#a38b57': 'Ocre', '#8c7a4e': 'Oliva seco', '#c9b58a': 'Trigo', '#6e6a4a': 'Verde oliva', '#9c8b6a': 'Lino tostado',
+  '#f4f7fa': 'Blanco nieve', '#e9eef2': 'Blanco perla', '#dfe7ee': 'Gris niebla', '#cfe3ee': 'Celeste pálido', '#e8e1cf': 'Marfil', '#c8d3dd': 'Gris azulado',
+  '#efe6d0': 'Crema', '#e9e1cf': 'Hueso', '#f4f0e4': 'Blanco lino', '#d9c9a6': 'Beige', '#7a2a5a': 'Púrpura', '#3a74c4': 'Azul cielo',
+  '#e8d9b6': 'Arena clara', '#c8a24a': 'Dorado', '#b84a3a': 'Terracota', '#efe3c8': 'Vainilla',
+  '#5a6a8a': 'Azul acero', '#7a2a2a': 'Granate', '#34564a': 'Verde pino', '#8c6a3a': 'Cuero', '#4a3a2a': 'Marrón castaño', '#2c3a4c': 'Azul marino',
+  '#1c2733': 'Azul carbón', '#3a3a3a': 'Gris grafito', '#7a5c3a': 'Marrón avellana', '#8a7a50': 'Verde caqui',
+  // camisa, pantalón, calzado, detalle, sombrero
+  '#c8453f': 'Rojo coral', '#d3b27a': 'Ámbar', '#2a2a33': 'Gris noche', '#2c2c36': 'Gris carbón', '#5a4a32': 'Marrón tierra',
+  '#15151a': 'Negro', '#3a2a1a': 'Marrón café', '#6a4a2a': 'Marrón cuero', '#2a1c12': 'Marrón oscuro', '#1d1d22': 'Negro grafito',
+  '#34d399': 'Verde menta', '#4f7a3a': 'Verde laurel',
+});
+/** Nombre del color o, si no está en las paletas, «Color personalizado» (selector libre). */
+export const nombreColor = hex => NOMBRES_COLOR[String(hex).toLowerCase()] ?? 'Color personalizado';
 export const MUNDOS = Object.freeze({
   'taller-londres': ['Taller de Londres', '1803'], 'excavacion-egipto': ['Excavación en Egipto', 'Valle de los Reyes'], 'foro-roma': ['Foro de Roma', 'Antigüedad'],
   'sala-medieval': ['Sala medieval', 'Castillo'], 'laboratorio-moderno': ['Laboratorio moderno', 'Hoy'],
