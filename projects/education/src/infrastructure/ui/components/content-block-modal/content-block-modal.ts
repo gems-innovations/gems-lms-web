@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, input, output, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -7,6 +7,7 @@ import {
   EContentType,
   ICreateContentBlockRequest,
   IQuestion,
+  IContentBlock,
   IMultipleChoiceQuestion,
   ITrueFalseQuestion,
   IOpenQuestion,
@@ -65,7 +66,7 @@ const newQuestion = (order: number): IQuestionDraft => ({
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './content-block-modal.scss'
 })
-export class ContentBlockModal {
+export class ContentBlockModal implements OnInit {
   private readonly fileUpload = inject(FileUploadService);
   protected readonly scormOptions: SelectOption[] = [
     { value: '1.2', label: 'SCORM 1.2' },
@@ -82,6 +83,8 @@ export class ContentBlockModal {
   private readonly bank = inject(QuestionBankService);
 
   readonly lessonId = input.required<string>();
+  /** Si viene un bloque, el modal lo edita (mismo formulario, ya relleno) en vez de crear uno nuevo. */
+  readonly block    = input<IContentBlock | null>(null);
   readonly onClose  = output<void>();
   readonly onSave   = output<ICreateContentBlockRequest>();
 
@@ -171,6 +174,48 @@ export class ContentBlockModal {
     const embed = toVideoEmbedUrl(this.videoUrl());
     return embed ? this.sanitizer.bypassSecurityTrustResourceUrl(embed) : null;
   });
+
+  ngOnInit(): void {
+    const b = this.block();
+    if (!b) return;
+    this.title.set(b.title);
+    this.description.set(b.description ?? '');
+    this.duration.set(b.duration ?? 0);
+    this.isRequired.set(b.isRequired);
+    this.videoProvider.set(b.videoProvider ?? 'youtube');
+    this.videoUrl.set(b.type === EContentType.VIDEO ? b.url ?? '' : '');
+    this.videoThumbnailUrl.set(b.videoThumbnailUrl ?? '');
+    this.videoTranscript.set(b.videoTranscript ?? '');
+    this.captionsUrl.set(b.captionsUrl ?? '');
+    this.markdownContent.set(b.markdownContent ?? '');
+    this.scormUrl.set(b.type === EContentType.SCORM ? b.url ?? '' : '');
+    this.scormVersion.set(b.scormVersion ?? '1.2');
+    this.completionThreshold.set(b.completionThreshold ?? 80);
+    this.quizTimeLimit.set(b.timeLimit ?? 0);
+    this.quizPassingScore.set(b.passingScore ?? 70);
+    this.quizMaxAttempts.set(b.maxAttempts ?? 3);
+    this.quizShuffle.set(b.shuffleQuestions ?? false);
+    if (b.questions?.length) this.quizQuestions.set(b.questions.map((q, i) => this.questionToDraft(q, i + 1)));
+    else if (b.type === EContentType.QUIZ) this.quizQuestions.set([]);
+    this.quizPools.set((b.questionPools ?? []).map(p => ({ ...p })));
+    this.assignmentInstructions.set(b.assignmentInstructions ?? '');
+    this.maxScore.set(b.maxScore ?? 100);
+    this.dueDate.set(b.dueDate ?? '');
+    if (b.allowedFileTypes) this.allowedFileTypes.set([...b.allowedFileTypes]);
+    if (b.rubric?.length) this.rubric.set(b.rubric.map(r => ({ id: r.id, criterion: r.criterion, maxPoints: r.maxPoints })));
+    if (b.cards?.length) this.cards.set(structuredClone(b.cards));
+    this.selectType(b.type);
+  }
+
+  private questionToDraft(q: IQuestion, order: number): IQuestionDraft {
+    const d = { ...newQuestion(order), id: q.id, type: q.type, question: q.question, points: q.points, order: q.order ?? order, explanation: q.explanation ?? '' };
+    if (q.type === 'multiple-choice') {
+      const m = q as IMultipleChoiceQuestion;
+      return { ...d, options: m.options.map(o => ({ id: o.id, text: o.text })), correctAnswers: [...m.correctAnswers], allowMultiple: m.allowMultiple ?? false };
+    }
+    if (q.type === 'true-false') return { ...d, correctBoolean: (q as ITrueFalseQuestion).correctAnswer };
+    return { ...d, sampleAnswer: (q as IOpenQuestion).sampleAnswer ?? '' };
+  }
 
   selectType(type: EContentType): void {
     this.selectedType.set(type);

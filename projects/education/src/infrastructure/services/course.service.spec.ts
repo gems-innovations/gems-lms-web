@@ -58,4 +58,16 @@ describe('CourseService · editar y eliminar del currículo', () => {
     expect(modules.map(m => m.title)).toEqual(['M1', 'Nuevo']);
     expect(modules[0].lessons.length).toBe(2);
   });
+
+  it('reemplaza el contenido de un bloque conservando su id y su lugar', () => {
+    const conBloque = { ...api, modules: [{ ...api.modules![0], lessons: [{ ...lesson(10, 1, 1), contents: [{ id: 90, lessonId: 10, type: 'cards', orderIndex: 1, value: JSON.stringify({ title: 'Viejo', duration: 3, isRequired: true, cards: [] }) }] }] }] };
+    service.replaceBlock({ lessonId: '10', type: 'cards' as never, title: 'Nuevo', duration: 5 }, '90').subscribe();
+    http.expectOne(`${url}/7`).flush(conBloque);
+    const put = http.expectOne(r => r.method === 'PUT' && r.url === `${url}/7`);
+    put.flush(conBloque);
+    const c = put.request.body.modules[0].lessons[0].contents;
+    expect(c.length).toBe(1);
+    expect(c[0].id).toBe(90);
+    expect(JSON.parse(c[0].value).title).toBe('Nuevo');
+  });
 });

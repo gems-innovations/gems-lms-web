@@ -339,6 +339,21 @@ export class CourseService {
     });
   }
 
+  replaceBlock(req: ICreateContentBlockRequest, blockId: string): Observable<ICourse> {
+    return this.mutateByLesson(req.lessonId, lesson => {
+      const i = lesson.contentBlocks.findIndex(b => b.id === blockId);
+      if (i < 0) throw new Error('Contenido no encontrado. Recarga el curso.');
+      const { lessonId, ...fields } = req;
+      lesson.contentBlocks[i] = {
+        ...fields,
+        id: blockId,
+        duration: req.duration ?? 0,
+        isRequired: req.isRequired ?? true,
+        order: lesson.contentBlocks[i].order
+      };
+    });
+  }
+
   private mutateByModule(moduleId: string, change: (mod: ICourseModule) => void): Observable<ICourse> {
     const courseId = this.courseIdByModule.get(moduleId);
     if (!courseId) return throwError(() => new Error('Módulo no encontrado. Recarga el curso.'));

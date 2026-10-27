@@ -245,6 +245,7 @@ export class CourseUseCase {
   updateLesson(id: string, f: { title: string; description?: string }): void { this.editTree$.next({ op: this.courseService.updateLesson(id, f), ok: 'Lección actualizada' }); }
   deleteLesson(id: string): void { this.editTree$.next({ op: this.courseService.deleteLesson(id), ok: 'Lección eliminada' }); }
   updateBlock(lessonId: string, blockId: string, f: { title: string; description?: string; isRequired?: boolean }): void { this.editTree$.next({ op: this.courseService.updateBlock(lessonId, blockId, f), ok: 'Contenido actualizado' }); }
+  replaceBlock(req: ICreateContentBlockRequest, blockId: string): void { this.editTree$.next({ op: this.courseService.replaceBlock(req, blockId), ok: 'Contenido actualizado' }); }
   deleteBlock(lessonId: string, blockId: string): void { this.editTree$.next({ op: this.courseService.deleteBlock(lessonId, blockId), ok: 'Contenido eliminado' }); }
 
   selectCourse(course: ICourse | null): void { this.courseState.setSelectedCourse(course); }
