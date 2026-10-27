@@ -29,12 +29,6 @@
         <a class="btn btn--primary" routerLink="/taps" (click)="choose('taps')">Jugar más Taps <svg lucideArrowRight [size]="18" aria-hidden="true"></svg></a>
         <a class="btn btn--ghost" routerLink="/" fragment="cursos" (click)="choose('cursos-ancla')">Cursos gratis</a>
       </div>
-      <a class="juego__inst" routerLink="/" fragment="instituciones" (click)="choose('instituciones-heroe')">
-        <svg lucideSchool [size]="20" aria-hidden="true"></svg>
-        <span><strong>¿Enseñas o diriges un grupo?</strong> Usa GEMS en tu institución</span>
-        <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
-      </a>
-      <p class="trust">¿Ya tienes cuenta? <a routerLink="/auth/signin" (click)="choose('entrar')">Entrar</a></p>
     </div>
 
     <div class="juego__tarjeta">
@@ -83,38 +77,12 @@
     </ul>
   </section>
 
-  <section id="camino" class="block reveal" aria-labelledby="camino-title">
-    <div class="block__head">
-      <h2 id="camino-title">Juega, aprende a fondo o enseña</h2>
-      <p>Tres maneras de usar GEMS: un Tap cuando tienes un rato, un curso gratis cuando el tema te engancha y tu propio espacio si enseñas.</p>
-    </div>
-    <ol class="camino">
-      <li style="--c: var(--color-primario)">
-        <span class="camino__n" aria-hidden="true">1</span>
-        <strong>Juegas un Tap</strong>
-        <span>Cinco preguntas con su porqué, sin cuenta.</span>
-        <a routerLink="/taps" (click)="choose('camino/jugar')">Jugar ahora</a>
-      </li>
-      <li style="--c: var(--color-teal)">
-        <span class="camino__n" aria-hidden="true">2</span>
-        <strong>Vas más a fondo</strong>
-        <span>Lecciones cortas, ejercicios explicados y simulacros, gratis.</span>
-        <a routerLink="/" fragment="cursos" (click)="choose('camino/cursos')">Ver cursos gratis</a>
-      </li>
-      <li style="--c: var(--color-acento, var(--color-primario))">
-        <span class="camino__n" aria-hidden="true">3</span>
-        <strong>Enseñas a tu grupo</strong>
-        <span>Tus propios cursos, con lecciones en cartas animadas, y el avance de cada estudiante.</span>
-        <a routerLink="/" fragment="instituciones" (click)="choose('camino/instituciones')">Para instituciones</a>
-      </li>
-    </ol>
-  </section>
   }
 
   <section id="cursos" class="block reveal" aria-labelledby="cursos-title" [attr.aria-busy]="state() === 'loading'">
     <div class="block__head">
       <h2 id="cursos-title">Cursos gratis para ir más a fondo</h2>
-      <p>@if (!institucion()) {¿Te quedaste con ganas? }Lecciones cortas, ejercicios explicados y simulacros. Toca «Empezar gratis» y entras directo; si quieres guardar tu avance, después creas tu cuenta y no pierdes nada.</p>
+      <p>Lecciones cortas y ejercicios explicados. Toca «Empezar gratis» y entras directo, sin cuenta.</p>
     </div>
 
     @switch (state()) {
@@ -128,7 +96,7 @@
         @if (courses().length === 0) {
           <lib-empty-state [copy]="emptyCopy" [headingLevel]="2" [framed]="true" actionLink="/taps" />
         } @else {
-          @if (categories().length) {
+          @if (categories().length && courses().length > 8) {
             <div class="cats" role="group" aria-label="Categorías de cursos">
               @for (cat of categories(); track cat.id) {
                 <button type="button" class="cats__chip" [attr.aria-pressed]="category() === cat.id"
@@ -137,18 +105,17 @@
             </div>
           }
           <!-- Solo en celular, donde los cursos van en una fila que se desliza: dónde vas y que hay más. -->
-          @if (visibleCourses().length > 1) {
+          @if (shownCourses().length > 1) {
             <p class="cursos__pos" aria-hidden="true">
-              <span>Curso {{ cursoActual() + 1 }} de {{ visibleCourses().length }}@if (cursoActual() < visibleCourses().length - 1) { · desliza }</span>
-              <span class="cursos__puntos">@for (c of visibleCourses(); track c.id; let i = $index) { <i [class.on]="i === cursoActual()"></i> }</span>
+              <span class="cursos__puntos">@for (c of shownCourses(); track c.id; let i = $index) { <i [class.on]="i === cursoActual()"></i> }</span>
             </p>
           }
           <div class="grid" (scroll)="alDeslizar($event)">
-            @for (c of visibleCourses(); track c.id) {
+            @for (c of shownCourses(); track c.id) {
               <article class="card" gemsTilt>
                 <div class="card__img">
                   @if (c.thumbnailUrl) { <img [src]="c.thumbnailUrl" alt="" loading="lazy" (error)="$any($event.target).remove()" /> }
-                  <span class="card__free">Gratis</span>
+                  
                 </div>
                 <div class="card__body">
                   <h3><a [routerLink]="['/cursos', c.id]" (click)="choose('cursos')">{{ c.title }}</a></h3>
@@ -156,19 +123,20 @@
                   <div class="card__meta">
                     <span>{{ c.lessons }} lecciones</span>
                     @if (c.difficulty) { <span>{{ difficulty[c.difficulty] ?? c.difficulty }}</span> }
-                    @if (c.enrolled) { <span>{{ c.enrolled }} estudiando</span> }
                   </div>
                   @if (errorFor() === c.id) { <p class="card__error" role="alert">{{ error() }}</p> }
                   <div class="card__actions">
                     <button type="button" class="btn btn--primary" [disabled]="starter.starting() !== null" [attr.aria-busy]="starter.starting() === c.id" (click)="start(c.id)">
                       <lib-busy-label [busy]="starter.starting() === c.id" busyText="Entrando…">Empezar gratis</lib-busy-label>
                     </button>
-                    <a [routerLink]="['/cursos', c.id]" [attr.aria-label]="'Ver temario de ' + c.title" (click)="choose('cursos')">Ver temario</a>
                   </div>
                 </div>
               </article>
             }
           </div>
+          @if (hayMas()) {
+            <button type="button" class="btn btn--ghost cursos__mas" (click)="verTodos.set(true)">Ver los {{ visibleCourses().length }} cursos</button>
+          }
         }
       }
     }
@@ -182,17 +150,13 @@
       <p>Para colegios, universidades, academias, empresas y profesores independientes que quieren enseñar a su manera, con sus propios cursos y su gente.</p>
     </div>
     <ul class="inst__perks">
-      <li><svg lucideBookOpen [size]="22" aria-hidden="true"></svg><strong>Creas</strong><span>Cursos con lecciones en cartas animadas, evaluaciones con banco de preguntas, tareas con rúbrica y certificados verificables.</span></li>
-      <li><svg lucideUsers [size]="22" aria-hidden="true"></svg><strong>Administras</strong><span>Carga de estudiantes por CSV, períodos con cierre y actas, tu marca y varios idiomas.</span></li>
-      <li><svg lucideChartLine [size]="22" aria-hidden="true"></svg><strong>Das seguimiento</strong><span>Libro de calificaciones, reportes y alertas de quién se está quedando atrás, con recordatorios en un clic.</span></li>
+      <li><svg lucideBookOpen [size]="22" aria-hidden="true"></svg><strong>Creas</strong><span>Cursos con lecciones en cartas animadas, evaluaciones y certificados verificables.</span></li>
+      <li><svg lucideUsers [size]="22" aria-hidden="true"></svg><strong>Administras</strong><span>Estudiantes por CSV, períodos, tu marca y varios idiomas.</span></li>
+      <li><svg lucideChartLine [size]="22" aria-hidden="true"></svg><strong>Das seguimiento</strong><span>Calificaciones, reportes y alertas de quién se está quedando atrás.</span></li>
     </ul>
     <div class="inst__start">
       <h3>Cómo empieza</h3>
-      <ol>
-        <li>Pides tu espacio con un formulario corto.</li>
-        <li>Te escribimos al correo para conocer tu grupo y contarte el costo según su tamaño.</li>
-        <li>Creamos tu espacio y cargas tus cursos y estudiantes.</li>
-      </ol>
+      <p>Pides tu espacio con un formulario corto, te escribimos con el costo según el tamaño de tu grupo y lo creamos para que cargues tus cursos y estudiantes.</p>
       <div class="inst__cta">
         <a class="btn btn--primary" routerLink="/instituciones" fragment="solicitud" (click)="choose('instituciones')"><svg lucideSchool [size]="18" aria-hidden="true"></svg> Pedir mi espacio</a>
         <a class="btn btn--ghost" routerLink="/instituciones" fragment="muestra" (click)="choose('instituciones-muestra')">Ver una lección de muestra</a>
@@ -207,56 +171,30 @@
         <span><strong>{{ copyCrear.portadaTitulo }}</strong> {{ copyCrear.portadaLinea }}</span>
         <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
       </a>
-      <p class="inst__alt">¿Tu institución ya está en GEMS? <a routerLink="/auth/signin" (click)="choose('entrar')">Entra con la cuenta que te dieron</a>.</p>
     </div>
   </section>
 
   <section id="confianza" class="block reveal" aria-labelledby="conf-title">
     <h2 id="conf-title">Lo que puedes esperar de GEMS</h2>
     <ul class="confianza">
-      <li><strong>Sin cuenta para empezar</strong><span>Juegas y haces cursos gratis sin registrarte.</span></li>
-      <li><strong>No pedimos tus datos para jugar</strong><span>Ni nombre real, ni correo, ni teléfono. Ver <a routerLink="/privacidad">privacidad</a>.</span></li>
-      <li><strong>Tus datos, según la ley</strong><span>Si creas cuenta, los tratamos según la Ley 1581 de 2012 y puedes pedir borrarlos.</span></li>
+      <li><strong>Sin cuenta ni datos para jugar</strong><span>Ni nombre real, ni correo, ni teléfono. Ver <a routerLink="/privacidad">privacidad</a>.</span></li>
       <li><strong>Cada respuesta se explica</strong><span>Aciertes o no, ves el porqué en una línea.</span></li>
-      <li><strong>Lo gratis no pide tarjeta</strong><span>Los Taps y los cursos marcados «Gratis» no tienen costo.</span></li>
-      <li><strong>Sabes quién está detrás</strong><span>El equipo de GEMS Innovations, en Colombia. Escríbenos a <a [href]="'mailto:' + correo">{{ correo }}</a>.</span></li>
+      <li><strong>Lo gratis no pide tarjeta</strong><span>Los Taps y los cursos gratis no tienen costo.</span></li>
     </ul>
   </section>
 
-  <section class="cierre reveal" aria-labelledby="cierre-title">
-    <h2 id="cierre-title">¿Por dónde empiezas?</h2>
-    <div class="cierre__opts">
-      <a class="cierre__opt" routerLink="/taps" (click)="choose('cierre/jugar')"><svg lucideShuffle [size]="22" aria-hidden="true"></svg><strong>Quiero aprender</strong><span>Juega un Tap ahora, sin cuenta</span></a>
-      <a class="cierre__opt" routerLink="/instituciones" fragment="solicitud" (click)="choose('cierre/instituciones')"><svg lucideSchool [size]="22" aria-hidden="true"></svg><strong>Quiero enseñar</strong><span>Pide el espacio de tu institución</span></a>
-    </div>
-  </section>
   }
 
   <section id="preguntas" class="block faq reveal" aria-labelledby="faq-title">
     <h2 id="faq-title">Preguntas frecuentes</h2>
     <div class="faq__list">
       @if (!institucion()) { <details><summary>¿Qué es un Tap?</summary><p>Cinco preguntas cortas que juegas con un personaje en vivo. Tocas tu respuesta, ves al instante si acertaste y por qué, y al final ganas un título que puedes compartir. Dura lo que un video corto; deslizas y empieza otro tema.</p></details> }
-      <details><summary>¿Tengo que registrarme?</summary><p>No. @if (!institucion()) {Juegas Taps y haces cursos gratis sin crear cuenta. Tu avance en los Taps queda en este dispositivo; si quieres} @else {Haces los cursos gratis sin crear cuenta. Si quieres} guardar tu avance de los cursos para otro dispositivo, creas tu cuenta cuando quieras y no pierdes nada.</p></details>
-      <details><summary>¿De verdad es gratis?</summary><p>Sí. @if (!institucion()) {Los Taps y los cursos} @else {Los cursos} marcados como «Gratis» no tienen costo ni piden tarjeta. Si algún día lanzamos cursos o funciones de pago, te lo diremos claramente antes: nunca te cobraremos sin que lo aceptes.</p></details>
-      <details><summary>¿Las preguntas son las del examen real?</summary><p>No copiamos exámenes. Creamos preguntas originales con el mismo estilo, temas y nivel de los exámenes de admisión y del Saber 11 publicados.</p></details>
-      <details><summary>¿Los cursos de admisión me garantizan entrar?</summary><p>Ningún curso puede garantizarlo. Practicar con constancia sí te ayuda a llegar mejor preparado. Consulta siempre las fechas y requisitos oficiales de cada universidad.</p></details>
-      <details><summary>¿Qué diferencia hay entre los cursos gratis y «mi institución»?</summary><p>Los cursos gratis son de GEMS: entras sin cuenta y, si quieres, creas una para guardar tu avance. Aparte, un colegio, una universidad o una empresa puede tener <strong>su propio espacio</strong> en GEMS con sus cursos y su gente; a esos entras con la cuenta que te entrega tu institución, desde <a class="faq__enlace" routerLink="/auth/signin">Entrar</a>.</p></details>
-      <details><summary>Quiero enseñar a mi grupo, ¿puedo usar GEMS?</summary><p>Sí. Profesores, colegios, academias, empresas o cualquier persona que quiera armar su grupo de aprendizaje pueden <a class="faq__enlace" routerLink="/instituciones">pedir su propio espacio</a> con sus cursos, sus integrantes y el avance de cada uno.</p></details>
-      @if (!institucion()) { <details><summary>¿Cuánto cuesta un espacio para mi institución?</summary><p>Depende del tamaño de tu grupo y de lo que necesites. Cuando pides tu espacio te escribimos y te decimos el costo antes de crear nada; nunca cobramos sin que lo aceptes. Los Taps y los cursos gratis de GEMS siguen siendo gratis para tus estudiantes.</p></details> }
+      <details><summary>¿Tengo que registrarme?</summary><p>No. @if (!institucion()) {Juegas Taps y haces cursos gratis sin crear cuenta. Tu avance en los Taps queda en este dispositivo; si quieres} @else {Haces los cursos gratis sin crear cuenta. Si quieres} guardar tu avance de los cursos para otro dispositivo, creas tu cuenta cuando quieras y no pierdes nada. Si algún día lanzamos algo de pago, te lo diremos antes: nunca cobramos sin que lo aceptes.</p></details>
+      <details><summary>¿Las preguntas son las del examen real?</summary><p>No copiamos exámenes: creamos preguntas originales con el mismo estilo, temas y nivel de los exámenes de admisión y del Saber 11 publicados. Es material de práctica: ningún curso garantiza un puntaje ni la admisión, y los puntajes, fechas o cupos que mencionemos son orientativos; consulta siempre las fuentes oficiales.</p></details>
+      @if (!institucion()) { <details><summary>¿Cuánto cuesta un espacio para mi institución?</summary><p>Depende del tamaño de tu grupo y de lo que necesites. Cuando pides tu espacio te escribimos y te decimos el costo antes de crear nada. Los Taps y los cursos gratis de GEMS siguen siendo gratis para tus estudiantes.</p></details> }
+      <details><summary>¿Quién está detrás y qué pasa con mis datos?</summary><p>GEMS no es una entidad oficial: no está afiliado a ninguna universidad, al ICFES ni al Ministerio de Educación. Detrás está el equipo de GEMS Innovations, en Colombia: <a [href]="'mailto:' + correo">{{ correo }}</a>. Para jugar o como invitado no pedimos tu nombre real, correo ni teléfono; si creas una cuenta, tratamos tus datos según la Ley 1581 de 2012 y puedes pedir conocerlos, corregirlos o eliminarlos. Si tienes menos de 18 años, crea tu cuenta con tu madre, tu padre o tu acudiente.</p></details>
     </div>
-  </section>
-
-  <section id="importante" class="legal reveal" aria-labelledby="imp-title">
-    <h2 id="imp-title">Información importante</h2>
-    <ul>
-      <li><details class="legal__item" open><summary>No somos una entidad oficial.</summary><p>GEMS no está afiliado a ninguna universidad, al ICFES ni al Ministerio de Educación, ni cuenta con su aval. Sus nombres se mencionan solo para describir los exámenes.</p></details></li>
-      <li><details class="legal__item"><summary>Es material de práctica.</summary><p>Te ayuda a prepararte, pero no garantiza ningún puntaje ni la admisión. Consulta siempre la información oficial de cada institución.</p></details></li>
-      <li><details class="legal__item"><summary>Preguntas originales.</summary><p>No copiamos exámenes: creamos preguntas propias a partir del análisis de los temas y formatos publicados.</p></details></li>
-      <li><details class="legal__item"><summary>Datos de referencia.</summary><p>Los puntajes, fechas o cupos que mencionemos son orientativos y pueden cambiar; verifícalos en las fuentes oficiales.</p></details></li>
-      <li><details class="legal__item"><summary>Tus datos.</summary><p>Para jugar o como invitado no pedimos tu nombre real, correo ni teléfono. Si creas una cuenta, tratamos tus datos según la Ley 1581 de 2012 y puedes pedir conocerlos, corregirlos o eliminarlos.</p></details></li>
-      <li><details class="legal__item"><summary>Menores de edad.</summary><p>Si tienes menos de 18 años, crea tu cuenta con el acompañamiento de tu madre, tu padre o tu acudiente.</p></details></li>
-    </ul>
-    <p>Lee los <a routerLink="/terminos">términos de uso</a> y la <a routerLink="/privacidad">política de privacidad</a>.</p>
+    <p class="faq__legal">Lee los <a routerLink="/terminos">términos de uso</a> y la <a routerLink="/privacidad">política de privacidad</a>.</p>
   </section>
 </main>
 

@@ -105,7 +105,12 @@ test.describe('Humo · visitante', () => {
     // portada por decisión del dueño (confundían); /retos y /bloques siguen vivos para los enlaces de los videos.
     await expect(page.locator('#temas a[href^="/taps"]').first()).toBeVisible();
     await expect(page.locator('a[href="/instituciones"]').first()).toBeAttached();
-    await expect(page.locator('article.card')).toHaveCount(CURSOS.length);
+    // Tres cursos a la vista; el resto, tras «Ver los N cursos».
+    await expect(page.locator('article.card')).toHaveCount(Math.min(3, CURSOS.length));
+    if (CURSOS.length > 3) {
+      await page.locator('.cursos__mas').click();
+      await expect(page.locator('article.card')).toHaveCount(CURSOS.length);
+    }
     await expect(page.locator('article.card h3 a').first()).toHaveAttribute('href', /\/cursos\/\d+/);
     await sinScrollHorizontal(page);
   });
