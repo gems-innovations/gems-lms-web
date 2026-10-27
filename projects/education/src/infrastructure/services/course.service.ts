@@ -295,6 +295,70 @@ export class CourseService {
     });
   }
 
+  updateModule(moduleId: string, fields: { title: string; description?: string }): Observable<ICourse> {
+    return this.mutateByModule(moduleId, mod => { mod.title = fields.title; mod.description = fields.description; });
+  }
+
+  deleteModule(moduleId: string): Observable<ICourse> {
+    const courseId = this.courseIdByModule.get(moduleId);
+    if (!courseId) return throwError(() => new Error('Módulo no encontrado. Recarga el curso.'));
+    return this.mutateTree(courseId, course => {
+      course.modules = course.modules.filter(m => m.id !== moduleId);
+      course.modules.forEach((m, i) => (m.order = i + 1));
+    });
+  }
+
+  updateLesson(lessonId: string, fields: { title: string; description?: string }): Observable<ICourse> {
+    return this.mutateByLesson(lessonId, lesson => { lesson.title = fields.title; lesson.description = fields.description; });
+  }
+
+  deleteLesson(lessonId: string): Observable<ICourse> {
+    const courseId = this.courseIdByLesson.get(lessonId);
+    if (!courseId) return throwError(() => new Error('Lección no encontrada. Recarga el curso.'));
+    return this.mutateTree(courseId, course => {
+      for (const mod of course.modules) {
+        if (!mod.lessons.some(l => l.id === lessonId)) continue;
+        mod.lessons = mod.lessons.filter(l => l.id !== lessonId);
+        mod.lessons.forEach((l, i) => (l.order = i + 1));
+      }
+    });
+  }
+
+  updateBlock(lessonId: string, blockId: string, fields: { title: string; description?: string; isRequired?: boolean }): Observable<ICourse> {
+    return this.mutateByLesson(lessonId, lesson => {
+      const block = lesson.contentBlocks.find(b => b.id === blockId);
+      if (!block) throw new Error('Contenido no encontrado. Recarga el curso.');
+      Object.assign(block, fields);
+    });
+  }
+
+  deleteBlock(lessonId: string, blockId: string): Observable<ICourse> {
+    return this.mutateByLesson(lessonId, lesson => {
+      lesson.contentBlocks = lesson.contentBlocks.filter(b => b.id !== blockId);
+      lesson.contentBlocks.forEach((b, i) => (b.order = i + 1));
+    });
+  }
+
+  private mutateByModule(moduleId: string, change: (mod: ICourseModule) => void): Observable<ICourse> {
+    const courseId = this.courseIdByModule.get(moduleId);
+    if (!courseId) return throwError(() => new Error('Módulo no encontrado. Recarga el curso.'));
+    return this.mutateTree(courseId, course => {
+      const mod = course.modules.find(m => m.id === moduleId);
+      if (!mod) throw new Error('Módulo no encontrado. Recarga el curso.');
+      change(mod);
+    });
+  }
+
+  private mutateByLesson(lessonId: string, change: (lesson: ILesson) => void): Observable<ICourse> {
+    const courseId = this.courseIdByLesson.get(lessonId);
+    if (!courseId) return throwError(() => new Error('Lección no encontrada. Recarga el curso.'));
+    return this.mutateTree(courseId, course => {
+      const lesson = course.modules.flatMap(m => m.lessons).find(l => l.id === lessonId);
+      if (!lesson) throw new Error('Lección no encontrada. Recarga el curso.');
+      change(lesson);
+    });
+  }
+
   /** Reads the latest course, applies `change` to its tree and saves the whole tree. */
   private mutateTree(courseId: string, change: (course: ICourse) => void): Observable<ICourse> {
     return this.getCourseById(courseId).pipe(

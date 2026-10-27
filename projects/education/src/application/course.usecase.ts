@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, EMPTY } from 'rxjs';
+import { Subject, EMPTY, Observable } from 'rxjs';
 import { tap, switchMap, concatMap, catchError } from 'rxjs/operators';
 import { CourseState } from '../domain/state/course.state';
 import { CourseService } from '../infrastructure/services/course.service';
@@ -85,6 +85,7 @@ export class CourseUseCase {
   private readonly addModule$ = new Subject<ICreateModuleRequest>();
   private readonly addLesson$ = new Subject<ICreateLessonRequest>();
   private readonly addBlock$ = new Subject<ICreateContentBlockRequest>();
+  private readonly editTree$ = new Subject<{ op: Observable<ICourse>; ok: string }>();
   //#endregion
 
   constructor() {
@@ -212,6 +213,16 @@ export class CourseUseCase {
       ),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe();
+
+    this.editTree$.pipe(
+      concatMap(({ op, ok }) =>
+        op.pipe(
+          tap(course => { this.courseState.updateCourse(course); this.toastService.success(ok); }),
+          catchError(err => { this.toastService.error(err.message ?? 'Error'); return EMPTY; })
+        )
+      ),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
   }
 
   //#region Public API
@@ -228,6 +239,13 @@ export class CourseUseCase {
   addLesson(req: ICreateLessonRequest): void { this.addLesson$.next(req); }
 
   addContentBlock(req: ICreateContentBlockRequest): void { this.addBlock$.next(req); }
+
+  updateModule(id: string, f: { title: string; description?: string }): void { this.editTree$.next({ op: this.courseService.updateModule(id, f), ok: 'Módulo actualizado' }); }
+  deleteModule(id: string): void { this.editTree$.next({ op: this.courseService.deleteModule(id), ok: 'Módulo eliminado' }); }
+  updateLesson(id: string, f: { title: string; description?: string }): void { this.editTree$.next({ op: this.courseService.updateLesson(id, f), ok: 'Lección actualizada' }); }
+  deleteLesson(id: string): void { this.editTree$.next({ op: this.courseService.deleteLesson(id), ok: 'Lección eliminada' }); }
+  updateBlock(lessonId: string, blockId: string, f: { title: string; description?: string; isRequired?: boolean }): void { this.editTree$.next({ op: this.courseService.updateBlock(lessonId, blockId, f), ok: 'Contenido actualizado' }); }
+  deleteBlock(lessonId: string, blockId: string): void { this.editTree$.next({ op: this.courseService.deleteBlock(lessonId, blockId), ok: 'Contenido eliminado' }); }
 
   selectCourse(course: ICourse | null): void { this.courseState.setSelectedCourse(course); }
 
