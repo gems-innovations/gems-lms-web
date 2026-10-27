@@ -7,7 +7,8 @@ import { CoursePlayerPreview } from '../course-player-preview/course-player-prev
 import { ICreateContentBlockRequest, IContentBlock } from '../../../../domain/model/course.model';
 
 type TKind = 'module' | 'lesson' | 'block';
-interface IEdicion { kind: TKind; id: string; blockId?: string; title: string; description: string; isRequired: boolean; }
+type TKindEdicion = 'module' | 'lesson';
+interface IEdicion { kind: TKindEdicion; id: string; title: string; description: string; }
 interface IBorrado { kind: TKind; id: string; blockId?: string; title: string; message: string; }
 
 @Component({
@@ -28,9 +29,16 @@ export class CourseEditorPanel {
   protected readonly blockModalLessonId  = signal<string | null>(null);
   protected readonly previewBlock        = signal<IContentBlock | null>(null);
 
-  protected openBlockModal(lessonId: string): void { this.blockModalLessonId.set(lessonId); this.showBlockModal.set(true); }
-  protected closeBlockModal(): void { this.showBlockModal.set(false); this.blockModalLessonId.set(null); }
-  protected saveBlock(req: ICreateContentBlockRequest): void { this.uc.saveBlock(req); this.closeBlockModal(); }
+  protected readonly editingBlock        = signal<IContentBlock | null>(null);
+
+  protected openBlockModal(lessonId: string): void { this.editingBlock.set(null); this.blockModalLessonId.set(lessonId); this.showBlockModal.set(true); }
+  protected openBlockEdit(lessonId: string, block: IContentBlock): void { this.editingBlock.set(block); this.blockModalLessonId.set(lessonId); this.showBlockModal.set(true); }
+  protected closeBlockModal(): void { this.showBlockModal.set(false); this.blockModalLessonId.set(null); this.editingBlock.set(null); }
+  protected saveBlock(req: ICreateContentBlockRequest): void {
+    const b = this.editingBlock();
+    if (b) this.uc.replaceBlock(req, b.id); else this.uc.saveBlock(req);
+    this.closeBlockModal();
+  }
 
   protected readonly editing       = signal<IEdicion | null>(null);
   protected readonly pendingDelete = signal<IBorrado | null>(null);
@@ -39,14 +47,13 @@ export class CourseEditorPanel {
     effect(() => { this.uc.selectedItem(); untracked(() => this.editing.set(null)); });
   }
 
-  protected startEdit(kind: TKind, id: string, block?: IContentBlock): void {
-    const mod = this.uc.selectedModule(); const lesson = this.uc.selectedLesson();
-    const src = kind === 'module' ? mod : kind === 'lesson' ? lesson : block;
+  protected startEdit(kind: TKindEdicion, id: string): void {
+    const src = kind === 'module' ? this.uc.selectedModule() : this.uc.selectedLesson();
     if (!src) return;
-    this.editing.set({ kind, id, blockId: block?.id, title: src.title, description: src.description ?? '', isRequired: block?.isRequired ?? true });
+    this.editing.set({ kind, id, title: src.title, description: src.description ?? '' });
   }
 
-  protected setEdit<K extends 'title' | 'description' | 'isRequired'>(key: K, value: IEdicion[K]): void {
+  protected setEdit<K extends 'title' | 'description'>(key: K, value: IEdicion[K]): void {
     this.editing.update(e => (e ? { ...e, [key]: value } : e));
   }
 
@@ -55,8 +62,7 @@ export class CourseEditorPanel {
     if (!e || !e.title.trim()) return;
     const f = { title: e.title.trim(), description: e.description.trim() || undefined };
     if (e.kind === 'module') this.uc.updateModule(e.id, f);
-    else if (e.kind === 'lesson') this.uc.updateLesson(e.id, f);
-    else if (e.blockId) this.uc.updateBlock(e.id, e.blockId, { ...f, isRequired: e.isRequired });
+    else this.uc.updateLesson(e.id, f);
     this.editing.set(null);
   }
 

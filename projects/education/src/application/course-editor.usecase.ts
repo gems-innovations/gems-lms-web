@@ -117,6 +117,7 @@ export class CourseEditorUseCase {
   updateLesson(id: string, f: { title: string; description?: string }): void { this.courseUc.updateLesson(id, f); }
   deleteLesson(moduleId: string, id: string): void { this.courseUc.deleteLesson(id); this._selectedItem.set({ type: 'module', moduleId }); }
   updateBlock(lessonId: string, blockId: string, f: { title: string; description?: string; isRequired?: boolean }): void { this.courseUc.updateBlock(lessonId, blockId, f); }
+  replaceBlock(req: ICreateContentBlockRequest, blockId: string): void { this.courseUc.replaceBlock(req, blockId); }
   deleteBlock(lessonId: string, blockId: string): void { this.courseUc.deleteBlock(lessonId, blockId); }
 
   trackById(_: number, item: { id: string }): string { return item.id; }

@@ -3,7 +3,7 @@
 
     <!-- ── Header ── -->
     <header class="cbm__header">
-      @if (step() === 'form') {
+      @if (step() === 'form' && !block()) {
         <button class="cbm__back-btn" (click)="back()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="15 18 9 12 15 6"/>
@@ -12,7 +12,7 @@
       }
       <div class="cbm__header-text">
         <h2 class="cbm__title">
-          {{ step() === 'type-select' ? 'Agregar Bloque de Contenido' : 'Configurar bloque' }}
+          {{ block() ? 'Editar bloque' : step() === 'type-select' ? 'Agregar Bloque de Contenido' : 'Configurar bloque' }}
         </h2>
         @if (step() === 'form' && selectedType()) {
           <span class="cbm__type-pill cbm__type-pill--{{ selectedType() }}">
@@ -539,7 +539,7 @@
       <footer class="cbm__footer">
         <button class="cbm__cancel-btn" (click)="close()">Cancelar</button>
         <button class="cbm__save-btn" [disabled]="!canSave()" (click)="save()">
-          Agregar bloque
+          {{ block() ? 'Guardar cambios' : 'Agregar bloque' }}
         </button>
       </footer>
     }
