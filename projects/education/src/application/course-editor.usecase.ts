@@ -112,5 +112,12 @@ export class CourseEditorUseCase {
     return m > 0 ? `${h}h ${m}min` : `${h}h`;
   }
 
+  updateModule(id: string, f: { title: string; description?: string }): void { this.courseUc.updateModule(id, f); }
+  deleteModule(id: string): void { this.courseUc.deleteModule(id); this._selectedItem.set({ type: 'course' }); }
+  updateLesson(id: string, f: { title: string; description?: string }): void { this.courseUc.updateLesson(id, f); }
+  deleteLesson(moduleId: string, id: string): void { this.courseUc.deleteLesson(id); this._selectedItem.set({ type: 'module', moduleId }); }
+  updateBlock(lessonId: string, blockId: string, f: { title: string; description?: string; isRequired?: boolean }): void { this.courseUc.updateBlock(lessonId, blockId, f); }
+  deleteBlock(lessonId: string, blockId: string): void { this.courseUc.deleteBlock(lessonId, blockId); }
+
   trackById(_: number, item: { id: string }): string { return item.id; }
 }

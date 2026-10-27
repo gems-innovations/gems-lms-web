@@ -1,15 +1,19 @@
-import { Component, inject, output, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, output, signal, computed, effect, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ImageUploadComponent } from 'shared';
+import { ConfirmationDialogComponent, ImageUploadComponent } from 'shared';
 import { CourseEditorUseCase } from '../../../../application/course-editor.usecase';
 import { ContentBlockModal } from '../content-block-modal/content-block-modal';
 import { CoursePlayerPreview } from '../course-player-preview/course-player-preview';
 import { ICreateContentBlockRequest, IContentBlock } from '../../../../domain/model/course.model';
 
+type TKind = 'module' | 'lesson' | 'block';
+interface IEdicion { kind: TKind; id: string; blockId?: string; title: string; description: string; isRequired: boolean; }
+interface IBorrado { kind: TKind; id: string; blockId?: string; title: string; message: string; }
+
 @Component({
   selector: 'edu-course-editor-panel',
   standalone: true,
-  imports: [CommonModule, ContentBlockModal, CoursePlayerPreview, ImageUploadComponent],
+  imports: [CommonModule, ContentBlockModal, CoursePlayerPreview, ImageUploadComponent, ConfirmationDialogComponent],
   templateUrl: './course-editor-panel.html',
   styleUrl: './course-editor-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,6 +31,50 @@ export class CourseEditorPanel {
   protected openBlockModal(lessonId: string): void { this.blockModalLessonId.set(lessonId); this.showBlockModal.set(true); }
   protected closeBlockModal(): void { this.showBlockModal.set(false); this.blockModalLessonId.set(null); }
   protected saveBlock(req: ICreateContentBlockRequest): void { this.uc.saveBlock(req); this.closeBlockModal(); }
+
+  protected readonly editing       = signal<IEdicion | null>(null);
+  protected readonly pendingDelete = signal<IBorrado | null>(null);
+
+  constructor() {
+    effect(() => { this.uc.selectedItem(); untracked(() => this.editing.set(null)); });
+  }
+
+  protected startEdit(kind: TKind, id: string, block?: IContentBlock): void {
+    const mod = this.uc.selectedModule(); const lesson = this.uc.selectedLesson();
+    const src = kind === 'module' ? mod : kind === 'lesson' ? lesson : block;
+    if (!src) return;
+    this.editing.set({ kind, id, blockId: block?.id, title: src.title, description: src.description ?? '', isRequired: block?.isRequired ?? true });
+  }
+
+  protected setEdit<K extends 'title' | 'description' | 'isRequired'>(key: K, value: IEdicion[K]): void {
+    this.editing.update(e => (e ? { ...e, [key]: value } : e));
+  }
+
+  protected saveEdit(): void {
+    const e = this.editing();
+    if (!e || !e.title.trim()) return;
+    const f = { title: e.title.trim(), description: e.description.trim() || undefined };
+    if (e.kind === 'module') this.uc.updateModule(e.id, f);
+    else if (e.kind === 'lesson') this.uc.updateLesson(e.id, f);
+    else if (e.blockId) this.uc.updateBlock(e.id, e.blockId, { ...f, isRequired: e.isRequired });
+    this.editing.set(null);
+  }
+
+  protected askDelete(kind: TKind, id: string, block?: IContentBlock): void {
+    const nombre = kind === 'module' ? this.uc.selectedModule()?.title : kind === 'lesson' ? this.uc.selectedLesson()?.title : block?.title;
+    const que = kind === 'module' ? 'el módulo' : kind === 'lesson' ? 'la lección' : 'el contenido';
+    const mas = kind === 'module' ? ' con todas sus lecciones' : kind === 'lesson' ? ' con todo su contenido' : '';
+    this.pendingDelete.set({ kind, id, blockId: block?.id, title: '¿Eliminar?', message: `Se eliminará ${que} «${nombre ?? ''}»${mas}. Esta acción no se puede deshacer.` });
+  }
+
+  protected confirmDelete(): void {
+    const p = this.pendingDelete();
+    this.pendingDelete.set(null);
+    if (!p) return;
+    if (p.kind === 'module') this.uc.deleteModule(p.id);
+    else if (p.kind === 'lesson') this.uc.deleteLesson(this.uc.selectedItem().moduleId ?? '', p.id);
+    else if (p.blockId) this.uc.deleteBlock(p.id, p.blockId);
+  }
 
   protected openPreview(block: IContentBlock): void { this.previewBlock.set(block); }
   protected closePreview(): void { this.previewBlock.set(null); }
