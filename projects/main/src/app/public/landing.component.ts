@@ -24,12 +24,11 @@ import { CORREO_CONTACTO } from './contacto';
 
 /**
  * Destinos que se miden desde la portada (`cursos` = abre o empieza un curso; `cursos-ancla` = baja a la lista) (`portada/opcion/<destino>`, producto/retencion/plan-retencion.md).
- * `instituciones-<heroe|franja|muestra>` = de dónde baja la gente a la sección institucional; `camino/<paso>` = el paso
- * elegido en «De un Tap a un curso» (producto/portada/backlog-auditoria-ux-2026-10-26.md).
+ * `instituciones-<heroe|franja|muestra>` = de dónde baja la gente a la sección institucional.
+ * (producto/portada/backlog-auditoria-ux-2026-10-26.md).
  */
 type TPortadaDestino = 'taps' | `temas/${string}` | 'retos' | 'bloques' | 'cursos' | 'cursos-ancla' | 'instituciones'
-  | 'instituciones-heroe' | 'instituciones-franja' | 'instituciones-muestra' | `camino/${'jugar' | 'cursos' | 'instituciones'}`
-  | `cierre/${'jugar' | 'instituciones'}` | 'entrar' | 'crear';
+  | 'instituciones-heroe' | 'instituciones-franja' | 'instituciones-muestra' | 'entrar' | 'crear';
 
 /**
  * Portada de GEMS LMS con la filosofía de Taps (variante B de producto/retencion/plan-retencion.md): se juega desde el
@@ -82,6 +81,10 @@ export class LandingComponent {
   });
   protected readonly visibleCourses = computed(() =>
     this.category() === 'todos' ? this.courses() : this.courses().filter(c => categoryOf(c) === this.category()));
+  /** Tres cursos a la vista; el resto, tras «Ver los N cursos» (la página no es un catálogo). */
+  protected readonly verTodos = signal(false);
+  protected readonly shownCourses = computed(() => this.verTodos() ? this.visibleCourses() : this.visibleCourses().slice(0, 3));
+  protected readonly hayMas = computed(() => !this.verTodos() && this.visibleCourses().length > 3);
   /** Curso a la vista en la fila deslizable del celular (indicador «Curso N de M»). */
   protected readonly cursoActual = signal(0);
 
@@ -95,7 +98,7 @@ export class LandingComponent {
     const g = e.target as HTMLElement; const card = g.firstElementChild as HTMLElement | null;
     if (!card) return;
     const paso = card.offsetWidth + 14;
-    this.cursoActual.set(Math.min(this.visibleCourses().length - 1, Math.round(g.scrollLeft / paso)));
+    this.cursoActual.set(Math.min(this.shownCourses().length - 1, Math.round(g.scrollLeft / paso)));
   }
 
   constructor() {

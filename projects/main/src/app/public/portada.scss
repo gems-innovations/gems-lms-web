@@ -32,19 +32,6 @@
 // Debajo de 960 px la franja de dos caminos ya ofrece «Para instituciones» justo encima: no se repite.
 @media (max-width: 959px) { .juego__inst { display: none; } }
 
-// ── De un Tap a un curso ─────────────────────────────────────────────────────
-.camino { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none;
-  li { position: relative; display: grid; gap: 6px; align-content: start; padding: 20px; border-radius: 18px;
-    background: var(--color-superficie); border: 1px solid var(--color-borde-principal); }
-  strong { font: 700 var(--texto-titulo-3)/1.25 var(--font-titulo); }
-  span { color: var(--color-texto-secundario); font-size: var(--font-size-sm); }
-  a { display: inline-flex; align-items: center; min-height: 44px; margin-top: 4px; font-weight: 700; color: var(--color-texto-acento); text-decoration: none;
-    &:hover { text-decoration: underline; } &:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; } }
-  .camino__n { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; margin-bottom: 4px;
-    font: 800 16px/1 var(--font-titulo); color: var(--color-texto-principal);
-    background: color-mix(in srgb, var(--c) 22%, transparent); border: 2px solid var(--c); }
-}
-
 .juego__copia {
   padding-block: 28px 8px;
   h1 { margin: 10px 0 12px; font: 800 var(--texto-titulo-1)/var(--interlineado-titulo) var(--font-titulo); letter-spacing: var(--tracking-titulo); text-wrap: balance; }
@@ -108,13 +95,13 @@
 .cursos__pos { display: none; }
 
 // ── Celular: la portada más corta (auditoría, 26-oct) ────────────────────────
-// Temas en dos columnas, el camino con el número a un lado y los cursos en una fila que se desliza (la siguiente tarjeta
+// Temas en dos columnas, los cursos en una fila que se desliza (la siguiente tarjeta
 // asoma para invitar a deslizar). En tableta y escritorio no cambia nada.
 @media (max-width: 599px) {
   .temas { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .tema { padding: 14px; strong { font-size: var(--font-size-base); } > .gm-icono { margin-bottom: 4px; } }
-  .camino li { grid-template-columns: 34px minmax(0, 1fr); column-gap: 12px; padding: 16px; }
-  .camino .camino__n { grid-row: span 3; margin: 0; }
+  // Los temas son solo el nombre: la descripción y la frase de arriba sobran en una pantalla de 390 px.
+  #temas .block__head p, .tema > span:not(.gm-icono) { display: none; }
   #cursos div.grid { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
     margin-inline: -20px; padding: 4px 20px 12px; scroll-padding-inline: 20px;
     > .card { flex: 0 0 84%; scroll-snap-align: start; } }
