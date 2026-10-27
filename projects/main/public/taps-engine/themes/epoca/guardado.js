@@ -41,14 +41,16 @@ export function crearAlmacen(storage) {
   };
 }
 
-/** Un estado del diseñador es válido si tiene look sin errores, item string|null y world string. */
+/** Un estado del diseñador es válido si tiene look sin errores, item string|null, world string y hora (PR-D8) string o ausente. */
 function estadoValido(e, validar) {
   if (!e || typeof e !== 'object' || !e.look || typeof e.look !== 'object' || Array.isArray(e.look)) return false;
   if (validar(e.look).length) return false;
   if (e.item !== null && e.item !== undefined && typeof e.item !== 'string') return false;
+  if (e.hora !== undefined && e.hora !== null && typeof e.hora !== 'string') return false;
   return typeof e.world === 'string' && typeof e.base === 'string';
 }
-function copiarEstado(e) { return { base: e.base, look: { ...e.look }, item: e.item ?? null, world: e.world }; }
+/** La hora solo se copia si viene (los guardados de antes no la tienen y el diseñador los abre de día). */
+function copiarEstado(e) { const c = { base: e.base, look: { ...e.look }, item: e.item ?? null, world: e.world }; if (typeof e.hora === 'string' && e.hora) c.hora = e.hora; return c; }
 
 // ───────────────────────── borrador ─────────────────────────
 /**

@@ -91,6 +91,10 @@
 .dsn .tarjeta small { color: var(--soft); font-size: 11px; }
 .dsn .escenas .tarjeta canvas { width: 100%; height: auto; aspect-ratio: 16 / 10; }
 .dsn .escenas { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+/* hora del día (PR-D8): tres chips con icono dibujado sobre las tarjetas de escenario */
+.dsn .horas { display: flex; gap: 8px; margin: 0 0 10px; }
+.dsn .horas .chip { flex: 1; justify-content: center; padding: 0 10px; }
+.dsn .horas .chip svg.ic { width: 18px; height: 18px; }
 
 .dsn .pestanas { display: flex; gap: 6px; margin: 0 0 10px; }
 .dsn .pestanas button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; font-size: 12px; color: var(--soft); border-radius: var(--radio); }

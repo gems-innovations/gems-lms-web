@@ -41,7 +41,10 @@
     "excavacion-egipto": { "sky": ["#7fa3c4", "#f2d4a0"], "ground": "#d5a566", "groundDark": "#7c5230" },
     "foro-roma": {"sky":["#6fa3d0","#cfe3ee"],"ground":"#cfc2a3","groundDark":"#8c7e62"},
     "sala-medieval": {"sky":["#4d4a48","#4d4a48"],"ground":"#4a3a2c","groundDark":"#231a12"},
-    "laboratorio-moderno": {"sky":["#dfe7ee","#c5d2de"],"ground":"#b8c4cf","groundDark":"#7e8c99"}
+    "laboratorio-moderno": {"sky":["#dfe7ee","#c5d2de"],"ground":"#b8c4cf","groundDark":"#7e8c99"},
+    "biblioteca": {"sky":["#2b1f17","#43302a"],"ground":"#3a2a1c","groundDark":"#1c130d"},
+    "observatorio": {"sky":["#5b7fb8","#e2e8ec"],"ground":"#5e8a4e","groundDark":"#2f4a2a"},
+    "aula": {"sky":["#e9e2cc","#d7cdb0"],"ground":"#c9b58a","groundDark":"#8a7a5a"}
   },
 
   "shots": {

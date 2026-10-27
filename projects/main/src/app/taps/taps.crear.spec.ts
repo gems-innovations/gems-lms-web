@@ -136,6 +136,13 @@ describe('armarAdjunto', () => {
     expect(a.json).not.toContain('lema'); expect(a.json).not.toContain('"m"'); expect(a.json).not.toContain('Hoy aprendemos');
     expect(a.adjunto.v).toBe(1);
   });
+  it('la hora del día del borrador (PR-D8) no viaja en el adjunto y un escenario nuevo sí (el API decide si lo acepta)', () => {
+    const a = armarAdjunto(borrador({ hora: 'noche', world: 'biblioteca' }), ID, validar)!;
+    expect(a).not.toBeNull();
+    expect(Object.keys(a.adjunto).sort()).toEqual(['b', 'borradorId', 'i', 'l', 'v', 'w']);
+    expect(a.adjunto.w).toBe('biblioteca');
+    expect(a.json).not.toContain('hora'); expect(a.json).not.toContain('"h"'); expect(a.json).not.toContain('noche');
+  });
   it('sin borrador, con otro id, JSON roto o look inválido → null (el formulario sigue normal)', () => {
     expect(armarAdjunto(null, ID, validar)).toBeNull();
     expect(armarAdjunto(borrador(), null, validar)).toBeNull();
@@ -214,6 +221,10 @@ describe('leerDraft (lo que devuelve el API en /solicitudes)', () => {
     expect(con({ glasses: 'si' })).toBeNull();
     expect(con({ raro: '#000000' })).toBeNull();
     expect(con({ hat: 'copa', vest: null, glasses: true, coat: '#112233' })!.colores).toEqual([{ nombre: 'Prenda', hex: '#112233' }]);
+  });
+  it('los escenarios nuevos (PR-D8) tienen nombre legible en el panel', () => {
+    const r = leerDraft(JSON.stringify({ v: 1, borradorId: ID, b: 'grabador', l: { hat: 'none' }, i: null, w: 'observatorio' }))!;
+    expect(r.escenario).toBe('Observatorio');
   });
   it('etiquetas raras en objeto o escenario no se enseñan tal cual: caen al genérico', () => {
     const r = leerDraft(JSON.stringify({ v: 1, borradorId: ID, b: 'grabador', l: { hat: 'copa' }, i: 'x y', w: 'w<1>' }))!;

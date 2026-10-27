@@ -18,6 +18,19 @@ export const FRASES = Object.freeze({
   sugerencia: ['Buena idea.', 'Así va mejor.', 'Me leíste la mente.', 'Eso le faltaba.', 'Ahora cuadra.', 'Buen ojo.'],
   guardar: ['¡Guardado!', 'Aquí me quedo.', 'Ya no me pierdo.', 'Me acordaré de ti.', 'Listo para volver.', 'Un lugar para mí.'],
   cargar: ['¡Aquí estoy otra vez!', 'Me acordaba de ti.', 'Volví.', 'Seguimos donde íbamos.', 'Te estaba esperando.', 'Qué bueno verte.'],
+  hora: ['Otra luz, otro ánimo.', 'Cambia la hora, no yo.', 'Así se ve distinto.', 'Me gusta esta luz.', 'El día sigue su curso.', 'Buena hora para esto.'],
+});
+
+/** Dos frases de ambiente por escenario (PR-D8, §5): se mezclan con las de `world` al entrar en ese lugar. */
+export const POR_MUNDO = Object.freeze({
+  'taller-londres': ['Huele a tinta fresca.', 'Afuera llueve; aquí se trabaja.'],
+  'excavacion-egipto': ['La arena guarda secretos.', 'Qué sol, pero qué vista.'],
+  'foro-roma': ['Aquí se decide todo.', 'Mármol y voces por todas partes.'],
+  'sala-medieval': ['Las antorchas crujen.', 'Piedra fría, fuego cerca.'],
+  'laboratorio-moderno': ['Todo limpio, todo en orden.', 'Hoy medimos algo nuevo.'],
+  biblioteca: ['Silencio: aquí se piensa.', 'Tantos libros y tan poco tiempo.'],
+  observatorio: ['Desde aquí se ve el cielo entero.', 'Esperando a que oscurezca.'],
+  aula: ['Huele a tiza.', 'Todos a sus pupitres.'],
 });
 
 /** Una o dos frases en la voz de cada punto de partida (se mezclan con las generales del mismo tipo). */
@@ -37,14 +50,15 @@ export const MEMORIA = 3;
 export const PESO_BASE = 0.4;
 
 /**
- * Crea el elector de frases. `frase(tipo, base)` devuelve una frase del tipo (si no existe el tipo, una de `color`), evitando
- * las tres últimas dichas en cualquier tipo. `saludo(nombre)` es la presentación de un punto de partida.
+ * Crea el elector de frases. `frase(tipo, base, mundo)` devuelve una frase del tipo (si no existe el tipo, una de `color`), evitando
+ * las tres últimas dichas en cualquier tipo; con `tipo = 'world'` y un `mundo` conocido, las dos del lugar cuentan como propias.
+ * `saludo(nombre)` es la presentación de un punto de partida.
  */
 export function crearFrases({ aleatorio = Math.random } = {}) {
   const dichas = [];
   const elegir = lista => lista[Math.min(lista.length - 1, Math.floor(aleatorio() * lista.length))];
-  function frase(tipo, base) {
-    const generales = FRASES[tipo] ?? FRASES.color, propias = POR_BASE[base]?.[tipo] ?? [];
+  function frase(tipo, base, mundo) {
+    const generales = FRASES[tipo] ?? FRASES.color, propias = [...(POR_BASE[base]?.[tipo] ?? []), ...(tipo === 'world' ? POR_MUNDO[mundo] ?? [] : [])];
     const sinRepetir = l => l.filter(f => !dichas.includes(f));
     let candidatas = propias.length && aleatorio() < PESO_BASE ? sinRepetir(propias) : [];
     if (!candidatas.length) candidatas = sinRepetir([...generales, ...propias]);

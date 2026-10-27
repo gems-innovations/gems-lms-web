@@ -30,7 +30,7 @@ export const DURACION_AMBIENTE = 1.2;
 /** Pico máximo de las muestras (−6 dBFS). */
 export const PICO = 0.5;
 /** Mundos con ambiente propio (themes/epoca/scenery.js); otro mundo suena como el primero. */
-export const MUNDOS_AMBIENTE = Object.freeze(['excavacion-egipto', 'foro-roma', 'taller-londres', 'laboratorio-moderno', 'sala-medieval']);
+export const MUNDOS_AMBIENTE = Object.freeze(['excavacion-egipto', 'foro-roma', 'taller-londres', 'laboratorio-moderno', 'sala-medieval', 'biblioteca', 'observatorio', 'aula']);
 
 const TEMA_PALETA = { minecraft: 'bloque', estudio: 'suave', epoca: 'epoca' };
 /** Paleta de un tema del motor; los temas que no la declaran suenan «suave» (lo más neutro). */
@@ -211,6 +211,19 @@ const AMBIENTES = {
   'sala-medieval': (b, sr) => {                                            // fuego: rumor grave y chasquidos
     sumarRuido(b, sr, { dur: 1.2, f0: 150, f1: 380, vol: 0.45, q: 0.8, semilla: 51 });
     [0.2, 0.48, 0.81].forEach((t, k) => sumarRuido(b, sr, { t, dur: 0.02, f0: 2800 + 300 * k, vol: 0.5, q: 2, semilla: 55 + k, forma: 'golpe' }));
+  },
+  // PR-D8: los tres escenarios nuevos
+  biblioteca: (b, sr) => {                                                 // dos hojas que pasan y el silencio grave de la sala
+    [0.1, 0.62].forEach((t, k) => sumarRuido(b, sr, { t, dur: 0.16, f0: 2600 - 400 * k, f1: 1400, vol: 0.34, q: 1.1, semilla: 71 + k }));
+    sumarRuido(b, sr, { dur: 1.2, f0: 110, f1: 95, vol: 0.1, q: 1.4, semilla: 73 });
+  },
+  observatorio: (b, sr) => {                                               // brisa alta de colina y dos grillos lejanos
+    sumarRuido(b, sr, { dur: 1.2, f0: 700, f1: 1100, vol: 0.3, q: 0.9, semilla: 81 });
+    [0.3, 0.42, 0.85, 0.97].forEach((t, k) => sumarNota(b, sr, { t, dur: 0.05, f0: 4200 + (k % 2) * 300, vol: 0.12, ataque: 0.004, caida: 9 }));
+  },
+  aula: (b, sr) => {                                                       // tiza en la pizarra y murmullo de un grupo
+    [0.08, 0.2, 0.3, 0.55, 0.68].forEach((t, k) => sumarRuido(b, sr, { t, dur: 0.035, f0: 3200 + 200 * (k % 3), vol: 0.4, q: 2.4, semilla: 91 + k, forma: 'golpe' }));
+    sumarRuido(b, sr, { dur: 1.2, f0: 300, f1: 420, vol: 0.3, q: 1.8, semilla: 97 });
   },
 };
 /** Semitonos de Do5 a Sol5 según el índice de la pieza dentro de su grupo (cada pieza suena distinta). */

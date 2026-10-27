@@ -54,12 +54,16 @@ export const nombreColor = hex => NOMBRES_COLOR[String(hex).toLowerCase()] ?? 'C
 export const MUNDOS = Object.freeze({
   'taller-londres': ['Taller de Londres', '1803'], 'excavacion-egipto': ['Excavación en Egipto', 'Valle de los Reyes'], 'foro-roma': ['Foro de Roma', 'Antigüedad'],
   'sala-medieval': ['Sala medieval', 'Castillo'], 'laboratorio-moderno': ['Laboratorio moderno', 'Hoy'],
+  biblioteca: ['Biblioteca', 'Entre libros'], observatorio: ['Observatorio', 'En la colina'], aula: ['Aula', 'Tu clase'],
 });
+/** Hora del día (PR-D8): nombre para personas de cada valor de scenery.js HORAS. */
+export const HORAS_NOMBRE = Object.freeze({ dia: 'Día', atardecer: 'Atardecer', noche: 'Noche' });
 const CON_ARTICULO = {
   levita: 'la levita', safari: 'el traje safari', bata: 'la bata', toga: 'la toga', tunica: 'la túnica', medieval: 'la túnica medieval', traje: 'el traje',
   copa: 'el sombrero de copa', bicornio: 'el bicornio', laurel: 'el laurel', gorra: 'la gorra', boina: 'la boina', hatSafari: 'el sombrero safari',
   pluma: 'la pluma', cepillo: 'el cepillo', pergamino: 'el pergamino', libro: 'el libro', lupa: 'la lupa', matraz: 'el matraz', antorcha: 'la antorcha', mapa: 'el mapa',
   'taller-londres': 'el Taller de Londres', 'excavacion-egipto': 'Egipto', 'foro-roma': 'el Foro de Roma', 'sala-medieval': 'la sala medieval', 'laboratorio-moderno': 'el laboratorio',
+  biblioteca: 'la biblioteca', observatorio: 'el observatorio', aula: 'el aula',
 };
 const art = k => CON_ARTICULO[k] ?? k;
 const Art = k => { const t = art(k); return t[0].toUpperCase() + t.slice(1); };
@@ -70,7 +74,7 @@ const Art = k => { const t = art(k); return t[0].toUpperCase() + t.slice(1); };
  */
 export const AFINIDAD = Object.freeze({
   levita: {
-    sombreros: ['none', 'copa', 'bicornio', 'gorra'], manga: ['larga'], objetos: ['pluma', 'libro', 'mapa', 'pergamino'], mundos: ['taller-londres', 'sala-medieval'], gafas: 0.25,
+    sombreros: ['none', 'copa', 'bicornio', 'gorra'], manga: ['larga'], objetos: ['pluma', 'libro', 'mapa', 'pergamino'], mundos: ['taller-londres', 'sala-medieval', 'biblioteca'], gafas: 0.25,
     conjuntos: [
       { coat: '#34364c', shirt: '#e8e1cf', vest: '#7a5c3a', trousers: '#2c2c36', shoes: '#15151a', accent: '#c8a24a', hatColor: '#15151a' },
       { coat: '#1d1d27', shirt: '#f4f7fa', vest: '#7a2a2a', trousers: '#2c2c36', shoes: '#1d1d22', accent: '#c8453f', hatColor: '#1d1d22' },
@@ -88,7 +92,7 @@ export const AFINIDAD = Object.freeze({
     ],
   },
   bata: {
-    sombreros: ['none'], manga: ['larga'], objetos: ['lupa', 'matraz', 'libro'], mundos: ['laboratorio-moderno'], gafas: 0.5,
+    sombreros: ['none'], manga: ['larga'], objetos: ['lupa', 'matraz', 'libro'], mundos: ['laboratorio-moderno', 'aula'], gafas: 0.5,
     conjuntos: [
       { coat: '#f4f7fa', shirt: '#3a74c4', vest: null, trousers: '#2c3a4c', shoes: '#1d1d22', accent: '#3a74c4', hatColor: '#2c3a4c' },
       { coat: '#e9eef2', shirt: '#c8453f', vest: null, trousers: '#2c2c36', shoes: '#15151a', accent: '#c8453f', hatColor: '#15151a' },
@@ -124,7 +128,7 @@ export const AFINIDAD = Object.freeze({
     ],
   },
   traje: {
-    sombreros: ['none', 'gorra', 'boina'], manga: ['larga'], objetos: ['libro', 'lupa', 'pluma'], mundos: ['laboratorio-moderno', 'taller-londres'], gafas: 0.35,
+    sombreros: ['none', 'gorra', 'boina'], manga: ['larga'], objetos: ['libro', 'lupa', 'pluma'], mundos: ['laboratorio-moderno', 'taller-londres', 'observatorio'], gafas: 0.35,
     conjuntos: [
       { coat: '#2c3a4c', shirt: '#f4f7fa', vest: null, trousers: '#2c3a4c', shoes: '#15151a', accent: '#c8453f', hatColor: '#2c3a4c' },
       { coat: '#1c2733', shirt: '#e8e1cf', vest: null, trousers: '#1c2733', shoes: '#1d1d22', accent: '#c8a24a', hatColor: '#1c2733' },
@@ -138,6 +142,7 @@ export const AFINIDAD = Object.freeze({
 export const MUNDO_OBJETOS = Object.freeze({
   'taller-londres': ['pluma', 'libro', 'mapa', 'lupa'], 'excavacion-egipto': ['cepillo', 'mapa', 'antorcha', 'pergamino'], 'foro-roma': ['pergamino', 'libro'],
   'sala-medieval': ['antorcha', 'pergamino', 'mapa'], 'laboratorio-moderno': ['lupa', 'matraz', 'libro'],
+  biblioteca: ['libro', 'pluma', 'lupa', 'pergamino'], observatorio: ['mapa', 'lupa', 'libro'], aula: ['libro', 'pluma', 'mapa', 'matraz'],
 });
 /** Color por defecto de cada sombrero cuando se sugiere. */
 const COLOR_SOMBRERO = { copa: '#15151a', safari: '#a38b57', bicornio: '#15151a', laurel: '#4f7a3a', gorra: '#2c3a4c', boina: '#7a2a2a' };

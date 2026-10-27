@@ -40,7 +40,7 @@ test('disenador.js (PR-D4): reacciones y frases vienen de sus módulos; la cáma
   assert.match(codigo, /from '\.\/themes\/epoca\/reacciones\.js'/); assert.match(codigo, /from '\.\/themes\/epoca\/frases\.js'/);
   assert.doesNotMatch(cuerpo, /const FRASES = \{/, 'las frases ya no viven en disenador.js');
   assert.match(cuerpo, /const propia = reaccionDe\(tipo, detalle\);/);
-  assert.match(cuerpo, /decir\(frases\.frase\(tipoFrase, estado\.base\)\)/);
+  assert.match(cuerpo, /decir\(frases\.frase\(tipoFrase, estado\.base, estado\.world\)\)/);   // PR-D8: la frase también conoce el lugar
   assert.match(cuerpo, /camaraT = reducido \|\| !camaraOrigen \? 1 : 0;/, 'con movimiento reducido el corte es directo');
   assert.match(cuerpo, /ctx\.scale\(camara\.zoom, camara\.zoom\); ctx\.translate\(-camara\.fx, -camara\.fy\);/);
   assert.match(cuerpo, /QUIETA\[nombre\] \?\? QUIETA_REACCION\[nombre\] \?\? 'still'/);

@@ -187,20 +187,190 @@ function laboratorioModerno(c, w, h, side) {
   vignette(c, w, h, 0.28); grain(c, w, h, 61, 0.03);
 }
 
-const WORLDS = { 'taller-londres': londres, 'excavacion-egipto': egipto, 'foro-roma': roma, 'sala-medieval': medieval, 'laboratorio-moderno': laboratorioModerno };
-export const WORLD_NAMES = Object.freeze(Object.keys(WORLDS));
+// ───────────────────────── Biblioteca: estanterías hasta el techo ─────────────────────────
+function estanteria(c, x, y, w, h, seed) {
+  const r = rng(seed);
+  c.fillStyle = '#3a2618'; c.fillRect(x, y, w, h);
+  const filas = Math.max(2, Math.round(h / 34));
+  for (let f = 0; f < filas; f++) {
+    const fy = y + f * (h / filas), fh = h / filas;
+    c.fillStyle = '#2a1a10'; c.fillRect(x, fy + fh - 4, w, 4);                                   // tabla del estante
+    let bx = x + 3;
+    while (bx < x + w - 6) {                                                                     // lomos de libros, cada uno distinto
+      const bw = 5 + r() * 7, bh = fh * (0.62 + r() * 0.3), tono = ['#7a3b2e', '#4a5a7a', '#8a6a2a', '#3e6a4a', '#6a3a5a', '#b89a6a'][(r() * 6) | 0];
+      c.fillStyle = tono; c.fillRect(bx, fy + fh - 4 - bh, bw, bh);
+      c.fillStyle = 'rgba(255,230,180,.35)'; c.fillRect(bx + bw * 0.3, fy + fh - 4 - bh * 0.75, Math.max(1, bw * 0.3), 1.5);
+      bx += bw + 1.2;
+    }
+  }
+  c.fillStyle = '#2a1a10'; c.fillRect(x - 3, y - 6, w + 6, 6);
+}
+function lampara(c, x, y) {                                 // lámpara de lectura con pantalla verde
+  c.fillStyle = '#b89a6a'; c.fillRect(x - 2, y, 4, 34); c.fillRect(x - 12, y + 34, 24, 4);
+  c.fillStyle = '#2f6a4a'; c.beginPath(); c.moveTo(x - 22, y + 2); c.lineTo(x + 22, y + 2); c.lineTo(x + 14, y - 12); c.lineTo(x - 14, y - 12); c.closePath(); c.fill();
+  c.fillStyle = 'rgba(255,230,160,.9)'; c.fillRect(x - 18, y + 1, 36, 2.5);
+  glow(c, x, y + 10, 120, 'rgba(255,220,140,A)', 0.34);
+}
+function biblioteca(c, w, h, side) {
+  const gy = h * GROUND_Y;
+  c.fillStyle = lin(c, 0, 0, 0, gy, [[0, '#2b1f17'], [1, '#43302a']]); c.fillRect(0, 0, w, gy);
+  estanteria(c, -4, gy * 0.04, w * 0.44, gy * 0.92, 71);
+  estanteria(c, w * 0.6, gy * 0.04, w * 0.44, gy * 0.92, 72);
+  // ventana alta entre las estanterías: luz lechosa que cae en diagonal sobre el piso
+  const vx = w * 0.46, vw = w * 0.1;
+  c.fillStyle = '#1d140e'; c.fillRect(vx - 4, gy * 0.08, vw + 8, gy * 0.42);
+  c.fillStyle = lin(c, 0, gy * 0.08, 0, gy * 0.5, [[0, '#cfd9df'], [1, '#e7d9b8']]); c.fillRect(vx, gy * 0.1, vw, gy * 0.38);
+  c.strokeStyle = '#1d140e'; c.lineWidth = 3; c.beginPath(); c.moveTo(vx + vw / 2, gy * 0.1); c.lineTo(vx + vw / 2, gy * 0.48); c.moveTo(vx, gy * 0.29); c.lineTo(vx + vw, gy * 0.29); c.stroke();
+  c.fillStyle = 'rgba(255,240,210,.09)'; c.beginPath(); c.moveTo(vx, gy * 0.48); c.lineTo(vx + vw, gy * 0.48); c.lineTo(vx + vw * 2.6, h); c.lineTo(vx - vw * 1.6, h); c.closePath(); c.fill();
+  // escalera de biblioteca apoyada del lado del decorado
+  const ex = side > 0 ? w * 0.7 : w * 0.22; c.strokeStyle = '#8a6a3a'; c.lineWidth = 4; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(ex, gy + 6); c.lineTo(ex + w * 0.05, gy * 0.12); c.moveTo(ex + w * 0.06, gy + 6); c.lineTo(ex + w * 0.11, gy * 0.12); c.stroke();
+  c.lineWidth = 3; for (let i = 1; i < 8; i++) { const t = i / 8; c.beginPath(); c.moveTo(ex + w * 0.05 * t, gy + 6 - (gy + 6 - gy * 0.12) * t); c.lineTo(ex + w * 0.06 + w * 0.05 * t, gy + 6 - (gy + 6 - gy * 0.12) * t); c.stroke(); }
+  // piso de tablones oscuros con una alfombra
+  c.fillStyle = lin(c, 0, gy, 0, h, [[0, '#3a2a1c'], [1, '#1c130d']]); c.fillRect(0, gy, w, h - gy);
+  const r = rng(73); c.fillStyle = 'rgba(0,0,0,.3)'; for (let y = gy + 2, i = 0; y < h; y += 15 + i * 1.5, i++) { c.fillRect(0, y, w, 2); for (let x = -((i * 61) % 80); x < w; x += 80 + r() * 50) c.fillRect(x, y, 2, 15 + i * 1.5); }
+  c.fillStyle = '#6a2e2e'; c.beginPath(); c.moveTo(w * 0.22, gy + 14); c.lineTo(w * 0.78, gy + 14); c.lineTo(w * 0.96, h); c.lineTo(w * 0.04, h); c.closePath(); c.fill();
+  c.fillStyle = 'rgba(200,160,80,.5)'; c.beginPath(); c.moveTo(w * 0.26, gy + 22); c.lineTo(w * 0.74, gy + 22); c.lineTo(w * 0.9, h - 6); c.lineTo(w * 0.1, h - 6); c.closePath(); c.fill();
+  c.fillStyle = '#6a2e2e'; c.beginPath(); c.moveTo(w * 0.3, gy + 30); c.lineTo(w * 0.7, gy + 30); c.lineTo(w * 0.84, h - 12); c.lineTo(w * 0.16, h - 12); c.closePath(); c.fill();
+  // mesita con lámpara del lado del decorado
+  const mx = side > 0 ? w * 0.82 : w * 0.18;
+  c.fillStyle = '#3a2618'; c.fillRect(mx - w * 0.08, gy + 18, w * 0.16, 6); c.fillRect(mx - w * 0.06, gy + 24, 5, 40); c.fillRect(mx + w * 0.06 - 5, gy + 24, 5, 40);
+  lampara(c, mx, gy - 20);
+  glow(c, w * 0.5, gy * 0.4, w * 0.6, 'rgba(255,220,160,A)', 0.06);
+  vignette(c, w, h, 0.52); grain(c, w, h, 75, 0.045);
+}
 
-/** Pinta un mundo en el lienzo `c` (w × h). Los argumentos extra (props, hora) se reservan para mundos con variantes. */
-export function paintWorld(c, w, h, world, _sceneColors = {}, _props = null, side = 1, _hora = null) {
+// ───────────────────────── Observatorio: cúpula en la colina ─────────────────────────
+function cupula(c, x, base, rw, k) {
+  c.fillStyle = '#d9dde3'; c.fillRect(x - rw, base - rw * 1.1, rw * 2, rw * 1.1);                 // torre
+  c.fillStyle = 'rgba(0,0,0,.12)'; c.fillRect(x + rw * 0.35, base - rw * 1.1, rw * 0.65, rw * 1.1);
+  c.fillStyle = '#b8c2cc'; c.beginPath(); c.arc(x, base - rw * 1.1, rw * 1.08, Math.PI, 0); c.closePath(); c.fill();   // cúpula
+  c.fillStyle = '#3a4656'; c.beginPath(); c.moveTo(x - rw * 0.14, base - rw * 1.1); c.lineTo(x - rw * 0.14, base - rw * 2.1); c.quadraticCurveTo(x, base - rw * 2.2, x + rw * 0.14, base - rw * 2.1); c.lineTo(x + rw * 0.14, base - rw * 1.1); c.closePath(); c.fill();   // ranura abierta
+  c.strokeStyle = '#4a5a6a'; c.lineWidth = 3 * k; c.lineCap = 'round'; c.beginPath(); c.moveTo(x - rw * 0.02, base - rw * 1.3); c.lineTo(x + rw * 0.18, base - rw * 2.0); c.stroke();  // telescopio asomando
+  c.fillStyle = '#5a4a3a'; c.fillRect(x - rw * 0.22, base - rw * 0.5, rw * 0.44, rw * 0.5);                  // puerta
+  c.strokeStyle = 'rgba(60,70,90,.35)'; c.lineWidth = 1; for (let i = 1; i < 4; i++) { c.beginPath(); c.moveTo(x - rw, base - rw * 1.1 * i / 4); c.lineTo(x + rw, base - rw * 1.1 * i / 4); c.stroke(); }
+}
+function observatorio(c, w, h, side) {
+  const gy = h * GROUND_Y, k = w / 420;
+  c.fillStyle = lin(c, 0, 0, 0, gy, [[0, '#5b7fb8'], [0.6, '#a9c4de'], [1, '#e2e8ec']]); c.fillRect(0, 0, w, gy);
+  const r = rng(81); c.fillStyle = 'rgba(255,255,255,.55)';                                                       // nubes finas
+  for (let i = 0; i < 5; i++) { const cx = r() * w, cy = gy * (0.1 + r() * 0.35), cw = w * (0.12 + r() * 0.16); c.beginPath(); c.ellipse(cx, cy, cw, cw * 0.18, 0, 0, Math.PI * 2); c.fill(); }
+  // colinas lejanas y la cúpula del lado del decorado
+  c.fillStyle = '#6a8a6a'; c.beginPath(); c.moveTo(0, gy); for (let x = 0; x <= w; x += 8) c.lineTo(x, gy - 30 * k - 22 * k * Math.sin(x * 0.012 + 1.2)); c.lineTo(w, gy); c.closePath(); c.fill();
+  cupula(c, side > 0 ? w * 0.74 : w * 0.26, gy - 24 * k, w * 0.13, k);
+  c.fillStyle = '#4f7a4f'; c.beginPath(); c.moveTo(0, gy); for (let x = 0; x <= w; x += 8) c.lineTo(x, gy - 10 * k - 8 * k * Math.sin(x * 0.03)); c.lineTo(w, gy); c.closePath(); c.fill();
+  // pradera con sendero de piedra y un telescopio pequeño en trípode del lado libre
+  c.fillStyle = lin(c, 0, gy, 0, h, [[0, '#5e8a4e'], [1, '#2f4a2a']]); c.fillRect(0, gy, w, h - gy);
+  for (let i = 0; i < 180; i++) { c.fillStyle = `rgba(${r() < 0.5 ? '200,230,150' : '30,60,30'},${0.08 + r() * 0.1})`; c.fillRect(r() * w, gy + r() * (h - gy), 2, 4 + r() * 5); }
+  c.fillStyle = '#9a9a8a'; for (let i = 0; i < 7; i++) { const t = i / 7, y = gy + 8 + (h - gy - 16) * t * t, pw = w * (0.08 + 0.2 * t); c.beginPath(); c.ellipse(w / 2 + (side > 0 ? -1 : 1) * w * 0.12 * t, y, pw / 2, 4 + 8 * t, 0, 0, Math.PI * 2); c.fill(); }
+  const tx = side > 0 ? w * 0.84 : w * 0.16;
+  c.strokeStyle = '#3a3a44'; c.lineWidth = 3 * k; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(tx, gy + 20 * k); c.lineTo(tx - 16 * k, gy + 70 * k); c.moveTo(tx, gy + 20 * k); c.lineTo(tx + 16 * k, gy + 70 * k); c.moveTo(tx, gy + 20 * k); c.lineTo(tx + 2 * k, gy + 66 * k); c.stroke();
+  c.strokeStyle = '#8a7a5a'; c.lineWidth = 7 * k; c.beginPath(); c.moveTo(tx - 10 * k, gy + 26 * k); c.lineTo(tx + 20 * k, gy - 14 * k); c.stroke();
+  glow(c, side > 0 ? w * 0.2 : w * 0.8, gy * 0.18, w * 0.5, 'rgba(255,250,230,A)', 0.4);
+  vignette(c, w, h, 0.36); grain(c, w, h, 83, 0.035);
+}
+
+// ───────────────────────── Aula: pizarra y pupitres ─────────────────────────
+function pupitre(c, x, base, k) {
+  c.fillStyle = '#5a3a22'; c.fillRect(x - 26 * k, base - 36 * k, 52 * k, 6 * k);
+  c.fillStyle = '#7a5232'; c.fillRect(x - 24 * k, base - 38 * k, 48 * k, 4 * k);
+  c.fillStyle = '#3a3a44'; c.fillRect(x - 22 * k, base - 30 * k, 3 * k, 30 * k); c.fillRect(x + 19 * k, base - 30 * k, 3 * k, 30 * k);
+  c.fillStyle = '#e8e2d2'; c.fillRect(x - 12 * k, base - 41 * k, 18 * k, 4 * k);                                  // cuaderno
+}
+function aula(c, w, h, side) {
+  const gy = h * GROUND_Y, k = w / 420;
+  c.fillStyle = lin(c, 0, 0, 0, gy, [[0, '#e9e2cc'], [1, '#d7cdb0']]); c.fillRect(0, 0, w, gy);
+  c.fillStyle = '#7a8a6a'; c.fillRect(0, gy * 0.72, w, gy * 0.28); c.fillStyle = '#5a6a4a'; c.fillRect(0, gy * 0.72, w, 4);         // media pared verde
+  // pizarra del lado del decorado, con tiza
+  const px = side > 0 ? w * 0.08 : w * 0.5, pw = w * 0.42, py = gy * 0.14, ph = gy * 0.46;
+  c.fillStyle = '#5a3a22'; c.fillRect(px - 6, py - 6, pw + 12, ph + 12);
+  c.fillStyle = '#2f4a3e'; c.fillRect(px, py, pw, ph);
+  c.fillStyle = 'rgba(255,255,255,.08)'; c.fillRect(px + pw * 0.1, py, pw * 0.2, ph);
+  c.strokeStyle = 'rgba(240,240,230,.85)'; c.lineWidth = 1.6; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(px + pw * 0.1, py + ph * 0.3); c.lineTo(px + pw * 0.55, py + ph * 0.3); c.moveTo(px + pw * 0.1, py + ph * 0.5); c.lineTo(px + pw * 0.8, py + ph * 0.5); c.moveTo(px + pw * 0.1, py + ph * 0.7); c.lineTo(px + pw * 0.4, py + ph * 0.7); c.stroke();
+  c.beginPath(); c.arc(px + pw * 0.75, py + ph * 0.28, ph * 0.1, 0, Math.PI * 2); c.stroke();
+  c.fillStyle = '#5a3a22'; c.fillRect(px, py + ph + 6, pw, 5); c.fillStyle = '#f4f0e6'; c.fillRect(px + pw * 0.2, py + ph + 3, 10, 3); c.fillRect(px + pw * 0.26, py + ph + 3, 8, 3);
+  // ventana del otro lado con cielo claro y un mapa colgado
+  const vx = side > 0 ? w * 0.6 : w * 0.08, vw = w * 0.22;
+  c.fillStyle = '#ffffff'; c.fillRect(vx - 5, gy * 0.12, vw + 10, gy * 0.42);
+  c.fillStyle = lin(c, 0, gy * 0.12, 0, gy * 0.54, [[0, '#7fb0dc'], [1, '#d6ebf7']]); c.fillRect(vx, gy * 0.14, vw, gy * 0.38);
+  c.strokeStyle = '#ffffff'; c.lineWidth = 4; c.beginPath(); c.moveTo(vx + vw / 2, gy * 0.14); c.lineTo(vx + vw / 2, gy * 0.52); c.moveTo(vx, gy * 0.33); c.lineTo(vx + vw, gy * 0.33); c.stroke();
+  const mx = side > 0 ? w * 0.86 : w * 0.34;
+  c.fillStyle = '#e8dcb8'; c.fillRect(mx, gy * 0.16, w * 0.11, gy * 0.3); c.fillStyle = '#8fb08a'; c.beginPath(); c.ellipse(mx + w * 0.055, gy * 0.3, w * 0.035, gy * 0.08, 0.3, 0, Math.PI * 2); c.fill();
+  c.fillStyle = '#5a3a22'; c.fillRect(mx - 2, gy * 0.15, w * 0.11 + 4, 3);
+  // piso de baldosas en perspectiva y dos pupitres del lado del decorado
+  c.fillStyle = lin(c, 0, gy, 0, h, [[0, '#c9b58a'], [1, '#8a7a5a']]); c.fillRect(0, gy, w, h - gy);
+  c.strokeStyle = 'rgba(70,55,35,.28)'; c.lineWidth = 1.5;
+  for (let i = 1; i < 6; i++) { const y = gy + (h - gy) * (i * i / 36); c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke(); }
+  for (let i = -5; i <= 5; i++) { c.beginPath(); c.moveTo(w / 2 + i * w * 0.06, gy); c.lineTo(w / 2 + i * w * 0.4, h); c.stroke(); }
+  const dx = side > 0 ? w * 0.78 : w * 0.22;
+  pupitre(c, dx - 30 * k, gy + 54 * k, k); pupitre(c, dx + 36 * k, gy + 40 * k, k * 0.9);
+  glow(c, vx + vw / 2, gy * 0.3, w * 0.55, 'rgba(255,255,240,A)', 0.22);
+  vignette(c, w, h, 0.3); grain(c, w, h, 91, 0.03);
+}
+
+const WORLDS = {
+  'taller-londres': londres, 'excavacion-egipto': egipto, 'foro-roma': roma, 'sala-medieval': medieval, 'laboratorio-moderno': laboratorioModerno,
+  biblioteca, observatorio, aula,
+};
+export const WORLD_NAMES = Object.freeze(Object.keys(WORLDS));
+/** Mundos al aire libre: de noche ganan estrellas y luna; al atardecer, el sol bajo en el horizonte. Los interiores solo cambian la luz. */
+export const EXTERIORES = Object.freeze(['excavacion-egipto', 'foro-roma', 'observatorio']);
+
+// ───────────────────────── Hora del día (PR-D8) ─────────────────────────
+// `dia` es el dibujo tal cual (lo que siempre se pintó): el feed llama a paintWorld sin hora y no cambia ni un píxel. `atardecer`
+// y `noche` son velos planos encima del fondo ya cacheado (una vez por fondo, nada por fotograma), como en el tema «estudio».
+export const HORAS = Object.freeze(['dia', 'atardecer', 'noche']);
+export const HORA_DEFECTO = 'dia';
+const VELOS = {
+  atardecer(c, w, h, world) {
+    const gy = h * GROUND_Y;
+    c.fillStyle = lin(c, 0, 0, 0, h, [[0, 'rgba(120,70,140,.22)'], [0.45, 'rgba(255,140,70,.2)'], [1, 'rgba(140,60,40,.26)']]); c.fillRect(0, 0, w, h);
+    if (EXTERIORES.includes(world)) {
+      glow(c, w * 0.5, gy * 0.95, w * 0.7, 'rgba(255,170,90,A)', 0.42);
+      c.fillStyle = 'rgba(255,235,190,.85)'; c.beginPath(); c.arc(w * 0.5, gy * 0.96, w * 0.05, Math.PI, 0); c.fill();
+    } else {
+      c.fillStyle = 'rgba(255,170,100,.12)'; c.beginPath(); c.moveTo(w * 0.1, 0); c.lineTo(w * 0.45, 0); c.lineTo(w * 0.95, h); c.lineTo(w * 0.6, h); c.closePath(); c.fill();
+    }
+    vignette(c, w, h, 0.18);
+  },
+  noche(c, w, h, world) {
+    const gy = h * GROUND_Y, r = rng(97);
+    c.fillStyle = 'rgba(8,10,40,.52)'; c.fillRect(0, 0, w, h);
+    if (EXTERIORES.includes(world)) {
+      c.fillStyle = 'rgba(255,255,255,.9)'; for (let i = 0; i < 70; i++) { const s = r() < 0.15 ? 1.8 : 1.1; c.fillRect(r() * w, r() * gy * 0.85, s, s); }
+      const mx = w * 0.78, my = gy * 0.22;
+      glow(c, mx, my, w * 0.3, 'rgba(220,230,255,A)', 0.3);
+      c.fillStyle = '#eef2ff'; c.beginPath(); c.arc(mx, my, w * 0.045, 0, Math.PI * 2); c.fill();
+      c.fillStyle = 'rgba(8,10,40,.95)'; c.beginPath(); c.arc(mx - w * 0.02, my - w * 0.012, w * 0.04, 0, Math.PI * 2); c.fill();
+      c.fillStyle = 'rgba(200,215,255,.10)'; c.fillRect(0, gy, w, h - gy);
+    } else {
+      glow(c, w * 0.5, gy * 0.55, w * 0.55, 'rgba(255,190,110,A)', 0.3);                                    // una lámpara al centro
+      c.fillStyle = 'rgba(255,200,130,.08)'; c.beginPath(); c.moveTo(w * 0.42, 0); c.lineTo(w * 0.58, 0); c.lineTo(w * 0.9, h); c.lineTo(w * 0.1, h); c.closePath(); c.fill();
+    }
+    vignette(c, w, h, 0.3);
+  },
+};
+
+/**
+ * Pinta un mundo en el lienzo `c` (w × h). `hora` es opcional: sin ella (o con `dia`) el dibujo es exactamente el de siempre
+ * (así lo usa el feed); `atardecer` y `noche` añaden un velo encima. `props` se reserva para mundos con decorado.
+ */
+export function paintWorld(c, w, h, world, _sceneColors = {}, _props = null, side = 1, hora = null) {
   (WORLDS[world] || londres)(c, w, h, side);
+  if (hora && hora !== HORA_DEFECTO && VELOS[hora]) VELOS[hora](c, w, h, world);
 }
 
 /** Ambiente animado (cada fotograma, por encima del fondo): polvo a contraluz y parpadeo de la vela. */
 export function paintAmbient(c, w, h, world, T) {
   const gy = h * GROUND_Y;
-  if (world === 'excavacion-egipto') {
-    c.fillStyle = 'rgba(255,225,170,.5)';
+  if (world === 'excavacion-egipto' || world === 'observatorio') {              // polvo o polen que cruza al viento (sin velo cálido)
+    c.fillStyle = world === 'observatorio' ? 'rgba(235,245,255,.45)' : 'rgba(255,225,170,.5)';
     for (let i = 0; i < 26; i++) { const sp = 12 + (i * 7) % 22, x = ((i * 97 + T * sp) % (w + 40)) - 20, y = gy * 0.3 + ((i * 53) % Math.round(h * 0.55)) + Math.sin(T * 0.8 + i) * 6; c.fillRect(x, y, 1.6, 1.6); }
+  } else if (world === 'aula') {                                                  // polvo de tiza que cae despacio, sin luz de vela
+    c.fillStyle = 'rgba(255,255,255,.35)';
+    for (let i = 0; i < 14; i++) { const x = (i * 71 + 30) % w + Math.sin(T * 0.4 + i) * 8, y = ((i * 43 + 20 + T * (4 + i % 3)) % (h * 0.7)); c.fillRect(x, y, 1.4, 1.4); }
   } else {
     const f = 0.045 + 0.02 * Math.sin(T * 9.1) + 0.012 * Math.sin(T * 23.7);
     c.fillStyle = `rgba(255,170,90,${f})`; c.fillRect(0, 0, w, h);
