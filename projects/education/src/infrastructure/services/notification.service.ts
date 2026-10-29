@@ -28,7 +28,7 @@ interface INotificationApi {
   read: boolean;
 }
 
-export function mapNotification(n: INotificationApi): IInstructorNotification {
+function mapNotification(n: INotificationApi): IInstructorNotification {
   return {
     id: String(n.id),
     type: n.type,
@@ -36,8 +36,7 @@ export function mapNotification(n: INotificationApi): IInstructorNotification {
     message: n.message,
     courseId: n.courseId == null ? '' : String(n.courseId),
     submissionId: n.referenceId == null ? undefined : String(n.referenceId),
-    // shortcut: el API manda LocalDateTime en UTC sin zona; si se lee como hora local sale 5 h adelantada en Bogotá. Quitar cuando el API mande el offset.
-    createdAt: new Date(/([zZ]|[+-]\d\d:?\d\d)$/.test(n.createdAt) ? n.createdAt : n.createdAt + 'Z'),
+    createdAt: new Date(n.createdAt),
     read: n.read,
   };
 }
