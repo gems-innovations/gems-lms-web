@@ -25,7 +25,7 @@
 /* Progreso con etiquetas visibles (PR-D3): número en un círculo y nombre del paso; en pantallas estrechas solo el paso actual
    muestra su nombre, los demás quedan como círculos numerados. */
 .dsn .progreso { display: flex; align-items: center; gap: 4px; list-style: none; margin: 0; padding: 0; }
-.dsn .progreso li { display: flex; align-items: center; gap: 5px; color: var(--soft); font-size: 12px; transition: color .25s; }
+.dsn .progreso li { display: flex; align-items: center; gap: 5px; color: var(--soft); font-size: 13px; transition: color .25s; }
 .dsn .progreso li i { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font: 700 11px/1 var(--fuente); font-style: normal; color: var(--soft); transition: background .25s, border-color .25s, color .25s; flex: none; }
 .dsn .progreso li.ya i { background: var(--soft); border-color: var(--soft); color: var(--bg); }
 .dsn .progreso li.ahora { color: var(--txt); font-weight: 600; }
@@ -52,7 +52,7 @@
 .dsn .bocadillo.ver { opacity: 1; transform: translateX(-50%) translateY(0); }
 .dsn .etiqueta { position: absolute; left: 10px; bottom: 10px; background: rgba(15,14,23,.75); color: var(--txt); font-size: 12px; padding: 5px 10px; border-radius: 10px; pointer-events: none; display: none; }
 .dsn .vista.comparando .etiqueta { display: block; }
-.dsn .pista { position: absolute; right: 10px; bottom: 10px; color: rgba(236,235,245,.75); font-size: 11px; pointer-events: none; display: flex; align-items: center; gap: 5px; }
+.dsn .pista { position: absolute; right: 10px; bottom: 10px; color: var(--soft); font-size: 13px; pointer-events: none; display: flex; align-items: center; gap: 5px; }
 .dsn .pista svg.ic { width: 14px; height: 14px; }
 
 /* sugerencia contextual de una línea con chip de aplicar */
@@ -88,7 +88,7 @@
 .dsn .tarjeta.sorpresa .dado { width: 72px; height: 96px; display: grid; place-items: center; color: var(--acc); }
 .dsn .tarjeta.sorpresa .dado svg.ic { width: 34px; height: 34px; }
 .dsn .tarjeta b { font-weight: 600; font-size: 14px; }
-.dsn .tarjeta small { color: var(--soft); font-size: 11px; }
+.dsn .tarjeta small { color: var(--soft); font-size: 13px; }
 .dsn .escenas .tarjeta canvas { width: 100%; height: auto; aspect-ratio: 16 / 10; }
 .dsn .escenas { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
 /* hora del día (PR-D8): tres chips con icono dibujado sobre las tarjetas de escenario */
@@ -97,7 +97,7 @@
 .dsn .horas .chip svg.ic { width: 18px; height: 18px; }
 
 .dsn .pestanas { display: flex; gap: 6px; margin: 0 0 10px; }
-.dsn .pestanas button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; font-size: 12px; color: var(--soft); border-radius: var(--radio); }
+.dsn .pestanas button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; font-size: 13px; color: var(--soft); border-radius: var(--radio); }
 .dsn .pestanas button.on { color: var(--txt); background: var(--panel2); border-color: var(--acc); }
 .dsn #ajustes:focus { outline: none; }
 .dsn .grupo { margin: 0 0 12px; }
@@ -120,7 +120,15 @@
 .dsn details.subgrupo .grupo:last-child { margin-bottom: 10px; }
 .dsn .muestras { display: grid; grid-template-columns: repeat(7, minmax(0, 48px)); gap: 6px; align-items: center; }
 .dsn .muestra { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 3px solid transparent; padding: 0; min-height: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); cursor: pointer; }
-.dsn .muestra.on { border-color: var(--acc); box-shadow: inset 0 0 0 2px var(--bg); }
+.dsn .muestra { position: relative; }
+/* Elegida sin depender del tono: anillo doble (acento + fondo) y un check dibujado con contorno para cualquier color de muestra. */
+.dsn .muestra.on { border-color: var(--acc); box-shadow: inset 0 0 0 2px var(--bg), 0 0 0 2px var(--bg); }
+.dsn .muestra.on::after { content: ""; position: absolute; left: 50%; top: 46%; width: 30%; height: 52%; border: solid var(--txt); border-width: 0 3px 3px 0; transform: translate(-50%, -50%) rotate(45deg); filter: drop-shadow(0 0 1px var(--bg)) drop-shadow(0 0 1px var(--bg)); }
+.dsn .muestra-nombre { margin: 6px 0 0; min-height: 1.3em; color: var(--soft); font-size: 13px; }
+.dsn .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.dsn .muestra-pregunta .opciones button svg.res { margin-left: auto; }
+.dsn .muestra-pregunta .opciones button.mal svg.res { color: var(--txt); }
+.dsn .muestra-pregunta .opciones button.bien svg.res { color: var(--good); }
 .dsn .mas { position: relative; width: 100%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; padding: 0; min-height: 0; color: var(--soft); overflow: hidden; border: 1px dashed var(--line); }
 .dsn .mas input[type=color] { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
 
@@ -139,14 +147,14 @@
 .dsn .guardar input:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; border-color: var(--foco); }
 .dsn .guardar .fila { display: flex; gap: 8px; align-items: center; }
 .dsn .guardar .fila input { flex: 1; min-width: 0; }
-.dsn .guardar .fila small { color: var(--soft); font-size: 12px; min-width: 3.5ch; text-align: right; }
+.dsn .guardar .fila small { color: var(--soft); font-size: 13px; min-width: 3.5ch; text-align: right; }
 .dsn .grande { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; font-weight: 700; font-size: 16px; background: var(--boton); border-color: var(--boton); color: var(--boton-ink); border-radius: var(--radio-carta); }
 .dsn .grande:disabled { opacity: .5; cursor: default; }
 .dsn .estado { color: var(--soft); font-size: 13px; margin: 0; min-height: 1.2em; }
 .dsn .estado.bien { color: var(--good); }
 .dsn .mislooks { margin: 0 0 16px; }
 .dsn .mislooks h3 { margin: 0 0 8px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-.dsn .mislooks h3 small { color: var(--soft); font-weight: 400; font-size: 12px; }
+.dsn .mislooks h3 small { color: var(--soft); font-weight: 400; font-size: 13px; }
 .dsn .mislooks[hidden] { display: none; }
 /* vacío de Mis looks: tres siluetas en trazo */
 .dsn .vacio { display: flex; align-items: center; gap: 12px; color: var(--soft); padding: 4px 0; }
@@ -166,11 +174,11 @@
 .dsn .look .cargar { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px 6px; background: none; border: 0; border-radius: 0; min-width: 0; width: 100%; }
 .dsn .look img { width: 72px; height: 96px; border-radius: 10px; background: #15131f; object-fit: cover; display: block; }
 .dsn .look b { font-weight: 600; font-size: 13px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dsn .look small { color: var(--soft); font-size: 11px; }
+.dsn .look small { color: var(--soft); font-size: 13px; }
 .dsn .look .puntos { position: absolute; top: 4px; right: 4px; min-height: 32px; width: 32px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: rgba(15,14,23,.7); border: 0; }
 .dsn .look .acciones { display: none; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 0 6px 6px; }
 .dsn .look.abierto .acciones { display: grid; }
-.dsn .look .acciones button { min-height: 40px; padding: 4px 2px; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 2px; border-radius: 10px; }
+.dsn .look .acciones button { min-height: 40px; padding: 4px 2px; font-size: 13px; display: flex; flex-direction: column; align-items: center; gap: 2px; border-radius: 10px; }
 .dsn .look .acciones button svg.ic { width: 16px; height: 16px; }
 .dsn .look .acciones .peligro { color: #f3a0a0; }
 .dsn .look input { font: inherit; font-size: 13px; width: 100%; color: var(--txt); background: #12111b; border: 1px solid var(--acc); border-radius: 8px; padding: 4px 6px; text-align: center; }
@@ -203,7 +211,7 @@
 .dsn .muestra-pregunta .opciones button:disabled { cursor: default; }
 .dsn .muestra-pregunta .opciones button .letra { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--panel2); border: 1px solid var(--line); font-weight: 700; font-size: 13px; flex: none; }
 .dsn .muestra-pregunta .opciones button.bien { border-color: var(--good); } .dsn .muestra-pregunta .opciones button.bien .letra { background: var(--good); color: var(--acc-ink); border-color: var(--good); }
-.dsn .muestra-pregunta .opciones button.mal { border-color: #f3a0a0; opacity: .7; }
+.dsn .muestra-pregunta .opciones button.mal { border-color: #f3a0a0; opacity: 1; border-style: dashed; }
 .dsn .muestra-pregunta .opciones button.siguiente { background: var(--boton); border-color: var(--boton); color: var(--boton-ink); font-weight: 600; justify-content: center; }
 .dsn .muestra-pregunta .enunciado { font-weight: 600; font-size: 15px; margin: 0; }
 /* Vista previa en Tap (PR-D6): marco 9:16 dibujado en canvas con el personaje de anfitrión, su lema y la pregunta; las opciones se tocan ahí o abajo */
@@ -271,7 +279,7 @@
    cinta de transparencia y los avisos de la página (en disenador.html la ranura queda vacía y no ocupa nada). */
 .dsn .progreso li.publicar { width: auto; height: auto; border-radius: 0; background: none; transform: none; display: flex; align-items: center; gap: 6px; }
 .dsn .progreso li.publicar::before { content: ''; width: 9px; height: 9px; border-radius: 50%; border: 1px dashed var(--soft); flex: none; }
-.dsn .progreso li.publicar button { min-height: 32px; padding: 4px 8px; font-size: 12px; color: var(--soft); background: transparent; border-color: transparent; border-radius: 10px; }
+.dsn .progreso li.publicar button { min-height: 32px; padding: 4px 8px; font-size: 13px; color: var(--soft); background: transparent; border-color: transparent; border-radius: 10px; }
 .dsn .progreso li.publicar button:hover { color: var(--txt); }
 .dsn .ranura { position: absolute; left: 8px; right: 8px; top: 8px; z-index: 2; display: grid; gap: 6px; }
 .dsn .ranura:empty { display: none; }
