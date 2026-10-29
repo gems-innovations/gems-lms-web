@@ -45,7 +45,9 @@ export type ITapEscena =
   | { tipo: 'codigo'; lineas: string[]; lenguaje?: 'pseudo' | 'python' | 'js' | 'bash' | 'http' | 'prompt'; texto?: string }
   | { tipo: 'operacion'; lineas: string[]; texto?: string }
   | { tipo: 'serie'; items: string[]; texto?: string }
-  | { tipo: 'objeto' | 'diagrama'; cosa: string; texto?: string };
+  | { tipo: 'objeto' | 'diagrama'; cosa: string; texto?: string }
+  /** Figura vóxel (public/taps-sprites/<cosa>.png); la pinta Angular, no el motor. */
+  | { tipo: 'sprite'; cosa: string; texto?: string };
 
 /** Objeto que el motor muestra y anima junto a la explicación (p. ej. un pistón que no mueve la obsidiana). Se toca y se arrastra. */
 export interface ITapVisual {

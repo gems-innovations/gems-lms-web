@@ -509,7 +509,11 @@
       "dificultad": 3,
       "subtema": "cuerpo-humano",
       "fuente": "https://es.wikipedia.org/wiki/Mapa_de_la_lengua",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "lengua"
+      }
     },
     {
       "id": "unas-manos",
@@ -576,6 +580,10 @@
       "visual": {
         "objeto": "planetas",
         "accion": "cercano"
+      },
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "mercurio"
       }
     },
     {
@@ -592,7 +600,11 @@
       "dificultad": 2,
       "subtema": "espacio",
       "fuente": "https://www.rmg.co.uk/explore/interesting-facts-about-venus",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "venus"
+      }
     },
     {
       "id": "venus-dia",
@@ -628,6 +640,10 @@
       "visual": {
         "objeto": "planetas",
         "accion": "grande"
+      },
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "jupiter"
       }
     },
     {
@@ -665,7 +681,11 @@
       "dificultad": 3,
       "subtema": "espacio",
       "fuente": "https://science.gsfc.nasa.gov/attic/huygensgcms/Saturn.htm",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "saturno"
+      }
     },
     {
       "id": "olimpo",
@@ -681,7 +701,11 @@
       "dificultad": 3,
       "subtema": "espacio",
       "fuente": "https://es.wikipedia.org/wiki/Monte_Olimpo_(Marte)",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "marte"
+      }
     },
     {
       "id": "sonido-espacio",
@@ -744,7 +768,11 @@
       "dificultad": 3,
       "subtema": "espacio",
       "fuente": "https://science.nasa.gov/uranus/facts/",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "urano"
+      }
     },
     {
       "id": "marte-rojo",
@@ -1250,7 +1278,11 @@
       "dificultad": 3,
       "subtema": "ciencia-cotidiana",
       "fuente": "https://es.wikipedia.org/wiki/Dosis_equivalente_a_un_pl%C3%A1tano",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "banano"
+      }
     },
     {
       "id": "miel-dura",
@@ -1266,7 +1298,11 @@
       "dificultad": 2,
       "subtema": "ciencia-cotidiana",
       "fuente": "https://www.smithsonianmag.com/science-nature/the-science-behind-honeys-eternal-shelf-life-1218690/",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "miel"
+      }
     },
     {
       "id": "diamante-carbono",
@@ -1298,7 +1334,11 @@
       "dificultad": 2,
       "subtema": "ciencia-cotidiana",
       "fuente": "https://es.wikipedia.org/wiki/Mercurio_(elemento)",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "gota"
+      }
     },
     {
       "id": "tomate-fruta",
@@ -1314,7 +1354,11 @@
       "dificultad": 1,
       "subtema": "ciencia-cotidiana",
       "fuente": "https://es.wikipedia.org/wiki/Solanum_lycopersicum",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "tomate"
+      }
     },
     {
       "id": "banano-baya",
@@ -1330,7 +1374,11 @@
       "dificultad": 3,
       "subtema": "ciencia-cotidiana",
       "fuente": "https://es.wikipedia.org/wiki/Baya",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "banano"
+      }
     },
     {
       "id": "mani-legumbre",
@@ -1346,7 +1394,11 @@
       "dificultad": 3,
       "subtema": "ciencia-cotidiana",
       "fuente": "https://es.wikipedia.org/wiki/Arachis_hypogaea",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "mani"
+      }
     },
     {
       "id": "gaseosa-gas",
@@ -2155,7 +2207,11 @@
       "dificultad": 2,
       "subtema": "ciencia-cotidiana",
       "fuente": "https://es.wikipedia.org/wiki/Pardeamiento_enzimático",
-      "estado": "revisada"
+      "estado": "revisada",
+      "escena": {
+        "tipo": "sprite",
+        "cosa": "manzana"
+      }
     },
     {
       "id": "luz-blanca",

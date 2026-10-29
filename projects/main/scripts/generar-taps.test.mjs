@@ -444,12 +444,14 @@ test('escenas de pregunta: al menos 20 preguntas reales en cada tema, se copian 
   const con = taps.flatMap(t => t.questions.filter(q => q.escena).map(q => [t.topic, q.escena.tipo]));
   assert.ok(con.length >= 20, `solo ${con.length} preguntas con escena`);
   for (const topic of Object.keys(TEMAS).filter(k => !TEMAS[k].soloEnlace)) assert.ok(con.filter(([k]) => k === topic).length >= 5, topic + ': pocas escenas');
-  assert.equal(new Set(con.map(([, tipo]) => tipo)).size, 5, 'se usan los cinco tipos (código, operación, serie, objeto, diagrama)');
+  assert.equal(new Set(con.map(([, tipo]) => tipo)).size, 6, 'se usan los seis tipos (código, operación, serie, objeto, diagrama, sprite)');
 });
 
 test('escenas de pregunta: formato, catálogo del tema y nunca delatan la respuesta', () => {
   const p = { options: ['Lunes', 'Viernes', 'Ninguno', 'Domingo'], answer: 2 }, cat = new Set(['creeper']);
   const err = e => validarEscena(e, p, cat, 'x').join(' | ');
+  assert.equal(err({ tipo: 'sprite', cosa: 'banano' }), '');
+  assert.match(err({ tipo: 'sprite', cosa: 'nada' }), /no existe/);
   assert.equal(err({ tipo: 'codigo', lineas: ['si llueve:', '  calle = "mojada"'] }), '');
   assert.equal(err({ tipo: 'serie', items: ['2', '4', '?'] }), '');
   assert.equal(err({ tipo: 'objeto', cosa: 'creeper', texto: 'Creeper' }), '');
