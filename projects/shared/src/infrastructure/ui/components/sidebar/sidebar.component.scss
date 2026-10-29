@@ -161,7 +161,8 @@
     color: var(--color-texto-secundario);
     text-decoration: none;
     border-radius: 0.5rem;
-    transition: all 0.15s ease;
+    transition: 0.15s ease;
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
     font-size: 0.875rem;
     font-weight: 400;
     position: relative;
@@ -325,7 +326,8 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: 0.15s ease;
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
     color: var(--color-texto-terciario);
 
     &:hover {

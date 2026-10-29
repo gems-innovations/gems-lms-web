@@ -36,7 +36,8 @@
     color: var(--color-texto-terciario);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-bold);
-    transition: all var(--transition-fast);
+    transition: var(--transition-fast);
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   }
 
   &__step-label {
@@ -140,7 +141,8 @@
     font-weight: var(--font-weight-semibold);
     cursor: pointer;
     font-family: inherit;
-    transition: all var(--transition-fast);
+    transition: var(--transition-fast);
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 
     &:hover { border-color: var(--color-primario); color: var(--color-texto-principal); }
 
