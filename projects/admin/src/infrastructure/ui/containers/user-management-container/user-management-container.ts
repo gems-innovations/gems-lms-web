@@ -3,7 +3,7 @@ import { ConfirmationDialogComponent, EmptyStateComponent, LibButtonComponent, M
 import { AdminUserManagementUseCase, ICreateUserForm } from '../../../../application/admin-user-management.usecase';
 import { UserForm } from '../../forms/user-form/user-form';
 import { UserImportPanel } from '../../components/user-import-panel/user-import-panel';
-import { UserStatsChips } from '../../components/user-stats-chips/user-stats-chips';
+import { UserStatsChips, isGuest } from '../../components/user-stats-chips/user-stats-chips';
 import { UserList } from '../../components/user-list/user-list';
 import { SkeletonComponent } from 'shared/loading';
 
@@ -33,11 +33,15 @@ export class UserManagementContainer implements OnInit {
   protected readonly search = signal('');
   protected readonly page   = signal(1);
 
+  /** Los invitados de «Empezar gratis» van al final: si no, tapan a los usuarios reales. */
+  private readonly sortedUsers = computed(() =>
+    [...this.uc.users()].sort((a, b) => Number(isGuest(a)) - Number(isGuest(b))));
+
   /** Users matching the search by name, username or e-mail. */
   protected readonly filteredUsers = computed(() => {
     const q = this.search().trim().toLowerCase();
-    if (!q) return this.uc.users();
-    return this.uc.users().filter(u =>
+    if (!q) return this.sortedUsers();
+    return this.sortedUsers().filter(u =>
       `${u.firstName} ${u.lastName}`.toLowerCase().includes(q) ||
       u.email.toLowerCase().includes(q) ||
       (u.username ?? '').toLowerCase().includes(q));

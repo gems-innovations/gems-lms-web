@@ -5,6 +5,7 @@ import { quizDeactivateGuard } from './infrastructure/ui/guards/quiz-deactivate.
 // ── Public API for cross-library use ────────────────────────────────────────
 export { EducationLayout } from './infrastructure/ui/layouts/education-layout/education-layout';
 export { StudentLayout } from './infrastructure/ui/layouts/student-layout/student-layout';
+export { INSTITUTION_ADMIN_MENU } from './application/education-sidebar.usecase';
 export { EducationSidebarContainer } from './infrastructure/ui/containers/education-sidebar-container/education-sidebar-container';
 export { CourseEditorContainer } from './infrastructure/ui/containers/course-editor-container/course-editor-container';
 export { PlayerContentBlock } from './infrastructure/ui/components/player-content-block/player-content-block';
@@ -84,7 +85,7 @@ export const educationChildRoutes: Routes = [
   },
   {
     path: 'enrollments',
-    title: 'Gestionar inscripciones',
+    title: 'Matrículas',
     loadComponent: () =>
       import('./infrastructure/ui/containers/enrollment-manager-container/enrollment-manager-container').then(
         m => m.EnrollmentManagerContainer

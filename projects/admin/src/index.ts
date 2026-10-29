@@ -77,7 +77,7 @@ export const routes: Routes = [
   // ── Admin: enrollment manager ──────────────────────────────────────────────
   {
     path: 'enrollments',
-    title: 'Inscripciones',
+    title: 'Matrículas',
     component: MainLayout,
     children: [
       {
