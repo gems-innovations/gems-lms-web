@@ -43,7 +43,7 @@ export class ContentPreviewUseCase {
   readonly currentCourseId = computed(() => this._currentCourseId());
 
   private readonly init$ = new Subject<{ type: TPreviewType; id: string }>();
-  private readonly enroll$ = new Subject<void>();
+  private readonly enroll$ = new Subject<(() => void) | undefined>();
 
   constructor() {
     this.init$.pipe(
@@ -84,7 +84,7 @@ export class ContentPreviewUseCase {
     ).subscribe();
 
     this.enroll$.pipe(
-      switchMap(() => {
+      switchMap(onDone => {
         const type = this._previewType();
         const id = type === 'course' ? this._course()?.id : this._path()?.id;
         if (!id) return EMPTY;
@@ -92,7 +92,7 @@ export class ContentPreviewUseCase {
           ? this.enrollmentService.enrollInCourse(id)
           : this.enrollmentService.enrollInPath(id);
         return obs$.pipe(
-          tap(_result => { this._isEnrolled.set(true); }),
+          tap(_result => { this._isEnrolled.set(true); onDone?.(); }),
           catchError(err => {
             this.toast.error(err?.message || 'No se pudo completar la inscripción');
             if (type === 'course') this.loadEligibility(id);
@@ -111,7 +111,8 @@ export class ContentPreviewUseCase {
     this.init$.next({ type, id });
   }
 
-  enroll(): void { this.enroll$.next(); }
+  /** `onDone` corre al confirmarse la inscripción (p. ej., entrar directo al curso). */
+  enroll(onDone?: () => void): void { this.enroll$.next(onDone); }
 
   private loadEligibility(courseId: string): void {
     this.rulesService.eligibility([courseId]).subscribe({

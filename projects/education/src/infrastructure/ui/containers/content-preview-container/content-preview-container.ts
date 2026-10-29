@@ -40,6 +40,9 @@ export class ContentPreviewContainer implements OnInit {
     this.uc.init(type, id);
   }
 
+  /** Al inscribirse entra directo al contenido: quedarse en la vista previa obligaba a pulsar «Continuar» otra vez. */
+  protected enrollAndPlay(): void { this.uc.enroll(() => this.play()); }
+
   protected play(): void {
     if (this.uc.previewType() === 'course') {
       this.router.navigate(['/learn/courses', this.uc.course()?.id]);

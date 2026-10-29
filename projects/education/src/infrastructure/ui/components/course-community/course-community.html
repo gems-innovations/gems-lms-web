@@ -62,7 +62,7 @@
             </article>
           } @empty {
             @if (!announcementDraft()) {
-              <lib-empty-state [copy]="copy.student.announcements" />
+              <lib-empty-state [copy]="copy.student.announcements" [description]="staff() ? 'Publica el primero con «Nuevo anuncio»: lo verán todos los inscritos.' : undefined" />
             }
           }
         }

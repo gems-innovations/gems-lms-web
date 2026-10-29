@@ -13,7 +13,7 @@
     <lib-stat-grid>
       <lib-stat-card [value]="uc.overview().totalCourses.toString()" label="Cursos" accent="primary" />
       <lib-stat-card [value]="uc.overview().totalStudents.toString()" label="Estudiantes" accent="teal" />
-      <lib-stat-card [value]="uc.overview().avgRating.toFixed(1)" label="Valoración media" accent="warning" />
+      <lib-stat-card [value]="uc.overview().avgRating ? uc.overview().avgRating.toFixed(1) : '—'" label="Valoración media" accent="warning" />
       <lib-stat-card [value]="uc.overview().avgCompletion + '%'" label="Completitud media" accent="success" />
     </lib-stat-grid>
 

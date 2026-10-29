@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { isGuestEmail } from 'auth';
 import { AvatarComponent, EmptyStateComponent, LibButtonComponent, RevealDirective, ToastService } from 'shared';
 import { AtRiskService } from '../../../services/at-risk.service';
 import type { ICourseRisk } from '../../../services/at-risk.service';
@@ -43,7 +44,7 @@ export class RiskPanel {
     return (this.data()?.atRisk ?? []).filter(r => f === 'all' || r.level === f).map(r => {
       const s = this.people().get(r.studentId);
       return { ...r, name: s ? `${s.firstName} ${s.lastName}` : `Estudiante ${r.studentId}`, email: s?.email ?? '' };
-    });
+    }).sort((a, b) => Number(isGuestEmail(a.email)) - Number(isGuestEmail(b.email)));
   });
 
   constructor() {

@@ -1,5 +1,6 @@
 import { Component, input, output, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { isGuestEmail } from 'auth';
 import {
   AvatarComponent, ProgressBarComponent, BadgeComponent, EmptyStateComponent,
   SearchBarComponent, PaginationComponent, LibButtonComponent,
@@ -31,8 +32,10 @@ export class StudentsTable {
 
   protected readonly filtered = computed(() => {
     const q = this.search().toLowerCase().trim();
-    if (!q) return this.enrollments();
-    return this.enrollments().filter(e =>
+    // Los invitados de «Empezar gratis» al final: si no, tapan a los estudiantes reales.
+    const all = [...this.enrollments()].sort((a, b) => Number(isGuestEmail(a.student.email)) - Number(isGuestEmail(b.student.email)));
+    if (!q) return all;
+    return all.filter(e =>
       `${e.student.firstName} ${e.student.lastName}`.toLowerCase().includes(q) ||
       e.student.email.toLowerCase().includes(q)
     );

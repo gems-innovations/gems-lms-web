@@ -60,7 +60,7 @@ export const routes: Routes = [
 ];
 
 // Domain
-export { EUserRole, getFullName, getRoleLabel, getRoleHomePath } from 'auth/core';
+export { EUserRole, getFullName, getRoleLabel, getRoleHomePath, isGuestEmail } from 'auth/core';
 export type { IUser } from 'auth/core';
 export type { IUserState } from 'auth/core';
 export { UserState } from 'auth/core';
