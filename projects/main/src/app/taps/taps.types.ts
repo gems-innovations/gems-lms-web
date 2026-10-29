@@ -121,6 +121,8 @@ export interface ITap {
   level?: 'facil' | 'media' | 'dificil';
   /** Subtema dentro de su categoría (p. ej. «redstone», «espacio»): solo informativo. */
   subtopic?: string;
+  /** Descripción corta (≤ 90 caracteres) que se ve al buscar. Sin ella: categoría · subtema · número de preguntas. */
+  descripcion?: string;
 }
 
 /** Una categoría del selector. Las que aún no tienen Taps se muestran como «Pronto». */

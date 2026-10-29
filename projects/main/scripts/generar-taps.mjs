@@ -683,6 +683,7 @@ export function generar(bancos, retos, temas) {
       if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(t.id ?? '')) err(`Tap «${t.id}»: el id no está en kebab-case`);
       if (!t.id?.startsWith(def.prefijo)) avisos.push(`${donde}: el id debería empezar con «${def.prefijo}»`);
       if (!t.titulo?.trim()) err(`Tap «${t.id}»: falta el título`);
+      if (t.descripcion !== undefined && (typeof t.descripcion !== 'string' || !t.descripcion.trim() || t.descripcion.length > 90)) err(`Tap «${t.id}»: «descripcion» debe tener de 1 a 90 caracteres`);
       const historia = t.tipo === 'historia';
       if (t.tipo !== undefined && !['quiz', 'historia'].includes(t.tipo)) err(`Tap «${t.id}»: tipo «${t.tipo}» desconocido (quiz o historia)`);
       const largo = Array.isArray(t.preguntas) ? t.preguntas.length : 0;
@@ -752,6 +753,7 @@ export function generar(bancos, retos, temas) {
         ...(t.gancho ? { hook: true } : {}),
         ...(t.nivel ? { level: t.nivel } : {}),
         ...(t.subtema ? { subtopic: t.subtema } : {}),
+        ...(t.descripcion ? { descripcion: t.descripcion } : {}),
       });
     }
     if (banco.taps.length && !def.sinGancho && !banco.taps.some(t => t.gancho)) err('ningún Tap es de gancho');

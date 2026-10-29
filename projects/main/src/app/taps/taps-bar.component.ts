@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Injector, afterNextRender, inject, input, output, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, Injector, afterNextRender, inject, input, output, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TapSesionComponent } from './tap-sesion.component';
 import { IResumenSesion, sessionLabel } from './taps.sesion';
-import { ITapTopic } from './taps.types';
+import { buscarTaps, tapDescripcion } from './taps.buscar';
+import { ITap, ITapTopic } from './taps.types';
 
 /**
  * Barra superior del feed de Taps: marca GEMS LMS, sonido (silencio general), ranking y selector de temas.
@@ -60,6 +61,19 @@ import { ITapTopic } from './taps.types';
       <dialog class="sheet" #sheet (close)="close()" (click)="$event.target === sheet && close()" aria-labelledby="taps-sheet-title">
         <div class="sheet__body">
           <h2 id="taps-sheet-title" class="sheet__title">Elige un tema</h2>
+          <input type="search" class="sheet__search" placeholder="Busca un Tap: planetas, banano, redstone…" aria-label="Buscar Taps por título o tema"
+                 [value]="consulta()" (input)="consulta.set($any($event.target).value)" autocomplete="off" enterkeyhint="search">
+          @if (consulta().trim()) {
+            <ul class="sheet__list sheet__results" aria-live="polite">
+              @for (t of resultados(); track t.id) {
+                <li>
+                  <button type="button" class="glass sheet__item" (click)="pickTap(t.id)">
+                    <span class="sheet__name">{{ t.title }}<small>{{ descripcion(t) }}</small></span>
+                  </button>
+                </li>
+              } @empty { <li class="sheet__empty">No encontramos Taps con eso. Prueba otra palabra.</li> }
+            </ul>
+          } @else {
           <ul class="sheet__list">
             <li>
               <a class="glass sheet__item sheet__explorar" routerLink="/taps/explorar">
@@ -85,6 +99,7 @@ import { ITapTopic } from './taps.types';
               </li>
             }
           </ul>
+          }
           <button type="button" class="glass sheet__close" (click)="close()">Cerrar</button>
         </div>
       </dialog>
@@ -119,6 +134,8 @@ import { ITapTopic } from './taps.types';
       &[open] { animation: sheet-in .26s cubic-bezier(.2, 1.1, .4, 1); } }
     .sheet__body { padding: 16px 16px var(--safe-b); }
     .sheet__title { margin: 0 0 10px; font-size: 18px; }
+    .sheet__search { box-sizing: border-box; width: 100%; min-height: 48px; margin: 0 0 10px; padding: 0 14px; border: 2px solid #2c3544; border-radius: 14px; font: inherit; font-size: 16px; color: #fff; background: #0d1117; }
+    .sheet__empty { padding: 12px 4px; font-size: 14px; color: #aab4c4; }
     .sheet__list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
     .sheet__item { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 8px 14px; border-radius: 14px; font: inherit; text-align: left; text-decoration: none; cursor: pointer;
       &:disabled { cursor: default; opacity: .55; } }
@@ -150,6 +167,10 @@ export class TapsBarComponent {
   readonly topic = input<string | null>(null);
   readonly topicName = input('Para ti');
   readonly desktop = input(false);
+  /** Taps entre los que busca el buscador de la hoja. */
+  readonly taps = input<readonly ITap[]>([]);
+  /** Elegir un Tap del buscador: el feed salta a él. */
+  readonly tapChange = output<string>();
   readonly topics = input<{ topic: ITapTopic; count: number; soon: boolean }[]>([]);
   /** Racha y meta del día (null: aún no hay progreso y se ve el nombre de la marca). */
   readonly resumen = input<IResumenSesion | null>(null);
@@ -168,6 +189,9 @@ export class TapsBarComponent {
   protected label(r: IResumenSesion): string { return sessionLabel(r); }
 
   protected readonly isOpen = signal(false);
+  protected readonly consulta = signal('');
+  protected readonly resultados = computed(() => buscarTaps(this.taps(), this.consulta()));
+  protected descripcion = tapDescripcion;
   private readonly sheet = viewChild<ElementRef<HTMLDialogElement>>('sheet');
 
   open(): void {
@@ -181,7 +205,13 @@ export class TapsBarComponent {
     if (!this.isOpen()) return;
     this.sheet()?.nativeElement.close?.();
     this.isOpen.set(false);
+    this.consulta.set('');
     this.sheetChange.emit(false);
+  }
+
+  protected pickTap(id: string): void {
+    this.close();
+    this.tapChange.emit(id);
   }
 
   protected pick(id: string | null): void {
