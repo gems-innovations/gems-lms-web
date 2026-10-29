@@ -93,6 +93,10 @@
 
     a {
       color: var(--color-primario-claro);
+      // Área táctil de ~44 px sin mover el diseño.
+      display: inline-block;
+      padding-block: 13px;
+      margin-block: -13px;
 
       &:hover {
         text-decoration: underline;
