@@ -31,11 +31,11 @@ export const COPY_HITOS = Object.freeze({
     tarjetas: Object.freeze([
       Object.freeze({ id: 'guardar', texto: 'Guardar aquí', detalle: 'En este navegador', icono: 'i-guardar' }),
       Object.freeze({ id: 'compartir', texto: 'Compartir enlace', detalle: 'Sin cuenta', icono: 'i-enlace' }),
-      Object.freeze({ id: 'publicar', texto: 'Publicar un Tap (con cuenta)', detalle: 'Para que lo juegue tu grupo', icono: 'i-cuenta' }),
+      Object.freeze({ id: 'publicar', texto: 'Publicar un Tap (con cuenta)', detalle: 'Con enlace y código para jugarlo', icono: 'i-cuenta' }),
     ]),
   }),
   guardado: Object.freeze({ texto: 'Guardado en este navegador. Si lo borras o cambias de celular, se pierde. Con cuenta no.', icono: 'i-guardar', botones: [QUE_ES] }),
-  probado: Object.freeze({ texto: 'Así lo verían tus estudiantes. ¿Quieres hacer el Tap completo?', icono: 'i-jugar', botones: [PUBLICAR] }),
+  probado: Object.freeze({ texto: 'Así lo vería quien lo juegue. ¿Quieres hacer el Tap completo?', icono: 'i-jugar', botones: [PUBLICAR] }),
   vuelve: Object.freeze({ texto: 'Volviste por {nombre}. Con cuenta no dependes de este navegador.', icono: 'i-dispositivos', botones: [ENTENDIDO, QUE_ES] }),
 });
 

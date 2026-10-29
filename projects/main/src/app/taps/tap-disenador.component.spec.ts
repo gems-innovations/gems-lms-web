@@ -96,7 +96,7 @@ describe('TapDisenadorComponent (/crear)', () => {
   it('la cinta de transparencia va sobre la vista previa, una vez por navegador, y «Entendido» la recuerda', () => {
     expect(el('#ranuraVista .cinta')).not.toBeNull();
     expect(visible('#ranuraVista .cinta[role="region"]')).toBeTrue();
-    expect(el('#ranuraVista .cinta p')?.textContent).toContain('Para publicar y compartir con tu grupo necesitas una cuenta');
+    expect(el('#ranuraVista .cinta p')?.textContent).toContain('Publicar requiere cuenta de docente o institución');
     expect(eventos).toContain('taps/crear/aviso-publicar/visto');
     el('#ranuraVista .cinta button.primario')!.click();
     fixture.detectChanges();

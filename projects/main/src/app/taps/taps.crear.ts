@@ -18,7 +18,7 @@ export const CLAVE_SONIDO_TAPS = 'gems-taps-sound';
 export const sonidoActivo = (guardado: string | null): boolean => guardado !== 'off';
 
 /** Copy de la cinta de transparencia (§A.3.1): se lee antes de invertir esfuerzo, no es un modal. */
-export const CINTA_TRANSPARENCIA = 'Crea y prueba gratis, sin cuenta. Para publicar y compartir con tu grupo necesitas una cuenta de docente o institución. Tu trabajo se guarda en este navegador.';
+export const CINTA_TRANSPARENCIA = 'Crea y prueba gratis, sin cuenta. Publicar requiere cuenta de docente o institución. Tu trabajo se guarda en este navegador.';
 /** Nombre del cuarto punto de progreso desde el inicio: nadie llega sorprendido. */
 export const PASO_PUBLICAR = 'Publicar (con cuenta)';
 /**
@@ -35,10 +35,10 @@ export type THitoCuenta = (typeof HITOS_CUENTA)[number];
  */
 export const COPY_GANCHO = {
   titulo: 'Para publicarlo, regístrate como docente o institución',
-  intro: 'Publicar significa que tu Tap tenga enlace y código para que lo juegue tu grupo. Crear y probar sigue siendo gratis y sin cuenta.',
-  ganas: ['Enlace y QR para tu grupo', 'Resultados por pregunta', 'Tu personaje con los colores de tu colegio'] as const,
+  intro: 'Publicar significa que tu Tap tenga enlace y código para que otras personas lo jueguen. Crear y probar sigue siendo gratis y sin cuenta.',
+  ganas: ['Enlace y QR para compartirlo', 'Resultados por pregunta', 'Tu personaje con los colores de tu colegio'] as const,
   docente: 'Soy docente o institución',
-  docenteDetalle: 'Te llevamos al formulario de solicitud; tu personaje va adjunto y lo encontrarás en tu cuenta.',
+  docenteDetalle: 'Se abre un formulario para pedir acceso y tu personaje viaja adjunto. Un superadmin de GEMS revisa la solicitud y te respondemos; hasta entonces no se publica nada.',
   estudiante: 'Soy estudiante',
   estudianteDetalle: 'Pídele a tu docente que lo publique: puedes enviarle tu personaje por enlace.',
   copiar: 'Copiar enlace',
