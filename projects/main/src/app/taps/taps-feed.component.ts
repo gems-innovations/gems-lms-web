@@ -166,6 +166,7 @@ export class TapsFeedComponent {
   private semillaPersona = '';
   private semillaDia = '';
   protected readonly topics = feedTopics(TAPS, TAP_TOPICS);
+  protected readonly tapsBuscables = TAPS;
   protected readonly runs = signal<Record<string, ITapRun>>(Object.fromEntries(TAPS.map(t => [t.id, startRun(t)])));
   protected readonly activeId = signal(this.taps()[0].id);
   /**
@@ -1463,6 +1464,16 @@ export class TapsFeedComponent {
     void this.router.navigate([], { queryParams: { tema: id, t: null }, queryParamsHandling: 'merge', replaceUrl: true });
     this.activeIndex = -1;
     afterNextRender(() => { this.feed().nativeElement.scrollTo({ top: 0 }); void this.activate(0); }, { injector: this.injector });
+  }
+
+  /** Buscador: salta al Tap elegido. Si el filtro de tema lo esconde, lo quita; en la portada pasa al feed completo en ese Tap. */
+  protected goTap(id: string): void {
+    if (!findTap(id)) return;
+    this.track(null, `taps/buscar/elegir/${eventSlug(id)}`);
+    if (this.portada) { this.toFeed({ t: id }); return; }
+    const ir = () => this.sections()[this.taps().findIndex(t => t.id === id)]?.nativeElement.scrollIntoView({ block: 'start' });
+    if (this.taps().some(t => t.id === id)) ir();                           // sin cambios de estado no hay «siguiente render»: se salta ya
+    else { this.selectTopic(null); afterNextRender(ir, { injector: this.injector }); }
   }
 
   // ───────────── compartir ─────────────
