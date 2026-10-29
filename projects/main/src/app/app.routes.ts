@@ -79,6 +79,14 @@ export const routes: Routes = [
     loadComponent: () => import('./taps/taps-feed.component').then(m => m.TapsFeedComponent)
   },
   {
+    // Explorar: buscador, categorías (Minecraft primero), más vistos, nuevos y progreso. Se pinta en el navegador (shell, sin
+    // prerender: la lista depende de lo guardado y de las vistas del API). El estado viaja en la URL (?q=&tema=&sub=&orden=).
+    path: 'taps/explorar',
+    title: 'Explorar Taps: busca por tema, Minecraft, lo más visto y lo nuevo',
+    data: seo({ ...TAPS_SEO, description: 'Explora todos los Taps de GEMS: busca por título o pregunta, elige Minecraft, lógica, cultura o tecnología y juega los más vistos y los nuevos. Gratis y sin registro.' }),
+    loadComponent: () => import('./taps/taps-explorar.component').then(m => m.TapsExplorarComponent)
+  },
+  {
     // Reto del día (alias corto para los Shorts): el mismo feed, con el reto de hoy primero. El HTML prerenderizado trae una
     // portada del reto sin opciones (no sabe qué día se abre); al hidratar entra el reto del día de Colombia y se puede jugar.
     path: 'hoy',

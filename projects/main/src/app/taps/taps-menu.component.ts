@@ -7,7 +7,7 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
 
 /**
  * Menú de escritorio y tablet (escritorio.md §3). Solo destinos que existen hoy: «Ranking» abre la hoja del ranking (con su
- * propio estado «se está preparando» si el API aún no responde); «Reto del día» lleva al reto de hoy y «Colecciones» abre la
+ * propio estado «se está preparando» si el API aún no responde); «Explorar» abre /taps/explorar (buscador y catálogo); «Reto del día» lleva al reto de hoy y «Colecciones» abre la
  * hoja «Tu día» en las insignias; «Mi institución» todavía no. ≥ 1280 px: lateral ancho (se contrae con `[`). 1024–1279: lateral de iconos
  * que `[` abre encima del contenido. 768–1023: barra superior de 64 px con pestañas y un menú. En móvil no se ve.
  */
@@ -30,6 +30,9 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
         <li><button type="button" class="side__item" [class.is-on]="!topic()" (click)="forYou.emit()" [attr.aria-pressed]="!topic()" title="Para ti">
           <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg></span>
           <span class="side__txt">Para ti</span></button></li>
+        <li><a class="side__item" routerLink="/taps/explorar" title="Explorar: buscar y ver todos los Taps">
+          <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m15.5 15.5 5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+          <span class="side__txt">Explorar</span></a></li>
         <li><button type="button" class="side__item" (click)="openTopics.emit()" title="Temas" aria-haspopup="dialog" aria-keyshortcuts="T">
           <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></span>
           <span class="side__txt">Temas</span></button></li>
@@ -113,6 +116,7 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
       <div class="top__tabs" role="group" aria-label="Taps">
         <button type="button" class="top__tab" [class.is-on]="!topic()" [attr.aria-pressed]="!topic()" (click)="forYou.emit()">Para ti</button>
         <button type="button" class="top__tab" (click)="openTopics.emit()" aria-haspopup="dialog">Temas</button>
+        <a class="top__tab" routerLink="/taps/explorar">Explorar</a>
       </div>
       <button type="button" class="top__menu" (click)="moreOpen.set(!moreOpen())" #moreBtn [attr.aria-expanded]="moreOpen()" aria-controls="top-mas" aria-label="Menú">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>

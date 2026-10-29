@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, Injector, afterNextRender, inject, input, output, signal, viewChild } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TapSesionComponent } from './tap-sesion.component';
 import { IResumenSesion, sessionLabel } from './taps.sesion';
 import { ITapTopic } from './taps.types';
@@ -12,7 +13,7 @@ import { ITapTopic } from './taps.types';
  */
 @Component({
   selector: 'gems-taps-bar',
-  imports: [TapSesionComponent],
+  imports: [RouterLink, TapSesionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="bar">
@@ -40,6 +41,9 @@ import { ITapTopic } from './taps.types';
       <button type="button" class="glass bar__pill bar__rank" (click)="openRanking.emit()" aria-haspopup="dialog" aria-label="Ranking">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 14v3.5M8.5 20.5h7M9.5 17.5h5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
+      <a class="glass bar__pill bar__explorar" routerLink="/taps/explorar" aria-label="Explorar: buscar Taps">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m15.5 15.5 5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </a>
       <button type="button" class="glass bar__pill bar__topics" (click)="open()" aria-haspopup="dialog" [attr.aria-label]="'Temas: ' + topicName()">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>
         <span>{{ topicName() }}</span>
@@ -57,6 +61,12 @@ import { ITapTopic } from './taps.types';
         <div class="sheet__body">
           <h2 id="taps-sheet-title" class="sheet__title">Elige un tema</h2>
           <ul class="sheet__list">
+            <li>
+              <a class="glass sheet__item sheet__explorar" routerLink="/taps/explorar">
+                <svg class="sheet__lupa" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m15.5 15.5 5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+                <span class="sheet__name">Explorar<small>Busca, mira lo más visto y lo nuevo</small></span>
+              </a>
+            </li>
             <li>
               <button type="button" class="glass sheet__item" [class.is-on]="!topic()" (click)="pick(null)">
                 <span class="sheet__dot" style="--c: #ffffff"></span>
@@ -95,7 +105,7 @@ import { ITapTopic } from './taps.types';
        oculta y queda el logo, para que «Temas» no se recorte. */
     @media (max-width: 399px) { .bar__brand span { display: none; } }
     .bar__brand, .bar__pill { white-space: nowrap; flex: none; }
-    .bar__rank { padding: 0; }
+    .bar__rank, .bar__explorar { padding: 0; color: #fff; text-decoration: none; }
     /* Con logo, sonido y ranking, «Temas» es lo único que cede: un tema largo («Lógica y trampas») se recorta con «…». */
     .bar__topics { flex: 0 1 auto; min-width: 48px; margin-left: auto; padding: 0 12px 0 10px; overflow: hidden;
       svg { flex: none; } span { min-width: 0; overflow: hidden; text-overflow: ellipsis; } }
@@ -110,9 +120,10 @@ import { ITapTopic } from './taps.types';
     .sheet__body { padding: 16px 16px var(--safe-b); }
     .sheet__title { margin: 0 0 10px; font-size: 18px; }
     .sheet__list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
-    .sheet__item { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 8px 14px; border-radius: 14px; font: inherit; text-align: left; cursor: pointer;
+    .sheet__item { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 8px 14px; border-radius: 14px; font: inherit; text-align: left; text-decoration: none; cursor: pointer;
       &:disabled { cursor: default; opacity: .55; } }
     .sheet__item.is-on { color: #fff; small, .sheet__count { color: #fff; } }
+    .sheet__lupa { flex: none; }
     .sheet__dot { flex: none; width: 14px; height: 14px; border-radius: 4px; background: var(--c); }
     .sheet__name { flex: 1; font-size: 16px; font-weight: 800; small { display: block; font-size: 12px; font-weight: 700; color: #aab4c4; } }
     .sheet__count { font-size: 12px; font-weight: 700; color: #c8d1de; }
@@ -120,7 +131,7 @@ import { ITapTopic } from './taps.types';
     .sheet__close { width: 100%; min-height: 48px; margin-top: 12px; border-radius: 14px; font: inherit; font-weight: 700; cursor: pointer; }
     @container taps (min-width: 768px) {
       .bar { position: absolute; left: 0; right: 0; width: auto; max-width: none; transform: none; padding-top: 10px; }
-      .bar__brand, .bar__topics, .bar__rank { display: none; }
+      .bar__brand, .bar__topics, .bar__rank, .bar__explorar { display: none; }
       .bar__chip { display: inline-flex; }
       .sheet { width: min(660px, 100%); max-width: none; height: 100dvh; max-height: none; margin: 0 auto 0 0; border-radius: 0 22px 22px 0;
         &[open] { animation: drawer-in .26s var(--curva-estandar, ease); } }
