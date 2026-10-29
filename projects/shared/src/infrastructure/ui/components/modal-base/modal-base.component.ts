@@ -9,7 +9,9 @@ export type TModalSize = 'small' | 'medium' | 'large' | 'full';
   imports: [CommonModule],
   templateUrl: './modal-base.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: './modal-base.component.scss'
+  styleUrl: './modal-base.component.scss',
+  // En el documento y no en el overlay: un Escape antes de que el foco entre al diálogo también lo cierra.
+  host: { '(document:keydown.escape)': 'isOpen() && close.emit()' }
 })
 export class ModalBaseComponent {
   // Inputs
@@ -57,11 +59,5 @@ export class ModalBaseComponent {
   onContainerClick(event: MouseEvent): void {
     // Prevent overlay click when clicking inside modal
     event.stopPropagation();
-  }
-
-  onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      this.close.emit();
-    }
   }
 }
