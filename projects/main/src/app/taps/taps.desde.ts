@@ -29,6 +29,7 @@ const POR_FECHA: Record<string, readonly string[]> = {
     'tc-gancho', 'tc-git-1', 'tc-prog-1', 'tc-redes-1', 'tc-seg-1', 'tc-ia-1', 'tc-hw-1', 'tc-git-2', 'tc-prog-2', 'tc-redes-2',
     'tc-seg-2', 'tc-ia-2', 'tc-hw-2', 'tc-git-3', 'tc-prog-3', 'tc-redes-3', 'tc-seg-3', 'tc-ia-3', 'tc-hw-3', 'tc-mezcla'
   ],
+  '2026-10-29': ['mc-encantar', 'mc-pociones', 'mc-aldea-2', 'mc-debilidades', 'mc-biomas-2', 'mc-bloques'],
 };
 
 export const TAPS_DESDE: Readonly<Record<string, string>> = Object.fromEntries(

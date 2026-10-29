@@ -64,10 +64,10 @@ test('categorías: Minecraft va primero, filtra y muestra sus subtemas; combinad
   await expect(chips.nth(0)).toHaveAttribute('aria-pressed', 'true');
 });
 
-test('orden: «Nuevos» pone Tecnología primero y «Más vistos» sin datos del API avisa y no inventa cifras', async ({ page }) => {
+test('orden: «Nuevos» pone primero lo último agregado (Minecraft, ronda 3) y «Más vistos» sin datos del API avisa y no inventa cifras', async ({ page }) => {
   await abrir(page);
   await page.getByRole('button', { name: 'Nuevos', exact: true }).click();
-  expect((await hrefs(page))[0]).toMatch(/^\/t\/tc-/);
+  expect((await hrefs(page))[0]).toBe('/t/mc-bloques');
   await page.getByRole('button', { name: 'Más vistos' }).click();
   await expect(page.getByRole('note')).toContainText('Aún no hay suficientes vistas');
   expect((await hrefs(page))[0]).toBe('/t/mc-gancho');                            // el orden curado

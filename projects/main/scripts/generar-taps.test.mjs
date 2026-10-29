@@ -47,10 +47,10 @@ function bancoHistoriaMinimo() {
 const bancosMinimos = () => ({ minecraft: bancoMinimo('mc'), logica: bancoMinimo('lg'), cultura: bancoMinimo('cu'), tecnologia: bancoMinimo('tc'), historias: bancoHistoriaMinimo() });
 const correr = bancos => generar(bancos, retos, temas);
 
-test('el banco real genera 133 Taps de 5 preguntas sin errores', () => {
+test('el banco real genera 139 Taps de 5 preguntas sin errores', () => {
   const r = construir();
   assert.deepEqual(r.errores, []);
-  assert.equal(r.taps.length, 133);
+  assert.equal(r.taps.length, 139);
   assert.ok(r.taps.every(t => t.questions.length === LIMITES.preguntasPorTap));
 });
 
@@ -323,7 +323,7 @@ test('reto del día: la rotación está versionada por día y los domingos pasan
   const { taps, calendario } = construir();
   const porId = new Map(taps.map(t => [t.id, t]));
   const tc = calendario.dias.map((id, d) => [id, d]).filter(([id]) => porId.get(id).topic === 'tecnologia');
-  assert.equal(tc.length, 19, 'los 19 Taps de Tecnología (sin gancho) entran al calendario');
+  assert.ok(tc.length >= 19, 'los 19 Taps de Tecnología (sin gancho) entran al calendario (y se repiten en los domingos siguientes)');
   assert.ok(tc.every(([, d]) => d >= 427 && d % 7 === 6), 'solo en domingos nuevos');
   assert.equal(new Set(tc.map(([id]) => id)).size, 19);
   // cambiar la rotación no toca los días ya fijados: con la rotación vieja en los días fijos sale lo mismo
