@@ -163,11 +163,11 @@ export class CoursePlayerUseCase {
     return !!b && this.lockedBlockIds().has(b.id);
   });
 
-  /** Submissions for the current course that have been graded by the instructor */
-  readonly gradedSubmissions = computed(() => {
+  /** The student's submissions for the current course, as the server has them (pending or graded) */
+  readonly courseSubmissions = computed(() => {
     const courseId = this._courseId();
     if (!courseId) return [];
-    return this.enrollmentUc.submissions().filter(s => s.courseId === courseId && s.status === 'graded');
+    return this.enrollmentUc.submissions().filter(s => s.courseId === courseId);
   });
 
   readonly quizAttemptCount = computed(() => {

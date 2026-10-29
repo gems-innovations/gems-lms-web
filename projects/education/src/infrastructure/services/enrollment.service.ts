@@ -266,7 +266,7 @@ export class EnrollmentService {
       ? this.files.upload(req.attachedFile, 'private').pipe(
           map(f => [...(req.fileUrls ?? []), f.url]),
           catchError(err => throwError(() => new Error(
-            err?.status === 413 ? 'El archivo supera el tamaño permitido (10 MB).' : 'No se pudo subir el archivo adjunto.'
+            err?.status === 413 ? 'El archivo supera el tamaño permitido (10 MB).' : 'No se pudo subir el archivo. Tu entrega sigue aquí: revisa la conexión y toca «Entregar tarea» de nuevo.'
           )))
         )
       : of(req.fileUrls ?? []);

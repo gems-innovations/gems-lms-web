@@ -90,18 +90,19 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
       }
     });
 
-    // Sync graded submissions from enrollment state into local display state
+    // Muestra las entregas que el servidor confirmó (pendientes y calificadas): al recargar no se pierde
+    // la pendiente, y una entrega que no llegó no aparece como entregada.
     effect(() => {
-      const graded = this.uc.gradedSubmissions();
-      if (!graded.length) return;
+      const subs = this.uc.courseSubmissions();
+      if (!subs.length) return;
       this._submissions.update(map => {
         const next = { ...map };
-        for (const sub of graded) {
+        for (const sub of subs) {
           next[sub.blockId] = {
             submittedAt: sub.submittedAt,
             textContent: sub.textContent ?? '',
-            fileName:    undefined,
-            status:      'graded',
+            fileName:    sub.fileUrls?.length ? 'Archivo adjunto' : undefined,
+            status:      sub.status === 'pending' ? 'pending_review' : sub.status,
             grade: sub.grade != null ? {
               score:    sub.grade,
               maxScore: 100,
@@ -300,15 +301,6 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
 
   protected handleAssignmentSubmit(payload: IAssignmentSubmitPayload): void {
     this.uc.handleAssignmentSubmit(payload);
-    this._submissions.update(map => ({
-      ...map,
-      [payload.blockId]: {
-        submittedAt: new Date(),
-        textContent: payload.textContent,
-        fileName:    payload.attachedFile?.name,
-        status:      'pending_review',
-      }
-    }));
   }
 
   protected openCertificate(): void { this.showCertificate.set(true); }
