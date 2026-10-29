@@ -87,3 +87,13 @@ test('disenador.js (PR-D3): títulos por paso y botones de avanzar según §2 de
   assert.deepEqual([...titulos], ['Elige quién eres', 'Hazlo tuyo', 'Dónde vive', 'Lo hiciste']);
   assert.deepEqual([...botones], ['Siguiente', 'Ponlo en su mundo', 'Terminar', 'Empezar otro']);
 });
+
+test('disenador.js (PR-E7/E8): Listo con guardar y compartir primero, antes/después, confirmación y sonido en silencio con aria correcto', () => {
+  assert.ok(codigo.indexOf('id=\\"formGuardar\\"') < codigo.indexOf('id=\\"reacciones\\"'), 'guardar antes que las reacciones');
+  assert.ok(codigo.indexOf('id=\\"compartir\\"') < codigo.indexOf('id=\\"muestraPregunta\\"'), 'compartir antes que «Míralo en un Tap»');
+  assert.match(codigo, /id=\\"comparar\\" aria-pressed=\\"false\\"/);
+  assert.match(cuerpo, /confirm\('¿Empezar otro personaje\?/);
+  assert.match(cuerpo, /almacen\.leer\(CLAVE_SONIDO\) === 'on'/, 'silencio inicial');
+  assert.doesNotMatch(cuerpo, /btnSonido\.setAttribute\('aria-label'/, 'sin aria-label cambiante junto a aria-pressed');
+  assert.match(codigo, /id=\\"sonido\\"[^>]*aria-pressed=\\"false\\"[^>]*title=\\"Sonido \(tecla M\)\\"/);
+});

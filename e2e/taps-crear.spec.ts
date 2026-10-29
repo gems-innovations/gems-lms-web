@@ -405,11 +405,11 @@ test.describe('entradas a /crear', () => {
     await expect(dsn.locator('#bocadillo')).not.toHaveAttribute('aria-live', /.+/);
     // Un solo mecanismo de estado en el sonido: la etiqueta no cambia, aria-pressed sí.
     const sonido = dsn.locator('#sonido');
-    await expect(sonido).toHaveAttribute('aria-label', 'Sonido');
+    await expect(sonido).not.toHaveAttribute('aria-label', /.+/);
     const antes = await sonido.getAttribute('aria-pressed');
     await sonido.click();
     await expect(sonido).not.toHaveAttribute('aria-pressed', antes!);
-    await expect(sonido).toHaveAttribute('aria-label', 'Sonido');
+    await expect(sonido).not.toHaveAttribute('aria-label', /.+/);
     // Cambiar de paso mueve el foco al h1.
     await dsn.locator('#siguiente').click();
     await expect(dsn.locator('h1')).toBeFocused();
