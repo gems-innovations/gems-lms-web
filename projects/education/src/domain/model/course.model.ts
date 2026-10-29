@@ -195,6 +195,8 @@ export interface ICreateCourseRequest {
   tags: string[];
   thumbnailUrl?: string;
   institutionId?: string;
+  /** Arranca el curso con los módulos y tareas de una plantilla (ver course-templates.ts). */
+  templateId?: string;
 }
 
 export interface IUpdateCourseRequest {

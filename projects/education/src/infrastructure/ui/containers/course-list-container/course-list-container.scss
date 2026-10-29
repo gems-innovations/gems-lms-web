@@ -1,0 +1,15 @@
+.ncform { display: grid; gap: 14px; }
+.ncform__label { font-size: 0.8125rem; color: var(--color-texto-secundario); }
+.ncform__templates { display: grid; gap: 8px; }
+.ncform__tpl {
+  display: grid; gap: 2px; text-align: left; cursor: pointer; padding: 12px 14px; min-height: 44px; border-radius: 10px;
+  color: var(--color-texto-principal); background: transparent; border: 1px solid color-mix(in srgb, var(--color-texto-principal) 18%, transparent);
+  span { font-size: 0.8125rem; color: var(--color-texto-secundario); }
+  &--on { border-color: var(--color-texto-acento); background: color-mix(in srgb, var(--color-texto-acento) 10%, transparent); }
+}
+.ncform__field {
+  display: grid; gap: 6px; font-size: 0.8125rem; color: var(--color-texto-secundario);
+  input, textarea, select { font: inherit; font-size: 0.9375rem; padding: 10px 12px; min-height: 44px; border-radius: 8px; color: var(--color-texto-principal); background: transparent; border: 1px solid color-mix(in srgb, var(--color-texto-principal) 20%, transparent); }
+}
+.ncform__actions { display: flex; justify-content: flex-end; gap: 10px; align-items: center; }
+.ncform__submit { min-height: 44px; padding: 0 18px; border: 0; border-radius: 8px; font: inherit; font-weight: 600; cursor: pointer; color: #fff; background: var(--color-texto-acento); &:disabled { opacity: 0.5; cursor: not-allowed; } }
