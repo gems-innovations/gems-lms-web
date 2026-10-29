@@ -1,6 +1,6 @@
 import {
   CINTA_TRANSPARENCIA, CLAVE_ESTUDIANTE, COPY_GANCHO, HITOS_CUENTA, IAdjuntoBorrador, MAX_ADJUNTO, NOMBRES_ADJUNTO, PASO_PUBLICAR, armarAdjunto,
-  destinoVolver, enlaceRegistro, hitosCrear, leerBorradorId, leerDraft, origenCrear, tituloGancho, validarAdjunto,
+  destinoVolver, enlaceRegistro, hitosCrear, leerBorradorId, leerDraft, origenCrear, tapsCreadorActivo, tituloGancho, validarAdjunto,
 } from './taps.crear';
 
 describe('destinoVolver (cabecera de marca de /crear)', () => {
@@ -232,5 +232,18 @@ describe('leerDraft (lo que devuelve el API en /solicitudes)', () => {
     expect(r.colores).toEqual([]);
     expect(r.objeto).toBe('Objeto');
     expect(r.escenario).toBe('Escenario');
+  });
+});
+
+describe('tapsCreadorActivo (bandera del paso Preguntas)', () => {
+  it('apagada por defecto y con cualquier valor que no sea true', () => {
+    for (const v of [undefined, null, false, 0, 1, 'true', '1', {}]) expect(tapsCreadorActivo(v, '', false)).toBeFalse();
+  });
+  it('encendida por config.js', () => { expect(tapsCreadorActivo(true, '', false)).toBeTrue(); });
+  it('?editor=1 solo cuenta en desarrollo', () => {
+    expect(tapsCreadorActivo(false, '?editor=1', true)).toBeTrue();
+    expect(tapsCreadorActivo(false, '?desde=feed&editor=1', true)).toBeTrue();
+    expect(tapsCreadorActivo(false, '?editor=1', false)).toBeFalse();
+    expect(tapsCreadorActivo(false, '?editor=0', true)).toBeFalse();
   });
 });

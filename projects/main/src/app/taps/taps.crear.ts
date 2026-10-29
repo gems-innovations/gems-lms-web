@@ -7,6 +7,17 @@ import { TEventPath } from '../analytics-taxonomy';
  * borrador adjunto a la solicitud de /instituciones (§A.3.3). Sin Angular ni DOM, para probarla sin navegador.
  */
 
+/**
+ * Bandera `tapsCreador` (PR-W0): enciende el paso «Preguntas» de /crear. Vive en config.js (`globalThis.tapsCreador = true`, apagada
+ * por defecto y ausente en los despliegues que no la ponen). Solo en desarrollo y pruebas e2e (`dev`) se puede encender además con
+ * `?editor=1`. Cualquier otro valor (cadenas, 1, "true") cuenta como apagada.
+ */
+export function tapsCreadorActivo(bandera: unknown, search: string, dev: boolean): boolean {
+  if (bandera === true) return true;
+  if (!dev) return false;
+  try { return new URLSearchParams(search || '').get('editor') === '1'; } catch { return false; }
+}
+
 /** Marca de «ya vio la cinta» (localStorage, junto a las claves taps.disenador.* del diseñador). */
 export const CLAVE_AVISO_PUBLICAR = 'taps.crear.aviso-publicar';
 /**
