@@ -24,6 +24,8 @@
             [class.ctree__module-row--active]="uc.selectedItem().type === 'module' && uc.selectedItem().moduleId === mod.id"
             (click)="selectModule(mod.id)">
             <button class="ctree__expand-btn"
+              [attr.aria-label]="(isModuleExpanded(mod.id) ? 'Contraer ' : 'Expandir ') + mod.title"
+              [attr.aria-expanded]="isModuleExpanded(mod.id)"
               [class.ctree__expand-btn--open]="isModuleExpanded(mod.id)"
               (click)="$event.stopPropagation(); toggleExpand(mod.id)">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
