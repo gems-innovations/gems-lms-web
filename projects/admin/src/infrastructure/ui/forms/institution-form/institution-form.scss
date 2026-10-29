@@ -468,7 +468,8 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     border: 1px solid $border;
     border-radius: 0.625rem;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: 0.15s ease;
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
     text-align: center;
 
     &:hover {
@@ -526,7 +527,8 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     border: 1px solid $border;
     border-radius: 0.625rem;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: 0.15s ease;
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 
     &:hover {
       background: color-mix(in srgb, var(--color-texto-principal) 6%, transparent);
@@ -602,7 +604,8 @@ $focus-ring: rgba(108, 99, 255, 0.35);
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: 0.15s ease;
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
     border: 1px solid transparent;
 
     @media (max-width: 640px) { width: 100%; }

@@ -61,7 +61,8 @@
   color: var(--color-texto-terciario);
   font-size: 0.8125rem;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: 0.15s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   text-align: left;
   margin-bottom: 0.25rem;
 
@@ -133,7 +134,8 @@
   color: var(--color-texto-terciario);
   cursor: pointer;
   opacity: 0;
-  transition: all 0.15s;
+  transition: 0.15s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   flex-shrink: 0;
 
   .ctree__module-row:hover & { opacity: 1; }
@@ -158,7 +160,8 @@
   font-size: 0.8rem;
   cursor: pointer;
   text-align: left;
-  transition: all 0.12s;
+  transition: 0.12s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 
   &:hover { background: color-mix(in srgb, var(--color-texto-principal) 3%, transparent); color: var(--color-texto-principal); }
   &--active { background: color-mix(in srgb, var(--color-primario) 15%, transparent); color: var(--color-primario); }
@@ -265,7 +268,8 @@
   font-size: 0.8125rem;
   cursor: pointer;
   margin-top: 0.5rem;
-  transition: all 0.15s;
+  transition: 0.15s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 
   &:hover { color: var(--color-primario); border-color: color-mix(in srgb, var(--color-primario) 30%, transparent); background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
 }

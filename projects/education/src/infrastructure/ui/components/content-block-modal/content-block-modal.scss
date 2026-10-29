@@ -60,7 +60,8 @@
   justify-content: center;
   color: var(--color-texto-terciario);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: 0.15s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   flex-shrink: 0;
 
   &:hover { color: var(--color-texto-principal); border-color: color-mix(in srgb, var(--color-texto-principal) 20%, transparent); }
@@ -116,7 +117,8 @@
   border: 1px solid var(--color-borde-sutil);
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.18s;
+  transition: 0.18s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   text-align: center;
 
   &:hover { border-color: color-mix(in srgb, var(--color-primario) 45%, transparent); background: var(--color-superficie-alta); transform: translateY(-2px); }
@@ -290,7 +292,8 @@
   border: 1px solid var(--color-borde-sutil);
   background: transparent;
   color: var(--color-texto-terciario);
-  transition: all 0.15s;
+  transition: 0.15s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 
   &--on { background: color-mix(in srgb, var(--color-exito) 12%, transparent); color: var(--color-exito); border-color: color-mix(in srgb, var(--color-exito) 30%, transparent); }
 }
@@ -315,7 +318,8 @@
   font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.12s;
+  transition: 0.12s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 
   &:hover { color: var(--color-texto-principal); background: color-mix(in srgb, var(--color-texto-principal) 4%, transparent); }
   &--active { background: color-mix(in srgb, var(--color-primario) 15%, transparent); color: var(--color-primario); }
@@ -350,7 +354,8 @@
   font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: 0.15s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 
   &:hover { background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
 }
@@ -440,7 +445,8 @@
   color: var(--color-error);
   cursor: pointer;
   margin-left: auto;
-  transition: all 0.12s;
+  transition: 0.12s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 
   &:hover { background: color-mix(in srgb, var(--color-error) 8%, transparent); }
 }
@@ -485,7 +491,8 @@
   justify-content: center;
   cursor: pointer;
   color: transparent;
-  transition: all 0.12s;
+  transition: 0.12s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   flex-shrink: 0;
 
   &--on { background: color-mix(in srgb, var(--color-exito) 15%, transparent); border-color: var(--color-exito); color: var(--color-exito); }
@@ -524,7 +531,8 @@
   font-size: 0.78rem;
   cursor: pointer;
   align-self: flex-start;
-  transition: all 0.15s;
+  transition: 0.15s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 
   &:hover { color: var(--color-primario); border-color: color-mix(in srgb, var(--color-primario) 30%, transparent); }
 }
@@ -544,7 +552,8 @@
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: 0.15s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 
   &--on { background: color-mix(in srgb, var(--color-exito) 12%, transparent); color: var(--color-exito); border-color: color-mix(in srgb, var(--color-exito) 30%, transparent); }
   &:hover:not(.cbm__tf-btn--on) { color: var(--color-texto-principal); }
@@ -561,7 +570,8 @@
   color: var(--color-texto-terciario);
   font-size: 0.8125rem;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: 0.15s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 
   &:hover { color: var(--color-primario); border-color: color-mix(in srgb, var(--color-primario) 50%, transparent); background: color-mix(in srgb, var(--color-primario) 15%, transparent); }
 }
@@ -652,7 +662,8 @@
   font-size: 0.78rem;
   cursor: pointer;
   align-self: flex-start;
-  transition: all 0.15s;
+  transition: 0.15s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 
   &:hover { color: var(--color-exito); border-color: color-mix(in srgb, var(--color-exito) 30%, transparent); }
 }
@@ -678,7 +689,8 @@
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: 0.15s;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 
   &:hover { color: var(--color-texto-principal); border-color: color-mix(in srgb, var(--color-texto-principal) 20%, transparent); }
 }
