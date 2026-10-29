@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, input, output, signal, viewChild } from '@angular/core';
+import { numero } from './taps.ranking';
+import { ITapSocial } from './taps-social.service';
 
 /**
  * Riel de acciones del Tap. Dos formas del mismo componente:
@@ -14,6 +16,15 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, input, ou
   template: `
     @if (!desktop()) {
       <nav class="rail" aria-label="Acciones del Tap">
+        <button type="button" class="rail__btn" [class.is-on]="social()?.yoLike" [attr.aria-pressed]="social()?.yoLike ?? false" [disabled]="!social()" (click)="like.emit()"
+                [attr.aria-label]="social() ? 'Me gusta, ' + social()!.likes + (social()!.likes === 1 ? ' persona' : ' personas') : 'Me gusta'">
+          <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10Z" [attr.fill]="social()?.yoLike ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg></span>
+          <span class="rail__label">{{ social()?.likes ? numero(social()!.likes) : 'Me gusta' }}</span>
+        </button>
+        <button type="button" class="rail__btn" (click)="comments.emit()" [attr.aria-label]="social()?.comentarios ? 'Comentarios, ' + social()!.comentarios : 'Comentarios'">
+          <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4.5 5.5h15v10.5H10l-5.5 4Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg></span>
+          <span class="rail__label">{{ social()?.comentarios ? numero(social()!.comentarios) : 'Comentar' }}</span>
+        </button>
         <div class="rail__more">
           <button type="button" class="rail__btn" (click)="toggleMenu($event)" #moreBtn [attr.aria-expanded]="menuOpen()" aria-controls="rail-mas-movil" aria-label="Más opciones">
             <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="5.5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="18.5" cy="12" r="2" fill="currentColor"/></svg></span>
@@ -49,6 +60,15 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, input, ou
           </button>
         </div>
         <div class="rail__actions">
+          <button type="button" class="rail__btn" [class.is-on]="social()?.yoLike" [attr.aria-pressed]="social()?.yoLike ?? false" [disabled]="!social()" (click)="like.emit()"
+                  [attr.aria-label]="social() ? 'Me gusta, ' + social()!.likes + (social()!.likes === 1 ? ' persona' : ' personas') : 'Me gusta'">
+            <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10Z" [attr.fill]="social()?.yoLike ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg></span>
+            <span class="rail__label">{{ social()?.likes ? numero(social()!.likes) : 'Me gusta' }}</span>
+          </button>
+          <button type="button" class="rail__btn" (click)="comments.emit()" [attr.aria-label]="social()?.comentarios ? 'Comentarios, ' + social()!.comentarios : 'Comentarios'">
+            <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4.5 5.5h15v10.5H10l-5.5 4Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg></span>
+            <span class="rail__label">{{ social()?.comentarios ? numero(social()!.comentarios) : 'Comentar' }}</span>
+          </button>
           <button type="button" class="rail__btn" (click)="filterTopic.emit()" [attr.aria-label]="'Ver solo Taps de ' + topicName()">
             <span class="gm-icono gm-icono--flotante rail__icon rail__topic" [style.--tinte]="topicColor()"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M16.5 13.5v6M13.5 16.5h6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span>
             <span class="rail__label">Tema</span>
@@ -98,6 +118,10 @@ export class TapRailComponent {
   /** «Haz tu personaje» en el menú «Más» (PR-7): solo en /taps, no en la portada (allí ya está la tarjeta). */
   readonly crear = input(false);
   readonly crearPersonaje = output<void>();
+  /** Likes y comentarios del Tap; null mientras no llegan del servidor (los botones van sin número). */
+  readonly social = input<ITapSocial | null>(null);
+  readonly like = output<void>();
+  readonly comments = output<void>();
 
   readonly more = output<void>();
   readonly filterTopic = output<void>();
@@ -109,6 +133,7 @@ export class TapRailComponent {
   readonly toggleKeys = output<void>();
 
   protected readonly menuOpen = signal(false);
+  protected readonly numero = numero;
 
   protected toggleMenu(event: Event): void { event.stopPropagation(); this.menuOpen.update(v => !v); }
   protected pick(action: () => void): void { this.menuOpen.set(false); action(); }

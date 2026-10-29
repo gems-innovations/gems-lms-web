@@ -1,0 +1,52 @@
+// Comentarios de un Tap: misma hoja inferior (móvil) y cajón derecho (≥ 768 px) que el ranking.
+:host { --cm-fondo: #161b24; --cm-borde: rgba(255, 255, 255, .1); --cm-suave: #aab4c4; --cm-cian: #4de1ff;
+  --safe-b: max(16px, calc(env(safe-area-inset-bottom) + 8px)); font-family: var(--font-interfaz, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif); }
+
+.cm { width: 100%; max-width: 480px; max-height: 80dvh; margin: auto auto 0; padding: 0; border: 0; border-radius: 22px 22px 0 0; overflow: hidden;
+  color: #fff; background: var(--cm-fondo); box-shadow: 0 -12px 40px rgba(0, 0, 0, .5);
+  &::backdrop { background: rgba(0, 0, 0, .55); }
+  &[open] { display: flex; animation: cm-sube var(--dur-base, .26s) var(--curva-estandar, cubic-bezier(.2, 1.1, .4, 1)); } }
+.cm__cuerpo { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; padding: 14px 16px 0; }
+
+.cm__cabeza { display: flex; align-items: center; gap: 10px; }
+.cm__titulo { flex: 1; margin: 0; font-size: 1.25rem; font-weight: 800; }
+.cm__total { margin-left: 4px; color: var(--cm-suave); font-weight: 700; }
+.cm__cerrar { display: grid; place-items: center; width: 48px; height: 48px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .08); color: #fff; cursor: pointer; }
+.cm__tap { margin: 2px 0 10px; font-size: .875rem; color: var(--cm-suave); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.cm__lista { flex: 1; min-height: 120px; overflow: auto; overscroll-behavior: contain; }
+.cm__items { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.cm__item { padding: 10px 0; border-bottom: 1px solid var(--cm-borde); }
+.cm__autor { margin: 0; font-size: .8125rem; font-weight: 800; color: #dfe6ef;
+  time { margin-left: 6px; font-weight: 600; color: var(--cm-suave); } }
+.cm__tu { margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: .6875rem; color: #0d1117; background: var(--cm-cian); }
+.cm__texto { margin: 4px 0 0; font-size: .9375rem; line-height: 1.4; overflow-wrap: anywhere; }
+.cm__accion { min-height: 44px; margin-top: 2px; padding: 0 2px; border: 0; background: none; color: var(--cm-suave); font: inherit; font-size: .8125rem; font-weight: 700; cursor: pointer;
+  &:hover { color: #fff; } }
+.cm__hecho { display: inline-block; margin-top: 12px; font-size: .8125rem; color: var(--cm-suave); }
+.cm__mas { width: 100%; min-height: 48px; margin: 8px 0; border: 1px solid rgba(255, 255, 255, .16); border-radius: 999px; background: none; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+
+.cm__pie { padding: 10px 0 var(--safe-b); border-top: 1px solid var(--cm-borde); }
+.cm__form textarea { box-sizing: border-box; width: 100%; padding: 10px 12px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 14px; resize: none;
+  color: #fff; background: rgba(255, 255, 255, .06); font: inherit; font-size: 1rem; }
+.cm__fila { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+.cm__cuenta { font-size: .75rem; color: var(--cm-suave); font-variant-numeric: tabular-nums; }
+.cm__enviar { min-height: 48px; padding: 0 20px; border: 0; border-radius: 999px; color: #0d1117; background: var(--cm-cian); font: inherit; font-weight: 800; cursor: pointer;
+  &:disabled { opacity: .45; cursor: default; } }
+.cm__aviso { margin: 6px 0 0; font-size: .875rem; color: #ffb4c0; }
+.cm__nota { margin: 0; font-size: .9375rem; color: #dfe6ef; a { color: var(--cm-cian); font-weight: 800; } }
+
+.cm__estado { --color-texto: #fff; --color-texto-secundario: #c8d1de; --color-superficie: transparent; --color-superficie-alta: rgba(255, 255, 255, .06); --color-borde: var(--cm-borde); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+@media (min-width: 768px) {
+  .cm { width: 440px; max-width: none; height: 100dvh; max-height: none; margin: 0 0 0 auto; border-radius: 22px 0 0 22px; box-shadow: -12px 0 40px rgba(0, 0, 0, .5);
+    &[open] { animation-name: cm-entra; } }
+  .cm__cuerpo { padding: 20px 22px 0; }
+}
+
+@keyframes cm-sube { from { transform: translateY(100%); } }
+@keyframes cm-entra { from { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .cm[open] { animation: none; } }
+:host-context(html.reduce-motion) .cm[open] { animation: none; }

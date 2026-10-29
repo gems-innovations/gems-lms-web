@@ -19,6 +19,8 @@ import { TapRailComponent } from './tap-rail.component';
 import { TapPanelComponent } from './tap-panel.component';
 import { IMenuTopic, TapsMenuComponent } from './taps-menu.component';
 import { TapsRankingComponent } from './taps-ranking.component';
+import { TapComentariosComponent } from './tap-comentarios.component';
+import { TapsSocialService } from './taps-social.service';
 import { TapsRankingService } from './taps-ranking.service';
 import { TapsEstadisticasService } from './taps-estadisticas.service';
 import { IPartidaRespuesta } from './taps.ranking';
@@ -88,7 +90,7 @@ const SALTO_KEY = 'gems-portada-salto';
  */
 @Component({
   selector: 'gems-taps',
-  imports: [TapResultComponent, TapsBarComponent, TapRailComponent, TapPanelComponent, TapsMenuComponent, TapsRankingComponent, SkeletonComponent, TapSesionHojaComponent, TapPausaComponent, NgTemplateOutlet],
+  imports: [TapResultComponent, TapsBarComponent, TapRailComponent, TapPanelComponent, TapsMenuComponent, TapsRankingComponent, TapComentariosComponent, SkeletonComponent, TapSesionHojaComponent, TapPausaComponent, NgTemplateOutlet],
   templateUrl: './taps-feed.component.html',
   styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.formatos.scss', './taps-feed.escritorio.scss', './taps-feed.escena.scss', './taps-feed.portada.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -106,6 +108,13 @@ export class TapsFeedComponent {
   private readonly status = inject(AppStatusService);
   /** Rankings: envío de cada partida terminada y alias del jugador (solo en el navegador). */
   protected readonly ranking = inject(TapsRankingService);
+  protected readonly social = inject(TapsSocialService);
+  /** Las cifras de likes y comentarios del Tap a la vista (una vez por Tap y visita). */
+  private readonly cargarSocial = effect(() => this.social.cargar(this.activeId()));
+  /** Tap cuyos comentarios están abiertos (hoja diferida, como el ranking). */
+  protected readonly comentariosDe = signal<ITap | null>(null);
+  private comentariosShown = false;
+  private comentariosOpener: HTMLElement | null = null;
   private readonly estadisticas = inject(TapsEstadisticasService);
   private readonly isBrowser = isPlatformBrowser(this.platform);
   /** Efectos (sintetizados por código) y voz de los personajes: taps-engine/audio y taps-engine/voz, cargados bajo demanda. */
@@ -1177,6 +1186,37 @@ export class TapsFeedComponent {
     }
     const opener = this.rankingOpener;
     this.rankingOpener = null;
+    if (opener?.isConnected) afterNextRender(() => opener.focus({ preventScroll: true }), { injector: this.injector });
+  }
+
+  // ───────────── comentarios ─────────────
+  protected openComments(tap: ITap): void {
+    if (this.comentariosDe()) return;
+    const active = this.document.activeElement;
+    this.comentariosOpener = active instanceof HTMLElement && active !== this.document.body ? active : null;
+    this.track(null, `taps/comentarios/abrir/${tap.id}`);
+    this.comentariosDe.set(tap);
+  }
+
+  /** Mientras los comentarios están abiertos, la cuenta atrás espera y la voz calla (igual que con el ranking). */
+  protected onCommentsShown(): void {
+    this.comentariosShown = true;
+    this.sheetOpen.set(true);
+    this.clock.pause();
+    this.pauseDuo();
+    this.audio.callar();
+  }
+
+  protected closeComments(): void {
+    if (!this.comentariosDe()) return;
+    this.comentariosDe.set(null);
+    if (this.comentariosShown) {
+      this.comentariosShown = false;
+      this.sheetOpen.set(false);
+      if (!this.held && !this.document.hidden) { this.clock.resume(); this.resumeDuo(); }
+    }
+    const opener = this.comentariosOpener;
+    this.comentariosOpener = null;
     if (opener?.isConnected) afterNextRender(() => opener.focus({ preventScroll: true }), { injector: this.injector });
   }
 

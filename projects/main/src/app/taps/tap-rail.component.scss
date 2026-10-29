@@ -32,3 +32,5 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
     &:hover { background: rgba(255, 255, 255, .1); } } }
 @media (any-pointer: coarse) and (not (any-pointer: fine)) { .rail__nav { display: none; } }
 @media (prefers-reduced-motion: reduce) { .rail__btn.is-pulse .gm-icono { animation: none; } }
+.rail__btn.is-on .gm-icono { color: #ff4d6d; }
+.rail__btn:disabled:not(.rail__btn--flecha) { cursor: default; }
