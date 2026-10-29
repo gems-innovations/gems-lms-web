@@ -94,6 +94,8 @@ export interface IContentBlock {
 
   // ── DOCUMENT / MARKDOWN ──
   markdownContent?: string;
+  /** Editor o proyecto incrustado bajo el texto (StackBlitz, CodePen o CodeSandbox). */
+  embedUrl?: string;
 
   // ── SCORM ──
   scormVersion?: '1.2' | '2004';
@@ -233,6 +235,7 @@ export interface ICreateContentBlockRequest {
   captionsUrl?: string;
   // Markdown
   markdownContent?: string;
+  embedUrl?: string;
   // SCORM
   scormVersion?: '1.2' | '2004';
   completionThreshold?: number;

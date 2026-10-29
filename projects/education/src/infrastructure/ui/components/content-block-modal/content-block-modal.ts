@@ -17,6 +17,7 @@ import {
 import { QuestionBankService } from '../../../services/question-bank.service';
 import { toVideoEmbedUrl } from '../../../../application/video-embed';
 import type { IBankCategory } from '../../../services/question-bank.service';
+import { toEditorEmbedUrl } from '../../../../application/video-embed';
 import { CARDS_TEMPLATES } from '../../../../application/cards-templates';
 import { CARD_KIND_LABELS, cardProblem, cleanCard, emptyCard, estimateMinutes, TCardKind } from '../../../../application/cards';
 import { FileUploadService } from 'shared';
@@ -108,6 +109,8 @@ export class ContentBlockModal implements OnInit {
 
   readonly liveStartsAt    = signal('');
   readonly markdownContent = signal('');
+  readonly embedUrl        = signal('');
+  readonly embedOk         = computed(() => !this.embedUrl().trim() || toEditorEmbedUrl(this.embedUrl()) !== null);
   readonly markdownPreview = signal(false);
 
   readonly scormUrl             = signal('');
@@ -156,6 +159,7 @@ export class ContentBlockModal implements OnInit {
     const type = this.selectedType();
     if (type === EContentType.VIDEO)      return !!this.videoUrl().trim();
     if (type === EContentType.SCORM)      return !!this.scormUrl().trim();
+    if (type === EContentType.DOCUMENT)   return this.embedOk();
     if (type === EContentType.CARDS)      return this.cards().length > 0 && this.cardProblems().every(p => p === null);
     if (type === EContentType.QUIZ) {
       const pools = this.validPools();
@@ -190,6 +194,7 @@ export class ContentBlockModal implements OnInit {
     this.videoTranscript.set(b.videoTranscript ?? '');
     this.captionsUrl.set(b.captionsUrl ?? '');
     this.markdownContent.set(b.markdownContent ?? '');
+    this.embedUrl.set(b.embedUrl ?? '');
     this.liveStartsAt.set(b.liveStartsAt ?? '');
     this.scormUrl.set(b.type === EContentType.SCORM ? b.url ?? '' : '');
     this.scormVersion.set(b.scormVersion ?? '1.2');
@@ -308,7 +313,7 @@ export class ContentBlockModal implements OnInit {
       req.videoTranscript   = this.videoTranscript().trim() || undefined;
       req.captionsUrl       = this.captionsUrl().trim() || undefined;
     }
-    if (type === EContentType.DOCUMENT) { req.markdownContent = this.markdownContent(); }
+    if (type === EContentType.DOCUMENT) { req.markdownContent = this.markdownContent(); req.embedUrl = this.embedUrl().trim() || undefined; }
     if (type === EContentType.LIVE_SESSION) {
       req.url = this.videoUrl().trim() || undefined;
       req.liveStartsAt = this.liveStartsAt() || undefined;

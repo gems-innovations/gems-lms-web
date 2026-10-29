@@ -100,6 +100,11 @@
       <markdown class="player-content-block__markdown markdown-body"
         [data]="blk.markdownContent ?? ''" ngPreserveWhitespaces></markdown>
 
+      @if (editorEmbedUrl(); as src) {
+        <iframe class="pcb-editor" [src]="src" [title]="'Editor de código: ' + blk.title" loading="lazy"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe>
+      }
+
       @if (isComplete()) {
         <div class="pcb-gate pcb-gate--done pcb-gate--foot">
           <svg class="pcb-gate__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>

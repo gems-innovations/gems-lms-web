@@ -40,7 +40,7 @@ app.use((_req, res, next) => {
   const connectSources = ["'self'", apiOrigin].filter(Boolean).join(' ');
   res.set({
     'Cache-Control': 'no-cache',
-    'Content-Security-Policy': `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://gc.zgo.at https://accounts.google.com/gsi/client; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; img-src 'self' data: blob: https: ${apiOrigin}; media-src 'self' blob: ${apiOrigin}; frame-src https://accounts.google.com/gsi/ https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; font-src 'self' data:; connect-src ${connectSources} https://infogems.goatcounter.com https://accounts.google.com/gsi/`,
+    'Content-Security-Policy': `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://gc.zgo.at https://accounts.google.com/gsi/client; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; img-src 'self' data: blob: https: ${apiOrigin}; media-src 'self' blob: ${apiOrigin}; frame-src https://accounts.google.com/gsi/ https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://stackblitz.com https://codepen.io https://codesandbox.io; font-src 'self' data:; connect-src ${connectSources} https://infogems.goatcounter.com https://accounts.google.com/gsi/`,
     // allow-popups: el botón de Google abre su ventana y le devuelve la credencial a esta página.
     'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
     'Permissions-Policy': 'camera=(), geolocation=(), microphone=(), payment=(), usb=()',

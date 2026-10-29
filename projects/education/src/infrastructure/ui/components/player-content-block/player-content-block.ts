@@ -13,7 +13,7 @@ import {
 } from '../../../../domain/model/course.model';
 import { IQuizAnswer } from '../../../../domain/model/enrollment.model';
 import { QuizSessionService } from '../../../services/quiz-session.service';
-import { toVideoEmbedUrl } from '../../../../application/video-embed';
+import { toEditorEmbedUrl, toVideoEmbedUrl } from '../../../../application/video-embed';
 import {
   IQuizSubmitPayload, IAssignmentSubmitPayload, IQuizResult,
   IAssignmentSubmission
@@ -152,6 +152,12 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
     const block = this.block();
     if (!block || block.type !== EContentType.VIDEO || !block.url || this.directVideo()) return null;
     const embed = toVideoEmbedUrl(block.url);
+    return embed ? this.sanitizer.bypassSecurityTrustResourceUrl(embed) : null;
+  });
+
+  protected readonly editorEmbedUrl = computed((): SafeResourceUrl | null => {
+    const url = this.block()?.embedUrl;
+    const embed = url ? toEditorEmbedUrl(url) : null;
     return embed ? this.sanitizer.bypassSecurityTrustResourceUrl(embed) : null;
   });
 
