@@ -167,13 +167,16 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
 
   // ── Assignment state ───────────────────────────────────────────────────────
   protected readonly assignmentText      = signal('');
+  protected readonly assignmentLink      = signal('');
   protected readonly assignmentSubmitted = signal(false);
   protected readonly assignmentEditing   = signal(false);
   protected readonly attachedFile        = signal<File | null>(null);
   protected readonly fileError           = signal<string | null>(null);
-  protected readonly canSubmitAssignment = computed(() =>
-    this.assignmentText().trim().length > 0 || this.attachedFile() !== null
-  );
+  /** Con «pedir enlace», la entrega exige una dirección http(s), en su campo o ya dentro del texto (al editar). */
+  protected readonly canSubmitAssignment = computed(() => {
+    if (this.block()?.assignmentAskLink && !/https?:\/\/\S+\.\S+/.test(`${this.assignmentLink()} ${this.assignmentText()}`)) return false;
+    return this.assignmentText().trim().length > 0 || this.assignmentLink().trim().length > 0 || this.attachedFile() !== null;
+  });
   protected readonly assignmentIsPending = computed(() => {
     const sub = this.assignmentSubmission();
     return !!sub && sub.status === 'pending_review' && !sub.grade;
@@ -307,6 +310,7 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
     if (changes['block']) {
       this.resetQuiz();
       this.assignmentText.set('');
+      this.assignmentLink.set('');
       this.assignmentSubmitted.set(false);
       this.attachedFile.set(null);
       this.fileError.set(null);
@@ -541,7 +545,7 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
     if (!block || !this.canSubmitAssignment() || !cid || !lid) return;
     this.assignmentSubmit.emit({
       blockId: block.id, lessonId: lid, courseId: cid,
-      textContent: this.assignmentText(),
+      textContent: this.assignmentLink().trim() ? `**Enlace:** ${this.assignmentLink().trim()}\n\n${this.assignmentText()}`.trim() : this.assignmentText(),
       attachedFile: this.attachedFile() ?? undefined,
     });
     this.assignmentSubmitted.set(true);

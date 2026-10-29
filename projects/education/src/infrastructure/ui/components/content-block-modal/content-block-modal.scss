@@ -769,3 +769,5 @@
 @media (max-width: 768px) {
   .cbm__save-btn { min-height: 44px; }
 }
+
+.cbm__check { display: flex; align-items: center; gap: 8px; font-size: 0.875rem; margin: 4px 0 12px; cursor: pointer; }

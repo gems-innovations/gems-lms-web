@@ -125,6 +125,7 @@ export class ContentBlockModal implements OnInit {
   readonly bankError        = signal<string | null>(null);
 
   readonly assignmentInstructions = signal('');
+  readonly assignmentAskLink      = signal(false);
   readonly maxScore               = signal(100);
   readonly dueDate                = signal('');
   readonly allowedFileTypes       = signal<string[]>(['pdf', 'docx']);
@@ -201,6 +202,7 @@ export class ContentBlockModal implements OnInit {
     else if (b.type === EContentType.QUIZ) this.quizQuestions.set([]);
     this.quizPools.set((b.questionPools ?? []).map(p => ({ ...p })));
     this.assignmentInstructions.set(b.assignmentInstructions ?? '');
+    this.assignmentAskLink.set(b.assignmentAskLink ?? false);
     this.maxScore.set(b.maxScore ?? 100);
     this.dueDate.set(b.dueDate ?? '');
     if (b.allowedFileTypes) this.allowedFileTypes.set([...b.allowedFileTypes]);
@@ -331,6 +333,7 @@ export class ContentBlockModal implements OnInit {
     }
     if (type === EContentType.ASSIGNMENT) {
       req.assignmentInstructions = this.assignmentInstructions();
+      req.assignmentAskLink      = this.assignmentAskLink() || undefined;
       req.maxScore               = this.maxScore();
       req.dueDate                = this.dueDate() || undefined;
       req.allowedFileTypes       = [...this.allowedFileTypes()];
