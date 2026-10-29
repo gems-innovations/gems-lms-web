@@ -1,7 +1,9 @@
-<lib-sidebar
+<lib-app-sidebar
+  [brandRoute]="authSession.getHomeRoute()"
+  storageKey="gems-education-sidebar-collapsed"
   [menuItems]="uc.menuItems()"
   [userProfile]="uc.userProfile()"
   (onLogout)="uc.logout()"
 >
   <edu-notification-bell sidebar-notifications [footer]="true" />
-</lib-sidebar>
+</lib-app-sidebar>
