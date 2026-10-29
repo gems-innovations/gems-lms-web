@@ -346,6 +346,8 @@ export const LIMITES_ESCENA = { lineasCodigo: 7, largoCodigo: 30, lineasOperacio
 /** Lenguajes de la escena «codigo» (rótulo y resaltado en taps-engine/escena.js): pseudocódigo, Python, JavaScript, terminal (git), HTTP y prompt de IA. */
 export const LENGUAJES = ['pseudo', 'python', 'js', 'bash', 'http', 'prompt'];
 const quitarTildes = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+/** Figuras vóxel de la escena «sprite»: un PNG por nombre en public/taps-sprites/ (se dibuja en Angular, no en el motor). */
+export const SPRITES = ['banano', 'mani', 'lengua', 'venus', 'mercurio', 'jupiter', 'saturno', 'urano', 'marte', 'gota', 'tomate', 'miel', 'manzana'];
 /** Todo el texto visible de una escena (para buscar si delata la respuesta). */
 const textoEscena = e => [...(e.lineas ?? []), ...(e.items ?? []), e.texto ?? ''].join(' \n ');
 
@@ -372,7 +374,9 @@ export function validarEscena(e, pregunta, catalogo, donde) {
     if (!e.items.includes('?')) return mal('la serie debe tener una ficha «?» (lo que se pregunta)');
   } else if (e.tipo === 'objeto' || e.tipo === 'diagrama') {
     if (typeof e.cosa !== 'string' || !catalogo?.has(e.cosa)) return mal(`«${e.cosa}» no existe en el tema (${[...(catalogo ?? [])].join(', ') || 'sin escenas'})`);
-  } else return mal(`tipo «${e.tipo}» desconocido (codigo, operacion, serie, objeto o diagrama)`);
+  } else if (e.tipo === 'sprite') {
+    if (!SPRITES.includes(e.cosa)) return mal(`el sprite «${e.cosa}» no existe (${SPRITES.join(', ')})`);
+  } else return mal(`tipo «${e.tipo}» desconocido (codigo, operacion, serie, objeto, diagrama o sprite)`);
   // No delatar la respuesta: la opción correcta no puede verse escrita en la tarjeta.
   const correcta = quitarTildes(pregunta.options?.[pregunta.answer] ?? '').trim(), visto = quitarTildes(textoEscena(e));
   if (/^\d+([.,]\d+)?$/.test(correcta)) { if (visto.split(/[^0-9.,]+/).includes(correcta)) return mal(`delata la respuesta: muestra «${correcta}»`); }

@@ -53,6 +53,10 @@
   &[hidden] { display: none; }
   // código, operación y serie: el alto lo da el contenido (con tope); objeto y diagrama son un lienzo de alto fijo
   &[data-tipo='codigo'], &[data-tipo='operacion'], &[data-tipo='serie'] { height: auto; max-height: min(calc(100% - 110px), 206px); padding-bottom: 6px; overflow: hidden; } }
+// sprite: tarjeta con el mismo borde y sombra dura que el objeto para explicar; la figura va entera dentro
+.tap__escena[data-tipo='sprite'] { display: flex; align-items: center; justify-content: center; padding: 8px; box-sizing: border-box; border-radius: 16px; background: #FBF7EE; box-shadow: 0 6px 0 rgba(0, 0, 0, .32); }
+.tap[data-tema='minecraft'] .tap__escena[data-tipo='sprite'] { border-radius: 0; background: #C6C6C6; box-shadow: 0 6px 0 rgba(0, 0, 0, .45); }
+.tap__sprite { max-width: 100%; max-height: 100%; object-fit: contain; image-rendering: pixelated; }
 .tap__world:has(.tap__reto) .tap__escena { top: 132px; height: min(calc(100% - 144px), 184px); }
 @media (max-height: 680px) {
   .tap__visual { top: 52px; max-height: calc(100% - 60px); }

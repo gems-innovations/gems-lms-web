@@ -949,7 +949,7 @@ export class TapsFeedComponent {
     const section = this.sections()[this.taps().indexOf(tap)]?.nativeElement;
     const el = section?.querySelector<HTMLElement>('.tap__escena');
     const spec = this.escenaOf(tap, this.run(tap));
-    if (!el || !spec || !this.stage?.escena || tap.id !== this.activeId()) return;
+    if (!el || !spec || spec.tipo === 'sprite' || !this.stage?.escena || tap.id !== this.activeId()) return;
     el.hidden = false;
     void this.stage.escena(spec, el, { side: 'izq' }).then(label => { if (!label) el.hidden = true; }, () => { el.hidden = true; });
   }
