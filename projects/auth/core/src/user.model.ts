@@ -30,6 +30,9 @@ export function getFullName(user: IUser): string {
   return `${user.firstName} ${user.lastName}`.trim();
 }
 
+/** Sesiones de «Empezar gratis»: cuentas sin dueño real que no deben tapar a los usuarios de verdad. */
+export const isGuestEmail = (email: string | null | undefined): boolean => email?.endsWith('@invitado.gems.lat') ?? false;
+
 export function getRoleLabel(role: EUserRole): string {
   const labels: Record<EUserRole, string> = {
     [EUserRole.SUPER_ADMIN]: 'Super Admin',

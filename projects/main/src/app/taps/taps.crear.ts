@@ -29,6 +29,8 @@ export const CLAVE_SONIDO_TAPS = 'gems-taps-sound';
 export const sonidoActivo = (guardado: string | null): boolean => guardado !== 'off';
 
 /** Copy de la cinta de transparencia (§A.3.1): se lee antes de invertir esfuerzo, no es un modal. */
+/** Con sesión iniciada no tiene sentido decir «sin cuenta». */
+export const CINTA_CON_SESION = 'Crea y prueba tu personaje. Tu trabajo se guarda en este navegador.';
 export const CINTA_TRANSPARENCIA = 'Crea y prueba gratis, sin cuenta. Publicar requiere cuenta de docente o institución. Tu trabajo se guarda en este navegador.';
 /** Nombre del cuarto punto de progreso desde el inicio: nadie llega sorprendido. */
 export const PASO_PUBLICAR = 'Publicar (con cuenta)';

@@ -77,7 +77,7 @@ export class OnboardingService {
 
   private stepsFor(role: EUserRole): TourStep[] {
     const common = [
-      { element: '.app-sidebar__brand, .slayout__brand', title: 'Tu espacio de aprendizaje', description: 'Desde aquí vuelves al inicio de tu panel.' },
+      { element: '.app-sidebar__brand, .slayout__brand', title: role === EUserRole.STUDENT ? 'Tu espacio de aprendizaje' : 'Tu espacio de trabajo', description: 'Desde aquí vuelves al inicio de tu panel.' },
       { element: '.app-sidebar__navlinks, .slayout__navlinks', title: 'Navegación', description: 'Accede a las secciones disponibles según tu rol.', mobileElement: '.slayout__leftnav' },
       { element: '.app-sidebar__user, .slayout__user', title: 'Tu cuenta', description: 'Actualiza tu perfil desde esta zona; en el celular, cerrar sesión está al final de Mi perfil.', mobileElement: '.slayout__profile-btn' }
     ];

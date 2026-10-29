@@ -5,11 +5,12 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
+import { AuthSessionService } from 'auth/core';
 import { AnalyticsService } from '../analytics.service';
 import { TEventPath } from '../analytics-taxonomy';
 import { TapsSonidoService } from './taps-sonido.service';
 import {
-  CINTA_TRANSPARENCIA, CLAVE_AVISO_PUBLICAR, CLAVE_ESTUDIANTE, CLAVE_SONIDO_TAPS, COPY_GANCHO, PASO_PUBLICAR, THitoCuenta, destinoVolver, enlaceRegistro, hitosCrear,
+  CINTA_CON_SESION, CINTA_TRANSPARENCIA, CLAVE_AVISO_PUBLICAR, CLAVE_ESTUDIANTE, CLAVE_SONIDO_TAPS, COPY_GANCHO, PASO_PUBLICAR, THitoCuenta, destinoVolver, enlaceRegistro, hitosCrear,
   origenCrear, sonidoActivo, tapsCreadorActivo, tituloGancho,
 } from './taps.crear';
 
@@ -180,7 +181,7 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
   `,
 })
 export class TapDisenadorComponent {
-  protected readonly CINTA = CINTA_TRANSPARENCIA;
+  protected readonly CINTA = inject(AuthSessionService, { optional: true })?.isAuthenticated() ? CINTA_CON_SESION : CINTA_TRANSPARENCIA;
   protected readonly G = COPY_GANCHO;
   protected readonly listo = signal(false);
   protected readonly fallo = signal(false);
