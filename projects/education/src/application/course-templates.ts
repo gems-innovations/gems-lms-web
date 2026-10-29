@@ -86,7 +86,7 @@ export const COURSE_TEMPLATES: ICourseTemplate[] = [
         lessons: [{
           title: 'Practica en el editor',
           blocks: [
-            doc('Tu primer ejercicio', '## Practica aquí mismo\n\nEl mentor puede incrustar un proyecto de StackBlitz, CodePen o CodeSandbox debajo de este texto (edita el bloque y pega el enlace).\n\nCambia el código, mira el resultado y prueba cosas.'),
+            doc('Tu primer ejercicio', '## Practica aquí mismo\n\nCambia el código, mira el resultado y prueba cosas.\n\n<!-- Mentor: edita este bloque y pega el enlace de un proyecto de StackBlitz, CodePen o CodeSandbox para que se muestre aquí debajo. -->'),
           ],
         }],
       },

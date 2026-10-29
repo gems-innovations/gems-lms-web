@@ -615,7 +615,7 @@
             </svg>
             <span class="pcb-file-preview__name">{{ file.name }}</span>
             <span class="pcb-file-preview__size">{{ formatFileSize(file.size) }}</span>
-            <button type="button" class="pcb-file-remove" (click)="removeFile()">
+            <button type="button" class="pcb-file-remove" aria-label="Quitar archivo" (click)="removeFile()">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
