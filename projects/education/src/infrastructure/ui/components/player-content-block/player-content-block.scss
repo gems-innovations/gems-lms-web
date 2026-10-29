@@ -302,7 +302,8 @@
   text-align: center;
 }
 
-.player-content-block__live-when { font-size: 1.0625rem; color: var(--color-texto-principal); text-transform: capitalize; }
+.player-content-block__live-when { display: block; font-size: 1.0625rem; color: var(--color-texto-principal); }
+.player-content-block__live-when::first-letter { text-transform: uppercase; }
 
 .player-content-block__actions { display: flex; gap: 10px; }
 
