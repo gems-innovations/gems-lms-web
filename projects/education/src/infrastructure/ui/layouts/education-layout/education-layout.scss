@@ -8,13 +8,14 @@
   background: var(--color-fondo-principal);
 
   &__sidebar {
-    // Width is managed by lib-sidebar's :host via transition
+    // El ancho lo pone lib-app-sidebar; visible para que su botón de contraer, montado en el borde, no se corte.
     flex-shrink: 0;
     height: 100vh;
     height: 100dvh;
-    overflow: hidden;
+    overflow: visible;
     position: sticky;
     top: 0;
+    z-index: 2;
   }
 
   &__content {
@@ -37,7 +38,7 @@
   }
 
   @media (max-width: 768px) {
-    // El menu pasa a barra superior fija + drawer (lib-sidebar / lib-app-sidebar): no ocupa ancho.
+    // El menu pasa a barra superior fija + drawer (lib-app-sidebar): no ocupa ancho.
     &__sidebar {
       width: 0;
       height: 0;
