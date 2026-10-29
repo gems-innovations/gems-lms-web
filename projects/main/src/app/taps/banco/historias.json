@@ -889,6 +889,7 @@
       "id": "napoleon",
       "tipo": "historia",
       "titulo": "Napoleón no era tan bajito como crees",
+      "descripcion": "¿Medía poco Napoleón? Una historia para separar el mito del dato.",
       "nivel": "facil",
       "subtema": "napoleon",
       "preguntas": [
@@ -922,6 +923,7 @@
     {
       "id": "cleopatra",
       "titulo": "Cleopatra vivió más cerca de ti que de las pirámides",
+      "descripcion": "Cleopatra vivió más cerca de nosotros que de las pirámides. Mira por qué.",
       "nivel": "media",
       "subtema": "cleopatra",
       "encuadre": "cerca-derecha",
@@ -974,6 +976,7 @@
     {
       "id": "roma-mitos",
       "titulo": "Mitos de Roma: ¿verdad o falso?",
+      "descripcion": "Mitos de la antigua Roma: ¿verdad o falso?",
       "nivel": "media",
       "subtema": "roma",
       "presentador": "senador",
@@ -1027,6 +1030,7 @@
     {
       "id": "medieval-mitos",
       "titulo": "Edad Media: ¿mito o realidad?",
+      "descripcion": "Edad Media: lo que se cree del oscurantismo y lo que fue de verdad.",
       "nivel": "media",
       "subtema": "medieval",
       "presentador": "artesano",
@@ -1081,6 +1085,7 @@
       "id": "fleming",
       "tipo": "historia",
       "titulo": "Fleming y el moho que salvó vidas",
+      "descripcion": "Cómo un descuido con moho llevó al descubrimiento de la penicilina.",
       "nivel": "facil",
       "subtema": "fleming",
       "presentador": "investigadora",
@@ -1154,6 +1159,7 @@
         }
       ],
       "titulo": "Egipto: ¿verdad o falso?",
+      "descripcion": "Egipto: pirámides, momias y faraones, entre el mito y la verdad.",
       "nivel": "media",
       "subtema": "egipto",
       "presentador": "escriba",
@@ -1207,6 +1213,7 @@
         }
       ],
       "titulo": "¿Qué fue antes en Roma?",
+      "descripcion": "Ordena eventos de la historia de Roma: ¿cuál pasó primero?",
       "nivel": "media",
       "subtema": "roma-orden",
       "presentador": "senador",
@@ -1260,6 +1267,7 @@
         }
       ],
       "titulo": "Ciencia: ¿mito o verdad?",
+      "descripcion": "Mitos de ciencia que repetimos todos: ¿cuáles son ciertos?",
       "nivel": "facil",
       "subtema": "ciencia-mitos",
       "presentador": "investigadora",
@@ -1313,6 +1321,7 @@
         }
       ],
       "titulo": "¿Qué se inventó antes?",
+      "descripcion": "¿Qué se inventó antes? Ordena inventos famosos en el tiempo.",
       "nivel": "media",
       "subtema": "inventos",
       "presentador": "periodista",
@@ -1349,6 +1358,7 @@
         }
       ],
       "titulo": "El incendio que quemó Londres",
+      "descripcion": "Cómo un incendio destruyó gran parte de Londres en 1666.",
       "nivel": "facil",
       "subtema": "incendio",
       "presentador": "grabador",
@@ -1402,6 +1412,7 @@
         }
       ],
       "titulo": "Vikingos: ¿verdad o falso?",
+      "descripcion": "Vikingos: ¿cascos con cuernos? Mitos y verdades de los nórdicos.",
       "nivel": "media",
       "subtema": "vikingos",
       "presentador": "artesano",

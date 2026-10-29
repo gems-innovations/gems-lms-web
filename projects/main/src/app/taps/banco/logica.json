@@ -2836,6 +2836,7 @@
     {
       "id": "lg-gancho",
       "titulo": "Trampas para leer bien",
+      "descripcion": "Preguntas con trampa para aprender a leer despacio y no caer.",
       "nivel": "facil",
       "subtema": "mixto",
       "gancho": true,
@@ -2850,6 +2851,7 @@
     {
       "id": "lg-adivinanzas-1",
       "titulo": "Adivinanzas de la casa",
+      "descripcion": "Adivinanzas de objetos de la casa: ¿puedes con todas?",
       "nivel": "facil",
       "subtema": "adivinanzas",
       "preguntas": [
@@ -2863,6 +2865,7 @@
     {
       "id": "lg-zorgs",
       "titulo": "Silogismos de zorgs",
+      "descripcion": "Silogismos de zorgs: razona con reglas inventadas sin dejarte engañar.",
       "nivel": "media",
       "subtema": "silogismos",
       "preguntas": [
@@ -2876,6 +2879,7 @@
     {
       "id": "lg-lee-bien-2",
       "titulo": "Lee bien otra vez",
+      "descripcion": "Segunda ronda de preguntas donde un detalle cambia la respuesta.",
       "nivel": "media",
       "subtema": "mixto",
       "preguntas": [
@@ -2889,6 +2893,7 @@
     {
       "id": "lg-calendario",
       "titulo": "Días y calendario",
+      "descripcion": "Días, meses y calendario: cuentas que parecen fáciles y no lo son.",
       "nivel": "media",
       "subtema": "mixto",
       "preguntas": [
@@ -2902,6 +2907,7 @@
     {
       "id": "lg-azar",
       "titulo": "La suerte no tiene memoria",
+      "descripcion": "La suerte no tiene memoria: probabilidad con monedas y dados.",
       "nivel": "media",
       "subtema": "mixto",
       "preguntas": [
@@ -2915,6 +2921,7 @@
     {
       "id": "lg-series-1",
       "titulo": "Series para calentar",
+      "descripcion": "Series para calentar: completa el patrón.",
       "nivel": "facil",
       "subtema": "series",
       "preguntas": [
@@ -2928,6 +2935,7 @@
     {
       "id": "lg-lateral",
       "titulo": "Piensa de lado",
+      "descripcion": "Piensa de lado: acertijos con solución inesperada.",
       "nivel": "media",
       "subtema": "mixto",
       "preguntas": [
@@ -2941,6 +2949,7 @@
     {
       "id": "lg-series-2",
       "titulo": "Series con truco",
+      "descripcion": "Series con truco: el patrón no es el que parece.",
       "nivel": "media",
       "subtema": "series",
       "preguntas": [
@@ -2954,6 +2963,7 @@
     {
       "id": "lg-lluvia",
       "titulo": "Si llueve, entonces…",
+      "descripcion": "Si llueve, entonces…: razonamiento con condiciones y consecuencias.",
       "nivel": "media",
       "subtema": "silogismos",
       "preguntas": [
@@ -2967,6 +2977,7 @@
     {
       "id": "lg-adivinanzas-2",
       "titulo": "Adivina qué es",
+      "descripcion": "Adivina qué es: pistas cortas y respuestas cotidianas.",
       "nivel": "facil",
       "subtema": "adivinanzas",
       "preguntas": [
@@ -2980,6 +2991,7 @@
     {
       "id": "lg-rapidas",
       "titulo": "Trampas rápidas",
+      "descripcion": "Trampas rápidas: poco tiempo para pensar, mucha atención para leer.",
       "nivel": "media",
       "subtema": "mixto",
       "preguntas": [
@@ -2993,6 +3005,7 @@
     {
       "id": "lg-adivinanzas-3",
       "titulo": "Adivinanzas difíciles",
+      "descripcion": "Adivinanzas difíciles para quienes ya dominan las fáciles.",
       "nivel": "media",
       "subtema": "adivinanzas",
       "preguntas": [
@@ -3006,6 +3019,7 @@
     {
       "id": "lg-mezcla",
       "titulo": "Mezcla para cracks",
+      "descripcion": "Mezcla de series, trampas y silogismos para cracks.",
       "nivel": "media",
       "subtema": "mixto",
       "preguntas": [
@@ -3019,6 +3033,7 @@
     {
       "id": "lg-adivinanzas-4",
       "titulo": "Adivinanzas de la naturaleza",
+      "descripcion": "Adivinanzas de la naturaleza: plantas, animales y clima.",
       "nivel": "media",
       "subtema": "adivinanzas",
       "preguntas": [
@@ -3032,6 +3047,7 @@
     {
       "id": "lg-adivinanzas-5",
       "titulo": "Adivina, adivinador",
+      "descripcion": "Adivina, adivinador: acertijos de todo tipo en un solo Tap.",
       "nivel": "media",
       "subtema": "adivinanzas",
       "preguntas": [
@@ -3045,6 +3061,7 @@
     {
       "id": "lg-series-3",
       "titulo": "Series de números",
+      "descripcion": "Series de números: sumas, restas y saltos que se repiten.",
       "nivel": "media",
       "subtema": "series",
       "preguntas": [
@@ -3058,6 +3075,7 @@
     {
       "id": "lg-series-4",
       "titulo": "Series de letras y días",
+      "descripcion": "Series de letras y de días de la semana: encuentra el siguiente.",
       "nivel": "media",
       "subtema": "series",
       "preguntas": [
@@ -3071,6 +3089,7 @@
     {
       "id": "lg-silogismos-3",
       "titulo": "Todos, algunos, ninguno",
+      "descripcion": "Todos, algunos, ninguno: lógica con grupos.",
       "nivel": "media",
       "subtema": "silogismos",
       "preguntas": [
@@ -3084,6 +3103,7 @@
     {
       "id": "lg-detectives",
       "titulo": "Detectives de la lógica",
+      "descripcion": "Detectives de la lógica: saca conclusiones solo con las pistas dadas.",
       "nivel": "media",
       "subtema": "silogismos",
       "preguntas": [
@@ -3097,6 +3117,7 @@
     {
       "id": "lg-lee-bien-3",
       "titulo": "Lee la pregunta dos veces",
+      "descripcion": "Lee la pregunta dos veces: las trampas están en las palabras.",
       "nivel": "media",
       "subtema": "lee-bien",
       "preguntas": [
@@ -3110,6 +3131,7 @@
     {
       "id": "lg-palabras",
       "titulo": "Ojo con las palabras",
+      "descripcion": "Ojo con las palabras: un «no» o un «solo» cambian todo.",
       "nivel": "media",
       "subtema": "lee-bien",
       "preguntas": [
@@ -3123,6 +3145,7 @@
     {
       "id": "lg-lateral-2",
       "titulo": "Piensa diferente",
+      "descripcion": "Piensa diferente: más acertijos de pensamiento lateral.",
       "nivel": "media",
       "subtema": "lateral",
       "preguntas": [
@@ -3136,6 +3159,7 @@
     {
       "id": "lg-lateral-3",
       "titulo": "Acertijos de detective",
+      "descripcion": "Acertijos de detective: resuelve el caso con lo que ves.",
       "nivel": "media",
       "subtema": "lateral",
       "preguntas": [
@@ -3149,6 +3173,7 @@
     {
       "id": "lg-azar-2",
       "titulo": "Probabilidades sin trampa",
+      "descripcion": "Probabilidades sin trampa: cuenta casos favorables y posibles.",
       "nivel": "media",
       "subtema": "azar-y-numeros",
       "preguntas": [
@@ -3162,6 +3187,7 @@
     {
       "id": "lg-numeros",
       "titulo": "Números con truco",
+      "descripcion": "Números con truco: cuentas donde la intuición falla.",
       "nivel": "media",
       "subtema": "azar-y-numeros",
       "preguntas": [
@@ -3175,6 +3201,7 @@
     {
       "id": "lg-codigo-1",
       "titulo": "Piensa como computador",
+      "descripcion": "Piensa como computador: sigue instrucciones paso a paso.",
       "nivel": "media",
       "subtema": "codigo",
       "preguntas": [
@@ -3188,6 +3215,7 @@
     {
       "id": "lg-codigo-2",
       "titulo": "Bucles y condiciones",
+      "descripcion": "Bucles y condiciones: qué hace este código.",
       "nivel": "media",
       "subtema": "codigo",
       "preguntas": [
@@ -3201,6 +3229,7 @@
     {
       "id": "lg-duelo-1",
       "titulo": "Rápido y sin trampas",
+      "descripcion": "Duelo rápido de lógica: dos opciones y poco tiempo.",
       "nivel": "media",
       "subtema": "lateral",
       "preguntas": [

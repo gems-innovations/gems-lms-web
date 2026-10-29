@@ -3856,6 +3856,7 @@
     {
       "id": "mc-gancho",
       "titulo": "¿Cuánto sabes de bloques?",
+      "descripcion": "Cinco preguntas fáciles de Minecraft para empezar.",
       "nivel": "facil",
       "subtema": "mixto",
       "gancho": true,
@@ -3870,6 +3871,7 @@
     {
       "id": "mc-crafteo-1",
       "titulo": "Mesa de crafteo básica",
+      "descripcion": "Recetas básicas: palos, cubos, camas y escudos.",
       "nivel": "facil",
       "subtema": "crafteos",
       "preguntas": [
@@ -3883,6 +3885,7 @@
     {
       "id": "mc-mascotas",
       "titulo": "Mascotas y compañeros",
+      "descripcion": "Cómo domesticar lobos, gatos, loros y ajolotes.",
       "nivel": "media",
       "subtema": "mobs",
       "preguntas": [
@@ -3896,6 +3899,7 @@
     {
       "id": "mc-nether-2",
       "titulo": "Criaturas del Nether y el End",
+      "descripcion": "Criaturas del Nether y el End: qué hacen y cómo vencerlas.",
       "nivel": "dificil",
       "subtema": "nether-end",
       "preguntas": [
@@ -3909,6 +3913,7 @@
     {
       "id": "mc-secretos",
       "titulo": "Secretos del juego",
+      "descripcion": "Secretos del juego que casi nadie descubre solo.",
       "nivel": "media",
       "subtema": "curiosidades",
       "preguntas": [
@@ -3922,6 +3927,7 @@
     {
       "id": "mc-nether-1",
       "titulo": "Primer viaje al Nether",
+      "descripcion": "Tu primer viaje al Nether: portal, materiales y peligros.",
       "nivel": "media",
       "subtema": "nether-end",
       "preguntas": [
@@ -3935,6 +3941,7 @@
     {
       "id": "mc-mundo",
       "titulo": "Mobs del mundo",
+      "descripcion": "Mobs del mundo: dónde aparecen y qué sueltan.",
       "nivel": "dificil",
       "subtema": "mobs",
       "preguntas": [
@@ -3948,6 +3955,7 @@
     {
       "id": "mc-crafteo-2",
       "titulo": "Crafteos de experto",
+      "descripcion": "Crafteos de experto: recetas que solo conocen los veteranos.",
       "nivel": "dificil",
       "subtema": "crafteos",
       "preguntas": [
@@ -3961,6 +3969,7 @@
     {
       "id": "mc-monstruos",
       "titulo": "Monstruos de la noche",
+      "descripcion": "Monstruos de la noche: zombis, esqueletos y arañas.",
       "nivel": "media",
       "subtema": "mobs",
       "preguntas": [
@@ -3974,6 +3983,7 @@
     {
       "id": "mc-redstone-1",
       "titulo": "Redstone desde cero",
+      "descripcion": "Redstone desde cero: polvo, antorchas y repetidores.",
       "nivel": "facil",
       "subtema": "redstone",
       "preguntas": [
@@ -3987,6 +3997,7 @@
     {
       "id": "mc-end",
       "titulo": "El End y el dragón",
+      "descripcion": "El End y el dragón: cómo llegar y cómo derrotarlo.",
       "nivel": "media",
       "subtema": "nether-end",
       "preguntas": [
@@ -4000,6 +4011,7 @@
     {
       "id": "mc-redstone-3",
       "titulo": "Crack de redstone",
+      "descripcion": "Crack de redstone: circuitos avanzados.",
       "nivel": "dificil",
       "subtema": "redstone",
       "preguntas": [
@@ -4013,6 +4025,7 @@
     {
       "id": "mc-encantamientos",
       "titulo": "Biblioteca y encantamientos",
+      "descripcion": "Biblioteca y encantamientos: niveles, libros y mesa de encantar.",
       "nivel": "media",
       "subtema": "crafteos",
       "preguntas": [
@@ -4026,6 +4039,7 @@
     {
       "id": "mc-mineria",
       "titulo": "Minería profunda",
+      "descripcion": "Minería profunda: niveles, minerales y cómo encontrarlos.",
       "nivel": "media",
       "subtema": "supervivencia",
       "preguntas": [
@@ -4039,6 +4053,7 @@
     {
       "id": "mc-nether-3",
       "titulo": "Nether de experto",
+      "descripcion": "Nether de experto: fortalezas, bastiones y materiales raros.",
       "nivel": "dificil",
       "subtema": "nether-end",
       "preguntas": [
@@ -4052,6 +4067,7 @@
     {
       "id": "mc-rayos",
       "titulo": "Rayos y transformaciones",
+      "descripcion": "Rayos y transformaciones: qué mob se convierte en cuál.",
       "nivel": "media",
       "subtema": "mobs",
       "preguntas": [
@@ -4065,6 +4081,7 @@
     {
       "id": "mc-noche-1",
       "titulo": "Tu primera noche",
+      "descripcion": "Tu primera noche: refugio, cama y herramientas para sobrevivir.",
       "nivel": "facil",
       "subtema": "supervivencia",
       "preguntas": [
@@ -4078,6 +4095,7 @@
     {
       "id": "mc-nuevos",
       "titulo": "Criaturas nuevas",
+      "descripcion": "Criaturas nuevas de las últimas versiones.",
       "nivel": "dificil",
       "subtema": "mixto",
       "preguntas": [
@@ -4091,6 +4109,7 @@
     {
       "id": "mc-redstone-2",
       "titulo": "Circuitos de redstone",
+      "descripcion": "Circuitos de redstone: pistones, observadores y relojes.",
       "nivel": "media",
       "subtema": "redstone",
       "preguntas": [
@@ -4104,6 +4123,7 @@
     {
       "id": "mc-leyendas",
       "titulo": "Leyendas y trucos",
+      "descripcion": "Leyendas y trucos del juego: ¿cuáles son ciertos?",
       "nivel": "dificil",
       "subtema": "mixto",
       "preguntas": [
@@ -4117,6 +4137,7 @@
     {
       "id": "mc-noche-2",
       "titulo": "Sobrevivir como pro",
+      "descripcion": "Sobrevivir como pro: comida, armadura y estrategias.",
       "nivel": "media",
       "subtema": "supervivencia",
       "preguntas": [
@@ -4130,6 +4151,7 @@
     {
       "id": "mc-mezcla",
       "titulo": "Un poco de todo",
+      "descripcion": "Un poco de todo sobre Minecraft: bloques, mobs y recetas.",
       "nivel": "media",
       "subtema": "mixto",
       "preguntas": [
@@ -4143,6 +4165,7 @@
     {
       "id": "mc-taller",
       "titulo": "Taller avanzado",
+      "descripcion": "Taller avanzado: yunques, herrería y encantos.",
       "nivel": "dificil",
       "subtema": "crafteos",
       "preguntas": [
@@ -4156,6 +4179,7 @@
     {
       "id": "mc-granja",
       "titulo": "Animales de la granja",
+      "descripcion": "Animales de la granja: cría, comida y qué dan.",
       "nivel": "facil",
       "subtema": "mobs",
       "preguntas": [
@@ -4169,6 +4193,7 @@
     {
       "id": "mc-monstruos-2",
       "titulo": "Monstruos con truco",
+      "descripcion": "Monstruos con truco: debilidades que no todos conocen.",
       "nivel": "media",
       "subtema": "mobs",
       "preguntas": [
@@ -4182,6 +4207,7 @@
     {
       "id": "mc-agua",
       "titulo": "Criaturas del agua",
+      "descripcion": "Criaturas del agua: delfines, calamares, guardianes y más.",
       "nivel": "media",
       "subtema": "mobs",
       "preguntas": [
@@ -4195,6 +4221,7 @@
     {
       "id": "mc-bastiones",
       "titulo": "Bastiones y piglins",
+      "descripcion": "Bastiones y piglins: trueque, oro y tesoros.",
       "nivel": "dificil",
       "subtema": "nether-end",
       "preguntas": [
@@ -4208,6 +4235,7 @@
     {
       "id": "mc-end-2",
       "titulo": "Islas del End",
+      "descripcion": "Islas del End: ciudades, élitros y shulkers.",
       "nivel": "media",
       "subtema": "nether-end",
       "preguntas": [
@@ -4221,6 +4249,7 @@
     {
       "id": "mc-crafteo-3",
       "titulo": "Herramientas a mano",
+      "descripcion": "Herramientas a mano: materiales, durabilidad y recetas.",
       "nivel": "facil",
       "subtema": "crafteos",
       "preguntas": [
@@ -4234,6 +4263,7 @@
     {
       "id": "mc-cocina",
       "titulo": "Recetas de cocina y más",
+      "descripcion": "Recetas de cocina y más: comida que se puede fabricar.",
       "nivel": "media",
       "subtema": "crafteos",
       "preguntas": [
@@ -4247,6 +4277,7 @@
     {
       "id": "mc-redstone-4",
       "titulo": "Puertas y trampas",
+      "descripcion": "Puertas y trampas con redstone para tu base.",
       "nivel": "facil",
       "subtema": "redstone",
       "preguntas": [
@@ -4260,6 +4291,7 @@
     {
       "id": "mc-redstone-5",
       "titulo": "Máquinas de redstone",
+      "descripcion": "Máquinas de redstone: granjas y mecanismos automáticos.",
       "nivel": "facil",
       "subtema": "redstone",
       "preguntas": [
@@ -4273,6 +4305,7 @@
     {
       "id": "mc-cultivos",
       "titulo": "Comida y cultivos",
+      "descripcion": "Comida y cultivos: qué plantar, cuándo y cómo.",
       "nivel": "facil",
       "subtema": "supervivencia",
       "preguntas": [
@@ -4286,6 +4319,7 @@
     {
       "id": "mc-subsuelo",
       "titulo": "Peligros del subsuelo",
+      "descripcion": "Peligros del subsuelo: lava, cuevas y criaturas ocultas.",
       "nivel": "media",
       "subtema": "supervivencia",
       "preguntas": [
@@ -4299,6 +4333,7 @@
     {
       "id": "mc-curiosidades-2",
       "titulo": "Datos del juego",
+      "descripcion": "Datos del juego que sorprenden hasta a los veteranos.",
       "nivel": "facil",
       "subtema": "curiosidades",
       "preguntas": [
@@ -4312,6 +4347,7 @@
     {
       "id": "mc-curiosidades-3",
       "titulo": "Trucos y secretos",
+      "descripcion": "Trucos y secretos poco conocidos de Minecraft.",
       "nivel": "dificil",
       "subtema": "curiosidades",
       "preguntas": [
@@ -4325,6 +4361,7 @@
     {
       "id": "mc-biomas-1",
       "titulo": "Viaje por los biomas",
+      "descripcion": "Viaje por los biomas: desierto, selva, nieve y más.",
       "nivel": "media",
       "subtema": "biomas",
       "preguntas": [
@@ -4338,6 +4375,7 @@
     {
       "id": "mc-estructuras",
       "titulo": "Lugares secretos del mapa",
+      "descripcion": "Lugares secretos del mapa: templos, fortalezas y mansiones.",
       "nivel": "dificil",
       "subtema": "biomas",
       "preguntas": [
@@ -4351,6 +4389,7 @@
     {
       "id": "mc-oceanos",
       "titulo": "Océanos y montañas",
+      "descripcion": "Océanos y montañas: qué hay en los biomas extremos.",
       "nivel": "media",
       "subtema": "biomas",
       "preguntas": [
@@ -4364,6 +4403,7 @@
     {
       "id": "mc-aldea-1",
       "titulo": "Vida en la aldea",
+      "descripcion": "Vida en la aldea: aldeanos, oficios y camas.",
       "nivel": "media",
       "subtema": "aldeas",
       "preguntas": [
@@ -4377,6 +4417,7 @@
     {
       "id": "mc-saqueadores",
       "titulo": "Saqueadores y comercio",
+      "descripcion": "Saqueadores, asaltos y comercio con aldeanos.",
       "nivel": "dificil",
       "subtema": "aldeas",
       "preguntas": [
@@ -4390,6 +4431,7 @@
     {
       "id": "mc-duelo-1",
       "titulo": "Duelo de bloques",
+      "descripcion": "Duelo de bloques: elige rápido entre dos opciones.",
       "nivel": "media",
       "subtema": "mixto",
       "preguntas": [

@@ -2908,6 +2908,7 @@
     {
       "id": "cu-gancho",
       "titulo": "¿Sabías esto?",
+      "descripcion": "Cinco preguntas fáciles para entrar en calor: estrellas, animales y países.",
       "nivel": "facil",
       "subtema": "mixto",
       "gancho": true,
@@ -2922,6 +2923,7 @@
     {
       "id": "cu-cuerpo-1",
       "titulo": "Tu cuerpo por dentro",
+      "descripcion": "Huesos, corazón y cerebro: lo que pasa dentro de ti sin que lo notes.",
       "nivel": "media",
       "subtema": "cuerpo-humano",
       "preguntas": [
@@ -2935,6 +2937,7 @@
     {
       "id": "cu-espacio-1",
       "titulo": "Viaje por el sistema solar",
+      "descripcion": "Un recorrido por el sistema solar: planetas, el Sol y sus récords.",
       "nivel": "facil",
       "subtema": "espacio",
       "preguntas": [
@@ -2948,6 +2951,7 @@
     {
       "id": "cu-datos",
       "titulo": "Datos que no parecen ciertos",
+      "descripcion": "Datos que suenan falsos pero son ciertos. ¿Cuántos te creerías?",
       "nivel": "dificil",
       "subtema": "datos-sorprendentes",
       "preguntas": [
@@ -2961,6 +2965,7 @@
     {
       "id": "cu-animales-1",
       "titulo": "Animales increíbles",
+      "descripcion": "Animales con habilidades que parecen de película.",
       "nivel": "media",
       "subtema": "animales",
       "preguntas": [
@@ -2974,6 +2979,7 @@
     {
       "id": "cu-ciencia-1",
       "titulo": "Ciencia de todos los días",
+      "descripcion": "La ciencia escondida en la miel, el banano y otras cosas de casa.",
       "nivel": "media",
       "subtema": "ciencia-cotidiana",
       "preguntas": [
@@ -2987,6 +2993,7 @@
     {
       "id": "cu-geografia-2",
       "titulo": "Desiertos, ríos y montañas",
+      "descripcion": "Los desiertos, ríos y montañas más grandes del planeta.",
       "nivel": "dificil",
       "subtema": "geografia",
       "preguntas": [
@@ -3000,6 +3007,7 @@
     {
       "id": "cu-cuerpo-2",
       "titulo": "Cuerpo sorprendente",
+      "descripcion": "Más sorpresas del cuerpo humano: sentidos, sangre y músculos.",
       "nivel": "media",
       "subtema": "cuerpo-humano",
       "preguntas": [
@@ -3013,6 +3021,7 @@
     {
       "id": "cu-geografia-1",
       "titulo": "Geografía para viajar",
+      "descripcion": "Países, capitales y lugares que todo viajero debería ubicar.",
       "nivel": "media",
       "subtema": "geografia",
       "preguntas": [
@@ -3026,6 +3035,7 @@
     {
       "id": "cu-mitos",
       "titulo": "Mitos y verdades",
+      "descripcion": "Cinco mitos populares: ¿verdad o invento? Descúbrelo.",
       "nivel": "dificil",
       "subtema": "mixto",
       "preguntas": [
@@ -3039,6 +3049,7 @@
     {
       "id": "cu-animales-2",
       "titulo": "Animales con superpoderes",
+      "descripcion": "Animales con superpoderes: velocidad, fuerza y camuflaje.",
       "nivel": "media",
       "subtema": "animales",
       "preguntas": [
@@ -3052,6 +3063,7 @@
     {
       "id": "cu-espacio-2",
       "titulo": "Mitos del espacio",
+      "descripcion": "Mitos del espacio: lo que creías de planetas y estrellas, a prueba.",
       "nivel": "media",
       "subtema": "espacio",
       "preguntas": [
@@ -3065,6 +3077,7 @@
     {
       "id": "cu-gigantes",
       "titulo": "Planeta y espacio en grande",
+      "descripcion": "Los planetas y astros más grandes, y por qué pesan lo que pesan.",
       "nivel": "dificil",
       "subtema": "mixto",
       "preguntas": [
@@ -3078,6 +3091,7 @@
     {
       "id": "cu-animales-3",
       "titulo": "Animales rarísimos",
+      "descripcion": "Animales rarísimos que casi nadie conoce.",
       "nivel": "media",
       "subtema": "animales",
       "preguntas": [
@@ -3091,6 +3105,7 @@
     {
       "id": "cu-luz-sonido",
       "titulo": "Luz, agua y sonido",
+      "descripcion": "Luz, agua y sonido: cómo funcionan las cosas que ves y oyes cada día.",
       "nivel": "media",
       "subtema": "ciencia-cotidiana",
       "preguntas": [
@@ -3104,6 +3119,7 @@
     {
       "id": "cu-rarezas",
       "titulo": "Rarezas de la naturaleza",
+      "descripcion": "Rarezas de la naturaleza que parecen inventadas.",
       "nivel": "dificil",
       "subtema": "mixto",
       "preguntas": [
@@ -3117,6 +3133,7 @@
     {
       "id": "cu-cuerpo-3",
       "titulo": "Sentidos y órganos",
+      "descripcion": "Sentidos y órganos: cómo percibes y qué hace cada pieza del cuerpo.",
       "nivel": "media",
       "subtema": "cuerpo-humano",
       "preguntas": [
@@ -3130,6 +3147,7 @@
     {
       "id": "cu-luna",
       "titulo": "La Luna y las estrellas",
+      "descripcion": "La Luna y las estrellas: fases, distancias y datos para mirar el cielo.",
       "nivel": "media",
       "subtema": "espacio",
       "preguntas": [
@@ -3143,6 +3161,7 @@
     {
       "id": "cu-planetas",
       "titulo": "Planetas extremos",
+      "descripcion": "Planetas extremos: los más calientes, fríos, grandes y raros.",
       "nivel": "media",
       "subtema": "espacio",
       "preguntas": [
@@ -3156,6 +3175,7 @@
     {
       "id": "cu-animales-4",
       "titulo": "Récords animales",
+      "descripcion": "Récords del reino animal: el más rápido, el más grande y más.",
       "nivel": "media",
       "subtema": "animales",
       "preguntas": [
@@ -3169,6 +3189,7 @@
     {
       "id": "cu-fauna-colombia",
       "titulo": "Animales de Colombia",
+      "descripcion": "Animales de Colombia: de la selva a los Andes y el mar.",
       "nivel": "facil",
       "subtema": "animales",
       "preguntas": [
@@ -3182,6 +3203,7 @@
     {
       "id": "cu-cocina",
       "titulo": "Experimentos de cocina",
+      "descripcion": "Experimentos de cocina: por qué la manzana se oscurece y otras reacciones.",
       "nivel": "media",
       "subtema": "ciencia-cotidiana",
       "preguntas": [
@@ -3195,6 +3217,7 @@
     {
       "id": "cu-colombia",
       "titulo": "Colombia de punta a punta",
+      "descripcion": "Colombia de punta a punta: regiones, ríos, ciudades y tradiciones.",
       "nivel": "media",
       "subtema": "geografia",
       "preguntas": [
@@ -3208,6 +3231,7 @@
     {
       "id": "cu-maravillas",
       "titulo": "Maravillas del mundo",
+      "descripcion": "Maravillas del mundo: monumentos, dónde están y quién los hizo.",
       "nivel": "media",
       "subtema": "geografia",
       "preguntas": [
@@ -3221,6 +3245,7 @@
     {
       "id": "cu-datos-2",
       "titulo": "Datos para presumir",
+      "descripcion": "Datos para presumir en cualquier conversación.",
       "nivel": "media",
       "subtema": "datos-sorprendentes",
       "preguntas": [
@@ -3234,6 +3259,7 @@
     {
       "id": "cu-dinosaurios-1",
       "titulo": "La era de los dinosaurios",
+      "descripcion": "La era de los dinosaurios: quiénes eran, qué comían y cuándo vivieron.",
       "nivel": "media",
       "subtema": "dinosaurios",
       "preguntas": [
@@ -3247,6 +3273,7 @@
     {
       "id": "cu-dinosaurios-2",
       "titulo": "Gigantes prehistóricos",
+      "descripcion": "Gigantes prehistóricos: los más grandes que pisaron la Tierra.",
       "nivel": "media",
       "subtema": "dinosaurios",
       "preguntas": [
@@ -3260,6 +3287,7 @@
     {
       "id": "cu-plantas-1",
       "titulo": "El mundo de las plantas",
+      "descripcion": "El mundo de las plantas: cómo crecen, comen y se defienden.",
       "nivel": "facil",
       "subtema": "plantas",
       "preguntas": [
@@ -3273,6 +3301,7 @@
     {
       "id": "cu-plantas-2",
       "titulo": "Plantas sorprendentes",
+      "descripcion": "Plantas sorprendentes: carnívoras, gigantes y de récord.",
       "nivel": "media",
       "subtema": "plantas",
       "preguntas": [
@@ -3286,6 +3315,7 @@
     {
       "id": "cu-duelo-1",
       "titulo": "Duelo de datos",
+      "descripcion": "Duelo de datos: dos opciones, siete segundos y sin pensarlo demasiado.",
       "nivel": "media",
       "subtema": "datos-sorprendentes",
       "preguntas": [
@@ -3299,6 +3329,7 @@
     {
       "id": "cu-duelo-2",
       "titulo": "Verdad o mito",
+      "descripcion": "Verdad o mito sobre la ciencia de todos los días: responde rápido.",
       "nivel": "facil",
       "subtema": "ciencia-cotidiana",
       "preguntas": [
