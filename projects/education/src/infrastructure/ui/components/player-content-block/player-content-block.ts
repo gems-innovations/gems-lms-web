@@ -94,7 +94,9 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
         : 'Un momento, estamos guardando tu lectura…';
       case EContentType.QUIZ: return this.quizNudgeText();
       case EContentType.VIDEO: return 'Para seguir, termina de ver el video.';
-      case EContentType.ASSIGNMENT: return 'Para seguir, envía la tarea.';
+      case EContentType.ASSIGNMENT: return this.assignmentIsPending()
+        ? 'Ya entregaste la tarea. El siguiente paso se abre cuando tu mentor la califique.'
+        : 'Para seguir, envía la tarea.';
       case EContentType.CARDS: return 'Para seguir, llega hasta la última carta.';
       default: return 'Termina este paso para seguir.';
     }
