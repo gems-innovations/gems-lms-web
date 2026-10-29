@@ -95,7 +95,7 @@
               <input class="cbm__input" type="number" min="0" [ngModel]="duration()" (ngModelChange)="duration.set(+$event)" />
             </div>
             <div class="cbm__field cbm__field--toggle">
-              <label class="cbm__label">Requerido</label>
+              <label class="cbm__label">Requerido para avanzar</label>
               <button class="cbm__toggle" [class.cbm__toggle--on]="isRequired()" (click)="isRequired.set(!isRequired())">
                 {{ isRequired() ? 'Sí' : 'No' }}
               </button>

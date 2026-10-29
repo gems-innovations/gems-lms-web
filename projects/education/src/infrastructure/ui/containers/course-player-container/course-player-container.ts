@@ -271,7 +271,7 @@ export class CoursePlayerContainer implements OnInit, OnDestroy, CanDeactivateQu
 
   /** «Siguiente»: con el paso terminado avanza; si no, avisa por qué no (antes no pasaba nada y parecía un error). */
   protected next(): void {
-    if (this._quizActive() || this.uc.isBlockComplete() || !this.uc.selectedBlock()) {
+    if (this._quizActive() || this.uc.isBlockComplete() || !this.uc.selectedBlock() || this.uc.selectedBlock()?.isRequired === false) {
       this._guardedNav(() => this.uc.nextBlock());
       return;
     }
