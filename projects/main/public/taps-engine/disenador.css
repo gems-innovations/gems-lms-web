@@ -253,11 +253,17 @@
 .dsn footer button[hidden] { display: none; }
 
 .dsn button[hidden] { display: none; }
-@media (min-width: 820px) {
+@media (min-width: 700px) and (min-height: 560px) {
   .dsn { display: grid; grid-template-columns: 400px minmax(0, 1fr); grid-template-rows: auto auto auto minmax(0, 1fr) auto; grid-template-areas: 'cab cab' 'vista sug' 'vista barra' 'vista paso' 'vista pie'; max-width: 1040px; margin: 0 auto; column-gap: 8px; }
   .dsn header { grid-area: cab; }
   .dsn .vista { grid-area: vista; height: auto; max-height: 720px; margin: 0 0 16px 16px; align-self: start; aspect-ratio: 9 / 14; }
   .dsn .sugerencia { grid-area: sug; } .dsn .barra { grid-area: barra; } .dsn .paso { grid-area: paso; } .dsn footer { grid-area: pie; border: 0; }
+}
+/* Poca altura o zoom alto: sin alto rígido; la página baja con el dedo y el pie queda pegado abajo, siempre alcanzable. */
+@media (max-height: 559px) {
+  .dsn { --vista: clamp(150px, 42vh, 460px); height: auto; min-height: 100dvh; overflow: visible; }
+  .dsn .paso { flex: none; overflow: visible; }
+  .dsn footer { position: sticky; bottom: 0; z-index: 5; border-top: 1px solid var(--line); }
 }
 @media (prefers-reduced-motion: reduce) { .dsn * { transition: none !important; animation: none !important; } }
 

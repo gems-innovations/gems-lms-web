@@ -137,6 +137,7 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
        así, en celular, la vista previa no se sale de la pantalla). */
     .crear { position: relative; display: flex; flex-direction: column; height: 100dvh; }
     .dsn { flex: 1; min-height: 0; height: auto; width: 100%; }
+    @media (max-height: 559px) { .crear { height: auto; min-height: 100dvh; } .dsn { flex: 1 0 auto; } }
     .marca { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; max-width: 1040px; margin: 0 auto; padding: 6px 16px; padding-top: max(6px, env(safe-area-inset-top)); border-bottom: 1px solid var(--color-borde-principal); }
     .marca a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; color: var(--color-texto-principal); border-radius: 10px; }
     .marca a:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; }
