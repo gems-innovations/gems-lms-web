@@ -168,11 +168,11 @@ test('disenador.js: el sonido se desbloquea solo en pointerup/click/keydown dent
 
 test('disenador.js: altavoz dibujado (sin emojis) y tecla M; clave propia o enlace con el silencio general; movimiento reducido quita glisandos y ambiente', () => {
   assert.match(codigo, /export const CLAVE_SONIDO = 'taps\.disenador\.sonido';/);
-  assert.match(codigo, /id=\\"sonido\\" class=\\"altavoz\\" aria-pressed=\\"true\\"/);
+  assert.match(codigo, /id=\\"sonido\\" class=\\"altavoz\\" aria-pressed=\\"false\\"/);
   assert.match(codigo, /<symbol id=\\"i-altavoz\\"/); assert.match(codigo, /<symbol id=\\"i-altavoz-off\\"/);
   assert.doesNotMatch(codigo, /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u, 'sin emojis en la interfaz');
   assert.match(cuerpo, /if \(e\.key !== 'm' && e\.key !== 'M'\) return;/);
-  assert.match(cuerpo, /sonidoEnlace \? sonidoEnlace\.activo\(\) !== false : almacen\.leer\(CLAVE_SONIDO\) !== 'off'/);
+  assert.match(cuerpo, /sonidoEnlace \? sonidoEnlace\.activo\(\) !== false : almacen\.leer\(CLAVE_SONIDO\) === 'on'/);
   assert.match(cuerpo, /almacen\.escribir\(CLAVE_SONIDO, sonidoActivo \? 'on' : 'off'\)/);
   assert.match(cuerpo, /contar\('sonido\/' \+ \(sonidoActivo \? 'on' : 'off'\)\)/);
   assert.match(cuerpo, /tipo === 'sorpresa'\) return sonar\(reducido \? 'toque' : 'baraja'\)/);
