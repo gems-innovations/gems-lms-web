@@ -116,6 +116,10 @@ export interface IContentBlock {
   allowedFileTypes?: string[];  // ['pdf', 'docx', 'zip', 'jpg']
   rubric?: IRubricItem[];
 
+  // ── LIVE SESSION ──
+  /** Inicio de la sesión en vivo, hora local (yyyy-mm-ddThh:mm). */
+  liveStartsAt?: string;
+
   // ── CARDS ──
   cards?: ICard[];
 }
@@ -244,6 +248,8 @@ export interface ICreateContentBlockRequest {
   rubric?: IRubricItem[];
   // Cards
   cards?: ICard[];
+  // Live session
+  liveStartsAt?: string;
   /** Due date (yyyy-mm-dd), shown to students in their delivery calendar. */
   dueDate?: string;
 }

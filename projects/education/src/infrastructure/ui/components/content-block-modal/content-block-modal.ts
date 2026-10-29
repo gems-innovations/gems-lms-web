@@ -106,6 +106,7 @@ export class ContentBlockModal implements OnInit {
   readonly captionsBusy      = signal(false);
   readonly captionsError     = signal<string | null>(null);
 
+  readonly liveStartsAt    = signal('');
   readonly markdownContent = signal('');
   readonly markdownPreview = signal(false);
 
@@ -188,6 +189,7 @@ export class ContentBlockModal implements OnInit {
     this.videoTranscript.set(b.videoTranscript ?? '');
     this.captionsUrl.set(b.captionsUrl ?? '');
     this.markdownContent.set(b.markdownContent ?? '');
+    this.liveStartsAt.set(b.liveStartsAt ?? '');
     this.scormUrl.set(b.type === EContentType.SCORM ? b.url ?? '' : '');
     this.scormVersion.set(b.scormVersion ?? '1.2');
     this.completionThreshold.set(b.completionThreshold ?? 80);
@@ -305,6 +307,10 @@ export class ContentBlockModal implements OnInit {
       req.captionsUrl       = this.captionsUrl().trim() || undefined;
     }
     if (type === EContentType.DOCUMENT) { req.markdownContent = this.markdownContent(); }
+    if (type === EContentType.LIVE_SESSION) {
+      req.url = this.videoUrl().trim() || undefined;
+      req.liveStartsAt = this.liveStartsAt() || undefined;
+    }
     if (type === EContentType.CARDS) {
       req.cards = this.cards().map(cleanCard);
       if (!req.duration) req.duration = estimateMinutes(req.cards);

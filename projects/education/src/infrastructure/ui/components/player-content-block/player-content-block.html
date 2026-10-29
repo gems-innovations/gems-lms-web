@@ -642,16 +642,33 @@
     }
 
     <!-- ═══════════════════════════ LIVE / SCORM ═════════════════════════════ -->
-    @if (blk.type === EContentType.LIVE_SESSION || blk.type === EContentType.SCORM) {
+    @if (blk.type === EContentType.LIVE_SESSION) {
+      @let live = liveInfo(blk);
       <div class="player-content-block__meta">
         <h2 class="player-content-block__title">{{ blk.title }}</h2>
         @if (blk.description) { <p class="player-content-block__desc">{{ blk.description }}</p> }
       </div>
       <div class="player-content-block__live-placeholder">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/>
         </svg>
-        <span>{{ blk.type === EContentType.LIVE_SESSION ? 'Sesión en vivo próximamente' : 'Contenido SCORM externo' }}</span>
+        @if (live.cuando) { <strong class="player-content-block__live-when">{{ live.cuando }}</strong> }
+        @if (blk.url && live.abierta) {
+          <a [href]="blk.url" target="_blank" rel="noopener" class="pcb-btn pcb-btn--primary">Unirme a la sesión</a>
+        } @else if (blk.url) {
+          <span>El enlace se activa 15 minutos antes de empezar.</span>
+        } @else {
+          <span>Tu mentor aún no ha publicado el enlace de la sesión.</span>
+        }
+      </div>
+    }
+    @if (blk.type === EContentType.SCORM) {
+      <div class="player-content-block__meta">
+        <h2 class="player-content-block__title">{{ blk.title }}</h2>
+        @if (blk.description) { <p class="player-content-block__desc">{{ blk.description }}</p> }
+      </div>
+      <div class="player-content-block__live-placeholder">
+        <span>Contenido SCORM externo</span>
         @if (blk.url) {
           <a [href]="blk.url" target="_blank" rel="noopener" class="pcb-btn pcb-btn--primary">Abrir enlace</a>
         }
