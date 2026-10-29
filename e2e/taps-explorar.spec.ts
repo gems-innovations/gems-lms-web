@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { apiFalsa, erroresDePagina, type IRegla } from './humo-soporte';
+import { apiFalsa, conSesion, erroresDePagina, type IRegla } from './humo-soporte';
 
 /**
  * Explorar (/taps/explorar): buscador sin tildes, categorías con Minecraft primero, orden «Más vistos» (con y sin datos del
@@ -116,19 +116,40 @@ test('móvil: el selector de temas trae «Explorar» y lleva a la pantalla', asy
   await expect(page).toHaveURL(/\/taps(\?.*)?$/);
 });
 
-/** API social simulada (contrato de GET /public/taps/sociales y POST /public/taps/{tapId}/me-gusta). */
+/**
+ * API social simulada (gems-lms-api#33): cifras públicas en GET /public/taps/sociales; con sesión, los propios
+ * (/taps/sociales/yo), PUT /taps/{tapId}/me-gusta y los comentarios. `authorization` guarda si llegó el token.
+ */
+const authorization: string[] = [];
 const SOCIAL: IRegla[] = [
   { method: 'GET', path: /^\/public\/taps\/sociales$/, respond: req => {
     const ids = (new URL(req.url()).searchParams.get('ids') ?? '').split(',');
-    return { body: { taps: ids.map(tapId => ({ tapId, vistas: tapId === 'mc-gancho' ? 1234 : 7, meGusta: tapId === 'mc-gancho' ? 41 : 0, meGustaYo: false })) } };
+    if (req.headers()['authorization']) authorization.push('publica');
+    return { body: { taps: ids.map(tapId => ({ tapId, vistas: tapId === 'mc-gancho' ? 1234 : 7, meGusta: tapId === 'mc-gancho' ? 41 : 0, comentarios: tapId === 'mc-gancho' ? 3 : 0 })) } };
   } },
-  { method: 'POST', path: /^\/public\/taps\/[^/]+\/me-gusta$/, respond: (req, path) => {
+  { method: 'GET', path: /^\/taps\/sociales\/yo$/, respond: req => {
+    const ids = (new URL(req.url()).searchParams.get('ids') ?? '').split(',');
+    return { body: { taps: ids.map(tapId => ({ tapId, meGustaYo: false })) } };
+  } },
+  { method: 'PUT', path: /^\/taps\/[^/]+\/me-gusta$/, respond: (req, path) => {
+    authorization.push(req.headers()['authorization'] ?? 'sin');
     const meGusta = (req.postDataJSON() as { meGusta: boolean }).meGusta;
-    return { body: { tapId: decodeURIComponent(path.split('/')[3]), meGusta, total: meGusta ? 42 : 41 } };
+    return { body: { tapId: decodeURIComponent(path.split('/')[2]), meGusta, total: meGusta ? 42 : 41 } };
   } },
+  { method: 'GET', path: /^\/taps\/[^/]+\/comentarios$/, respond: () => ({ body: {
+    comentarios: [{ id: 1, autor: 'Ana', texto: '<b>hola</b> crack', creado: new Date(Date.now() - 5 * 60_000).toISOString(), mio: false }], siguiente: null,
+  } }) },
+  { method: 'POST', path: /^\/taps\/[^/]+\/comentarios$/, respond: req => {
+    const texto = (req.postDataJSON() as { texto: string }).texto;
+    if (texto === 'malo') return { status: 422, body: { message: 'Ese comentario no se puede publicar.' } };
+    return { body: { id: 99, autor: 'Tú', texto, creado: new Date().toISOString(), mio: true } };
+  } },
+  { method: 'DELETE', path: /^\/taps\/comentarios\/[^/]+$/, respond: () => ({ status: 204 }) },
+  { method: 'POST', path: /^\/taps\/comentarios\/[^/]+\/reportar$/, respond: () => ({ status: 204 }) },
 ];
 
-test('tarjetas tipo video: portada viva, vistas compactas y me gusta que cambia aria-pressed (API social simulada)', async ({ page }) => {
+test('tarjetas tipo video: portada viva y vistas; sin sesión el corazón pide iniciar sesión (API social simulada)', async ({ page }) => {
+  authorization.length = 0;
   const errores = erroresDePagina(page);
   const api = await apiFalsa(page, { reglas: SOCIAL });
   await page.goto('/taps/explorar?tema=minecraft');
@@ -137,14 +158,18 @@ test('tarjetas tipo video: portada viva, vistas compactas y me gusta que cambia 
   const gusta = celda.getByRole('button', { name: /^Me gusta: .*\(41\)$/ });
   await expect(gusta).toHaveAttribute('aria-pressed', 'false');
   await gusta.click();
-  await expect(celda.getByRole('button', { name: /^Me gusta: .*\(42\)$/ })).toHaveAttribute('aria-pressed', 'true');
-  expect(api.veces(/^\/public\/taps\/mc-gancho\/me-gusta$/, 'POST')).toBe(1);
+  const hoja = page.getByRole('dialog', { name: 'Inicia sesión para dar me gusta y comentar' });
+  await expect(hoja).toBeVisible();
+  await expect(hoja.getByRole('link', { name: 'Iniciar sesión' })).toHaveAttribute('href', '/auth/signin?volver=%2Ftaps%2Fexplorar%3Ftema%3Dminecraft');
+  await expect(hoja.getByRole('link', { name: 'Crear cuenta' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(hoja).toHaveCount(0);
+  expect(api.veces(/me-gusta$/)).toBe(0);
+  expect(authorization).toEqual([]);
   // Portada viva: el motor ligero monta pocas escenas (solo lo visible) y anima como mucho dos; nunca una por Tap.
   await expect.poll(() => page.locator('.card__art .te-stage').count()).toBeGreaterThan(0);
   expect(await page.locator('.card__art .te-stage').count()).toBeLessThanOrEqual(6);
   expect(await page.locator('.card__art .te-stage:not([data-paused])').count()).toBeLessThanOrEqual(2);
-  // Comentarios: todavía no existen (ningún botón muerto).
-  await expect(page.getByRole('button', { name: /coment/i })).toHaveCount(0);
   expect(errores).toEqual([]);
 });
 
@@ -156,15 +181,66 @@ test('sin API social: sin corazón ni cifras inventadas; con movimiento reducido
   await expect(page.locator('.gusta')).toHaveCount(0);
   await expect(page.locator('.card__vistas')).toHaveCount(0);
   await expect(page.locator('.te-stage')).toHaveCount(0);
+  await page.goto('/t/mc-gancho');
+  await expect(page.getByRole('navigation', { name: 'Acciones del Tap' }).getByRole('button', { name: 'Más opciones' }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: /^(Me gusta|Comentarios) \(/ })).toHaveCount(0);
 });
 
-test('el Tap abierto tiene «Me gusta» con su cifra en el riel', async ({ page }) => {
+test('Tap abierto sin sesión: me gusta y comentarios muestran su cifra y abren la hoja de acceso', async ({ page }) => {
   await apiFalsa(page, { reglas: SOCIAL });
+  await page.goto('/t/mc-gancho');
+  const riel = page.getByRole('navigation', { name: 'Acciones del Tap' });
+  await expect(riel.getByRole('button', { name: 'Me gusta (41)' })).toBeVisible();
+  await riel.getByRole('button', { name: 'Comentarios (3)' }).click();
+  const hoja = page.getByRole('dialog', { name: 'Inicia sesión para dar me gusta y comentar' });
+  await expect(hoja.getByRole('link', { name: 'Iniciar sesión' })).toHaveAttribute('href', '/auth/signin?volver=%2Ft%2Fmc-gancho');
+  await expect(hoja.getByRole('link', { name: 'Iniciar sesión' })).toBeFocused();
+  await hoja.getByRole('button', { name: 'Ahora no' }).click();
+  await expect(hoja).toHaveCount(0);
+});
+
+test('Tap abierto con sesión: me gusta contra PUT y comentarios (publicar, 422, borrar y reportar)', async ({ page }) => {
+  authorization.length = 0;
+  const errores = erroresDePagina(page);
+  await conSesion(page, 'student');
+  const api = await apiFalsa(page, { reglas: SOCIAL });
   await page.goto('/t/mc-gancho');
   const riel = page.getByRole('navigation', { name: 'Acciones del Tap' });
   await expect(riel.getByRole('button', { name: 'Me gusta (41)' })).toHaveAttribute('aria-pressed', 'false');
   await riel.getByRole('button', { name: 'Me gusta (41)' }).click();
   await expect(riel.getByRole('button', { name: 'Me gusta (42)' })).toHaveAttribute('aria-pressed', 'true');
+  expect(api.veces(/^\/taps\/mc-gancho\/me-gusta$/, 'PUT')).toBe(1);
+  expect(authorization).toEqual([expect.stringMatching(/^Bearer /)]);          // el PUT lleva el token; las cifras públicas, no
+
+  await riel.getByRole('button', { name: 'Comentarios (3)' }).click();
+  const hoja = page.getByRole('dialog', { name: /Comentarios/ });
+  await expect(hoja.getByText('<b>hola</b> crack')).toBeVisible();          // texto plano: Angular lo escapa
+  await expect(hoja.locator('b')).toHaveCount(0);
+  const campo = hoja.getByRole('textbox', { name: 'Escribe un comentario' });
+  await expect(campo).toBeFocused();
+  await expect(campo).toHaveAttribute('maxlength', '200');
+  await campo.fill('malo');
+  await campo.press('Enter');
+  await expect(hoja.getByText('Ese comentario no se puede publicar.')).toBeVisible();
+  await expect(campo).toHaveAttribute('aria-invalid', 'true');
+  await campo.fill('¡Qué buen Tap!');
+  await expect(hoja.getByText('14/200')).toBeVisible();
+  await campo.press('Enter');
+  await expect(hoja.getByRole('status')).toHaveText('Comentario publicado');
+  await expect(hoja.getByText('¡Qué buen Tap!')).toBeVisible();
+  await expect(campo).toHaveValue('');
+  await expect(riel.getByRole('button', { name: 'Comentarios (4)' })).toHaveCount(1);
+  await hoja.getByRole('button', { name: 'Borrar tu comentario: ¡Qué buen Tap!' }).click();
+  await expect(hoja.getByRole('status')).toHaveText('Comentario borrado');
+  await hoja.getByRole('button', { name: 'Reportar el comentario de Ana' }).click();
+  await hoja.getByRole('button', { name: 'Sí, reportar' }).click();
+  await expect(hoja.getByRole('status')).toContainText('Comentario reportado');
+  expect(api.veces(/^\/taps\/comentarios\/1\/reportar$/, 'POST')).toBe(1);
+  expect(api.veces(/^\/taps\/comentarios\/99$/, 'DELETE')).toBe(1);
+  await page.keyboard.press('Escape');
+  await expect(hoja).toHaveCount(0);
+  await expect(riel.getByRole('button', { name: 'Comentarios (3)' })).toBeFocused();
+  expect(errores).toEqual([]);
 });
 
 test.describe('escritorio', () => {

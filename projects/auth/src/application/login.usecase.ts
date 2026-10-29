@@ -31,6 +31,14 @@ export function googleErrorMessage(err: unknown): string {
   return loginErrorMessage(err);
 }
 
+/**
+ * A dónde volver después de entrar (`/auth/signin?volver=…`): solo rutas de Taps del mismo sitio (`/t/<id>`, `/taps`,
+ * `/taps/explorar` con su búsqueda). Cualquier otra cosa (otro dominio, `//`, `javascript:`) da null: se va al inicio del rol.
+ */
+export function volverDespuesDeEntrar(volver: unknown): string | null {
+  return typeof volver === 'string' && /^\/(?:t\/[\w-]+|taps(?:\/explorar)?)(?:\?[^\s#\\]*)?$/.test(volver) ? volver : null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class LoginUseCase {
   private readonly destroyRef     = inject(DestroyRef);
@@ -66,6 +74,8 @@ export class LoginUseCase {
           }),
           tap(() => {
             this._isLoading.set(false);
+            const volver = volverDespuesDeEntrar(this.router.parseUrl(this.router.url).queryParams['volver']);
+            if (volver && !this.authSession.mustChangePassword()) { this.router.navigateByUrl(volver); return; }
             this.router.navigate([this.authSession.mustChangePassword()
               ? '/account/password'
               : this.authSession.getHomeRoute()]);

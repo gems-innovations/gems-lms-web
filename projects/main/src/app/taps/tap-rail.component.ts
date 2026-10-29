@@ -1,26 +1,35 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, computed, effect, inject, input, output, signal, viewChild } from '@angular/core';
 import { TapsSocialService } from './taps-social.service';
 import { cifraCompacta } from './taps.social';
+import { TapAccesoComponent } from './tap-acceso.component';
+import { TapComentariosComponent } from './tap-comentarios.component';
 
 /**
  * Riel de acciones del Tap. Dos formas del mismo componente:
  * - móvil (por defecto): riel tipo TikTok sobre el mundo y nunca encima de las opciones (experiencia-ux.md §3.1), solo lo
  *   que funciona hoy: «Más» y «Enviar». «Más» es un menú, igual que en escritorio (antes saltaba de Tap a mitad de una
- *   pregunta): «Otro de <tema>» y «No me interesa este tema» (se deshace desde el mismo menú). Arriba, «Me gusta» con su cifra
- *   (solo si el API social responde: TapsSocialService; sin él no hay botón).
+ *   pregunta): «Otro de <tema>» y «No me interesa este tema» (se deshace desde el mismo menú). Arriba, «Me gusta» y «Comentarios» con
+ *   su cifra (solo si el API social responde: TapsSocialService; sin él no hay botones). Sin sesión, tocarlos abre la hoja de acceso.
  * - escritorio (`desktop`): fuera del escenario, pegado a su derecha (escritorio.md §5). Flechas ↑/↓ arriba y, abajo, tema,
  *   Retar y Más (menú). «Guardar» no está: no hay cuentas todavía y un botón muerto enseña a no tocar.
  */
 @Component({
   selector: 'gems-tap-rail',
+  imports: [TapAccesoComponent, TapComentariosComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (!desktop()) {
       <nav class="rail" aria-label="Acciones del Tap">
         @if (gusta(); as g) {
-          <button type="button" class="rail__btn rail__gusta" [attr.aria-pressed]="g.meGustaYo" (click)="social.alternar(tapId()!)" [attr.aria-label]="'Me gusta (' + g.meGusta + ')'">
+          <button type="button" class="rail__btn rail__gusta" [attr.aria-pressed]="g.meGustaYo" (click)="gustar()" [attr.aria-label]="'Me gusta (' + g.meGusta + ')'">
             <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M12 20.5s-7.6-4.6-9.4-9.2C1.3 8 3.4 4.8 6.8 4.8c2 0 3.7 1.1 5.2 3 1.5-1.9 3.2-3 5.2-3 3.4 0 5.5 3.2 4.2 6.5-1.8 4.6-9.4 9.2-9.4 9.2z" fill="currentColor"/></svg></span>
             <span class="rail__label" aria-hidden="true">{{ cifra(g.meGusta) }}</span>
+          </button>
+        }
+        @if (charla() !== null) { @let n = charla()!;
+          <button type="button" class="rail__btn" (click)="abrirComentarios()" [attr.aria-label]="'Comentarios (' + n + ')'">
+            <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-7l-5 4v-4H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="currentColor"/><path d="M7.5 9h9M7.5 12.5h6" stroke="#0d1117" stroke-width="2" stroke-linecap="round" opacity=".55"/></svg></span>
+            <span class="rail__label" aria-hidden="true">{{ cifra(n) }}</span>
           </button>
         }
         <div class="rail__more">
@@ -63,9 +72,15 @@ import { cifraCompacta } from './taps.social';
             <span class="rail__label">Tema</span>
           </button>
           @if (gusta(); as g) {
-            <button type="button" class="rail__btn rail__gusta" [attr.aria-pressed]="g.meGustaYo" (click)="social.alternar(tapId()!)" [attr.aria-label]="'Me gusta (' + g.meGusta + ')'">
+            <button type="button" class="rail__btn rail__gusta" [attr.aria-pressed]="g.meGustaYo" (click)="gustar()" [attr.aria-label]="'Me gusta (' + g.meGusta + ')'">
               <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M12 20.5s-7.6-4.6-9.4-9.2C1.3 8 3.4 4.8 6.8 4.8c2 0 3.7 1.1 5.2 3 1.5-1.9 3.2-3 5.2-3 3.4 0 5.5 3.2 4.2 6.5-1.8 4.6-9.4 9.2-9.4 9.2z" fill="currentColor"/></svg></span>
               <span class="rail__label" aria-hidden="true">{{ cifra(g.meGusta) }}</span>
+            </button>
+          }
+          @if (charla() !== null) { @let n = charla()!;
+            <button type="button" class="rail__btn" (click)="abrirComentarios()" [attr.aria-label]="'Comentarios (' + n + ')'">
+              <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-7l-5 4v-4H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="currentColor"/><path d="M7.5 9h9M7.5 12.5h6" stroke="#0d1117" stroke-width="2" stroke-linecap="round" opacity=".55"/></svg></span>
+              <span class="rail__label" aria-hidden="true">{{ cifra(n) }}</span>
             </button>
           }
           <button type="button" class="rail__btn" [class.is-hot]="finished()" (click)="share.emit()" aria-label="Retar a un amigo" aria-keyshortcuts="R">
@@ -93,6 +108,8 @@ import { cifraCompacta } from './taps.social';
         </div>
       </nav>
     }
+    @if (hoja() === 'acceso') { <gems-tap-acceso [volver]="'/t/' + tapId()" (cerrar)="hoja.set(null)" /> }
+    @if (hoja() === 'comentarios') { <gems-tap-comentarios [tapId]="tapId()!" [total]="charla()" (cerrar)="hoja.set(null)" /> }
   `,
   styleUrl: './tap-rail.component.scss',
   // Móvil: el riel está a la derecha y su menú se abre hacia la izquierda (aparte del .scss, que está al límite de su presupuesto).
@@ -119,6 +136,12 @@ export class TapRailComponent {
   protected readonly cifra = cifraCompacta;
   protected readonly gusta = computed(() => { const id = this.tapId(); return id && this.social.disponible() === true ? this.social.datos()[id] ?? null : null; });
   constructor() { effect(() => { const id = this.tapId(); if (id) this.social.pedir([id]); }); }
+  /** Cifra de comentarios (null: el API no los cuenta o no tiene la lista; sin botón). */
+  protected readonly charla = computed(() => { const g = this.gusta(); return g && g.comentarios != null && !this.social.sinComentarios() ? g.comentarios : null; });
+  /** Hoja abierta: acceso (sin sesión) o comentarios. */
+  protected readonly hoja = signal<'acceso' | 'comentarios' | null>(null);
+  protected gustar(): void { if (!this.social.alternar(this.tapId()!)) this.hoja.set('acceso'); }
+  protected abrirComentarios(): void { this.hoja.set(this.social.sesion() ? 'comentarios' : 'acceso'); }
 
   readonly more = output<void>();
   readonly filterTopic = output<void>();

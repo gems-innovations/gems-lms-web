@@ -5,6 +5,7 @@ import { TapsEstadisticasService } from './taps-estadisticas.service';
 import { TapPreviaDirective, TapsPreviasService } from './taps-explorar.previas';
 import { TapsSocialService } from './taps-social.service';
 import { ITapSocial, cifraCompacta } from './taps.social';
+import { TapAccesoComponent } from './tap-acceso.component';
 import { colecciones } from './taps.coleccion';
 import { HOOK_TAP_IDS, TAPS, TAP_TOPICS } from './taps.data';
 import { TAPS_DESDE } from './taps.desde';
@@ -37,7 +38,7 @@ const BLOQUE_DIAMANTE = bloque((x, y, r) => ([[2, 2], [3, 2], [5, 5], [6, 5], [2
  */
 @Component({
   selector: 'gems-taps-explorar',
-  imports: [RouterLink, NgTemplateOutlet, TapPreviaDirective],
+  imports: [RouterLink, NgTemplateOutlet, TapPreviaDirective, TapAccesoComponent],
   providers: [TapsPreviasService],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './taps-explorar.component.html',
@@ -90,6 +91,9 @@ export class TapsExplorarComponent {
   protected vistasDe(id: string): number { return this.social.datos()[id]?.vistas ?? this.ctx().vistas?.[id] ?? 0; }
   /** Cifras de me gusta, solo si el API social respondió: sin él no hay corazón (ningún botón muerto). */
   protected gustaDe(id: string): ITapSocial | null { return this.social.disponible() === true ? this.social.datos()[id] ?? null : null; }
+  /** Sin sesión, el corazón abre la hoja de acceso (vuelve a esta misma vista de Explorar al entrar). */
+  protected readonly acceso = signal<string | null>(null);
+  protected gustar(id: string): void { if (!this.social.alternar(id)) this.acceso.set(this.location.path() || '/taps/explorar'); }
 
   protected readonly titulo = computed(() => {
     const q = this.consulta().trim(), t = this.temaActual();
