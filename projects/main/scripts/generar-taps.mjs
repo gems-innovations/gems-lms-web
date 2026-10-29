@@ -53,7 +53,8 @@ export const RUTAS = {
  * - `inicio` es el reto #1 (un lunes); `dias` es cuántos días cubre (366 al publicar el reto; 420 desde la ronda 2 del
  *   banco, para que sus 45 Taps entren en los días agregados: del 2027-10-20 al 2027-12-11; 427 con los 4 Taps de formatos
  *   mezclados, que entran del 2027-12-12 al 2027-12-18; 560 con Tecnología, cuyos 19 Taps entran los domingos del
- *   2027-12-26 al 2028-04-30). El tema de cada día rota por semana (lunes primero).
+ *   2027-12-26 al 2028-04-30; 578 con los 6 Taps de Minecraft de la ronda 3, del 2028-05-01 al 2028-05-18). El tema de cada
+ *   día rota por semana (lunes primero).
  * - La rotación semanal está versionada en `rotaciones`: cada entrada rige desde el día `desde` (índice desde `inicio`,
  *   siempre un lunes). Tecnología entró en la rotación el día 427 (lunes 2027-12-20) en lugar del tercer Minecraft (domingo).
  *   Los días anteriores conservan la rotación con la que se fijaron: cambiar la rotación nunca toca días ya fijados.
@@ -66,7 +67,7 @@ export const RUTAS = {
  */
 export const RETO = {
   inicio: '2026-10-19',
-  dias: 560,
+  dias: 578,
   rotaciones: [
     { desde: 0, temas: ['minecraft', 'logica', 'cultura', 'minecraft', 'logica', 'cultura', 'minecraft'] },
     { desde: 427, temas: ['minecraft', 'logica', 'cultura', 'minecraft', 'logica', 'cultura', 'tecnologia'] },

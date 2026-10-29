@@ -112,11 +112,11 @@ describe('mixFeed (feed «Para ti»)', () => {
 describe('el feed con los Taps reales', () => {
   const feed = orderFeed(TAPS, {});
   const enFeed = TAPS.filter(t => !t.soloEnlace).length;
-  it('hay 133 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
-    expect(TAPS.length).toBe(133);
+  it('hay 139 Taps de 5 preguntas con ids únicos (de Tap y de pregunta)', () => {
+    expect(TAPS.length).toBe(139);
     expect(new Set(TAPS.map(t => t.id)).size).toBe(TAPS.length);
     const questionIds = TAPS.flatMap(t => t.questions.map(q => q.id));
-    expect(questionIds.length).toBe(133 * 5);
+    expect(questionIds.length).toBe(139 * 5);
     expect(new Set(questionIds).size).toBe(questionIds.length);
   });
   it('el feed los trae todos, con un gancho primero y nunca más de 2 seguidos del mismo tema', () => {
@@ -185,7 +185,7 @@ describe('feedTopics', () => {
   });
   it('con los Taps reales los cuatro temas son jugables, con sus conteos, y ninguno dice «pronto»', () => {
     const real = feedTopics(TAPS, TAP_TOPICS);
-    expect(real.map(t => [t.topic.id, t.count, t.soon])).toEqual([['minecraft', 42, false], ['logica', 29, false], ['cultura', 31, false], ['tecnologia', 20, false]]);
+    expect(real.map(t => [t.topic.id, t.count, t.soon])).toEqual([['minecraft', 48, false], ['logica', 29, false], ['cultura', 31, false], ['tecnologia', 20, false]]);
   });
 });
 

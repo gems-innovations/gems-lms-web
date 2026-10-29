@@ -3850,6 +3850,486 @@
       "subtema": "crafteos",
       "fuente": "https://minecraft.wiki/w/Pickaxe",
       "estado": "revisada"
+    },
+    {
+      "id": "enc-lapislazuli",
+      "q": "Además de niveles de experiencia, ¿qué gasta la mesa de encantamientos al encantar?",
+      "options": [
+        "Esmeraldas",
+        "Oro",
+        "Lapislázuli",
+        "Redstone"
+      ],
+      "answer": 2,
+      "why": "Cada encantamiento gasta de 1 a 3 lapislázulis, además de tus niveles.",
+      "dificultad": 1,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Enchanting_Table",
+      "estado": "revisada"
+    },
+    {
+      "id": "enc-libro-yunque",
+      "q": "Tienes un libro encantado. ¿Dónde le pasas ese encantamiento a tu espada?",
+      "options": [
+        "En el yunque",
+        "En el horno",
+        "En el telar",
+        "En un cofre"
+      ],
+      "answer": 0,
+      "why": "En el yunque juntas el libro con la espada. Cuesta niveles de experiencia.",
+      "dificultad": 1,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Anvil",
+      "estado": "revisada"
+    },
+    {
+      "id": "enc-toque-seda",
+      "q": "Minas una mena de diamante con un pico con toque de seda (silk touch). ¿Qué te llevas?",
+      "options": [
+        "Un diamante",
+        "Dos diamantes",
+        "La mena entera",
+        "Nada"
+      ],
+      "answer": 2,
+      "why": "Toque de seda recoge el bloque tal cual: te llevas la mena, no el diamante.",
+      "dificultad": 2,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Silk_Touch",
+      "estado": "revisada"
+    },
+    {
+      "id": "enc-infinidad",
+      "q": "Tu arco tiene infinidad (infinity). ¿Cuántas flechas normales necesitas llevar para disparar?",
+      "options": [
+        "0",
+        "1",
+        "16",
+        "64"
+      ],
+      "answer": 1,
+      "why": "Con una sola flecha en el inventario disparas sin gastarla.",
+      "dificultad": 2,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Infinity",
+      "estado": "revisada"
+    },
+    {
+      "id": "enc-estanterias-15",
+      "q": "¿Cuántas estanterías necesita, como mínimo, la mesa de encantamientos para llegar al nivel 30?",
+      "options": [
+        "10",
+        "12",
+        "14",
+        "15"
+      ],
+      "answer": 3,
+      "why": "15 estanterías a un bloque de la mesa, con aire en medio, la llevan al nivel 30.",
+      "dificultad": 3,
+      "subtema": "crafteos",
+      "fuente": "https://minecraft.wiki/w/Enchanting_Table",
+      "estado": "revisada"
+    },
+    {
+      "id": "poc-soporte",
+      "q": "¿Qué bloque usas para preparar pociones?",
+      "options": [
+        "El horno",
+        "El ahumador",
+        "El yunque",
+        "El soporte de pociones"
+      ],
+      "answer": 3,
+      "why": "En el soporte pones botellas de agua abajo y el ingrediente arriba.",
+      "dificultad": 1,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Brewing_Stand",
+      "estado": "revisada"
+    },
+    {
+      "id": "poc-polvora",
+      "q": "¿Qué ingrediente convierte una poción en arrojadiza, para lanzarla?",
+      "options": [
+        "Azúcar",
+        "Pólvora",
+        "Piedra luminosa",
+        "Hilo"
+      ],
+      "answer": 1,
+      "why": "Con pólvora la poción se vuelve arrojadiza y afecta a todos los que estén cerca.",
+      "dificultad": 2,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Splash_Potion",
+      "estado": "revisada"
+    },
+    {
+      "id": "poc-redstone-dura",
+      "q": "¿Qué le agregas a una poción para que su efecto dure más tiempo?",
+      "options": [
+        "Polvo de redstone",
+        "Piedra luminosa",
+        "Azúcar",
+        "Hueso"
+      ],
+      "answer": 0,
+      "why": "La redstone alarga el efecto; la piedra luminosa lo hace más fuerte, pero más corto.",
+      "dificultad": 2,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Brewing",
+      "estado": "revisada"
+    },
+    {
+      "id": "poc-caida-lenta",
+      "q": "¿Qué poción preparas con membrana de phantom?",
+      "options": [
+        "Velocidad",
+        "Fuerza",
+        "Caída lenta",
+        "Salto"
+      ],
+      "answer": 2,
+      "why": "Caída lenta: bajas flotando despacio y no te haces daño al caer.",
+      "dificultad": 2,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Potion_of_Slow_Falling",
+      "estado": "revisada"
+    },
+    {
+      "id": "poc-vision-nocturna",
+      "q": "¿Qué ingrediente da la poción de visión nocturna?",
+      "options": [
+        "Azúcar",
+        "Zanahoria dorada",
+        "Pez globo",
+        "Manzana dorada"
+      ],
+      "answer": 1,
+      "why": "La zanahoria dorada en una poción rara te deja ver en la oscuridad.",
+      "dificultad": 3,
+      "subtema": "supervivencia",
+      "fuente": "https://minecraft.wiki/w/Potion_of_Night_Vision",
+      "estado": "revisada"
+    },
+    {
+      "id": "ald-comerciante-llamas",
+      "q": "¿Qué animales llegan con el comerciante errante (wandering trader)?",
+      "options": [
+        "Dos caballos",
+        "Dos llamas",
+        "Dos lobos",
+        "Dos camellos"
+      ],
+      "answer": 1,
+      "why": "El comerciante errante llega con dos llamas atadas con rienda.",
+      "dificultad": 1,
+      "subtema": "aldeas",
+      "fuente": "https://minecraft.wiki/w/Wandering_Trader",
+      "estado": "revisada"
+    },
+    {
+      "id": "ald-barril-pescador",
+      "q": "¿Qué bloque convierte a un aldeano en pescador?",
+      "options": [
+        "Un caldero",
+        "Un telar",
+        "Un barril",
+        "Un ahumador"
+      ],
+      "answer": 2,
+      "why": "El barril es el bloque de trabajo del pescador: te compra pescado por esmeraldas.",
+      "dificultad": 2,
+      "subtema": "aldeas",
+      "fuente": "https://minecraft.wiki/w/Villager",
+      "estado": "revisada"
+    },
+    {
+      "id": "ald-golem-hierro",
+      "q": "¿Cuántos bloques de hierro necesitas para construir un gólem de hierro?",
+      "options": [
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "answer": 2,
+      "why": "4 bloques de hierro en forma de T y una calabaza tallada encima.",
+      "dificultad": 2,
+      "subtema": "aldeas",
+      "fuente": "https://minecraft.wiki/w/Iron_Golem",
+      "estado": "revisada"
+    },
+    {
+      "id": "ald-curar-zombi",
+      "q": "Debilitas a un aldeano zombi con una poción arrojadiza de debilidad. ¿Qué le das para curarlo?",
+      "options": [
+        "Leche",
+        "Una esmeralda",
+        "Pan",
+        "Una manzana dorada"
+      ],
+      "answer": 3,
+      "why": "Con la manzana dorada tiembla un rato y vuelve a ser aldeano.",
+      "dificultad": 2,
+      "subtema": "aldeas",
+      "fuente": "https://minecraft.wiki/w/Zombie_Villager",
+      "estado": "revisada"
+    },
+    {
+      "id": "ald-clerigo",
+      "q": "¿Qué aldeano usa el soporte de pociones como bloque de trabajo?",
+      "options": [
+        "El clérigo (sacerdote)",
+        "El granjero",
+        "El cartógrafo",
+        "El bibliotecario"
+      ],
+      "answer": 0,
+      "why": "El clérigo, el de túnica morada, trabaja con el soporte de pociones.",
+      "dificultad": 3,
+      "subtema": "aldeas",
+      "fuente": "https://minecraft.wiki/w/Villager",
+      "estado": "revisada"
+    },
+    {
+      "id": "deb-esqueleto-sol",
+      "q": "¿Qué le pasa a un esqueleto cuando le da el sol de la mañana?",
+      "options": [
+        "Se duerme",
+        "Se quema",
+        "Se vuelve gigante",
+        "Se hace invisible"
+      ],
+      "answer": 1,
+      "why": "Arde con el sol, salvo que esté a la sombra, en el agua o con casco.",
+      "dificultad": 1,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Skeleton",
+      "estado": "revisada"
+    },
+    {
+      "id": "deb-enderman-calabaza",
+      "q": "¿Qué te pones en la cabeza para mirar a un enderman sin que se enoje?",
+      "options": [
+        "Un casco de oro",
+        "Una cabeza de zombi",
+        "Una calabaza tallada",
+        "Un casco de hierro"
+      ],
+      "answer": 2,
+      "why": "Con la calabaza tallada puesta, puedes mirarlo a los ojos y no te ataca.",
+      "dificultad": 2,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Enderman",
+      "estado": "revisada"
+    },
+    {
+      "id": "deb-esqueleto-lobo",
+      "q": "¿De qué animal huyen los esqueletos?",
+      "options": [
+        "Del lobo",
+        "Del gato",
+        "Del cerdo",
+        "Del conejo"
+      ],
+      "answer": 0,
+      "why": "Los esqueletos le temen al lobo, y los lobos los atacan por su cuenta.",
+      "dificultad": 2,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Skeleton",
+      "estado": "revisada"
+    },
+    {
+      "id": "deb-blaze-nieve",
+      "q": "Lanzas bolas de nieve a estos mobs. ¿A cuál le hacen daño?",
+      "options": [
+        "Al zombi",
+        "A la araña",
+        "Al esqueleto",
+        "Al blaze"
+      ],
+      "answer": 3,
+      "why": "El blaze es de fuego: cada bola de nieve le quita vida. A los demás solo los empuja.",
+      "dificultad": 3,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Snowball",
+      "estado": "revisada"
+    },
+    {
+      "id": "deb-curacion-zombi",
+      "q": "Le lanzas una poción arrojadiza de curación a un zombi. ¿Qué le pasa?",
+      "options": [
+        "Se cura",
+        "Le hace daño",
+        "Se vuelve aldeano",
+        "Nada"
+      ],
+      "answer": 1,
+      "why": "A los no muertos, como zombis y esqueletos, la curación les hace daño.",
+      "dificultad": 3,
+      "subtema": "mobs",
+      "fuente": "https://minecraft.wiki/w/Potion_of_Healing",
+      "estado": "revisada"
+    },
+    {
+      "id": "bio-ranas-pantano",
+      "q": "¿En qué bioma es más fácil encontrar ranas?",
+      "options": [
+        "En el desierto",
+        "En la montaña",
+        "En el pantano",
+        "En la taiga"
+      ],
+      "answer": 2,
+      "why": "Las ranas aparecen en los pantanos, también en los de manglar.",
+      "dificultad": 1,
+      "subtema": "biomas",
+      "fuente": "https://minecraft.wiki/w/Frog",
+      "estado": "revisada"
+    },
+    {
+      "id": "bio-bayas-taiga",
+      "q": "¿En qué bioma crecen solos los arbustos de bayas dulces?",
+      "options": [
+        "En la taiga",
+        "En el desierto",
+        "En la jungla",
+        "En el océano"
+      ],
+      "answer": 0,
+      "why": "Las bayas dulces crecen en la taiga. Ojo: el arbusto pincha si lo atraviesas.",
+      "dificultad": 2,
+      "subtema": "biomas",
+      "fuente": "https://minecraft.wiki/w/Sweet_Berries",
+      "estado": "revisada"
+    },
+    {
+      "id": "bio-rana-color",
+      "q": "Un renacuajo crece en un bioma nevado. ¿De qué color será la rana?",
+      "options": [
+        "Naranja",
+        "Blanca",
+        "Morada",
+        "Verde"
+      ],
+      "answer": 3,
+      "why": "En el frío sale verde, en clima templado naranja y en el calor, blanca.",
+      "dificultad": 3,
+      "subtema": "biomas",
+      "fuente": "https://minecraft.wiki/w/Frog",
+      "estado": "revisada"
+    },
+    {
+      "id": "bio-picos-hielo",
+      "q": "¿De qué bloque están hechos los picos del bioma de picos de hielo?",
+      "options": [
+        "Hielo azul",
+        "Hielo compacto",
+        "Nieve",
+        "Vidrio"
+      ],
+      "answer": 1,
+      "why": "Son torres de hielo compacto, que no se derrite con la luz.",
+      "dificultad": 3,
+      "subtema": "biomas",
+      "fuente": "https://minecraft.wiki/w/Ice_Spikes",
+      "estado": "revisada"
+    },
+    {
+      "id": "bio-azalea-cuevas",
+      "q": "¿Qué árbol de la superficie avisa que debajo hay una cueva llena de plantas y musgo?",
+      "options": [
+        "El cerezo",
+        "El roble oscuro",
+        "La azalea",
+        "El mangle"
+      ],
+      "answer": 2,
+      "why": "Sobre las cuevas frondosas crece la azalea, con raíces que bajan hasta la cueva.",
+      "dificultad": 3,
+      "subtema": "biomas",
+      "fuente": "https://minecraft.wiki/w/Azalea",
+      "estado": "revisada"
+    },
+    {
+      "id": "blq-slime-rebota",
+      "q": "¿Sobre qué bloque rebotas si caes encima?",
+      "options": [
+        "Bloque de slime",
+        "Bloque de miel",
+        "Lana",
+        "Hielo"
+      ],
+      "answer": 0,
+      "why": "El bloque de slime te hace rebotar y no te haces daño al caer.",
+      "dificultad": 1,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Slime_Block",
+      "estado": "revisada"
+    },
+    {
+      "id": "blq-cama-nether",
+      "q": "Te acuestas en una cama en el Nether. ¿Qué pasa?",
+      "options": [
+        "Duermes",
+        "Se hace de día",
+        "Explota",
+        "Nada"
+      ],
+      "answer": 2,
+      "why": "En el Nether y en el End la cama explota. Mejor no lo intentes.",
+      "dificultad": 1,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Bed",
+      "estado": "revisada"
+    },
+    {
+      "id": "blq-miel-salto",
+      "q": "¿Sobre qué bloque casi no puedes saltar?",
+      "options": [
+        "Hielo",
+        "Bloque de miel",
+        "Bloque de slime",
+        "Lana"
+      ],
+      "answer": 1,
+      "why": "El bloque de miel es pegajoso: no te deja saltar alto y amortigua las caídas.",
+      "dificultad": 2,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Honey_Block",
+      "estado": "revisada"
+    },
+    {
+      "id": "blq-andamio",
+      "q": "¿Con qué se fabrican los andamios?",
+      "options": [
+        "Palos y lana",
+        "Tablones y hierro",
+        "Palos y hilo",
+        "Bambú e hilo"
+      ],
+      "answer": 3,
+      "why": "6 bambúes y 1 hilo dan 6 andamios. Puedes subir y bajar por ellos.",
+      "dificultad": 2,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Scaffolding",
+      "estado": "revisada"
+    },
+    {
+      "id": "blq-fogata-colmena",
+      "q": "¿Qué pones debajo de una colmena para sacar la miel sin que te piquen las abejas?",
+      "options": [
+        "Una antorcha",
+        "Una fogata",
+        "Un cubo de agua",
+        "Una flor"
+      ],
+      "answer": 1,
+      "why": "El humo de una fogata debajo calma a las abejas mientras sacas la miel.",
+      "dificultad": 2,
+      "subtema": "curiosidades",
+      "fuente": "https://minecraft.wiki/w/Campfire",
+      "estado": "revisada"
     }
   ],
   "taps": [
@@ -4398,6 +4878,160 @@
         "duelo-ojos-portal-end",
         "duelo-xp-carbon-diamante",
         "duelo-oro-mas-duro"
+      ]
+    },
+    {
+      "id": "mc-encantar",
+      "titulo": "Encantar como pro",
+      "nivel": "media",
+      "subtema": "crafteos",
+      "preguntas": [
+        "enc-lapislazuli",
+        "enc-libro-yunque",
+        "enc-toque-seda",
+        "enc-infinidad",
+        "enc-estanterias-15"
+      ],
+      "resultados": [
+        {
+          "min": 0,
+          "title": "Aprendiz de encantador",
+          "line": "Todo encantador empezó con un libro y poco lapislázuli.",
+          "lineas": [
+            "Cada libro que lees te deja más cerca.",
+            "Hoy encantaste poco; mañana, todo."
+          ]
+        },
+        {
+          "min": 2,
+          "title": "Encantador del pueblo",
+          "line": "Ya sabes lo que piden la mesa y el yunque.",
+          "lineas": [
+            "Tus espadas ya piden más brillo.",
+            "Un par de encantamientos más y lo dominas."
+          ]
+        },
+        {
+          "min": 4,
+          "title": "Maestro encantador",
+          "line": "Casi perfecto: tus herramientas ya brillan.",
+          "lineas": [
+            "A un encantamiento de la perfección.",
+            "Hasta el bibliotecario toma notas."
+          ]
+        },
+        {
+          "min": 5,
+          "title": "Leyenda del encantamiento",
+          "line": "Cinco de cinco: la mesa trabaja para ti.",
+          "lineas": [
+            "Perfecto: ni un nivel desperdiciado.",
+            "Cero errores. Todo lo que tocas brilla."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mc-pociones",
+      "titulo": "Pociones paso a paso",
+      "nivel": "media",
+      "subtema": "supervivencia",
+      "preguntas": [
+        "poc-soporte",
+        "poc-polvora",
+        "poc-redstone-dura",
+        "poc-caida-lenta",
+        "poc-vision-nocturna"
+      ],
+      "resultados": [
+        {
+          "min": 0,
+          "title": "Aprendiz de pociones",
+          "line": "Ya sabes encender el soporte. ¡Otra ronda!",
+          "lineas": [
+            "Toda poción empezó con una botella de agua.",
+            "Hoy probaste ingredientes nuevos. ¡Sigue!"
+          ]
+        },
+        {
+          "min": 2,
+          "title": "Alquimista del pueblo",
+          "line": "Tus botellas ya hacen efecto.",
+          "lineas": [
+            "Ya sabes qué va en cada botella.",
+            "Un par de ingredientes más y lo tienes."
+          ]
+        },
+        {
+          "min": 4,
+          "title": "Maestro de pociones",
+          "line": "Casi perfecto: hasta las brujas te piden recetas.",
+          "lineas": [
+            "A una botella de la perfección.",
+            "Tu soporte casi no se equivoca."
+          ]
+        },
+        {
+          "min": 5,
+          "title": "Leyenda de las pociones",
+          "line": "Cinco de cinco: tu soporte nunca descansa.",
+          "lineas": [
+            "Perfecto: cada poción, en su punto.",
+            "Cero errores. Las brujas toman nota."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mc-aldea-2",
+      "titulo": "Oficios y comercio",
+      "nivel": "media",
+      "subtema": "aldeas",
+      "preguntas": [
+        "ald-comerciante-llamas",
+        "ald-barril-pescador",
+        "ald-golem-hierro",
+        "ald-curar-zombi",
+        "ald-clerigo"
+      ]
+    },
+    {
+      "id": "mc-debilidades",
+      "titulo": "Debilidades de los mobs",
+      "nivel": "media",
+      "subtema": "mobs",
+      "preguntas": [
+        "deb-esqueleto-sol",
+        "deb-enderman-calabaza",
+        "deb-esqueleto-lobo",
+        "deb-blaze-nieve",
+        "deb-curacion-zombi"
+      ]
+    },
+    {
+      "id": "mc-biomas-2",
+      "titulo": "Biomas para expertos",
+      "nivel": "dificil",
+      "subtema": "biomas",
+      "preguntas": [
+        "bio-ranas-pantano",
+        "bio-bayas-taiga",
+        "bio-rana-color",
+        "bio-picos-hielo",
+        "bio-azalea-cuevas"
+      ]
+    },
+    {
+      "id": "mc-bloques",
+      "titulo": "Bloques con truco",
+      "nivel": "facil",
+      "subtema": "curiosidades",
+      "preguntas": [
+        "blq-slime-rebota",
+        "blq-cama-nether",
+        "blq-miel-salto",
+        "blq-andamio",
+        "blq-fogata-colmena"
       ]
     }
   ]
