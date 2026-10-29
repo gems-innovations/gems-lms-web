@@ -1,4 +1,5 @@
-<article class="icard" tabindex="0"
+<article class="icard" tabindex="0" role="link"
+         [attr.aria-label]="cohort().course.title + ' · ' + cohort().group.name"
          (click)="open.emit(cohort())"
          (keydown.enter)="open.emit(cohort())">
 
