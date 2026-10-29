@@ -95,6 +95,10 @@
               [ngModel]="title()" (ngModelChange)="title.set($event)" />
           </div>
           <div class="cbm__row">
+            <label class="cbm__check">
+              <input type="checkbox" [ngModel]="assignmentAskLink()" (ngModelChange)="assignmentAskLink.set($event)" />
+              Pedir el enlace del trabajo (repositorio, diseño o documento)
+            </label>
             <div class="cbm__field cbm__field--sm">
               <label class="cbm__label">Duración (min)</label>
               <input class="cbm__input" type="number" min="0" [ngModel]="duration()" (ngModelChange)="duration.set(+$event)" />

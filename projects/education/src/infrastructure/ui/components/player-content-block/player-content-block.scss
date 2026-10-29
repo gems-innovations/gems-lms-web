@@ -1461,3 +1461,8 @@
   .assign-pending-v2__bar { flex-wrap: wrap; row-gap: 6px; padding: 10px 12px; }
   .assign-pending-v2__content { padding: 1rem; }
 }
+
+.pcb-link {
+  display: grid; gap: 6px; margin-bottom: 12px; font-size: 0.8125rem; color: var(--color-texto-secundario);
+  input { font: inherit; font-size: 0.9375rem; padding: 12px 14px; min-height: 44px; border-radius: 8px; color: var(--color-texto-principal); background: transparent; border: 1px solid color-mix(in srgb, var(--color-texto-principal) 20%, transparent); }
+}

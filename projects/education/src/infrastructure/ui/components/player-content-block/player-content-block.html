@@ -588,6 +588,13 @@
 
       <!-- Estado: sin entregar / editando -->
       @else if (!assignmentIsGraded()) {
+        @if (blk.assignmentAskLink) {
+          <label class="pcb-link">
+            <span>Enlace de tu trabajo</span>
+            <input type="url" inputmode="url" placeholder="https://github.com/tu-usuario/tu-proyecto"
+              [ngModel]="assignmentLink()" (ngModelChange)="assignmentLink.set($event)" />
+          </label>
+        }
         <lib-markdown-editor
           placeholder="## Mi respuesta&#10;&#10;Escribe tu entrega aquí usando **Markdown**…&#10;&#10;Puedes incluir código, listas, tablas y más."
           [rows]="10"

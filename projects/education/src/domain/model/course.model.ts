@@ -114,6 +114,8 @@ export interface IContentBlock {
   /** Due date (yyyy-mm-dd) of an assignment. */
   dueDate?: string;
   allowedFileTypes?: string[];  // ['pdf', 'docx', 'zip', 'jpg']
+  /** Pide al estudiante el enlace de su trabajo (repositorio, diseño, documento). */
+  assignmentAskLink?: boolean;
   rubric?: IRubricItem[];
 
   // ── LIVE SESSION ──
@@ -245,6 +247,7 @@ export interface ICreateContentBlockRequest {
   assignmentInstructions?: string;
   maxScore?: number;
   allowedFileTypes?: string[];
+  assignmentAskLink?: boolean;
   rubric?: IRubricItem[];
   // Cards
   cards?: ICard[];
