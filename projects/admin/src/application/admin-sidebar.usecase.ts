@@ -1,6 +1,7 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { AuthSessionService, EUserRole, LogoutUseCase } from 'auth';
 import { NavigationItem, UserProfile } from '@gems-lms-web/shared';
+import { INSTITUTION_ADMIN_MENU } from 'education';
 
 @Injectable({ providedIn: 'root' })
 export class AdminSidebarUseCase {
@@ -22,18 +23,7 @@ export class AdminSidebarUseCase {
         { id: 'audit', label: 'Auditoría', icon: 'audit', route: '/admin/audit' }
       ];
     }
-    if (role === EUserRole.ADMIN) {
-      return [
-        { id: 'dashboard',   label: 'Mi Institución', icon: 'dashboard', route: '/admin/dashboard' },
-        { id: 'people',      label: 'Personas',        icon: 'users',     route: '/admin/people' },
-        { id: 'courses',     label: 'Cursos',          icon: 'courses',   route: '/education/courses' },
-        { id: 'enrollments', label: 'Matrículas',      icon: 'courses',   route: '/admin/enrollments' },
-        { id: 'periods',     label: 'Períodos',        icon: 'learning-paths', route: '/admin/periods' },
-        { id: 'reports',     label: 'Reportes',         icon: 'stats',     route: '/admin/reports' },
-        { id: 'home',        label: 'Mi home',          icon: 'dashboard', route: '/admin/home' },
-        { id: 'audit',       label: 'Auditoría',       icon: 'audit',     route: '/admin/audit' }
-      ];
-    }
+    if (role === EUserRole.ADMIN) return [...INSTITUTION_ADMIN_MENU];
     if (role === EUserRole.INSTRUCTOR) {
       return [
         { id: 'dashboard', label: 'Mi Institución', icon: 'dashboard', route: '/admin/dashboard' }

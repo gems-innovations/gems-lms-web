@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { IUser, EUserRole } from 'auth';
 
-const isGuest = (u: IUser): boolean => u.email?.endsWith('@invitado.gems.lat') ?? false;
+export const isGuest = (u: IUser): boolean => u.email?.endsWith('@invitado.gems.lat') ?? false;
 
 @Component({
   selector: 'adm-user-stats-chips',
