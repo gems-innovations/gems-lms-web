@@ -1,10 +1,13 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, input, output, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, computed, effect, inject, input, output, signal, viewChild } from '@angular/core';
+import { TapsSocialService } from './taps-social.service';
+import { cifraCompacta } from './taps.social';
 
 /**
  * Riel de acciones del Tap. Dos formas del mismo componente:
  * - móvil (por defecto): riel tipo TikTok sobre el mundo y nunca encima de las opciones (experiencia-ux.md §3.1), solo lo
  *   que funciona hoy: «Más» y «Enviar». «Más» es un menú, igual que en escritorio (antes saltaba de Tap a mitad de una
- *   pregunta): «Otro de <tema>» y «No me interesa este tema» (se deshace desde el mismo menú).
+ *   pregunta): «Otro de <tema>» y «No me interesa este tema» (se deshace desde el mismo menú). Arriba, «Me gusta» con su cifra
+ *   (solo si el API social responde: TapsSocialService; sin él no hay botón).
  * - escritorio (`desktop`): fuera del escenario, pegado a su derecha (escritorio.md §5). Flechas ↑/↓ arriba y, abajo, tema,
  *   Retar y Más (menú). «Guardar» no está: no hay cuentas todavía y un botón muerto enseña a no tocar.
  */
@@ -14,6 +17,12 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, input, ou
   template: `
     @if (!desktop()) {
       <nav class="rail" aria-label="Acciones del Tap">
+        @if (gusta(); as g) {
+          <button type="button" class="rail__btn rail__gusta" [attr.aria-pressed]="g.meGustaYo" (click)="social.alternar(tapId()!)" [attr.aria-label]="'Me gusta (' + g.meGusta + ')'">
+            <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M12 20.5s-7.6-4.6-9.4-9.2C1.3 8 3.4 4.8 6.8 4.8c2 0 3.7 1.1 5.2 3 1.5-1.9 3.2-3 5.2-3 3.4 0 5.5 3.2 4.2 6.5-1.8 4.6-9.4 9.2-9.4 9.2z" fill="currentColor"/></svg></span>
+            <span class="rail__label" aria-hidden="true">{{ cifra(g.meGusta) }}</span>
+          </button>
+        }
         <div class="rail__more">
           <button type="button" class="rail__btn" (click)="toggleMenu($event)" #moreBtn [attr.aria-expanded]="menuOpen()" aria-controls="rail-mas-movil" aria-label="Más opciones">
             <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="5.5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="18.5" cy="12" r="2" fill="currentColor"/></svg></span>
@@ -53,6 +62,12 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, input, ou
             <span class="gm-icono gm-icono--flotante rail__icon rail__topic" [style.--tinte]="topicColor()"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M16.5 13.5v6M13.5 16.5h6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span>
             <span class="rail__label">Tema</span>
           </button>
+          @if (gusta(); as g) {
+            <button type="button" class="rail__btn rail__gusta" [attr.aria-pressed]="g.meGustaYo" (click)="social.alternar(tapId()!)" [attr.aria-label]="'Me gusta (' + g.meGusta + ')'">
+              <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M12 20.5s-7.6-4.6-9.4-9.2C1.3 8 3.4 4.8 6.8 4.8c2 0 3.7 1.1 5.2 3 1.5-1.9 3.2-3 5.2-3 3.4 0 5.5 3.2 4.2 6.5-1.8 4.6-9.4 9.2-9.4 9.2z" fill="currentColor"/></svg></span>
+              <span class="rail__label" aria-hidden="true">{{ cifra(g.meGusta) }}</span>
+            </button>
+          }
           <button type="button" class="rail__btn" [class.is-hot]="finished()" (click)="share.emit()" aria-label="Retar a un amigo" aria-keyshortcuts="R">
             <span class="gm-icono gm-icono--flotante rail__icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M14 5l7 7-7 7M21 12H10a7 7 0 0 0-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
             <span class="rail__label">Retar</span>
@@ -98,6 +113,12 @@ export class TapRailComponent {
   /** «Haz tu personaje» en el menú «Más» (PR-7): solo en /taps, no en la portada (allí ya está la tarjeta). */
   readonly crear = input(false);
   readonly crearPersonaje = output<void>();
+  /** Tap del riel, para su me gusta. Sin él (o sin API social) no hay corazón. */
+  readonly tapId = input<string | null>(null);
+  protected readonly social = inject(TapsSocialService);
+  protected readonly cifra = cifraCompacta;
+  protected readonly gusta = computed(() => { const id = this.tapId(); return id && this.social.disponible() === true ? this.social.datos()[id] ?? null : null; });
+  constructor() { effect(() => { const id = this.tapId(); if (id) this.social.pedir([id]); }); }
 
   readonly more = output<void>();
   readonly filterTopic = output<void>();

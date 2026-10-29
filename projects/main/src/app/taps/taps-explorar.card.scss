@@ -1,0 +1,50 @@
+// Tarjeta de Explorar: vertical 9:16 como un video de TikTok. Detrás, la portada (escena viva del motor ligero o, sin ella,
+// los colores del mundo del Tap); encima, su primera pregunta como en el Tap; abajo, título, tema y cifras. El me gusta es un
+// botón hermano del enlace, sobre la esquina de abajo a la derecha.
+
+.celda { position: relative; height: 100%; }
+.card { position: relative; display: flex; flex-direction: column; justify-content: flex-end; aspect-ratio: 9 / 16; overflow: hidden; border: 1px solid rgba(255, 255, 255, .12); border-radius: 14px;
+  background: #161b24; color: inherit; text-decoration: none; isolation: isolate;
+  transition: transform var(--dur-base, .2s) var(--curva-estandar, ease), border-color var(--dur-base, .2s) var(--curva-estandar, ease);
+  &:active { transform: scale(.985); }
+  &.is-mc { border: 2px solid #2f5d1c; border-radius: 6px; box-shadow: 0 4px 0 #1f3d12; } }
+@media (hover: hover) { .card:hover { transform: translateY(-3px); border-color: var(--c, #4de1ff); } }
+
+// Portada fija (y fondo mientras llega el escenario): cielo del Tap arriba, su suelo abajo.
+.card__art { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: linear-gradient(var(--g1, #3f8fe0), var(--g2, #cfeaff) 44%, var(--ground, var(--c)) 44%, color-mix(in srgb, var(--ground, var(--c)) 70%, #000)); }
+// Minecraft: franjas planas, sin degradados suaves, como en el juego.
+.is-mc .card__art { background: linear-gradient(var(--g1) 0 18%, color-mix(in srgb, var(--g1) 50%, var(--g2)) 18% 32%, var(--g2) 32% 44%, var(--ground) 44% 47%, color-mix(in srgb, var(--ground) 60%, #3b2412) 47%); }
+
+// La pregunta, como la tarjeta de la pregunta en el Tap (vidrio oscuro); en Minecraft, como el recuadro de un objeto del juego.
+// El relleno de arriba y abajo es un borde transparente: el recorte de 3 líneas corta en el borde interior y la 4.ª no asoma.
+.card__q { margin: 0 9px 7px; padding: 0 9px; border: solid transparent; border-width: 7px 0; border-radius: 10px; background: rgba(15, 14, 23, .8); box-shadow: 0 0 0 1px rgba(255, 255, 255, .14); color: #fff;
+  font-size: 12.5px; font-weight: 800; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.card__hit { font-style: italic; }
+.is-mc .card__q { border-radius: 2px; background: rgba(16, 0, 16, .9); box-shadow: 0 0 0 1px #5a2bb0, 0 0 0 3px #2d0a6b; }
+
+.card__body { display: flex; flex-direction: column; gap: 2px; padding: 26px 10px 10px; background: linear-gradient(transparent, rgba(8, 10, 14, .82) 26px); }
+.card__title { font-size: 15px; font-weight: 800; line-height: 1.2; color: #fff; text-shadow: 0 1px 2px #000; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.is-mc .card__title { font-family: 'Pixelify Sans', var(--font-texto, system-ui, sans-serif); font-size: 16px; font-weight: 600; }
+.card__meta { display: flex; align-items: center; gap: 5px; min-width: 0; font-size: 12px; font-weight: 700; color: #c8d1de; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  i { flex: none; width: 8px; height: 8px; border-radius: 2px; background: var(--c); } }
+.card__estado { font-size: 12px; font-weight: 800; color: #ffe08a; &.is-hecho { color: #6fe3a1; } }
+// Fila de cifras: deja libre la esquina del me gusta (44 px).
+.card__pie { display: flex; align-items: center; min-height: 32px; margin-bottom: -6px; padding-right: 52px; }
+.card__vistas { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; text-shadow: 0 1px 2px #000; }
+
+.card__new { position: absolute; top: 8px; left: 8px; z-index: 1; padding: 3px 9px; border-radius: 999px; background: #f2c94c; color: #1b1300; font-size: 12px; font-weight: 800; box-shadow: 0 2px 0 rgba(0, 0, 0, .3); }
+.is-mc .card__new { border-radius: 3px; font-family: 'Pixelify Sans', var(--font-texto, system-ui, sans-serif); font-size: 13px; }
+.card__ring { position: absolute; top: 8px; right: 8px; z-index: 1; }
+
+// Me gusta: corazón blanco y, al darlo, rojo (como TikTok). Área táctil de 44 px.
+.gusta { position: absolute; right: 2px; bottom: 2px; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 44px; height: 44px; padding: 0 8px;
+  border: 0; border-radius: 999px; background: none; color: #fff; font: inherit; font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; text-shadow: 0 1px 2px #000; cursor: pointer;
+  svg { flex: none; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .6)); transition: transform var(--dur-rapida, .12s) var(--curva-estandar, ease); }
+  &:hover { background: rgba(255, 255, 255, .1); }
+  &:active svg { transform: scale(.85); }
+  &[aria-pressed='true'] svg { color: #ff3b5c; }
+  &:focus-visible { outline: 3px solid #fff; outline-offset: -3px; } }
+.is-mc .gusta { border-radius: 4px; &[aria-pressed='true'] svg { color: #e0261f; } }
+
+@media (prefers-reduced-motion: reduce) { .gusta svg { transition: none; } .gusta:active svg { transform: none; } }
+@media (forced-colors: active) { .gusta[aria-pressed='true'] { outline: 2px solid Highlight; } }

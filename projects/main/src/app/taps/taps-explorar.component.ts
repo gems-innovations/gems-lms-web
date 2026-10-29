@@ -2,6 +2,9 @@ import { Location, NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TapsEstadisticasService } from './taps-estadisticas.service';
+import { TapPreviaDirective, TapsPreviasService } from './taps-explorar.previas';
+import { TapsSocialService } from './taps-social.service';
+import { ITapSocial, cifraCompacta } from './taps.social';
 import { colecciones } from './taps.coleccion';
 import { HOOK_TAP_IDS, TAPS, TAP_TOPICS } from './taps.data';
 import { TAPS_DESDE } from './taps.desde';
@@ -34,10 +37,11 @@ const BLOQUE_DIAMANTE = bloque((x, y, r) => ([[2, 2], [3, 2], [5, 5], [6, 5], [2
  */
 @Component({
   selector: 'gems-taps-explorar',
-  imports: [RouterLink, NgTemplateOutlet],
+  imports: [RouterLink, NgTemplateOutlet, TapPreviaDirective],
+  providers: [TapsPreviasService],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './taps-explorar.component.html',
-  styleUrls: ['./taps-explorar.component.scss', './taps-explorar.tarjetas.scss'],
+  styleUrls: ['./taps-explorar.component.scss', './taps-explorar.tarjetas.scss', './taps-explorar.card.scss'],
 })
 export class TapsExplorarComponent {
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -45,6 +49,8 @@ export class TapsExplorarComponent {
   private readonly location = inject(Location);
   private readonly estadisticas = inject(TapsEstadisticasService);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly social = inject(TapsSocialService);
+  protected readonly cifra = cifraCompacta;
   private urlTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly categorias = categoriasDe(CATALOGO);
@@ -80,6 +86,11 @@ export class TapsExplorarComponent {
   protected readonly rielVistos = computed(() => hayVistas(this.ctx().vistas, CATALOGO) ? masVistos(CATALOGO, this.ctx().vistas).slice(0, RIEL_MAX) : []);
   protected readonly rielNuevos = computed(() => masNuevos(CATALOGO).slice(0, RIEL_MAX));
 
+  /** Vistas del Tap: las del API social o, sin él, las de las estadísticas (30 días). 0 = no se muestra (nunca se inventa). */
+  protected vistasDe(id: string): number { return this.social.datos()[id]?.vistas ?? this.ctx().vistas?.[id] ?? 0; }
+  /** Cifras de me gusta, solo si el API social respondió: sin él no hay corazón (ningún botón muerto). */
+  protected gustaDe(id: string): ITapSocial | null { return this.social.disponible() === true ? this.social.datos()[id] ?? null : null; }
+
   protected readonly titulo = computed(() => {
     const q = this.consulta().trim(), t = this.temaActual();
     if (q) return `Resultados para «${q}»`;
@@ -110,6 +121,8 @@ export class TapsExplorarComponent {
       }, URL_MS);
     });
     this.destroyRef.onDestroy(() => { if (this.urlTimer) clearTimeout(this.urlTimer); });
+    // cifras sociales de lo que se ve (rieles y lista); el servicio junta los pedidos y no repite ids
+    effect(() => this.social.pedir([...this.rielSeguir(), ...this.rielVistos(), ...this.rielNuevos(), ...this.visibles().map(r => r.item)].map(i => i.tap.id)));
     if (!this.browser) return;
     afterNextRender(() => {
       const now = Date.now();

@@ -108,7 +108,7 @@
         <p class="tap__pre" aria-hidden="true"><span class="tap__pre-ok">¡Exacto!</span><span class="tap__pre-bad">Casi...</span></p>
 
         @if (!run.finished) {
-          <gems-tap-rail [topicName]="topicLabel(tap)" [blocked]="activeBlocked()" (more)="moreOf(tap)" (share)="shareTap(tap)"
+          <gems-tap-rail [tapId]="tap.id" [topicName]="topicLabel(tap)" [blocked]="activeBlocked()" (more)="moreOf(tap)" (share)="shareTap(tap)"
                          (notInterested)="notInterested(tap)" (unblock)="unblockActive()" [crear]="!portada" (crearPersonaje)="crearDesde('menu')" />
           @if (notice(); as n) { @if (n.tapId === tap.id) { <p class="tap__toast" role="status">{{ n.text }}@if (n.undo) { <button type="button" class="tap__undo" (click)="undoNotInterested()">Deshacer</button> }</p> } }
         }
@@ -210,7 +210,7 @@
 </div>
 
 @defer (when wide()) {
-<gems-tap-rail class="riel-escritorio" [desktop]="true" [topicName]="topicLabel(activeTap())" [topicColor]="topicColor(activeTap())"
+<gems-tap-rail class="riel-escritorio" [desktop]="true" [tapId]="activeTap().id" [topicName]="topicLabel(activeTap())" [topicColor]="topicColor(activeTap())"
                [canPrev]="activeIndexSig() > 0" [canNext]="activeIndexSig() < taps().length - 1" [pulse]="pulseNext()" [finished]="run(activeTap()).finished"
                [nextTitle]="nextTap(activeTap())?.title ?? null" [blocked]="activeBlocked()" [keysOn]="shortcuts()"
                (prev)="step(-1)" (nextTap)="step(1)" (filterTopic)="toggleTopicFilter(topicOf(activeTap()))" (more)="moreOf(activeTap())"
