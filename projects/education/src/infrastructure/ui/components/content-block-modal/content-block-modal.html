@@ -179,6 +179,12 @@
               [ngModel]="markdownContent()"
               (ngModelChange)="markdownContent.set($event)"
             />
+            <div class="cbm__field">
+              <label class="cbm__label">Editor de código incrustado (opcional)</label>
+              <input class="cbm__input" type="url" placeholder="https://stackblitz.com/edit/... · codepen.io · codesandbox.io"
+                [ngModel]="embedUrl()" (ngModelChange)="embedUrl.set($event)" />
+              @if (!embedOk()) { <p class="cbm__error">Solo se aceptan enlaces de StackBlitz, CodePen o CodeSandbox.</p> }
+            </div>
           </div>
         }
 
