@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { erroresDePagina, sinAnalitica, sinAudio, sinScrollHorizontal } from './humo-soporte';
 
@@ -391,5 +392,39 @@ test.describe('entradas a /crear', () => {
     await expect(tap.locator('.res__crear')).toHaveCount(0);
     expect(await page.evaluate(() => localStorage.getItem('taps.crear.entrada-resultado'))).toContain('"descartado":true');
     expect(await eventos(page)).toContain('taps/crear/entrada/resultado/descartado');
+  });
+
+  test('accesibilidad (PR-E5/E6): foco al h1, lienzo descrito, aria-pressed, sonido de un solo estado, muestra elegida con nombre y check', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 844 });
+    await page.goto('/crear');
+    await page.evaluate(() => { try { localStorage.setItem('taps.crear.aviso-publicar', '1'); } catch { /* sin almacenamiento */ } });
+    const dsn = page.locator('gems-tap-disenador .dsn');
+    await expect(dsn.locator('#lienzo')).toBeVisible({ timeout: 20_000 });
+    await expect(dsn.locator('#presets .tarjeta[aria-pressed="true"]')).toHaveCount(1);
+    await expect(dsn.locator('#lienzo')).toHaveAttribute('aria-label', /^Tu personaje: .+, peinado .+, ropa .+, en .+/);
+    await expect(dsn.locator('#bocadillo')).not.toHaveAttribute('aria-live', /.+/);
+    // Un solo mecanismo de estado en el sonido: la etiqueta no cambia, aria-pressed sí.
+    const sonido = dsn.locator('#sonido');
+    await expect(sonido).toHaveAttribute('aria-label', 'Sonido');
+    const antes = await sonido.getAttribute('aria-pressed');
+    await sonido.click();
+    await expect(sonido).not.toHaveAttribute('aria-pressed', antes!);
+    await expect(sonido).toHaveAttribute('aria-label', 'Sonido');
+    // Cambiar de paso mueve el foco al h1.
+    await dsn.locator('#siguiente').click();
+    await expect(dsn.locator('h1')).toBeFocused();
+    await expect(dsn.locator('h1')).toHaveText('Hazlo tuyo');
+    // Muestra elegida: aria-pressed, check dibujado, nombre visible.
+    await dsn.locator('#pestanas [data-id="pelo"]').click();
+    const elegida = dsn.locator('#ajustes .muestra[aria-pressed="true"]').first();
+    await expect(elegida).toBeVisible();
+    expect(await elegida.evaluate(e => getComputedStyle(e, '::after').content)).toBe('""');
+    await expect(dsn.locator('#ajustes .muestra-nombre').first()).toHaveText(await elegida.getAttribute('aria-label') ?? '');
+    await dsn.locator('#ajustes').screenshot({ path: 'test-results/e56-ajustes-375.png' });
+    // Escenario: aria-pressed en las tarjetas.
+    await dsn.locator('#siguiente').click();
+    await expect(dsn.locator('#escenas .tarjeta[aria-pressed="true"]')).toHaveCount(1);
+    const axe = await new AxeBuilder({ page }).include('gems-tap-disenador .dsn').withTags(['wcag2a', 'wcag2aa']).disableRules(['color-contrast']).analyze();
+    expect(axe.violations.filter(v => v.impact === 'critical' || v.impact === 'serious').map(v => v.id)).toEqual([]);
   });
 });
