@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map, switchMap, throwError, catchError, shareReplay, tap } from 'rxjs';
+import { Observable, map, of, switchMap, throwError, catchError, shareReplay, tap } from 'rxjs';
 import { environment } from 'shared';
 import { AuthSessionService, getFullName } from 'auth';
 import {
@@ -19,6 +19,8 @@ import {
   EDifficulty,
   EContentType
 } from '../../domain/model/course.model';
+
+import { COURSE_TEMPLATES, ICourseTemplate } from '../../application/course-templates';
 
 // ── API contracts (ms-education) ──────────────────────────────────────────────
 
@@ -168,6 +170,17 @@ function serializeModules(modules: ICourseModule[]) {
   }));
 }
 
+/** Árbol de módulos de una plantilla, sin ids (la API los asigna al guardar). */
+function templateModules(t: ICourseTemplate): ICourseModule[] {
+  return t.modules.map((m, mi) => ({
+    id: '', title: m.title, description: m.description, order: mi + 1,
+    lessons: m.lessons.map((l, li) => ({
+      id: '', title: l.title, description: l.description, order: li + 1, isFree: false, duration: 0,
+      contentBlocks: l.blocks.map((b, bi) => ({ ...b, id: '', order: bi + 1, duration: b.duration ?? 0, isRequired: b.isRequired ?? true, lessonId: undefined } as unknown as IContentBlock))
+    }))
+  }));
+}
+
 const LIST_CACHE_MS = 5000;
 
 @Injectable({ providedIn: 'root' })
@@ -236,7 +249,14 @@ export class CourseService {
       instructorName: user ? getFullName(user) : undefined,
       modules: []
     };
-    return this.http.post<ICourseApi>(this.baseUrl, body).pipe(tap(() => this.listCache.clear()), map(c => this.track(mapCourse(c))));
+    const template = COURSE_TEMPLATES.find(t => t.id === req.templateId);
+    return this.http.post<ICourseApi>(this.baseUrl, body).pipe(
+      switchMap(created => template
+        ? this.http.put<ICourseApi>(`${this.baseUrl}/${created.id}`, { modules: serializeModules(templateModules(template)) })
+        : of(created)),
+      tap(() => this.listCache.clear()),
+      map(c => this.track(mapCourse(c)))
+    );
   }
 
   /** Updates course fields only; the API keeps the module tree untouched. */

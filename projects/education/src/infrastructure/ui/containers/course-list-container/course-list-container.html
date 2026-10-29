@@ -61,3 +61,43 @@
     (cancelled)="uc.closeModal()"
   />
 }
+
+<lib-modal-base
+  [isOpen]="uc.showCreateDialog()"
+  title="Nuevo curso"
+  size="medium"
+  [showFooter]="false"
+  [closeOnOverlayClick]="!uc.isSaving()"
+  (close)="closeCreate()"
+>
+  <form class="ncform" (submit)="$event.preventDefault(); submitCreate()">
+    <span class="ncform__label">Empezar desde</span>
+    <div class="ncform__templates" role="radiogroup" aria-label="Empezar desde">
+      <button type="button" role="radio" class="ncform__tpl" [class.ncform__tpl--on]="!newTemplate()" [attr.aria-checked]="!newTemplate()" (click)="pickTemplate('')">
+        <strong>En blanco</strong><span>Tú armas todo.</span>
+      </button>
+      @for (t of templates; track t.id) {
+        <button type="button" role="radio" class="ncform__tpl" [class.ncform__tpl--on]="newTemplate() === t.id" [attr.aria-checked]="newTemplate() === t.id" (click)="pickTemplate(t.id)">
+          <strong>{{ t.title }}</strong><span>{{ t.summary }}</span>
+        </button>
+      }
+    </div>
+
+    <label class="ncform__field">Título
+      <input type="text" name="title" maxlength="120" [value]="newTitle()" (input)="newTitle.set($any($event.target).value)" />
+    </label>
+    <label class="ncform__field">Descripción
+      <textarea name="description" rows="3" [value]="newDescription()" (input)="newDescription.set($any($event.target).value)"></textarea>
+    </label>
+    <label class="ncform__field">Dificultad
+      <select name="difficulty" [value]="newDifficulty()" (change)="newDifficulty.set($any($event.target).value)">
+        @for (d of difficulties; track d.value) { <option [value]="d.value" [selected]="d.value === newDifficulty()">{{ d.label }}</option> }
+      </select>
+    </label>
+
+    <div class="ncform__actions">
+      <lib-button variant="secondary" size="sm" (clicked)="closeCreate()">Cancelar</lib-button>
+      <button type="submit" class="ncform__submit" [disabled]="!canCreate() || uc.isSaving()">{{ uc.isSaving() ? 'Creando…' : 'Crear curso' }}</button>
+    </div>
+  </form>
+</lib-modal-base>

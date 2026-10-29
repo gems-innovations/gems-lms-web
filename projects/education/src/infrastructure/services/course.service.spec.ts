@@ -70,4 +70,16 @@ describe('CourseService · editar y eliminar del currículo', () => {
     expect(c[0].id).toBe(90);
     expect(JSON.parse(c[0].value).title).toBe('Nuevo');
   });
+
+  it('crea un curso desde una plantilla con sus módulos y tareas', () => {
+    service.createCourse({ title: 'Mi curso', description: 'd', difficulty: 'beginner' as never, tags: [], institutionId: 'i', templateId: 'emprender-canvas' }).subscribe();
+    http.expectOne(r => r.method === 'POST' && r.url === url).flush({ ...api, modules: [] });
+    const put = http.expectOne(r => r.method === 'PUT' && r.url === `${url}/7`);
+    put.flush(api);
+    const modules = put.request.body.modules;
+    expect(modules.length).toBe(3);
+    const tipos = modules.flatMap((m: any) => m.lessons.flatMap((l: any) => l.contents.map((c: any) => c.type)));
+    expect(tipos).toContain('assignment');
+    expect(tipos).toContain('live-session');
+  });
 });
