@@ -102,7 +102,7 @@ test('hitos: copy de §2 sin culpa, sin urgencia, sin emojis, una ventaja por hi
   assert.ok(COPY_HITOS.navegador.texto.includes('vive en este navegador'));
   assert.ok(COPY_HITOS.navegador.texto.includes('todos tus dispositivos'));
   assert.equal(COPY_HITOS.guardado.texto, 'Guardado en este navegador. Si lo borras o cambias de celular, se pierde. Con cuenta no.');
-  assert.ok(COPY_HITOS.probado.texto.includes('tus estudiantes'));
+  assert.ok(COPY_HITOS.probado.texto.includes('quien lo juegue'));
   assert.deepEqual(COPY_HITOS.navegador.botones, [ENTENDIDO, QUE_ES]);
   assert.deepEqual(COPY_HITOS.probado.botones, [PUBLICAR]);
   assert.equal(conNombre(COPY_HITOS.vuelve.texto, 'Nefer'), 'Volviste por Nefer. Con cuenta no dependes de este navegador.');
