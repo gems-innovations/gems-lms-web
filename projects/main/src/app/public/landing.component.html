@@ -121,7 +121,7 @@
                   <h3><a [routerLink]="['/cursos', c.id]" (click)="choose('cursos')">{{ c.title }}</a></h3>
                   <p>{{ c.description }}</p>
                   <div class="card__meta">
-                    <span>{{ c.lessons }} lecciones</span>
+                    <span>{{ c.lessons }} {{ (c.lessons) === 1 ? 'lección' : 'lecciones' }}</span>
                     @if (c.difficulty) { <span>{{ difficulty[c.difficulty] ?? c.difficulty }}</span> }
                   </div>
                   @if (errorFor() === c.id) { <p class="card__error" role="alert">{{ error() }}</p> }

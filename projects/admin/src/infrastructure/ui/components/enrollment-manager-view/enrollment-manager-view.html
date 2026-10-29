@@ -90,7 +90,7 @@
                 }
                 <div class="enrollment-manager-view__target-info">
                   <span class="enrollment-manager-view__target-name">{{ c.title }}</span>
-                  <span class="enrollment-manager-view__target-meta">{{ c.totalLessons }} lecciones · {{ c.totalDuration }}min</span>
+                  <span class="enrollment-manager-view__target-meta">{{ c.totalLessons }} {{ (c.totalLessons) === 1 ? 'lección' : 'lecciones' }} · {{ c.totalDuration }}min</span>
                 </div>
                 @if (uc.targetId() === c.id) {
                   <svg class="enrollment-manager-view__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">

@@ -15,7 +15,7 @@
     <div class="ctree__section">
       <div class="ctree__section-header">
         <span>Currículo</span>
-        <span class="ctree__count">{{ c.modules.length }} módulos · {{ c.totalLessons }} lecciones</span>
+        <span class="ctree__count">{{ c.modules.length }} {{ (c.modules.length) === 1 ? 'módulo' : 'módulos' }} · {{ c.totalLessons }} {{ (c.totalLessons) === 1 ? 'lección' : 'lecciones' }}</span>
       </div>
 
       @for (mod of c.modules; track uc.trackById($index, mod)) {
@@ -34,7 +34,7 @@
             </button>
             <div class="ctree__module-info">
               <span class="ctree__module-title">{{ mod.title }}</span>
-              <span class="ctree__module-meta">{{ mod.lessons.length }} lecciones</span>
+              <span class="ctree__module-meta">{{ mod.lessons.length }} {{ (mod.lessons.length) === 1 ? 'lección' : 'lecciones' }}</span>
             </div>
             <button class="ctree__add-lesson-btn" title="Agregar lección" (click)="startAddLesson(mod.id, $event)">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">

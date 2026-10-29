@@ -31,7 +31,7 @@
           <div class="groups__card">
             <div class="groups__card-head">
               <h3 class="groups__card-name">{{ group.name }}</h3>
-              <lib-badge variant="primary" size="sm">{{ group.studentIds.length }} estudiantes</lib-badge>
+              <lib-badge variant="primary" size="sm">{{ group.studentIds.length }} {{ (group.studentIds.length) === 1 ? 'estudiante' : 'estudiantes' }}</lib-badge>
             </div>
 
             <div class="groups__card-row">

@@ -86,7 +86,7 @@
               <div class="cpanel__lesson-order">{{ lesson.order }}</div>
               <div class="cpanel__lesson-body">
                 <span class="cpanel__lesson-card-title">{{ lesson.title }}</span>
-                <span class="cpanel__lesson-card-meta">{{ lesson.contentBlocks.length }} bloques · {{ uc.formatDuration(lesson.duration) }}</span>
+                <span class="cpanel__lesson-card-meta">{{ lesson.contentBlocks.length }} {{ (lesson.contentBlocks.length) === 1 ? 'bloque' : 'bloques' }} · {{ uc.formatDuration(lesson.duration) }}</span>
               </div>
               @if (lesson.isFree) { <span class="cpanel__free-tag">Libre</span> }
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4">
@@ -118,7 +118,7 @@
               </svg>
               {{ uc.formatDuration(lesson.duration) }}
             </span>
-            <span>{{ lesson.contentBlocks.length }} bloques de contenido</span>
+            <span>{{ lesson.contentBlocks.length }} {{ (lesson.contentBlocks.length) === 1 ? 'bloque' : 'bloques' }} de contenido</span>
             @if (lesson.isFree) { <span class="cpanel__free-tag">Acceso libre</span> }
           </div>
         </div>

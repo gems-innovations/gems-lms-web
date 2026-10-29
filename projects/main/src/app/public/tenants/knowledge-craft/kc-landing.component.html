@@ -127,7 +127,7 @@
                 <h3><a [routerLink]="['/cursos', c.id]">{{ c.title }}</a></h3>
                 <p>{{ c.description }}</p>
                 <div class="kc-card__meta">
-                  <span>{{ c.lessons }} lecciones</span>
+                  <span>{{ c.lessons }} {{ (c.lessons) === 1 ? 'lección' : 'lecciones' }}</span>
                   @if (c.difficulty) { <span>{{ difficulty[c.difficulty] ?? c.difficulty }}</span> }
                   @if (c.enrolled) { <span>{{ c.enrolled }} jugando</span> }
                 </div>

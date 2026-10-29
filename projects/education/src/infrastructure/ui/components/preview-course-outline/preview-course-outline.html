@@ -3,7 +3,7 @@
     <div class="outline__header-left">
       <h2 class="outline__title">Contenido del curso</h2>
       <span class="outline__meta">
-        {{ course().modules?.length ?? 0 }} módulos · {{ course().totalLessons }} lecciones
+        {{ course().modules?.length ?? 0 }} {{ (course().modules?.length ?? 0) === 1 ? 'módulo' : 'módulos' }} · {{ course().totalLessons }} {{ (course().totalLessons) === 1 ? 'lección' : 'lecciones' }}
       </span>
     </div>
     @if (course().averageRating) {
@@ -52,7 +52,7 @@
           <button type="button" class="outline__module-header" (click)="toggleModule(mod.id)">
             <div class="outline__module-title-group">
               <span class="outline__module-title">{{ mod.title }}</span>
-              <span class="outline__module-badge">{{ mod.lessons?.length ?? 0 }} lecciones</span>
+              <span class="outline__module-badge">{{ mod.lessons?.length ?? 0 }} {{ (mod.lessons?.length ?? 0) === 1 ? 'lección' : 'lecciones' }}</span>
             </div>
             <svg class="outline__chevron" [class.outline__chevron--open]="isExpanded(mod.id)"
                  width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
