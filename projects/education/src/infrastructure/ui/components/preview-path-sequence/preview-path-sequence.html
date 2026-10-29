@@ -68,10 +68,10 @@
                 </span>
               }
               @if (step.moduleCount) {
-                <span class="psequence__meta-item">{{ step.moduleCount }} módulos</span>
+                <span class="psequence__meta-item">{{ step.moduleCount }} {{ (step.moduleCount) === 1 ? 'módulo' : 'módulos' }}</span>
               }
               @if (step.lessonCount) {
-                <span class="psequence__meta-item">{{ step.lessonCount }} lecciones</span>
+                <span class="psequence__meta-item">{{ step.lessonCount }} {{ (step.lessonCount) === 1 ? 'lección' : 'lecciones' }}</span>
               }
             </div>
 

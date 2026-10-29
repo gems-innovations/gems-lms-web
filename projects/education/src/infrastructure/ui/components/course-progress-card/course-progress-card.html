@@ -28,7 +28,7 @@
     <h3 class="cpcard__title">{{ entry().course.title }}</h3>
 
     <p class="cpcard__meta">
-      {{ entry().course.totalLessons }} lecciones
+      {{ entry().course.totalLessons }} {{ (entry().course.totalLessons) === 1 ? 'lección' : 'lecciones' }}
       @if (entry().course.instructorName) {
         &nbsp;·&nbsp;{{ entry().course.instructorName }}
       }

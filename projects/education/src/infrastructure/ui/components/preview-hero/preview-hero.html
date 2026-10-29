@@ -41,7 +41,7 @@
               </svg>
               {{ formatDuration(c.totalDuration) }}
             </span>
-            <span>{{ c.totalLessons }} lecciones</span>
+            <span>{{ c.totalLessons }} {{ (c.totalLessons) === 1 ? 'lección' : 'lecciones' }}</span>
             <span>{{ difficultyLabel(c.difficulty) }}</span>
           }
           @if (type() === 'path' && path(); as p) {
