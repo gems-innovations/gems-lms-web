@@ -323,3 +323,85 @@
 .dsn .comparar { position: absolute; left: 10px; top: 10px; min-height: 44px; padding: 0 12px; font-size: 13px; color: var(--txt); background: rgba(15,14,23,.75); border: 1px solid var(--line); border-radius: 22px; }
 .dsn .comparar:disabled { display: none; }
 .dsn .comparar[aria-pressed="true"] { border-color: var(--acc); }
+
+/* ───── paso «Preguntas» (PR-W0, editor-preguntas.js; solo con la bandera tapsCreador) ───── */
+.dsn .pre { display: grid; gap: 14px; max-width: 560px; margin: 0 auto; padding-bottom: 8px; }
+.dsn .pre .texto { margin: 0; }
+.dsn .pre label, .dsn .pre legend { font-size: 13px; font-weight: 600; color: var(--txt); padding: 0; }
+.dsn .pre textarea, .dsn .pre input:not([type="radio"]) { font: inherit; font-size: 16px; color: var(--txt); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radio); padding: 10px 12px; min-height: 44px; width: 100%; }
+.dsn .pre textarea { resize: vertical; line-height: 1.35; }
+.dsn .pre textarea:focus-visible, .dsn .pre input:focus-visible, .dsn .pre button:focus-visible, .dsn .pre summary:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+.dsn .pre [aria-invalid] { border-color: #f3a0a0 !important; }
+.dsn .pre .campo { display: grid; gap: 6px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.dsn .pre .pie { display: flex; align-items: flex-start; gap: 8px; min-height: 18px; }
+.dsn .pre .msg { margin: 0; flex: 1; font-size: 13px; color: #f3a0a0; line-height: 1.3; }
+.dsn .pre .msg[hidden] { display: none; }
+.dsn .pre .cuenta { margin-left: auto; font-size: 12px; color: var(--soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dsn .pre .cuenta[data-nivel="ambar"] { color: #e8b86a; }
+.dsn .pre .cuenta[data-nivel="rojo"] { color: #f3a0a0; }
+.dsn .pre .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* Empezar */
+.dsn .op-lista { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+.dsn .op-tarjeta { display: grid; gap: 4px; justify-items: start; text-align: left; padding: 14px 12px; min-height: 76px; background: var(--panel); border: 2px solid var(--line); border-radius: var(--radio-carta); }
+.dsn .op-tarjeta b { font-size: 15px; }
+.dsn .op-tarjeta small { font-size: 12.5px; color: var(--soft); }
+.dsn .op-tarjeta:hover { border-color: var(--acc); }
+.dsn .op-tarjeta--aparte { background: transparent; border-style: dashed; }
+/* Chips 1-5 */
+.dsn .pre__cab { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.dsn .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.dsn .chip { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; min-height: 44px; padding: 0 12px; border-radius: 22px; font-weight: 700; }
+.dsn .chip[aria-current="true"] { background: var(--panel2); border-color: var(--acc); }
+.dsn .chip .estado { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--soft); }
+.dsn .chip[data-estado="lista"] .estado { background: var(--good); border-color: var(--good); }
+.dsn .chip--texto { font-weight: 600; font-size: 13px; }
+.dsn .chip--mas svg.ic { width: 18px; height: 18px; }
+.dsn .resumen { margin-left: auto; font-size: 12.5px; color: var(--soft); }
+/* Tipo */
+.dsn .tipos { display: flex; flex-wrap: wrap; gap: 6px; }
+.dsn .tipo { font-size: 13px; padding: 8px 12px; border-radius: 22px; }
+.dsn .tipo[aria-pressed="true"] { background: var(--panel2); border-color: var(--acc); color: var(--txt); font-weight: 700; }
+/* Opciones */
+.dsn .opciones-ed { gap: 8px; }
+.dsn .opcion { display: flex; align-items: center; gap: 8px; }
+.dsn .opcion .radio { position: relative; display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; cursor: pointer; }
+.dsn .opcion .radio input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.dsn .opcion .letra { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--line); background: var(--panel2); font-weight: 700; font-size: 13px; }
+.dsn .opcion .radio:has(input:checked) .letra { background: var(--good); border-color: var(--good); color: var(--acc-ink); }
+.dsn .opcion .radio:has(input:focus-visible) .letra { outline: 2px solid var(--foco); outline-offset: 2px; }
+.dsn .opcion .fijo { flex: 1; padding: 10px 12px; min-height: 44px; display: flex; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radio); font-weight: 600; }
+.dsn .opciones-ed .msg { margin: -4px 0 0 52px; }
+/* Estado de la pregunta */
+.dsn .estado-pregunta { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13.5px; color: var(--soft); }
+.dsn .estado-pregunta.lista { color: var(--good); }
+.dsn .estado-pregunta svg.marca { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+/* Vista previa y acciones */
+.dsn .vista-previa { padding: 0 12px 12px; }
+.dsn .vista-previa summary { min-height: 44px; display: flex; align-items: center; font-weight: 600; font-size: 14px; cursor: pointer; }
+.dsn .vista-previa .tap-marco canvas { width: 216px; height: auto; aspect-ratio: 9 / 16; }
+.dsn .pre .acciones { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.dsn .pre .acciones button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.dsn .pre .acciones--nav button { flex: 1; min-height: 48px; }
+.dsn .pre .primario { background: var(--boton); border-color: var(--boton); color: var(--boton-ink); font-weight: 600; }
+.dsn .pre button:disabled { opacity: .4; cursor: default; }
+.dsn .pre .suave { background: transparent; border-color: transparent; color: var(--soft); font-size: 13px; padding: 8px 10px; }
+.dsn .pre .suave:hover:not(:disabled) { color: var(--txt); }
+.dsn .pre .guardado { margin-left: auto; font-size: 12.5px; color: var(--soft); transition: opacity .3s; }
+.dsn .pre .guardado.sin { color: #e8b86a; }
+.dsn .pre .guardado:empty { opacity: 0; }
+/* Pegar texto, avisos y títulos */
+.dsn .ejemplo { margin: 0; padding: 10px 12px; background: var(--panel); border: 1px dashed var(--line); border-radius: var(--radio); font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--soft); white-space: pre-wrap; overflow-wrap: anywhere; }
+.dsn .pre--pegar textarea { min-height: 160px; }
+.dsn .avisos { margin: 0; padding-left: 18px; font-size: 13px; color: #e8b86a; display: grid; gap: 4px; }
+.dsn .avisos:empty { display: none; }
+.dsn .aviso-pegado { background: var(--panel); border: 1px solid #e8b86a; border-radius: var(--radio); padding: 10px 12px; display: grid; gap: 6px; font-size: 13px; }
+.dsn .aviso-pegado p { margin: 0; font-weight: 600; }
+.dsn .niveles { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.dsn .nivel { display: grid; gap: 6px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radio-carta); }
+.dsn .nivel input { background: var(--bg); }
+.dsn .nivel .msg { margin: 0; font-size: 13px; color: #f3a0a0; }
+.dsn .nivel .msg[hidden] { display: none; }
+@media (min-width: 700px) { .dsn .op-lista { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 380px) { .dsn .op-lista { grid-template-columns: 1fr; } }
+/* El paso Preguntas usa todo el alto: la vista previa es la del propio Tap (en el editor), no la del personaje. */
+.dsn.en-preguntas .vista, .dsn.en-preguntas .sugerencia, .dsn.en-preguntas #deshacer { display: none; }

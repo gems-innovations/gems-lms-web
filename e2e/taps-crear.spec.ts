@@ -428,3 +428,154 @@ test.describe('entradas a /crear', () => {
     expect(axe.violations.filter(v => v.impact === 'critical' || v.impact === 'serious').map(v => v.id)).toEqual([]);
   });
 });
+
+/**
+ * Editor de preguntas (PR-W0): detrás de la bandera `tapsCreador` (config.js). La bandera se enciende antes de que corra config.js
+ * (`??=`); `?editor=1` solo vale en desarrollo, así que en el build de producción no hace nada.
+ */
+test.describe('editor de preguntas (bandera tapsCreador)', () => {
+  const abrir = async (page: import('@playwright/test').Page, bandera: boolean) => {
+    await page.addInitScript(b => {
+      (globalThis as unknown as { tapsCreador?: boolean }).tapsCreador = b;
+      try { if (!localStorage.getItem('taps.crear.aviso-publicar')) localStorage.setItem('taps.crear.aviso-publicar', '1'); } catch { /* sin almacenamiento */ }
+    }, bandera);
+    await page.goto('/crear');
+    const dsn = page.locator('gems-tap-disenador .dsn');
+    await expect(dsn.locator('#lienzo')).toBeVisible({ timeout: 20_000 });
+    return dsn;
+  };
+  const alPaso = async (dsn: import('@playwright/test').Locator, h1: string) => {
+    for (let i = 0; i < 4 && !(await dsn.locator('h1').textContent())?.includes(h1); i++) await dsn.locator('#siguiente').click();
+    await expect(dsn.locator('h1')).toHaveText(h1);
+  };
+
+  test('plantilla → editar con validación en vivo → vista previa → Listo juega con tus preguntas', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 844 });
+    const dsn = await abrir(page, true);
+    await expect(dsn.locator('#progreso li:not(.publicar)')).toHaveCount(4);
+    await dsn.locator('#siguiente').click(); await dsn.locator('#siguiente').click();
+    await expect(dsn.locator('h1')).toHaveText('Dónde vive');
+    await expect(dsn.locator('#siguiente')).toHaveText('Siguiente');
+    await dsn.locator('#siguiente').click();
+    await expect(dsn.locator('h1')).toHaveText('Tus preguntas');
+    await expect(dsn.locator('#siguiente')).toHaveText('Ver el final');
+    await expect(dsn.locator('#progreso li.ahora')).toContainText('Preguntas');
+    // Empezar: cuatro plantillas, pegar texto y en blanco.
+    await expect(dsn.locator('.op-tarjeta')).toHaveCount(6);
+    await dsn.locator('.op-tarjeta', { hasText: 'Repaso de matemáticas' }).click();
+    await expect(dsn.locator('.chip[data-estado="lista"]')).toHaveCount(5);
+    await expect(dsn.locator('#resumenEstado')).toHaveText('5 de 5 listas');
+    await expect(dsn.locator('#preguntaTexto')).toHaveValue('¿Cuánto es 7 × 8?');
+    // Validación en vivo: pasarse del límite marca el campo y la pregunta, sin bloquear nada.
+    await dsn.locator('#preguntaTexto').fill('x'.repeat(125));
+    await expect(dsn.locator('#msgQ')).toContainText('Se pasa por 5 caracteres');
+    await expect(dsn.locator('#preguntaTexto')).toHaveAttribute('aria-invalid', '');
+    await expect(dsn.locator('.chip[data-i="0"]')).toHaveAttribute('data-estado', 'falta');
+    await expect(dsn.locator('#estadoPregunta')).toContainText('Hay algo que ajustar');
+    await dsn.locator('#preguntaTexto').fill('¿Cuánto es 9 × 6?');
+    await expect(dsn.locator('#msgQ')).toBeHidden();
+    await dsn.locator('#opcion0').fill('a'.repeat(23));
+    await expect(dsn.locator('#msgO0')).toContainText('Máximo 22');
+    await dsn.locator('#opcion0').fill('52'); await dsn.locator('#opcion1').fill('54');
+    await expect(dsn.locator('.chip[data-i="0"]')).toHaveAttribute('data-estado', 'lista');
+    // Deshacer devuelve el cambio anterior.
+    await dsn.locator('#opcion1').blur();
+    await dsn.getByRole('button', { name: 'Deshacer', exact: true }).click();
+    await expect(dsn.locator('#opcion1')).toHaveValue('56');
+    await dsn.locator('#opcion1').fill('54'); await dsn.locator('#opcion1').blur();
+    // Marcar la correcta (círculo / Alt+número) y cambiar el tipo conserva lo escrito.
+    await dsn.locator('label.radio[for="corr1"]').click();
+    await expect(dsn.locator('#corr1')).toBeChecked();
+    await dsn.locator('#opcion0').focus(); await page.keyboard.press('Alt+3');
+    await expect(dsn.locator('#corr2')).toBeChecked(); await expect(dsn.locator('#corr2')).toBeFocused();
+    await dsn.locator('label.radio[for="corr1"]').click();
+    await dsn.locator('.tipo', { hasText: 'Verdadero o falso' }).click();
+    await expect(dsn.locator('.opcion .fijo')).toHaveText(['Verdadero', 'Falso']);
+    await expect(dsn.locator('.tipo[aria-pressed="true"]')).toHaveText('Verdadero o falso');
+    // Cada chip lleva su estado en el nombre accesible.
+    await expect(dsn.locator('.chip[data-i="1"]')).toHaveAttribute('aria-label', /^Pregunta 2, lista$/);
+    await dsn.locator('.chip[data-i="3"]').click();
+    await expect(dsn.locator('#preguntaTexto')).toHaveValue('El 0 es un número par.');
+    // Vista previa con el personaje: el lienzo se pinta (no queda en blanco).
+    const lienzo = dsn.locator('#tapEditor');
+    await expect(lienzo).toBeVisible();
+    await expect.poll(() => lienzo.evaluate((c: HTMLCanvasElement) => { const d = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 400) if (d[i] > 0) n++; return n; })).toBeGreaterThan(50);
+    // Títulos de resultado.
+    await dsn.getByRole('button', { name: 'Títulos' }).click();
+    await expect(dsn.locator('.niveles .nivel')).toHaveCount(4);
+    await dsn.locator('#rt0').fill('t'.repeat(41));
+    await expect(dsn.locator('#rm0')).toContainText('Máximo 40');
+    await dsn.locator('#rt0').fill('Calentando');
+    await dsn.getByRole('button', { name: 'Volver a las preguntas' }).click();
+    // Guardado automático local, con su indicador, en una clave versionada aparte del borrador del look.
+    await expect(dsn.locator('.guardado')).toHaveText('Guardado');
+    const guardado = await page.evaluate(() => JSON.parse(localStorage.getItem('taps.disenador.preguntas.v1') ?? 'null'));
+    expect(guardado.v).toBe(1); expect(guardado.preguntas).toHaveLength(5); expect(guardado.preguntas[0].q).toBe('¿Cuánto es 9 × 6?');
+    // El borrador del look que viaja a la solicitud no cambia de forma (sin claves de preguntas).
+    const borrador = await page.evaluate(() => JSON.parse(localStorage.getItem('taps.disenador.borrador') ?? 'null'));
+    if (borrador) expect(JSON.stringify(borrador)).not.toContain('preguntas');
+    // Accesibilidad del paso.
+    const axe = await new AxeBuilder({ page }).include('gems-tap-disenador .dsn').withTags(['wcag2a', 'wcag2aa']).disableRules(['color-contrast']).analyze();
+    expect(axe.violations.filter(v => v.impact === 'critical' || v.impact === 'serious').map(v => v.id)).toEqual([]);
+    await sinScrollHorizontal(page);
+    await dsn.screenshot({ path: 'test-results/w0-preguntas-375.png' });
+    // Recargar conserva las preguntas; Listo juega con ellas (no con el banco).
+    await page.reload();
+    await expect(dsn.locator('#lienzo')).toBeVisible({ timeout: 20_000 });
+    await dsn.locator('#continuarSi').click();                      // el look se retoma donde iba (Listo)
+    await expect(dsn.locator('h1')).toHaveText('Lo hiciste');
+    await expect(dsn.locator('#probar')).toContainText('Probar con tus preguntas');
+    await dsn.locator('#probar').click();
+    await expect(dsn.locator('#enunciado')).toHaveText('1 de 5: ¿Cuánto es 9 × 6?');
+    await dsn.locator('#opciones button[data-i="1"]').click();
+    await expect(dsn.locator('#veredicto')).toContainText('Acertaste');
+    await dsn.getByRole('button', { name: 'Atrás' }).click();
+    await expect(dsn.locator('h1')).toHaveText('Tus preguntas');
+    await expect(dsn.locator('#preguntaTexto')).toHaveValue('El 0 es un número par.');   // vuelve a la pregunta donde iba
+    await dsn.locator('.chip[data-i="0"]').click();
+    await expect(dsn.locator('#preguntaTexto')).toHaveValue('¿Cuánto es 9 × 6?');
+  });
+
+  test('pegar texto: entiende el formato y avisa lo que falta sin romperse', async ({ page }) => {
+    const dsn = await abrir(page, true);
+    await alPaso(dsn, 'Tus preguntas');
+    await dsn.locator('.op-tarjeta', { hasText: 'Pegar texto' }).click();
+    await dsn.locator('#pegarTexto').fill('¿Capital de Perú?\nLima*\nQuito\nBogotá\n\n¿Y la de Chile?\nSantiago\nLima\nQuito\nLa Paz\nExplicación: es Santiago.');
+    await dsn.getByRole('button', { name: 'Usar este texto' }).click();
+    await expect(dsn.locator('.chip[data-i]')).toHaveCount(2);
+    await expect(dsn.locator('.aviso-pegado')).toContainText('faltan 1');
+    await expect(dsn.locator('.aviso-pegado')).toContainText('no marcaste la correcta');
+    await expect(dsn.locator('#preguntaTexto')).toHaveValue('¿Capital de Perú?');
+    await expect(dsn.locator('#corr0')).toBeChecked();
+    await expect(dsn.locator('#resumenEstado')).toHaveText('0 de 5 listas');
+    // Nada es obligatorio: se puede seguir al final.
+    await dsn.locator('#siguiente').click();
+    await expect(dsn.locator('h1')).toHaveText('Lo hiciste');
+  });
+
+  test('saltarse el paso deja el Tap solo con el personaje (como hoy)', async ({ page }) => {
+    const dsn = await abrir(page, true);
+    await alPaso(dsn, 'Tus preguntas');
+    await dsn.locator('#siguiente').click();
+    await expect(dsn.locator('h1')).toHaveText('Lo hiciste');
+    await expect(dsn.locator('#probar')).toContainText('Probar con dos preguntas');
+    await dsn.locator('#probar').click();
+    await expect(dsn.locator('#enunciado')).toContainText('de 2:');
+    expect(await page.evaluate(() => localStorage.getItem('taps.disenador.preguntas.v1'))).toBeNull();
+  });
+
+  test('con la bandera apagada /crear queda exactamente como hoy (también con ?editor=1 en producción)', async ({ page }) => {
+    await page.addInitScript(() => { try { localStorage.setItem('taps.crear.aviso-publicar', '1'); } catch { /* sin almacenamiento */ } });
+    await page.goto('/crear?editor=1');
+    const dsn = page.locator('gems-tap-disenador .dsn');
+    await expect(dsn.locator('#lienzo')).toBeVisible({ timeout: 20_000 });
+    await expect(dsn.locator('#progreso li:not(.publicar)')).toHaveCount(3);
+    await dsn.locator('#siguiente').click(); await dsn.locator('#siguiente').click();
+    await expect(dsn.locator('h1')).toHaveText('Dónde vive');
+    await expect(dsn.locator('#siguiente')).toHaveText('Terminar');
+    await dsn.locator('#siguiente').click();
+    await expect(dsn.locator('h1')).toHaveText('Lo hiciste');
+    await expect(dsn.locator('#probar')).toContainText('Probar con dos preguntas');
+    await expect(dsn.locator('#pantallaPreguntas')).toBeEmpty();
+  });
+});

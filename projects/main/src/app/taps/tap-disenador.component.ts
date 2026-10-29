@@ -1,6 +1,6 @@
 import { Location, isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy, Component, DestroyRef, ElementRef, InjectionToken, Injector, PLATFORM_ID, afterNextRender, computed, inject, signal, viewChild,
+  ChangeDetectionStrategy, Component, DestroyRef, ElementRef, InjectionToken, Injector, PLATFORM_ID, afterNextRender, computed, inject, isDevMode, signal, viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -10,7 +10,7 @@ import { TEventPath } from '../analytics-taxonomy';
 import { TapsSonidoService } from './taps-sonido.service';
 import {
   CINTA_TRANSPARENCIA, CLAVE_AVISO_PUBLICAR, CLAVE_ESTUDIANTE, CLAVE_SONIDO_TAPS, COPY_GANCHO, PASO_PUBLICAR, THitoCuenta, destinoVolver, enlaceRegistro, hitosCrear,
-  origenCrear, sonidoActivo, tituloGancho,
+  origenCrear, sonidoActivo, tapsCreadorActivo, tituloGancho,
 } from './taps.crear';
 
 /** Lo que el diseñador entrega al tocar «Publicar (con cuenta)» o un aviso de cuenta: el id del borrador local (ya guardado), el enlace y la miniatura del look. */
@@ -39,6 +39,8 @@ export interface IDisenadorModule {
     sonido?: { activo: () => boolean; cambiar: (on: boolean) => void };
     /** Hitos de cuenta (PR-D2): «Qué es la cuenta» y «Publicar (con cuenta)» desde un hito abren la MISMA hoja del gancho. Sin esto, el diseñador no enseña avisos de cuenta. */
     cuenta?: { abrir: (contexto: IContextoPublicar) => void };
+    /** Bandera `tapsCreador` (PR-W0): añade el paso «Preguntas» entre Escenario y Listo. Sin ella, el diseñador queda como siempre. */
+    preguntas?: boolean;
   }): Promise<{ ok: boolean; registro?: string[]; destruir(): void; apagarHitos?(): void }>;
 }
 
@@ -46,7 +48,7 @@ export interface IDisenadorModule {
  * Dónde vive el diseñador: archivos estáticos del mismo origen (public/taps-engine), fuera del bundle, como el motor
  * (taps-engine.loader.ts). nginx lo sirve con `no-cache`; la query evita que una caché vieja entregue el módulo anterior.
  */
-const DISENADOR_VERSION = '8';
+const DISENADOR_VERSION = '9';
 export const DISENADOR_URL = `/taps-engine/disenador.js?v=${DISENADOR_VERSION}`;
 /** Cómo se carga el módulo (inyectable para probar el componente sin servir los estáticos). */
 export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModule>>('DISENADOR_LOADER', {
@@ -239,6 +241,8 @@ export class TapDisenadorComponent {
         },
         // Hitos de cuenta (PR-D2): la misma hoja; `taps/crear/cuenta/<hito>/abrir` sale de `alEvento` (hito-cuenta/abrir/<hito>).
         cuenta: { abrir: contexto => this.publicar(contexto) },
+        // Bandera tapsCreador (config.js); `?editor=1` solo en desarrollo.
+        preguntas: tapsCreadorActivo((globalThis as Record<string, unknown>)['tapsCreador'], location.search, isDevMode()),
       });
     } catch {
       if (!this.destruido) { this.fallo.set(true); this.contar('taps/crear/error/carga'); }

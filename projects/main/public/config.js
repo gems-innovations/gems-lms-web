@@ -5,3 +5,6 @@
 // API_BASE_URL environment variable instead.
 // Institutions get their own home at <slug>.<TENANT_BASE_DOMAIN>; set it here for static hosting:
 //   globalThis.TENANT_BASE_DOMAIN = 'gemsinnovations.com';  (default) Without a value the app uses http://localhost:8080/api/v1.
+// Feature flag tapsCreador (PR-W0): true adds the "Preguntas" step (question editor) to /crear. Off by default; the generated
+// config.js (server.ts, deploy/40-gems-config.sh) never sets it, so it stays off in production. In development, /crear?editor=1 also turns it on.
+globalThis.tapsCreador ??= false;   // ??= so a test can switch it on before this file runs
