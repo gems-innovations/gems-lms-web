@@ -38,8 +38,7 @@
   li { display: grid; gap: 4px; align-content: start; padding: 14px 16px; border-left: 3px solid var(--color-teal); background: var(--color-fondo-sutil); border-radius: 0 12px 12px 0; }
   span { font-size: var(--font-size-sm); color: var(--color-texto-secundario); }
   a { display: inline-block; padding-block: 12px; margin-block: -12px; color: var(--color-texto-acento); font-weight: 700; overflow-wrap: break-word; } }
-@media (max-width: 759px) { .confianza li:first-child, .confianza li:last-child { grid-column: 1 / -1; } .confianza li { padding: 12px 14px; } }
-@media (max-width: 339px) { .confianza { grid-template-columns: 1fr; } }
+@media (max-width: 759px) { .confianza { grid-template-columns: 1fr; } .confianza li { padding: 12px 14px; } }
 @media (min-width: 760px) { .confianza { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; } }
 
 #instituciones, #confianza { scroll-margin-top: calc(var(--ph-h) + 16px); }
