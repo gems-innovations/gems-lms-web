@@ -1,0 +1,185 @@
+<!-- Tarjeta de un Tap. El orden del DOM es el de lectura (categoría, título, datos, estado); la ilustración va arriba solo por CSS. -->
+<ng-template #tarjeta let-item let-pregunta="pregunta">
+  @let p = progresos().get(item.tap.id)!;
+  @let n = item.tap.questions.length;
+  <a class="card" [class.is-mc]="item.tema.id === 'minecraft'" [routerLink]="['/t', item.tap.id]"
+     [style.--c]="item.tema.color" [style.--g1]="item.tap.backdrop[0]" [style.--g2]="item.tap.backdrop[1]" [style.--ground]="item.tap.ground ?? item.tema.color">
+    <span class="card__body">
+      <span class="card__chip"><i aria-hidden="true"></i>{{ item.tema.name }}</span>
+      <strong class="card__title">{{ item.tap.title }}</strong>
+      <span class="card__meta">{{ n }} {{ n === 1 ? 'pregunta' : 'preguntas' }} · {{ item.subtema }}</span>
+      @if (pregunta) { <span class="card__hit">Pregunta: «{{ pregunta }}»</span> }
+      @if (p.estado !== 'nuevo') { <span class="card__estado" [class.is-hecho]="p.estado === 'hecho'">{{ p.texto }}</span> }
+    </span>
+    @if (nuevos().has(item.tap.id)) { <span class="card__new">Nuevo</span> }
+    <svg class="card__ring" viewBox="0 0 36 36" width="34" height="34" aria-hidden="true">
+      <circle cx="18" cy="18" r="17" fill="#0e1116" fill-opacity=".82"/>
+      <circle cx="18" cy="18" r="12" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3.5"/>
+      <circle cx="18" cy="18" r="12" fill="none" stroke-width="3.5" stroke-linecap="round" pathLength="100" transform="rotate(-90 18 18)"
+              [attr.stroke-dasharray]="p.fraccion * 100 + ' 100'" [attr.stroke]="p.estado === 'hecho' ? '#2fbf71' : '#4de1ff'"/>
+      @if (p.estado === 'hecho') {
+        <path d="m13 18.4 3.6 3.6 6.6-7.4" fill="none" stroke="#2fbf71" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      } @else if (p.estado === 'nuevo') {
+        <path d="M16 13.5v9l7-4.5z" fill="#fff"/>
+      }
+    </svg>
+    <span class="card__art" aria-hidden="true"></span>
+  </a>
+</ng-template>
+
+<!-- Riel horizontal: se desliza con el dedo, con las flechas o con el teclado (las tarjetas son enlaces). -->
+<ng-template #riel let-id="id" let-titulo="titulo" let-lista="lista">
+  <section class="riel" [attr.aria-labelledby]="'riel-' + id">
+    <div class="riel__cab">
+      <h2 class="riel__h" [id]="'riel-' + id">{{ titulo }}</h2>
+      <div class="riel__flechas">
+        <button type="button" class="flecha" (click)="desplazar(lista_el, -1)" [attr.aria-label]="'Anteriores: ' + titulo">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="flecha" (click)="desplazar(lista_el, 1)" [attr.aria-label]="'Siguientes: ' + titulo">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <ul class="riel__lista" #lista_el>
+      @for (item of lista; track item.tap.id) { <li><ng-container [ngTemplateOutlet]="tarjeta" [ngTemplateOutletContext]="{ $implicit: item, pregunta: null }" /></li> }
+    </ul>
+  </section>
+</ng-template>
+
+<main class="ex" aria-labelledby="ex-h1">
+  <div class="ex__ancho">
+    <header class="top">
+      <div class="top__fila">
+        <a class="top__atras" routerLink="/taps" aria-label="Volver a Taps">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Taps</span>
+        </a>
+        <h1 id="ex-h1" class="top__h1">Explorar</h1>
+        <a class="top__marca" routerLink="/" aria-label="GEMS LMS: ir a la portada"><img src="/logo-64.png" width="28" height="28" alt="" decoding="async"></a>
+      </div>
+      <form class="buscar" role="search" (submit)="$event.preventDefault()">
+        <label class="visually-hidden" for="ex-q">Buscar Taps por título, tema o pregunta</label>
+        <svg class="buscar__lupa" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m15.5 15.5 5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <input id="ex-q" #q type="search" name="q" class="buscar__campo" [value]="consulta()" (input)="buscar(q.value)" (keydown.escape)="consulta() && limpiarBusqueda()"
+               placeholder="Busca un tema o una pregunta" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-keyshortcuts="/">
+        @if (consulta()) {
+          <button type="button" class="buscar__borrar" (click)="limpiarBusqueda()" aria-label="Borrar la búsqueda">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+          </button>
+        }
+      </form>
+    </header>
+
+    <!-- Categorías (Minecraft primero y destacada) y, dentro de la elegida, sus subtemas. -->
+    <nav class="filtros" aria-label="Categorías y orden">
+      <div class="chips" role="group" aria-label="Categorías">
+        <button type="button" class="chip" [attr.aria-pressed]="!categoria()" (click)="elegirCategoria(null)">Todas</button>
+        @for (c of categorias; track c.tema.id) {
+          <button type="button" class="chip chip--tema" [class.chip--mc]="c.tema.id === 'minecraft'" [style.--c]="c.tema.color"
+                  [attr.aria-pressed]="categoria() === c.tema.id" (click)="elegirCategoria(c.tema.id)">
+            @if (c.tema.id === 'minecraft') {
+              <svg class="chip__bloque" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" shape-rendering="crispEdges"><path d="M1 1h14v14H1z" fill="#8b5a2b"/><path d="M1 1h14v5H1z" fill="#5fbf3a"/><path d="M1 6h2v2H1zM6 6h3v2H6zM12 6h3v2h-3z" fill="#5fbf3a"/></svg>
+            } @else { <i class="chip__punto" aria-hidden="true"></i> }
+            {{ c.tema.name }}<small aria-hidden="true">{{ c.cuenta }}</small><span class="visually-hidden"> ({{ c.cuenta }} Taps)</span>
+          </button>
+        }
+      </div>
+      @if (subtemas().length > 1) {
+        <div class="chips chips--sub" role="group" [attr.aria-label]="'Subtemas de ' + temaActual()?.name">
+          @for (s of subtemas(); track s.id) {
+            <button type="button" class="chip chip--sub" [attr.aria-pressed]="subtema() === s.id" (click)="elegirSubtema(s.id)">
+              {{ s.nombre }}<small aria-hidden="true">{{ s.cuenta }}</small><span class="visually-hidden"> ({{ s.cuenta }} Taps)</span>
+            </button>
+          }
+        </div>
+      }
+      <div class="chips chips--orden" role="group" aria-label="Ver">
+        @for (v of vistasDef; track v.id) {
+          <button type="button" class="chip chip--orden" [attr.aria-pressed]="vista() === v.id" (click)="elegirVista(v.id)">{{ v.nombre }}</button>
+        }
+      </div>
+    </nav>
+
+    @if (portada()) {
+      <!-- Minecraft, el público más objetivo, ocupa la portada de Explorar. -->
+      @if (minecraft; as mc) {
+        <button type="button" class="hero" (click)="elegirCategoria('minecraft')">
+          <span class="hero__texto">
+            <span class="hero__nombre">Minecraft</span>
+            <span class="hero__linea">{{ mc.tema.blurb }}: {{ mc.cuenta }} Taps de crafteos, mobs, redstone, Nether y más.</span>
+            <span class="hero__cta">Ver los Taps de Minecraft
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </span>
+          <svg class="hero__bloques" viewBox="0 0 64 64" aria-hidden="true" shape-rendering="crispEdges">
+            @for (px of pixelesCesped; track $index) { <rect [attr.x]="px.x" [attr.y]="px.y" width="8" height="8" [attr.fill]="px.c"/> }
+          </svg>
+          <svg class="hero__bloques hero__bloques--2" viewBox="0 0 64 64" aria-hidden="true" shape-rendering="crispEdges">
+            @for (px of pixelesDiamante; track $index) { <rect [attr.x]="px.x" [attr.y]="px.y" width="8" height="8" [attr.fill]="px.c"/> }
+          </svg>
+        </button>
+      }
+      @if (rielSeguir().length) { <ng-container [ngTemplateOutlet]="riel" [ngTemplateOutletContext]="{ id: 'seguir', titulo: 'Seguir jugando', lista: rielSeguir() }" /> }
+      @if (rielVistos().length) { <ng-container [ngTemplateOutlet]="riel" [ngTemplateOutletContext]="{ id: 'vistos', titulo: 'Lo más visto', lista: rielVistos() }" /> }
+      <ng-container [ngTemplateOutlet]="riel" [ngTemplateOutletContext]="{ id: 'nuevos', titulo: 'Nuevos', lista: rielNuevos() }" />
+    }
+
+    <section class="lista" aria-labelledby="ex-res">
+      <div class="lista__cab">
+        <h2 id="ex-res" class="lista__h">{{ portada() ? 'Todos los Taps' : titulo() }}</h2>
+        <p class="lista__cuenta" role="status">{{ cuenta() }}</p>
+      </div>
+
+      @if (vista() === 'vistos' && resultado().sinVistas) {
+        <p class="aviso" role="note">
+          @if (estadoVistas() === 'cargando') { Cargando las vistas… } @else { Aún no hay suficientes vistas para ordenar así. Mostramos los Taps en el orden de siempre. }
+        </p>
+      }
+
+      @if (visibles().length) {
+        <ul class="rejilla">
+          @for (r of visibles(); track r.item.tap.id) {
+            <li><ng-container [ngTemplateOutlet]="tarjeta" [ngTemplateOutletContext]="{ $implicit: r.item, pregunta: r.pregunta }" /></li>
+          }
+        </ul>
+        @if (restantes() > 0) {
+          <button type="button" class="mas" (click)="masResultados()">Mostrar más Taps ({{ restantes() }} más)</button>
+        }
+      } @else {
+        <div class="vacio">
+          <svg class="vacio__dibujo" viewBox="0 0 64 64" width="72" height="72" aria-hidden="true">
+            <rect x="10" y="40" width="20" height="14" rx="3" fill="#2a3242"/><rect x="34" y="34" width="20" height="20" rx="3" fill="#33405a"/>
+            <circle cx="28" cy="26" r="13" fill="none" stroke="#4de1ff" stroke-width="4"/><path d="m38 36 10 10" stroke="#4de1ff" stroke-width="5" stroke-linecap="round"/>
+            <path d="M23 26h10" stroke="#aab4c4" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          @if (consulta().trim()) {
+            <p class="vacio__t">No encontramos Taps para «{{ consulta().trim() }}»</p>
+            <p class="vacio__p">
+              @if (categoria() || vista() !== 'todos') { Estás buscando solo con los filtros que elegiste. } @else { Revisa la ortografía o prueba con una palabra más corta. }
+              También puedes empezar por una de estas ideas:
+            </p>
+          } @else if (vista() === 'jugados') {
+            <p class="vacio__t">Aún no has completado ningún Tap</p>
+            <p class="vacio__p">Cuando termines uno, aparecerá aquí con tu resultado. Tu avance se guarda solo en este navegador.</p>
+          } @else if (vista() === 'sinjugar') {
+            <p class="vacio__t">Ya jugaste todo lo que hay aquí</p>
+            <p class="vacio__p">Prueba otra categoría, repite tus favoritos o vuelve pronto: seguimos agregando Taps.</p>
+          } @else {
+            <p class="vacio__t">Todavía no hay Taps con estos filtros</p>
+            <p class="vacio__p">Quita algún filtro para ver más.</p>
+          }
+          @if (consulta().trim()) {
+            <ul class="ideas" aria-label="Ideas para buscar">
+              @for (idea of ideas; track idea) { <li><button type="button" class="chip" (click)="usarIdea(idea)">{{ idea }}</button></li> }
+            </ul>
+          }
+          <div class="vacio__acc">
+            @if (consulta().trim() || categoria() || vista() !== 'todos') { <button type="button" class="boton" (click)="quitarFiltros()">Ver todos los Taps</button> }
+            @if (vista() === 'jugados') { <a class="boton boton--p" routerLink="/taps">Jugar ahora</a> }
+          </div>
+        </div>
+      }
+    </section>
+  </div>
+</main>

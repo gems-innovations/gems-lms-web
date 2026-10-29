@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from 'shared/core';
 import { AnalyticsService } from '../analytics.service';
@@ -27,6 +28,21 @@ export class TapsEstadisticasService {
   respuesta(tapId: string, pregunta: number, acierto: boolean): void { this.enviar({ tapId, evento: 'respuesta', pregunta, acierto }); }
   completado(tapId: string): void { this.enviar({ tapId, evento: 'completado' }); }
   compartido(tapId: string): void { this.enviar({ tapId, evento: 'compartido' }); }
+
+  /**
+   * Vistas por Tap de los últimos `dias` (GET /public/taps/estadisticas), solo en el navegador. null si no se puede saber
+   * (prerender, sin red, el API aún no tiene la ruta o devolvió algo raro): quien llama cae al orden curado, sin cifras.
+   */
+  async vistas(dias = 30): Promise<Record<string, number> | null> {
+    if (!this.browser) return null;
+    try {
+      const r = await firstValueFrom(this.http.get<{ taps?: { tapId?: unknown; vistas?: unknown }[] }>(`${this.api}/public/taps/estadisticas`, { params: { dias } }));
+      if (!Array.isArray(r?.taps)) return null;
+      const out: Record<string, number> = {};
+      for (const t of r.taps) if (typeof t?.tapId === 'string' && typeof t.vistas === 'number' && Number.isFinite(t.vistas) && t.vistas > 0) out[t.tapId] = t.vistas;
+      return out;
+    } catch { return null; }
+  }
 
   private enviar(evento: ITapEvento): void {
     if (!this.browser || this.analytics?.isInternal()) return;

@@ -31,4 +31,21 @@ describe('TapsEstadisticasService', () => {
     service.vista('napoleon'); service.respuesta('napoleon', 0, false);
     http.expectNone(() => true);
   });
+
+  it('lee las vistas por Tap y descarta lo que no sea un número positivo', async () => {
+    const lectura = service.vistas(30);
+    const req = http.expectOne(r => r.method === 'GET' && r.url.endsWith('/public/taps/estadisticas'));
+    expect(req.request.params.get('dias')).toBe('30');
+    req.flush({ masVisto: 'mc-gancho', taps: [{ tapId: 'mc-gancho', vistas: 12 }, { tapId: 'lg-gancho', vistas: 0 }, { tapId: 7, vistas: 3 }, { tapId: 'cu-gancho', vistas: 'x' }] });
+    expect(await lectura).toEqual({ 'mc-gancho': 12 });
+  });
+
+  it('si el API falla o responde otra cosa, no hay vistas (null) y nunca lanza', async () => {
+    const falla = service.vistas();
+    http.expectOne(r => r.method === 'GET').flush('no', { status: 404, statusText: 'No encontrado' });
+    expect(await falla).toBeNull();
+    const rara = service.vistas();
+    http.expectOne(r => r.method === 'GET').flush({ taps: 'nada' });
+    expect(await rara).toBeNull();
+  });
 });
