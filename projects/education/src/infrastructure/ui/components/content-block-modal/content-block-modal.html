@@ -526,6 +526,11 @@
                 [ngModel]="description()" (ngModelChange)="description.set($event)"></textarea>
             </div>
             <div class="cbm__field">
+              <label class="cbm__label">Fecha y hora de inicio</label>
+              <input class="cbm__input" type="datetime-local"
+                [ngModel]="liveStartsAt()" (ngModelChange)="liveStartsAt.set($event)" />
+            </div>
+            <div class="cbm__field">
               <label class="cbm__label">Enlace de la sesión</label>
               <input class="cbm__input" type="url" placeholder="https://meet.google.com/... o https://zoom.us/..."
                 [ngModel]="videoUrl()" (ngModelChange)="videoUrl.set($event)" />

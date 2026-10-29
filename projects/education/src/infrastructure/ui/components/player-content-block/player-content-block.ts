@@ -115,6 +115,14 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
 
   protected readonly EContentType = EContentType;
 
+  /** Estado de una sesión en vivo: cuándo es y si ya se puede entrar (desde 15 min antes). */
+  protected liveInfo(blk: IContentBlock): { cuando: string | null; yaEmpezo: boolean; abierta: boolean } {
+    const t = blk.liveStartsAt ? new Date(blk.liveStartsAt) : null;
+    if (!t || isNaN(t.getTime())) return { cuando: null, yaEmpezo: false, abierta: true };
+    const cuando = t.toLocaleString('es', { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' });
+    return { cuando, yaEmpezo: t.getTime() <= Date.now(), abierta: t.getTime() - Date.now() <= 15 * 60_000 };
+  }
+
   // ── Reading timer ──────────────────────────────────────────────────────────
   private _readingTimer: ReturnType<typeof setInterval> | null = null;
   private _readingPaused = false;
