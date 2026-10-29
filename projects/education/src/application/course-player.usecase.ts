@@ -118,24 +118,24 @@ export class CoursePlayerUseCase {
   });
 
   /** Ordered flat list: all blocks across all lessons in curriculum order */
-  readonly allFlatBlocks = computed((): { blockId: string; lessonId: string }[] => {
+  readonly allFlatBlocks = computed((): { blockId: string; lessonId: string; isRequired: boolean }[] => {
     const c = this.course();
     if (!c) return [];
     return c.modules.flatMap(mod =>
       mod.lessons.flatMap(lesson =>
-        lesson.contentBlocks.map(block => ({ blockId: block.id, lessonId: lesson.id }))
+        lesson.contentBlocks.map(block => ({ blockId: block.id, lessonId: lesson.id, isRequired: block.isRequired !== false }))
       )
     );
   });
 
-  /** Blocks that cannot be accessed yet (previous block not completed) */
+  /** Blocks that cannot be accessed yet (previous required block not completed; an optional one never holds the student back) */
   readonly lockedBlockIds = computed((): Set<string> => {
     const flat = this.allFlatBlocks();
     const done = this._completedBlockIds();
     const locked = new Set<string>();
     for (let i = 1; i < flat.length; i++) {
       const prev = flat[i - 1];
-      if (!done.has(prev.blockId) || locked.has(prev.blockId)) {
+      if ((prev.isRequired && !done.has(prev.blockId)) || locked.has(prev.blockId)) {
         locked.add(flat[i].blockId);
       }
     }
@@ -352,7 +352,7 @@ export class CoursePlayerUseCase {
 
   nextBlock(): void {
     const current = this.selectedBlock();
-    if (current && !this._completedBlockIds().has(current.id)) return;
+    if (current && current.isRequired !== false && !this._completedBlockIds().has(current.id)) return;
     if (this.hasNextBlock()) {
       this._selectedBlockIdx.update(i => i + 1);
     } else if (this.hasNextLesson()) {
