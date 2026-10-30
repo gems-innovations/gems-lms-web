@@ -40,8 +40,11 @@ export class TapsSocialService {
   private readonly pedidos = new Set<string>();
   private cola: string[] = [];
   private vaciado = false;
-  /** Último toque por Tap: la respuesta de un toque viejo no pisa la de uno nuevo. */
-  private readonly toques = new Map<string, number>();
+  /**
+   * Toque en curso por Tap: `n` es el último (la respuesta de uno viejo no pisa la de uno nuevo) y `base` el último estado que
+   * confirmó el servidor, al que se vuelve si el último falla (dos toques fallidos no dejan un me gusta inventado).
+   */
+  private readonly toques = new Map<string, { n: number; base: ITapSocial }>();
   private toque = 0;
 
   constructor() {
@@ -50,6 +53,7 @@ export class TapsSocialService {
     effect(() => {
       const con = this.sesion();
       untracked(() => {
+        this.toques.clear();       // al entrar o salir, lo que estaba en camino ya no cuenta
         if (con) this.lotes(Object.keys(this.datos()), ids => this.cargarMios(ids));
         else if (Object.values(this.datos()).some(d => d.meGustaYo)) this.datos.update(d => Object.fromEntries(Object.entries(d).map(([k, v]) => [k, { ...v, meGustaYo: false }])));
       });
@@ -77,19 +81,23 @@ export class TapsSocialService {
     if (!this.sesion()) return false;
     const antes = this.datos()[tapId];
     if (!antes || this.disponible() !== true) return true;
-    const meGusta = !antes.meGustaYo, n = ++this.toque;
-    this.toques.set(tapId, n);
+    const meGusta = !antes.meGustaYo, n = ++this.toque, curso = { n, base: this.toques.get(tapId)?.base ?? antes };
+    this.toques.set(tapId, curso);
     this.fijar(tapId, { ...antes, meGustaYo: meGusta, meGusta: Math.max(0, antes.meGusta + (meGusta ? 1 : -1)) });
-    const vale = () => this.toques.get(tapId) === n;
+    // Vale solo si sigue siendo el toque en curso de la misma sesión (entrar o salir vacía `toques`).
+    const vigente = () => this.toques.get(tapId) === curso;
     this.http.put(`${this.api}/taps/${encodeURIComponent(tapId)}/me-gusta`, { meGusta }).subscribe({
       next: r => {
-        if (!vale()) return;
         const ok = leerMeGusta(r, tapId);
-        this.fijar(tapId, ok ? { ...this.datos()[tapId], meGustaYo: ok.meGusta, meGusta: ok.total } : antes);
+        const servidor = ok ? { ...this.datos()[tapId], meGustaYo: ok.meGusta, meGusta: ok.total } : null;
+        if (!vigente()) { const c = this.toques.get(tapId); if (servidor && c) c.base = servidor; return; }
+        this.toques.delete(tapId);
+        this.fijar(tapId, servidor ?? curso.base);
       },
       error: (e: { status?: number }) => {
-        if (!vale()) return;
-        this.fijar(tapId, antes);
+        if (!vigente()) return;
+        this.toques.delete(tapId);
+        this.fijar(tapId, curso.base);
         if (e?.status === 404) this.disponible.set(false);
       },
     });

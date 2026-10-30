@@ -130,6 +130,38 @@ describe('TapsSocialService', () => {
     expect(Object.values(service.datos()).some(d => d.meGustaYo)).toBeFalse();
   });
 
+  it('dos toques que fallan vuelven a lo que confirmó el servidor (no queda un me gusta inventado)', async () => {
+    await conSesion();
+    service.alternar('a');
+    service.alternar('a');
+    const [dar, quitar] = http.match(r => r.method === 'PUT');
+    dar.flush({}, { status: 500, statusText: 'Error' });
+    quitar.flush({}, { status: 500, statusText: 'Error' });
+    expect(service.datos()['a']).toEqual({ vistas: 1200, meGusta: 10, comentarios: 3, meGustaYo: false });
+
+    // El primero llega bien y el segundo falla: queda lo que dijo el servidor del primero.
+    service.alternar('a');
+    service.alternar('a');
+    const [dar2, quitar2] = http.match(r => r.method === 'PUT');
+    dar2.flush({ tapId: 'a', meGusta: true, total: 12 });
+    quitar2.flush({}, { status: 500, statusText: 'Error' });
+    expect(service.datos()['a']).toEqual({ vistas: 1200, meGusta: 12, comentarios: 3, meGustaYo: true });
+  });
+
+  it('al salir y volver a entrar, el corazón tocado sale como dice /yo, y una respuesta tardía no lo repinta sin sesión', async () => {
+    await conSesion();
+    service.alternar('a');
+    const tarde = meGusta('a');
+    sesion.set(false);
+    TestBed.tick();
+    tarde.flush({ tapId: 'a', meGusta: true, total: 11 });
+    expect(service.datos()['a'].meGustaYo).toBeFalse();
+    sesion.set(true);
+    TestBed.tick();
+    mios().flush({ taps: [{ tapId: 'a', meGustaYo: true }, { tapId: 'b', meGustaYo: true }] });
+    expect(service.datos()['a'].meGustaYo).toBeTrue();
+  });
+
   it('si el envío falla (o 429) vuelve atrás sin reintentar; con 404 se ocultan los corazones', async () => {
     await conSesion();
     service.alternar('b');

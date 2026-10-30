@@ -35,8 +35,14 @@ import { COMENTARIO_MAX, ITapComentario, cifraCompacta, haceCuanto } from './tap
               <li class="com__item">
                 <p class="com__meta"><span class="com__autor">{{ c.autor }}</span> <span class="com__cuando">{{ cuando(c.creado) }}</span></p>
                 <p class="com__texto">{{ c.texto }}</p>
-                @if (c.mio) {
-                  <button type="button" class="com__link" (click)="borrar(c)" [attr.aria-label]="'Borrar tu comentario: ' + c.texto">Borrar</button>
+                @if (c.mio && confirmar() === c.id) {
+                  <p class="com__conf">¿Borrar tu comentario? No se puede deshacer.
+                    <button type="button" class="com__link com__link--fuerte" (click)="borrar(c)">Sí, borrar</button>
+                    <button type="button" class="com__link" (click)="confirmar.set(null)">Cancelar</button></p>
+                } @else if (c.mio) {
+                  <button type="button" class="com__link" (click)="confirmar.set(c.id)" [attr.aria-label]="'Borrar tu comentario: ' + c.texto">Borrar</button>
+                } @else if (reportados().has(c.id)) {
+                  <p class="com__conf">Reportado. Gracias.</p>
                 } @else if (confirmar() === c.id) {
                   <p class="com__conf">¿Reportar este comentario?
                     <button type="button" class="com__link com__link--fuerte" (click)="reportar(c)">Sí, reportar</button>
@@ -70,21 +76,21 @@ import { COMENTARIO_MAX, ITapComentario, cifraCompacta, haceCuanto } from './tap
   styles: `
     .com__cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .com__n { margin-left: 4px; color: #9aa6b8; font-weight: 700; }
-    .com__x { display: grid; place-items: center; width: 44px; height: 44px; margin-right: -8px; border: 0; border-radius: 50%; background: none; color: #e8edf4; cursor: pointer; }
+    .com__x { display: grid; place-items: center; width: 48px; height: 48px; margin-right: -8px; border: 0; border-radius: 50%; background: none; color: #e8edf4; cursor: pointer; }
     .com__lista { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 4px -18px 0; padding: 0 18px; }
     .com__ul { margin: 0; padding: 0; list-style: none; }
     .com__item { padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, .08); }
     .com__meta { margin: 0 0 2px; font-size: 13px; } .com__autor { font-weight: 800; color: #c8d1de; } .com__cuando { margin-left: 6px; color: #8b97a8; }
     .com__texto { margin: 0; font-size: 15px; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-line; }
     .com__vacio { margin: 24px 0; text-align: center; color: #9aa6b8; }
-    .com__link { min-height: 44px; padding: 0 10px 0 0; border: 0; background: none; color: #9aa6b8; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+    .com__link { min-height: 48px; padding: 0 10px 0 0; border: 0; background: none; color: #9aa6b8; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
       &:hover { color: #fff; } &--fuerte { color: #ff8a9e; } }
     .com__conf { margin: 4px 0 0; font-size: 13px; color: #e8edf4; }
     .com__mas { width: 100%; margin: 10px 0; }
     .com__form { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 8px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, .1); }
-    .com__in { min-height: 44px; padding: 0 16px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 999px; background: #0d1117; color: #fff; font: inherit; font-size: 16px;
+    .com__in { min-height: 48px; padding: 0 16px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 999px; background: #0d1117; color: #fff; font: inherit; font-size: 16px;
       &[aria-invalid='true'] { border-color: #ff8a9e; } }
-    .com__enviar { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #4de1ff; color: #0d1117; cursor: pointer;
+    .com__enviar { display: grid; place-items: center; width: 48px; height: 48px; border: 0; border-radius: 50%; background: #4de1ff; color: #0d1117; cursor: pointer;
       &:disabled { opacity: .45; cursor: default; } }
     .com__cuenta { grid-column: 1; justify-self: end; font-size: 12px; color: #8b97a8; &.is-cerca { color: #ffd166; } }
     .com__err { grid-column: 1 / -1; margin: 0; font-size: 13px; color: #ff8a9e; }
@@ -107,6 +113,8 @@ export class TapComentariosComponent {
   protected readonly aviso = signal('');
   /** Comentario ajeno a punto de reportarse (pide confirmación). */
   protected readonly confirmar = signal<string | null>(null);
+  /** Comentarios ya reportados en esta visita (no se reportan dos veces). */
+  protected readonly reportados = signal(new Set<string>());
 
   private readonly social = inject(TapsSocialService);
   private readonly d = viewChild.required<ElementRef<HTMLDialogElement>>('d');
@@ -165,6 +173,8 @@ export class TapComentariosComponent {
   }
 
   protected borrar(c: ITapComentario): void {
+    if (this.confirmar() !== c.id) return;     // un doble toque en «Sí, borrar» no manda dos peticiones
+    this.confirmar.set(null);
     this.social.borrarComentario(this.tapId(), c.id).subscribe({
       next: () => { if (!this.vivo) return; this.lista.update(l => l.filter(x => x.id !== c.id)); this.anunciar('Comentario borrado'); this.campo().nativeElement.focus(); },
       error: () => this.vivo && this.anunciar('No se pudo borrar el comentario'),
@@ -172,9 +182,10 @@ export class TapComentariosComponent {
   }
 
   protected reportar(c: ITapComentario): void {
+    if (this.confirmar() !== c.id) return;
     this.confirmar.set(null);
     this.social.reportar(c.id).subscribe({
-      next: () => this.vivo && this.anunciar('Comentario reportado. Gracias, lo revisaremos.'),
+      next: () => { if (!this.vivo) return; this.reportados.update(s => new Set(s).add(c.id)); this.anunciar('Comentario reportado. Gracias, lo revisaremos.'); },
       error: () => this.vivo && this.anunciar('No se pudo reportar el comentario'),
     });
   }
