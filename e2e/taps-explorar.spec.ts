@@ -231,6 +231,7 @@ test('Tap abierto con sesión: me gusta contra PUT y comentarios (publicar, 422,
   await expect(campo).toHaveValue('');
   await expect(riel.getByRole('button', { name: 'Comentarios (4)' })).toHaveCount(1);
   await hoja.getByRole('button', { name: 'Borrar tu comentario: ¡Qué buen Tap!' }).click();
+  await hoja.getByRole('button', { name: 'Sí, borrar' }).click();
   await expect(hoja.getByRole('status')).toHaveText('Comentario borrado');
   await hoja.getByRole('button', { name: 'Reportar el comentario de Ana' }).click();
   await hoja.getByRole('button', { name: 'Sí, reportar' }).click();
