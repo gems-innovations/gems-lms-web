@@ -1,30 +1,59 @@
-<!-- Tarjeta de un Tap. El orden del DOM es el de lectura (categoría, título, datos, estado); la ilustración va arriba solo por CSS. -->
+<!-- Tarjeta de un Tap, vertical 9:16 como un video: portada viva (escena y personaje), su primera pregunta encima como en el Tap,
+     título y cifras abajo. El orden del DOM es el de lectura; el me gusta va fuera del enlace (un botón no puede ir dentro). -->
 <ng-template #tarjeta let-item let-pregunta="pregunta">
   @let p = progresos().get(item.tap.id)!;
   @let n = item.tap.questions.length;
-  <a class="card" [class.is-mc]="item.tema.id === 'minecraft'" [routerLink]="['/t', item.tap.id]"
-     [style.--c]="item.tema.color" [style.--g1]="item.tap.backdrop[0]" [style.--g2]="item.tap.backdrop[1]" [style.--ground]="item.tap.ground ?? item.tema.color">
-    <span class="card__body">
-      <span class="card__chip"><i aria-hidden="true"></i>{{ item.tema.name }}</span>
-      <strong class="card__title">{{ item.tap.title }}</strong>
-      <span class="card__meta">{{ n }} {{ n === 1 ? 'pregunta' : 'preguntas' }} · {{ item.subtema }}</span>
-      @if (pregunta) { <span class="card__hit">Pregunta: «{{ pregunta }}»</span> }
-      @if (p.estado !== 'nuevo') { <span class="card__estado" [class.is-hecho]="p.estado === 'hecho'">{{ p.texto }}</span> }
-    </span>
-    @if (nuevos().has(item.tap.id)) { <span class="card__new">Nuevo</span> }
-    <svg class="card__ring" viewBox="0 0 36 36" width="34" height="34" aria-hidden="true">
-      <circle cx="18" cy="18" r="17" fill="#0e1116" fill-opacity=".82"/>
-      <circle cx="18" cy="18" r="12" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3.5"/>
-      <circle cx="18" cy="18" r="12" fill="none" stroke-width="3.5" stroke-linecap="round" pathLength="100" transform="rotate(-90 18 18)"
-              [attr.stroke-dasharray]="p.fraccion * 100 + ' 100'" [attr.stroke]="p.estado === 'hecho' ? '#2fbf71' : '#4de1ff'"/>
-      @if (p.estado === 'hecho') {
-        <path d="m13 18.4 3.6 3.6 6.6-7.4" fill="none" stroke="#2fbf71" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      } @else if (p.estado === 'nuevo') {
-        <path d="M16 13.5v9l7-4.5z" fill="#fff"/>
+  @let v = vistasDe(item.tap.id);
+  @let s = gustaDe(item.tap.id);
+  <div class="celda" [class.is-mc]="item.tema.id === 'minecraft'">
+    <a class="card" [class.is-mc]="item.tema.id === 'minecraft'" [routerLink]="['/t', item.tap.id]"
+       [style.--c]="item.tema.color" [style.--g1]="item.tap.backdrop[0]" [style.--g2]="item.tap.backdrop[1]" [style.--ground]="item.tap.ground ?? item.tema.color">
+      <span class="card__art" aria-hidden="true" [gemsTapPrevia]="item.tap"></span>
+      @if (pregunta) {
+        <span class="card__q card__hit"><span class="visually-hidden">Pregunta: </span>«{{ pregunta }}»</span>
+      } @else if (item.tap.questions[0]; as q1) {
+        <span class="card__q" aria-hidden="true">{{ q1.q }}</span>
       }
-    </svg>
-    <span class="card__art" aria-hidden="true"></span>
-  </a>
+      <span class="card__body">
+        <strong class="card__title">{{ item.tap.title }}</strong>
+        <span class="card__meta"><i aria-hidden="true"></i>{{ item.tema.name }}<span class="visually-hidden"> · {{ n }} {{ n === 1 ? 'pregunta' : 'preguntas' }} · {{ item.subtema }}</span></span>
+        @if (p.estado !== 'nuevo') { <span class="card__estado" [class.is-hecho]="p.estado === 'hecho'">{{ p.texto }}</span> }
+        @if (v || s) {
+          <span class="card__pie">
+            @if (v) {
+              <span class="card__vistas">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+                {{ cifra(v) }}<span class="visually-hidden"> {{ v === 1 ? 'vista' : 'vistas' }}</span>
+              </span>
+            }
+          </span>
+        }
+      </span>
+      @if (nuevos().has(item.tap.id)) { <span class="card__new">Nuevo</span> }
+      <svg class="card__ring" viewBox="0 0 36 36" width="34" height="34" aria-hidden="true">
+        <circle cx="18" cy="18" r="17" fill="#0e1116" fill-opacity=".82"/>
+        <circle cx="18" cy="18" r="12" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3.5"/>
+        <circle cx="18" cy="18" r="12" fill="none" stroke-width="3.5" stroke-linecap="round" pathLength="100" transform="rotate(-90 18 18)"
+                [attr.stroke-dasharray]="p.fraccion * 100 + ' 100'" [attr.stroke]="p.estado === 'hecho' ? '#2fbf71' : '#4de1ff'"/>
+        @if (p.estado === 'hecho') {
+          <path d="m13 18.4 3.6 3.6 6.6-7.4" fill="none" stroke="#2fbf71" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        } @else if (p.estado === 'nuevo') {
+          <path d="M16 13.5v9l7-4.5z" fill="#fff"/>
+        }
+      </svg>
+    </a>
+    @if (s) {
+      <button type="button" class="gusta" [attr.aria-pressed]="s.meGustaYo" (click)="gustar(item.tap.id)"
+              [attr.aria-label]="'Me gusta: ' + item.tap.title + ' (' + s.meGusta + ')'">
+        @if (item.tema.id === 'minecraft') {
+          <svg viewBox="0 0 7 6" width="18" height="16" aria-hidden="true" shape-rendering="crispEdges"><path d="M1 0h2v1H1zM4 0h2v1H4zM0 1h7v2H0zM1 3h5v1H1zM2 4h3v1H2zM3 5h1v1H3z" fill="currentColor"/></svg>
+        } @else {
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.6-4.6-9.4-9.2C1.3 8 3.4 4.8 6.8 4.8c2 0 3.7 1.1 5.2 3 1.5-1.9 3.2-3 5.2-3 3.4 0 5.5 3.2 4.2 6.5-1.8 4.6-9.4 9.2-9.4 9.2z" fill="currentColor"/></svg>
+        }
+        @if (s.meGusta > 0) { <span aria-hidden="true">{{ cifra(s.meGusta) }}</span> }
+      </button>
+    }
+  </div>
 </ng-template>
 
 <!-- Riel horizontal: se desliza con el dedo, con las flechas o con el teclado (las tarjetas son enlaces). -->
@@ -183,3 +212,4 @@
     </section>
   </div>
 </main>
+@if (acceso(); as volver) { <gems-tap-acceso [volver]="volver" (cerrar)="acceso.set(null)" /> }
