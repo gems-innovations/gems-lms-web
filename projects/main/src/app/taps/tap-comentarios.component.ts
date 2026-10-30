@@ -156,7 +156,7 @@ export class TapComentariosComponent {
         if (!this.vivo) return;
         this.enviando.set(false);
         const m = err?.error?.message ?? err?.error?.mensaje;
-        this.error.set(err?.status === 422 && typeof m === 'string' && m ? m
+        this.error.set((err?.status === 422 || err?.status === 403) && typeof m === 'string' && m ? m
           : err?.status === 429 ? 'Vas muy rápido. Espera un momento y vuelve a intentarlo.'
           : 'No se pudo publicar. Revisa tu conexión y vuelve a intentarlo.');
         this.campo().nativeElement.focus();

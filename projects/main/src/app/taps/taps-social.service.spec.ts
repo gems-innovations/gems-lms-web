@@ -45,13 +45,15 @@ describe('taps.social', () => {
 describe('TapsSocialService', () => {
   let service: TapsSocialService, http: HttpTestingController;
   const sesion = signal(false);
+  const usuario = signal<{ email: string } | null>(null);
   // Hace las veces del interceptor de auth: marca lo que pasa por el HttpClient normal.
   const marca: HttpInterceptorFn = (req, next) => next(req.clone({ setHeaders: { Authorization: 'Bearer prueba' } }));
 
   beforeEach(() => {
     sesion.set(false);
+    usuario.set(null);
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(withInterceptors([marca])), provideHttpClientTesting(), { provide: AuthSessionService, useValue: { isAuthenticated: sesion } }],
+      providers: [provideHttpClient(withInterceptors([marca])), provideHttpClientTesting(), { provide: AuthSessionService, useValue: { isAuthenticated: sesion, user: usuario } }],
     });
     service = TestBed.inject(TapsSocialService);
     http = TestBed.inject(HttpTestingController);
@@ -82,6 +84,16 @@ describe('TapsSocialService', () => {
     expect(req.request.headers.get('Authorization')).toBe('Bearer prueba');
     req.flush({ taps: [{ tapId: 'a', meGustaYo: false }, { tapId: 'b', meGustaYo: true }] });
   }
+
+  it('un invitado cuenta como sin sesión: el corazón pide cuenta y no se piden sus me gusta', async () => {
+    await conCifras();
+    usuario.set({ email: 'x@invitado.gems.lat' });
+    sesion.set(true);
+    TestBed.tick();
+    http.expectNone(r => r.url.endsWith('/taps/sociales/yo'));
+    expect(service.alternar('a')).toBeFalse();
+    http.expectNone(r => r.method === 'PUT');
+  });
 
   it('junta los pedidos en uno, no repite ids y parte en tandas de 60', async () => {
     await conCifras();

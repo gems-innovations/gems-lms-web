@@ -4,6 +4,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Observable, map, tap } from 'rxjs';
 import { environment } from 'shared/core';
 import { AuthSessionService } from 'auth/core';
+import { isGuestUser } from '../public/guest-access.service';
 import { ITapComentario, ITapSocial, SOCIALES_MAX, leerComentario, leerComentarios, leerMeGusta, leerMios, leerSociales } from './taps.social';
 
 const RESPUESTA_RARA = () => new HttpErrorResponse({ status: 502, statusText: 'Respuesta inesperada' });
@@ -28,8 +29,8 @@ export class TapsSocialService {
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly auth = inject(AuthSessionService, { optional: true });
 
-  /** Hay sesión: me gusta y comentarios funcionan; sin ella, tocarlos pide iniciar sesión. */
-  readonly sesion = computed(() => !!this.auth?.isAuthenticated());
+  /** Hay sesión con cuenta: me gusta y comentarios funcionan; sin ella (o como invitado, que el API rechaza con 403), tocarlos pide iniciar sesión. */
+  readonly sesion = computed(() => !!this.auth?.isAuthenticated() && !isGuestUser(this.auth.user()));
   /** null: aún no se sabe · true: el API responde · false: no está (se ocultan los corazones y los comentarios). */
   readonly disponible = signal<boolean | null>(null);
   /** La lista de comentarios no existe en el API (404): se oculta el botón aunque haya cifra. */
