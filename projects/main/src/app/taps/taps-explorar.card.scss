@@ -28,7 +28,7 @@
 .card__meta { display: flex; align-items: center; gap: 5px; min-width: 0; font-size: 12px; font-weight: 700; color: #c8d1de; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   i { flex: none; width: 8px; height: 8px; border-radius: 2px; background: var(--c); } }
 .card__estado { font-size: 12px; font-weight: 800; color: #ffe08a; &.is-hecho { color: #6fe3a1; } }
-// Fila de cifras: deja libre la esquina del me gusta (44 px).
+// Fila de cifras: deja libre la esquina del me gusta (48 px).
 .card__pie { display: flex; align-items: center; min-height: 32px; margin-bottom: -6px; padding-right: 52px; }
 .card__vistas { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; text-shadow: 0 1px 2px #000; }
 
@@ -36,8 +36,8 @@
 .is-mc .card__new { border-radius: 3px; font-family: 'Pixelify Sans', var(--font-texto, system-ui, sans-serif); font-size: 13px; }
 .card__ring { position: absolute; top: 8px; right: 8px; z-index: 1; }
 
-// Me gusta: corazón blanco y, al darlo, rojo (como TikTok). Área táctil de 44 px.
-.gusta { position: absolute; right: 2px; bottom: 2px; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 44px; height: 44px; padding: 0 8px;
+// Me gusta: corazón blanco y, al darlo, rojo (como TikTok). Área táctil de 48 px.
+.gusta { position: absolute; right: 2px; bottom: 2px; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 48px; height: 48px; padding: 0 8px;
   border: 0; border-radius: 999px; background: none; color: #fff; font: inherit; font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; text-shadow: 0 1px 2px #000; cursor: pointer;
   svg { flex: none; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .6)); transition: transform var(--dur-rapida, .12s) var(--curva-estandar, ease); }
   &:hover { background: rgba(255, 255, 255, .1); }
