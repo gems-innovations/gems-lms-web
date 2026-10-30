@@ -19,7 +19,7 @@ export class AdminSidebarUseCase {
         { id: 'institutions', label: 'Instituciones', icon: 'institutions', route: '/admin/institutions' },
         // Solicitudes de espacio que llegan desde «Enseña en GEMS».
         { id: 'requests', label: 'Solicitudes', icon: 'users', route: '/solicitudes' },
-        { id: 'home', label: 'Home institucional', icon: 'dashboard', route: '/admin/home' },
+        { id: 'home', label: 'Portadas', icon: 'dashboard', route: '/admin/home' },
         { id: 'audit', label: 'Auditoría', icon: 'audit', route: '/admin/audit' }
       ];
     }

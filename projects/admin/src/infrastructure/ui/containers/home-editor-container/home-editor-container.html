@@ -1,6 +1,6 @@
 <lib-page>
   <lib-page-header
-    title="Home personalizada"
+    title="Portada de la institución"
     subtitle="Escribe el HTML y el CSS de la portada de tu institución. No se permite JavaScript ni estilos en línea: usa clases y el CSS de abajo."
   />
 
@@ -55,11 +55,11 @@
           </label>
         </div>
         @if (mode() === 'BASE') {
-          <p class="home__hint">Clases que puedes estilizar: <code>.tb-header</code> <code>.tb-brand</code> <code>.tb-logo</code> <code>.tb-login</code> <code>.tb-hero</code> <code>.tb-cta</code> <code>.tb-courses</code> <code>.gems-curso</code> <code>.gems-curso__title</code> <code>.tb-footer</code>. El HTML es opcional (aparece como banner bajo la cabecera).</p>
+          <p class="home__hint">Clases que puedes estilizar: <code>.tb-header</code>, <code>.tb-brand</code>, <code>.tb-logo</code>, <code>.tb-login</code>, <code>.tb-hero</code>, <code>.tb-cta</code>, <code>.tb-courses</code>, <code>.gems-curso</code>, <code>.gems-curso__title</code>, <code>.tb-footer</code>. El HTML es opcional (aparece como banner bajo la cabecera).</p>
         } @else {
           <p class="home__hint" ngNonBindable>Marcadores: <code>{{cursos}}</code> tarjetas de cursos publicados · <code>{{nombre}}</code> nombre · <code>{{logo}}</code> URL del logo · <code>{{ingresar}}</code> enlace de ingreso. Clases de las tarjetas: <code>.gems-curso</code>, <code>__img</code>, <code>__title</code>, <code>__desc</code>, <code>__meta</code>.</p>
         }
-        <div class="home__row"><lib-button variant="ghost" size="sm" (clicked)="useExample()">{{ mode() === 'CUSTOM' ? 'Cargar plantilla inicial' : 'Cargar ejemplo' }}</lib-button></div>
+        <div class="home__row"><lib-button variant="secondary" (clicked)="useExample()">{{ mode() === 'CUSTOM' ? 'Cargar plantilla inicial' : 'Cargar ejemplo' }}</lib-button></div>
       </section>
 
       <section class="home__editor" aria-label="Editor">

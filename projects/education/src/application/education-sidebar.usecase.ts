@@ -10,7 +10,7 @@ export const INSTITUTION_ADMIN_MENU: readonly NavigationItem[] = [
   { id: 'enrollments', label: 'Matrículas',     icon: 'courses',   route: '/admin/enrollments' },
   { id: 'periods',     label: 'Períodos',       icon: 'learning-paths', route: '/admin/periods' },
   { id: 'reports',     label: 'Reportes',       icon: 'stats',     route: '/admin/reports' },
-  { id: 'home',        label: 'Mi home',        icon: 'dashboard', route: '/admin/home' },
+  { id: 'home',        label: 'Portada',        icon: 'institutions', route: '/admin/home' },
   { id: 'audit',       label: 'Auditoría',      icon: 'audit',     route: '/admin/audit' }
 ];
 

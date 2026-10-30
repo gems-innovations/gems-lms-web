@@ -109,7 +109,7 @@ export const routes: Routes = [
   },
   {
     path: 'home',
-    title: 'Home personalizada',
+    title: 'Portada de la institución',
     component: MainLayout,
     children: [
       {
