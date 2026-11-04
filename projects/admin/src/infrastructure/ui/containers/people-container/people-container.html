@@ -1,7 +1,7 @@
 <lib-page width="lg">
   <lib-page-header
     title="Personas"
-    subtitle="Gestiona los usuarios y los grupos de estudiantes de tu institución."
+    [subtitle]="sinInstitucion ? '' : 'Gestiona los usuarios y los grupos de estudiantes de tu institución.'"
   />
 
   @if (sinInstitucion) {
