@@ -18,15 +18,18 @@ describe('EnrollmentRulesService', () => {
 
   afterEach(() => http.verify());
 
-  it('saves rules with numeric ids, seconds and no limit for empty capacity', () => {
+  it('saves rules with numeric ids, the local time as an instant and no limit for empty capacity', () => {
+    let saved: any;
     service.saveRules('3', { periodId: '9', opensAt: '2026-10-01T08:00', closesAt: null, capacity: null,
-      selfEnrollment: false, prerequisiteIds: ['1', '2'] }).subscribe();
+      selfEnrollment: false, prerequisiteIds: ['1', '2'] }).subscribe(r => (saved = r));
     const req = http.expectOne(`${urls.courses}/3/enrollment-rules`);
     expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual({ periodId: 9, opensAt: '2026-10-01T08:00:00', closesAt: null, capacity: null,
+    const opensAt = new Date('2026-10-01T08:00').toISOString();   // 08:00 del navegador, con zona
+    expect(req.request.body).toEqual({ periodId: 9, opensAt, closesAt: null, capacity: null,
       selfEnrollment: false, prerequisiteIds: [1, 2] });
-    req.flush({ courseId: 3, periodId: 9, opensAt: '2026-10-01T08:00:00', closesAt: null, capacity: null,
+    req.flush({ courseId: 3, periodId: 9, opensAt, closesAt: null, capacity: null,
       selfEnrollment: false, prerequisiteIds: [1, 2] });
+    expect(saved.opensAt).toBe('2026-10-01T08:00');   // vuelve a la misma hora local en el campo
   });
 
   it('reads the eligibility of several courses in one call', () => {

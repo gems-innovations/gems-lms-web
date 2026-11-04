@@ -22,12 +22,20 @@ describe('Course feedback services', () => {
     TestBed.inject(SurveyService).getSurvey('13').subscribe(s => (survey = s));
     http.expectOne(`${courses}/13/survey`).flush({ code: 'NOT_FOUND' }, { status: 404, statusText: 'Not Found' });
     expect(survey).toBeNull();
+    survey = 'pending';
+    TestBed.inject(SurveyService).getSurvey('14').subscribe(s => (survey = s));
+    http.expectOne(`${courses}/14/survey`).flush(null, { status: 204, statusText: 'No Content' });
+    expect(survey).toBeNull();
   });
 
   it('a student without a review gets null', () => {
     let review: unknown = 'pending';
     TestBed.inject(ReviewService).getMyReview('13').subscribe(r => (review = r));
     http.expectOne(`${courses}/13/reviews/me`).flush(null, { status: 404, statusText: 'Not Found' });
+    expect(review).toBeNull();
+    review = 'pending';
+    TestBed.inject(ReviewService).getMyReview('14').subscribe(r => (review = r));
+    http.expectOne(`${courses}/14/reviews/me`).flush(null, { status: 204, statusText: 'No Content' });
     expect(review).toBeNull();
   });
 

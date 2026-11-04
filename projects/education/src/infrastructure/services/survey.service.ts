@@ -51,8 +51,8 @@ export class SurveyService {
   private readonly coursesUrl = environment.apiUrls.education.courses;
 
   getSurvey(courseId: string): Observable<ICourseSurvey | null> {
-    return this.http.get<ISurveyApi>(`${this.coursesUrl}/${courseId}/survey`).pipe(
-      map(mapSurvey),
+    return this.http.get<ISurveyApi | null>(`${this.coursesUrl}/${courseId}/survey`).pipe(
+      map(r => (r ? mapSurvey(r) : null)),   // 204: sin encuesta
       catchError(err => noneOn404<ICourseSurvey>(err))
     );
   }
