@@ -7,7 +7,7 @@
 // Celular: la tarjeta va primero, de borde a borde, y ocupa la pantalla menos una franja que invita a bajar.
 // svh (pantalla con las barras del navegador a la vista): el alto no cambia al desplazarse, así el Tap no salta.
 .juego__tarjeta {
-  order: -2; height: calc(100svh - var(--ph-h) - 44px); min-height: 520px; max-height: 940px;
+  order: -2; height: calc(100svh - var(--ph-h) - 44px); min-height: 440px; max-height: 940px;
   margin-inline: -20px; overflow: hidden; background: #0e1116;
 }
 // Franja de dos caminos bajo el Tap (celular): temas y cursos | instituciones.
