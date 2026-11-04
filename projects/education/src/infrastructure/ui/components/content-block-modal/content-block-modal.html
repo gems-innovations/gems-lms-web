@@ -91,14 +91,16 @@
         <div class="cbm__section">
           <div class="cbm__field">
             <label class="cbm__label">Título <span class="cbm__req">*</span></label>
-            <input class="cbm__input" type="text" placeholder="Ej: Video introductorio al módulo"
+            <input class="cbm__input" type="text" placeholder="Ej: Introducción al módulo"
               [ngModel]="title()" (ngModelChange)="title.set($event)" />
           </div>
           <div class="cbm__row">
-            <label class="cbm__check">
-              <input type="checkbox" [ngModel]="assignmentAskLink()" (ngModelChange)="assignmentAskLink.set($event)" />
-              Pedir el enlace del trabajo (repositorio, diseño o documento)
-            </label>
+            @if (selectedType() === EContentType.ASSIGNMENT) {
+              <label class="cbm__check">
+                <input type="checkbox" [ngModel]="assignmentAskLink()" (ngModelChange)="assignmentAskLink.set($event)" />
+                Pedir el enlace del trabajo (repositorio, diseño o documento)
+              </label>
+            }
             <div class="cbm__field cbm__field--sm">
               <label class="cbm__label">Duración (min)</label>
               <input class="cbm__input" type="number" min="0" [ngModel]="duration()" (ngModelChange)="duration.set(+$event)" />

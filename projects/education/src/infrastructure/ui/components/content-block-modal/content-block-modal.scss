@@ -137,6 +137,7 @@
   &--quiz       { background: color-mix(in srgb, var(--color-advertencia) 12%, transparent); color: var(--color-advertencia); }
   &--task       { background: color-mix(in srgb, var(--color-exito) 12%, transparent); color: var(--color-exito); }
   &--scorm      { background: color-mix(in srgb, var(--color-primario) 12%, transparent); color: var(--color-primario); }
+  &--cards      { background: color-mix(in srgb, var(--color-info) 12%, transparent); color: var(--color-info); }
   &--live       { background: color-mix(in srgb, var(--color-error) 12%, transparent); color: var(--color-error); }
 }
 
