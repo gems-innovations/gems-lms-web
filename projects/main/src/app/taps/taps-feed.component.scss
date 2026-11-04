@@ -89,6 +89,15 @@ a, button { &:focus-visible { outline: 3px solid #fff; outline-offset: 2px; } }
   .tap__bubble, .tap__card { padding-block: 8px; margin-bottom: 8px; }
 }
 
+// Tarjeta aún más baja (portada de 440 a 560 px): el antetítulo en una línea y opciones de 46 px, para que el mundo no desaparezca.
+@container taps (max-height: 560px) {
+  .tap__over { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tap__opt { min-height: 46px; }
+  // A la izquierda del riel (aquí en fila al pie del mundo), con todo el alto bajo la píldora de reacción.
+  .tap__world .tap__escena { top: 44px; width: 34%; height: calc(100% - 50px); max-height: none; }
+  .taps:has(.rail__menu) { z-index: 8; }   // el menú «Más» abre hacia arriba, sobre la barra (z 7)
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tap__pill, .tap__pre, .tap__streak, .tap__bubble, .tap__card, .tap__peek, .tap__reto { animation: none; }
 }
