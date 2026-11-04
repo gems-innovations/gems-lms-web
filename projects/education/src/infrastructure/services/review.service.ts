@@ -48,8 +48,8 @@ export class ReviewService {
 
   /** The signed-in student's review of the course, or null. */
   getMyReview(courseId: string): Observable<ICourseReview | null> {
-    return this.http.get<IReviewApi>(`${this.coursesUrl}/${courseId}/reviews/me`).pipe(
-      map(mapReview),
+    return this.http.get<IReviewApi | null>(`${this.coursesUrl}/${courseId}/reviews/me`).pipe(
+      map(r => (r ? mapReview(r) : null)),   // 204: aún no reseña
       catchError(err => err instanceof HttpErrorResponse && err.status === 404 ? of(null) : throwError(() => err))
     );
   }
