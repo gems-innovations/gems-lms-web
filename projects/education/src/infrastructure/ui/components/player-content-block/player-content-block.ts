@@ -2,15 +2,17 @@ import {
   Component, inject, input, output, signal, computed, effect, untracked,
   OnChanges, SimpleChanges, ChangeDetectionStrategy, OnDestroy, HostListener
 } from '@angular/core';
-import { DecimalPipe, DatePipe } from '@angular/common';
+import { DecimalPipe, DatePipe, Location } from '@angular/common';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MarkdownComponent } from 'ngx-markdown';
 import { MarkdownEditorComponent } from 'shared';
 import { BusyLabelComponent, LoadErrorComponent } from 'shared/loading';
 import {
-  IContentBlock, EContentType, IQuestion, IMultipleChoiceQuestion, ITrueFalseQuestion, IOpenQuestion
+  IContentBlock, EContentType, IQuestion, IMultipleChoiceQuestion, ITrueFalseQuestion, IOpenQuestion, ICardQuestion
 } from '../../../../domain/model/course.model';
+import { TAPS_EN_CURSO } from 'shared/core';
 import { IQuizAnswer } from '../../../../domain/model/enrollment.model';
 import { QuizSessionService } from '../../../services/quiz-session.service';
 import { toEditorEmbedUrl, toVideoEmbedUrl } from '../../../../application/video-embed';
@@ -98,6 +100,7 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
         ? 'Ya entregaste la tarea. El siguiente paso se abre cuando tu mentor la califique.'
         : 'Para seguir, envía la tarea.';
       case EContentType.CARDS: return 'Para seguir, llega hasta la última carta.';
+      case EContentType.TAP: return 'Para seguir, juega el Tap y toca «Ya lo jugué: seguir».';
       default: return 'Termina este paso para seguir.';
     }
   });
@@ -116,6 +119,31 @@ export class PlayerContentBlock implements OnChanges, OnDestroy {
   protected readonly quizFailHint = computed(() => this.quizPassAndAttempts());
 
   protected readonly EContentType = EContentType;
+
+  // ── Tap: lo abre el motor de la app principal (`/t/<id>`) ─────────────────
+  private readonly taps = inject(TAPS_EN_CURSO, { optional: true });
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
+  protected readonly tapOpening = signal(false);
+  protected readonly tapError = signal<string | null>(null);
+
+  protected playTap(blk: IContentBlock): void {
+    this.tapError.set(null);
+    if (!this.taps || !blk.tapId) { this.tapError.set('Este Tap no está disponible aquí.'); return; }
+    this.tapOpening.set(true);
+    // «Atrás» desde el Tap recrea el reproductor: con la lección y el bloque en la URL retoma aquí y no al inicio del curso.
+    const lesson = this.lessonId();
+    if (lesson && lesson !== 'preview') {
+      const url = this.router.parseUrl(this.router.url);
+      url.queryParams = { ...url.queryParams, lesson, block: blk.id };
+      this.location.replaceState(this.router.serializeUrl(url));
+    }
+    const own = blk.cards?.filter((c): c is ICardQuestion => c.kind === 'question');
+    this.taps.jugar(blk.tapId, blk.title, own?.length ? own : undefined, blk.id).then(
+      ok => { this.tapOpening.set(false); if (!ok) this.tapError.set('Este Tap ya no existe. Avísale a tu mentor.'); },
+      () => { this.tapOpening.set(false); this.tapError.set('No se pudo abrir el Tap. Revisa tu conexión e inténtalo de nuevo.'); },
+    );
+  }
 
   /** Estado de una sesión en vivo: cuándo es y si ya se puede entrar (desde 15 min antes). */
   protected liveInfo(blk: IContentBlock): { cuando: string | null; yaEmpezo: boolean; abierta: boolean } {

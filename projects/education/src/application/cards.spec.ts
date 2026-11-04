@@ -1,5 +1,21 @@
-import { cardProblem, cleanCard, emptyCard, estimateMinutes } from './cards';
+import { cardProblem, cleanCard, emptyCard, emptyTapQuestion, estimateMinutes, tapQuestionProblem } from './cards';
 import { ICardQuestion } from '../domain/model/course.model';
+
+describe('preguntas de un Tap propio', () => {
+  const lista: ICardQuestion = { ...emptyTapQuestion(), question: '¿2+2?', options: ['3', '4', '5', '22'], answer: 1, why: 'Suma simple.' };
+
+  it('una completa con 4 opciones cortas cabe en el formato Tap', () => {
+    expect(tapQuestionProblem(lista)).toBeNull();
+    expect(tapQuestionProblem(emptyTapQuestion())).toBe('Escribe la pregunta.');
+  });
+
+  it('pide las 4 opciones y respeta los límites del banco', () => {
+    expect(tapQuestionProblem({ ...lista, options: ['3', '4', '', '5'] })).toContain('4 opciones');
+    expect(tapQuestionProblem({ ...lista, options: ['3', '4', '5', 'x'.repeat(23)] })).toContain('22');
+    expect(tapQuestionProblem({ ...lista, why: 'x'.repeat(91) })).toContain('90');
+    expect(tapQuestionProblem({ ...lista, why: ' ' })).toContain('Explica');
+  });
+});
 
 describe('cartas del profesor', () => {
   it('una carta en blanco de cada tipo avisa qué falta', () => {

@@ -10,3 +10,5 @@ export { ClientErrorJournal } from './client-error-journal.service';
 export { I18nService } from './i18n/i18n.service';
 export { LANGUAGES } from './i18n/translations';
 export type { TLanguage } from './i18n/translations';
+export { TAPS_EN_CURSO } from './taps-en-curso';
+export type { ITapsEnCurso, ITapResumen, ITapPreguntaCurso } from './taps-en-curso';
