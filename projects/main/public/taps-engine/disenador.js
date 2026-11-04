@@ -16,6 +16,8 @@ import { COPY_HITOS, ENTENDIDO, PUBLICAR, QUE_ES, conNombre, crearHitos, esEstud
 import { CAMARA_MS, QUIETA_REACCION, REACCIONES, encuadreDe, focoDe, mezclarCamara, reaccionDe } from './themes/epoca/reacciones.js';
 import { crearParticulas } from './themes/epoca/particulas.js';
 import { crearFrases } from './themes/epoca/frases.js';
+import * as Estilo from './estilo.js';
+import { montarDecorar } from './decorar.js';
 // La versión (?v=) va en los imports del audio: si cambia efectos.js, una caché vieja no mezcla versiones (como en sonido.js).
 import { crearSonido } from './audio/sonido.js?v=3';
 import { luminancia } from './audio/efectos.js?v=3';
@@ -151,7 +153,9 @@ export async function montarDisenador(raiz, opciones = {}) {
 
   // ───────────────────────── estado ─────────────────────────
   // `hora` (PR-D8) es del escenario: `dia` pinta el mundo tal cual (lo de siempre); atardecer y noche son velos encima.
-  const estado = { base: 'grabador', look: lookOf(theme.characters.grabador), item: 'pluma', world: 'taller-londres', hora: HORA_DEFECTO };
+  // `estilo` (decorar.js): la decoración del Tap; no entra en Deshacer (`copia`) ni en el enlace del personaje, sí en el borrador.
+  const estado = { base: 'grabador', look: lookOf(theme.characters.grabador), item: 'pluma', world: 'taller-londres', hora: HORA_DEFECTO, estilo: null };
+  let decorar = null;                            // el panel «Decora tu Tap» se monta la primera vez que se abre
   const copia = e => ({ base: e.base, look: { ...e.look }, item: e.item, world: e.world, hora: e.hora });
   const horaValida = h => HORAS.includes(h) ? h : HORA_DEFECTO;
   const historial = [];                          // para Deshacer y comparar
@@ -254,7 +258,7 @@ export async function montarDisenador(raiz, opciones = {}) {
   function irA(p) {
     const destino = Math.max(0, Math.min(conPreguntas ? 4 : 3, p));
     if ((destino === 2 && pantalla < 2) || (destino === 3 && (pantalla === 2 || pantalla === 4))) contar(destino === 2 ? 'paso/escenario' : 'paso/listo');   // solo al avanzar
-    if (destino !== pantalla) { sonar(destino === 3 ? 'logro' : 'blip'); limpiarHitos(); }          // cambiar de paso; Listo celebra; los avisos de cuenta no viajan entre pasos
+    if (destino !== pantalla) { sonar(destino === 3 ? 'logro' : 'blip'); limpiarHitos(); decorar?.parar(); }          // cambiar de paso; Listo celebra; los avisos de cuenta no viajan entre pasos
     const cambia = destino !== pantalla;
     pantalla = destino; raiz.classList.toggle('en-preguntas', pantalla === 4);   // el paso Preguntas necesita todo el alto: sin la vista grande del personaje
     // Transición de pantalla (PR-D5, §4): el panel entra desde abajo 220 ms y el h1 se funde; `entra` se reinicia en cada cambio
@@ -285,7 +289,7 @@ export async function montarDisenador(raiz, opciones = {}) {
   $('siguiente').onclick = () => { if (pantalla === 3) { if (confirm('¿Empezar otro personaje? Lo que no hayas guardado se perderá.')) empezarOtro(); } else irA(sigDe(pantalla)); };
   function empezarOtro() {                       // borrador nuevo: se olvida el anterior y el siguiente autoguardado estrena borradorId
     borradorActual = null; almacen.quitar(CLAVE_BORRADOR); $('nombre').value = ''; $('lema').value = ''; lookCargado = null;
-    estado.hora = HORA_DEFECTO; ponerPreset('grabador'); irA(0);
+    estado.hora = HORA_DEFECTO; estado.estilo = null; aplicarEstilo(); ponerPreset('grabador'); irA(0);
     historial.length = 0; $('deshacer').disabled = true; $('comparar').disabled = true; clearTimeout(temporizadorGuardado); temporizadorGuardado = 0;
     invertido.clear(); cambios = 0; pintarInversion(); fijarComparar(false);
   }
@@ -605,6 +609,8 @@ export async function montarDisenador(raiz, opciones = {}) {
     const grad = g.createLinearGradient(0, 0, 0, H); grad.addColorStop(0, tapMuestra.backdrop[0]); grad.addColorStop(1, tapMuestra.backdrop[1]); g.fillStyle = grad; g.fillRect(0, 0, W, H);
     const ZH = H * 0.54;
     g.save(); g.beginPath(); g.rect(0, 0, W, ZH); g.clip(); paintWorld(g, W, ZH, estado.world, {}, null, 1, estado.hora); g.restore();
+    const E = estado.estilo, fam = E?.letra ? Estilo.FAMILIA[E.letra] + ', system-ui, sans-serif' : 'system-ui, sans-serif', opColores = E?.paleta ? Estilo.PALETAS[E.paleta].colores : null;
+    Estilo.pintarFondo(g, E?.fondo, W, H);
     const s = ZH * 0.62 / 372, pies = ZH * 0.95, cy = pies - 112 * s, L = lookOf({ look: estado.look });
     g.fillStyle = 'rgba(8,7,16,.32)'; g.beginPath(); g.ellipse(W / 2, pies + 4 * s, 70 * s, 14 * s, 0, 0, Math.PI * 2); g.fill();
     const poseTap = J.fin ? poseFor(J.aciertos ? 'celebrate' : 'talk', 0.5, 0) : J.elegida !== null ? poseFor(J.elegida === PA.answer ? 'celebrate' : 'hurt', 0.5, 0) : J.activo ? poseFor('think', 0.5, 0) : poseFor('still');
@@ -622,18 +628,19 @@ export async function montarDisenador(raiz, opciones = {}) {
     g.fillStyle = '#fff'; redondo(g, bx, by, bw, bh, 9); g.fill();
     g.beginPath(); g.moveTo(W / 2 - 5, by + bh - 1); g.lineTo(W / 2, by + bh + 6); g.lineTo(W / 2 + 5, by + bh - 1); g.fill();
     g.fillStyle = '#1a1726'; g.textAlign = 'center'; lineasB.forEach((l, i) => g.fillText(l, W / 2, by + 5 + i * 12)); g.textAlign = 'left';
+    Estilo.pintarCapas(g, E?.capas, W, ZH, W / 400, fam);              // encima del bocadillo: lo que el creador puso se ve entero
     // panel inferior: pregunta y 4 opciones (como el feed: letra en círculo, barra por opción)
     const py = ZH, ph = H - ZH, pad = 10;
     g.fillStyle = 'rgba(15,14,23,.78)'; redondo(g, 0, py - 10, W, ph + 10, 14); g.fill();
-    const p = PA; g.fillStyle = '#ecebf5'; g.font = '700 10px system-ui, sans-serif';
+    const p = PA; g.fillStyle = '#ecebf5'; g.font = `700 10px ${fam}`;
     const lq = lineasDe(g, p.q, W - pad * 2, 3); lq.forEach((l, i) => g.fillText(l, pad, py + 2 + i * 13));
     const zonas = [];
     const oy = py + 6 + lq.length * 13, oh = 22, gap = 5, ow = W - pad * 2;
     const altoDisponible = H - oy - 8, filas = Math.min(4, Math.floor((altoDisponible + gap) / (oh + gap)));
-    g.font = '600 9px system-ui, sans-serif';
+    g.font = `600 9px ${fam}`;
     p.options.slice(0, Math.max(0, filas)).forEach((t, i) => {
       const y = oy + i * (oh + gap), bien = J.elegida !== null && i === p.answer, mal = J.elegida === i && i !== p.answer;
-      g.fillStyle = bien ? 'rgba(52,211,153,.22)' : mal ? 'rgba(243,160,160,.22)' : 'rgba(236,235,245,.1)'; redondo(g, pad, y, ow, oh, 8); g.fill();
+      g.fillStyle = bien ? 'rgba(52,211,153,.22)' : mal ? 'rgba(243,160,160,.22)' : opColores ? opColores[i] : 'rgba(236,235,245,.1)'; redondo(g, pad, y, ow, oh, 8); g.fill();
       g.strokeStyle = bien ? '#34d399' : mal ? '#f3a0a0' : 'rgba(236,235,245,.22)'; g.lineWidth = 1; redondo(g, pad + 0.5, y + 0.5, ow - 1, oh - 1, 8); g.stroke();
       g.fillStyle = bien ? '#34d399' : 'rgba(236,235,245,.16)'; g.beginPath(); g.arc(pad + 12, y + oh / 2, 7, 0, Math.PI * 2); g.fill();
       g.fillStyle = bien ? '#1a1408' : '#ecebf5'; g.textAlign = 'center'; g.fillText(letraTap(i), pad + 12, y + oh / 2 - 5); g.textAlign = 'left';
@@ -649,6 +656,22 @@ export async function montarDisenador(raiz, opciones = {}) {
       g.fillStyle = 'rgba(236,235,245,.6)'; g.font = '600 8px system-ui, sans-serif'; g.textAlign = 'center'; g.fillText('Toca «Probar» para jugarlo', W / 2, H - 14); g.textAlign = 'left';
     }
     if (!vista) zonasTap = zonas;
+  }
+  // ───────────────────────── decorar el Tap (estilo.js + decorar.js): marco, colores, letra, fondo, textos, stickers y música ─────────────────────────
+  // El marco animado es CSS sobre la envoltura del lienzo (disenador.css, gemelo de taps-feed.estilo.scss); lo demás lo pinta pintarTap.
+  { const c = $('tapMini'), envoltura = document.createElement('span'); envoltura.className = 'tap-lienzo'; c.replaceWith(envoltura); envoltura.append(c); }
+  const cajaDecorar = document.createElement('details'); cajaDecorar.className = 'subgrupo decorar';
+  cajaDecorar.innerHTML = '<summary><svg class="ic" aria-hidden="true"><use href="#i-sig"/></svg>Decora tu Tap</summary><div class="cuerpo"></div>';
+  raiz.querySelector('#muestraPregunta .tap-marco').after(cajaDecorar);
+  escuchar(cajaDecorar, 'toggle', () => {
+    if (cajaDecorar.open && !decorar) decorar = montarDecorar(cajaDecorar.querySelector('.cuerpo'), { leer: () => estado.estilo, cambiar: e => { estado.estilo = Estilo.validarEstilo(e); aplicarEstilo(); programarAutoguardado(); } });
+    if (!cajaDecorar.open) decorar?.parar();
+  });
+  function aplicarEstilo() {
+    const env = $('tapMini')?.parentElement, E = estado.estilo;
+    if (env) { if (E?.marco) env.dataset.marco = E.marco; else delete env.dataset.marco; }
+    decorar?.refrescar(); pintarTap();
+    if (E?.letra) document.fonts?.load(`700 10px ${Estilo.FAMILIA[E.letra]}`).then(() => pintarTap(), () => {});
   }
   // «¿Te gustó hacerlo?»: una vez por dispositivo, tras guardar, descartable. Solo viaja si/meh; nada más.
   function ofrecerGusto() {
@@ -687,7 +710,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     clearTimeout(temporizadorGuardado);
     if (!almacen.disponible) return;
     // La miniatura (PNG de 72×96) va en el borrador para que /instituciones muestre «Tu personaje irá adjunto» sin pintar (PR-8).
-    borradorActual = { ...armarBorrador(estado, pantalla, borradorActual, Date.now(), { lema: lemaActual() }), miniatura: pngMiniatura() };
+    borradorActual = { ...armarBorrador(estado, pantalla, borradorActual, Date.now(), { lema: lemaActual() }), miniatura: pngMiniatura(), ...(estado.estilo ? { estilo: estado.estilo } : {}) };
     almacen.escribir(CLAVE_BORRADOR, serializarBorrador(borradorActual));
   }
   escuchar(document, 'visibilitychange', () => { if (document.hidden && temporizadorGuardado) guardarBorradorAhora(); });
@@ -908,7 +931,7 @@ export async function montarDisenador(raiz, opciones = {}) {
     $('continuar').hidden = false; $('continuarSi').focus();
     $('continuarSi').onclick = () => {
       $('continuar').hidden = true;
-      Object.assign(estado, { base: b.base, look: { ...b.look }, item: b.item, world: b.world, hora: horaValida(b.hora) });
+      Object.assign(estado, { base: b.base, look: { ...b.look }, item: b.item, world: b.world, hora: horaValida(b.hora), estilo: Estilo.validarEstilo(b.estilo) }); aplicarEstilo();
       $('lema').value = b.lema || ''; contarLema();
       fondoSucio = true; escenasSucias = true; marcarPreset(); irA(b.paso); pintar(); decir(frases.frase('cargar', estado.base)); if (!reducido) animar('celebrate', 1.2);
       chipHito('vuelve', conNombre(COPY_HITOS.vuelve.texto, nombre));         // segunda visita (§2); si el paso ya enseñó otro aviso, este espera
@@ -1225,6 +1248,7 @@ export async function montarDisenador(raiz, opciones = {}) {
       if (temporizadorGuardado) guardarBorradorAhora();
       abandonar(); parar(); observador.disconnect();
       try { sonido.destruir(); } catch { /* ya cerrado */ }
+      decorar?.destruir();
       try { editorPreguntas?.destruir(); } catch { /* ya vacío */ }
       for (const [t, ev, fn] of oyentes) t.removeEventListener(ev, fn);
       oyentes.length = 0;

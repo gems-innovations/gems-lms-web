@@ -67,7 +67,9 @@ export function parsearBorrador(raw, validar) {
   let b; try { b = JSON.parse(raw); } catch { return null; }
   if (!estadoValido(b, validar) || typeof b.borradorId !== 'string') return null;
   const miniatura = typeof b.miniatura === 'string' && b.miniatura.startsWith('data:image/') ? b.miniatura : '';
-  return { borradorId: b.borradorId, paso: Math.max(0, Math.min(3, b.paso | 0)), fecha: +b.fecha || 0, miniatura, lema: recortarLema(b.lema), ...copiarEstado(b) };
+  // `estilo` (decorar.js) se devuelve tal cual: lo valida el diseñador con estilo.js al usarlo.
+  const estilo = b.estilo && typeof b.estilo === 'object' ? { estilo: b.estilo } : {};
+  return { borradorId: b.borradorId, paso: Math.max(0, Math.min(3, b.paso | 0)), fecha: +b.fecha || 0, miniatura, lema: recortarLema(b.lema), ...copiarEstado(b), ...estilo };
 }
 
 // ───────────────────────── mis looks ─────────────────────────
