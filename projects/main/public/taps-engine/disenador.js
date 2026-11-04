@@ -1128,7 +1128,20 @@ export async function montarDisenador(raiz, opciones = {}) {
   function contextoCuenta(hito, accion) {
     let borradorId = null;
     try { if (almacen.disponible) { guardarBorradorAhora(); borradorId = borradorActual?.borradorId ?? null; } } catch { borradorId = null; }
-    return { borradorId, enlace: enlaceActual(), nombre: nombreActual(), miniatura: pngMiniatura(), hito, accion };
+    return { borradorId, enlace: enlaceActual(), nombre: nombreActual(), miniatura: pngMiniatura(), hito, accion, tap: tapParaPublicar() };
+  }
+  /**
+   * El Tap listo para el API (TapsPayloadValidador): personaje base del catálogo (el look propio aún no viaja), sus 5 preguntas y el
+   * estilo. null sin el paso «Preguntas» o con preguntas a medias. shortcut: título y subtítulo fijos, cuando haya campo, que los escriba la persona.
+   */
+  function tapParaPublicar() {
+    const pr = editorPreguntas?.publicable; if (!pr) return null;
+    const estilo = Estilo.validarEstilo(estado.estilo);
+    return {
+      v: 1, theme: 'epoca', title: `Reto de ${nombreActual()}`, kicker: 'Hecho en GEMS',
+      scene: { world: estado.world, host: estado.base, ...(estado.item ? { item: estado.item } : {}) },
+      ...pr, topic: 'creador', ...(estilo ? { estilo } : {}),
+    };
   }
   /** «Qué es la cuenta» o «Publicar (con cuenta)» desde un hito: la MISMA hoja del gancho; `accion` dice si fue un intento de publicar. */
   function abrirCuenta(hito, accion) {
@@ -1221,7 +1234,7 @@ export async function montarDisenador(raiz, opciones = {}) {
   }
   if (conPreguntas) {
     try {
-      const m = await import('./editor-preguntas.js?v=1');
+      const m = await import('./editor-preguntas.js?v=2');
       editorPreguntas = m.montarEditor($('pantallaPreguntas'), { almacen, esperar, pintar: (c, p, indice, total) => pintarTap(c, { p, indice, total }), alCambiar: usarPreguntasPropias });
     } catch { $('pantallaPreguntas').textContent = 'No se pudo cargar el editor de preguntas. Puedes seguir al final.'; }
   }

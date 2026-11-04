@@ -49,6 +49,7 @@ import {
 } from './taps.coleccion';
 import { IRetoResultado } from './tap-result.component';
 import { barajarOpciones, mezclarFeed, semillaDe } from './taps.mezcla';
+import { esIdDeUsuario, tapDeUsuario } from './taps.usuario';
 import { TapPausaComponent } from './tap-pausa.component';
 
 const SOUND_KEY = 'gems-taps-sound';
@@ -149,7 +150,13 @@ export class TapsFeedComponent {
 
   protected readonly topic = signal<string | null>(this.query.get('tema') ?? this.portadaTopic);
   /** Orden deseado: `?t=<id>` (enlace compartido) pone ese Tap primero; `?tema=<id>` pone primero los de esa categoría. */
-  private readonly wanted = this.onlyFirstInPortada(orderFeed(TAPS, { first: findTap(this.askedId)?.id, topic: this.topic(), hookDone: this.hookDone }));
+  /** Tap de un creador pedido por `/t/u-…` (resolver `tapUsuario` de la ruta); se juega primero y solo por su enlace. */
+  private readonly tapUsuario = tapDeUsuario(this.snapshot.data['tapUsuario'], TAPS);
+  /** El banco y, si llegó, el Tap del creador. */
+  private readonly todos: readonly ITap[] = this.tapUsuario ? [this.tapUsuario, ...TAPS] : TAPS;
+  /** El Tap del enlace (del banco o del creador); null sin enlace o si ya no está. */
+  private readonly pedido = this.tapUsuario ?? findTap(this.askedId);
+  private readonly wanted = this.onlyFirstInPortada(orderFeed(this.todos, { first: this.pedido?.id, topic: this.topic(), hookDone: this.hookDone }));
   /**
    * Orden con el que se pinta primero. Si el HTML ya viene del servidor (SSR o prerender), se hidrata con el MISMO orden
    * que trae (un HTML prerenderizado no conoce `?t=` ni la cookie): cambiar el orden antes de hidratar rompería la
@@ -167,7 +174,7 @@ export class TapsFeedComponent {
   private semillaPersona = '';
   private semillaDia = '';
   protected readonly topics = feedTopics(TAPS, TAP_TOPICS);
-  protected readonly runs = signal<Record<string, ITapRun>>(Object.fromEntries(TAPS.map(t => [t.id, startRun(t)])));
+  protected readonly runs = signal<Record<string, ITapRun>>(Object.fromEntries(this.todos.map(t => [t.id, startRun(t)])));
   protected readonly activeId = signal(this.taps()[0].id);
   /**
    * Sonido general (el altavoz de la barra y la tecla M): encendido por defecto, sin aviso previo. El navegador no deja sonar
@@ -442,8 +449,8 @@ export class TapsFeedComponent {
       const sub = this.location.subscribe(() => this.onPopState());
       this.destroyRef.onDestroy(() => sub.unsubscribe());
       const asked = this.askedId;
-      if (asked !== null && !findTap(asked)) {
-        this.notice.set({ tapId: this.taps()[0].id, text: 'Este Tap se retiró. Te dejamos uno parecido.' });
+      if (asked !== null && !this.pedido) {
+        this.notice.set({ tapId: this.taps()[0].id, text: esIdDeUsuario(asked) ? 'Este Tap ya no está disponible. Te dejamos otro para jugar.' : 'Este Tap se retiró. Te dejamos uno parecido.' });
       } else {
         this.welcome();
       }
@@ -483,7 +490,7 @@ export class TapsFeedComponent {
     const pre = (globalThis as { __tapsPre?: IPreAnswer }).__tapsPre;
     // Lo ya respondido (en esta pestaña, o antes de hidratar) se queda donde está: se fija hasta la última respuesta.
     const answeredAt = current.reduce((last, t, i) => (this.runs()[t.id].answers.length > 0 || pre?.id === t.id ? i : last), -1) + 1;
-    const fixed = Math.max(answeredAt, findTap(this.askedId) ? 1 : 0);
+    const fixed = Math.max(answeredAt, this.pedido ? 1 : 0);
     let target: ITap[];
     if (this.portada) {
       // En la portada, un solo Tap: el primero que esta persona aún no completó (portadaPick).
@@ -1234,7 +1241,7 @@ export class TapsFeedComponent {
    */
   private welcome(): void {
     if (this.portada) return;
-    const now = Date.now(), first = this.taps()[0], asked = findTap(this.askedId);
+    const now = Date.now(), first = this.taps()[0], asked = this.pedido;
     const rematch = asked && asked.id === first.id ? rematchText(asked, this.interest(), this.sesion) : null;
     const hello = rematch ? null : greeting(this.interest(), this.sesion, now);
     if (rematch || hello) this.notice.set({ tapId: first.id, text: (rematch ?? hello)! });

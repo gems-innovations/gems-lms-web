@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  EJEMPLO_PEGADO, LIM, PLANTILLAS, RESULTADOS_DEFECTO, VF, cambiarTipo, estadoDePlantilla, estadoNuevo, leerEstado, paraVista, parsearTexto,
+  EJEMPLO_PEGADO, LIM, PLANTILLAS, RESULTADOS_DEFECTO, VF, cambiarTipo, estadoDePlantilla, estadoNuevo, leerEstado, paraPublicar, paraVista, parsearTexto,
   preguntaNueva, preguntasJugables, resumenEstado, resumenPregunta, serializarEstado, validarPregunta, validarResultados,
 } from '../public/taps-engine/editor-preguntas.js';
 
@@ -114,4 +114,17 @@ test('disenador.js carga en Node y su plantilla trae el paso Preguntas (interno 
   const m = await import('../public/taps-engine/disenador.js');
   assert.match(m.PLANTILLA, /data-p="4" id="pantallaPreguntas" aria-label="Preguntas"><\/section>/);
   assert.equal([...m.PLANTILLA.matchAll(/<section class="pantalla/g)].length, 5);
+});
+
+test('paraPublicar: solo con 5 preguntas completas y títulos válidos, en la forma del API', () => {
+  const est = { v: 1, preguntas: Array.from({ length: 5 }, buena), resultados: structuredClone(RESULTADOS_DEFECTO), actual: 0 };
+  est.preguntas[0] = { ...buena(), q: '  ¿Cuánto es 2 + 2?  ', options: [' 3', '4 ', '5', '6'] };
+  const p = paraPublicar(est);
+  assert.deepEqual(p.questions[0], { q: '¿Cuánto es 2 + 2?', options: ['3', '4', '5', '6'], answer: 1, why: 'Dos y dos son cuatro.', tipo: 'clasica' });
+  assert.equal(p.questions.length, 5);
+  assert.deepEqual(p.results, RESULTADOS_DEFECTO.map(r => ({ ...r })));
+  assert.equal(paraPublicar(null), null);
+  assert.equal(paraPublicar({ ...est, preguntas: est.preguntas.slice(0, 4) }), null, 'faltan preguntas');
+  assert.equal(paraPublicar({ ...est, preguntas: [...est.preguntas.slice(0, 4), { ...buena(), why: '' }] }), null, 'sin explicación');
+  assert.equal(paraPublicar({ ...est, resultados: [{ ...est.resultados[0], min: 1 }, ...est.resultados.slice(1)] }), null, 'títulos inválidos');
 });
