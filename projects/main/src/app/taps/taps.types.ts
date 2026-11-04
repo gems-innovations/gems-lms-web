@@ -1,3 +1,5 @@
+import type { ITapEstilo } from './taps.estilo';
+
 /**
  * Formato de un Tap (solo datos). Para crear uno nuevo basta un objeto así en `taps.data.ts`: no se toca el motor
  * ni este componente. El motor (public/taps-engine) solo recibe `theme` y `scene`; las preguntas las maneja la app.
@@ -121,6 +123,8 @@ export interface ITap {
   level?: 'facil' | 'media' | 'dificil';
   /** Subtema dentro de su categoría (p. ej. «redstone», «espacio»): solo informativo. */
   subtopic?: string;
+  /** Personalización del creador (taps.estilo.ts). El feed solo pinta lo que pasa `validarEstilo`. */
+  estilo?: ITapEstilo;
 }
 
 /** Una categoría del selector. Las que aún no tienen Taps se muestran como «Pronto». */

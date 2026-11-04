@@ -67,6 +67,7 @@ export function candidatas(mapa, { mundo, tema, motor } = {}) {
  * (la del Tap previo) si hay otra, y con la del mundo pesando el doble (Nether suena más a magma, sin ser siempre magma).
  */
 export function pistaPara(mapa, info = {}, anterior = null) {
+  if (info.pista) return info.pista;            // la eligió el creador del Tap (la app ya la validó contra el catálogo)
   const todas = candidatas(mapa, info);
   if (!todas.length) return null;
   const lista = todas.length > 1 && todas.includes(anterior) ? todas.filter(id => id !== anterior) : todas;

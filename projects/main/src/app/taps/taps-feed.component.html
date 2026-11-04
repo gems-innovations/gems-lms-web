@@ -59,12 +59,19 @@
     @let feedback = !run.finished && run.chosen !== null;
     @let paso = !run.finished && esPasoDe(tap.questions[run.index]);
     @let visual = visualOf(tap, run);
+    @let est = estiloDe(tap);
     <article class="tap" #section [attr.data-tap]="tap.id" [attr.data-tema]="tap.theme" [class.tap--active]="activeId() === tap.id" [class.tap--feedback]="feedback" [class.tap--visual]="!!visual"
+             [attr.data-marco]="est?.marco ?? null" [attr.data-paleta]="est?.paleta ?? null" [attr.data-letra]="est?.letra ?? null" [style]="paletaVars(est)"
              [attr.data-tipo]="run.finished ? null : tipoDe(tap.questions[run.index])" [attr.data-acierto]="feedback && !paso ? (run.answers[run.answers.length - 1] ? 'si' : 'no') : null"
              aria-roledescription="Tap" [attr.aria-label]="'Tap de ' + tap.title" [style.--bg-top]="tap.backdrop[0]" [style.--bg-bottom]="tap.backdrop[1]" [style.--bg-ground]="tap.ground ?? null"
              [style.--tap-display-font]="displayFont(tap)" [inert]="live() && activeId() !== tap.id"
              (pointerdown)="onPress($event)" (pointerup)="onRelease($event)" (pointercancel)="onCancel()">
       <div class="tap__stage" #slot aria-hidden="true"></div>
+      <!-- Tinte del creador sobre el escenario (taps.estilo.ts): color, degradado o patrón; el escenario sigue debajo. -->
+      @if (est?.fondo; as f) {
+        <div class="tap__tinte" aria-hidden="true" [attr.data-patron]="f.tipo === 'patron' ? f.id : null" [style.background]="fondoCss(f)"
+             [style.--tinte-c]="f.tipo === 'patron' ? f.color : null" [style.opacity]="f.fuerza"></div>
+      }
       <!-- Esqueleto del personaje: solo en esa zona, tras 300 ms sin escenario y al menos 500 ms (LoadingGate). Nunca sobre la pregunta. -->
       @if (skeleton() && activeId() === tap.id) {
         <div class="tap__ghost" [class.is-still]="!online()" aria-hidden="true"><lib-skeleton shape="circle" width="46%" /><lib-skeleton shape="block" height="100%" /></div>
@@ -80,6 +87,18 @@
       </div>
 
       <div class="tap__world">
+        <!-- Textos y stickers del creador: solo en la zona del mundo (nunca sobre la pregunta ni las opciones) y sin capturar toques. -->
+        @if (est?.capas; as capas) {
+          <div class="tap__capas">
+            @for (c of capas; track $index) {
+              <span class="tap__capa" [attr.data-tipo]="c.tipo" [style.left.%]="c.x" [style.top.%]="c.y" [style.color]="c.color"
+                    [style.--capa-s]="c.escala" [style.--capa-g]="c.giro + 'deg'">
+                @if (c.tipo === 'sticker') { <svg viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="sticker(c.id)" fill="currentColor"/></svg> }
+                @else { {{ c.texto }} }
+              </span>
+            }
+          </div>
+        }
         @if (feedback && !paso) {
           @let ok = run.answers[run.answers.length - 1];
           <p class="tap__pill" [class.is-bad]="!ok" aria-hidden="true">

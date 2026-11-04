@@ -1,0 +1,51 @@
+// Estilo del creador (taps.estilo.ts): solo aplica si el Tap lo trae; sin atributos, nada de esto cambia el feed.
+@font-face { font-family: 'Tap Redonda'; font-weight: 500; font-display: swap; src: url('/fonts/rubik-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Tap Redonda'; font-weight: 700 900; font-display: swap; src: url('/fonts/rubik-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Tap Pixel'; font-display: swap; src: url('/taps-engine/themes/minecraft/fonts/pixelify-sans.woff2') format('woff2'); }
+@property --marco-g { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+// ── marcos animados: un anillo encima de todo que no captura toques ──
+.tap[data-marco]::after { content: ''; position: absolute; inset: 0; z-index: 6; pointer-events: none; border-radius: inherit; }
+.tap[data-marco='brillo']::after, .tap[data-marco='arcoiris']::after, .tap[data-marco='pixel']::after {
+  padding: 5px; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.tap[data-marco='brillo']::after { background: conic-gradient(from var(--marco-g), #fff0 0 55%, #fff 70%, #fff0 85%); animation: marco-gira 3.5s linear infinite; }
+.tap[data-marco='arcoiris']::after { background: conic-gradient(from var(--marco-g), #ff4d4d, #ffb84d, #ffe94d, #4dff88, #4dc3ff, #9b5cff, #ff4d4d); animation: marco-gira 6s linear infinite; }
+.tap[data-marco='pixel']::after { padding: 8px; background: repeating-linear-gradient(90deg, #5fbf3a 0 12px, #2e6b1c 12px 24px); animation: marco-pasos 1s steps(2) infinite; }
+.tap[data-marco='neon']::after { box-shadow: inset 0 0 0 3px #4de1ff, inset 0 0 26px #4de1ffaa; animation: marco-pulso 2.2s ease-in-out infinite; }
+.tap[data-marco='latido']::after { box-shadow: inset 0 0 0 4px #ff5c8a; animation: marco-latido 1.3s ease-in-out infinite; }
+.tap[data-marco='destellos']::after {
+  background: radial-gradient(circle at 7% 5%, #fff 0 2px, #fff0 4px), radial-gradient(circle at 93% 9%, #ffe94d 0 3px, #fff0 5px),
+    radial-gradient(circle at 5% 48%, #4de1ff 0 2px, #fff0 4px), radial-gradient(circle at 95% 44%, #fff 0 2px, #fff0 4px),
+    radial-gradient(circle at 10% 94%, #ffe94d 0 3px, #fff0 5px), radial-gradient(circle at 90% 96%, #4de1ff 0 2px, #fff0 4px);
+  box-shadow: inset 0 0 0 2px #ffffff55; animation: marco-pulso 1.6s ease-in-out infinite alternate; }
+@keyframes marco-gira { to { --marco-g: 360deg; } }
+@keyframes marco-pasos { to { background-position: 24px 0; } }
+@keyframes marco-pulso { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes marco-latido { 0%, 100% { box-shadow: inset 0 0 0 3px #ff5c8a; } 30% { box-shadow: inset 0 0 0 8px #ff5c8a, inset 0 0 20px #ff5c8a88; } }
+
+// ── paleta de las opciones: no pisa el verde y el rojo de acierto y error ──
+.tap[data-paleta] .tap__opt:not(.is-ok):not(.is-bad) { --c: var(--op-0);
+  &[data-k='1'] { --c: var(--op-1); } &[data-k='2'] { --c: var(--op-2); } &[data-k='3'] { --c: var(--op-3); } }
+
+// ── letra de la pregunta, las opciones y los textos ──
+.tap[data-letra='redonda'] { .tap__q, .tap__opt, .tap__capa { font-family: 'Tap Redonda', var(--tap-font); } }
+.tap[data-letra='pixel'] { .tap__q, .tap__opt, .tap__capa { font-family: 'Tap Pixel', var(--tap-font); font-weight: 600; letter-spacing: .01em; } }
+
+// ── tinte sobre el escenario (debajo de la reacción, la pregunta y las opciones) ──
+.tap__tinte { position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  &[data-patron='puntos'] { background: radial-gradient(var(--tinte-c) 1.6px, #0000 2.2px) 0 0 / 18px 18px; }
+  &[data-patron='rayas'] { background: repeating-linear-gradient(45deg, var(--tinte-c) 0 6px, #0000 6px 18px); }
+  &[data-patron='cuadricula'] { background: linear-gradient(var(--tinte-c) 1px, #0000 1px) 0 0 / 22px 22px, linear-gradient(90deg, var(--tinte-c) 1px, #0000 1px) 0 0 / 22px 22px; }
+  &[data-patron='ondas'] { background: radial-gradient(circle at 50% 100%, #0000 7px, var(--tinte-c) 8px 10px, #0000 11px) 0 0 / 24px 12px; } }
+
+// ── textos y stickers (posición en % de la zona del mundo) ──
+.tap__capas { position: absolute; inset: 0; pointer-events: none; }
+.tap__capa { position: absolute; transform: translate(-50%, -50%) rotate(var(--capa-g, 0deg)) scale(var(--capa-s, 1)); margin: 0;
+  font-size: 1.45rem; font-weight: 900; line-height: 1.1; white-space: nowrap; text-shadow: 0 2px 0 #0008, 0 0 10px #0006;
+  animation: capa-entra var(--dur-base, .3s) var(--curva-salida, ease-out) backwards;
+  svg { display: block; width: 46px; height: 46px; filter: drop-shadow(0 2px 0 #0007); } }
+@keyframes capa-entra { from { opacity: 0; scale: .6; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .tap[data-marco]::after, .tap__capa { animation: none; }
+}

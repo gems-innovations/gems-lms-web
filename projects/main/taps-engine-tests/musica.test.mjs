@@ -44,6 +44,17 @@ test('manifiesto: pistas ligeras, volumen igualado, sin la versión infantil y c
   assert.equal(manifiesto.pistas.find(p => p.id === manifiesto.mapa.resultado)?.letra, false, 'el resultado normal es instrumental');
 });
 
+test('la pista elegida por el creador manda sobre la automática y existe en el manifiesto', () => {
+  const info = { id: 'x', mundo: 'cueva', tema: 'minecraft', motor: 'minecraft' };
+  assert.equal(pistaPara(manifiesto.mapa, { ...info, pista: 'wonder-loop' }, 'wonder-loop'), 'wonder-loop');
+  assert.notEqual(pistaPara(manifiesto.mapa, info), undefined);
+  // El catálogo del creador (taps.estilo.ts, MUSICAS) son justo las instrumentales de fondo del manifiesto.
+  const estilo = readFileSync(new URL('../src/app/taps/taps.estilo.ts', import.meta.url), 'utf8');
+  const catalogo = estilo.slice(estilo.indexOf('export const MUSICAS'), estilo.indexOf('export const STICKERS'));
+  const ids = [...catalogo.matchAll(/'([a-z-]+)': '/g)].map(m => m[1]).sort();
+  assert.deepEqual(ids, manifiesto.pistas.filter(p => p.tipo === 'fondo').map(p => p.id).sort());
+});
+
 test('mapa: cada mundo y tema del banco tiene una pista de fondo (instrumental)', () => {
   const fondo = new Set(manifiesto.pistas.filter(p => p.tipo === 'fondo').map(p => p.id));
   const taps = [...banco.matchAll(/"theme":"([\w-]+)".*?"world":"([\w-]+)".*?"topic":"([\w-]+)"/g)].map(m => ({ motor: m[1], mundo: m[2], tema: m[3] }));
