@@ -26,12 +26,12 @@
 
       <div class="erules__row">
         <div class="erules__field">
-          <label for="er-opens">Inscripción abre</label>
+          <label for="er-opens">Inscripción abre (opcional)</label>
           <input id="er-opens" class="erules__input" type="datetime-local" name="opens"
                  [ngModel]="draft().opensAt ?? ''" (ngModelChange)="patch({ opensAt: $event || null })" />
         </div>
         <div class="erules__field">
-          <label for="er-closes">Inscripción cierra</label>
+          <label for="er-closes">Inscripción cierra (opcional)</label>
           <input id="er-closes" class="erules__input" type="datetime-local" name="closes"
                  [ngModel]="draft().closesAt ?? ''" (ngModelChange)="patch({ closesAt: $event || null })" />
           @if (!draft().closesAt && periodEnd()) {

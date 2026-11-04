@@ -107,7 +107,13 @@ export function enrollmentErrorText(err: unknown): string | null {
   return reasons.length ? reasons.map(enrollmentBlockText).join('. ') : enrollmentBlockText('');
 }
 
-const dateTime = (v: unknown): string | null => (typeof v === 'string' && v ? v.slice(0, 16) : null);
+/** Fecha del API (con desfase) → valor de `<input type="datetime-local">` en la hora del navegador. */
+const dateTime = (v: unknown): string | null => {
+  const d = typeof v === 'string' && v ? new Date(v) : null;
+  return d && !isNaN(d.getTime()) ? new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16) : null;
+};
+/** Hora local del campo → instante con zona; el API lo pasa a la hora del servidor. */
+const toApi = (local: string | null): string | null => (local ? new Date(local).toISOString() : null);
 
 /** Academic periods of the institution and enrollment rules of its courses. */
 @Injectable({ providedIn: 'root' })
@@ -154,8 +160,8 @@ export class EnrollmentRulesService {
   saveRules(courseId: string, rules: IEnrollmentRules): Observable<IEnrollmentRules> {
     return this.http.put<IEnrollmentRulesDto>(`${this.coursesUrl}/${courseId}/enrollment-rules`, {
       periodId: rules.periodId ? Number(rules.periodId) : null,
-      opensAt: rules.opensAt ? `${rules.opensAt.slice(0, 16)}:00` : null,
-      closesAt: rules.closesAt ? `${rules.closesAt.slice(0, 16)}:00` : null,
+      opensAt: toApi(rules.opensAt),
+      closesAt: toApi(rules.closesAt),
       capacity: rules.capacity && rules.capacity > 0 ? rules.capacity : null,
       selfEnrollment: rules.selfEnrollment,
       prerequisiteIds: rules.prerequisiteIds.map(Number),
