@@ -49,6 +49,11 @@ export function fechaColombia(ms: number): string {
   return new Date(ms - COLOMBIA_MS).toISOString().slice(0, 10);
 }
 
+/** Horas (hacia arriba) que faltan para el próximo reto, a la medianoche de Colombia. */
+export function horasParaCambio(ms: number): number {
+  return Math.ceil((DIA_MS - mod(ms - COLOMBIA_MS, DIA_MS)) / 3_600_000);
+}
+
 /** Días desde 1970-01-01 de una fecha AAAA-MM-DD. */
 function indiceDia(fecha: string): number {
   const [y, m, d] = fecha.split('-').map(Number);
