@@ -96,6 +96,22 @@ export const routes: Routes = [
     ]
   },
   {
+    path: 'comentarios',
+    title: 'Comentarios reportados',
+    component: MainLayout,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/sidebar-container/sidebar-container').then(m => m.SidebarContainer),
+        outlet: 'sidebar'
+      },
+      {
+        path: '',
+        loadComponent: () => import('./infrastructure/ui/containers/taps-moderation-container/taps-moderation-container').then(m => m.TapsModerationContainer)
+      }
+    ]
+  },
+  {
     path: 'audit',
     title: 'Auditoría',
     component: MainLayout,

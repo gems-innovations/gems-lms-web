@@ -27,7 +27,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (isApiCall && !isLogin && err instanceof HttpErrorResponse && err.status === 401 && session.isAuthenticated()) {
         session.clearSession();
         branding.reset();
-        router.navigate(['/auth/signin']);
+        // Con `volver`, tras entrar se regresa al Tap (el login solo acepta rutas de Taps; el resto lo ignora).
+        router.navigate(['/auth/signin'], { queryParams: { volver: router.url } });
       }
       return throwError(() => err);
     })
