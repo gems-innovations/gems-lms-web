@@ -1,6 +1,6 @@
 import { TAPS } from './taps.data';
 import { topicOf } from './taps.logic';
-import { RETO_INICIO, RETO_ROTACION, RETO_ROTACIONES, dailyTap, fechaColombia, parseReto, retoLabel, retoShareText, retoUrl, temaDelDia } from './taps.reto';
+import { RETO_INICIO, RETO_ROTACION, RETO_ROTACIONES, dailyTap, fechaColombia, horasParaCambio, parseReto, retoLabel, retoShareText, retoUrl, temaDelDia } from './taps.reto';
 import {
   avanceColeccion, coleccionDe, colecciones, emptyColecciones, gradoDe, parseColecciones, registrarPuntaje, sembrarInsignias,
 } from './taps.coleccion';
@@ -16,6 +16,12 @@ const DIA = 86_400_000;
 const mas = (fecha: string, n: number) => new Date(Date.parse(`${fecha}T12:00:00Z`) + n * DIA).toISOString().slice(0, 10);
 
 describe('Reto del día (dailyTap)', () => {
+  it('cuenta las horas que faltan hasta la medianoche de Colombia', () => {
+    expect(horasParaCambio(Date.parse('2026-10-20T04:59:00Z'))).toBe(1);
+    expect(horasParaCambio(Date.parse('2026-10-20T05:00:00Z'))).toBe(24);
+    expect(horasParaCambio(Date.parse('2026-10-20T22:30:00Z'))).toBe(7);
+  });
+
   it('usa la fecha de Colombia (UTC-5): cambia a la medianoche de Colombia, no a la del navegador', () => {
     expect(fechaColombia(Date.parse('2026-10-20T04:59:00Z'))).toBe('2026-10-19');
     expect(fechaColombia(Date.parse('2026-10-20T05:00:00Z'))).toBe('2026-10-20');

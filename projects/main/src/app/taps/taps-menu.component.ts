@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, input, output, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IRetoVista } from './taps.reto';
+import { IRetoVista, horasParaCambio } from './taps.reto';
 
 /** Un tema de «Tus temas»: anillo con los Taps completados de su categoría. */
 export interface IMenuTopic { id: string; name: string; color: string; done: number; total: number }
@@ -25,7 +25,15 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
       </button>
 
-      <p class="side__group">Jugar</p>
+      <!-- El reto del día va primero como tarjeta: es lo que trae de vuelta cada día. Contraído queda solo el icono. -->
+      @if (reto(); as r) {
+        <button type="button" class="reto" (click)="openReto.emit()" [title]="'Reto del día #' + r.numero">
+          <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 5h14v15H5zM5 10h14M9 3v4M15 3v4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="side__txt reto__txt"><small>Reto del día #{{ r.numero }}</small>{{ r.temaNombre }}
+            <small>{{ r.hecho ? 'Tu reto: ' + r.hecho.score + ' de ' + r.hecho.total : 'Cambia en ' + horasReto() + ' h · el mismo para todos' }}</small>
+            <span class="reto__cta">{{ r.hecho ? 'Ver tu resultado' : 'Jugar el reto' }}</span></span>
+        </button>
+      }
       <ul class="side__list">
         <li><button type="button" class="side__item" [class.is-on]="!topic()" (click)="forYou.emit()" [attr.aria-pressed]="!topic()" title="Para ti">
           <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg></span>
@@ -39,28 +47,9 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
         <li><button type="button" class="side__item" (click)="openRanking.emit()" title="Ranking" aria-haspopup="dialog">
           <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 14v3.5M8.5 20.5h7M9.5 17.5h5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <span class="side__txt">Ranking</span></button></li>
-        @if (reto(); as r) {
-          <li><button type="button" class="side__item" (click)="openReto.emit()" [title]="'Reto del día #' + r.numero">
-            <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 5h14v15H5zM5 10h14M9 3v4M15 3v4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-            <span class="side__txt">Reto del día #{{ r.numero }}<small>{{ r.hecho ? 'Tu reto: ' + r.hecho.score + ' de ' + r.hecho.total : r.temaNombre }}</small></span></button></li>
-        }
         <li><button type="button" class="side__item" (click)="openCols.emit()" title="Colecciones e insignias" aria-haspopup="dialog">
           <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 2h3l-1.5 6h-3ZM13 2h3l1.5 6h-3ZM12 22a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></span>
           <span class="side__txt">Colecciones</span></button></li>
-      </ul>
-
-      <p class="side__group">Aprender</p>
-      <ul class="side__list">
-        <li><a class="side__item" routerLink="/" title="Cursos gratis">
-          <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></span>
-          <span class="side__txt">Cursos gratis</span></a></li>
-        <li><a class="side__item" routerLink="/instituciones" title="Para instituciones">
-          <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 10 12 4l9 6M5 10v8m4-8v8m6-8v8m4-8v8M3 20h18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          <span class="side__txt">Para instituciones</span></a></li>
-        <!-- PR-7 (§A.2): el creador, con el mismo estilo de los demás destinos; ?desde=feed mide la entrada. -->
-        <li><a class="side__item" routerLink="/crear" [queryParams]="{ desde: 'feed' }" title="Haz tu personaje" (click)="crear.emit()">
-          <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M5.5 20.5a6.5 6.5 0 0 1 13 0M16.5 3.5l2 2M19.5 2.5l2 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          <span class="side__txt">Haz tu personaje</span></a></li>
       </ul>
 
       <p class="side__group">Tus temas</p>
@@ -81,6 +70,20 @@ export interface IMenuTopic { id: string; name: string; color: string; done: num
       } @else {
         <p class="side__note side__txt">Aquí verás tus temas cuando completes tu primer Tap.</p>
       }
+
+      <p class="side__group">Aprender</p>
+      <ul class="side__list">
+        <li><a class="side__item" routerLink="/" title="Cursos gratis">
+          <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></span>
+          <span class="side__txt">Cursos gratis</span></a></li>
+        <li><a class="side__item" routerLink="/instituciones" title="Para instituciones">
+          <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 10 12 4l9 6M5 10v8m4-8v8m6-8v8m4-8v8M3 20h18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="side__txt">Para instituciones</span></a></li>
+        <!-- PR-7 (§A.2): el creador, con el mismo estilo de los demás destinos; ?desde=feed mide la entrada. -->
+        <li><a class="side__item" routerLink="/crear" [queryParams]="{ desde: 'feed' }" title="Haz tu personaje" (click)="crear.emit()">
+          <span class="chip"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M5.5 20.5a6.5 6.5 0 0 1 13 0M16.5 3.5l2 2M19.5 2.5l2 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="side__txt">Haz tu personaje</span></a></li>
+      </ul>
 
       <div class="side__foot">
         @if (alias(); as a) {
@@ -168,6 +171,8 @@ export class TapsMenuComponent {
   readonly crear = output<void>();
 
   protected readonly moreOpen = signal(false);
+  // shortcut: se recalcula solo cuando el menú se vuelve a pintar (cambia un input), no cada hora; basta para «cambia en X h».
+  protected horasReto(): number { return horasParaCambio(Date.now()); }
 
   private readonly moreBtn = viewChild<ElementRef<HTMLButtonElement>>('moreBtn');
   /** Esc cierra el menú de la barra superior y devuelve el foco a su botón. */
