@@ -405,3 +405,38 @@
 @media (max-width: 380px) { .dsn .op-lista { grid-template-columns: 1fr; } }
 /* El paso Preguntas usa todo el alto: la vista previa es la del propio Tap (en el editor), no la del personaje. */
 .dsn.en-preguntas .vista, .dsn.en-preguntas .sugerencia, .dsn.en-preguntas #deshacer { display: none; }
+
+/* Decora tu Tap (decorar.js + estilo.js). Letras y marcos: gemelos de src/app/taps/taps-feed.estilo.scss (mismos archivos y animaciones). */
+@font-face { font-family: 'Tap Redonda'; font-weight: 500; font-display: swap; src: url('../fonts/rubik-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Tap Redonda'; font-weight: 700 900; font-display: swap; src: url('../fonts/rubik-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Tap Pixel'; font-display: swap; src: url('themes/minecraft/fonts/pixelify-sans.woff2') format('woff2'); }
+@property --marco-g { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+.dsn .tap-lienzo { position: relative; display: block; border-radius: 18px; max-width: 100%; }
+.dsn .tap-lienzo[data-marco]::after { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; }
+.dsn .tap-lienzo[data-marco='brillo']::after, .dsn .tap-lienzo[data-marco='arcoiris']::after, .dsn .tap-lienzo[data-marco='pixel']::after {
+  padding: 4px; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.dsn .tap-lienzo[data-marco='brillo']::after { background: conic-gradient(from var(--marco-g), #fff0 0 55%, #fff 70%, #fff0 85%); animation: dsn-marco-gira 3.5s linear infinite; }
+.dsn .tap-lienzo[data-marco='arcoiris']::after { background: conic-gradient(from var(--marco-g), #ff4d4d, #ffb84d, #ffe94d, #4dff88, #4dc3ff, #9b5cff, #ff4d4d); animation: dsn-marco-gira 6s linear infinite; }
+.dsn .tap-lienzo[data-marco='pixel']::after { padding: 6px; background: repeating-linear-gradient(90deg, #5fbf3a 0 10px, #2e6b1c 10px 20px); animation: dsn-marco-pasos 1s steps(2) infinite; }
+.dsn .tap-lienzo[data-marco='neon']::after { box-shadow: inset 0 0 0 3px #4de1ff, inset 0 0 20px #4de1ffaa; animation: dsn-marco-pulso 2.2s ease-in-out infinite; }
+.dsn .tap-lienzo[data-marco='latido']::after { box-shadow: inset 0 0 0 3px #ff5c8a; animation: dsn-marco-latido 1.3s ease-in-out infinite; }
+.dsn .tap-lienzo[data-marco='destellos']::after {
+  background: radial-gradient(circle at 7% 5%, #fff 0 2px, #fff0 4px), radial-gradient(circle at 93% 9%, #ffe94d 0 3px, #fff0 5px),
+    radial-gradient(circle at 5% 48%, #4de1ff 0 2px, #fff0 4px), radial-gradient(circle at 95% 44%, #fff 0 2px, #fff0 4px),
+    radial-gradient(circle at 10% 94%, #ffe94d 0 3px, #fff0 5px), radial-gradient(circle at 90% 96%, #4de1ff 0 2px, #fff0 4px);
+  box-shadow: inset 0 0 0 2px #ffffff55; animation: dsn-marco-pulso 1.6s ease-in-out infinite alternate; }
+@keyframes dsn-marco-gira { to { --marco-g: 360deg; } }
+@keyframes dsn-marco-pasos { to { background-position: 20px 0; } }
+@keyframes dsn-marco-pulso { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes dsn-marco-latido { 0%, 100% { box-shadow: inset 0 0 0 3px #ff5c8a; } 30% { box-shadow: inset 0 0 0 7px #ff5c8a, inset 0 0 16px #ff5c8a88; } }
+.dsn details.decorar h4 { margin: 12px 0 6px; font-size: 13px; font-weight: 600; color: var(--soft); }
+.dsn details.decorar .paleta-mini { display: inline-flex; gap: 2px; }
+.dsn details.decorar .paleta-mini i { width: 9px; height: 18px; border-radius: 3px; }
+.dsn details.decorar .stickers .chip { padding: 0 10px; }
+.dsn details.decorar .chip svg.ic { width: 22px; height: 22px; }
+.dsn details.decorar .chip.quitar svg.x { width: 14px; height: 14px; opacity: .7; }
+.dsn details.decorar .texto-fila { display: flex; gap: 8px; }
+.dsn details.decorar .texto-fila input { flex: 1; min-width: 0; min-height: 44px; }
+.dsn details.decorar .color-fila { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 13px; color: var(--soft); }
+.dsn details.decorar .color-fila input { width: 44px; height: 36px; padding: 0; border-radius: 8px; }
+.dsn details.decorar .pista-capas { margin: 6px 0 0; font-size: 12px; }

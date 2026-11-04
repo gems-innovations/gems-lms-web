@@ -49,7 +49,7 @@ export interface IDisenadorModule {
  * Dónde vive el diseñador: archivos estáticos del mismo origen (public/taps-engine), fuera del bundle, como el motor
  * (taps-engine.loader.ts). nginx lo sirve con `no-cache`; la query evita que una caché vieja entregue el módulo anterior.
  */
-const DISENADOR_VERSION = '9';
+const DISENADOR_VERSION = '10';
 export const DISENADOR_URL = `/taps-engine/disenador.js?v=${DISENADOR_VERSION}`;
 /** Cómo se carga el módulo (inyectable para probar el componente sin servir los estáticos). */
 export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModule>>('DISENADOR_LOADER', {
