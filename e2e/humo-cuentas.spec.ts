@@ -98,7 +98,7 @@ test.describe('Humo · permisos', () => {
     await apiFalsa(page, { reglas: [{ method: 'GET', path: /.*/, respond: () => ({ status: 401, body: { message: 'Token inválido' } }) }] });
     await conSesion(page, 'student');
     await page.goto('/learn/home');
-    await expect(page).toHaveURL(/\/auth\/signin$/, { timeout: 15_000 });
+    await expect(page).toHaveURL(/\/auth\/signin\?volver=%2Flearn%2Fhome$/, { timeout: 15_000 });   // el login solo usa `volver` si es de Taps
   });
 });
 
