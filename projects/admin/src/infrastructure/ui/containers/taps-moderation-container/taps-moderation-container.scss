@@ -1,0 +1,22 @@
+:host { display: block; }
+
+.mod__fallo { margin: 0 0 1rem; color: var(--color-error, #c0392b); font-size: .875rem; }
+.mod__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: .75rem; }
+.mod__item { padding: 1rem 1.1rem; border: 1px solid var(--color-borde-principal); border-radius: 12px; background: var(--color-superficie); }
+.mod__meta { display: flex; flex-wrap: wrap; gap: .25rem .75rem; align-items: baseline; font-size: .82rem; color: var(--color-texto-secundario); }
+.mod__meta strong { color: var(--color-texto-principal); font-size: .9rem; }
+.mod__meta a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.mod__meta time { margin-left: auto; }
+.mod__texto { margin: .5rem 0 .75rem; color: var(--color-texto-principal); line-height: 1.5; overflow-wrap: anywhere; white-space: pre-line; }
+.mod__pie { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.mod__chip { padding: .15rem .55rem; border-radius: 999px; background: var(--color-fondo-hover); color: var(--color-texto-secundario); font-size: .75rem; }
+.mod__chip--oculto { color: var(--color-texto-principal); font-weight: 600; }
+.mod__acciones { margin-left: auto; display: flex; gap: .5rem; }
+.mod__acciones button, .mod__mas {
+  min-height: 40px; padding: .45rem .9rem; border: 1px solid var(--color-borde-secundario); border-radius: 8px;
+  background: var(--color-superficie); color: var(--color-texto-principal); font: inherit; font-size: .85rem; cursor: pointer;
+}
+.mod__acciones button:hover:not(:disabled), .mod__mas:hover:not(:disabled) { background: var(--color-fondo-hover); }
+.mod__acciones button:disabled, .mod__mas:disabled { opacity: .6; cursor: default; }
+.mod__ocultar { border-color: transparent; background: var(--color-texto-principal) !important; color: var(--color-superficie) !important; }
+.mod__mas { display: block; margin: 1rem auto 0; }

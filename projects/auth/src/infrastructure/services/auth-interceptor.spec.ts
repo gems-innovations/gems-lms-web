@@ -51,6 +51,6 @@ describe('authInterceptor', () => {
     http.get(`${environment.apiBaseUrl}/courses`).subscribe({ error: () => undefined });
     controller.expectOne(`${environment.apiBaseUrl}/courses`).flush(null, { status: 401, statusText: 'Unauthorized' });
     expect(session.isAuthenticated()).toBeFalse();
-    expect(navigate).toHaveBeenCalledWith(['/auth/signin']);
+    expect(navigate).toHaveBeenCalledWith(['/auth/signin'], { queryParams: { volver: '/' } });
   });
 });

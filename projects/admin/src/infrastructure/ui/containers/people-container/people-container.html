@@ -4,15 +4,24 @@
     subtitle="Gestiona los usuarios y los grupos de estudiantes de tu institución."
   />
 
-  <div class="people__tabs">
-    <lib-tabs [tabs]="tabs" [activeId]="activeTab()" (activeIdChange)="setTab($event)" />
-  </div>
-
-  @if (activeTab() === 'users') {
-    <adm-user-management-container />
-  } @else if (activeTab() === 'groups') {
-    <adm-groups-view />
+  @if (sinInstitucion) {
+    <lib-empty-state
+      title="Personas va por institución"
+      description="Tu cuenta de super admin no pertenece a ninguna. A las personas de cada institución las gestiona su admin; en Instituciones ves sus datos y cuántos usuarios tiene."
+      actionLabel="Ir a Instituciones"
+      actionLink="/admin/institutions"
+    />
   } @else {
-    <adm-user-import />
+    <div class="people__tabs">
+      <lib-tabs [tabs]="tabs" [activeId]="activeTab()" (activeIdChange)="setTab($event)" />
+    </div>
+
+    @if (activeTab() === 'users') {
+      <adm-user-management-container />
+    } @else if (activeTab() === 'groups') {
+      <adm-groups-view />
+    } @else {
+      <adm-user-import />
+    }
   }
 </lib-page>

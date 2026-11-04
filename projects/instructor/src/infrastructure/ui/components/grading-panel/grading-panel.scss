@@ -384,6 +384,15 @@
     color: var(--color-texto-principal);
   }
 
+  // Con un nombre largo el «/ 30» se partía en otra línea y descuadraba la fila.
+  &__criterion-max {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
   &__criterion-points { width: 64px; text-align: center; }
 
   &__rubric-error {

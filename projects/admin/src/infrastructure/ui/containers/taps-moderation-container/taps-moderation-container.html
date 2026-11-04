@@ -1,0 +1,37 @@
+<lib-page width="full">
+  <lib-page-header title="Comentarios reportados" subtitle="Comentarios de Taps que alguien reportó. Con 3 reportes se ocultan solos; aquí decides si quedan ocultos o vuelven a verse." />
+
+  @if (fallo()) { <p class="mod__fallo" role="alert">{{ fallo() }}</p> }
+
+  @if (loading() && comentarios().length === 0) {
+    <lib-skeleton shape="table-row" [count]="4" label="Cargando comentarios" />
+  } @else if (error() && comentarios().length === 0) {
+    <lib-empty-state title="No pudimos cargar los reportes" description="Comprueba tu conexión y vuelve a intentarlo." actionLabel="Reintentar" (action)="cargar()" />
+  } @else if (comentarios().length === 0) {
+    <lib-empty-state title="Nada por revisar" description="Cuando alguien reporte un comentario aparecerá aquí." />
+  } @else {
+    <ul class="mod__lista">
+      @for (c of comentarios(); track c.id) {
+        <li class="mod__item">
+          <div class="mod__meta">
+            <strong>{{ c.autor }}</strong>
+            <span>en <a [href]="'/t/' + c.tapId" target="_blank" rel="noopener">{{ c.tapId }}</a></span>
+            <time [attr.datetime]="c.creado">{{ c.creado | date:'dd/MM/yyyy HH:mm' }}</time>
+          </div>
+          <p class="mod__texto">{{ c.texto }}</p>
+          <div class="mod__pie">
+            <span class="mod__chip">{{ c.reportes }} {{ c.reportes === 1 ? 'reporte' : 'reportes' }}</span>
+            <span class="mod__chip" [class.mod__chip--oculto]="c.oculto">{{ c.oculto ? 'Oculto' : 'Visible' }}</span>
+            <span class="mod__acciones">
+              <button type="button" [disabled]="enCurso() === c.id" (click)="decidir(c, false)">Dejar visible</button>
+              <button type="button" class="mod__ocultar" [disabled]="enCurso() === c.id" (click)="decidir(c, true)">Ocultar</button>
+            </span>
+          </div>
+        </li>
+      }
+    </ul>
+    @if (siguiente(); as antes) {
+      <button type="button" class="mod__mas" [disabled]="loading()" (click)="cargar(antes)">{{ loading() ? 'Cargando…' : 'Ver más' }}</button>
+    }
+  }
+</lib-page>
