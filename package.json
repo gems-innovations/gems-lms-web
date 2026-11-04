@@ -35,7 +35,8 @@
   "private": true,
   "overrides": {
     "exceljs": {
-      "uuid": "11.1.1"
+      "uuid": "11.1.1",
+      "minimatch": "^11.0.1"
     },
     "katex": "$katex",
     "zod": "^4.6.7"
