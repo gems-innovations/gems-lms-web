@@ -2,10 +2,11 @@ import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { TapsAudioRelevo } from './taps-audio-relevo';
 import { TapsSonidoService } from './taps-sonido.service';
+import { estiloDe } from './taps.estilo';
 import { ITap } from './taps.types';
 
 /** Súbela cuando cambie taps-engine/audio/musica.js (la query evita que una caché vieja entregue el módulo anterior). */
-export const TAPS_MUSICA_VERSION = '4';
+export const TAPS_MUSICA_VERSION = '5';
 export const TAPS_MUSICA_URL = `/taps-engine/audio/musica.js?v=${TAPS_MUSICA_VERSION}`;
 /** Manifiesto de las pistas (scripts/procesar-musica-taps.mjs). nginx lo revalida siempre; el audio lleva hash en el nombre. */
 export const TAPS_MUSICA_MANIFIESTO = '/taps-musica/musica.json';
@@ -15,8 +16,12 @@ export const MUSICA_KEY = 'gems-taps-musica';
  * De qué depende la pista de un Tap: su id (la elección dentro del grupo es determinista por Tap), su mundo (scene.world,
  * sesga la elección), su categoría (topic, elige el grupo) y su motor (theme, grupo de respaldo).
  */
-export interface ITapMusica { id: string; mundo: string; tema: string; motor: string }
-export const musicaDe = (tap: ITap): ITapMusica => ({ id: tap.id, mundo: tap.scene.world, tema: tap.topic ?? tap.theme, motor: tap.theme });
+export interface ITapMusica { id: string; mundo: string; tema: string; motor: string; pista?: string }
+/** `pista`: la que eligió el creador (estilo.musica, ya validada contra el catálogo); manda sobre la elección automática. */
+export const musicaDe = (tap: ITap): ITapMusica => {
+  const pista = estiloDe(tap)?.musica;
+  return { id: tap.id, mundo: tap.scene.world, tema: tap.topic ?? tap.theme, motor: tap.theme, ...(pista ? { pista } : {}) };
+};
 
 /** Lo que usa este servicio de taps-engine/audio/musica.js (módulo ES servido aparte, fuera del bundle). */
 interface IMusicaModulo { crearMusica(opciones: { manifiesto: string }): IMusica }

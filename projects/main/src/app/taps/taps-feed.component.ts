@@ -31,6 +31,7 @@ import { panelCards, panelState } from './taps.panel';
 import { WheelGate } from './taps.wheel';
 import { TapsSonidoService } from './taps-sonido.service';
 import { TapsMusicaService } from './taps-musica.service';
+import { ITapEstilo, PALETA_VARS, STICKERS, estiloDe, fondoCss } from './taps.estilo';
 import { DUO_MS, ITap, ITapEscena, ITapQuestion, ITapRun, ITapVisual, ITapsStage, SIN_RESPUESTA, TTapQuestionTipo } from './taps.types';
 import { planoSeed, questionEscena, visualSide } from './taps.escena';
 import { fraseActual } from './taps.frases';
@@ -90,7 +91,7 @@ const SALTO_KEY = 'gems-portada-salto';
   selector: 'gems-taps',
   imports: [TapResultComponent, TapsBarComponent, TapRailComponent, TapPanelComponent, TapsMenuComponent, TapsRankingComponent, SkeletonComponent, TapSesionHojaComponent, TapPausaComponent, NgTemplateOutlet],
   templateUrl: './taps-feed.component.html',
-  styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.formatos.scss', './taps-feed.escritorio.scss', './taps-feed.escena.scss', './taps-feed.portada.scss'],
+  styleUrls: ['./taps-feed.component.scss', './taps-feed.opciones.scss', './taps-feed.formatos.scss', './taps-feed.escritorio.scss', './taps-feed.escena.scss', './taps-feed.portada.scss', './taps-feed.estilo.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [TapsSonidoService, TapsMusicaService],
 })
@@ -834,6 +835,11 @@ export class TapsFeedComponent {
   protected topicOf(tap: ITap): string { return topicOf(tap); }
   protected topicColor(tap: ITap): string { return this.topics.find(t => t.topic.id === topicOf(tap))?.topic.color ?? '#8b93a7'; }
   protected displayFont(tap: ITap): string | null { return TAP_DISPLAY_FONTS[tap.theme] ?? null; }
+  // Estilo del creador (taps.estilo.ts): ya validado; sin él, el Tap se pinta como siempre.
+  protected readonly estiloDe = estiloDe;
+  protected readonly fondoCss = fondoCss;
+  protected sticker(id: string | undefined): string { return (id && STICKERS[id]?.d) || ''; }
+  protected paletaVars(est: ITapEstilo | null): Record<string, string> | null { return (est?.paleta && PALETA_VARS[est.paleta]) || null; }
   protected topicLabel(tap: ITap): string { return this.topics.find(t => t.topic.id === topicOf(tap))?.topic.name ?? tap.kicker; }
   /** Objeto para explicar de la pregunta a la vista: solo tras fallar (junto a la explicación) y con escenario (el motor lo dibuja). */
   protected visualOf(tap: ITap, run: ITapRun): ITapVisual | null {
