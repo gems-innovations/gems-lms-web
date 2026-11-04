@@ -6,7 +6,7 @@ import {
   ErrorHandler,
   provideZonelessChangeDetection
 } from '@angular/core';
-import { provideRouter, TitleStrategy, withViewTransitions, withInMemoryScrolling } from '@angular/router';
+import { provideRouter, Router, TitleStrategy, withViewTransitions, withInMemoryScrolling } from '@angular/router';
 import { provideClientHydration, withEventReplay, withNoIncrementalHydration } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -15,6 +15,7 @@ import { isDevMode } from '@angular/core';
 import { MARKED_EXTENSIONS, provideMarkdown } from 'ngx-markdown';
 import { routes } from './app.routes';
 import { AuthSessionService, authInterceptor } from 'auth/core';
+import { TAPS_EN_CURSO, ITapsEnCurso } from 'shared/core';
 import { AppTitleStrategy } from './app-title.strategy';
 import { ClientErrorHandler } from './client-error-handler';
 import { AnalyticsService } from './analytics.service';
@@ -50,5 +51,17 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => inject(AnalyticsService).start()),
     // Marca y home de la institución según el subdominio (antes de pintar la primera página).
     provideAppInitializer(() => inject(TenantService).load()),
+    // Bloque «Tap» de los cursos: el banco y el motor se cargan solo al abrir el editor o tocar «Jugar».
+    { provide: TAPS_EN_CURSO, useFactory: (): ITapsEnCurso => {
+      const router = inject(Router), m = () => import('./taps/taps-en-curso');
+      return {
+        catalogo: () => m().then(x => x.catalogoCurso()),
+        jugar: (tapId, titulo, preguntas, clave) => m().then(x => {
+          const id = x.prepararTap(tapId, titulo, preguntas, clave);
+          // false solo si el Tap no existe: una navegación cancelada (doble toque) no es «ya no existe».
+          return id ? router.navigate(['/t', id]).then(() => true) : false;
+        }),
+      };
+    } },
   ]
 };

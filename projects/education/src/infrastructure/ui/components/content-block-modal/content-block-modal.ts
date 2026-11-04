@@ -12,14 +12,16 @@ import {
   ITrueFalseQuestion,
   IOpenQuestion,
   IQuestionPool,
-  ICard
+  ICard,
+  ICardQuestion
 } from '../../../../domain/model/course.model';
+import { TAPS_EN_CURSO, ITapResumen } from 'shared/core';
 import { QuestionBankService } from '../../../services/question-bank.service';
 import { toVideoEmbedUrl } from '../../../../application/video-embed';
 import type { IBankCategory } from '../../../services/question-bank.service';
 import { toEditorEmbedUrl } from '../../../../application/video-embed';
 import { CARDS_TEMPLATES } from '../../../../application/cards-templates';
-import { CARD_KIND_LABELS, cardProblem, cleanCard, emptyCard, estimateMinutes, TCardKind } from '../../../../application/cards';
+import { CARD_KIND_LABELS, cardProblem, cleanCard, emptyCard, emptyTapQuestion, estimateMinutes, TAP_LIMITS, tapQuestionProblem, TCardKind } from '../../../../application/cards';
 import { FileUploadService } from 'shared';
 import { LibSelectComponent, SelectOption } from 'shared';
 
@@ -143,15 +145,28 @@ export class ContentBlockModal implements OnInit {
   readonly cardsPristine = computed(() => { const c = this.cards(); return c.length === 1 && c[0].kind === 'idea' && !c[0].title && !c[0].text; });
   readonly cardProblems = computed(() => this.cards().map(c => cardProblem(c)));
 
-  readonly contentTypes = [
+  /** Bloque «Tap»: lo registra la app principal; sin él no se ofrece. */
+  private readonly taps = inject(TAPS_EN_CURSO, { optional: true });
+  readonly TAP_LIMITS = TAP_LIMITS;
+  readonly tapId        = signal<string | null>(null);
+  readonly tapCatalog   = signal<ITapResumen[] | null>(null);
+  readonly tapError     = signal<string | null>(null);
+  readonly tapOptions   = computed<SelectOption[]>(() => (this.tapCatalog() ?? []).map(t => ({ value: t.id, label: t.title, hint: t.topic })));
+  /** Preguntas propias del profesor (sobre el escenario del Tap elegido); vacío = se juega el Tap del banco tal cual. */
+  readonly tapOwn       = signal(false);
+  readonly tapQuestions = signal<ICardQuestion[]>([]);
+  readonly tapProblems  = computed(() => this.tapQuestions().map(q => tapQuestionProblem(q)));
+
+  readonly contentTypes = ([
     { type: EContentType.VIDEO,        label: 'Video',          desc: 'YouTube, Vimeo o archivo',                 icon: 'video' },
     { type: EContentType.DOCUMENT,     label: 'Markdown',       desc: 'Texto enriquecido con formato',            icon: 'doc'   },
     { type: EContentType.QUIZ,         label: 'Evaluación',     desc: 'Preguntas con calificación automática',    icon: 'quiz'  },
     { type: EContentType.ASSIGNMENT,   label: 'Tarea',          desc: 'Entrega de archivos o texto',              icon: 'task'  },
     { type: EContentType.CARDS,        label: 'Cartas',         desc: 'Ideas, preguntas y pasos que se deslizan de lado', icon: 'cards' },
+    { type: EContentType.TAP,          label: 'Tap',            desc: '5 preguntas con un personaje en vivo',     icon: 'tap'   },
     { type: EContentType.SCORM,        label: 'SCORM',          desc: 'Paquete e-learning estándar',              icon: 'scorm' },
     { type: EContentType.LIVE_SESSION, label: 'Sesión en Vivo', desc: 'Clase o webinar sincrónico',               icon: 'live'  }
-  ] as const;
+  ] as const).filter(ct => ct.type !== EContentType.TAP || !!this.taps);
 
   readonly canSave = computed(() => {
     const t = this.title().trim();
@@ -161,6 +176,7 @@ export class ContentBlockModal implements OnInit {
     if (type === EContentType.SCORM)      return !!this.scormUrl().trim();
     if (type === EContentType.DOCUMENT)   return this.embedOk();
     if (type === EContentType.CARDS)      return this.cards().length > 0 && this.cardProblems().every(p => p === null);
+    if (type === EContentType.TAP)        return !!this.tapId() && (!this.tapOwn() || this.tapProblems().every(p => p === null));
     if (type === EContentType.QUIZ) {
       const pools = this.validPools();
       return (this.quizQuestions().length > 0 || pools.length > 0)
@@ -212,7 +228,12 @@ export class ContentBlockModal implements OnInit {
     this.dueDate.set(b.dueDate ?? '');
     if (b.allowedFileTypes) this.allowedFileTypes.set([...b.allowedFileTypes]);
     if (b.rubric?.length) this.rubric.set(b.rubric.map(r => ({ id: r.id, criterion: r.criterion, maxPoints: r.maxPoints })));
-    if (b.cards?.length) this.cards.set(structuredClone(b.cards));
+    if (b.type === EContentType.TAP) {
+      this.tapId.set(b.tapId ?? null);
+      const own = (b.cards ?? []).filter((c): c is ICardQuestion => c.kind === 'question');
+      this.tapOwn.set(own.length > 0);
+      if (own.length) this.tapQuestions.set(structuredClone(own));
+    } else if (b.cards?.length) this.cards.set(structuredClone(b.cards));
     this.selectType(b.type);
   }
 
@@ -230,6 +251,23 @@ export class ContentBlockModal implements OnInit {
     this.selectedType.set(type);
     this.step.set('form');
     if (type === EContentType.QUIZ) this.loadBankCategories();
+    if (type === EContentType.TAP && !this.tapCatalog()) this.loadTapCatalog();
+  }
+
+  private loadTapCatalog(): void {
+    this.tapError.set(null);
+    this.taps?.catalogo().then(list => this.tapCatalog.set(list), () => this.tapError.set('No se pudo cargar la lista de Taps. Cierra y vuelve a intentarlo.'));
+  }
+
+  setTapOwn(on: boolean): void {
+    this.tapOwn.set(on);
+    if (on && !this.tapQuestions().length) this.tapQuestions.set(Array.from({ length: TAP_LIMITS.questions }, emptyTapQuestion));
+  }
+  patchTapQuestion(i: number, patch: Partial<ICardQuestion>): void {
+    this.tapQuestions.update(list => list.map((q, j) => j === i ? { ...q, ...patch } : q));
+  }
+  setTapOption(i: number, k: number, text: string): void {
+    this.patchTapQuestion(i, { options: this.tapQuestions()[i].options.map((o, j) => j === k ? text : o) });
   }
 
   private loadBankCategories(): void {
@@ -321,6 +359,11 @@ export class ContentBlockModal implements OnInit {
     if (type === EContentType.CARDS) {
       req.cards = this.cards().map(cleanCard);
       if (!req.duration) req.duration = estimateMinutes(req.cards);
+    }
+    if (type === EContentType.TAP) {
+      req.tapId = this.tapId()!;
+      if (this.tapOwn()) req.cards = this.tapQuestions().map(q => ({ ...q, question: q.question.trim(), options: q.options.map(o => o.trim()), why: q.why.trim() }));
+      if (!req.duration) req.duration = 2;                              // 5 preguntas de un Tap: unos 2 minutos
     }
     if (type === EContentType.SCORM) {
       req.url = this.scormUrl().trim();

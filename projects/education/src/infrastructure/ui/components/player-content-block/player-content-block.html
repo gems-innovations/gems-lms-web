@@ -653,6 +653,23 @@
       <edu-cards-player [cards]="blk.cards ?? []" [heading]="blk.title" (completed)="markComplete.emit()" />
     }
 
+    <!-- ═══════════════════════════ TAP ══════════════════════════════════════ -->
+    @if (blk.type === EContentType.TAP) {
+      <div class="player-content-block__meta">
+        <h2 class="player-content-block__title">{{ blk.title }}</h2>
+        @if (blk.description) { <p class="player-content-block__desc">{{ blk.description }}</p> }
+      </div>
+      <div class="player-content-block__live-placeholder">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <rect x="2" y="6" width="20" height="12" rx="4"/><path d="M7 10v4M5 12h4"/><circle cx="16" cy="11" r="1"/><circle cx="18" cy="13" r="1"/>
+        </svg>
+        <span>5 preguntas con un personaje que reacciona. Se abre a pantalla completa; al terminar, vuelve con «Atrás».</span>
+        <button type="button" class="pcb-btn pcb-btn--primary" [disabled]="tapOpening()" (click)="playTap(blk)">{{ tapOpening() ? 'Abriendo…' : 'Jugar el Tap' }}</button>
+        @if (tapError(); as e) { <p class="pcb-file-error" role="alert">{{ e }}</p> }
+        @if (!isComplete()) { <button type="button" class="pcb-btn" (click)="markComplete.emit()">Ya lo jugué: seguir</button> }
+      </div>
+    }
+
     <!-- ═══════════════════════════ LIVE / SCORM ═════════════════════════════ -->
     @if (blk.type === EContentType.LIVE_SESSION) {
       @let live = liveInfo(blk);

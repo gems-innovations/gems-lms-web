@@ -97,6 +97,8 @@
   &--assignment { background: color-mix(in srgb, var(--color-exito) 15%, transparent); color: var(--color-exito); }
   &--scorm      { background: color-mix(in srgb, var(--color-primario) 15%, transparent); color: var(--color-primario); }
   &--live-session { background: color-mix(in srgb, var(--color-error) 15%, transparent); color: var(--color-error); }
+  &--cards      { background: color-mix(in srgb, var(--color-info) 15%, transparent); color: var(--color-info); }
+  &--tap        { background: color-mix(in srgb, var(--color-exito) 15%, transparent); color: var(--color-exito); }
 }
 
 // ─── Type grid ────────────────────────────────────────────────────────────────
@@ -139,6 +141,7 @@
   &--scorm      { background: color-mix(in srgb, var(--color-primario) 12%, transparent); color: var(--color-primario); }
   &--cards      { background: color-mix(in srgb, var(--color-info) 12%, transparent); color: var(--color-info); }
   &--live       { background: color-mix(in srgb, var(--color-error) 12%, transparent); color: var(--color-error); }
+  &--tap        { background: color-mix(in srgb, var(--color-exito) 12%, transparent); color: var(--color-exito); }
 }
 
 .cbm__type-label {

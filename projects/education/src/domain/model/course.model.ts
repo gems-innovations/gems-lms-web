@@ -23,7 +23,9 @@ export enum EContentType {
   LIVE_SESSION = 'live-session',
   SCORM = 'scorm',
   /** Cartas horizontales (ideas, preguntas, pasos animados) que arma el profesor dentro de una lección. */
-  CARDS = 'cards'
+  CARDS = 'cards',
+  /** Un Tap (quiz con personaje) del banco, o uno propio del profesor con el escenario de un Tap del banco. */
+  TAP = 'tap'
 }
 
 // ── Question types ────────────────────────────────────────────────────────────
@@ -124,8 +126,12 @@ export interface IContentBlock {
   /** Inicio de la sesión en vivo, hora local (yyyy-mm-ddThh:mm). */
   liveStartsAt?: string;
 
-  // ── CARDS ──
+  // ── CARDS ── (en un TAP: las 5 preguntas propias del profesor, si las escribió)
   cards?: ICard[];
+
+  // ── TAP ──
+  /** Tap del banco que se juega, o cuyo escenario y personaje usan las preguntas propias. */
+  tapId?: string;
 }
 
 // ── Cards (cartas horizontales tipo Taps) ─────────────────────────────────────
@@ -256,6 +262,8 @@ export interface ICreateContentBlockRequest {
   rubric?: IRubricItem[];
   // Cards
   cards?: ICard[];
+  // Tap
+  tapId?: string;
   // Live session
   liveStartsAt?: string;
   /** Due date (yyyy-mm-dd), shown to students in their delivery calendar. */

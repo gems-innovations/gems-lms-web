@@ -46,7 +46,24 @@ export function cleanCard(c: ICard): ICard {
   return c;
 }
 
-export const cardQuestions = (cards: readonly ICard[]): ICardQuestion[] => cards.filter((c): c is ICardQuestion => c.kind === 'question');
+/** Límites del formato Tap (los mismos que el generador del banco, projects/main/scripts/generar-taps.mjs). */
+export const TAP_LIMITS = { questions: 5, options: 4, question: 120, option: 22, why: 90 } as const;
+
+export const emptyTapQuestion = (): ICardQuestion => ({ kind: 'question', label: '', question: '', options: ['', '', '', ''], answer: 0, why: '' });
+
+/** Lo que le falta a una pregunta de un Tap propio para caber en el formato Tap, o null si está lista. */
+export function tapQuestionProblem(c: ICardQuestion): string | null {
+  const L = TAP_LIMITS;
+  if (!c.question.trim()) return 'Escribe la pregunta.';
+  if (c.question.trim().length > L.question) return `La pregunta pasa de ${L.question} caracteres.`;
+  if (c.options.length !== L.options || c.options.some(o => !o.trim())) return `Escribe las ${L.options} opciones.`;
+  if (c.options.some(o => o.trim().length > L.option)) return `Cada opción tiene como mucho ${L.option} caracteres.`;
+  if (!c.why.trim()) return 'Explica por qué es la respuesta.';
+  if (c.why.trim().length > L.why) return `La explicación pasa de ${L.why} caracteres.`;
+  return null;
+}
+
+export const cardQuestions =(cards: readonly ICard[]): ICardQuestion[] => cards.filter((c): c is ICardQuestion => c.kind === 'question');
 
 /** Minutos estimados: ~40 s por carta, mínimo 1. */
 export const estimateMinutes = (cards: readonly ICard[]): number => Math.max(1, Math.round(cards.length * 40 / 60));

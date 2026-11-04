@@ -69,6 +69,11 @@
                     <rect x="6" y="4" width="12" height="16" rx="2"/><path d="M2 8v8M22 8v8"/>
                   </svg>
                 }
+                @case ('tap') {
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="6" width="20" height="12" rx="4"/><path d="M7 10v4M5 12h4"/><circle cx="16" cy="11" r="1"/><circle cx="18" cy="13" r="1"/>
+                  </svg>
+                }
                 @case ('live') {
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -288,6 +293,53 @@
                 <button type="button" class="cbm__add-option-btn" (click)="addCard(k.kind)">+ {{ k.label }}</button>
               }
             </div>
+          </div>
+        }
+
+        <!-- ─── TAP ────────────────────────────────────────── -->
+        @if (selectedType() === EContentType.TAP) {
+          <div class="cbm__section">
+            <h3 class="cbm__section-title">Tap</h3>
+            <p class="cbm__hint">El estudiante lo juega a pantalla completa: 5 preguntas con un personaje que reacciona, la explicación al fallar y un título al final. No cuenta para la nota.</p>
+            <div class="cbm__field">
+              <label class="cbm__label">Tap del banco <span class="cbm__req">*</span></label>
+              @if (tapError(); as e) {
+                <p class="cbm__error" role="alert">{{ e }}</p>
+              } @else if (!tapCatalog()) {
+                <p class="cbm__hint">Cargando los Taps…</p>
+              } @else {
+                <lib-select ariaLabel="Tap del banco" placeholder="Busca un Tap por su nombre" [options]="tapOptions()" [ngModel]="tapId()" (ngModelChange)="tapId.set($event)" />
+              }
+            </div>
+            <label class="cbm__check">
+              <input type="checkbox" [ngModel]="tapOwn()" (ngModelChange)="setTapOwn($event)" />
+              Escribir mis propias preguntas (con el escenario y el personaje del Tap elegido)
+            </label>
+            @if (tapOwn()) {
+              <p class="cbm__hint">{{ TAP_LIMITS.questions }} preguntas de {{ TAP_LIMITS.options }} opciones. Cada opción tiene como mucho {{ TAP_LIMITS.option }} caracteres para que quepa junto al personaje.</p>
+              @for (q of tapQuestions(); track $index; let i = $index) {
+                <div class="cbm__question">
+                  <div class="cbm__question-header">
+                    <span class="cbm__question-num">{{ i + 1 }}</span>
+                    <strong>Pregunta</strong>
+                  </div>
+                  <textarea class="cbm__textarea cbm__textarea--question" placeholder="La pregunta" [attr.maxlength]="TAP_LIMITS.question" [ngModel]="q.question" (ngModelChange)="patchTapQuestion(i, { question: $event })"></textarea>
+                  <div class="cbm__options">
+                    @for (o of q.options; track $index; let k = $index) {
+                      <div class="cbm__option-row">
+                        <button type="button" class="cbm__correct-btn" [class.cbm__correct-btn--on]="q.answer === k" (click)="patchTapQuestion(i, { answer: k })" title="Marcar como correcta" [attr.aria-pressed]="q.answer === k" [attr.aria-label]="'Marcar la opción ' + 'ABCD'[k] + ' como correcta'">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </button>
+                        <span class="cbm__opt-letter">{{ 'ABCD'[k] }}</span>
+                        <input class="cbm__input cbm__input--opt" type="text" [placeholder]="'Opción ' + 'ABCD'[k]" [attr.maxlength]="TAP_LIMITS.option" [ngModel]="o" (ngModelChange)="setTapOption(i, k, $event)" />
+                      </div>
+                    }
+                  </div>
+                  <textarea class="cbm__textarea" placeholder="Por qué es esa la respuesta (se muestra al fallar)" [attr.maxlength]="TAP_LIMITS.why" [ngModel]="q.why" (ngModelChange)="patchTapQuestion(i, { why: $event })"></textarea>
+                  @if (tapProblems()[i]; as p) { <p class="cbm__error" role="status">{{ p }}</p> }
+                </div>
+              }
+            }
           </div>
         }
 

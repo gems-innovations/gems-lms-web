@@ -332,7 +332,9 @@
   &--quiz         { background: color-mix(in srgb, var(--color-advertencia) 12%, transparent); color: var(--color-advertencia); }
   &--assignment   { background: color-mix(in srgb, var(--color-exito) 12%, transparent); color: var(--color-exito); }
   &--live-session { background: color-mix(in srgb, var(--color-error) 12%, transparent); color: var(--color-error); }
-  &--embed        { background: color-mix(in srgb, var(--color-primario) 12%, transparent); color: var(--color-primario); }
+  &--cards        { background: color-mix(in srgb, var(--color-info) 12%, transparent); color: var(--color-info); }
+  &--tap          { background: color-mix(in srgb, var(--color-exito) 12%, transparent); color: var(--color-exito); }
+  &--embed       { background: color-mix(in srgb, var(--color-primario) 12%, transparent); color: var(--color-primario); }
 }
 
 .cpanel__block-type-icon { display: flex; align-items: center; }
