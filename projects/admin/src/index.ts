@@ -1,7 +1,11 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
+import { AuthSessionService } from 'auth';
 import { MainLayout } from './infrastructure/ui/layouts/main-layout/main-layout';
 
 export const routes: Routes = [
+  // /admin a secas no tiene pantalla: cada rol va a su inicio.
+  { path: '', pathMatch: 'full', redirectTo: () => inject(AuthSessionService).getHomeRoute() },
 
   {
     path: 'profile',
