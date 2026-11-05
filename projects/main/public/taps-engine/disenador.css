@@ -75,7 +75,7 @@
 .dsn .barra .altavoz[aria-pressed="true"] { color: var(--txt); }
 
 /* panel con desplazamiento */
-.dsn .paso { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 12px 12px; scrollbar-width: thin; }
+.dsn .paso { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 12px 12px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
 .dsn .pantalla { display: none; }
 .dsn .pantalla.activa { display: block; }
 .dsn .texto { color: var(--soft); font-size: 13px; margin: 0 0 8px; }

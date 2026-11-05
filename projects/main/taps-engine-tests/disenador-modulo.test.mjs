@@ -92,7 +92,9 @@ test('disenador.js (PR-E7/E8): Listo con guardar y compartir primero, antes/desp
   assert.ok(codigo.indexOf('id=\\"formGuardar\\"') < codigo.indexOf('id=\\"reacciones\\"'), 'guardar antes que las reacciones');
   assert.ok(codigo.indexOf('id=\\"compartir\\"') < codigo.indexOf('id=\\"muestraPregunta\\"'), 'compartir antes que «Míralo en un Tap»');
   assert.match(codigo, /id=\\"comparar\\" aria-pressed=\\"false\\"/);
-  assert.match(cuerpo, /confirm\('¿Empezar otro personaje\?/);
+  assert.doesNotMatch(cuerpo, /\bconfirm\(/, 'sin el diálogo nativo del navegador');
+  assert.match(codigo, /id=\\"otro\\" hidden role=\\"alertdialog\\"[^]*¿Empezar otro personaje\?/, 'hoja propia para empezar otro');
+  assert.match(cuerpo, /\$\('otroNo'\)\.focus\(\)/, 'la salida segura queda enfocada');
   assert.match(cuerpo, /almacen\.leer\(CLAVE_SONIDO\) === 'on'/, 'silencio inicial');
   assert.doesNotMatch(cuerpo, /btnSonido\.setAttribute\('aria-label'/, 'sin aria-label cambiante junto a aria-pressed');
   assert.match(codigo, /id=\\"sonido\\"[^>]*aria-pressed=\\"false\\"[^>]*title=\\"Sonido \(tecla M\)\\"/);
