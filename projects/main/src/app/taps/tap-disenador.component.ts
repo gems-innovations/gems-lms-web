@@ -5,7 +5,9 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthSessionService } from 'auth/core';
+import { TapsCreadorService } from './taps-creador.service';
 import { AnalyticsService } from '../analytics.service';
 import { TEventPath } from '../analytics-taxonomy';
 import { TapsSonidoService } from './taps-sonido.service';
@@ -26,6 +28,26 @@ export interface IContextoPublicar {
   hito?: THitoCuenta | null;
   /** `publicar` = la persona tocó un botón «Publicar (con cuenta)»; `cuenta` = «Qué es la cuenta» (no es un intento de publicar). */
   accion?: 'publicar' | 'cuenta';
+  /** El Tap listo para el API (disenador.js tapParaPublicar); null sin el paso «Preguntas» o con preguntas a medias. */
+  tap?: object | null;
+}
+
+/** Qué pasa en la hoja de publicar con sesión. */
+type TEnvio = { paso: 'listo' | 'enviando' | 'revision' } | { paso: 'publicado'; id: string; enlace: string } | { paso: 'error'; mensaje: string };
+/** Id del API de lo que ya se publicó desde cada borrador local: volver a publicar actualiza ese Tap en vez de crear otro. */
+const CLAVE_PUBLICADOS = 'taps.crear.publicados';
+
+/** Mensaje para la persona según la respuesta del API (el 400 del validador nombra el campo, nunca repite el contenido). */
+export function mensajeError(e: unknown): string {
+  const status = e instanceof HttpErrorResponse ? e.status : -1;
+  const detalle = e instanceof HttpErrorResponse && typeof e.error?.message === 'string' ? e.error.message : '';
+  if (status === 400 && detalle) return `No se pudo publicar: ${detalle}.`;
+  if (status === 401) return 'Tu sesión se cerró. Inicia sesión otra vez y vuelve a publicar.';
+  if (status === 403) return 'Tu cuenta aún no puede publicar Taps. Pídele a tu institución una cuenta de docente.';
+  if (status === 409) return 'Ese Tap cambió en otra pestaña. Vuelve a intentarlo.';
+  if (status === 429) return 'Llegaste al límite de Taps por ahora. Inténtalo más tarde.';
+  if (status === 0) return 'Sin conexión. Revisa tu internet y vuelve a intentarlo.';
+  return 'No se pudo publicar. Vuelve a intentarlo en un momento.';
 }
 
 /** Lo que exporta public/taps-engine/disenador.js (la lógica del prototipo, extraída sin cambiar su comportamiento). */
@@ -49,7 +71,7 @@ export interface IDisenadorModule {
  * Dónde vive el diseñador: archivos estáticos del mismo origen (public/taps-engine), fuera del bundle, como el motor
  * (taps-engine.loader.ts). nginx lo sirve con `no-cache`; la query evita que una caché vieja entregue el módulo anterior.
  */
-const DISENADOR_VERSION = '10';
+const DISENADOR_VERSION = '11';
 export const DISENADOR_URL = `/taps-engine/disenador.js?v=${DISENADOR_VERSION}`;
 /** Cómo se carga el módulo (inyectable para probar el componente sin servir los estáticos). */
 export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModule>>('DISENADOR_LOADER', {
@@ -102,6 +124,33 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
       <div class="gancho" #gancho role="dialog" aria-modal="true" aria-labelledby="ganchoTitulo" aria-describedby="ganchoIntro"
            [hidden]="!hoja()" (keydown)="teclaHoja($event)" (pointerdown)="fondoAbajo($event)" (click)="fondoHoja($event)">
         <div class="gancho__hoja">
+          @if (conCuenta()) {
+          <!-- Con sesión y la bandera tapsCreador: publica de verdad (API /api/v1/taps) y entrega el enlace /t/u-…. -->
+          <div class="gancho__quien">
+            @if (contexto()?.miniatura) { <img class="gancho__mini" [src]="contexto()!.miniatura" alt="" width="54" height="72" /> }
+            <h2 id="ganchoTitulo" tabindex="-1">Publicar tu Tap</h2>
+          </div>
+          @let e = envio();
+          @if (!contexto()?.tap) {
+            <p id="ganchoIntro" class="gancho__intro">Para publicar, termina tus 5 preguntas (cada una con su explicación) y los títulos del final.</p>
+          } @else if (e.paso === 'publicado') {
+            <p id="ganchoIntro" class="gancho__intro">Ya está publicado. Cualquiera con este enlace lo juega, sin registrarse.</p>
+            <div class="gancho__enlace"><input #enlaceInput readonly aria-label="Enlace de tu Tap" [value]="e.enlace" (focus)="seleccionarEnlace()" /></div>
+            <button type="button" class="gancho__btn gancho__btn--primario" id="ganchoCopiarTap" (click)="copiarTap(e.enlace)">
+              <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>Copiar enlace
+            </button>
+            <a class="gancho__btn" [routerLink]="['/t', e.id]">Jugarlo ahora</a>
+          } @else if (e.paso === 'revision') {
+            <p id="ganchoIntro" class="gancho__intro">Lo enviamos a revisión. Cuando lo aprueben, su enlace funciona (suele tardar menos de 48 horas).</p>
+          } @else {
+            <p id="ganchoIntro" class="gancho__intro">Queda guardado en tu cuenta y cualquiera con el enlace lo juega, sin registrarse.</p>
+            <button type="button" class="gancho__btn gancho__btn--primario" id="ganchoPublicar" [disabled]="e.paso === 'enviando'" (click)="publicarTap()">
+              {{ e.paso === 'enviando' ? 'Publicando…' : 'Publicar con enlace' }}
+            </button>
+          }
+          <p class="gancho__estado" [class.gancho__estado--error]="e.paso === 'error'" role="status" aria-live="polite">{{ e.paso === 'error' ? e.mensaje : estadoCopia() }}</p>
+          <button type="button" class="gancho__btn gancho__btn--terciario" id="ganchoVolver" (click)="volver()">{{ G.volver }}</button>
+          } @else {
           <!-- PR-D2: el personaje y su nombre en la hoja («Para publicar a X…»): quien lo hizo ve de quién se habla. -->
           <div class="gancho__quien">
             @if (contexto()?.miniatura) { <img class="gancho__mini" [src]="contexto()!.miniatura" alt="" width="54" height="72" /> }
@@ -129,6 +178,7 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
           }
           <button type="button" class="gancho__btn gancho__btn--terciario" id="ganchoVolver" (click)="volver()">{{ G.volver }}</button>
           <p class="gancho__conserva">{{ G.conserva }}</p>
+          }
         </div>
       </div>
     </div>
@@ -176,12 +226,22 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
     .gancho__enlace input { width: 100%; box-sizing: border-box; font: 13px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--color-texto-principal); background: var(--color-fondo-principal); border: 1px solid var(--color-borde-secundario); border-radius: 10px; padding: 10px 12px; }
     .gancho__estado { min-height: 1.2em; font-size: 13px; color: var(--color-exito); }
     .gancho__estado:empty { display: none; }
+    .gancho__estado--error { color: var(--color-error); }
+    a.gancho__btn { text-decoration: none; box-sizing: border-box; }
+    .gancho__btn:disabled { opacity: .6; cursor: progress; }
     .gancho__conserva { text-align: center; }
     @media (min-width: 820px) { .gancho { align-items: center; } }
   `,
 })
 export class TapDisenadorComponent {
-  protected readonly CINTA = inject(AuthSessionService, { optional: true })?.isAuthenticated() ? CINTA_CON_SESION : CINTA_TRANSPARENCIA;
+  private readonly auth = inject(AuthSessionService, { optional: true });
+  private readonly creador = inject(TapsCreadorService);
+  protected readonly CINTA = this.auth?.isAuthenticated() ? CINTA_CON_SESION : CINTA_TRANSPARENCIA;
+  /** Bandera tapsCreador (config.js; `?editor=1` solo en desarrollo): paso «Preguntas» y, con sesión, publicar de verdad. */
+  private creadorActivo = false;
+  /** La hoja publica de verdad (con sesión y bandera); si no, es el gancho de cuenta de siempre. */
+  protected readonly conCuenta = signal(false);
+  protected readonly envio = signal<TEnvio>({ paso: 'listo' });
   protected readonly G = COPY_GANCHO;
   protected readonly listo = signal(false);
   protected readonly fallo = signal(false);
@@ -230,6 +290,7 @@ export class TapDisenadorComponent {
     try {
       const modulo = await this.loader();
       if (this.destruido) return;
+      this.creadorActivo = tapsCreadorActivo((globalThis as Record<string, unknown>)['tapsCreador'], location.search, isDevMode());
       resultado = await modulo.montarDisenador(this.raiz().nativeElement, {
         enviar: path => this.analytics.event(path as TEventPath),
         alEvento: nombre => this.alEvento(nombre),
@@ -243,7 +304,7 @@ export class TapDisenadorComponent {
         // Hitos de cuenta (PR-D2): la misma hoja; `taps/crear/cuenta/<hito>/abrir` sale de `alEvento` (hito-cuenta/abrir/<hito>).
         cuenta: { abrir: contexto => this.publicar(contexto) },
         // Bandera tapsCreador (config.js); `?editor=1` solo en desarrollo.
-        preguntas: tapsCreadorActivo((globalThis as Record<string, unknown>)['tapsCreador'], location.search, isDevMode()),
+        preguntas: this.creadorActivo,
       });
     } catch {
       if (!this.destruido) { this.fallo.set(true); this.contar('taps/crear/error/carga'); }
@@ -300,12 +361,52 @@ export class TapDisenadorComponent {
   private publicar(contexto: IContextoPublicar): void {
     this.contexto.set(contexto);
     this.estudiante.set(false); this.enlaceVisible.set(false); this.estadoCopia.set('');
+    const conCuenta = this.creadorActivo && !!this.auth?.isAuthenticated();
+    this.conCuenta.set(conCuenta);
+    if (this.envio().paso !== 'enviando') this.envio.set({ paso: 'listo' });
     const activo = document.activeElement;
     this.focoAnterior = activo instanceof HTMLElement && this.raiz().nativeElement.contains(activo) ? activo : null;
     this.hoja.set(true);
     this.inerte(true);
-    if (contexto.accion !== 'cuenta') this.contar('taps/crear/intento-publicar/sin-cuenta');
+    if (contexto.accion !== 'cuenta') this.contar(conCuenta ? 'taps/crear/intento-publicar/con-cuenta' : 'taps/crear/intento-publicar/sin-cuenta');
     this.trasPintar(() => this.gancho().nativeElement.querySelector<HTMLElement>('h2')?.focus());
+  }
+
+  /** Guarda y publica con enlace; volver a publicar desde el mismo borrador actualiza el mismo Tap del API. */
+  protected async publicarTap(): Promise<void> {
+    const c = this.contexto(); if (!c?.tap || this.envio().paso === 'enviando') return;
+    this.envio.set({ paso: 'enviando' }); this.estadoCopia.set('');
+    const publicados = this.leerPublicados();
+    try {
+      const t = await this.creador.publicar(c.tap, c.borradorId ? publicados[c.borradorId] ?? null : null);
+      if (c.borradorId) this.escribir(CLAVE_PUBLICADOS, JSON.stringify({ ...publicados, [c.borradorId]: t.id }));
+      if (this.destruido) return;
+      if (t.estado === 'publicado') {
+        this.envio.set({ paso: 'publicado', id: t.id, enlace: `${location.origin}/t/${t.id}` });
+        this.contar('taps/crear/publicado/nuevo');
+        this.trasPintar(() => this.gancho().nativeElement.querySelector<HTMLElement>('#ganchoCopiarTap')?.focus());
+      } else {
+        this.envio.set({ paso: 'revision' });
+        this.contar('taps/crear/publicado/revision');
+      }
+    } catch (e) {
+      if (!this.destruido) this.envio.set({ paso: 'error', mensaje: mensajeError(e) });
+    }
+  }
+
+  /** Copiar (o compartir) el enlace del Tap publicado; si no se puede, queda seleccionado en el campo. */
+  protected async copiarTap(enlace: string): Promise<void> {
+    if (typeof navigator.share === 'function') {
+      try { await navigator.share({ title: 'Juega mi Tap', text: 'Hice un Tap con mis preguntas. ¿Cuántas aciertas?', url: enlace }); this.estadoCopia.set(this.G.compartido); return; }
+      catch (e) { if ((e as { name?: string })?.name === 'AbortError') return; }
+    }
+    try { await navigator.clipboard.writeText(enlace); this.estadoCopia.set(this.G.copiado); return; } catch { /* sin portapapeles */ }
+    this.estadoCopia.set(this.G.sinCopiar);
+    this.enlaceInput()?.nativeElement.focus();
+  }
+
+  private leerPublicados(): Record<string, string> {
+    try { const o = JSON.parse(this.leer(CLAVE_PUBLICADOS) ?? '{}'); return o && typeof o === 'object' && !Array.isArray(o) ? o : {}; } catch { return {}; }
   }
 
   private cerrarHoja(): void {
@@ -373,7 +474,7 @@ export class TapDisenadorComponent {
   protected teclaHoja(ev: KeyboardEvent): void {
     if (ev.key === 'Escape') { ev.preventDefault(); this.volver(); return; }
     if (ev.key !== 'Tab') return;
-    const focables = Array.from(this.gancho().nativeElement.querySelectorAll<HTMLElement>('button, input, [tabindex]:not([tabindex="-1"])')).filter(e => !e.hidden && e.offsetParent !== null);
+    const focables = Array.from(this.gancho().nativeElement.querySelectorAll<HTMLElement>('button, input, a[href], [tabindex]:not([tabindex="-1"])')).filter(e => !e.hidden && e.offsetParent !== null);
     if (!focables.length) return;
     const primero = focables[0], ultimo = focables[focables.length - 1], activo = document.activeElement;
     if (ev.shiftKey && (activo === primero || !focables.includes(activo as HTMLElement))) { ev.preventDefault(); ultimo.focus(); }

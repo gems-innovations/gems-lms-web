@@ -106,6 +106,14 @@ export function preguntasJugables(est) {
   }
   return out;
 }
+/** Preguntas y títulos tal como los guarda el API (TapsPayloadValidador); null mientras falten las 5 completas o un título no valga. */
+export function paraPublicar(est) {
+  if (!est || !resumenEstado(est).cinco || !validarResultados(est.resultados).ok) return null;
+  return {
+    questions: est.preguntas.map(p => ({ q: p.q.trim(), options: p.options.map(o => o.trim()), answer: p.answer, why: p.why.trim(), tipo: p.tipo })),
+    results: est.resultados.map(r => ({ min: r.min, title: r.title.trim(), line: r.line.trim() })),
+  };
+}
 /** Una pregunta a medias vista como la pintará el marco (huecos con «…» y un texto guía). */
 export function paraVista(p) {
   return { q: p.q.trim() || 'Escribe tu pregunta', options: p.options.map((o, i) => o.trim() || (p.tipo === 'vf' ? VF[i] : '…')), answer: p.answer, why: p.why };
@@ -248,7 +256,7 @@ const marca = ok => { const s = document.createElementNS(SVG, 'svg'); s.setAttri
  * - `pintar(canvas, pregunta, indice, total)`: dibuja el marco del Tap con el personaje ya elegido (el pintor de disenador.js).
  * - `alCambiar(jugables)`: avisa con las preguntas jugables (la vista del paso Listo juega con ellas).
  * - `esperar(fn, ms)`: temporizador cancelable por quien monta.
- * Devuelve { mostrar(), destruir(), estado }.
+ * Devuelve { mostrar(), destruir(), hayPreguntas, publicable } (`publicable`: ver paraPublicar).
  */
 export function montarEditor(contenedor, { almacen, pintar, alCambiar, esperar = (fn, ms) => setTimeout(fn, ms) }) {
   let est = leerEstado(almacen?.leer?.(CLAVE_PREGUNTAS)) ?? null;
@@ -466,5 +474,6 @@ export function montarEditor(contenedor, { almacen, pintar, alCambiar, esperar =
     mostrar() { dibujar(); },
     destruir() { clearTimeout(temporizadorGuardado); clearTimeout(temporizadorVista); observador?.disconnect(); if (est && almacen?.disponible) almacen.escribir(CLAVE_PREGUNTAS, serializarEstado(est)); contenedor.replaceChildren(); },
     get hayPreguntas() { return !!est; },
+    get publicable() { return paraPublicar(est); },
   };
 }

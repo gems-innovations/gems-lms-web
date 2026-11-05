@@ -1,5 +1,7 @@
 import { ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
-import { inject } from '@angular/core';
+import { Injector, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { esIdDeUsuario } from './taps/taps.usuario';
 import { AuthSessionService, EUserRole } from 'auth/core';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
@@ -107,6 +109,12 @@ export const routes: Routes = [
           ? `Una historia en ${tap.questions.length} pasos con un personaje en vivo. «${tap.questions[0].q}» Gratis y sin registro.`
           : `${tap.questions.length} preguntas de ${tap.title} con un personaje en vivo. «${tap.questions[0].q}» Gratis y sin registro.`,
       } : TAPS_SEO),
+      // Tap de un creador (`/t/u-…`): se pide al API solo en el navegador (los `u-` no se prerenderizan); null si no está.
+      tapUsuario: (route: ActivatedRouteSnapshot) => {
+        const id = route.paramMap.get('id'), injector = inject(Injector);
+        if (!esIdDeUsuario(id) || !isPlatformBrowser(inject(PLATFORM_ID))) return null;
+        return import('./taps/taps-creador.service').then(m => injector.get(m.TapsCreadorService).tapPublico(id));
+      },
     },
     loadComponent: () => import('./taps/taps-feed.component').then(m => m.TapsFeedComponent)
   },
