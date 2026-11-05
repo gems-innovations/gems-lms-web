@@ -12,8 +12,8 @@ export const CLAVE_INTERNO = 'skipgc';
 /** `cambio/<pestaña>` se agrega: como mucho uno por pestaña cada minuto. */
 export const VENTANA_CAMBIO_MS = 60_000;
 export const PESTANAS = Object.freeze(['cara', 'pelo', 'ropa', 'objeto']);
-/** Nombre del paso para `abandono/<paso>`: índice = pantalla del diseñador (0 partida, 1 ajustar, 2 escenario, 3 listo). */
-export const PASOS = Object.freeze(['partida', 'personaje', 'escenario', 'listo']);
+/** Nombre del paso para `abandono/<paso>`: índice = pantalla del diseñador (0 partida, 1 ajustar, 2 escenario, 3 listo, 4 preguntas, 5 decora). */
+export const PASOS = Object.freeze(['partida', 'personaje', 'escenario', 'listo', 'preguntas', 'decora']);
 /** Tope de segundos en `abandono`: más de una hora es una pestaña olvidada, no una sesión. */
 export const MAX_SEGUNDOS = 3600;
 
@@ -27,12 +27,12 @@ const PATRONES = [
   new RegExp(`^cambio/${PESTANA}$`),
   new RegExp(`^sorprendeme/(${PESTANA.slice(1, -1)}|todo|escenario)$`),
   /^deshacer$/,
-  /^paso\/(escenario|listo)$/,
+  /^paso\/(escenario|decora|listo)$/,
   /^probar$/,
   /^listo$/,
   /^compartir\/(enlace|json)$/,
   /^gusto\/(si|meh)$/,
-  /^abandono\/(partida|personaje|escenario|listo)\/(0|[1-9]\d{0,2}0)$/,     // segundos ya redondeados a 10
+  /^abandono\/(partida|personaje|escenario|listo|preguntas|decora)\/(0|[1-9]\d{0,2}0)$/,     // segundos ya redondeados a 10
   /^fps-bajo$/,
   /^sonido\/(on|off)$/,                                                      // altavoz de la barra o tecla M (disenador-v2-plan.md §6)
   new RegExp(`^hito/${HITO}$`),                                              // hito de inversión alcanzado (PR-D2, §2): una vez por sesión

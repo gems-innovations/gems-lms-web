@@ -88,11 +88,32 @@ test('disenador.js (PR-D3): títulos por paso y botones de avanzar según §2 de
   assert.deepEqual([...botones], ['Siguiente', 'Ponlo en su mundo', 'Terminar', 'Empezar otro']);
 });
 
+test('disenador.js: Decora es su paso (interno 5) entre Escenario y Preguntas/Listo, con Tap grande que se arrastra', () => {
+  assert.match(cuerpo, /const ORDEN = conPreguntas \? \[0, 1, 2, 5, 4, 3\] : \[0, 1, 2, 5, 3\];/);
+  assert.match(codigo, /data-p=\\"5\\" id=\\"pantallaDecora\\"/);
+  assert.match(codigo, /id=\\"tapGrande\\" tabindex=\\"0\\" role=\\"img\\"/, 'el Tap grande se maneja con teclado');
+  assert.match(codigo, /id=\\"tapGrandeEstado\\" aria-live=\\"polite\\"/, 'la pieza elegida se anuncia');
+  assert.match(codigo, /id=\\"irDecora\\"/, 'desde Listo se vuelve a decorar');
+  assert.match(cuerpo, /addEventListener\('pointerdown'/);
+  assert.match(cuerpo, /programarAutoguardado\(\)/, 'soltar una pieza guarda el borrador');
+});
+
+test('decorar.js: seis pestañas accesibles con iconos y muestras visuales en marco y fondo', async () => {
+  const dec = readFileSync(new URL('../public/taps-engine/decorar.js', import.meta.url), 'utf8');
+  for (const id of ['marco', 'colores', 'letra', 'fondo', 'textos', 'musica']) assert.match(dec, new RegExp(`\\['${id}', '`), id);
+  assert.match(dec, /role: 'tablist'/); assert.match(dec, /role: 'tabpanel'/);
+  assert.match(dec, /ArrowRight/); assert.match(dec, /Home/); assert.match(dec, /End/);
+  assert.match(dec, /marco-mini/); assert.match(dec, /fondo-mini/);
+  assert.doesNotMatch(dec, /\p{Extended_Pictographic}/u, 'iconos dibujados, sin emojis');
+});
+
 test('disenador.js (PR-E7/E8): Listo con guardar y compartir primero, antes/después, confirmación y sonido en silencio con aria correcto', () => {
   assert.ok(codigo.indexOf('id=\\"formGuardar\\"') < codigo.indexOf('id=\\"reacciones\\"'), 'guardar antes que las reacciones');
   assert.ok(codigo.indexOf('id=\\"compartir\\"') < codigo.indexOf('id=\\"muestraPregunta\\"'), 'compartir antes que «Míralo en un Tap»');
   assert.match(codigo, /id=\\"comparar\\" aria-pressed=\\"false\\"/);
-  assert.match(cuerpo, /confirm\('¿Empezar otro personaje\?/);
+  assert.doesNotMatch(cuerpo, /\bconfirm\(/, 'sin el diálogo nativo del navegador');
+  assert.match(codigo, /id=\\"otro\\" hidden role=\\"alertdialog\\"[^]*¿Empezar otro personaje\?/, 'hoja propia para empezar otro');
+  assert.match(cuerpo, /\$\('otroNo'\)\.focus\(\)/, 'la salida segura queda enfocada');
   assert.match(cuerpo, /almacen\.leer\(CLAVE_SONIDO\) === 'on'/, 'silencio inicial');
   assert.doesNotMatch(cuerpo, /btnSonido\.setAttribute\('aria-label'/, 'sin aria-label cambiante junto a aria-pressed');
   assert.match(codigo, /id=\\"sonido\\"[^>]*aria-pressed=\\"false\\"[^>]*title=\\"Sonido \(tecla M\)\\"/);
