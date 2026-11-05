@@ -4,6 +4,8 @@ import { ITap, ITapQuestion } from './taps.types';
 export const esIdDeUsuario = (id: unknown): id is string => typeof id === 'string' && /^u-[23456789bcdfghjkmnpqrstvwxz]{10}$/.test(id);
 
 const texto = (v: unknown): v is string => typeof v === 'string' && v.length > 0;
+/** Forma del look propio (objeto plano de textos o booleanos); el catálogo lo comprueba el tema al pintar. */
+const esLook = (v: unknown): v is Record<string, string | boolean> => !!v && typeof v === 'object' && !Array.isArray(v) && Object.values(v).every(x => typeof x === 'string' || typeof x === 'boolean');
 
 /**
  * Lo que devuelve `GET /api/v1/public/taps/u/{id}` (ya validado por el API) como un `ITap` del feed: solo por enlace, con ids
@@ -28,7 +30,7 @@ export function tapDeUsuario(json: unknown, banco: readonly ITap[]): ITap | null
   const pariente = banco.find(t => t.theme === 'epoca' && t.scene.world === scene['world']);
   return {
     id, soloEnlace: true, theme: 'epoca', topic: 'creador', title: o['title'] as string, kicker: o['kicker'] as string,
-    scene: { world: scene['world'] as string, host: scene['host'] as string, ...(texto(scene['item']) ? { item: scene['item'] } : {}) },
+    scene: { world: scene['world'] as string, host: scene['host'] as string, ...(texto(scene['item']) ? { item: scene['item'] } : {}), ...(esLook(scene['look']) ? { look: scene['look'] } : {}) },
     backdrop: pariente?.backdrop ?? ['#231b17', '#3b2c24'], ...(pariente?.ground ? { ground: pariente.ground } : {}),
     questions, results,
     ...(o['estilo'] && typeof o['estilo'] === 'object' ? { estilo: o['estilo'] as ITap['estilo'] } : {}),

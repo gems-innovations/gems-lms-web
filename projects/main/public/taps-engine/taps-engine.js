@@ -339,11 +339,11 @@ export function create(container, opts = {}) {
   }
   async function paintCharacter(spec = {}) {
     const t = S.theme, chars = t.characters || {}, id = chars[spec.host] ? spec.host : Object.keys(chars)[0]; if (!id) return;
-    const key = id + '|' + (spec.item || ''); if (lastSkinKey === key) return; lastSkinKey = key;
+    const key = id + '|' + (spec.item || '') + '|' + JSON.stringify(spec.look ?? ''); if (lastSkinKey === key) return; lastSkinKey = key;
     try {
       // `skin` es opcional: un tema dibujado por código (sin imágenes) recibe `null` y la definición del personaje en las opciones
       const [img, mod] = await Promise.all([chars[id].skin ? loadImage(resolveTheme(chars[id].skin)) : null, t.light ? import(resolveTheme(t.light)) : null]);
-      hostImg = img; lightMod = mod; lightOpts = { slim: chars[id].slim, id, character: chars[id], item: spec.item, world: spec.world, theme: t };
+      hostImg = img; lightMod = mod; lightOpts = { slim: chars[id].slim, id, character: chars[id], look: spec.look ?? null, item: spec.item, world: spec.world, theme: t };
       mod?.paintCharacter?.(charEl, img, lightOpts);
     } catch { /* sin personaje 2D se queda el fondo */ }
   }
@@ -496,7 +496,7 @@ export function create(container, opts = {}) {
     const camara = cine.planos?.[spec.camara] ? spec.camara : null;
     const enMundo = (lista, k) => !!k && Array.isArray(lista?.[k]) && lista[k].includes(world);
     return {
-      world, host: spec.host, item: spec.item || null,
+      world, host: spec.host, item: spec.item || null, look: spec.look && typeof spec.look === 'object' ? spec.look : null,   // look propio (Taps de creadores): lo valida el tema
       props: props[spec.props] ? spec.props : null, shotKey,
       shot: { x: 0, zoom: 1, yaw: 0, height: 0, flip: false, ...(shotKey ? shots[shotKey] : {}) },
       enter: (t.enters || []).includes(spec.enter) ? spec.enter : null,
