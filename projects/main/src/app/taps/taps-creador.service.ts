@@ -5,6 +5,8 @@ import { environment } from 'shared/core';
 
 /** Lo que el API responde al crear, guardar o publicar (TapsCreadorController.TapResponse); aquí solo se usa esto. */
 export interface ITapCreador { id: string; estado: 'borrador' | 'en_revision' | 'publicado' | 'rechazado' }
+/** Una fila de «Mis Taps» (GET /api/v1/taps devuelve TapResponse completo; aquí solo se usa esto). */
+export interface ITapMio extends ITapCreador { titulo: string }
 
 /** Taps de creador en el API (`/api/v1/taps`, con sesión) y el público por enlace (`/api/v1/public/taps/u/{id}`, sin token). */
 @Injectable({ providedIn: 'root' })
@@ -25,6 +27,11 @@ export class TapsCreadorService {
     }
     tap ??= await firstValueFrom(this.http.post<ITapCreador>(`${this.api}/taps`, payload));
     return firstValueFrom(this.http.post<ITapCreador>(`${this.api}/taps/${encodeURIComponent(tap.id)}/publicar`, { visibilidad: 'enlace' }));
+  }
+
+  /** Los Taps de la cuenta, en el orden que da el API. */
+  mios(): Promise<ITapMio[]> {
+    return firstValueFrom(this.http.get<ITapMio[]>(`${this.api}/taps`));
   }
 
   /** El JSON del Tap publicado con enlace (el feed lo convierte con `tapDeUsuario`); null si no existe, no está publicado o no hay red. */
