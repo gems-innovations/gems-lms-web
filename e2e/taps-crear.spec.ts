@@ -106,7 +106,7 @@ test.describe('/crear', () => {
     await expect(dsn.locator('#inversion i.on')).toHaveCount(1);
     await dsn.locator('#siguiente').click();                       // escenario
     await expect(dsn.locator('h1')).toHaveText('Dónde vive');
-    await expect(dsn.locator('#siguiente')).toHaveText('Terminar');
+    await expect(dsn.locator('#siguiente')).toHaveText('Siguiente');
     // PR-D5: el panel que entra lleva la clase de transición y el h1 se funde (clases, no tiempos: la animación es CSS).
     await expect(dsn.locator('.pantalla.activa[data-p="2"]')).toHaveClass(/entra/);
     await expect(dsn.locator('h1')).toHaveClass(/funde/);
@@ -122,6 +122,14 @@ test.describe('/crear', () => {
     await dsn.locator('#horas .chip[data-id="noche"]').click();
     await expect(dsn.locator('#horas .chip[data-id="noche"]')).toHaveClass(/on/);
     await expect(dsn.locator('#horas .chip[data-id="dia"]')).toHaveAttribute('aria-pressed', 'false');
+    await dsn.locator('#siguiente').click();                       // decora: Tap grande y pestañas
+    await expect(dsn.locator('h1')).toHaveText('Dale tu estilo');
+    await expect(dsn.locator('#siguiente')).toHaveText('Terminar');
+    await expect(dsn.locator('#tapGrande')).toBeVisible();
+    await expect(dsn.locator('#decora [role="tab"]')).toHaveCount(6);
+    await dsn.locator('#decora [role="tab"]', { hasText: 'Textos' }).click();
+    await expect(dsn.locator('#decora-panel-textos')).toBeVisible();
+    await expect(dsn.locator('#decora-panel-marco')).toBeHidden();
     await dsn.locator('#siguiente').click();                       // listo
     await expect(dsn.locator('h1')).toHaveText('Lo hiciste');
     await expect(dsn.locator('#json')).toBeHidden();
@@ -445,16 +453,19 @@ test.describe('editor de preguntas (bandera tapsCreador)', () => {
     return dsn;
   };
   const alPaso = async (dsn: import('@playwright/test').Locator, h1: string) => {
-    for (let i = 0; i < 4 && !(await dsn.locator('h1').textContent())?.includes(h1); i++) await dsn.locator('#siguiente').click();
+    for (let i = 0; i < 5 &&!(await dsn.locator('h1').textContent())?.includes(h1); i++) await dsn.locator('#siguiente').click();
     await expect(dsn.locator('h1')).toHaveText(h1);
   };
 
   test('plantilla → editar con validación en vivo → vista previa → Listo juega con tus preguntas', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 844 });
     const dsn = await abrir(page, true);
-    await expect(dsn.locator('#progreso li:not(.publicar)')).toHaveCount(4);
+    await expect(dsn.locator('#progreso li:not(.publicar)')).toHaveCount(5);
     await dsn.locator('#siguiente').click(); await dsn.locator('#siguiente').click();
     await expect(dsn.locator('h1')).toHaveText('Dónde vive');
+    await expect(dsn.locator('#siguiente')).toHaveText('Siguiente');
+    await dsn.locator('#siguiente').click();
+    await expect(dsn.locator('h1')).toHaveText('Dale tu estilo');
     await expect(dsn.locator('#siguiente')).toHaveText('Siguiente');
     await dsn.locator('#siguiente').click();
     await expect(dsn.locator('h1')).toHaveText('Tus preguntas');
@@ -569,9 +580,11 @@ test.describe('editor de preguntas (bandera tapsCreador)', () => {
     await page.goto('/crear?editor=1');
     const dsn = page.locator('gems-tap-disenador .dsn');
     await expect(dsn.locator('#lienzo')).toBeVisible({ timeout: 20_000 });
-    await expect(dsn.locator('#progreso li:not(.publicar)')).toHaveCount(3);
+    await expect(dsn.locator('#progreso li:not(.publicar)')).toHaveCount(4);
     await dsn.locator('#siguiente').click(); await dsn.locator('#siguiente').click();
     await expect(dsn.locator('h1')).toHaveText('Dónde vive');
+    await dsn.locator('#siguiente').click();
+    await expect(dsn.locator('h1')).toHaveText('Dale tu estilo');
     await expect(dsn.locator('#siguiente')).toHaveText('Terminar');
     await dsn.locator('#siguiente').click();
     await expect(dsn.locator('h1')).toHaveText('Lo hiciste');

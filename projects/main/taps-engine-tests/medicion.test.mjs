@@ -17,7 +17,7 @@ test('medición: acepta exactamente la taxonomía del plan (§4) y rechaza lo de
   const buenos = [
     'abrir/enlace', 'abrir/continuar', 'abrir/directo', 'preset/grabador', 'preset/arqueologa', 'cambio/cara', 'cambio/objeto',
     'sorprendeme/ropa', 'sorprendeme/todo', 'sorprendeme/escenario', 'deshacer', 'paso/escenario', 'paso/listo', 'probar', 'listo',
-    'compartir/enlace', 'compartir/json', 'gusto/si', 'gusto/meh', 'abandono/personaje/40', 'abandono/partida/0', 'abandono/listo/3600',
+    'compartir/enlace', 'compartir/json', 'gusto/si', 'gusto/meh', 'abandono/personaje/40', 'abandono/partida/0', 'abandono/listo/3600', 'paso/decora', 'abandono/decora/20', 'abandono/preguntas/0',
     'fps-bajo', 'error/carga', 'error/look-invalido', 'encuadre/cara', 'encuadre/objeto',
   ];
   for (const b of buenos) { assert.equal(nombreValido(b), b, b); assert.equal(nombreValido(PREFIJO + b), b, 'con prefijo: ' + b); }
@@ -27,7 +27,7 @@ test('medición: acepta exactamente la taxonomía del plan (§4) y rechaza lo de
     'abandono/otro/10', 'abandono/personaje/99999', 'error/red', 'taps/ver/x', 'taps/disenador/', 'look={"hat":"copa"}', 'cambio/cara/#ff0000',
   ];
   for (const m of malos) assert.equal(nombreValido(m), null, String(m));
-  assert.equal(PESTANAS.length, 4); assert.equal(PASOS.length, 4);
+  assert.equal(PESTANAS.length, 4); assert.equal(PASOS.length, 6);
 });
 
 test('medición: `cambio/<pestaña>` se agrega a uno por pestaña por minuto; el resto no', () => {
@@ -93,6 +93,7 @@ test('medición: segundos redondeados a 10 con tope de una hora; nombre de aband
   assert.equal(nombreAbandono(0, 2_000), 'abandono/partida/0');
   assert.equal(nombreAbandono(2, 125_000), 'abandono/escenario/130');
   assert.equal(nombreAbandono(3, 7_200_000), 'abandono/listo/3600');
+  assert.equal(nombreAbandono(5, 20_000), 'abandono/decora/20');
   assert.equal(nombreAbandono(9, 1000), 'abandono/partida/0', 'pantalla desconocida → partida');
   for (const p of [0, 1, 2, 3]) assert.ok(nombreValido(nombreAbandono(p, 61_000)), 'lo que genera siempre es válido');
 });

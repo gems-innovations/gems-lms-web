@@ -429,14 +429,35 @@
 @keyframes dsn-marco-pasos { to { background-position: 20px 0; } }
 @keyframes dsn-marco-pulso { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
 @keyframes dsn-marco-latido { 0%, 100% { box-shadow: inset 0 0 0 3px #ff5c8a; } 30% { box-shadow: inset 0 0 0 7px #ff5c8a, inset 0 0 16px #ff5c8a88; } }
-.dsn details.decorar h4 { margin: 12px 0 6px; font-size: 13px; font-weight: 600; color: var(--soft); }
-.dsn details.decorar .paleta-mini { display: inline-flex; gap: 2px; }
-.dsn details.decorar .paleta-mini i { width: 9px; height: 18px; border-radius: 3px; }
-.dsn details.decorar .stickers .chip { padding: 0 10px; }
-.dsn details.decorar .chip svg.ic { width: 22px; height: 22px; }
-.dsn details.decorar .chip.quitar svg.x { width: 14px; height: 14px; opacity: .7; }
-.dsn details.decorar .texto-fila { display: flex; gap: 8px; }
-.dsn details.decorar .texto-fila input { flex: 1; min-width: 0; min-height: 44px; }
-.dsn details.decorar .color-fila { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 13px; color: var(--soft); }
-.dsn details.decorar .color-fila input { width: 44px; height: 36px; padding: 0; border-radius: 8px; }
-.dsn details.decorar .pista-capas { margin: 6px 0 0; font-size: 12px; }
+.dsn .decora h4 { margin: 12px 0 6px; font-size: 13px; font-weight: 600; color: var(--soft); }
+.dsn .decora .paleta-mini { display: inline-flex; gap: 2px; }
+.dsn .decora .paleta-mini i { width: 9px; height: 18px; border-radius: 3px; }
+.dsn .decora .stickers .chip { padding: 0 10px; }
+.dsn .decora .chip svg.ic { width: 22px; height: 22px; }
+.dsn .decora .chip.quitar svg.x { width: 14px; height: 14px; opacity: .7; }
+.dsn .decora .texto-fila { display: flex; gap: 8px; }
+.dsn .decora .texto-fila input { flex: 1; min-width: 0; min-height: 44px; }
+.dsn .decora .color-fila { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 13px; color: var(--soft); }
+.dsn .decora .color-fila input { width: 44px; height: 36px; padding: 0; border-radius: 8px; }
+.dsn .decora .pista-capas { margin: 6px 0 0; font-size: 12px; }
+
+/* Paso «Decora» (interno 5): la vista grande es el Tap decorado; el personaje y sus controles se apartan (siguen midiendo). */
+.dsn.en-decora .vista { background: radial-gradient(circle at 50% 40%, #2a2640, #0f0e17 75%); }
+.dsn.en-decora #lienzo, .dsn.en-decora .bocadillo, .dsn.en-decora .comparar, .dsn.en-decora .etiqueta, .dsn.en-decora .pista, .dsn.en-decora .inversion { visibility: hidden; }
+.dsn.en-decora #deshacer, .dsn.en-decora .sugerencia { display: none; }
+.dsn .tap-grande { position: absolute; top: 8px; bottom: 8px; left: 50%; transform: translateX(-50%); aspect-ratio: 9 / 16; max-width: calc(100% - 16px); z-index: 1; }
+.dsn .tap-grande[hidden] { display: none; }
+.dsn .tap-grande canvas { display: block; width: 100%; height: 100%; border-radius: 18px; background: #15131f; box-shadow: 0 10px 28px rgba(0, 0, 0, .45); touch-action: none; }
+.dsn .tap-grande canvas:focus-visible { outline: 2px solid var(--foco); outline-offset: 3px; }
+.dsn .tap-grande canvas.arrastrando { cursor: grabbing !important; }
+/* Pestañas de Decora: seis, con icono; si no caben en un celular estrecho, se desplazan de lado sin romper la fila. */
+.dsn .decora-pestanas { overflow-x: auto; scrollbar-width: none; margin: 0 0 6px; }
+.dsn .decora-pestanas button { flex: 1 1 0; min-width: 48px; padding: 6px 2px; font-size: 12px; }
+.dsn .decora-panel[hidden] { display: none; }
+.dsn .decora-panel[data-id='marco'] > h4:first-child, .dsn .decora-panel[data-id='letra'] > h4:first-child, .dsn .decora-panel[data-id='fondo'] > h4:first-child, .dsn .decora-panel[data-id='musica'] > h4:first-child { display: none; }
+/* Muestras en los chips: el marco animado en pequeño y el fondo pintado igual que en el Tap. */
+.dsn .marco-mini { display: inline-block; flex: none; width: 18px; height: 26px; border-radius: 5px; background: #2a2640; border: 1px solid var(--line); }
+.dsn .marco-mini[data-marco]::after { padding: 2px; }
+.dsn .fondo-mini { flex: none; width: 22px; height: 22px; border-radius: 5px; border: 1px solid var(--line); }
+.dsn .enlace-decora { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 8px auto 0; min-height: 40px; padding: 6px 14px; font-size: 13px; color: var(--soft); background: transparent; border-color: transparent; }
+.dsn .enlace-decora:hover { color: var(--txt); }

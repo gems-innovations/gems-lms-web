@@ -113,7 +113,7 @@ test('jugables y vista: solo lo que se puede jugar; la vista rellena huecos', ()
 test('disenador.js carga en Node y su plantilla trae el paso Preguntas (interno 4) vacío' , async () => {
   const m = await import('../public/taps-engine/disenador.js');
   assert.match(m.PLANTILLA, /data-p="4" id="pantallaPreguntas" aria-label="Preguntas"><\/section>/);
-  assert.equal([...m.PLANTILLA.matchAll(/<section class="pantalla/g)].length, 5);
+  assert.equal([...m.PLANTILLA.matchAll(/<section class="pantalla/g)].length, 6, 'con Decora (interno 5)');
 });
 
 test('paraPublicar: solo con 5 preguntas completas y títulos válidos, en la forma del API', () => {
