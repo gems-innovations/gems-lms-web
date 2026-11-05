@@ -1,4 +1,4 @@
-import { Location, isPlatformBrowser } from '@angular/common';
+import { Location, NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy, Component, DestroyRef, ElementRef, InjectionToken, Injector, PLATFORM_ID, afterNextRender, computed, inject, isDevMode, signal, viewChild,
 } from '@angular/core';
@@ -7,7 +7,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthSessionService } from 'auth/core';
-import { TapsCreadorService } from './taps-creador.service';
+import { ITapMio, TapsCreadorService } from './taps-creador.service';
+import { qr, qrTrazo } from './taps.qr';
 import { AnalyticsService } from '../analytics.service';
 import { TEventPath } from '../analytics-taxonomy';
 import { TapsSonidoService } from './taps-sonido.service';
@@ -91,7 +92,7 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
 @Component({
   selector: 'gems-tap-disenador',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, NgTemplateOutlet],
   template: `
     <div class="crear" [class.crear--listo]="listo()">
       <!-- Marco de marca: el mismo logo y los mismos tokens que la cabecera pública (public-header.component.ts); «Volver» lleva a
@@ -101,6 +102,11 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
           <img src="/logo-144.png" width="30" height="30" alt="" />
           <span>GEMS <small>LMS</small></span>
         </a>
+        @if (puedeMios()) {
+          <button type="button" class="marca__volver marca__mios" id="misTaps" (click)="abrirMios($event)">
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Mis Taps
+          </button>
+        }
         <!-- En celular el texto se acorta a «Volver»; el nombre accesible conserva el destino. -->
         <a class="marca__volver" id="volver" [routerLink]="volverA().ruta" [attr.aria-label]="volverA().texto">
           <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
@@ -124,7 +130,38 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
       <div class="gancho" #gancho role="dialog" aria-modal="true" aria-labelledby="ganchoTitulo" aria-describedby="ganchoIntro"
            [hidden]="!hoja()" (keydown)="teclaHoja($event)" (pointerdown)="fondoAbajo($event)" (click)="fondoHoja($event)">
         <div class="gancho__hoja">
-          @if (conCuenta()) {
+          @if (misTaps()) {
+          <!-- Mis Taps: lo que la cuenta guardó en el API, con enlace y QR de los publicados. -->
+          <h2 id="ganchoTitulo" tabindex="-1">Mis Taps</h2>
+          @let l = mios();
+          @if (l === 'cargando') {
+            <p id="ganchoIntro" class="gancho__intro" aria-live="polite">Cargando tus Taps…</p>
+          } @else if (l === 'error') {
+            <p id="ganchoIntro" class="gancho__intro gancho__estado--error" role="alert">No se pudieron cargar tus Taps. Revisa la conexión y vuelve a intentarlo.</p>
+          } @else if (!l.length) {
+            <p id="ganchoIntro" class="gancho__intro">Aún no tienes Taps. Termina tus preguntas y toca «Publicar».</p>
+          } @else {
+            <p id="ganchoIntro" class="gancho__intro">Los publicados se juegan con su enlace o su código QR, sin registrarse.</p>
+            <ul class="mios">
+              @for (t of l; track t.id) {
+                <li class="mios__fila">
+                  <span class="mios__titulo">{{ t.titulo || 'Sin nombre' }}</span>
+                  <span class="mios__estado" [class.mios__estado--ok]="t.estado === 'publicado'">{{ ESTADOS[t.estado] }}</span>
+                  @if (t.estado === 'publicado') {
+                    <div class="mios__acciones">
+                      <a class="gancho__btn" [routerLink]="['/t', t.id]">Abrir</a>
+                      <button type="button" class="gancho__btn" (click)="copiarTap(enlaceDe(t.id))">Copiar enlace</button>
+                      <button type="button" class="gancho__btn" [attr.aria-expanded]="qrEnlace() === enlaceDe(t.id)" (click)="verQr(enlaceDe(t.id))">QR</button>
+                    </div>
+                    @if (qrEnlace() === enlaceDe(t.id)) { <ng-container *ngTemplateOutlet="codigoQr" /> }
+                  }
+                </li>
+              }
+            </ul>
+          }
+          <p class="gancho__estado" role="status" aria-live="polite">{{ estadoCopia() }}</p>
+          <button type="button" class="gancho__btn gancho__btn--terciario" id="ganchoVolver" (click)="volver()">{{ G.volver }}</button>
+          } @else if (conCuenta()) {
           <!-- Con sesión y la bandera tapsCreador: publica de verdad (API /api/v1/taps) y entrega el enlace /t/u-…. -->
           <div class="gancho__quien">
             @if (contexto()?.miniatura) { <img class="gancho__mini" [src]="contexto()!.miniatura" alt="" width="54" height="72" /> }
@@ -139,6 +176,8 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
             <button type="button" class="gancho__btn gancho__btn--primario" id="ganchoCopiarTap" (click)="copiarTap(e.enlace)">
               <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>Copiar enlace
             </button>
+            <button type="button" class="gancho__btn" [attr.aria-expanded]="qrEnlace() === e.enlace" (click)="verQr(e.enlace)">Mostrar código QR</button>
+            @if (qrEnlace() === e.enlace) { <ng-container *ngTemplateOutlet="codigoQr" /> }
             <a class="gancho__btn" [routerLink]="['/t', e.id]">Jugarlo ahora</a>
           } @else if (e.paso === 'revision') {
             <p id="ganchoIntro" class="gancho__intro">Lo enviamos a revisión. Cuando lo aprueben, su enlace funciona (suele tardar menos de 48 horas).</p>
@@ -181,6 +220,14 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
           }
         </div>
       </div>
+      <!-- Siempre oscuro sobre blanco (también en tema oscuro): así lo leen todas las cámaras. -->
+      <ng-template #codigoQr>
+        @if (qrVista(); as q) {
+          <svg class="qr" [attr.viewBox]="q.caja" role="img" aria-label="Código QR del enlace del Tap" shape-rendering="crispEdges">
+            <rect x="-4" y="-4" [attr.width]="q.lado" [attr.height]="q.lado" fill="#fff"/><path [attr.d]="q.d" fill="#000"/>
+          </svg>
+        }
+      </ng-template>
     </div>
   `,
   styles: `
@@ -230,6 +277,18 @@ export const DISENADOR_LOADER = new InjectionToken<() => Promise<IDisenadorModul
     a.gancho__btn { text-decoration: none; box-sizing: border-box; }
     .gancho__btn:disabled { opacity: .6; cursor: progress; }
     .gancho__conserva { text-align: center; }
+    .marca__mios { display: inline-flex; align-items: center; margin-left: auto; font: inherit; font-size: var(--font-size-sm); font-weight: 700; background: none; color: var(--color-texto-principal); min-height: 44px; border-radius: 10px; cursor: pointer; }
+    .marca__mios:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; }
+    @media (max-width: 420px) { .marca__mios .ic { display: none; } }
+    .mios { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .mios__fila { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--color-borde-secundario); border-radius: 12px; }
+    .mios__titulo { font-weight: 700; overflow-wrap: anywhere; }
+    .mios__estado { font-size: 12px; color: var(--color-texto-secundario); }
+    .mios__estado--ok { color: var(--color-exito); }
+    .mios__acciones { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .mios__acciones .gancho__btn { min-height: 44px; padding: 8px; font-size: 13px; }
+    .mios .qr { grid-column: 1 / -1; }
+    .qr { display: block; width: min(220px, 100%); margin: 0 auto; border-radius: 8px; }
     @media (min-width: 820px) { .gancho { align-items: center; } }
   `,
 })
@@ -243,6 +302,18 @@ export class TapDisenadorComponent {
   protected readonly conCuenta = signal(false);
   protected readonly envio = signal<TEnvio>({ paso: 'listo' });
   protected readonly G = COPY_GANCHO;
+  protected readonly ESTADOS: Record<ITapMio['estado'], string> = { borrador: 'Borrador', en_revision: 'En revisión', publicado: 'Publicado', rechazado: 'No aprobado' };
+  /** «Mis Taps» en la cabecera: con sesión y la bandera tapsCreador (se decide al montar, nunca en el prerender). */
+  protected readonly puedeMios = signal(false);
+  /** La hoja muestra «Mis Taps» en vez de publicar. */
+  protected readonly misTaps = signal(false);
+  protected readonly mios = signal<ITapMio[] | 'cargando' | 'error'>('cargando');
+  /** El enlace cuyo QR está a la vista (uno a la vez). */
+  protected readonly qrEnlace = signal<string | null>(null);
+  protected readonly qrVista = computed(() => {
+    const m = this.qrEnlace() ? qr(this.qrEnlace()!) : null;
+    return m && { caja: `-4 -4 ${m.length + 8} ${m.length + 8}`, lado: m.length + 8, d: qrTrazo(m) };
+  });
   protected readonly listo = signal(false);
   protected readonly fallo = signal(false);
   protected readonly cinta = signal(false);
@@ -314,6 +385,7 @@ export class TapDisenadorComponent {
     if (!resultado.ok) { this.fallo.set(true); return; }
     this.disenador = resultado;
     this.listo.set(true);
+    this.puedeMios.set(this.creadorActivo && !!this.auth?.isAuthenticated());
     // La cinta va sobre la vista previa (ranura del diseñador), no como modal.
     const ranura = this.raiz().nativeElement.querySelector('#ranuraVista');
     const avisos = this.avisos().nativeElement;
@@ -360,6 +432,7 @@ export class TapDisenadorComponent {
    */
   private publicar(contexto: IContextoPublicar): void {
     this.contexto.set(contexto);
+    this.misTaps.set(false); this.qrEnlace.set(null);
     this.estudiante.set(false); this.enlaceVisible.set(false); this.estadoCopia.set('');
     const conCuenta = this.creadorActivo && !!this.auth?.isAuthenticated();
     this.conCuenta.set(conCuenta);
@@ -404,6 +477,19 @@ export class TapDisenadorComponent {
     this.estadoCopia.set(this.G.sinCopiar);
     this.enlaceInput()?.nativeElement.focus();
   }
+
+  /** Abre «Mis Taps» en la misma hoja (foco atrapado, Escape vuelve) y pide la lista al API. */
+  protected async abrirMios(ev: Event): Promise<void> {
+    this.misTaps.set(true); this.qrEnlace.set(null); this.estadoCopia.set(''); this.mios.set('cargando');
+    this.focoAnterior = ev.currentTarget instanceof HTMLElement ? ev.currentTarget : null;
+    this.hoja.set(true); this.inerte(true);
+    this.trasPintar(() => this.gancho().nativeElement.querySelector<HTMLElement>('h2')?.focus());
+    try { const l = await this.creador.mios(); if (!this.destruido) this.mios.set(l); }
+    catch { if (!this.destruido) this.mios.set('error'); }
+  }
+
+  protected enlaceDe(id: string): string { return `${location.origin}/t/${id}`; }
+  protected verQr(enlace: string): void { this.qrEnlace.set(this.qrEnlace() === enlace ? null : enlace); }
 
   private leerPublicados(): Record<string, string> {
     try { const o = JSON.parse(this.leer(CLAVE_PUBLICADOS) ?? '{}'); return o && typeof o === 'object' && !Array.isArray(o) ? o : {}; } catch { return {}; }

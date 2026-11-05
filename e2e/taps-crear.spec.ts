@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { erroresDePagina, sinAnalitica, sinAudio, sinScrollHorizontal } from './humo-soporte';
+import { apiFalsa, conSesion, erroresDePagina, sinAnalitica, sinAudio, sinScrollHorizontal } from './humo-soporte';
 
 /**
  * /crear (PR-6 del plan de producto/taps/disenador-plan-ux.md): el diseñador de personajes dentro de la web. Comprueba que
@@ -573,6 +573,41 @@ test.describe('editor de preguntas (bandera tapsCreador)', () => {
     await dsn.locator('#probar').click();
     await expect(dsn.locator('#enunciado')).toContainText('de 2:');
     expect(await page.evaluate(() => localStorage.getItem('taps.disenador.preguntas.v1'))).toBeNull();
+  });
+
+  test('Mis Taps: con sesión lista los Taps de la cuenta, con enlace y QR de los publicados', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    const api = await apiFalsa(page, { reglas: [{ method: 'GET', path: /^\/taps$/, respond: () => ({ body: [
+      { id: 'u-23456789bc', titulo: 'Tablas del 7', estado: 'publicado' },
+      { id: 'u-3456789bcd', titulo: '', estado: 'en_revision' },
+    ] }) }] });
+    await conSesion(page, 'instructor');
+    await abrir(page, true);
+    const boton = page.locator('#misTaps');
+    await expect(boton).toBeVisible();
+    await sinScrollHorizontal(page);
+    await boton.click();
+    const hoja = page.locator('gems-tap-disenador .gancho');
+    await expect(hoja.getByRole('heading', { level: 2 })).toHaveText('Mis Taps');
+    await expect(hoja.locator('.mios__fila')).toHaveCount(2);
+    await expect(hoja.locator('.mios__fila').nth(0)).toContainText('Tablas del 7');
+    await expect(hoja.locator('.mios__fila').nth(1)).toContainText('Sin nombre');
+    await expect(hoja.locator('.mios__fila').nth(1)).toContainText('En revisión');
+    await expect(hoja.locator('.mios__fila').nth(1).getByRole('button')).toHaveCount(0);
+    await expect(hoja.getByRole('link', { name: 'Abrir' })).toHaveAttribute('href', '/t/u-23456789bc');
+    await hoja.getByRole('button', { name: 'QR' }).click();
+    await expect(hoja.getByRole('img', { name: 'Código QR del enlace del Tap' })).toBeVisible();
+    await expect(hoja.getByRole('button', { name: 'QR' })).toHaveAttribute('aria-expanded', 'true');
+    await hoja.screenshot({ path: 'test-results/mis-taps-375.png' });
+    expect(api.veces(/^\/taps$/, 'GET')).toBe(1);
+    await page.keyboard.press('Escape');
+    await expect(hoja).toBeHidden();
+    await expect(boton).toBeFocused();
+  });
+
+  test('sin sesión no hay «Mis Taps»', async ({ page }) => {
+    await abrir(page, true);
+    await expect(page.locator('#misTaps')).toHaveCount(0);
   });
 
   test('con la bandera apagada /crear queda exactamente como hoy (también con ?editor=1 en producción)', async ({ page }) => {
