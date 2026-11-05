@@ -18,6 +18,7 @@
 // Todo se interpola (~1,5 s) para que los cambios de plano entre preguntas sean un movimiento de cámara y no un salto.
 
 import { POSES, poseFor, blendPose, drawHost, anchorOf, lookOf } from './rig.js';
+import { lookPropio } from './look-propio.js';
 import { paintWorld, paintAmbient, paintClima, paintFauna, GROUND_Y } from './scenery.js';
 
 const makeCanvas = (w, h) => {
@@ -107,7 +108,7 @@ export function createRenderer({ canvas, width, height, theme, reducedMotion = f
       props: spec.props || null, hora: spec.hora || null, clima: spec.clima || null, fauna: spec.fauna || null,
       shot: { x: 0, zoom: 1, flip: false, ...(spec.shot || {}) },
     };
-    look = lookOf(theme.characters?.[scene.host]);
+    look = lookPropio(theme.characters?.[scene.host], spec.look);
     plano = spec.plano || null; variante = 0; cam = goal();                     // lugar nuevo: el plano base, sin viajar
     enter = !reducedMotion && ENTERS[spec.enter] ? spec.enter : null; enterT = 0;
     if (enter === 'saluda') { anim = 'talk'; animT = 0; }

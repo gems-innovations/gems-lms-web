@@ -30,6 +30,14 @@ describe('Taps de usuario (/t/u-…)', () => {
     expect(t.estilo).toEqual({ marco: 'neon' });
   });
 
+  it('el look propio del personaje viaja a la escena; uno con forma rara se ignora (el Tap se juega igual)', () => {
+    const look = { hairStyle: 'rizos', coat: '#336699', glasses: true };
+    expect(tapDeUsuario({ ...publico(), scene: { ...publico().scene, look } }, banco)!.scene.look).toEqual(look);
+    for (const raro of [[1], 'rizos', { coat: 5 }, { coat: null }]) {
+      expect(tapDeUsuario({ ...publico(), scene: { ...publico().scene, look: raro } }, banco)!.scene.look).withContext(JSON.stringify(raro)).toBeUndefined();
+    }
+  });
+
   it('descarta formas raras en vez de jugar algo a medias', () => {
     expect(tapDeUsuario(null, banco)).toBeNull();
     expect(tapDeUsuario({ ...publico(), id: 'napoleon' }, banco)).toBeNull();

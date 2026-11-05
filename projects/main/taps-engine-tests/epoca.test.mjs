@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { CATALOGO, POSES, drawHost, lookOf, poseFor, validarLook } from '../public/taps-engine/themes/epoca/rig.js';
+import { lookPropio } from '../public/taps-engine/themes/epoca/look-propio.js';
 import { WORLD_NAMES, paintWorld } from '../public/taps-engine/themes/epoca/scenery.js';
 
 const theme = JSON.parse(readFileSync(new URL('../public/taps-engine/themes/epoca/theme.json', import.meta.url), 'utf8'));
@@ -42,4 +43,11 @@ test('época: se pintan los escenarios y se dibuja cada pieza del catálogo con 
     assert.ok(c.calls.n > 20, `${campo}=${v}`);
   }
   for (const pose of Object.keys(POSES)) { const c = ctx(); drawHost(c, 135, 200, 0.7, poseFor(pose, 0.4, 1), lookOf({}), { blink: true }); assert.ok(c.calls.n > 20, pose); }
+});
+
+test('época: lookPropio pone el look del creador encima del personaje; si no vale, se queda el de siempre', () => {
+  const ch = { look: { hairStyle: 'corto', coat: '#112233' } };
+  const l = lookPropio(ch, { hairStyle: 'rizos', glasses: true });
+  assert.equal(l.hairStyle, 'rizos'); assert.equal(l.coat, '#112233'); assert.equal(l.glasses, true);
+  for (const raro of [null, 'rizos', [1], { hat: 'sombrerito' }, { coat: 'rojo' }, { alas: true }]) assert.deepEqual(lookPropio(ch, raro), lookOf(ch), JSON.stringify(raro));
 });

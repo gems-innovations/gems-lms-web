@@ -99,7 +99,17 @@ test('borrador local: ida y vuelta, versionado y a prueba de datos rotos', () =>
   assert.equal(raro.preguntas.length, 5, 'tope de 5 y se descartan nulos'); assert.equal(raro.preguntas[0].tipo, 'clasica'); assert.equal(raro.preguntas[0].answer, -1);
   assert.deepEqual(raro.resultados, RESULTADOS_DEFECTO); assert.equal(raro.actual, 4);
   assert.equal(leerEstado(JSON.stringify({ v: 1, preguntas: [{ q: 'x'.repeat(9999) }] })).preguntas[0].q.length, 400, 'sin textos descomunales');
-  assert.deepEqual(Object.keys(JSON.parse(serializarEstado(estadoNuevo()))).sort(), ['actual', 'preguntas', 'resultados', 'v']);
+  assert.deepEqual(Object.keys(JSON.parse(serializarEstado(estadoNuevo()))).sort(), ['actual', 'preguntas', 'resultados', 'titulo', 'v']);
+  est.titulo = 'Mi reto de tablas'; assert.equal(leerEstado(serializarEstado(est)).titulo, 'Mi reto de tablas', 'el nombre del Tap vuelve');
+  assert.equal(leerEstado(JSON.stringify({ v: 1, titulo: 'x'.repeat(99), preguntas: [buena()] })).titulo.length, 40, 'nombre con tope');
+  assert.equal(leerEstado(JSON.stringify({ v: 1, preguntas: [buena()] })).titulo, '', 'borradores viejos sin nombre');
+});
+
+test('paraPublicar: el nombre del Tap viaja solo si se escribió', () => {
+  const est = { v: 1, preguntas: Array.from({ length: 5 }, buena), resultados: structuredClone(RESULTADOS_DEFECTO), actual: 0 };
+  assert.equal('title' in paraPublicar(est), false, 'vacío: el diseñador pone «Reto de <nombre>»');
+  assert.equal(paraPublicar({ ...est, titulo: '   ' }).title, undefined);
+  assert.equal(paraPublicar({ ...est, titulo: '  Tablas del 7 ' }).title, 'Tablas del 7');
 });
 
 test('jugables y vista: solo lo que se puede jugar; la vista rellena huecos', () => {

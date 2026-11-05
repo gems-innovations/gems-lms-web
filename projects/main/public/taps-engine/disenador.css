@@ -395,6 +395,7 @@
 .dsn .avisos { margin: 0; padding-left: 18px; font-size: 13px; color: #e8b86a; display: grid; gap: 4px; }
 .dsn .avisos:empty { display: none; }
 .dsn .aviso-pegado { background: var(--panel); border: 1px solid #e8b86a; border-radius: var(--radio); padding: 10px 12px; display: grid; gap: 6px; font-size: 13px; }
+.dsn .aviso-pegado[hidden] { display: none; }
 .dsn .aviso-pegado p { margin: 0; font-weight: 600; }
 .dsn .niveles { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
 .dsn .nivel { display: grid; gap: 6px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radio-carta); }
@@ -444,7 +445,7 @@
 /* Paso «Decora» (interno 5): la vista grande es el Tap decorado; el personaje y sus controles se apartan (siguen midiendo). */
 .dsn.en-decora .vista { background: radial-gradient(circle at 50% 40%, #2a2640, #0f0e17 75%); }
 .dsn.en-decora #lienzo, .dsn.en-decora .bocadillo, .dsn.en-decora .comparar, .dsn.en-decora .etiqueta, .dsn.en-decora .pista, .dsn.en-decora .inversion { visibility: hidden; }
-.dsn.en-decora #deshacer, .dsn.en-decora .sugerencia { display: none; }
+.dsn.en-decora .sugerencia { display: none; }
 .dsn .tap-grande { position: absolute; top: 8px; bottom: 8px; left: 50%; transform: translateX(-50%); aspect-ratio: 9 / 16; max-width: calc(100% - 16px); z-index: 1; }
 .dsn .tap-grande[hidden] { display: none; }
 .dsn .tap-grande canvas { display: block; width: 100%; height: 100%; border-radius: 18px; background: #15131f; box-shadow: 0 10px 28px rgba(0, 0, 0, .45); touch-action: none; }
@@ -460,4 +461,6 @@
 .dsn .marco-mini[data-marco]::after { padding: 2px; }
 .dsn .fondo-mini { flex: none; width: 22px; height: 22px; border-radius: 5px; border: 1px solid var(--line); }
 .dsn .enlace-decora { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 8px auto 0; min-height: 40px; padding: 6px 14px; font-size: 13px; color: var(--soft); background: transparent; border-color: transparent; }
-.dsn .enlace-decora:hover { color: var(--txt); }
+.dsn .enlace-decora:hover { color: var(--txt); }.dsn .capa-herr { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 3; display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(15, 14, 23, .88); border: 1px solid var(--line); }
+.dsn .capa-herr[hidden] { display: none; }
+.dsn .capa-herr button { width: 40px; height: 40px; min-height: 0; padding: 0; border-radius: 50%; display: grid; place-items: center; }

@@ -8,7 +8,7 @@
 /** Clave versionada del borrador de preguntas (junto a las taps.disenador.* del diseñador). */
 export const CLAVE_PREGUNTAS = 'taps.disenador.preguntas.v1';
 /** Límites reales del banco (taps.types.ts, generar-taps.mjs y el validador del payload, pr10-plan-tecnico.md §2). */
-export const LIM = Object.freeze({ q: 120, qIdeal: 70, opcion: 22, why: 90, preguntas: 5, titulo: 40, linea: 90, deshacer: 30 });
+export const LIM = Object.freeze({ q: 120, qIdeal: 70, opcion: 22, why: 90, preguntas: 5, titulo: 40, tituloTap: 40, linea: 90, deshacer: 30 });
 export const TIPOS = Object.freeze({ clasica: 'Clásica', duo: 'Dos opciones', vf: 'Verdadero o falso' });
 export const VF = Object.freeze(['Verdadero', 'Falso']);
 const N_OPCIONES = Object.freeze({ clasica: 4, duo: 2, vf: 2 });
@@ -110,6 +110,7 @@ export function preguntasJugables(est) {
 export function paraPublicar(est) {
   if (!est || !resumenEstado(est).cinco || !validarResultados(est.resultados).ok) return null;
   return {
+    ...(est.titulo?.trim() ? { title: est.titulo.trim() } : {}),
     questions: est.preguntas.map(p => ({ q: p.q.trim(), options: p.options.map(o => o.trim()), answer: p.answer, why: p.why.trim(), tipo: p.tipo })),
     results: est.resultados.map(r => ({ min: r.min, title: r.title.trim(), line: r.line.trim() })),
   };
@@ -231,10 +232,10 @@ export function leerEstado(raw) {
     const preguntas = o.preguntas.map(preguntaLimpia).filter(Boolean).slice(0, LIM.preguntas);
     if (!preguntas.length) return null;
     const res = Array.isArray(o.resultados) && o.resultados.length >= 3 && o.resultados.length <= 5 ? o.resultados.map((r, i) => ({ min: Number.isInteger(r?.min) ? r.min : i, title: texto(r?.title, 80), line: texto(r?.line, 200) })) : clonar(RESULTADOS_DEFECTO);
-    return { v: 1, preguntas, resultados: res, actual: Number.isInteger(o.actual) ? Math.max(0, Math.min(preguntas.length - 1, o.actual)) : 0 };
+    return { v: 1, titulo: texto(o.titulo, LIM.tituloTap), preguntas, resultados: res, actual: Number.isInteger(o.actual) ? Math.max(0, Math.min(preguntas.length - 1, o.actual)) : 0 };
   } catch { return null; }
 }
-export const serializarEstado = est => JSON.stringify({ v: 1, preguntas: est.preguntas, resultados: est.resultados, actual: est.actual });
+export const serializarEstado = est => JSON.stringify({ v: 1, titulo: est.titulo ?? '', preguntas: est.preguntas, resultados: est.resultados, actual: est.actual });
 
 // ───────────────────────── interfaz ─────────────────────────
 const SVG = 'http://www.w3.org/2000/svg';
@@ -276,7 +277,7 @@ export function montarEditor(contenedor, { almacen, pintar, alCambiar, esperar =
     }, 350);
     if (refs.guardado) refs.guardado.textContent = '';
   };
-  const avisar = () => { try { alCambiar?.(est ? preguntasJugables(est) : []); } catch { /* quien monta decide */ } };
+  const avisar = () => { try { alCambiar?.(est ? preguntasJugables(est) : [], est?.titulo?.trim() ?? ''); } catch { /* quien monta decide */ } };
   /** Apila la foto confirmada antes del cambio actual (una vez por «tanda» de escritura o por acción). */
   const confirmar = () => {
     const ahora = serializarEstado(est);
@@ -372,6 +373,13 @@ export function montarEditor(contenedor, { almacen, pintar, alCambiar, esperar =
         h('button', { type: 'button', class: 'primario', onclick: () => { vista = 'editar'; dibujar(); enfocar('.chip[aria-current="true"]'); } }, 'Volver a las preguntas')));
   }
 
+  /** «Nombre del Tap»: opcional; vacío, el Tap se publica como «Reto de <nombre>». */
+  function campoTitulo() {
+    const i = h('input', { id: 'tituloTap', maxlength: LIM.tituloTap, autocomplete: 'off', placeholder: 'Si lo dejas vacío: «Reto de» y tu personaje', oninput: e => { est.titulo = e.target.value; guardar(); avisar(); pintarVista(); }, onchange: confirmar });
+    i.value = est.titulo ?? '';
+    return h('div', { class: 'campo' }, h('label', { for: 'tituloTap', text: 'Nombre del Tap' }), i);
+  }
+
   function vistaEditar() {
     const p = est.preguntas[est.actual], idx = est.actual;
     // chips 1-5
@@ -416,6 +424,7 @@ export function montarEditor(contenedor, { almacen, pintar, alCambiar, esperar =
     const ultima = idx === est.preguntas.length - 1;
     return h('div', { class: 'pre pre--editar', onkeydown: teclas },
       h('div', { class: 'pre__cab' }, chips, h('span', { class: 'resumen', id: 'resumenEstado', 'aria-live': 'off' })),
+      campoTitulo(),
       refs.cajaAvisos,
       tipos,
       h('div', { class: 'campo' }, h('label', { for: 'preguntaTexto', text: `Pregunta ${idx + 1}` }), q, h('div', { class: 'pie' }, refs.msgQ, cq.el, cq.vivo)),
@@ -475,5 +484,6 @@ export function montarEditor(contenedor, { almacen, pintar, alCambiar, esperar =
     destruir() { clearTimeout(temporizadorGuardado); clearTimeout(temporizadorVista); observador?.disconnect(); if (est && almacen?.disponible) almacen.escribir(CLAVE_PREGUNTAS, serializarEstado(est)); contenedor.replaceChildren(); },
     get hayPreguntas() { return !!est; },
     get publicable() { return paraPublicar(est); },
+    get titulo() { return est?.titulo?.trim() ?? ''; },
   };
 }

@@ -74,6 +74,8 @@ export interface ITapScene {
   world: string;
   host: string;
   item?: string;
+  /** Look propio del personaje (Taps de creadores, tema «epoca»); el tema lo valida con su catálogo y si no vale usa el de siempre. */
+  look?: Record<string, string | boolean>;
   /** Encuadre (theme.json → shots): 'izquierda', 'derecha', 'cerca-izquierda', 'cerca-derecha', 'lejos' o 'centro'. */
   shot?: string;
   /** Cómo entra el personaje al llegar a este Tap (theme.json → enters). */
